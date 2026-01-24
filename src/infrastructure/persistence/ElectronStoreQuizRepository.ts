@@ -133,7 +133,7 @@ export class ElectronStoreQuizRepository implements IQuizRepository {
     if (!this.defaultSet) {
       try {
         this.initializeDefaultSet()
-      } catch (error) {
+      } catch (_error) {
         throw new Error('Failed to load default quiz set. The application may need to be reinstalled.')
       }
     }

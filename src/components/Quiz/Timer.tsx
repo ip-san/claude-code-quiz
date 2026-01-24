@@ -16,6 +16,9 @@ export function Timer() {
 
   const timeRemaining = sessionState?.timeRemaining ?? null
 
+  // タイマーが停止しているかどうか（null または 0以下）
+  const isTimerStopped = timeRemaining === null || timeRemaining <= 0
+
   // Stable callback for timer update
   const tick = useCallback(() => {
     updateTimer()
@@ -24,7 +27,7 @@ export function Timer() {
   // Set up interval only once when timer starts
   useEffect(() => {
     // Don't run if no time limit or already finished
-    if (timeRemaining === null || timeRemaining <= 0) {
+    if (isTimerStopped) {
       if (intervalRef.current) {
         clearInterval(intervalRef.current)
         intervalRef.current = null
@@ -43,7 +46,7 @@ export function Timer() {
         intervalRef.current = null
       }
     }
-  }, [timeRemaining === null || timeRemaining <= 0, tick])
+  }, [isTimerStopped, tick])
 
   if (timeRemaining === null) return null
 
