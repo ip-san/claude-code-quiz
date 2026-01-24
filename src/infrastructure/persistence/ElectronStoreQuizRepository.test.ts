@@ -95,8 +95,8 @@ describe('ElectronStoreQuizRepository', () => {
 
       it('複数回インポートすると複数のセットが保存される', async () => {
         await repository.importFromJson(JSON.stringify(VALID_FIXTURES.minimal))
-        // IDがタイムスタンプベースのため、1ms待機して異なるIDを生成
-        await new Promise(resolve => setTimeout(resolve, 1))
+        // IDがタイムスタンプベースのため、十分な時間待機して異なるIDを生成
+        await new Promise(resolve => setTimeout(resolve, 10))
         await repository.importFromJson(JSON.stringify(VALID_FIXTURES.full))
 
         const userSets = await repository.getUserSets()
