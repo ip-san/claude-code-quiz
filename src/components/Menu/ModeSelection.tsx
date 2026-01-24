@@ -86,17 +86,11 @@ export function ModeSelection() {
   }
 
   const handleImportQuizzes = async () => {
-    console.log('handleImportQuizzes called')
-    console.log('window.electronAPI:', window.electronAPI)
     try {
       if (!window.electronAPI) {
-        console.error('electronAPI is not available')
-        alert('electronAPI is not available - preload script may not be working')
         return
       }
-      console.log('Calling importQuizFile...')
       const result = await window.electronAPI.importQuizFile()
-      console.log('importQuizFile result:', result)
       if (result.success && result.data) {
         const success = await importQuizzes(result.data)
         if (!success) {

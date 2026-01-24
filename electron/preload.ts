@@ -1,7 +1,5 @@
 import { contextBridge, ipcRenderer } from 'electron'
 
-console.log('Preload script is running!')
-
 /**
  * Secure API exposed to the renderer process via contextBridge.
  * All Node.js/Electron APIs are accessed through this interface only.
