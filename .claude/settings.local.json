@@ -6,7 +6,9 @@
       "Bash(npm run build:*)",
       "Bash(npm test)",
       "Bash(git add:*)",
-      "Bash(git commit -m \"$\\(cat <<''EOF''\nAdd generate-quiz-data skill and CLAUDE.md\n\n- Add custom skill for auto-generating quiz questions from official docs\n  - Placed in .claude/skills/generate-quiz-data/SKILL.md \\(correct format\\)\n  - YAML frontmatter with name, description, allowed-tools\n  - Maps to existing 8 categories with proper ratios\n- Add CLAUDE.md project memory file\n  - Project overview and architecture documentation\n  - Custom skill usage instructions\n  - Category reference table\n\nCo-Authored-By: Claude Opus 4.5 <noreply@anthropic.com>\nEOF\n\\)\")"
+      "Bash(git commit -m \"$\\(cat <<''EOF''\nAdd generate-quiz-data skill and CLAUDE.md\n\n- Add custom skill for auto-generating quiz questions from official docs\n  - Placed in .claude/skills/generate-quiz-data/SKILL.md \\(correct format\\)\n  - YAML frontmatter with name, description, allowed-tools\n  - Maps to existing 8 categories with proper ratios\n- Add CLAUDE.md project memory file\n  - Project overview and architecture documentation\n  - Custom skill usage instructions\n  - Category reference table\n\nCo-Authored-By: Claude Opus 4.5 <noreply@anthropic.com>\nEOF\n\\)\")",
+      "Bash(git push)",
+      "Bash(git commit:*)"
     ]
   }
 }

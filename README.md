@@ -162,12 +162,14 @@ src/data/
 ```typescript
 export const PREDEFINED_CATEGORIES: Category[] = [
   // 既存のカテゴリ...
-  {
+  Category.create({
     id: 'newcategory',
     name: '新カテゴリ',
+    description: 'カテゴリの説明',
     icon: '🆕',
     color: 'purple',
-  },
+    weight: 10,
+  }),
 ]
 ```
 
@@ -213,13 +215,13 @@ export const PREDEFINED_CATEGORIES: Category[] = [
 ```
 src/
 ├── domain/              # ドメイン層（ビジネスロジックの中心）
-│   ├── entities/        # エンティティ（Question, UserProgress）
+│   ├── entities/        # エンティティ（Question, UserProgress, QuizSet）
 │   ├── valueObjects/    # 値オブジェクト（Category, Difficulty, QuizMode）
-│   └── services/        # ドメインサービス（QuizSessionService）
-├── application/         # アプリケーション層（ユースケース）
-│   └── useCases/        # ユースケース（StartQuizSession, AnswerQuestion等）
+│   ├── services/        # ドメインサービス（QuizSessionService）
+│   └── repositories/    # リポジトリインターフェース
 ├── infrastructure/      # インフラ層（外部システムとの接続）
-│   └── persistence/     # 永続化（LocalStorageProgressRepository）
+│   ├── persistence/     # 永続化（LocalStorageProgressRepository）
+│   └── validation/      # バリデーション（QuizValidator）
 ├── stores/              # 状態管理（Zustand）
 ├── components/          # UIコンポーネント
 └── data/                # クイズデータ（JSON）
@@ -228,9 +230,8 @@ src/
 ### レイヤー間の依存関係
 
 - **Domain層**: 他の層に依存しない純粋なビジネスロジック
-- **Application層**: Domain層に依存、Infrastructure層を抽象化して利用
 - **Infrastructure層**: Domain層のインターフェースを実装
-- **UI層**: Application層のユースケースを通じてドメインにアクセス
+- **UI層**: Zustand Storeを通じてドメインにアクセス
 
 ## テスト
 
@@ -250,6 +251,19 @@ npm run test:coverage
 - ドメインサービス（QuizSessionService）
 - アプリケーションユースケース
 - インフラストラクチャ（リポジトリ）
+
+## カスタムスキル
+
+### /generate-quiz-data
+
+公式ドキュメントを読み込み、クイズ問題を自動生成するClaude Codeスキルです。
+
+```bash
+/generate-quiz-data        # 16問のサンプルを生成
+/generate-quiz-data 100    # 100問を生成
+```
+
+詳細は `.claude/skills/generate-quiz-data/SKILL.md` を参照。
 
 ## ライセンス
 
