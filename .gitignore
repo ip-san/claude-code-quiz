@@ -29,5 +29,8 @@ npm-debug.log*
 *.tsbuildinfo
 dist-electron-types/
 
+# Test coverage
+coverage/
+
 # Claude Code local settings
 .claude/settings.local.json
