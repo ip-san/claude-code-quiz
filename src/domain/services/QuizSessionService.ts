@@ -1,23 +1,58 @@
+/**
+ * QuizSessionService - クイズセッション管理のドメインサービス
+ *
+ * 【ドメインサービスとは】
+ * DDD において、特定のエンティティに属さないビジネスロジックを
+ * カプセル化するもの。クイズセッションの管理は Question や
+ * UserProgress 単体の責務ではないため、サービスとして実装。
+ *
+ * 【設計原則：ステートレス】
+ * このサービスはすべてのメソッドが static。
+ * 状態を持たず、純粋な関数として動作する。
+ *
+ * 【なぜ状態を持たないのか】
+ * - テストが容易（モックやセットアップ不要）
+ * - 予測可能（同じ入力には同じ出力）
+ * - スレッドセーフ（状態の競合がない）
+ *
+ * 【状態管理との役割分担】
+ * - QuizSessionService: ビジネスロジック（問題選定、回答判定等）
+ * - quizStore (Zustand): 状態の保持と UI への通知
+ *
+ * 状態の変更はすべて新しいオブジェクトを返すことで行う（不変更新）。
+ */
+
 import { Question } from '../entities/Question'
 import { UserProgress } from '../entities/UserProgress'
 import type { QuizModeId } from '../valueObjects/QuizMode'
 import type { DifficultyLevel } from '../valueObjects/Difficulty'
 
 /**
- * QuizSessionConfig - Configuration for a quiz session
+ * セッション設定
+ *
+ * クイズセッションの開始時に指定されるパラメータ。
  */
 export interface QuizSessionConfig {
   readonly mode: QuizModeId
   readonly categoryFilter: string | null
   readonly difficultyFilter: DifficultyLevel | null
-  readonly questionCount: number | null
-  readonly timeLimit: number | null
+  readonly questionCount: number | null   // null = 全問
+  readonly timeLimit: number | null       // null = 時間無制限（分単位）
   readonly shuffleQuestions: boolean
   readonly shuffleOptions: boolean
 }
 
 /**
- * QuizSessionState - Current state of a quiz session
+ * セッション状態
+ *
+ * 【不変性】
+ * この状態オブジェクトは不変。
+ * 状態を変更する場合は新しいオブジェクトを作成する。
+ *
+ * 【なぜ不変にするか】
+ * - React の変更検知が確実に動作
+ * - 状態の履歴を追跡可能（デバッグ時に有用）
+ * - 意図しない変更を防止
  */
 export interface QuizSessionState {
   readonly config: QuizSessionConfig
@@ -30,16 +65,23 @@ export interface QuizSessionState {
   readonly answeredCount: number
   readonly isCompleted: boolean
   readonly startedAt: number | null
-  readonly timeRemaining: number | null
+  readonly timeRemaining: number | null   // 秒単位
 }
 
 /**
- * QuizSessionService
- * Domain service for managing quiz sessions
+ * クイズセッション管理サービス
  */
 export class QuizSessionService {
   /**
-   * Shuffle an array using Fisher-Yates algorithm
+   * Fisher-Yates シャッフルアルゴリズム
+   *
+   * 【なぜ Fisher-Yates か】
+   * - O(n) の計算量
+   * - 均一な分布を保証
+   * - シンプルで理解しやすい
+   *
+   * 【注意】
+   * 元の配列を変更せず、新しい配列を返す。
    */
   static shuffleArray<T>(array: T[]): T[] {
     const shuffled = [...array]
@@ -51,7 +93,19 @@ export class QuizSessionService {
   }
 
   /**
-   * Prepare questions for a session based on config
+   * セッション用の問題リストを準備
+   *
+   * 【処理フロー】
+   * 1. カテゴリでフィルタ
+   * 2. 難易度でフィルタ
+   * 3. モードに応じた問題選択（苦手モードなど）
+   * 4. シャッフル（設定に応じて）
+   * 5. 問題数の制限
+   *
+   * 【苦手モード（weak）の挙動】
+   * 1. まず苦手問題（正答率 < weakThreshold）を抽出
+   * 2. 苦手問題がなければ未回答問題にフォールバック
+   * 3. 未回答問題もなければ全問題を使用
    */
   static prepareSessionQuestions(
     allQuestions: Question[],
@@ -106,7 +160,7 @@ export class QuizSessionService {
   }
 
   /**
-   * Create initial session state
+   * セッションの初期状態を作成
    */
   static createInitialState(
     questions: Question[],
@@ -128,7 +182,7 @@ export class QuizSessionService {
   }
 
   /**
-   * Create default session config
+   * デフォルト設定を作成
    */
   static createDefaultConfig(): QuizSessionConfig {
     return {
@@ -143,7 +197,9 @@ export class QuizSessionService {
   }
 
   /**
-   * Update session state after selecting an answer
+   * 回答を選択
+   *
+   * すでに回答済みの場合は何もしない。
    */
   static selectAnswer(
     state: QuizSessionState,
@@ -159,7 +215,13 @@ export class QuizSessionService {
   }
 
   /**
-   * Update session state after submitting an answer
+   * 回答を確定
+   *
+   * 【戻り値】
+   * - newState: 更新された状態
+   * - isCorrect: 正解だったかどうか
+   *
+   * 選択されていない場合や、すでに回答済みの場合は null を返す。
    */
   static submitAnswer(state: QuizSessionState): {
     newState: QuizSessionState
@@ -188,7 +250,9 @@ export class QuizSessionService {
   }
 
   /**
-   * Move to the next question
+   * 次の問題へ進む
+   *
+   * 最後の問題だった場合は isCompleted: true を設定。
    */
   static nextQuestion(state: QuizSessionState): QuizSessionState {
     const nextIndex = state.currentIndex + 1
@@ -210,7 +274,9 @@ export class QuizSessionService {
   }
 
   /**
-   * Update timer
+   * タイマーを更新（1秒減算）
+   *
+   * 時間切れになった場合は isCompleted: true を設定。
    */
   static updateTimer(state: QuizSessionState): QuizSessionState {
     if (state.timeRemaining === null || state.timeRemaining <= 0) {
@@ -234,14 +300,14 @@ export class QuizSessionService {
   }
 
   /**
-   * Get current question
+   * 現在の問題を取得
    */
   static getCurrentQuestion(state: QuizSessionState): Question | null {
     return state.questions[state.currentIndex] ?? null
   }
 
   /**
-   * Get progress info
+   * 進捗情報を取得
    */
   static getProgress(state: QuizSessionState): { current: number; total: number } {
     return {
@@ -251,7 +317,7 @@ export class QuizSessionService {
   }
 
   /**
-   * Calculate final score percentage
+   * スコアをパーセンテージで計算
    */
   static calculateScorePercentage(state: QuizSessionState): number {
     if (state.answeredCount === 0) return 0
@@ -259,7 +325,7 @@ export class QuizSessionService {
   }
 
   /**
-   * Check if passed (based on passing score)
+   * 合格判定
    */
   static hasPassed(state: QuizSessionState, passingScore: number = 70): boolean {
     return this.calculateScorePercentage(state) >= passingScore

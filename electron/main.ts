@@ -1,17 +1,61 @@
+/**
+ * Electron Main Process
+ *
+ * 【このファイルの役割】
+ * - BrowserWindow の作成と管理
+ * - IPC ハンドラーの定義（Renderer プロセスとの通信）
+ * - セキュリティ設定
+ *
+ * 【アーキテクチャ】
+ * Main Process (このファイル) <-- IPC --> Preload Script <-- contextBridge --> Renderer Process
+ *
+ * 【セキュリティ方針】
+ * Electron のセキュリティベストプラクティスに従い、以下を実装：
+ * - nodeIntegration: false（Renderer で Node.js API を直接使用不可）
+ * - contextIsolation: true（Preload と Renderer のコンテキストを分離）
+ * - sandbox: true（Renderer プロセスをサンドボックス化）
+ * - HTTPS のみ外部 URL を開く
+ * - 新規ウィンドウの作成を禁止
+ */
+
 import { app, BrowserWindow, ipcMain, dialog, shell, clipboard } from 'electron'
 import { readFile, writeFile } from 'fs/promises'
 import { join, dirname } from 'path'
 import { fileURLToPath } from 'url'
 
-// ESM compatibility: Define __dirname equivalent
+/**
+ * 【ESM 互換性のための __dirname 定義】
+ *
+ * package.json に "type": "module" があるため、このファイルは ESM として扱われる。
+ * ESM では __dirname が存在しないため、import.meta.url から導出する。
+ *
+ * 【なぜ ESM を使うのか】
+ * - Vite が ESM を前提としている
+ * - 最新の JavaScript 機能（top-level await 等）が使える
+ * - Tree-shaking が効きやすい
+ */
 const __filename = fileURLToPath(import.meta.url)
 const __dirname = dirname(__filename)
 
-// Security: Disable hardware acceleration for better security
+/**
+ * 【ハードウェアアクセラレーション無効化】
+ *
+ * GPU 関連の問題を回避するため。
+ * 特に仮想環境や特定の GPU ドライバーでクラッシュすることがある。
+ * クイズアプリでは高度なグラフィックス処理は不要なため、無効化しても問題ない。
+ */
 app.disableHardwareAcceleration()
 
 let mainWindow: BrowserWindow | null = null
 
+/**
+ * 開発/本番環境の判定
+ *
+ * 【判定ロジック】
+ * - NODE_ENV が 'production' でない、または
+ * - app.isPackaged が false（ビルドされていない状態）
+ * の場合は開発モードとみなす
+ */
 const isDev = process.env.NODE_ENV !== 'production' || !app.isPackaged
 
 function createWindow(): void {
@@ -21,42 +65,76 @@ function createWindow(): void {
     minWidth: 800,
     minHeight: 600,
     webPreferences: {
+      /**
+       * 【重要】preload.cjs を指定
+       *
+       * .cjs 拡張子である理由は vite.config.ts のコメントを参照。
+       * package.json の "type": "module" との競合を避けるため。
+       */
       preload: join(__dirname, 'preload.cjs'),
-      // Security best practices
+
+      /**
+       * 【セキュリティ設定】
+       *
+       * nodeIntegration: false
+       *   - Renderer プロセスで require() や Node.js API を使用不可にする
+       *   - XSS 攻撃があっても Node.js API にアクセスできない
+       *
+       * contextIsolation: true
+       *   - Preload スクリプトと Renderer のグローバルオブジェクトを分離
+       *   - window.electronAPI 経由でのみ通信可能
+       *
+       * sandbox: true
+       *   - Renderer プロセスを Chromium のサンドボックス内で実行
+       *   - ファイルシステムやプロセスへのアクセスを制限
+       *
+       * webSecurity: true
+       *   - 同一オリジンポリシーを有効化
+       *   - CORS 違反を防ぐ
+       */
       nodeIntegration: false,
       contextIsolation: true,
       sandbox: true,
       webSecurity: true,
     },
-    backgroundColor: '#FAF9F5',
-    titleBarStyle: 'hiddenInset',
-    autoHideMenuBar: true,
-    show: false,
+    backgroundColor: '#FAF9F5', // Claude ブランドカラー（クリーム系）
+    titleBarStyle: 'hiddenInset', // macOS でタイトルバーを統合
+    autoHideMenuBar: true, // Windows/Linux でメニューバーを自動非表示
+    show: false, // 準備完了まで非表示（ちらつき防止）
   })
 
-  // Graceful window display
+  // ウィンドウ準備完了後に表示（白い画面のちらつきを防ぐ）
   mainWindow.once('ready-to-show', () => {
     mainWindow?.show()
   })
 
-  // Load the app
+  // 開発/本番でロード元を切り替え
   if (isDev) {
-    // Development: Load from Vite dev server
     mainWindow.loadURL('http://localhost:5173')
+    // DevTools を別ウィンドウで開く（デバッグ用）
     mainWindow.webContents.openDevTools({ mode: 'detach' })
   } else {
-    // Production: Load from built files
     mainWindow.loadFile(join(__dirname, '../dist/index.html'))
   }
 
-  // Security: Prevent navigation to external URLs
+  /**
+   * 【セキュリティ】外部 URL へのナビゲーション防止
+   *
+   * 悪意のあるリンクで外部サイトに誘導されることを防ぐ。
+   * 許可するのは開発サーバーとローカルファイルのみ。
+   */
   mainWindow.webContents.on('will-navigate', (event, url) => {
     if (!url.startsWith('http://localhost:5173') && !url.startsWith('file://')) {
       event.preventDefault()
     }
   })
 
-  // Security: Prevent new window creation
+  /**
+   * 【セキュリティ】新規ウィンドウ作成の禁止
+   *
+   * target="_blank" などで新しいウィンドウが開くことを防ぐ。
+   * 外部リンクは shell.openExternal で既定ブラウザで開く。
+   */
   mainWindow.webContents.setWindowOpenHandler(() => {
     return { action: 'deny' }
   })
@@ -66,13 +144,22 @@ function createWindow(): void {
   })
 }
 
+// ============================================================
 // IPC Handlers
+// ============================================================
+// Renderer プロセス（React アプリ）からの呼び出しを処理する
+// Preload スクリプトの window.electronAPI 経由で呼び出される
 
-// Open external URL in default browser (HTTPS only for security)
+/**
+ * 外部 URL をシステムのデフォルトブラウザで開く
+ *
+ * 【セキュリティ】HTTPS のみ許可
+ * HTTP や file:// プロトコルは拒否する。
+ * これにより、悪意のあるローカルファイルへのアクセスを防ぐ。
+ */
 ipcMain.handle('open-external', async (_event, url: string): Promise<boolean> => {
   try {
     const parsedUrl = new URL(url)
-    // Security: Only allow HTTPS URLs
     if (parsedUrl.protocol !== 'https:') {
       console.warn('Blocked non-HTTPS URL:', url)
       return false
@@ -84,7 +171,9 @@ ipcMain.handle('open-external', async (_event, url: string): Promise<boolean> =>
   }
 })
 
-// Copy text to clipboard
+/**
+ * クリップボードにテキストをコピー
+ */
 ipcMain.handle('copy-to-clipboard', async (_event, text: string): Promise<boolean> => {
   try {
     clipboard.writeText(text)
@@ -94,7 +183,15 @@ ipcMain.handle('copy-to-clipboard', async (_event, text: string): Promise<boolea
   }
 })
 
-// Import quiz JSON file
+/**
+ * クイズ JSON ファイルのインポート
+ *
+ * 【フロー】
+ * 1. ファイル選択ダイアログを表示
+ * 2. ユーザーが JSON ファイルを選択
+ * 3. ファイル内容を読み込んで返す
+ * 4. バリデーションは Renderer 側（QuizValidator）で行う
+ */
 ipcMain.handle('import-quiz-file', async (): Promise<{ success: boolean; data?: string; error?: string }> => {
   try {
     if (!mainWindow) {
@@ -118,12 +215,16 @@ ipcMain.handle('import-quiz-file', async (): Promise<{ success: boolean; data?: 
   } catch (error) {
     return {
       success: false,
-      error: error instanceof Error ? error.message : 'Unknown error'
+      error: error instanceof Error ? error.message : 'Unknown error',
     }
   }
 })
 
-// Export progress data to file
+/**
+ * 学習進捗データのエクスポート
+ *
+ * ファイル名にはエクスポート日付を含める。
+ */
 ipcMain.handle('export-progress', async (_event, data: string): Promise<{ success: boolean; error?: string }> => {
   try {
     if (!mainWindow) {
@@ -145,12 +246,14 @@ ipcMain.handle('export-progress', async (_event, data: string): Promise<{ succes
   } catch (error) {
     return {
       success: false,
-      error: error instanceof Error ? error.message : 'Unknown error'
+      error: error instanceof Error ? error.message : 'Unknown error',
     }
   }
 })
 
-// Import progress data from file
+/**
+ * 学習進捗データのインポート
+ */
 ipcMain.handle('import-progress', async (): Promise<{ success: boolean; data?: string; error?: string }> => {
   try {
     if (!mainWindow) {
@@ -174,27 +277,43 @@ ipcMain.handle('import-progress', async (): Promise<{ success: boolean; data?: s
   } catch (error) {
     return {
       success: false,
-      error: error instanceof Error ? error.message : 'Unknown error'
+      error: error instanceof Error ? error.message : 'Unknown error',
     }
   }
 })
 
-// App lifecycle
+// ============================================================
+// App Lifecycle
+// ============================================================
+
 app.whenReady().then(createWindow)
 
+/**
+ * 【macOS 対応】
+ * macOS ではウィンドウを閉じてもアプリは終了しない（Dock に残る）。
+ * Windows/Linux では全ウィンドウを閉じるとアプリを終了する。
+ */
 app.on('window-all-closed', () => {
   if (process.platform !== 'darwin') {
     app.quit()
   }
 })
 
+/**
+ * 【macOS 対応】
+ * Dock アイコンクリック時にウィンドウがなければ再作成する。
+ */
 app.on('activate', () => {
   if (BrowserWindow.getAllWindows().length === 0) {
     createWindow()
   }
 })
 
-// Security: Limit navigation
+/**
+ * 【セキュリティ】全 WebContents に対するナビゲーション制限
+ *
+ * 新しく作成される WebContents（iframe 等）にも制限を適用する。
+ */
 app.on('web-contents-created', (_event, contents) => {
   contents.on('will-navigate', (event, navigationUrl) => {
     const parsedUrl = new URL(navigationUrl)

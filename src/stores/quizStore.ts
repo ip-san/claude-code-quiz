@@ -1,3 +1,39 @@
+/**
+ * Quiz Store - Zustand による状態管理
+ *
+ * 【このファイルの役割】
+ * アプリケーション全体の状態（State）を管理する。
+ * React コンポーネントは useQuizStore() フックを通じて状態にアクセスする。
+ *
+ * 【なぜ Zustand を選んだのか】
+ * - Redux より軽量でボイラープレートが少ない
+ * - Context API より再レンダリング制御が容易
+ * - TypeScript との相性が良い
+ * - 学習コストが低い
+ *
+ * 【アーキテクチャ：クリーンアーキテクチャとの関係】
+ *
+ * ┌─────────────────────────────────────────────────────────┐
+ * │  Presentation Layer (React Components)                  │
+ * │  └─> useQuizStore() でこのストアにアクセス              │
+ * ├─────────────────────────────────────────────────────────┤
+ * │  Application Layer (このファイル: quizStore.ts)         │
+ * │  └─> Domain Layer と Infrastructure Layer を統合       │
+ * ├─────────────────────────────────────────────────────────┤
+ * │  Domain Layer (entities, services, valueObjects)        │
+ * │  └─> ビジネスロジック（Question, UserProgress 等）      │
+ * ├─────────────────────────────────────────────────────────┤
+ * │  Infrastructure Layer (repositories, validation)        │
+ * │  └─> 永続化、外部システムとの接続                       │
+ * └─────────────────────────────────────────────────────────┘
+ *
+ * 【状態の分類】
+ * 1. View State: 画面遷移の状態（menu, quiz, result, progress）
+ * 2. Domain State: ビジネスデータ（questions, userProgress）
+ * 3. Session State: クイズセッション中の一時的な状態
+ * 4. UI State: ローディング、エラー表示など
+ */
+
 import { create } from 'zustand'
 
 // Domain imports
@@ -23,12 +59,26 @@ import {
 // View State
 // ============================================================
 
+/**
+ * 画面の状態を表す型
+ *
+ * 【状態遷移】
+ * menu ─(startSession)─> quiz ─(complete)─> result ─(endSession)─> menu
+ *   │                                          │
+ *   └────────────(showProgress)────────────> progress
+ */
 type ViewState = 'menu' | 'quiz' | 'result' | 'progress'
 
 // ============================================================
 // Store Interface
 // ============================================================
 
+/**
+ * クイズセット情報
+ *
+ * 複数のクイズセットを管理するための情報。
+ * 'default' は組み込みのクイズ、'user' はインポートされたクイズ。
+ */
 interface QuizSetInfo {
   id: string
   title: string
@@ -37,6 +87,14 @@ interface QuizSetInfo {
   isActive: boolean
 }
 
+/**
+ * ストアのインターフェース定義
+ *
+ * 【設計原則】
+ * - 状態（state）と操作（action）を明確に分離
+ * - getter 関数で派生状態を計算（キャッシュ化はしない）
+ * - 非同期操作は Promise を返す
+ */
 interface QuizStore {
   // View state
   viewState: ViewState
@@ -101,12 +159,20 @@ interface QuizStore {
 // App Configuration
 // ============================================================
 
+/**
+ * アプリケーション設定
+ *
+ * 【設計判断】
+ * - ハードコードせず定数として定義
+ * - 将来的に設定画面で変更可能にできる
+ * - テスト時にモック可能
+ */
 const APP_CONFIG = {
   title: 'Claude Code マスタークイズ',
   version: '2.0.0',
-  passingScore: 70,
-  weakThreshold: 50,
-  minAttemptsForWeak: 1,
+  passingScore: 70,           // 合格点（%）
+  weakThreshold: 50,          // 苦手判定の閾値（%）
+  minAttemptsForWeak: 1,      // 苦手判定に必要な最小回答数
   defaultMode: 'random' as QuizModeId,
 }
 
@@ -114,6 +180,19 @@ const APP_CONFIG = {
 // Store Implementation
 // ============================================================
 
+/**
+ * Zustand ストアの実装
+ *
+ * 【Zustand の使い方】
+ * create<Interface>((set, get) => ({...})) でストアを作成
+ * - set: 状態を更新する関数
+ * - get: 現在の状態を取得する関数
+ *
+ * 【再レンダリングの最適化】
+ * Zustand は使用しているプロパティのみを監視する。
+ * コンポーネントで const { viewState } = useQuizStore() とすると、
+ * viewState が変わった時だけ再レンダリングされる。
+ */
 export const useQuizStore = create<QuizStore>((set, get) => ({
   // Initial state
   viewState: 'menu',
@@ -130,7 +209,18 @@ export const useQuizStore = create<QuizStore>((set, get) => ({
   // View actions
   setViewState: (state) => set({ viewState: state }),
 
-  // Initialization
+  /**
+   * アプリ起動時の初期化
+   *
+   * 【フロー】
+   * 1. Repository からクイズデータをロード
+   * 2. Repository から学習進捗をロード
+   * 3. 状態を更新
+   *
+   * 【エラーハンドリング】
+   * 初期化失敗時も isLoading: false にして UI をブロックしない。
+   * デフォルトデータにフォールバックする。
+   */
   initialize: async () => {
     set({ isLoading: true })
 
@@ -160,13 +250,21 @@ export const useQuizStore = create<QuizStore>((set, get) => ({
     }
   },
 
-  // Session actions
+  /**
+   * クイズセッション開始
+   *
+   * 【設計判断：なぜ QuizSessionService に委譲するか】
+   * ビジネスロジック（問題のシャッフル、苦手問題の抽出等）を
+   * ストアから分離し、テスト可能にするため。
+   * ストアは状態管理に専念し、ロジックは Domain Layer に任せる。
+   */
   startSession: (configOverrides) => {
     const state = get()
     const modeConfig = configOverrides.mode
       ? getQuizModeById(configOverrides.mode)
       : null
 
+    // モード設定をマージ（ユーザー指定 > モードデフォルト > 既存設定）
     const config: QuizSessionConfig = {
       ...state.sessionConfig,
       ...configOverrides,
@@ -184,6 +282,7 @@ export const useQuizStore = create<QuizStore>((set, get) => ({
         modeConfig?.shuffleOptions ?? state.sessionConfig.shuffleOptions,
     }
 
+    // QuizSessionService でセッション用の問題を準備
     const sessionQuestions = QuizSessionService.prepareSessionQuestions(
       state.allQuestions,
       config,
@@ -212,6 +311,18 @@ export const useQuizStore = create<QuizStore>((set, get) => ({
     set({ sessionState: newSessionState })
   },
 
+  /**
+   * 回答を確定する
+   *
+   * 【Optimistic Update パターン】
+   * 1. UI をすぐに更新（ユーザー体験向上）
+   * 2. バックグラウンドで永続化
+   * 3. 永続化失敗時はコンソールにログ（メモリには残っているので次回保存時にリトライ）
+   *
+   * 【なぜ await しないのか】
+   * 保存完了を待つと UI がもたつく。
+   * 進捗はメモリにも保持されているので、次の保存時に含まれる。
+   */
   submitAnswer: () => {
     const state = get()
     if (!state.sessionState) return
@@ -286,7 +397,17 @@ export const useQuizStore = create<QuizStore>((set, get) => ({
     }
   },
 
-  // Data actions
+  /**
+   * クイズデータのインポート
+   *
+   * 【バリデーションの場所】
+   * Repository 内で QuizValidator を使用してバリデーション。
+   * 不正なデータは Repository で弾かれる。
+   *
+   * 【エラーハンドリング】
+   * - バリデーションエラー: importError に設定
+   * - ユーザーがキャンセル: 何もしない
+   */
   importQuizzes: async (jsonString) => {
     try {
       // Clear previous error
@@ -394,7 +515,12 @@ export const useQuizStore = create<QuizStore>((set, get) => ({
     set({ userProgress: UserProgress.empty() })
   },
 
-  // Getters
+  // ============================================================
+  // Getters（派生状態の計算）
+  // ============================================================
+  // 【注意】これらは毎回計算される。
+  // パフォーマンスが問題になる場合は useMemo と組み合わせる。
+
   getCurrentQuestion: () => {
     const state = get()
     if (!state.sessionState) return null

@@ -1,20 +1,72 @@
-import { z } from 'zod'
-
 /**
- * Zod Schemas for Quiz Data Validation
- * Acts as an Anti-Corruption Layer between external data and domain entities
+ * QuizValidator - Zod を使用したデータ検証
+ *
+ * 【このモジュールの役割】
+ * 外部から入力されるデータ（JSON ファイル等）を検証し、
+ * 型安全なオブジェクトに変換する「Anti-Corruption Layer」。
+ *
+ * 【Anti-Corruption Layer とは】
+ * DDD のパターンの一つ。外部システムからのデータが
+ * ドメインモデルを汚染しないよう、境界でデータを検証・変換する。
+ *
+ *   外部 JSON ────▶ QuizValidator ────▶ Domain Entity
+ *   (信頼できない)    (検証・変換)        (型安全)
+ *
+ * 【なぜ Zod を使うのか】
+ * - TypeScript との統合が優れている
+ * - スキーマから型を自動生成できる（z.infer）
+ * - エラーメッセージがわかりやすい
+ * - 軽量で依存が少ない
+ *
+ * 【バリデーションの流れ】
+ * 1. JSON 文字列をパース
+ * 2. Zod スキーマで検証
+ * 3. 成功時: ValidationResult<T> で型付きデータを返す
+ * 4. 失敗時: errors 配列でエラー詳細を返す
  */
 
-// Difficulty schema
+import { z } from 'zod'
+
+// ============================================================
+// Zod Schemas
+// ============================================================
+
+/**
+ * 難易度スキーマ
+ *
+ * 3段階の難易度を定義。
+ * Domain Layer の DifficultyLevel と一致させる。
+ */
 export const DifficultySchema = z.enum(['beginner', 'intermediate', 'advanced'])
 
-// Quiz option schema
+/**
+ * 選択肢スキーマ
+ *
+ * wrongFeedback はオプショナル。
+ * 設定されていると、不正解時に「なぜ間違いか」を表示できる。
+ */
 export const QuizOptionSchema = z.object({
   text: z.string().min(1, 'Option text is required'),
   wrongFeedback: z.string().optional(),
 })
 
-// Quiz item schema
+/**
+ * 問題スキーマ
+ *
+ * 【検証ルール】
+ * - id: 必須、1文字以上
+ * - question: 必須、1文字以上
+ * - options: 2〜6個の選択肢
+ * - correctIndex: 0以上の整数、options の範囲内
+ * - explanation: 必須（正解・不正解に関わらず表示される解説）
+ * - referenceUrl: オプション、有効な URL 形式
+ * - category: 必須（カテゴリ ID）
+ * - difficulty: beginner / intermediate / advanced のいずれか
+ *
+ * 【refine による追加検証】
+ * correctIndex が options.length 未満であることを確認。
+ * これは単純な min/max では表現できないため refine を使用。
+ */
 export const QuizItemSchema = z.object({
   id: z.string().min(1, 'Quiz ID is required'),
   question: z.string().min(1, 'Question is required'),
@@ -34,7 +86,16 @@ export const QuizItemSchema = z.object({
   { message: 'correctIndex must be within options array bounds' }
 )
 
-// Quiz file schema (for import/export)
+/**
+ * クイズファイルスキーマ（インポート/エクスポート用）
+ *
+ * 【対応フォーマット】
+ * 1. オブジェクト形式: { title?, description?, quizzes: [...] }
+ * 2. 配列形式: [...] （validateQuizFile で自動変換）
+ *
+ * title, description, version はすべてオプショナル。
+ * 最低限 quizzes 配列があればインポート可能。
+ */
 export const QuizFileSchema = z.object({
   title: z.string().optional(),
   description: z.string().optional(),
@@ -42,7 +103,12 @@ export const QuizFileSchema = z.object({
   quizzes: z.array(QuizItemSchema).min(1, 'At least one quiz is required'),
 })
 
-// Quiz set storage schema (for electron-store)
+/**
+ * クイズセットストレージスキーマ（内部保存用）
+ *
+ * QuizFileSchema に加えて、メタデータ（id, type, timestamps）を持つ。
+ * localStorage への保存時に使用。
+ */
 export const QuizSetStorageSchema = z.object({
   id: z.string(),
   title: z.string(),
@@ -54,7 +120,13 @@ export const QuizSetStorageSchema = z.object({
   updatedAt: z.number(),
 })
 
-// User progress schemas
+// ============================================================
+// User Progress Schemas
+// ============================================================
+
+/**
+ * 問題進捗スキーマ
+ */
 export const QuestionProgressSchema = z.object({
   questionId: z.string(),
   attempts: z.number().int().min(0),
@@ -63,6 +135,9 @@ export const QuestionProgressSchema = z.object({
   lastCorrect: z.boolean(),
 })
 
+/**
+ * カテゴリ進捗スキーマ
+ */
 export const CategoryProgressSchema = z.object({
   categoryId: z.string(),
   totalQuestions: z.number().int().min(0),
@@ -71,6 +146,11 @@ export const CategoryProgressSchema = z.object({
   accuracy: z.number().min(0).max(100),
 })
 
+/**
+ * ユーザー進捗スキーマ
+ *
+ * 進捗データのインポート/エクスポート時に使用。
+ */
 export const UserProgressSchema = z.object({
   modifiedAt: z.number(),
   questionProgress: z.record(z.string(), QuestionProgressSchema),
@@ -81,14 +161,32 @@ export const UserProgressSchema = z.object({
   lastSessionAt: z.number(),
 })
 
-// Types derived from schemas
+// ============================================================
+// Type Inference
+// ============================================================
+
+/**
+ * スキーマから TypeScript 型を生成
+ *
+ * 【z.infer の利点】
+ * スキーマと型が常に同期される。
+ * スキーマを変更すれば型も自動的に変わる。
+ */
 export type QuizItemData = z.infer<typeof QuizItemSchema>
 export type QuizFileData = z.infer<typeof QuizFileSchema>
 export type QuizSetStorageData = z.infer<typeof QuizSetStorageSchema>
 export type UserProgressData = z.infer<typeof UserProgressSchema>
 
+// ============================================================
+// Validation Functions
+// ============================================================
+
 /**
- * Validation result type
+ * バリデーション結果の型
+ *
+ * 【設計】
+ * success: true の場合は data が必ず存在
+ * success: false の場合は errors が必ず存在
  */
 export interface ValidationResult<T> {
   success: boolean
@@ -97,7 +195,15 @@ export interface ValidationResult<T> {
 }
 
 /**
- * Validate quiz file data
+ * クイズファイルを検証
+ *
+ * 【対応フォーマット】
+ * - オブジェクト形式: { quizzes: [...] }
+ * - 配列形式: [...] → 自動的に { quizzes: [...] } に変換
+ *
+ * 【エラーハンドリング】
+ * - JSON パースエラー: "Invalid JSON format"
+ * - スキーマ検証エラー: パス付きのエラーメッセージ
  */
 export function validateQuizFile(jsonString: string): ValidationResult<QuizFileData> {
   try {
@@ -114,6 +220,7 @@ export function validateQuizFile(jsonString: string): ValidationResult<QuizFileD
       return { success: true, data: result.data }
     }
 
+    // エラーメッセージをパス付きで整形
     const errors = result.error.errors.map(err => {
       const path = err.path.join('.')
       return path ? `${path}: ${err.message}` : err.message
@@ -129,7 +236,9 @@ export function validateQuizFile(jsonString: string): ValidationResult<QuizFileD
 }
 
 /**
- * Validate user progress data
+ * ユーザー進捗データを検証
+ *
+ * 進捗データのインポート時に使用。
  */
 export function validateUserProgress(jsonString: string): ValidationResult<UserProgressData> {
   try {
@@ -155,7 +264,10 @@ export function validateUserProgress(jsonString: string): ValidationResult<UserP
 }
 
 /**
- * Validate quiz set storage data
+ * クイズセットストレージデータを検証
+ *
+ * localStorage からの読み込み時に使用。
+ * JSON 文字列ではなく、パース済みオブジェクトを受け取る。
  */
 export function validateQuizSetStorage(data: unknown): ValidationResult<QuizSetStorageData> {
   const result = QuizSetStorageSchema.safeParse(data)

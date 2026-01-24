@@ -1,6 +1,42 @@
 /**
- * QuestionProgress Value Object
- * Tracks progress for a single question
+ * UserProgress Entity - ユーザーの学習進捗を表すエンティティ
+ *
+ * 【このエンティティの役割】
+ * - 問題ごとの回答履歴（正答率、最終回答日時等）
+ * - カテゴリごとの統計情報
+ * - 連続学習日数（ストリーク）の管理
+ *
+ * 【データ構造】
+ *
+ * UserProgress
+ * ├── questionProgress: { [questionId]: QuestionProgress }
+ * │   └── 各問題の回答履歴
+ * ├── categoryProgress: { [categoryId]: CategoryProgress }
+ * │   └── カテゴリ別の統計
+ * ├── totalAttempts / totalCorrect
+ * │   └── 全体の統計
+ * └── streakDays / lastSessionAt
+ *     └── 連続学習日数
+ *
+ * 【不変性（Immutability）】
+ * Question エンティティと同様、このエンティティも不変。
+ * recordAnswer() は新しい UserProgress インスタンスを返す。
+ *
+ * 【永続化】
+ * localStorage に JSON 形式で保存される。
+ * toJSON() でシリアライズ、create() でデシリアライズ。
+ */
+
+/**
+ * 問題ごとの進捗情報
+ *
+ * 【保持するデータ】
+ * - attempts: 回答回数
+ * - correctCount: 正解回数
+ * - lastAttemptAt: 最終回答日時（Unix timestamp）
+ * - lastCorrect: 最後の回答が正解だったか
+ *
+ * 正答率は correctCount / attempts で計算。
  */
 export interface QuestionProgress {
   readonly questionId: string
@@ -11,20 +47,22 @@ export interface QuestionProgress {
 }
 
 /**
- * CategoryProgress Value Object
- * Tracks progress for a category
+ * カテゴリごとの進捗情報
+ *
+ * 【注意】
+ * totalQuestions は現在使用されていない（将来の拡張用）。
+ * 実際の問題数は QuizSet から取得する。
  */
 export interface CategoryProgress {
   readonly categoryId: string
   readonly totalQuestions: number
   readonly attemptedQuestions: number
   readonly correctAnswers: number
-  readonly accuracy: number
+  readonly accuracy: number  // パーセンテージ（0-100）
 }
 
 /**
- * UserProgress Entity
- * Tracks overall user learning progress
+ * UserProgress のプロパティ型
  */
 export interface UserProgressProps {
   readonly modifiedAt: number
@@ -55,6 +93,11 @@ export class UserProgress {
     this.lastSessionAt = props.lastSessionAt
   }
 
+  /**
+   * ファクトリメソッド
+   *
+   * 既存データからの復元、または初期状態の作成に使用。
+   */
   static create(props: Partial<UserProgressProps> = {}): UserProgress {
     return new UserProgress({
       modifiedAt: props.modifiedAt ?? Date.now(),
@@ -67,12 +110,26 @@ export class UserProgress {
     })
   }
 
+  /**
+   * 空の進捗を作成（新規ユーザー用）
+   */
   static empty(): UserProgress {
     return UserProgress.create()
   }
 
   /**
-   * Record an answer and return updated progress
+   * 回答を記録し、更新された進捗を返す
+   *
+   * 【不変更新パターン】
+   * 既存のオブジェクトを変更せず、新しいオブジェクトを返す。
+   * これにより React の変更検知が確実に動作する。
+   *
+   * 【更新される項目】
+   * 1. questionProgress[questionId] - 該当問題の統計
+   * 2. categoryProgress[categoryId] - 該当カテゴリの統計
+   * 3. totalAttempts / totalCorrect - 全体統計
+   * 4. streakDays - 連続学習日数
+   * 5. lastSessionAt / modifiedAt - タイムスタンプ
    */
   recordAnswer(
     questionId: string,
@@ -128,7 +185,17 @@ export class UserProgress {
   }
 
   /**
-   * Calculate streak based on UTC dates
+   * 連続学習日数を計算
+   *
+   * 【ロジック】
+   * - 初回セッション → 1日
+   * - 同日の2回目以降 → 変化なし
+   * - 前日からの継続 → +1日
+   * - 2日以上空いた → リセット（1日に戻る）
+   *
+   * 【タイムゾーン】
+   * UTC を使用して日付を比較する。
+   * これにより、タイムゾーンの違いによる不整合を防ぐ。
    */
   private calculateNewStreak(now: number): number {
     // Convert timestamp to UTC date number (YYYYMMDD format for reliable comparison)
@@ -168,7 +235,7 @@ export class UserProgress {
   }
 
   /**
-   * Get overall accuracy percentage
+   * 全体の正答率を取得（パーセンテージ）
    */
   getOverallAccuracy(): number {
     if (this.totalAttempts === 0) return 0
@@ -176,7 +243,9 @@ export class UserProgress {
   }
 
   /**
-   * Get accuracy for a specific question
+   * 特定の問題の正答率を取得
+   *
+   * 未回答の場合は null を返す。
    */
   getQuestionAccuracy(questionId: string): number | null {
     const qp = this.questionProgress[questionId]
@@ -185,7 +254,14 @@ export class UserProgress {
   }
 
   /**
-   * Check if a question is considered "weak"
+   * 苦手問題かどうかを判定
+   *
+   * 【判定条件】
+   * 1. minAttempts 回以上回答している
+   * 2. 正答率が threshold% 未満
+   *
+   * 【使用場面】
+   * 「苦手克服モード」で出題する問題を選定する際に使用。
    */
   isWeakQuestion(questionId: string, threshold: number = 50, minAttempts: number = 1): boolean {
     const qp = this.questionProgress[questionId]
@@ -195,13 +271,16 @@ export class UserProgress {
   }
 
   /**
-   * Check if a question has been attempted
+   * 問題に回答したことがあるかを判定
    */
   hasAttempted(questionId: string): boolean {
     const qp = this.questionProgress[questionId]
     return qp !== undefined && qp.attempts > 0
   }
 
+  /**
+   * JSON シリアライズ用
+   */
   toJSON(): UserProgressProps {
     return {
       modifiedAt: this.modifiedAt,

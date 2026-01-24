@@ -1,8 +1,34 @@
+/**
+ * Question Entity - クイズ問題を表すエンティティ
+ *
+ * 【エンティティとは】
+ * DDD におけるエンティティは、識別子（ID）によって区別されるオブジェクト。
+ * 同じ内容でも ID が異なれば別の問題として扱われる。
+ *
+ * 【不変性（Immutability）の設計】
+ * このエンティティは不変（immutable）として設計している。
+ * - すべてのプロパティは readonly
+ * - 配列は Object.freeze() で凍結
+ * - 変更が必要な場合は新しいインスタンスを作成
+ *
+ * 【なぜ不変にするのか】
+ * - 予期しない状態変更を防ぐ
+ * - React の再レンダリング判定（===）と相性が良い
+ * - デバッグが容易（状態の履歴が追跡しやすい）
+ *
+ * 【ファクトリパターン】
+ * - private constructor: 直接 new できない
+ * - Question.create(): バリデーション付きで作成
+ * - Question.fromData(): 外部データから安全に作成（例外を投げない）
+ */
+
 import type { DifficultyLevel } from '../valueObjects/Difficulty'
 
 /**
- * QuizOption Value Object
- * Represents an answer option for a question
+ * 選択肢の値オブジェクト
+ *
+ * wrongFeedback は間違った選択肢を選んだときのフィードバック。
+ * なぜその選択肢が間違いなのかを説明する。
  */
 export interface QuizOption {
   readonly text: string
@@ -10,8 +36,10 @@ export interface QuizOption {
 }
 
 /**
- * Question Entity
- * Core domain entity representing a quiz question
+ * Question のプロパティ型
+ *
+ * 外部からの入力データ型として使用される。
+ * Question.create() の引数として渡される。
  */
 export interface QuestionProps {
   readonly id: string
@@ -38,6 +66,11 @@ export class Question {
   readonly difficulty: DifficultyLevel
   readonly tags: readonly string[]
 
+  /**
+   * Private constructor - 外部から直接 new できない
+   *
+   * これにより、バリデーションを経ずにインスタンスを作成することを防ぐ。
+   */
   private constructor(props: QuestionProps) {
     this.id = props.id
     this.question = props.question
@@ -51,6 +84,19 @@ export class Question {
     this.tags = Object.freeze(props.tags ?? [])
   }
 
+  /**
+   * ファクトリメソッド - バリデーション付きで Question を作成
+   *
+   * 【バリデーションルール】
+   * - ID: 必須、空文字不可
+   * - question: 必須、空文字不可
+   * - options: 2〜6個
+   * - correctIndex: options の範囲内
+   * - explanation: 必須
+   * - referenceUrl: 指定時は有効な URL 形式
+   *
+   * バリデーション失敗時は例外を投げる。
+   */
   static create(props: QuestionProps): Question {
     // Validation
     if (!props.id || props.id.trim().length === 0) {
@@ -83,8 +129,14 @@ export class Question {
   }
 
   /**
-   * Create a Question from raw data (e.g., from JSON)
-   * This is a factory method that doesn't throw on invalid data
+   * 外部データから安全に Question を作成
+   *
+   * 【fromData と create の違い】
+   * - create: バリデーション失敗時に例外を投げる
+   * - fromData: バリデーション失敗時に null を返す
+   *
+   * JSON インポート時など、データが信頼できない場合に使用。
+   * 例外を投げないため、呼び出し側でエラーハンドリングしやすい。
    */
   static fromData(data: unknown): Question | null {
     try {
@@ -116,21 +168,21 @@ export class Question {
   }
 
   /**
-   * Check if the given answer index is correct
+   * 回答が正解かどうかを判定
    */
   isCorrectAnswer(answerIndex: number): boolean {
     return answerIndex === this.correctIndex
   }
 
   /**
-   * Get the correct answer option
+   * 正解の選択肢を取得
    */
   getCorrectOption(): QuizOption {
     return this.options[this.correctIndex]
   }
 
   /**
-   * Get feedback for a wrong answer
+   * 不正解時のフィードバックを取得
    */
   getWrongFeedback(answerIndex: number): string | undefined {
     if (answerIndex === this.correctIndex) return undefined
@@ -138,7 +190,10 @@ export class Question {
   }
 
   /**
-   * Generate AI learning prompt
+   * AI に質問するためのプロンプトを生成
+   *
+   * aiPrompt が設定されていればそれを使用、
+   * なければデフォルトのプロンプトを生成。
    */
   generateAIPrompt(): string {
     if (this.aiPrompt) return this.aiPrompt
@@ -154,7 +209,9 @@ export class Question {
   }
 
   /**
-   * Generate Markdown format for "Ask AI" feature
+   * Markdown 形式でエクスポート
+   *
+   * 「AIに質問」機能でクリップボードにコピーする際に使用。
    */
   toMarkdown(): string {
     const correctAnswer = this.getCorrectOption().text
@@ -173,10 +230,19 @@ ${this.referenceUrl ? `**参考:** ${this.referenceUrl}` : ''}
 この問題について詳しく説明してください。具体的な使用例も含めて教えていただけると助かります。`
   }
 
+  /**
+   * 等価性の判定
+   *
+   * エンティティは ID で等価性を判定する。
+   * 内容が同じでも ID が異なれば別のエンティティ。
+   */
   equals(other: Question): boolean {
     return this.id === other.id
   }
 
+  /**
+   * JSON シリアライズ用
+   */
   toJSON(): QuestionProps {
     return {
       id: this.id,
