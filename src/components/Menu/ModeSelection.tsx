@@ -86,13 +86,28 @@ export function ModeSelection() {
   }
 
   const handleImportQuizzes = async () => {
+    console.log('handleImportQuizzes called')
+    console.log('window.electronAPI:', window.electronAPI)
     try {
+      if (!window.electronAPI) {
+        console.error('electronAPI is not available')
+        alert('electronAPI is not available - preload script may not be working')
+        return
+      }
+      console.log('Calling importQuizFile...')
       const result = await window.electronAPI.importQuizFile()
+      console.log('importQuizFile result:', result)
       if (result.success && result.data) {
-        await importQuizzes(result.data)
+        const success = await importQuizzes(result.data)
+        if (!success) {
+          console.error('Import validation failed')
+        }
+      } else if (result.error && result.error !== 'cancelled') {
+        console.error('File import error:', result.error)
       }
     } catch (error) {
       console.error('Failed to import quiz file:', error)
+      alert('Error: ' + (error instanceof Error ? error.message : String(error)))
     }
   }
 

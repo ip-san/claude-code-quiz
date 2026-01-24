@@ -252,11 +252,11 @@ npm run test:coverage
 - アプリケーションユースケース
 - インフラストラクチャ（リポジトリ）
 
-## カスタムスキル
+## クイズ問題の自動生成
 
-### /generate-quiz-data
+### Claude Code スキル
 
-公式ドキュメントを読み込み、クイズ問題を自動生成するClaude Codeスキルです。
+Claude Code で以下のスキルを使用すると、公式ドキュメントを読み込んでクイズ問題を自動生成できます：
 
 ```bash
 /generate-quiz-data        # 16問のサンプルを生成
@@ -264,6 +264,14 @@ npm run test:coverage
 ```
 
 詳細は `.claude/skills/generate-quiz-data/SKILL.md` を参照。
+
+### プロンプト（コピペ用）
+
+Claude Code 以外の環境（Claude.ai、API等）でも使用できるプロンプトを用意しています：
+
+📄 **[QUIZ_GENERATOR_PROMPT.md](./QUIZ_GENERATOR_PROMPT.md)**
+
+このファイル内のプロンプトをコピーして Claude に貼り付けるだけで、クイズデータを生成できます。
 
 ## ライセンス
 

@@ -289,11 +289,14 @@ export const useQuizStore = create<QuizStore>((set, get) => ({
   // Data actions
   importQuizzes: async (jsonString) => {
     try {
+      // Clear previous error
+      set({ importError: null })
+
       const quizRepo = getQuizRepository()
       const importedSet = await quizRepo.importFromJson(jsonString)
 
       if (!importedSet) {
-        set({ importError: 'Invalid quiz data format' })
+        set({ importError: 'クイズデータの形式が無効です。JSONファイルの構造を確認してください。' })
         return false
       }
 

@@ -261,13 +261,14 @@ export class ElectronStoreQuizRepository implements IQuizRepository {
 
   /**
    * Import quiz data from JSON string
-   * Returns the created QuizSet or null if validation fails
+   * Returns the created QuizSet or throws an error with details if validation fails
    */
   async importFromJson(jsonString: string): Promise<QuizSet | null> {
     const result = validateQuizFile(jsonString)
     if (!result.success || !result.data) {
-      console.error('Import validation failed:', result.errors)
-      return null
+      const errorMessage = result.errors?.join(', ') ?? 'Unknown validation error'
+      console.error('Import validation failed:', errorMessage)
+      throw new Error(`バリデーションエラー: ${errorMessage}`)
     }
 
     const set = QuizSet.createFromImport(result.data)

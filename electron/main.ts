@@ -1,11 +1,18 @@
 import { app, BrowserWindow, ipcMain, dialog, shell, clipboard } from 'electron'
 import { readFile, writeFile } from 'fs/promises'
+import { existsSync } from 'fs'
 import { join, dirname } from 'path'
 import { fileURLToPath } from 'url'
 
 // ESM compatibility: Define __dirname equivalent
 const __filename = fileURLToPath(import.meta.url)
 const __dirname = dirname(__filename)
+
+// Debug: Log preload path
+const preloadPath = join(__dirname, 'preload.cjs')
+console.log('__dirname:', __dirname)
+console.log('Preload path:', preloadPath)
+console.log('Preload exists:', existsSync(preloadPath))
 
 // Security: Disable hardware acceleration for better security
 app.disableHardwareAcceleration()
@@ -21,11 +28,11 @@ function createWindow(): void {
     minWidth: 800,
     minHeight: 600,
     webPreferences: {
-      preload: join(__dirname, 'preload.js'),
+      preload: join(__dirname, 'preload.cjs'),
       // Security best practices
       nodeIntegration: false,
       contextIsolation: true,
-      sandbox: true,
+      sandbox: false, // Disabled temporarily to debug preload issue
       webSecurity: true,
     },
     backgroundColor: '#FAF9F5',
@@ -96,17 +103,21 @@ ipcMain.handle('copy-to-clipboard', async (_event, text: string): Promise<boolea
 
 // Import quiz JSON file
 ipcMain.handle('import-quiz-file', async (): Promise<{ success: boolean; data?: string; error?: string }> => {
+  console.log('import-quiz-file handler called')
   try {
     // Safety check for window availability
     if (!mainWindow) {
+      console.log('mainWindow is not available')
       return { success: false, error: 'Window not available' }
     }
 
+    console.log('Opening file dialog...')
     const result = await dialog.showOpenDialog(mainWindow, {
       title: 'クイズファイルを選択',
       filters: [{ name: 'JSON Files', extensions: ['json'] }],
       properties: ['openFile'],
     })
+    console.log('File dialog result:', result)
 
     if (result.canceled || result.filePaths.length === 0) {
       return { success: false, error: 'cancelled' }

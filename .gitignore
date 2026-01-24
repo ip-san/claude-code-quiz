@@ -28,3 +28,6 @@ npm-debug.log*
 # TypeScript
 *.tsbuildinfo
 dist-electron-types/
+
+# Claude Code local settings
+.claude/settings.local.json
