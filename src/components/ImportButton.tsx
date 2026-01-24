@@ -15,7 +15,7 @@ export function ImportButton() {
       const result = await window.electronAPI.importQuizFile()
 
       if (result.success && result.data) {
-        const success = importQuizzes(result.data)
+        const success = await importQuizzes(result.data)
         if (!success) {
           setShowError(true)
         }

@@ -67,4 +67,26 @@ export interface IQuizRepository {
    * Get the type of a quiz set
    */
   getSetType(id: string): Promise<QuizSetType | null>
+
+  /**
+   * Import quiz data from JSON string
+   * Returns the created QuizSet or throws an error if validation fails
+   */
+  importFromJson(jsonString: string): Promise<QuizSet | null>
+
+  /**
+   * Restore to default quiz set
+   */
+  restoreToDefault(): Promise<void>
+
+  /**
+   * Get info about all available sets (for UI display)
+   */
+  getAllSetsInfo(): Promise<Array<{
+    id: string
+    title: string
+    type: QuizSetType
+    questionCount: number
+    isActive: boolean
+  }>>
 }

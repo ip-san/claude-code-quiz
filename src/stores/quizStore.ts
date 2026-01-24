@@ -42,7 +42,7 @@ import { UserProgress } from '@/domain/entities/UserProgress'
 import type { QuizModeId } from '@/domain/valueObjects/QuizMode'
 import type { DifficultyLevel } from '@/domain/valueObjects/Difficulty'
 import { PREDEFINED_CATEGORIES } from '@/domain/valueObjects/Category'
-import { PREDEFINED_QUIZ_MODES, getQuizModeById } from '@/domain/valueObjects/QuizMode'
+import { getQuizModeById } from '@/domain/valueObjects/QuizMode'
 import {
   QuizSessionService,
   type QuizSessionConfig,
@@ -586,8 +586,6 @@ export const useQuizStore = create<QuizStore>((set, get) => ({
   },
 }))
 
-// Re-export types and configs for backward compatibility
-export { PREDEFINED_CATEGORIES as CATEGORIES }
-export { PREDEFINED_QUIZ_MODES as QUIZ_MODES }
+// Re-export types and configs
 export { APP_CONFIG }
 export type { QuizSessionConfig, QuizSessionState }
