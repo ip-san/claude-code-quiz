@@ -1,0 +1,17 @@
+{
+  "quizzes": [
+    {
+      "id": "url-001",
+      "question": "不正なURL形式",
+      "options": [
+        { "text": "選択肢A" },
+        { "text": "選択肢B" }
+      ],
+      "correctIndex": 0,
+      "explanation": "URLが不正",
+      "referenceUrl": "not-a-valid-url",
+      "category": "test",
+      "difficulty": "beginner"
+    }
+  ]
+}

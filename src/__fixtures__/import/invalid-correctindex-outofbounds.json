@@ -1,0 +1,16 @@
+{
+  "quizzes": [
+    {
+      "id": "outofbounds-001",
+      "question": "correctIndexが範囲外",
+      "options": [
+        { "text": "選択肢A" },
+        { "text": "選択肢B" }
+      ],
+      "correctIndex": 5,
+      "explanation": "correctIndexが選択肢の数を超えている",
+      "category": "test",
+      "difficulty": "beginner"
+    }
+  ]
+}

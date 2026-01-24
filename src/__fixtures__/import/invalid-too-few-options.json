@@ -1,0 +1,15 @@
+{
+  "quizzes": [
+    {
+      "id": "fewoptions-001",
+      "question": "選択肢が1つしかない",
+      "options": [
+        { "text": "唯一の選択肢" }
+      ],
+      "correctIndex": 0,
+      "explanation": "選択肢は最低2つ必要",
+      "category": "test",
+      "difficulty": "beginner"
+    }
+  ]
+}

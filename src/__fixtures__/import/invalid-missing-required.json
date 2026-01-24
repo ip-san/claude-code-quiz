@@ -1,0 +1,13 @@
+{
+  "quizzes": [
+    {
+      "id": "missing-001",
+      "question": "必須フィールドが欠けている問題",
+      "options": [
+        { "text": "選択肢A" },
+        { "text": "選択肢B" }
+      ],
+      "correctIndex": 0
+    }
+  ]
+}

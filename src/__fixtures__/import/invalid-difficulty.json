@@ -1,0 +1,16 @@
+{
+  "quizzes": [
+    {
+      "id": "difficulty-001",
+      "question": "不正な難易度",
+      "options": [
+        { "text": "選択肢A" },
+        { "text": "選択肢B" }
+      ],
+      "correctIndex": 0,
+      "explanation": "difficultyが不正な値",
+      "category": "test",
+      "difficulty": "expert"
+    }
+  ]
+}

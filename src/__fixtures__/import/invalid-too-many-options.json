@@ -1,0 +1,21 @@
+{
+  "quizzes": [
+    {
+      "id": "manyoptions-001",
+      "question": "選択肢が7つある",
+      "options": [
+        { "text": "選択肢1" },
+        { "text": "選択肢2" },
+        { "text": "選択肢3" },
+        { "text": "選択肢4" },
+        { "text": "選択肢5" },
+        { "text": "選択肢6" },
+        { "text": "選択肢7" }
+      ],
+      "correctIndex": 0,
+      "explanation": "選択肢は最大6つまで",
+      "category": "test",
+      "difficulty": "beginner"
+    }
+  ]
+}

@@ -1,0 +1,54 @@
+{
+  "title": "テストクイズセット",
+  "description": "インポートテスト用のクイズセット",
+  "version": "1.0.0",
+  "quizzes": [
+    {
+      "id": "full-001",
+      "question": "Claude Code でファイルを読むコマンドは？",
+      "options": [
+        { "text": "cat", "wrongFeedback": "catはシェルコマンドです" },
+        { "text": "Read ツール", "wrongFeedback": "" },
+        { "text": "open", "wrongFeedback": "openはファイルを開くコマンドです" },
+        { "text": "view", "wrongFeedback": "viewというツールはありません" }
+      ],
+      "correctIndex": 1,
+      "explanation": "Claude Code では Read ツールを使ってファイルを読みます",
+      "referenceUrl": "https://docs.anthropic.com/",
+      "aiPrompt": "ファイル読み込みについて詳しく説明してください",
+      "category": "tools",
+      "difficulty": "beginner",
+      "tags": ["tools", "basics", "file-operations"]
+    },
+    {
+      "id": "full-002",
+      "question": "Claude Code の設定ファイルはどこにある？",
+      "options": [
+        { "text": "~/.claude/settings.json" },
+        { "text": "~/.config/claude/config.json" },
+        { "text": "~/.clauderc" }
+      ],
+      "correctIndex": 0,
+      "explanation": "設定ファイルは ~/.claude/settings.json にあります",
+      "category": "settings",
+      "difficulty": "intermediate",
+      "tags": ["settings", "configuration"]
+    },
+    {
+      "id": "full-003",
+      "question": "MCP サーバーの役割は？",
+      "options": [
+        { "text": "モデルの学習" },
+        { "text": "外部ツールとの連携" },
+        { "text": "ファイルの暗号化" },
+        { "text": "ネットワーク監視" },
+        { "text": "データベース管理" },
+        { "text": "ログ収集" }
+      ],
+      "correctIndex": 1,
+      "explanation": "MCP (Model Context Protocol) サーバーは外部ツールとの連携を可能にします",
+      "category": "mcp",
+      "difficulty": "advanced"
+    }
+  ]
+}
