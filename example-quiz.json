@@ -1,0 +1,31 @@
+{
+  "title": "Claude Code カスタムクイズ例",
+  "description": "ユーザーがインポートできるClaude Code学習用クイズのサンプル",
+  "version": "1.0.0",
+  "quizzes": [
+    {
+      "id": "custom-001",
+      "category": "Example",
+      "difficulty": "beginner",
+      "question": "Claude CodeでプロジェクトのCLAUDE.mdファイルを初期化するコマンドはどれですか？",
+      "options": [
+        {
+          "text": "/init",
+          "wrongFeedback": ""
+        },
+        {
+          "text": "/setup",
+          "wrongFeedback": "/setupというコマンドは存在しません。/initを使用してください。"
+        },
+        {
+          "text": "/create-memory",
+          "wrongFeedback": "/create-memoryというコマンドは存在しません。/initを使用してください。"
+        }
+      ],
+      "correctIndex": 0,
+      "explanation": "/initコマンドを実行すると、対話的にCLAUDE.mdファイルのテンプレートを生成できます。プロジェクトの構造やコーディング規約を記述するのに役立ちます。",
+      "referenceUrl": "https://code.claude.com/docs/en/memory",
+      "aiPrompt": "/initコマンドで生成されるCLAUDE.mdのテンプレート内容と、カスタマイズ方法を教えてください。"
+    }
+  ]
+}
