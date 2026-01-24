@@ -2,6 +2,8 @@
   "name": "claude-code-quiz-desktop",
   "version": "1.0.0",
   "description": "Production-ready Electron quiz app for Claude Code learning",
+  "author": "Claude Code Quiz Contributors",
+  "license": "MIT",
   "type": "module",
   "main": "dist-electron/main.js",
   "scripts": {
