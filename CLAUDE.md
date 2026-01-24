@@ -38,7 +38,7 @@ npm run build    # プロダクションビルド
 
 **使用方法:**
 ```
-/generate-quiz-data        # 20問のサンプルを生成
+/generate-quiz-data        # 16問のサンプルを生成（各カテゴリ2問）
 /generate-quiz-data 100    # 100問を生成
 ```
 
