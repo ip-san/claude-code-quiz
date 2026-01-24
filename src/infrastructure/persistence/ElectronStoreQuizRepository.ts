@@ -11,8 +11,7 @@ const STORAGE_KEY_USER_SETS = 'claude-code-quiz-user-sets'
 
 /**
  * ElectronStoreQuizRepository
- * Implementation of IQuizRepository using localStorage for now
- * Can be migrated to electron-store when needed for main process access
+ * Implementation of IQuizRepository using localStorage
  */
 export class ElectronStoreQuizRepository implements IQuizRepository {
   private defaultSet: QuizSet | null = null

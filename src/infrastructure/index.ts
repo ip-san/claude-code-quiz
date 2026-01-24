@@ -32,7 +32,6 @@
  *
  * 【現在の実装】
  * - localStorage を使用（ブラウザ互換性のため）
- * - 将来的に electron-store に移行可能（Main プロセスからのアクセスが必要な場合）
  */
 
 export * from './persistence'

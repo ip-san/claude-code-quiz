@@ -2,9 +2,6 @@ import { describe, it, expect } from 'vitest'
 import {
   Difficulty,
   PREDEFINED_DIFFICULTIES,
-  getDifficultyById,
-  getDifficultyColor,
-  getDifficultyName,
 } from './Difficulty'
 
 describe('Difficulty Value Object', () => {
@@ -128,45 +125,3 @@ describe('PREDEFINED_DIFFICULTIES', () => {
   })
 })
 
-describe('getDifficultyById()', () => {
-  it('should find existing difficulty', () => {
-    const difficulty = getDifficultyById('intermediate')
-
-    expect(difficulty).toBeDefined()
-    expect(difficulty?.id).toBe('intermediate')
-  })
-
-  it('should return undefined for non-existent difficulty', () => {
-    const difficulty = getDifficultyById('nonexistent' as any)
-
-    expect(difficulty).toBeUndefined()
-  })
-})
-
-describe('getDifficultyColor()', () => {
-  it('should return color for valid difficulty', () => {
-    const color = getDifficultyColor('beginner')
-
-    expect(color).toBe('#22C55E')
-  })
-
-  it('should return default gray for invalid difficulty', () => {
-    const color = getDifficultyColor('nonexistent' as any)
-
-    expect(color).toBe('#6B7280')
-  })
-})
-
-describe('getDifficultyName()', () => {
-  it('should return name for valid difficulty', () => {
-    const name = getDifficultyName('advanced')
-
-    expect(name).toBe('上級')
-  })
-
-  it('should return id for invalid difficulty', () => {
-    const name = getDifficultyName('nonexistent' as any)
-
-    expect(name).toBe('nonexistent')
-  })
-})

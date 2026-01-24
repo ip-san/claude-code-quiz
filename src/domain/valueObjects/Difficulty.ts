@@ -73,15 +73,3 @@ export const PREDEFINED_DIFFICULTIES: Difficulty[] = [
     color: '#EF4444',
   }),
 ]
-
-export function getDifficultyById(id: DifficultyLevel): Difficulty | undefined {
-  return PREDEFINED_DIFFICULTIES.find(d => d.id === id)
-}
-
-export function getDifficultyColor(id: DifficultyLevel): string {
-  return getDifficultyById(id)?.color ?? '#6B7280'
-}
-
-export function getDifficultyName(id: DifficultyLevel): string {
-  return getDifficultyById(id)?.name ?? id
-}
