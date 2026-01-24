@@ -1,21 +1,23 @@
 import { create } from 'zustand'
-import type {
-  QuizItem,
-  Difficulty,
-  QuizSessionConfig,
-  UserProgress,
-} from '@/types/quiz'
-import { defaultQuizData } from '@/data/defaultQuizzes'
-import { validateQuizData } from '@/lib/validation'
+
+// Domain imports
+import { Question } from '@/domain/entities/Question'
+import { UserProgress } from '@/domain/entities/UserProgress'
+import type { QuizModeId } from '@/domain/valueObjects/QuizMode'
+import type { DifficultyLevel } from '@/domain/valueObjects/Difficulty'
+import { PREDEFINED_CATEGORIES } from '@/domain/valueObjects/Category'
+import { PREDEFINED_QUIZ_MODES, getQuizModeById } from '@/domain/valueObjects/QuizMode'
 import {
-  loadProgress,
-  saveProgress,
-  recordAnswer,
-  getWeakQuestions,
-  getUnansweredQuestions,
-  calculateCategoryProgress,
-} from '@/lib/progressStorage'
-import { APP_CONFIG, getModeById } from '@/config/quizConfig'
+  QuizSessionService,
+  type QuizSessionConfig,
+  type QuizSessionState,
+} from '@/domain/services/QuizSessionService'
+
+// Infrastructure imports
+import {
+  getQuizRepository,
+  getProgressRepository,
+} from '@/infrastructure'
 
 // ============================================================
 // View State
@@ -27,38 +29,40 @@ type ViewState = 'menu' | 'quiz' | 'result' | 'progress'
 // Store Interface
 // ============================================================
 
+interface QuizSetInfo {
+  id: string
+  title: string
+  type: 'default' | 'user'
+  questionCount: number
+  isActive: boolean
+}
+
 interface QuizStore {
   // View state
   viewState: ViewState
 
-  // Quiz data
-  allQuizzes: QuizItem[]
-  quizTitle: string
+  // Quiz data (using domain entities)
+  allQuestions: Question[]
+  activeSetInfo: QuizSetInfo | null
+  availableSets: QuizSetInfo[]
   isDefaultData: boolean
 
   // Session state
   sessionConfig: QuizSessionConfig
-  sessionQuizzes: QuizItem[]
-  currentIndex: number
-  selectedAnswer: number | null
-  isAnswered: boolean
-  isCorrect: boolean | null
-  score: number
-  answeredCount: number
-  isCompleted: boolean
+  sessionState: QuizSessionState | null
 
-  // Timer state
-  startedAt: number | null
-  timeRemaining: number | null
-
-  // Progress state
+  // Progress state (using domain entity)
   userProgress: UserProgress
 
   // Import state
   importError: string | null
+  isLoading: boolean
 
   // View actions
   setViewState: (state: ViewState) => void
+
+  // Initialization
+  initialize: () => Promise<void>
 
   // Session actions
   startSession: (config: Partial<QuizSessionConfig>) => void
@@ -71,130 +75,96 @@ interface QuizStore {
   updateTimer: () => void
 
   // Data actions
-  importQuizzes: (jsonString: string) => boolean
-  restoreDefault: () => void
+  importQuizzes: (jsonString: string) => Promise<boolean>
+  restoreDefault: () => Promise<void>
+  switchQuizSet: (setId: string) => Promise<void>
+  deleteUserSet: (setId: string) => Promise<void>
 
   // Progress actions
-  loadUserProgress: () => void
-  resetUserProgress: () => void
+  loadUserProgress: () => Promise<void>
+  resetUserProgress: () => Promise<void>
 
   // Computed getters
-  getCurrentQuiz: () => QuizItem | null
+  getCurrentQuestion: () => Question | null
   getProgress: () => { current: number; total: number }
-  getFilteredQuizzes: (
-    categoryId: string | null,
-    difficulty: Difficulty | null
-  ) => QuizItem[]
-  getCategoryStats: () => ReturnType<typeof calculateCategoryProgress>
+  getFilteredQuestions: (categoryId: string | null, difficulty: DifficultyLevel | null) => Question[]
+  getCategoryStats: () => Record<string, {
+    categoryId: string
+    totalQuestions: number
+    attemptedQuestions: number
+    correctAnswers: number
+    accuracy: number
+  }>
 }
 
 // ============================================================
-// Helper Functions
+// App Configuration
 // ============================================================
 
-function shuffleArray<T>(array: T[]): T[] {
-  const shuffled = [...array]
-  for (let i = shuffled.length - 1; i > 0; i--) {
-    const j = Math.floor(Math.random() * (i + 1))
-    ;[shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]]
-  }
-  return shuffled
-}
-
-function createDefaultSessionConfig(): QuizSessionConfig {
-  const defaultMode = getModeById(APP_CONFIG.defaultMode)
-  return {
-    mode: APP_CONFIG.defaultMode,
-    categoryFilter: null,
-    difficultyFilter: null,
-    questionCount: defaultMode?.questionCount ?? 20,
-    timeLimit: defaultMode?.timeLimit ?? null,
-    shuffleQuestions: defaultMode?.shuffleQuestions ?? true,
-    shuffleOptions: defaultMode?.shuffleOptions ?? false,
-  }
-}
-
-function prepareSessionQuizzes(
-  allQuizzes: QuizItem[],
-  config: QuizSessionConfig,
-  userProgress: UserProgress
-): QuizItem[] {
-  let quizzes = [...allQuizzes]
-
-  // Filter by category
-  if (config.categoryFilter) {
-    quizzes = quizzes.filter((q) => q.category === config.categoryFilter)
-  }
-
-  // Filter by difficulty
-  if (config.difficultyFilter) {
-    quizzes = quizzes.filter((q) => q.difficulty === config.difficultyFilter)
-  }
-
-  // For weak mode, prioritize: weak questions → unanswered → all (random)
-  if (config.mode === 'weak') {
-    const weakQuizzes = getWeakQuestions(userProgress, quizzes)
-    if (weakQuizzes.length > 0) {
-      quizzes = weakQuizzes
-    } else {
-      // Fallback 1: Try unanswered questions
-      const unansweredQuizzes = getUnansweredQuestions(userProgress, quizzes)
-      if (unansweredQuizzes.length > 0) {
-        quizzes = unansweredQuizzes
-      }
-      // Fallback 2: Use all questions (will be shuffled below)
-      // This is the default - quizzes already contains all matching questions
-    }
-  }
-
-  // Shuffle if needed
-  if (config.shuffleQuestions) {
-    quizzes = shuffleArray(quizzes)
-  }
-
-  // Limit question count
-  if (config.questionCount && config.questionCount < quizzes.length) {
-    quizzes = quizzes.slice(0, config.questionCount)
-  }
-
-  return quizzes
+const APP_CONFIG = {
+  title: 'Claude Code マスタークイズ',
+  version: '2.0.0',
+  passingScore: 70,
+  weakThreshold: 50,
+  minAttemptsForWeak: 1,
+  defaultMode: 'random' as QuizModeId,
 }
 
 // ============================================================
-// Store
+// Store Implementation
 // ============================================================
 
 export const useQuizStore = create<QuizStore>((set, get) => ({
   // Initial state
   viewState: 'menu',
-  allQuizzes: defaultQuizData.quizzes,
-  quizTitle: defaultQuizData.title ?? APP_CONFIG.title,
+  allQuestions: [],
+  activeSetInfo: null,
+  availableSets: [],
   isDefaultData: true,
-
-  sessionConfig: createDefaultSessionConfig(),
-  sessionQuizzes: [],
-  currentIndex: 0,
-  selectedAnswer: null,
-  isAnswered: false,
-  isCorrect: null,
-  score: 0,
-  answeredCount: 0,
-  isCompleted: false,
-
-  startedAt: null,
-  timeRemaining: null,
-
-  userProgress: loadProgress(),
+  sessionConfig: QuizSessionService.createDefaultConfig(),
+  sessionState: null,
+  userProgress: UserProgress.empty(),
   importError: null,
+  isLoading: true,
 
   // View actions
   setViewState: (state) => set({ viewState: state }),
+
+  // Initialization
+  initialize: async () => {
+    set({ isLoading: true })
+
+    try {
+      const quizRepo = getQuizRepository()
+      const progressRepo = getProgressRepository()
+
+      // Load quiz data
+      const activeSet = await quizRepo.getActiveSet()
+      const allSetsInfo = await quizRepo.getAllSetsInfo()
+      const questions = [...activeSet.questions]
+
+      // Load progress
+      const progress = await progressRepo.load()
+
+      set({
+        allQuestions: questions,
+        activeSetInfo: allSetsInfo.find(s => s.isActive) ?? null,
+        availableSets: allSetsInfo,
+        isDefaultData: activeSet.type === 'default',
+        userProgress: progress,
+        isLoading: false,
+      })
+    } catch (error) {
+      console.error('Failed to initialize:', error)
+      set({ isLoading: false })
+    }
+  },
 
   // Session actions
   startSession: (configOverrides) => {
     const state = get()
     const modeConfig = configOverrides.mode
-      ? getModeById(configOverrides.mode)
+      ? getQuizModeById(configOverrides.mode)
       : null
 
     const config: QuizSessionConfig = {
@@ -214,197 +184,281 @@ export const useQuizStore = create<QuizStore>((set, get) => ({
         modeConfig?.shuffleOptions ?? state.sessionConfig.shuffleOptions,
     }
 
-    const sessionQuizzes = prepareSessionQuizzes(
-      state.allQuizzes,
+    const sessionQuestions = QuizSessionService.prepareSessionQuestions(
+      state.allQuestions,
       config,
-      state.userProgress
+      state.userProgress,
+      APP_CONFIG.weakThreshold,
+      APP_CONFIG.minAttemptsForWeak
     )
 
-    const now = Date.now()
+    const sessionState = QuizSessionService.createInitialState(
+      sessionQuestions,
+      config
+    )
 
     set({
       sessionConfig: config,
-      sessionQuizzes,
-      currentIndex: 0,
-      selectedAnswer: null,
-      isAnswered: false,
-      isCorrect: null,
-      score: 0,
-      answeredCount: 0,
-      isCompleted: false,
-      startedAt: now,
-      timeRemaining: config.timeLimit ? config.timeLimit * 60 : null,
+      sessionState,
       viewState: 'quiz',
     })
   },
 
   selectAnswer: (index) => {
     const state = get()
-    if (!state.isAnswered) {
-      set({ selectedAnswer: index })
-    }
+    if (!state.sessionState) return
+
+    const newSessionState = QuizSessionService.selectAnswer(state.sessionState, index)
+    set({ sessionState: newSessionState })
   },
 
   submitAnswer: () => {
     const state = get()
-    if (state.selectedAnswer === null || state.isAnswered) return
+    if (!state.sessionState) return
 
-    const currentQuiz = state.sessionQuizzes[state.currentIndex]
-    if (!currentQuiz) return
+    const result = QuizSessionService.submitAnswer(state.sessionState)
+    if (!result) return
 
-    const isCorrect = state.selectedAnswer === currentQuiz.correctIndex
+    const { newState, isCorrect } = result
+    const currentQuestion = QuizSessionService.getCurrentQuestion(state.sessionState)
 
-    // Record progress
-    const updatedProgress = recordAnswer(
-      state.userProgress,
-      currentQuiz.id,
-      currentQuiz.category,
-      isCorrect
-    )
-    saveProgress(updatedProgress)
+    if (currentQuestion) {
+      // Update progress
+      const updatedProgress = state.userProgress.recordAnswer(
+        currentQuestion.id,
+        currentQuestion.category,
+        isCorrect
+      )
 
-    set({
-      isAnswered: true,
-      isCorrect,
-      score: isCorrect ? state.score + 1 : state.score,
-      answeredCount: state.answeredCount + 1,
-      userProgress: updatedProgress,
-    })
+      // Optimistic update - apply state immediately for responsive UI
+      set({
+        sessionState: newState,
+        userProgress: updatedProgress,
+      })
+
+      // Save progress asynchronously with error handling
+      getProgressRepository().save(updatedProgress).catch((error) => {
+        console.error('Failed to save progress:', error)
+        // Progress is saved in memory, will be retried on next save
+      })
+    } else {
+      set({ sessionState: newState })
+    }
   },
 
   nextQuestion: () => {
     const state = get()
-    const nextIndex = state.currentIndex + 1
+    if (!state.sessionState) return
 
-    if (nextIndex >= state.sessionQuizzes.length) {
-      set({ isCompleted: true, viewState: 'result' })
-    } else {
+    const newSessionState = QuizSessionService.nextQuestion(state.sessionState)
+
+    if (newSessionState.isCompleted) {
       set({
-        currentIndex: nextIndex,
-        selectedAnswer: null,
-        isAnswered: false,
-        isCorrect: null,
+        sessionState: newSessionState,
+        viewState: 'result',
       })
+    } else {
+      set({ sessionState: newSessionState })
     }
   },
 
   endSession: () => {
     set({
       viewState: 'menu',
-      isCompleted: false,
-      sessionQuizzes: [],
-      currentIndex: 0,
-      selectedAnswer: null,
-      isAnswered: false,
-      isCorrect: null,
-      score: 0,
-      answeredCount: 0,
-      startedAt: null,
-      timeRemaining: null,
+      sessionState: null,
     })
   },
 
   // Timer actions
   updateTimer: () => {
     const state = get()
-    if (state.timeRemaining === null || state.timeRemaining <= 0) return
+    if (!state.sessionState) return
 
-    const newTime = state.timeRemaining - 1
+    const newSessionState = QuizSessionService.updateTimer(state.sessionState)
 
-    if (newTime <= 0) {
-      // Time's up - end the quiz
+    if (newSessionState.isCompleted && !state.sessionState.isCompleted) {
       set({
-        timeRemaining: 0,
-        isCompleted: true,
+        sessionState: newSessionState,
         viewState: 'result',
       })
     } else {
-      set({ timeRemaining: newTime })
+      set({ sessionState: newSessionState })
     }
   },
 
   // Data actions
-  importQuizzes: (jsonString) => {
-    const result = validateQuizData(jsonString)
+  importQuizzes: async (jsonString) => {
+    try {
+      const quizRepo = getQuizRepository()
+      const importedSet = await quizRepo.importFromJson(jsonString)
 
-    if (!result.success || !result.data) {
+      if (!importedSet) {
+        set({ importError: 'Invalid quiz data format' })
+        return false
+      }
+
+      // Switch to the imported set
+      await quizRepo.setActiveSet(importedSet.id)
+
+      // Refresh data
+      const allSetsInfo = await quizRepo.getAllSetsInfo()
+
       set({
-        importError: result.errors?.join('\n') ?? 'Validation failed',
+        allQuestions: [...importedSet.questions],
+        activeSetInfo: allSetsInfo.find(s => s.isActive) ?? null,
+        availableSets: allSetsInfo,
+        isDefaultData: false,
+        importError: null,
+        viewState: 'menu',
+      })
+
+      return true
+    } catch (error) {
+      set({
+        importError: error instanceof Error ? error.message : 'Import failed',
       })
       return false
     }
-
-    set({
-      allQuizzes: result.data.quizzes,
-      quizTitle: result.data.title ?? 'Imported Quiz',
-      isDefaultData: false,
-      importError: null,
-      viewState: 'menu',
-    })
-
-    return true
   },
 
-  restoreDefault: () => {
-    set({
-      allQuizzes: defaultQuizData.quizzes,
-      quizTitle: defaultQuizData.title ?? APP_CONFIG.title,
-      isDefaultData: true,
-      importError: null,
-      viewState: 'menu',
-    })
+  restoreDefault: async () => {
+    try {
+      const quizRepo = getQuizRepository()
+      await quizRepo.restoreToDefault()
+
+      const activeSet = await quizRepo.getActiveSet()
+      const allSetsInfo = await quizRepo.getAllSetsInfo()
+
+      set({
+        allQuestions: [...activeSet.questions],
+        activeSetInfo: allSetsInfo.find(s => s.isActive) ?? null,
+        availableSets: allSetsInfo,
+        isDefaultData: true,
+        importError: null,
+        viewState: 'menu',
+      })
+    } catch (error) {
+      console.error('Failed to restore default:', error)
+    }
+  },
+
+  switchQuizSet: async (setId) => {
+    try {
+      const quizRepo = getQuizRepository()
+      await quizRepo.setActiveSet(setId)
+
+      const activeSet = await quizRepo.getActiveSet()
+      const allSetsInfo = await quizRepo.getAllSetsInfo()
+
+      set({
+        allQuestions: [...activeSet.questions],
+        activeSetInfo: allSetsInfo.find(s => s.isActive) ?? null,
+        availableSets: allSetsInfo,
+        isDefaultData: activeSet.type === 'default',
+      })
+    } catch (error) {
+      console.error('Failed to switch quiz set:', error)
+    }
+  },
+
+  deleteUserSet: async (setId) => {
+    try {
+      const quizRepo = getQuizRepository()
+      await quizRepo.deleteUserSet(setId)
+
+      const activeSet = await quizRepo.getActiveSet()
+      const allSetsInfo = await quizRepo.getAllSetsInfo()
+
+      set({
+        allQuestions: [...activeSet.questions],
+        activeSetInfo: allSetsInfo.find(s => s.isActive) ?? null,
+        availableSets: allSetsInfo,
+        isDefaultData: activeSet.type === 'default',
+      })
+    } catch (error) {
+      console.error('Failed to delete user set:', error)
+    }
   },
 
   // Progress actions
-  loadUserProgress: () => {
-    set({ userProgress: loadProgress() })
+  loadUserProgress: async () => {
+    const progress = await getProgressRepository().load()
+    set({ userProgress: progress })
   },
 
-  resetUserProgress: () => {
-    const emptyProgress: UserProgress = {
-      modifiedAt: Date.now(),
-      questionProgress: {},
-      categoryProgress: {},
-      totalAttempts: 0,
-      totalCorrect: 0,
-      streakDays: 0,
-      lastSessionAt: 0,
-    }
-    saveProgress(emptyProgress)
-    set({ userProgress: emptyProgress })
+  resetUserProgress: async () => {
+    await getProgressRepository().reset()
+    set({ userProgress: UserProgress.empty() })
   },
 
   // Getters
-  getCurrentQuiz: () => {
+  getCurrentQuestion: () => {
     const state = get()
-    return state.sessionQuizzes[state.currentIndex] ?? null
+    if (!state.sessionState) return null
+    return QuizSessionService.getCurrentQuestion(state.sessionState)
   },
 
   getProgress: () => {
     const state = get()
-    return {
-      current: state.currentIndex + 1,
-      total: state.sessionQuizzes.length,
+    if (!state.sessionState) {
+      return { current: 0, total: 0 }
     }
+    return QuizSessionService.getProgress(state.sessionState)
   },
 
-  getFilteredQuizzes: (categoryId, difficulty) => {
+  getFilteredQuestions: (categoryId, difficulty) => {
     const state = get()
-    let quizzes = state.allQuizzes
+    let questions = state.allQuestions
 
     if (categoryId) {
-      quizzes = quizzes.filter((q) => q.category === categoryId)
+      questions = questions.filter(q => q.category === categoryId)
     }
 
     if (difficulty) {
-      quizzes = quizzes.filter((q) => q.difficulty === difficulty)
+      questions = questions.filter(q => q.difficulty === difficulty)
     }
 
-    return quizzes
+    return questions
   },
 
   getCategoryStats: () => {
     const state = get()
-    return calculateCategoryProgress(state.userProgress, state.allQuizzes)
+    const stats: Record<string, {
+      categoryId: string
+      totalQuestions: number
+      attemptedQuestions: number
+      correctAnswers: number
+      accuracy: number
+    }> = {}
+
+    for (const category of PREDEFINED_CATEGORIES) {
+      const categoryQuestions = state.allQuestions.filter(
+        q => q.category === category.id
+      )
+      const attemptedQuestions = categoryQuestions.filter(
+        q => state.userProgress.hasAttempted(q.id)
+      )
+      const correctAnswers = attemptedQuestions.filter(
+        q => state.userProgress.questionProgress[q.id]?.lastCorrect
+      ).length
+
+      stats[category.id] = {
+        categoryId: category.id,
+        totalQuestions: categoryQuestions.length,
+        attemptedQuestions: attemptedQuestions.length,
+        correctAnswers,
+        accuracy: attemptedQuestions.length > 0
+          ? Math.round((correctAnswers / attemptedQuestions.length) * 100)
+          : 0,
+      }
+    }
+
+    return stats
   },
 }))
+
+// Re-export types and configs for backward compatibility
+export { PREDEFINED_CATEGORIES as CATEGORIES }
+export { PREDEFINED_QUIZ_MODES as QUIZ_MODES }
+export { APP_CONFIG }
+export type { QuizSessionConfig, QuizSessionState }

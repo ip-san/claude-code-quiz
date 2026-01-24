@@ -2,21 +2,39 @@ import { useEffect, useCallback } from 'react'
 import { useQuizStore } from '@/stores/quizStore'
 import { OptionButton } from './OptionButton'
 import { Feedback } from './Feedback'
-import { CATEGORIES, getColorHex } from '@/config/quizConfig'
+import { getCategoryById } from '@/domain/valueObjects/Category'
+
+// Color mapping for categories
+const COLOR_MAP: Record<string, string> = {
+  purple: '#a855f7',
+  blue: '#3b82f6',
+  green: '#22c55e',
+  orange: '#f97316',
+  pink: '#ec4899',
+  cyan: '#06b6d4',
+  yellow: '#eab308',
+  emerald: '#10b981',
+  gray: '#6b7280',
+}
+
+function getColorHex(colorName: string): string {
+  return COLOR_MAP[colorName] ?? COLOR_MAP.gray
+}
 
 export function QuizCard() {
   const {
-    getCurrentQuiz,
-    selectedAnswer,
-    isAnswered,
-    isCorrect,
+    getCurrentQuestion,
+    sessionState,
     selectAnswer,
     submitAnswer,
     nextQuestion,
     endSession,
   } = useQuizStore()
 
-  const quiz = getCurrentQuiz()
+  const quiz = getCurrentQuestion()
+  const selectedAnswer = sessionState?.selectedAnswer ?? null
+  const isAnswered = sessionState?.isAnswered ?? false
+  const isCorrect = sessionState?.isCorrect ?? null
 
   // Keyboard navigation handler
   const handleKeyDown = useCallback(
@@ -77,13 +95,32 @@ export function QuizCard() {
     return () => window.removeEventListener('keydown', handleKeyDown)
   }, [handleKeyDown])
 
+  // Empty state when no quiz data
   if (!quiz) {
     return (
-      <div className="rounded-2xl border border-slate-700 bg-slate-800/50 p-8 text-center">
-        <p className="text-slate-400">クイズデータがありません</p>
+      <div className="rounded-2xl border border-stone-200 bg-white p-8 text-center shadow-sm">
+        <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-stone-100">
+          <svg
+            className="h-8 w-8 text-stone-400"
+            fill="none"
+            viewBox="0 0 24 24"
+            stroke="currentColor"
+          >
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              strokeWidth={2}
+              d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
+            />
+          </svg>
+        </div>
+        <h3 className="mb-2 text-lg font-medium text-claude-dark">クイズがありません</h3>
+        <p className="mb-4 text-sm text-stone-500">
+          選択した条件に一致する問題が見つかりませんでした
+        </p>
         <button
           onClick={endSession}
-          className="mt-4 rounded-lg bg-blue-600 px-4 py-2 text-white hover:bg-blue-700"
+          className="rounded-lg bg-claude-orange px-4 py-2 text-white hover:bg-claude-orange/90"
         >
           メニューに戻る
         </button>
@@ -91,11 +128,11 @@ export function QuizCard() {
     )
   }
 
-  const category = CATEGORIES.find((c) => c.id === quiz.category)
+  const category = getCategoryById(quiz.category)
 
   return (
     <div
-      className={`rounded-2xl border border-slate-700 bg-slate-800/50 p-8 ${
+      className={`rounded-2xl border border-stone-200 bg-white p-8 shadow-sm ${
         isAnswered && !isCorrect ? 'animate-shake' : ''
       } ${isAnswered && isCorrect ? 'animate-pulse-success' : ''}`}
     >
@@ -105,7 +142,7 @@ export function QuizCard() {
           <span
             className="flex items-center gap-1 rounded px-2 py-1 text-xs font-medium"
             style={{
-              backgroundColor: `${getColorHex(category.color ?? 'gray')}20`,
+              backgroundColor: `${getColorHex(category.color ?? 'gray')}15`,
               color: getColorHex(category.color ?? 'gray'),
             }}
           >
@@ -117,10 +154,10 @@ export function QuizCard() {
           <span
             className={`rounded px-2 py-1 text-xs font-medium ${
               quiz.difficulty === 'beginner'
-                ? 'bg-green-500/20 text-green-400'
+                ? 'bg-green-100 text-green-700'
                 : quiz.difficulty === 'intermediate'
-                  ? 'bg-yellow-500/20 text-yellow-400'
-                  : 'bg-red-500/20 text-red-400'
+                  ? 'bg-yellow-100 text-yellow-700'
+                  : 'bg-red-100 text-red-700'
             }`}
           >
             {quiz.difficulty === 'beginner'
@@ -133,7 +170,7 @@ export function QuizCard() {
       </div>
 
       {/* Question */}
-      <h2 className="mb-6 text-lg font-semibold leading-relaxed text-white">
+      <h2 className="mb-6 text-lg font-semibold leading-relaxed text-claude-dark">
         {quiz.question}
       </h2>
 
@@ -167,8 +204,8 @@ export function QuizCard() {
             aria-label={selectedAnswer === null ? '選択肢を選んでください' : '回答を確定する'}
             className={`w-full rounded-lg py-3 font-medium transition-all ${
               selectedAnswer !== null
-                ? 'bg-blue-600 text-white hover:bg-blue-700'
-                : 'cursor-not-allowed bg-slate-700 text-slate-500'
+                ? 'bg-claude-orange text-white hover:bg-claude-orange/90'
+                : 'cursor-not-allowed bg-stone-200 text-stone-400'
             }`}
           >
             回答する
@@ -179,7 +216,7 @@ export function QuizCard() {
             <button
               onClick={nextQuestion}
               aria-label="次の問題へ進む"
-              className="mt-4 w-full rounded-lg bg-blue-600 py-3 font-medium text-white hover:bg-blue-700"
+              className="mt-4 w-full rounded-lg bg-claude-orange py-3 font-medium text-white hover:bg-claude-orange/90"
             >
               次の問題へ
             </button>

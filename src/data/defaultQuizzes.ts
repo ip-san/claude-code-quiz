@@ -1,9 +1,9 @@
-import type { QuizFile } from '@/types/quiz'
-import { allQuestions } from './questions'
+import type { QuizFileData, QuizItemData } from '@/infrastructure/validation/QuizValidator'
+import quizData from './quizzes.json'
 
 /**
  * Default quiz set focusing on Claude Code fundamentals
- * Based on official documentation: https://code.claude.com/docs/
+ * Based on official documentation: https://docs.anthropic.com/en/docs/claude-code
  *
  * Total: 100 questions across 8 categories
  * - memory: 15 questions (CLAUDE.md, Memory files)
@@ -15,12 +15,12 @@ import { allQuestions } from './questions'
  * - keyboard: 10 questions (Shortcuts, Vim mode, UI)
  * - bestpractices: 5 questions (Effective usage, prompt design)
  */
-export const defaultQuizData: QuizFile = {
-  title: 'Claude Code マスタークイズ',
+export const defaultQuizData: QuizFileData = {
+  title: quizData.title,
   description:
     'Claude Codeの基本から応用まで、公式ドキュメントに基づいた実践的な知識をテスト',
-  version: '2.0.0',
-  quizzes: allQuestions,
+  version: quizData.version,
+  quizzes: quizData.quizzes as QuizItemData[],
 }
 
 // Legacy export for compatibility

@@ -6,8 +6,11 @@ interface HeaderProps {
 }
 
 export function Header({ title }: HeaderProps) {
-  const { getProgress, score, answeredCount, isCompleted } = useQuizStore()
+  const { getProgress, sessionState } = useQuizStore()
   const progress = getProgress()
+  const score = sessionState?.score ?? 0
+  const answeredCount = sessionState?.answeredCount ?? 0
+  const isCompleted = sessionState?.isCompleted ?? false
 
   return (
     <header className="titlebar-no-drag">

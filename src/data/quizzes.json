@@ -1,0 +1,1506 @@
+{
+  "title": "Claude Code Master Quiz",
+  "version": "1.0.0",
+  "quizzes": [
+    {
+      "id": "mem-001",
+      "category": "memory",
+      "difficulty": "beginner",
+      "question": "Claude Codeでプロジェクトのコーディング規約やよく使うコマンドを永続的に記憶させたい場合、どのファイルに記述すべきですか？",
+      "options": [
+        { "text": ".clauderc", "wrongFeedback": ".claudercというファイルはClaude Codeでは使用されません。" },
+        { "text": "CLAUDE.md" },
+        { "text": "claude.config.json", "wrongFeedback": "JSON形式の設定ファイルは.claude/settings.jsonで使用されますが、規約記述には適していません。" },
+        { "text": ".claude/memory.txt", "wrongFeedback": "Claude Codeのメモリシステムはマークダウン形式のCLAUDE.mdを使用します。" }
+      ],
+      "correctIndex": 1,
+      "explanation": "CLAUDE.mdはClaude Codeのメモリシステムの中核です。プロジェクトルートに配置すると、毎セッション自動的に読み込まれます。",
+      "referenceUrl": "https://docs.anthropic.com/en/docs/claude-code/memory"
+    },
+    {
+      "id": "mem-002",
+      "category": "memory",
+      "difficulty": "intermediate",
+      "question": "CLAUDE.mdファイル内で別のファイルをインポートする正しい構文はどれですか？",
+      "options": [
+        { "text": "#include <path/to/file>", "wrongFeedback": "これはC/C++のプリプロセッサ構文です。" },
+        { "text": "import \"./path/to/file\"", "wrongFeedback": "これはJavaScript/TypeScriptのimport構文です。" },
+        { "text": "@path/to/file" },
+        { "text": "{{include: path/to/file}}", "wrongFeedback": "この構文はCLAUDE.mdではサポートされていません。" }
+      ],
+      "correctIndex": 2,
+      "explanation": "@path/to/fileの形式で他のファイルをインポートできます。相対パスと絶対パスの両方をサポートし、最大5階層まで再帰的に解決されます。",
+      "referenceUrl": "https://docs.anthropic.com/en/docs/claude-code/memory#importing-files"
+    },
+    {
+      "id": "mem-003",
+      "category": "memory",
+      "difficulty": "beginner",
+      "question": "CLAUDE.mdファイルを対話的に初期化するコマンドはどれですか？",
+      "options": [
+        { "text": "/setup", "wrongFeedback": "/setupというコマンドは存在しません。" },
+        { "text": "/init" },
+        { "text": "/create-memory", "wrongFeedback": "/create-memoryというコマンドは存在しません。" },
+        { "text": "/new claude.md", "wrongFeedback": "この形式のコマンドはサポートされていません。" }
+      ],
+      "correctIndex": 1,
+      "explanation": "/initコマンドを実行すると、対話的にCLAUDE.mdファイルのテンプレートを生成できます。",
+      "referenceUrl": "https://docs.anthropic.com/en/docs/claude-code/memory"
+    },
+    {
+      "id": "mem-004",
+      "category": "memory",
+      "difficulty": "intermediate",
+      "question": "CLAUDE.mdのメモリ階層で、最も優先度が高いのはどれですか？",
+      "options": [
+        { "text": "ユーザーメモリ (~/.claude/CLAUDE.md)", "wrongFeedback": "ユーザーメモリは個人設定用ですが、最高優先度ではありません。" },
+        { "text": "プロジェクトメモリ (./CLAUDE.md)", "wrongFeedback": "プロジェクトメモリはチーム共有用ですが、最高優先度ではありません。" },
+        { "text": "マネージドポリシー (/Library/Application Support/ClaudeCode/CLAUDE.md)" },
+        { "text": "ローカルメモリ (./CLAUDE.local.md)", "wrongFeedback": "ローカルメモリは個人的なプロジェクト設定用です。" }
+      ],
+      "correctIndex": 2,
+      "explanation": "マネージドポリシーは組織全体の設定として最高優先度を持ちます。階層は managed > user > project の順です。",
+      "referenceUrl": "https://docs.anthropic.com/en/docs/claude-code/memory#memory-hierarchy"
+    },
+    {
+      "id": "mem-005",
+      "category": "memory",
+      "difficulty": "beginner",
+      "question": "CLAUDE.local.mdファイルの特徴として正しいのはどれですか？",
+      "options": [
+        { "text": "チームメンバー全員と共有される", "wrongFeedback": "CLAUDE.local.mdは個人用で共有されません。" },
+        { "text": "自動的に.gitignoreに追加され、個人的な設定に使用される" },
+        { "text": "マネージドポリシーより優先される", "wrongFeedback": "マネージドポリシーが最高優先度です。" },
+        { "text": "JSONフォーマットで記述する必要がある", "wrongFeedback": "CLAUDE.local.mdもマークダウン形式です。" }
+      ],
+      "correctIndex": 1,
+      "explanation": "CLAUDE.local.mdは自動的に.gitignoreに追加され、サンドボックスURLやテストデータなど個人的なプロジェクト設定に最適です。",
+      "referenceUrl": "https://docs.anthropic.com/en/docs/claude-code/memory#local-memory"
+    },
+    {
+      "id": "mem-006",
+      "category": "memory",
+      "difficulty": "advanced",
+      "question": ".claude/rules/ディレクトリ内のルールファイルで、特定のファイルパターンにのみ適用するための設定方法はどれですか？",
+      "options": [
+        { "text": "ファイル名に対象パスを含める", "wrongFeedback": "ファイル名ではルールの適用範囲を制御できません。" },
+        { "text": "YAMLフロントマターでpathsフィールドを設定する" },
+        { "text": "ルールファイル内に@targetパスを記述する", "wrongFeedback": "@記法はインポート用です。" },
+        { "text": "CLAUDE.mdに適用条件を記述する", "wrongFeedback": "CLAUDE.mdでは個別ルールの適用条件を制御できません。" }
+      ],
+      "correctIndex": 1,
+      "explanation": "YAMLフロントマターのpathsフィールドでglobパターンを指定できます。例：paths: [\"src/api/**/*.ts\"]",
+      "referenceUrl": "https://docs.anthropic.com/en/docs/claude-code/memory#path-specific-rules"
+    },
+    {
+      "id": "mem-007",
+      "category": "memory",
+      "difficulty": "intermediate",
+      "question": "CLAUDE.mdのインポートで、ホームディレクトリからのパスを指定する正しい方法は？",
+      "options": [
+        { "text": "$HOME/.claude/instructions.md", "wrongFeedback": "環境変数は展開されません。" },
+        { "text": "~/.claude/instructions.md" },
+        { "text": "/home/user/.claude/instructions.md", "wrongFeedback": "絶対パスは有効ですが、ユーザー固有になってしまいます。" },
+        { "text": "%USERPROFILE%/.claude/instructions.md", "wrongFeedback": "Windows環境変数は展開されません。" }
+      ],
+      "correctIndex": 1,
+      "explanation": "~（チルダ）はホームディレクトリを表し、@~/.claude/instructions.mdのように使用できます。",
+      "referenceUrl": "https://docs.anthropic.com/en/docs/claude-code/memory#importing-files"
+    },
+    {
+      "id": "mem-008",
+      "category": "memory",
+      "difficulty": "beginner",
+      "question": "CLAUDE.mdファイルを編集するための組み込みコマンドはどれですか？",
+      "options": [
+        { "text": "/edit", "wrongFeedback": "/editというコマンドは存在しません。" },
+        { "text": "/memory" },
+        { "text": "/config", "wrongFeedback": "/configは設定画面を開きますが、メモリ編集専用ではありません。" },
+        { "text": "/open claude.md", "wrongFeedback": "この形式のコマンドはサポートされていません。" }
+      ],
+      "correctIndex": 1,
+      "explanation": "/memoryコマンドでシステムエディタを使用してCLAUDE.mdファイルを直接編集できます。",
+      "referenceUrl": "https://docs.anthropic.com/en/docs/claude-code/memory#editing-memory"
+    },
+    {
+      "id": "mem-009",
+      "category": "memory",
+      "difficulty": "advanced",
+      "question": ".claude/rules/ディレクトリでシンボリックリンクを使用する場合、どのような動作になりますか？",
+      "options": [
+        { "text": "シンボリックリンクは無視される", "wrongFeedback": "シンボリックリンクはサポートされています。" },
+        { "text": "シンボリックリンクは解決され、内容が正常にロードされる" },
+        { "text": "エラーが発生する", "wrongFeedback": "エラーにはなりません。" },
+        { "text": "リンク先のパスのみが表示される", "wrongFeedback": "内容自体がロードされます。" }
+      ],
+      "correctIndex": 1,
+      "explanation": "シンボリックリンクは解決され、複数プロジェクト間でルールを共有できます。循環参照も検出されます。",
+      "referenceUrl": "https://docs.anthropic.com/en/docs/claude-code/memory#symlinks"
+    },
+    {
+      "id": "mem-010",
+      "category": "memory",
+      "difficulty": "intermediate",
+      "question": "CLAUDE.mdのインポートで、コードブロック内の@記法はどのように処理されますか？",
+      "options": [
+        { "text": "コードブロック内でもインポートとして解釈される", "wrongFeedback": "コードブロック内は例外です。" },
+        { "text": "コードブロック内ではインポートとして解釈されない" },
+        { "text": "エラーが発生する", "wrongFeedback": "エラーにはなりません。" },
+        { "text": "コードブロック自体がスキップされる", "wrongFeedback": "コードブロックは正常に表示されます。" }
+      ],
+      "correctIndex": 1,
+      "explanation": "コードスパンやコードブロック内の@記法は、衝突を避けるためインポートとして評価されません。",
+      "referenceUrl": "https://docs.anthropic.com/en/docs/claude-code/memory#importing-files"
+    },
+    {
+      "id": "mem-011",
+      "category": "memory",
+      "difficulty": "beginner",
+      "question": "CLAUDE.mdの推奨される最大行数はどれくらいですか？",
+      "options": [
+        { "text": "100行", "wrongFeedback": "100行は短すぎます。" },
+        { "text": "500行" },
+        { "text": "1000行", "wrongFeedback": "1000行は長すぎる可能性があります。" },
+        { "text": "制限なし", "wrongFeedback": "公式ドキュメントでは500行程度が推奨されています。" }
+      ],
+      "correctIndex": 1,
+      "explanation": "CLAUDE.mdは約500行以下に保つことが推奨されます。それ以上の参照資料はSkillsに移動しましょう。",
+      "referenceUrl": "https://docs.anthropic.com/en/docs/claude-code/memory"
+    },
+    {
+      "id": "mem-012",
+      "category": "memory",
+      "difficulty": "intermediate",
+      "question": "サブディレクトリにあるCLAUDE.mdファイルは、いつClaudeにロードされますか？",
+      "options": [
+        { "text": "セッション開始時に全てロードされる", "wrongFeedback": "サブディレクトリのファイルは遅延ロードされます。" },
+        { "text": "Claudeがそのサブディレクトリのファイルにアクセスした時" },
+        { "text": "明示的に/loadコマンドを実行した時", "wrongFeedback": "/loadコマンドは存在しません。" },
+        { "text": "ロードされない", "wrongFeedback": "サブディレクトリのCLAUDE.mdもロードされます。" }
+      ],
+      "correctIndex": 1,
+      "explanation": "サブディレクトリのCLAUDE.mdは、Claudeがそのサブツリー内のファイルにアクセスした時に自動的にロードされます。",
+      "referenceUrl": "https://docs.anthropic.com/en/docs/claude-code/memory#subdirectory-memory"
+    },
+    {
+      "id": "mem-013",
+      "category": "memory",
+      "difficulty": "advanced",
+      "question": "ユーザーレベルの.claude/rules/ディレクトリは、プロジェクトルールに対してどのような優先度を持ちますか？",
+      "options": [
+        { "text": "ユーザールールが常に優先される", "wrongFeedback": "プロジェクトルールの方が優先度が高いです。" },
+        { "text": "プロジェクトルールが常に優先される" },
+        { "text": "同じ優先度でマージされる", "wrongFeedback": "優先順位があります。" },
+        { "text": "ユーザールールは読み込まれない", "wrongFeedback": "ユーザールールも読み込まれます。" }
+      ],
+      "correctIndex": 1,
+      "explanation": "プロジェクトルール（.claude/rules/）はユーザールール（~/.claude/rules/）より優先度が高いです。",
+      "referenceUrl": "https://docs.anthropic.com/en/docs/claude-code/memory#user-rules"
+    },
+    {
+      "id": "mem-014",
+      "category": "memory",
+      "difficulty": "beginner",
+      "question": "CLAUDE.mdに記述すべき内容として最も適切なのはどれですか？",
+      "options": [
+        { "text": "詳細なAPIドキュメント", "wrongFeedback": "詳細なドキュメントはSkillsに配置すべきです。" },
+        { "text": "コーディング規約と頻繁に使うコマンド" },
+        { "text": "プロジェクトの全ソースコード", "wrongFeedback": "ソースコードはCLAUDE.mdに含めるべきではありません。" },
+        { "text": "個人的なメモとTODOリスト", "wrongFeedback": "個人的なメモはCLAUDE.local.mdが適切です。" }
+      ],
+      "correctIndex": 1,
+      "explanation": "CLAUDE.mdには「常に知っておくべき」ルールを記載します：コーディング規約、ビルドコマンド、プロジェクト構造など。",
+      "referenceUrl": "https://docs.anthropic.com/en/docs/claude-code/memory"
+    },
+    {
+      "id": "mem-015",
+      "category": "memory",
+      "difficulty": "intermediate",
+      "question": "CLAUDE.mdのインポートは最大何階層まで再帰的に解決されますか？",
+      "options": [
+        { "text": "3階層", "wrongFeedback": "3階層より深くまで解決されます。" },
+        { "text": "5階層" },
+        { "text": "10階層", "wrongFeedback": "10階層までは解決されません。" },
+        { "text": "無制限", "wrongFeedback": "無限ループ防止のため制限があります。" }
+      ],
+      "correctIndex": 1,
+      "explanation": "インポートは最大5階層まで再帰的に解決されます。それ以上深い階層は無視されます。",
+      "referenceUrl": "https://docs.anthropic.com/en/docs/claude-code/memory#importing-files"
+    },
+    {
+      "id": "skill-001",
+      "category": "skills",
+      "difficulty": "beginner",
+      "question": "Claude CodeのSkillを定義するために必要なファイル名は何ですか？",
+      "options": [
+        { "text": "skill.json", "wrongFeedback": "SkillはJSONではなくマークダウン形式です。" },
+        { "text": "SKILL.md" },
+        { "text": "command.md", "wrongFeedback": ".claude/commands/も有効ですが、推奨はSKILL.mdです。" },
+        { "text": "index.md", "wrongFeedback": "index.mdは使用されません。" }
+      ],
+      "correctIndex": 1,
+      "explanation": "Skillはディレクトリ内のSKILL.mdファイルで定義します。例：~/.claude/skills/my-skill/SKILL.md",
+      "referenceUrl": "https://docs.anthropic.com/en/docs/claude-code/skills"
+    },
+    {
+      "id": "skill-002",
+      "category": "skills",
+      "difficulty": "intermediate",
+      "question": "Skillでユーザーが手動でのみ呼び出せるようにし、Claudeが自動的に使用することを防ぐためのfrontmatter設定はどれですか？",
+      "options": [
+        { "text": "manual-only: true", "wrongFeedback": "manual-onlyというフィールドは存在しません。" },
+        { "text": "disable-model-invocation: true" },
+        { "text": "user-only: true", "wrongFeedback": "user-onlyというフィールドは存在しません。" },
+        { "text": "auto-invoke: false", "wrongFeedback": "auto-invokeというフィールドは存在しません。" }
+      ],
+      "correctIndex": 1,
+      "explanation": "disable-model-invocation: trueを設定すると、そのSkillはClaudeのコンテキストから除外され、/skill-nameでのみ使用可能になります。",
+      "referenceUrl": "https://docs.anthropic.com/en/docs/claude-code/skills#control-invocation"
+    },
+    {
+      "id": "skill-003",
+      "category": "skills",
+      "difficulty": "advanced",
+      "question": "Skillでシェルコマンドの出力を動的にスキル内容に注入する構文はどれですか？",
+      "options": [
+        { "text": "$(command)", "wrongFeedback": "これはBashのコマンド置換構文です。" },
+        { "text": "${command}", "wrongFeedback": "これは変数展開構文です。" },
+        { "text": "!`command`" },
+        { "text": "<%command%>", "wrongFeedback": "この構文はサポートされていません。" }
+      ],
+      "correctIndex": 2,
+      "explanation": "!`command`構文でスキル内容がClaudeに送信される前にシェルコマンドが実行され、出力が注入されます。",
+      "referenceUrl": "https://docs.anthropic.com/en/docs/claude-code/skills#dynamic-context"
+    },
+    {
+      "id": "skill-004",
+      "category": "skills",
+      "difficulty": "beginner",
+      "question": "Skillをスラッシュコマンドで呼び出す場合、どのような形式で入力しますか？",
+      "options": [
+        { "text": "/skill skill-name", "wrongFeedback": "この形式は正しくありません。" },
+        { "text": "/skill-name" },
+        { "text": "skill: skill-name", "wrongFeedback": "この形式は正しくありません。" },
+        { "text": "@skill-name", "wrongFeedback": "@はファイルパスのオートコンプリート用です。" }
+      ],
+      "correctIndex": 1,
+      "explanation": "Skillは/skill-nameの形式で直接呼び出せます。例：/deploy、/review",
+      "referenceUrl": "https://docs.anthropic.com/en/docs/claude-code/skills"
+    },
+    {
+      "id": "skill-005",
+      "category": "skills",
+      "difficulty": "intermediate",
+      "question": "Skillに引数を渡す場合、frontmatterで引数のヒントを表示するフィールドは何ですか？",
+      "options": [
+        { "text": "args-hint", "wrongFeedback": "フィールド名が異なります。" },
+        { "text": "argument-hint" },
+        { "text": "params", "wrongFeedback": "paramsというフィールドは存在しません。" },
+        { "text": "input-format", "wrongFeedback": "input-formatというフィールドは存在しません。" }
+      ],
+      "correctIndex": 1,
+      "explanation": "argument-hintフィールドでオートコンプリート時に表示されるヒントを設定できます。例：[issue-number]",
+      "referenceUrl": "https://docs.anthropic.com/en/docs/claude-code/skills#frontmatter"
+    },
+    {
+      "id": "skill-006",
+      "category": "skills",
+      "difficulty": "advanced",
+      "question": "Skillをサブエージェントで実行するためのfrontmatter設定はどれですか？",
+      "options": [
+        { "text": "run-mode: subagent", "wrongFeedback": "run-modeというフィールドは存在しません。" },
+        { "text": "context: fork" },
+        { "text": "isolated: true", "wrongFeedback": "isolatedというフィールドは存在しません。" },
+        { "text": "agent-mode: true", "wrongFeedback": "agent-modeというフィールドは存在しません。" }
+      ],
+      "correctIndex": 1,
+      "explanation": "context: forkを設定すると、Skillが分離されたサブエージェントコンテキストで実行されます。",
+      "referenceUrl": "https://docs.anthropic.com/en/docs/claude-code/skills#subagent"
+    },
+    {
+      "id": "skill-007",
+      "category": "skills",
+      "difficulty": "beginner",
+      "question": "ユーザーレベルのSkillはどのディレクトリに配置しますか？",
+      "options": [
+        { "text": "~/.config/claude/skills/", "wrongFeedback": "このパスは正しくありません。" },
+        { "text": "~/.claude/skills/" },
+        { "text": "/usr/local/claude/skills/", "wrongFeedback": "このパスはシステムレベルではありません。" },
+        { "text": "~/claude-skills/", "wrongFeedback": "このパスは正しくありません。" }
+      ],
+      "correctIndex": 1,
+      "explanation": "ユーザーレベルのSkillは~/.claude/skills/<skill-name>/SKILL.mdに配置し、全プロジェクトで使用できます。",
+      "referenceUrl": "https://docs.anthropic.com/en/docs/claude-code/skills#skill-locations"
+    },
+    {
+      "id": "skill-008",
+      "category": "skills",
+      "difficulty": "intermediate",
+      "question": "Skillが使用できるツールを制限するfrontmatterフィールドは何ですか？",
+      "options": [
+        { "text": "tools", "wrongFeedback": "フィールド名が異なります。" },
+        { "text": "allowed-tools" },
+        { "text": "permitted-tools", "wrongFeedback": "permitted-toolsというフィールドは存在しません。" },
+        { "text": "tool-whitelist", "wrongFeedback": "tool-whitelistというフィールドは存在しません。" }
+      ],
+      "correctIndex": 1,
+      "explanation": "allowed-toolsフィールドで、Skill実行時にClaudeが使用できるツールを制限できます。例：Read, Grep, Glob",
+      "referenceUrl": "https://docs.anthropic.com/en/docs/claude-code/skills#tool-restriction"
+    },
+    {
+      "id": "skill-009",
+      "category": "skills",
+      "difficulty": "intermediate",
+      "question": "Skillの説明（description）フィールドの主な目的は何ですか？",
+      "options": [
+        { "text": "ユーザーへのヘルプメッセージ表示のみ", "wrongFeedback": "それだけではありません。" },
+        { "text": "Claudeがスキルを自動選択する際の判断基準" },
+        { "text": "ドキュメント生成用", "wrongFeedback": "ドキュメント生成用ではありません。" },
+        { "text": "ログ出力用", "wrongFeedback": "ログ出力用ではありません。" }
+      ],
+      "correctIndex": 1,
+      "explanation": "descriptionはClaudeがタスクに適したスキルを自動的に選択する際の判断基準になります。",
+      "referenceUrl": "https://docs.anthropic.com/en/docs/claude-code/skills#frontmatter"
+    },
+    {
+      "id": "skill-010",
+      "category": "skills",
+      "difficulty": "advanced",
+      "question": "Skillで$ARGUMENTSプレースホルダーを使用しない場合、渡された引数はどのように処理されますか？",
+      "options": [
+        { "text": "引数は無視される", "wrongFeedback": "引数は無視されません。" },
+        { "text": "エラーが発生する", "wrongFeedback": "エラーにはなりません。" },
+        { "text": "スキル内容の末尾に\"ARGUMENTS: <input>\"として追加される" },
+        { "text": "環境変数として設定される", "wrongFeedback": "環境変数にはなりません。" }
+      ],
+      "correctIndex": 2,
+      "explanation": "$ARGUMENTSがスキル内容にない場合、引数は末尾に「ARGUMENTS: <value>」として自動追加されます。",
+      "referenceUrl": "https://docs.anthropic.com/en/docs/claude-code/skills#arguments"
+    },
+    {
+      "id": "skill-011",
+      "category": "skills",
+      "difficulty": "beginner",
+      "question": "プロジェクト固有のSkillはどのディレクトリに配置しますか？",
+      "options": [
+        { "text": "./skills/", "wrongFeedback": "このパスは正しくありません。" },
+        { "text": "./.claude/skills/" },
+        { "text": "./claude/skills/", "wrongFeedback": "ドットが必要です。" },
+        { "text": "./.skills/", "wrongFeedback": "このパスは正しくありません。" }
+      ],
+      "correctIndex": 1,
+      "explanation": "プロジェクトSkillは.claude/skills/<skill-name>/SKILL.mdに配置し、そのプロジェクトでのみ使用できます。",
+      "referenceUrl": "https://docs.anthropic.com/en/docs/claude-code/skills#skill-locations"
+    },
+    {
+      "id": "skill-012",
+      "category": "skills",
+      "difficulty": "intermediate",
+      "question": "user-invocable: falseを設定したSkillはどのような動作になりますか？",
+      "options": [
+        { "text": "Skillが完全に無効化される", "wrongFeedback": "無効化はされません。" },
+        { "text": "/メニューから非表示になり、Claudeのみが呼び出せる" },
+        { "text": "ユーザーのみが呼び出せる", "wrongFeedback": "逆です。" },
+        { "text": "管理者のみが呼び出せる", "wrongFeedback": "管理者という概念はありません。" }
+      ],
+      "correctIndex": 1,
+      "explanation": "user-invocable: falseでスラッシュメニューから非表示になり、Claudeのみが関連性に基づいて呼び出せます。",
+      "referenceUrl": "https://docs.anthropic.com/en/docs/claude-code/skills#control-invocation"
+    },
+    {
+      "id": "skill-013",
+      "category": "skills",
+      "difficulty": "advanced",
+      "question": "context: forkでSkillを実行する際、agentフィールドで指定できる組み込みエージェントタイプはどれですか？",
+      "options": [
+        { "text": "Research, Code, Test", "wrongFeedback": "これらは組み込みタイプではありません。" },
+        { "text": "Explore, Plan, general-purpose" },
+        { "text": "Read, Write, Execute", "wrongFeedback": "これらはツール名です。" },
+        { "text": "Fast, Balanced, Thorough", "wrongFeedback": "これらは組み込みタイプではありません。" }
+      ],
+      "correctIndex": 1,
+      "explanation": "組み込みエージェントタイプにはExplore、Plan、general-purposeがあります。カスタムサブエージェントも指定可能です。",
+      "referenceUrl": "https://docs.anthropic.com/en/docs/claude-code/skills#subagent"
+    },
+    {
+      "id": "skill-014",
+      "category": "skills",
+      "difficulty": "intermediate",
+      "question": "Skillでモデルを指定するfrontmatterフィールドは何ですか？",
+      "options": [
+        { "text": "llm", "wrongFeedback": "llmというフィールドは存在しません。" },
+        { "text": "model" },
+        { "text": "ai-model", "wrongFeedback": "ai-modelというフィールドは存在しません。" },
+        { "text": "engine", "wrongFeedback": "engineというフィールドは存在しません。" }
+      ],
+      "correctIndex": 1,
+      "explanation": "modelフィールドでSkill実行時に使用するモデルを指定できます。",
+      "referenceUrl": "https://docs.anthropic.com/en/docs/claude-code/skills#frontmatter"
+    },
+    {
+      "id": "skill-015",
+      "category": "skills",
+      "difficulty": "beginner",
+      "question": ".claude/commands/ディレクトリに配置したマークダウンファイルは、Skillと比べてどのような関係にありますか？",
+      "options": [
+        { "text": "全く別の機能として動作する", "wrongFeedback": "同様に動作します。" },
+        { "text": "Skillと同様にスラッシュコマンドとして動作し、Skillが推奨される" },
+        { "text": "commandsの方が優先度が高い", "wrongFeedback": "Skillの方が優先されます。" },
+        { "text": "commandsは非推奨で動作しない", "wrongFeedback": "commandsも動作します。" }
+      ],
+      "correctIndex": 1,
+      "explanation": ".claude/commands/も同様にスラッシュコマンドを作成できますが、Skillsが推奨されます。同名の場合Skillが優先されます。",
+      "referenceUrl": "https://docs.anthropic.com/en/docs/claude-code/skills"
+    },
+    {
+      "id": "tool-001",
+      "category": "tools",
+      "difficulty": "beginner",
+      "question": "Claude Codeの組み込みツールで、ファイル内容の検索に使用されるのはどれですか？",
+      "options": [
+        { "text": "Find", "wrongFeedback": "FindというツールはClaude Codeには存在しません。" },
+        { "text": "Search", "wrongFeedback": "SearchというツールはClaude Codeには存在しません。" },
+        { "text": "Grep" },
+        { "text": "Locate", "wrongFeedback": "LocateというツールはClaude Codeには存在しません。" }
+      ],
+      "correctIndex": 2,
+      "explanation": "Grepツールはripgrepを使用してファイル内容を正規表現で検索します。高速で強力な検索機能を提供します。",
+      "referenceUrl": "https://docs.anthropic.com/en/docs/claude-code/tools"
+    },
+    {
+      "id": "tool-002",
+      "category": "tools",
+      "difficulty": "beginner",
+      "question": "ファイル名のパターンマッチングで検索するツールはどれですか？",
+      "options": [
+        { "text": "Find", "wrongFeedback": "FindではなくGlobを使用します。" },
+        { "text": "Glob" },
+        { "text": "Pattern", "wrongFeedback": "Patternというツールは存在しません。" },
+        { "text": "Match", "wrongFeedback": "Matchというツールは存在しません。" }
+      ],
+      "correctIndex": 1,
+      "explanation": "Globツールは\"**/*.ts\"のようなパターンでファイルを検索します。ファイル名での検索に最適です。",
+      "referenceUrl": "https://docs.anthropic.com/en/docs/claude-code/tools"
+    },
+    {
+      "id": "tool-003",
+      "category": "tools",
+      "difficulty": "intermediate",
+      "question": "Claude Codeでファイルの一部を編集する場合、最も適切なツールはどれですか？",
+      "options": [
+        { "text": "Write", "wrongFeedback": "Writeはファイル全体を上書きします。" },
+        { "text": "Edit" },
+        { "text": "Modify", "wrongFeedback": "Modifyというツールは存在しません。" },
+        { "text": "Patch", "wrongFeedback": "Patchというツールは存在しません。" }
+      ],
+      "correctIndex": 1,
+      "explanation": "Editツールは文字列置換でファイルの一部を編集します。Writeは全体上書きなので、部分編集にはEditが適切です。",
+      "referenceUrl": "https://docs.anthropic.com/en/docs/claude-code/tools"
+    },
+    {
+      "id": "tool-004",
+      "category": "tools",
+      "difficulty": "beginner",
+      "question": "Claude Codeでシェルコマンドを実行するツールはどれですか？",
+      "options": [
+        { "text": "Shell", "wrongFeedback": "ShellではなくBashを使用します。" },
+        { "text": "Terminal", "wrongFeedback": "Terminalというツールは存在しません。" },
+        { "text": "Bash" },
+        { "text": "Exec", "wrongFeedback": "Execというツールは存在しません。" }
+      ],
+      "correctIndex": 2,
+      "explanation": "Bashツールでシェルコマンドを実行できます。git、npm、makeなど任意のコマンドを実行可能です。",
+      "referenceUrl": "https://docs.anthropic.com/en/docs/claude-code/tools"
+    },
+    {
+      "id": "tool-005",
+      "category": "tools",
+      "difficulty": "intermediate",
+      "question": "Claude Codeのツールカテゴリとして正しい組み合わせはどれですか？",
+      "options": [
+        { "text": "ファイル、検索、ネットワーク、データベース", "wrongFeedback": "データベースツールは組み込みではありません。" },
+        { "text": "ファイル操作、検索、実行、Web" },
+        { "text": "エディタ、コンパイラ、デバッガ、テスト", "wrongFeedback": "これらはツールカテゴリではありません。" },
+        { "text": "入力、処理、出力、保存", "wrongFeedback": "これはツールカテゴリではありません。" }
+      ],
+      "correctIndex": 1,
+      "explanation": "組み込みツールは4カテゴリ：ファイル操作(Read/Write/Edit)、検索(Glob/Grep)、実行(Bash)、Web(WebFetch/WebSearch)。",
+      "referenceUrl": "https://docs.anthropic.com/en/docs/claude-code/tools"
+    },
+    {
+      "id": "tool-006",
+      "category": "tools",
+      "difficulty": "intermediate",
+      "question": "WebFetchツールの主な用途は何ですか？",
+      "options": [
+        { "text": "APIリクエストの送信", "wrongFeedback": "APIリクエストはBashでcurlを使用します。" },
+        { "text": "URLからコンテンツを取得して分析" },
+        { "text": "ファイルのダウンロード", "wrongFeedback": "ファイルダウンロードはBashを使用します。" },
+        { "text": "Webページのスクリーンショット", "wrongFeedback": "スクリーンショットはWebFetchではできません。" }
+      ],
+      "correctIndex": 1,
+      "explanation": "WebFetchはURLからWebコンテンツを取得し、HTMLをマークダウンに変換して分析します。ドキュメント参照に便利です。",
+      "referenceUrl": "https://docs.anthropic.com/en/docs/claude-code/tools"
+    },
+    {
+      "id": "tool-007",
+      "category": "tools",
+      "difficulty": "beginner",
+      "question": "ファイルを読み込むためのツールはどれですか？",
+      "options": [
+        { "text": "Load", "wrongFeedback": "Loadというツールは存在しません。" },
+        { "text": "Open", "wrongFeedback": "Openというツールは存在しません。" },
+        { "text": "Read" },
+        { "text": "Get", "wrongFeedback": "Getというツールは存在しません。" }
+      ],
+      "correctIndex": 2,
+      "explanation": "Readツールでファイルの内容を読み込みます。画像やPDFも読み込み可能です。",
+      "referenceUrl": "https://docs.anthropic.com/en/docs/claude-code/tools"
+    },
+    {
+      "id": "tool-008",
+      "category": "tools",
+      "difficulty": "advanced",
+      "question": "Claudeがファイルを編集する前に自動的に行われることは何ですか？",
+      "options": [
+        { "text": "バックアップファイルの作成", "wrongFeedback": "バックアップファイルは作成されません。" },
+        { "text": "ファイル内容のスナップショット保存" },
+        { "text": "Gitへの自動コミット", "wrongFeedback": "自動コミットはされません。" },
+        { "text": "構文チェック", "wrongFeedback": "編集前の構文チェックは自動では行われません。" }
+      ],
+      "correctIndex": 1,
+      "explanation": "Claudeがファイルを編集する前にスナップショットが保存され、Esc+Escで巻き戻し可能です。",
+      "referenceUrl": "https://docs.anthropic.com/en/docs/claude-code/tools#checkpoints"
+    },
+    {
+      "id": "tool-009",
+      "category": "tools",
+      "difficulty": "intermediate",
+      "question": "WebSearchツールは何を返しますか？",
+      "options": [
+        { "text": "Webページの全HTMLコンテンツ", "wrongFeedback": "全HTMLは返しません。" },
+        { "text": "検索結果のリンクと要約" },
+        { "text": "ページのスクリーンショット", "wrongFeedback": "スクリーンショットは返しません。" },
+        { "text": "ダウンロードされたファイル", "wrongFeedback": "ファイルダウンロードはしません。" }
+      ],
+      "correctIndex": 1,
+      "explanation": "WebSearchはWeb検索を実行し、関連するリンクと要約情報を返します。詳細取得にはWebFetchを使用します。",
+      "referenceUrl": "https://docs.anthropic.com/en/docs/claude-code/tools"
+    },
+    {
+      "id": "tool-010",
+      "category": "tools",
+      "difficulty": "advanced",
+      "question": "MCPを通じて追加できるツールの例として正しいのはどれですか？",
+      "options": [
+        { "text": "ファイル読み込み強化版", "wrongFeedback": "これは組み込みツールの機能です。" },
+        { "text": "データベースクエリ、Slack投稿、ブラウザ制御" },
+        { "text": "高速テキスト検索", "wrongFeedback": "これはGrepで可能です。" },
+        { "text": "ファイル圧縮", "wrongFeedback": "これはBashで可能です。" }
+      ],
+      "correctIndex": 1,
+      "explanation": "MCP（Model Context Protocol）で外部サービスのツールを追加できます。データベース、Slack、ブラウザ制御などが典型例です。",
+      "referenceUrl": "https://docs.anthropic.com/en/docs/claude-code/mcp"
+    },
+    {
+      "id": "tool-011",
+      "category": "tools",
+      "difficulty": "intermediate",
+      "question": "Readツールで画像ファイルを読み込むと何が起こりますか？",
+      "options": [
+        { "text": "エラーが発生する", "wrongFeedback": "画像も読み込み可能です。" },
+        { "text": "バイナリデータが表示される", "wrongFeedback": "バイナリではなく視覚的に処理されます。" },
+        { "text": "画像の内容が視覚的に解析される" },
+        { "text": "ファイルパスのみが返される", "wrongFeedback": "内容も解析されます。" }
+      ],
+      "correctIndex": 2,
+      "explanation": "Claude Codeはマルチモーダルなので、画像ファイル（PNG、JPGなど）を視覚的に解析できます。",
+      "referenceUrl": "https://docs.anthropic.com/en/docs/claude-code/tools"
+    },
+    {
+      "id": "tool-012",
+      "category": "tools",
+      "difficulty": "beginner",
+      "question": "新しいファイルを作成する場合、どのツールを使用しますか？",
+      "options": [
+        { "text": "Create", "wrongFeedback": "Createというツールは存在しません。" },
+        { "text": "New", "wrongFeedback": "Newというツールは存在しません。" },
+        { "text": "Write" },
+        { "text": "Make", "wrongFeedback": "Makeというツールは存在しません。" }
+      ],
+      "correctIndex": 2,
+      "explanation": "Writeツールで新しいファイルを作成します。既存ファイルの場合は上書きされます。",
+      "referenceUrl": "https://docs.anthropic.com/en/docs/claude-code/tools"
+    },
+    {
+      "id": "tool-013",
+      "category": "tools",
+      "difficulty": "advanced",
+      "question": "Bashツールでコマンドをバックグラウンドで実行するにはどうしますか？",
+      "options": [
+        { "text": "コマンドの末尾に&を付ける", "wrongFeedback": "Bashの通常の方法ではありません。" },
+        { "text": "Ctrl+Bを押す、またはrun_in_backgroundパラメータを使用" },
+        { "text": "bgコマンドを使用する", "wrongFeedback": "bgコマンドではありません。" },
+        { "text": "バックグラウンド実行はサポートされていない", "wrongFeedback": "サポートされています。" }
+      ],
+      "correctIndex": 1,
+      "explanation": "Ctrl+Bでコマンドをバックグラウンドに移動するか、run_in_backgroundパラメータを使用します。",
+      "referenceUrl": "https://docs.anthropic.com/en/docs/claude-code/interactive-mode#background"
+    },
+    {
+      "id": "tool-014",
+      "category": "tools",
+      "difficulty": "intermediate",
+      "question": "Grepツールで使用できる正規表現の構文は何ですか？",
+      "options": [
+        { "text": "POSIX基本正規表現", "wrongFeedback": "POSIXではありません。" },
+        { "text": "ripgrep（Rust正規表現）" },
+        { "text": "Perl互換正規表現", "wrongFeedback": "Perl互換ではありません。" },
+        { "text": "JavaScript正規表現", "wrongFeedback": "JavaScriptではありません。" }
+      ],
+      "correctIndex": 1,
+      "explanation": "Grepツールはripgrepをベースにしているため、Rust正規表現構文を使用します。",
+      "referenceUrl": "https://docs.anthropic.com/en/docs/claude-code/tools"
+    },
+    {
+      "id": "tool-015",
+      "category": "tools",
+      "difficulty": "advanced",
+      "question": "Code Intelligenceプラグインで追加されるツールの例はどれですか？",
+      "options": [
+        { "text": "ファイル検索の高速化", "wrongFeedback": "これは別の機能です。" },
+        { "text": "型エラー・警告の表示、定義ジャンプ、参照検索" },
+        { "text": "コード自動生成", "wrongFeedback": "これはプラグインの機能ではありません。" },
+        { "text": "テスト自動実行", "wrongFeedback": "これはBashで行います。" }
+      ],
+      "correctIndex": 1,
+      "explanation": "Code Intelligenceプラグインで編集後の型エラー・警告表示、定義ジャンプ、参照検索が可能になります。",
+      "referenceUrl": "https://docs.anthropic.com/en/docs/claude-code/tools#code-intelligence"
+    },
+    {
+      "id": "cmd-001",
+      "category": "commands",
+      "difficulty": "beginner",
+      "question": "Claude Codeで現在のコンテキストウィンドウの使用状況を視覚的に確認するコマンドはどれですか？",
+      "options": [
+        { "text": "/memory", "wrongFeedback": "/memoryはCLAUDE.mdファイルを編集するコマンドです。" },
+        { "text": "/status", "wrongFeedback": "/statusはバージョン、モデル、接続状態を表示します。" },
+        { "text": "/context" },
+        { "text": "/usage", "wrongFeedback": "/usageはサブスクリプションプランの使用制限を表示します。" }
+      ],
+      "correctIndex": 2,
+      "explanation": "/contextコマンドは現在のコンテキスト使用状況をカラーグリッドで視覚化します。",
+      "referenceUrl": "https://docs.anthropic.com/en/docs/claude-code/commands"
+    },
+    {
+      "id": "cmd-002",
+      "category": "commands",
+      "difficulty": "beginner",
+      "question": "bashコマンドを直接実行し、その出力を会話コンテキストに追加するプレフィックスはどれですか？",
+      "options": [
+        { "text": "$", "wrongFeedback": "$はシェルのプロンプト記号ですが、Claude Codeでは!を使用します。" },
+        { "text": ">", "wrongFeedback": ">はリダイレクト演算子です。" },
+        { "text": "!" },
+        { "text": "#", "wrongFeedback": "#はコメントを表すことが多いです。" }
+      ],
+      "correctIndex": 2,
+      "explanation": "!プレフィックスでBashモードに入り、Claudeを介さずにコマンドを直接実行できます。出力は会話に追加されます。",
+      "referenceUrl": "https://docs.anthropic.com/en/docs/claude-code/interactive-mode#bash-mode"
+    },
+    {
+      "id": "cmd-003",
+      "category": "commands",
+      "difficulty": "intermediate",
+      "question": "会話履歴を圧縮してコンテキストを節約するコマンドはどれですか？",
+      "options": [
+        { "text": "/clear", "wrongFeedback": "/clearは会話履歴を完全に削除します。" },
+        { "text": "/compact" },
+        { "text": "/compress", "wrongFeedback": "/compressというコマンドは存在しません。" },
+        { "text": "/reduce", "wrongFeedback": "/reduceというコマンドは存在しません。" }
+      ],
+      "correctIndex": 1,
+      "explanation": "/compactコマンドは会話を圧縮しますが重要な情報は保持します。オプションで焦点を指定できます。",
+      "referenceUrl": "https://docs.anthropic.com/en/docs/claude-code/commands"
+    },
+    {
+      "id": "cmd-004",
+      "category": "commands",
+      "difficulty": "beginner",
+      "question": "ファイルパスのオートコンプリートをトリガーする記号は何ですか？",
+      "options": [
+        { "text": "#", "wrongFeedback": "#はコメント用です。" },
+        { "text": "@" },
+        { "text": "$", "wrongFeedback": "$は変数参照用です。" },
+        { "text": "&", "wrongFeedback": "&はバックグラウンド実行用です。" }
+      ],
+      "correctIndex": 1,
+      "explanation": "@記号でファイルパスのオートコンプリートがトリガーされます。ファイル参照に便利です。",
+      "referenceUrl": "https://docs.anthropic.com/en/docs/claude-code/interactive-mode"
+    },
+    {
+      "id": "cmd-005",
+      "category": "commands",
+      "difficulty": "intermediate",
+      "question": "MCP接続状態と各サーバーのトークンコストを確認するコマンドはどれですか？",
+      "options": [
+        { "text": "/mcp" },
+        { "text": "/connections", "wrongFeedback": "/connectionsというコマンドは存在しません。" },
+        { "text": "/servers", "wrongFeedback": "/serversというコマンドは存在しません。" },
+        { "text": "/status mcp", "wrongFeedback": "この形式はサポートされていません。" }
+      ],
+      "correctIndex": 0,
+      "explanation": "/mcpコマンドでMCPサーバーの接続状態とトークンコストを確認できます。",
+      "referenceUrl": "https://docs.anthropic.com/en/docs/claude-code/commands"
+    },
+    {
+      "id": "cmd-006",
+      "category": "commands",
+      "difficulty": "beginner",
+      "question": "AIモデルを切り替えるコマンドはどれですか？",
+      "options": [
+        { "text": "/switch", "wrongFeedback": "/switchというコマンドは存在しません。" },
+        { "text": "/model" },
+        { "text": "/change-model", "wrongFeedback": "/change-modelというコマンドは存在しません。" },
+        { "text": "/ai", "wrongFeedback": "/aiというコマンドは存在しません。" }
+      ],
+      "correctIndex": 1,
+      "explanation": "/modelコマンドでセッション中にモデルを切り替えられます。起動時には--modelフラグも使用可能です。",
+      "referenceUrl": "https://docs.anthropic.com/en/docs/claude-code/commands"
+    },
+    {
+      "id": "cmd-007",
+      "category": "commands",
+      "difficulty": "intermediate",
+      "question": "現在のTODOリストを表示するコマンドはどれですか？",
+      "options": [
+        { "text": "/list", "wrongFeedback": "/listというコマンドは存在しません。" },
+        { "text": "/tasks", "wrongFeedback": "/tasksはバックグラウンドタスクの管理用です。" },
+        { "text": "/todos" },
+        { "text": "/todo-list", "wrongFeedback": "/todo-listというコマンドは存在しません。" }
+      ],
+      "correctIndex": 2,
+      "explanation": "/todosコマンドでClaudeが管理しているTODOリストを表示できます。",
+      "referenceUrl": "https://docs.anthropic.com/en/docs/claude-code/commands"
+    },
+    {
+      "id": "cmd-008",
+      "category": "commands",
+      "difficulty": "advanced",
+      "question": "プランモードに直接入るためのコマンドはどれですか？",
+      "options": [
+        { "text": "/mode plan", "wrongFeedback": "この形式はサポートされていません。" },
+        { "text": "/plan" },
+        { "text": "/planning", "wrongFeedback": "/planningというコマンドは存在しません。" },
+        { "text": "/readonly", "wrongFeedback": "/readonlyというコマンドは存在しません。" }
+      ],
+      "correctIndex": 1,
+      "explanation": "/planコマンドでプランモードに入り、読み取り専用ツールのみで計画を立案できます。",
+      "referenceUrl": "https://docs.anthropic.com/en/docs/claude-code/commands"
+    },
+    {
+      "id": "cmd-009",
+      "category": "commands",
+      "difficulty": "beginner",
+      "question": "Claude Codeのインストール状態を診断するコマンドはどれですか？",
+      "options": [
+        { "text": "/check", "wrongFeedback": "/checkというコマンドは存在しません。" },
+        { "text": "/diagnose", "wrongFeedback": "/diagnoseというコマンドは存在しません。" },
+        { "text": "/doctor" },
+        { "text": "/health", "wrongFeedback": "/healthというコマンドは存在しません。" }
+      ],
+      "correctIndex": 2,
+      "explanation": "/doctorコマンドでClaude Codeのインストール状態と一般的な問題を診断できます。",
+      "referenceUrl": "https://docs.anthropic.com/en/docs/claude-code/commands"
+    },
+    {
+      "id": "cmd-010",
+      "category": "commands",
+      "difficulty": "intermediate",
+      "question": "セッション名を変更するコマンドはどれですか？",
+      "options": [
+        { "text": "/name", "wrongFeedback": "/nameというコマンドは存在しません。" },
+        { "text": "/rename" },
+        { "text": "/title", "wrongFeedback": "/titleというコマンドは存在しません。" },
+        { "text": "/session-name", "wrongFeedback": "/session-nameというコマンドは存在しません。" }
+      ],
+      "correctIndex": 1,
+      "explanation": "/rename <name>でセッション名を変更し、識別しやすくできます。",
+      "referenceUrl": "https://docs.anthropic.com/en/docs/claude-code/commands"
+    },
+    {
+      "id": "cmd-011",
+      "category": "commands",
+      "difficulty": "beginner",
+      "question": "会話をファイルまたはクリップボードにエクスポートするコマンドはどれですか？",
+      "options": [
+        { "text": "/save", "wrongFeedback": "/saveというコマンドは存在しません。" },
+        { "text": "/export" },
+        { "text": "/copy", "wrongFeedback": "/copyというコマンドは存在しません。" },
+        { "text": "/dump", "wrongFeedback": "/dumpというコマンドは存在しません。" }
+      ],
+      "correctIndex": 1,
+      "explanation": "/export [filename]で会話をファイルまたはクリップボードにエクスポートできます。",
+      "referenceUrl": "https://docs.anthropic.com/en/docs/claude-code/commands"
+    },
+    {
+      "id": "cmd-012",
+      "category": "commands",
+      "difficulty": "advanced",
+      "question": "リモートセッション（claude.ai）から会話を再開するコマンドはどれですか？",
+      "options": [
+        { "text": "/import", "wrongFeedback": "/importというコマンドは存在しません。" },
+        { "text": "/sync", "wrongFeedback": "/syncというコマンドは存在しません。" },
+        { "text": "/teleport" },
+        { "text": "/remote", "wrongFeedback": "/remoteというコマンドは存在しません。" }
+      ],
+      "correctIndex": 2,
+      "explanation": "/teleportでサブスクライバー向けにclaude.aiからリモートセッションを再開できます。",
+      "referenceUrl": "https://docs.anthropic.com/en/docs/claude-code/commands"
+    },
+    {
+      "id": "cmd-013",
+      "category": "commands",
+      "difficulty": "intermediate",
+      "question": "バックグラウンドタスクを一覧・管理するコマンドはどれですか？",
+      "options": [
+        { "text": "/background", "wrongFeedback": "/backgroundというコマンドは存在しません。" },
+        { "text": "/jobs", "wrongFeedback": "/jobsというコマンドは存在しません。" },
+        { "text": "/tasks" },
+        { "text": "/processes", "wrongFeedback": "/processesというコマンドは存在しません。" }
+      ],
+      "correctIndex": 2,
+      "explanation": "/tasksコマンドでバックグラウンドで実行中のタスクを一覧・管理できます。",
+      "referenceUrl": "https://docs.anthropic.com/en/docs/claude-code/commands"
+    },
+    {
+      "id": "cmd-014",
+      "category": "commands",
+      "difficulty": "beginner",
+      "question": "カラーテーマを変更するコマンドはどれですか？",
+      "options": [
+        { "text": "/color", "wrongFeedback": "/colorというコマンドは存在しません。" },
+        { "text": "/theme" },
+        { "text": "/style", "wrongFeedback": "/styleというコマンドは存在しません。" },
+        { "text": "/appearance", "wrongFeedback": "/appearanceというコマンドは存在しません。" }
+      ],
+      "correctIndex": 1,
+      "explanation": "/themeコマンドでClaude Codeのカラーテーマを変更できます。",
+      "referenceUrl": "https://docs.anthropic.com/en/docs/claude-code/commands"
+    },
+    {
+      "id": "cmd-015",
+      "category": "commands",
+      "difficulty": "intermediate",
+      "question": "日別の使用統計、セッション履歴、連続使用日数を表示するコマンドはどれですか？",
+      "options": [
+        { "text": "/usage", "wrongFeedback": "/usageはサブスクリプション制限を表示します。" },
+        { "text": "/analytics", "wrongFeedback": "/analyticsというコマンドは存在しません。" },
+        { "text": "/stats" },
+        { "text": "/history", "wrongFeedback": "/historyというコマンドは存在しません。" }
+      ],
+      "correctIndex": 2,
+      "explanation": "/statsコマンドで日別使用量、セッション履歴、連続使用日数、モデル使用傾向を表示できます。",
+      "referenceUrl": "https://docs.anthropic.com/en/docs/claude-code/commands"
+    },
+    {
+      "id": "ext-001",
+      "category": "extensions",
+      "difficulty": "beginner",
+      "question": "MCPとは何の略称ですか？",
+      "options": [
+        { "text": "Model Control Protocol", "wrongFeedback": "Controlではありません。" },
+        { "text": "Model Context Protocol" },
+        { "text": "Multi-Channel Protocol", "wrongFeedback": "Multi-Channelではありません。" },
+        { "text": "Machine Communication Protocol", "wrongFeedback": "Machine Communicationではありません。" }
+      ],
+      "correctIndex": 1,
+      "explanation": "MCPはModel Context Protocolの略で、外部ツールやサービスをClaude Codeに接続するためのプロトコルです。",
+      "referenceUrl": "https://docs.anthropic.com/en/docs/claude-code/mcp"
+    },
+    {
+      "id": "ext-002",
+      "category": "extensions",
+      "difficulty": "intermediate",
+      "question": "MCPサーバー設定を記述するファイルはどれですか？",
+      "options": [
+        { "text": "mcp.json", "wrongFeedback": "mcp.jsonではありません。" },
+        { "text": "settings.json内のmcpServersセクション" },
+        { "text": "servers.config", "wrongFeedback": "servers.configではありません。" },
+        { "text": "CLAUDE.md", "wrongFeedback": "CLAUDE.mdはメモリファイルです。" }
+      ],
+      "correctIndex": 1,
+      "explanation": "MCPサーバーはsettings.jsonのmcpServersセクションで設定します。",
+      "referenceUrl": "https://docs.anthropic.com/en/docs/claude-code/mcp#configuration"
+    },
+    {
+      "id": "ext-003",
+      "category": "extensions",
+      "difficulty": "advanced",
+      "question": "Hooksでツール実行の前後にカスタム処理を行う場合、どのイベントを使用しますか？",
+      "options": [
+        { "text": "onToolStart, onToolEnd", "wrongFeedback": "このイベント名ではありません。" },
+        { "text": "PreToolExecution, PostToolExecution" },
+        { "text": "beforeTool, afterTool", "wrongFeedback": "このイベント名ではありません。" },
+        { "text": "tool:before, tool:after", "wrongFeedback": "このイベント名ではありません。" }
+      ],
+      "correctIndex": 1,
+      "explanation": "PreToolExecutionとPostToolExecutionイベントでツール実行の前後に処理を挟めます。",
+      "referenceUrl": "https://docs.anthropic.com/en/docs/claude-code/hooks"
+    },
+    {
+      "id": "ext-004",
+      "category": "extensions",
+      "difficulty": "beginner",
+      "question": "Hooksの設定を記述する場所はどこですか？",
+      "options": [
+        { "text": "hooks.jsonファイル", "wrongFeedback": "hooks.jsonではありません。" },
+        { "text": "settings.jsonのhooksセクション" },
+        { "text": "CLAUDE.mdファイル", "wrongFeedback": "CLAUDE.mdはメモリ用です。" },
+        { "text": ".hooksディレクトリ", "wrongFeedback": ".hooksディレクトリではありません。" }
+      ],
+      "correctIndex": 1,
+      "explanation": "Hooksはsettings.jsonのhooksセクションで設定します。",
+      "referenceUrl": "https://docs.anthropic.com/en/docs/claude-code/hooks#configuration"
+    },
+    {
+      "id": "ext-005",
+      "category": "extensions",
+      "difficulty": "intermediate",
+      "question": "サブエージェントを起動するためのツールは何ですか？",
+      "options": [
+        { "text": "Subprocess", "wrongFeedback": "Subprocessではありません。" },
+        { "text": "Fork", "wrongFeedback": "Forkではありません。" },
+        { "text": "Task" },
+        { "text": "Agent", "wrongFeedback": "Agentではありません。" }
+      ],
+      "correctIndex": 2,
+      "explanation": "Taskツールでサブエージェントを起動し、複雑なタスクを自律的に処理させることができます。",
+      "referenceUrl": "https://docs.anthropic.com/en/docs/claude-code/tools"
+    },
+    {
+      "id": "ext-006",
+      "category": "extensions",
+      "difficulty": "advanced",
+      "question": "MCPサーバーでカスタムツールを公開する際に実装するメソッドは何ですか？",
+      "options": [
+        { "text": "registerTool()", "wrongFeedback": "registerToolではありません。" },
+        { "text": "tools/list と tools/call" },
+        { "text": "exportTool()", "wrongFeedback": "exportToolではありません。" },
+        { "text": "createTool()", "wrongFeedback": "createToolではありません。" }
+      ],
+      "correctIndex": 1,
+      "explanation": "MCPサーバーはtools/listでツール一覧を返し、tools/callでツール実行を処理します。",
+      "referenceUrl": "https://docs.anthropic.com/en/docs/claude-code/mcp"
+    },
+    {
+      "id": "ext-007",
+      "category": "extensions",
+      "difficulty": "intermediate",
+      "question": "Hooksでユーザーの入力送信前にカスタム処理を行うイベントは何ですか？",
+      "options": [
+        { "text": "BeforeSubmit", "wrongFeedback": "BeforeSubmitではありません。" },
+        { "text": "UserPromptSubmit" },
+        { "text": "PrePrompt", "wrongFeedback": "PrePromptではありません。" },
+        { "text": "InputValidation", "wrongFeedback": "InputValidationではありません。" }
+      ],
+      "correctIndex": 1,
+      "explanation": "UserPromptSubmitイベントでユーザーのプロンプト送信前にカスタム処理が可能です。",
+      "referenceUrl": "https://docs.anthropic.com/en/docs/claude-code/hooks"
+    },
+    {
+      "id": "ext-008",
+      "category": "extensions",
+      "difficulty": "beginner",
+      "question": "組み込みのサブエージェントタイプに含まれないものはどれですか？",
+      "options": [
+        { "text": "Explore", "wrongFeedback": "Exploreは組み込みエージェントです。" },
+        { "text": "Plan", "wrongFeedback": "Planは組み込みエージェントです。" },
+        { "text": "Debug" },
+        { "text": "general-purpose", "wrongFeedback": "general-purposeは組み込みエージェントです。" }
+      ],
+      "correctIndex": 2,
+      "explanation": "組み込みサブエージェントはExplore、Plan、general-purposeなどがあります。Debugは含まれません。",
+      "referenceUrl": "https://docs.anthropic.com/en/docs/claude-code/tools"
+    },
+    {
+      "id": "ext-009",
+      "category": "extensions",
+      "difficulty": "advanced",
+      "question": "MCPサーバーの通信方式として使用されるものはどれですか？",
+      "options": [
+        { "text": "HTTP REST API", "wrongFeedback": "REST APIではありません。" },
+        { "text": "JSON-RPC over stdio/SSE" },
+        { "text": "gRPC", "wrongFeedback": "gRPCではありません。" },
+        { "text": "WebSocket", "wrongFeedback": "WebSocketではありません。" }
+      ],
+      "correctIndex": 1,
+      "explanation": "MCPはJSON-RPCプロトコルを使用し、stdioまたはSSE経由で通信します。",
+      "referenceUrl": "https://docs.anthropic.com/en/docs/claude-code/mcp"
+    },
+    {
+      "id": "ext-010",
+      "category": "extensions",
+      "difficulty": "intermediate",
+      "question": "Hooksでコマンド実行結果を変更できるイベントはどれですか？",
+      "options": [
+        { "text": "PostToolExecution" },
+        { "text": "CommandResult", "wrongFeedback": "CommandResultではありません。" },
+        { "text": "OutputModify", "wrongFeedback": "OutputModifyではありません。" },
+        { "text": "ResponseFilter", "wrongFeedback": "ResponseFilterではありません。" }
+      ],
+      "correctIndex": 0,
+      "explanation": "PostToolExecutionイベントでツール実行後の結果を処理・変更できます。",
+      "referenceUrl": "https://docs.anthropic.com/en/docs/claude-code/hooks"
+    },
+    {
+      "id": "ext-011",
+      "category": "extensions",
+      "difficulty": "beginner",
+      "question": "MCPで提供できるリソースの種類に含まれないものはどれですか？",
+      "options": [
+        { "text": "ツール", "wrongFeedback": "ツールは提供できます。" },
+        { "text": "プロンプト", "wrongFeedback": "プロンプトは提供できます。" },
+        { "text": "コンテキスト", "wrongFeedback": "コンテキストは提供できます。" },
+        { "text": "ユーザー認証" }
+      ],
+      "correctIndex": 3,
+      "explanation": "MCPはツール、プロンプト、コンテキスト（リソース）を提供できますが、ユーザー認証機能はありません。",
+      "referenceUrl": "https://docs.anthropic.com/en/docs/claude-code/mcp"
+    },
+    {
+      "id": "ext-012",
+      "category": "extensions",
+      "difficulty": "advanced",
+      "question": "Code Intelligenceプラグインを有効にするための設定はどこで行いますか？",
+      "options": [
+        { "text": "CLAUDE.md", "wrongFeedback": "CLAUDE.mdではありません。" },
+        { "text": "settings.jsonのplugins.code-intelligenceセクション" },
+        { "text": "環境変数", "wrongFeedback": "環境変数ではありません。" },
+        { "text": "コマンドラインフラグ", "wrongFeedback": "コマンドラインではありません。" }
+      ],
+      "correctIndex": 1,
+      "explanation": "Code Intelligenceはsettings.jsonのplugins.code-intelligenceセクションで設定します。",
+      "referenceUrl": "https://docs.anthropic.com/en/docs/claude-code/tools#code-intelligence"
+    },
+    {
+      "id": "ext-013",
+      "category": "extensions",
+      "difficulty": "intermediate",
+      "question": "MCPサーバーをローカルで実行する場合のtransport設定は何ですか？",
+      "options": [
+        { "text": "local", "wrongFeedback": "localではありません。" },
+        { "text": "stdio" },
+        { "text": "pipe", "wrongFeedback": "pipeではありません。" },
+        { "text": "socket", "wrongFeedback": "socketではありません。" }
+      ],
+      "correctIndex": 1,
+      "explanation": "ローカルMCPサーバーはstdio transportを使用してプロセス間通信を行います。",
+      "referenceUrl": "https://docs.anthropic.com/en/docs/claude-code/mcp#configuration"
+    },
+    {
+      "id": "ext-014",
+      "category": "extensions",
+      "difficulty": "advanced",
+      "question": "Hooksでスクリプトにツール入力を渡す環境変数は何ですか？",
+      "options": [
+        { "text": "HOOK_INPUT", "wrongFeedback": "HOOK_INPUTではありません。" },
+        { "text": "TOOL_INPUT" },
+        { "text": "CLAUDE_INPUT", "wrongFeedback": "CLAUDE_INPUTではありません。" },
+        { "text": "SCRIPT_ARGS", "wrongFeedback": "SCRIPT_ARGSではありません。" }
+      ],
+      "correctIndex": 1,
+      "explanation": "HooksスクリプトにはTOOL_INPUT環境変数でツールへの入力が渡されます。",
+      "referenceUrl": "https://docs.anthropic.com/en/docs/claude-code/hooks"
+    },
+    {
+      "id": "ext-015",
+      "category": "extensions",
+      "difficulty": "intermediate",
+      "question": "サブエージェントをバックグラウンドで実行するためのパラメータは何ですか？",
+      "options": [
+        { "text": "async: true", "wrongFeedback": "asyncではありません。" },
+        { "text": "run_in_background: true" },
+        { "text": "background: true", "wrongFeedback": "backgroundではありません。" },
+        { "text": "detach: true", "wrongFeedback": "detachではありません。" }
+      ],
+      "correctIndex": 1,
+      "explanation": "run_in_background: trueでサブエージェントをバックグラウンド実行し、メイン作業を継続できます。",
+      "referenceUrl": "https://docs.anthropic.com/en/docs/claude-code/tools"
+    },
+    {
+      "id": "ses-001",
+      "category": "session",
+      "difficulty": "beginner",
+      "question": "以前のセッションを再開するコマンドはどれですか？",
+      "options": [
+        { "text": "/load", "wrongFeedback": "/loadというコマンドは存在しません。" },
+        { "text": "/resume" },
+        { "text": "/restore", "wrongFeedback": "/restoreというコマンドは存在しません。" },
+        { "text": "/open", "wrongFeedback": "/openというコマンドは存在しません。" }
+      ],
+      "correctIndex": 1,
+      "explanation": "/resumeコマンドで以前のセッションを再開できます。セッション履歴から選択可能です。",
+      "referenceUrl": "https://docs.anthropic.com/en/docs/claude-code/commands"
+    },
+    {
+      "id": "ses-002",
+      "category": "session",
+      "difficulty": "intermediate",
+      "question": "コンテキストウィンドウが80%を超えた場合、Claudeはどのような動作をしますか？",
+      "options": [
+        { "text": "エラーを出して停止する", "wrongFeedback": "エラーでは停止しません。" },
+        { "text": "自動的に会話を要約して圧縮する" },
+        { "text": "新しいセッションを開始する", "wrongFeedback": "新しいセッションは自動開始しません。" },
+        { "text": "古いメッセージを削除する", "wrongFeedback": "単純な削除ではありません。" }
+      ],
+      "correctIndex": 1,
+      "explanation": "コンテキストが80%を超えると自動要約機能が作動し、重要な情報を保持しながら圧縮します。",
+      "referenceUrl": "https://docs.anthropic.com/en/docs/claude-code/context-management"
+    },
+    {
+      "id": "ses-003",
+      "category": "session",
+      "difficulty": "beginner",
+      "question": "会話履歴を完全にクリアするコマンドはどれですか？",
+      "options": [
+        { "text": "/reset", "wrongFeedback": "/resetというコマンドは存在しません。" },
+        { "text": "/clear" },
+        { "text": "/new", "wrongFeedback": "/newというコマンドは存在しません。" },
+        { "text": "/delete", "wrongFeedback": "/deleteというコマンドは存在しません。" }
+      ],
+      "correctIndex": 1,
+      "explanation": "/clearコマンドで会話履歴を完全にクリアし、新しい会話を開始できます。",
+      "referenceUrl": "https://docs.anthropic.com/en/docs/claude-code/commands"
+    },
+    {
+      "id": "ses-004",
+      "category": "session",
+      "difficulty": "advanced",
+      "question": "セッションをフォークして分岐を作成するにはどうしますか？",
+      "options": [
+        { "text": "/forkコマンドを使用する", "wrongFeedback": "/forkコマンドではありません。" },
+        { "text": "context: forkを設定したSkillを実行する" },
+        { "text": "/branchコマンドを使用する", "wrongFeedback": "/branchコマンドは存在しません。" },
+        { "text": "別のターミナルで同じセッションIDを指定する", "wrongFeedback": "この方法ではありません。" }
+      ],
+      "correctIndex": 1,
+      "explanation": "Skillのfrontmatterでcontext: forkを設定すると、分離されたコンテキストで実行されます。",
+      "referenceUrl": "https://docs.anthropic.com/en/docs/claude-code/skills#subagent"
+    },
+    {
+      "id": "ses-005",
+      "category": "session",
+      "difficulty": "intermediate",
+      "question": "セッションの継続性を保つためにClaude Codeが使用する仕組みは何ですか？",
+      "options": [
+        { "text": "データベース保存", "wrongFeedback": "データベースではありません。" },
+        { "text": "ローカルJSONファイル保存" },
+        { "text": "クラウド同期", "wrongFeedback": "クラウド同期ではありません。" },
+        { "text": "メモリ常駐", "wrongFeedback": "メモリ常駐ではありません。" }
+      ],
+      "correctIndex": 1,
+      "explanation": "セッションはローカルのJSONファイルに保存され、/resumeで再開可能です。",
+      "referenceUrl": "https://docs.anthropic.com/en/docs/claude-code/sessions"
+    },
+    {
+      "id": "ses-006",
+      "category": "session",
+      "difficulty": "beginner",
+      "question": "Claude Codeを終了せずに新しい会話を開始する方法は？",
+      "options": [
+        { "text": "Ctrl+Nを押す", "wrongFeedback": "Ctrl+Nではありません。" },
+        { "text": "/clearコマンドを実行する" },
+        { "text": "exitと入力する", "wrongFeedback": "exitは終了コマンドです。" },
+        { "text": "何もせず続ける", "wrongFeedback": "新しい会話を開始する必要があります。" }
+      ],
+      "correctIndex": 1,
+      "explanation": "/clearで履歴をクリアして新しい会話を開始できます。Claude Code自体は終了しません。",
+      "referenceUrl": "https://docs.anthropic.com/en/docs/claude-code/commands"
+    },
+    {
+      "id": "ses-007",
+      "category": "session",
+      "difficulty": "intermediate",
+      "question": "手動で会話を圧縮する際に焦点を指定するにはどうしますか？",
+      "options": [
+        { "text": "/compact --focus <topic>", "wrongFeedback": "--focusフラグではありません。" },
+        { "text": "/compact <focus>" },
+        { "text": "/compact -t <topic>", "wrongFeedback": "-tフラグではありません。" },
+        { "text": "焦点の指定はできない", "wrongFeedback": "焦点を指定できます。" }
+      ],
+      "correctIndex": 1,
+      "explanation": "/compact <focus>の形式で圧縮時に保持すべき焦点を指定できます。",
+      "referenceUrl": "https://docs.anthropic.com/en/docs/claude-code/commands"
+    },
+    {
+      "id": "ses-008",
+      "category": "session",
+      "difficulty": "advanced",
+      "question": "コンテキストウィンドウの現在の使用状況を確認できるキーボードショートカットは？",
+      "options": [
+        { "text": "Ctrl+C", "wrongFeedback": "Ctrl+Cは中断コマンドです。" },
+        { "text": "Ctrl+L" },
+        { "text": "Ctrl+W", "wrongFeedback": "Ctrl+Wではありません。" },
+        { "text": "Ctrl+I", "wrongFeedback": "Ctrl+Iではありません。" }
+      ],
+      "correctIndex": 1,
+      "explanation": "Ctrl+Lでステータスラインに現在のコンテキストウィンドウ使用状況が表示されます。",
+      "referenceUrl": "https://docs.anthropic.com/en/docs/claude-code/interactive-mode"
+    },
+    {
+      "id": "ses-009",
+      "category": "session",
+      "difficulty": "intermediate",
+      "question": "サブスクライバー向けにclaude.aiからセッションを継続するコマンドは？",
+      "options": [
+        { "text": "/sync", "wrongFeedback": "/syncではありません。" },
+        { "text": "/teleport" },
+        { "text": "/remote", "wrongFeedback": "/remoteではありません。" },
+        { "text": "/cloud", "wrongFeedback": "/cloudではありません。" }
+      ],
+      "correctIndex": 1,
+      "explanation": "/teleportでclaude.aiで開始した会話をClaude Codeで継続できます（サブスクライバー限定）。",
+      "referenceUrl": "https://docs.anthropic.com/en/docs/claude-code/commands"
+    },
+    {
+      "id": "ses-010",
+      "category": "session",
+      "difficulty": "beginner",
+      "question": "Claude Codeを完全に終了するコマンドはどれですか？",
+      "options": [
+        { "text": "/exit" },
+        { "text": "/close", "wrongFeedback": "/closeではありません。" },
+        { "text": "/stop", "wrongFeedback": "/stopではありません。" },
+        { "text": "/end", "wrongFeedback": "/endではありません。" }
+      ],
+      "correctIndex": 0,
+      "explanation": "/exitまたは/quitでClaude Codeを終了できます。Ctrl+Cを2回押す方法もあります。",
+      "referenceUrl": "https://docs.anthropic.com/en/docs/claude-code/commands"
+    },
+    {
+      "id": "key-001",
+      "category": "keyboard",
+      "difficulty": "beginner",
+      "question": "Claudeの応答を中断するキーボードショートカットは何ですか？",
+      "options": [
+        { "text": "Ctrl+C" },
+        { "text": "Ctrl+Z", "wrongFeedback": "Ctrl+Zではありません。" },
+        { "text": "Ctrl+X", "wrongFeedback": "Ctrl+Xではありません。" },
+        { "text": "Ctrl+Q", "wrongFeedback": "Ctrl+Qではありません。" }
+      ],
+      "correctIndex": 0,
+      "explanation": "Ctrl+Cで現在のClaudeの応答を中断できます。2回連続で押すと終了します。",
+      "referenceUrl": "https://docs.anthropic.com/en/docs/claude-code/interactive-mode"
+    },
+    {
+      "id": "key-002",
+      "category": "keyboard",
+      "difficulty": "intermediate",
+      "question": "ファイル変更を巻き戻す（undo）キーボードショートカットは何ですか？",
+      "options": [
+        { "text": "Ctrl+Z", "wrongFeedback": "Ctrl+Zではありません。" },
+        { "text": "Escキーを2回押す" },
+        { "text": "Ctrl+U", "wrongFeedback": "Ctrl+Uではありません。" },
+        { "text": "Alt+Backspace", "wrongFeedback": "Alt+Backspaceではありません。" }
+      ],
+      "correctIndex": 1,
+      "explanation": "Escを2回押すと、Claudeによるファイル変更をチェックポイントまで巻き戻せます。",
+      "referenceUrl": "https://docs.anthropic.com/en/docs/claude-code/tools#checkpoints"
+    },
+    {
+      "id": "key-003",
+      "category": "keyboard",
+      "difficulty": "beginner",
+      "question": "入力をキャンセルしてプロンプトをクリアするキーは何ですか？",
+      "options": [
+        { "text": "Delete", "wrongFeedback": "Deleteではありません。" },
+        { "text": "Escape" },
+        { "text": "Backspace", "wrongFeedback": "Backspaceではありません。" },
+        { "text": "Ctrl+Delete", "wrongFeedback": "Ctrl+Deleteではありません。" }
+      ],
+      "correctIndex": 1,
+      "explanation": "Escapeキーで現在の入力をキャンセルしてプロンプトをクリアできます。",
+      "referenceUrl": "https://docs.anthropic.com/en/docs/claude-code/interactive-mode"
+    },
+    {
+      "id": "key-004",
+      "category": "keyboard",
+      "difficulty": "intermediate",
+      "question": "Vim風のキーバインディングモードを有効にするにはどうしますか？",
+      "options": [
+        { "text": "settings.jsonで\"vim\": trueを設定", "wrongFeedback": "この設定形式ではありません。" },
+        { "text": "settings.jsonで\"inputMode\": \"vim\"を設定" },
+        { "text": "/vimコマンドを実行", "wrongFeedback": "/vimコマンドではありません。" },
+        { "text": "環境変数VIM_MODE=1を設定", "wrongFeedback": "環境変数ではありません。" }
+      ],
+      "correctIndex": 1,
+      "explanation": "settings.jsonで\"inputMode\": \"vim\"を設定するとVim風キーバインディングが有効になります。",
+      "referenceUrl": "https://docs.anthropic.com/en/docs/claude-code/configuration"
+    },
+    {
+      "id": "key-005",
+      "category": "keyboard",
+      "difficulty": "advanced",
+      "question": "バックグラウンドで実行中のコマンドをフォアグラウンドに戻すキーは何ですか？",
+      "options": [
+        { "text": "Ctrl+F", "wrongFeedback": "Ctrl+Fではありません。" },
+        { "text": "Ctrl+Z" },
+        { "text": "Ctrl+G", "wrongFeedback": "Ctrl+Gではありません。" },
+        { "text": "Ctrl+R", "wrongFeedback": "Ctrl+Rではありません。" }
+      ],
+      "correctIndex": 1,
+      "explanation": "Ctrl+Zでバックグラウンドタスクのリストを表示し、フォアグラウンドに戻せます。",
+      "referenceUrl": "https://docs.anthropic.com/en/docs/claude-code/interactive-mode#background"
+    },
+    {
+      "id": "key-006",
+      "category": "keyboard",
+      "difficulty": "intermediate",
+      "question": "コマンドをバックグラウンドに移動するキーは何ですか？",
+      "options": [
+        { "text": "Ctrl+B" },
+        { "text": "Ctrl+D", "wrongFeedback": "Ctrl+Dではありません。" },
+        { "text": "Ctrl+H", "wrongFeedback": "Ctrl+Hではありません。" },
+        { "text": "Alt+B", "wrongFeedback": "Alt+Bではありません。" }
+      ],
+      "correctIndex": 0,
+      "explanation": "Ctrl+Bで実行中のコマンドをバックグラウンドに移動し、他の作業を継続できます。",
+      "referenceUrl": "https://docs.anthropic.com/en/docs/claude-code/interactive-mode#background"
+    },
+    {
+      "id": "key-007",
+      "category": "keyboard",
+      "difficulty": "beginner",
+      "question": "複数行入力モードを開始するにはどうしますか？",
+      "options": [
+        { "text": "Ctrl+Enterを押す", "wrongFeedback": "Ctrl+Enterではありません。" },
+        { "text": "Shift+Enterを押す、または\\で行を継続" },
+        { "text": "Alt+Enterを押す", "wrongFeedback": "Alt+Enterではありません。" },
+        { "text": "Tabを押す", "wrongFeedback": "Tabではありません。" }
+      ],
+      "correctIndex": 1,
+      "explanation": "Shift+Enterで改行を追加するか、行末に\\を入力して複数行入力ができます。",
+      "referenceUrl": "https://docs.anthropic.com/en/docs/claude-code/interactive-mode"
+    },
+    {
+      "id": "key-008",
+      "category": "keyboard",
+      "difficulty": "intermediate",
+      "question": "ステータスラインを表示/非表示するキーは何ですか？",
+      "options": [
+        { "text": "Ctrl+S", "wrongFeedback": "Ctrl+Sではありません。" },
+        { "text": "Ctrl+L" },
+        { "text": "Ctrl+T", "wrongFeedback": "Ctrl+Tではありません。" },
+        { "text": "F1", "wrongFeedback": "F1ではありません。" }
+      ],
+      "correctIndex": 1,
+      "explanation": "Ctrl+Lでステータスラインの表示/非表示を切り替えられます。",
+      "referenceUrl": "https://docs.anthropic.com/en/docs/claude-code/interactive-mode"
+    },
+    {
+      "id": "key-009",
+      "category": "keyboard",
+      "difficulty": "advanced",
+      "question": "ツールの使用許可を毎回確認なしに自動承認するモードは何ですか？",
+      "options": [
+        { "text": "Auto Mode", "wrongFeedback": "Auto Modeではありません。" },
+        { "text": "YOLO Mode" },
+        { "text": "Trust Mode", "wrongFeedback": "Trust Modeではありません。" },
+        { "text": "Skip Mode", "wrongFeedback": "Skip Modeではありません。" }
+      ],
+      "correctIndex": 1,
+      "explanation": "YOLO ModeではClaudeのツール使用が自動承認されます。使用には注意が必要です。",
+      "referenceUrl": "https://docs.anthropic.com/en/docs/claude-code/configuration"
+    },
+    {
+      "id": "key-010",
+      "category": "keyboard",
+      "difficulty": "beginner",
+      "question": "入力履歴を遡るキーは何ですか？",
+      "options": [
+        { "text": "Ctrl+P", "wrongFeedback": "Ctrl+Pではありません。" },
+        { "text": "↑（上矢印）" },
+        { "text": "Ctrl+H", "wrongFeedback": "Ctrl+Hではありません。" },
+        { "text": "Page Up", "wrongFeedback": "Page Upではありません。" }
+      ],
+      "correctIndex": 1,
+      "explanation": "上矢印キーで以前の入力履歴を遡ることができます。下矢印で進みます。",
+      "referenceUrl": "https://docs.anthropic.com/en/docs/claude-code/interactive-mode"
+    },
+    {
+      "id": "bp-001",
+      "category": "bestpractices",
+      "difficulty": "intermediate",
+      "question": "Claudeに複雑なタスクを依頼する際のベストプラクティスはどれですか？",
+      "options": [
+        { "text": "一度に全ての要件を詳細に伝える", "wrongFeedback": "一度に全て伝えるのは効果的ではありません。" },
+        { "text": "タスクを小さなステップに分割して段階的に進める" },
+        { "text": "曖昧にして自由度を持たせる", "wrongFeedback": "曖昧すぎると期待通りの結果が得られません。" },
+        { "text": "詳細は後で追加する", "wrongFeedback": "最初から必要な情報を提供すべきです。" }
+      ],
+      "correctIndex": 1,
+      "explanation": "複雑なタスクは小さなステップに分割することで、より正確な結果が得られます。",
+      "referenceUrl": "https://docs.anthropic.com/en/docs/claude-code/best-practices"
+    },
+    {
+      "id": "bp-002",
+      "category": "bestpractices",
+      "difficulty": "advanced",
+      "question": "コードベースの探索時、最も効率的なアプローチはどれですか？",
+      "options": [
+        { "text": "全ファイルをReadツールで読む", "wrongFeedback": "全ファイルを読むのは非効率です。" },
+        { "text": "Exploreサブエージェントを使用する" },
+        { "text": "手動でlsコマンドを実行する", "wrongFeedback": "lsは構造把握には不十分です。" },
+        { "text": "全ファイルをGrepで検索する", "wrongFeedback": "Grepだけでは全体像が把握できません。" }
+      ],
+      "correctIndex": 1,
+      "explanation": "Exploreサブエージェントはコードベースの構造理解に最適化されています。",
+      "referenceUrl": "https://docs.anthropic.com/en/docs/claude-code/tools"
+    },
+    {
+      "id": "bp-003",
+      "category": "bestpractices",
+      "difficulty": "intermediate",
+      "question": "CLAUDE.mdファイルの適切な使い方はどれですか？",
+      "options": [
+        { "text": "プロジェクトの全コードを記述する", "wrongFeedback": "コードの記述用ではありません。" },
+        { "text": "プロジェクトの慣習、パターン、重要な情報を記録する" },
+        { "text": "会話履歴を保存する", "wrongFeedback": "会話履歴保存用ではありません。" },
+        { "text": "実行可能なスクリプトを格納する", "wrongFeedback": "スクリプト格納用ではありません。" }
+      ],
+      "correctIndex": 1,
+      "explanation": "CLAUDE.mdにはコーディング規約、アーキテクチャ、重要なパターンを記録します。",
+      "referenceUrl": "https://docs.anthropic.com/en/docs/claude-code/memory"
+    },
+    {
+      "id": "bp-004",
+      "category": "bestpractices",
+      "difficulty": "beginner",
+      "question": "Claudeにコードレビューを依頼する際のベストプラクティスはどれですか？",
+      "options": [
+        { "text": "ファイル全体を貼り付ける", "wrongFeedback": "ファイル全体ではなくファイルパスを指定します。" },
+        { "text": "@でファイルパスを指定してレビュー観点を明示する" },
+        { "text": "口頭で説明する", "wrongFeedback": "具体的なファイル指定が必要です。" },
+        { "text": "変更点のみをコピー＆ペーストする", "wrongFeedback": "ファイル参照の方が効率的です。" }
+      ],
+      "correctIndex": 1,
+      "explanation": "@でファイルを参照し、レビュー観点（パフォーマンス、セキュリティ等）を明示します。",
+      "referenceUrl": "https://docs.anthropic.com/en/docs/claude-code/interactive-mode"
+    },
+    {
+      "id": "bp-005",
+      "category": "bestpractices",
+      "difficulty": "advanced",
+      "question": "長時間のセッションでコンテキストを効率的に管理するベストプラクティスはどれですか？",
+      "options": [
+        { "text": "何もせずそのまま続ける", "wrongFeedback": "積極的な管理が必要です。" },
+        { "text": "定期的に/compactで圧縮し、CLAUDE.mdに重要事項を記録する" },
+        { "text": "頻繁に/clearで履歴を消す", "wrongFeedback": "頻繁なクリアは情報を失います。" },
+        { "text": "新しいターミナルを開く", "wrongFeedback": "新ターミナルでは前のコンテキストを失います。" }
+      ],
+      "correctIndex": 1,
+      "explanation": "/compactで定期的に圧縮し、CLAUDE.mdに重要情報を記録することでコンテキストを効率管理できます。",
+      "referenceUrl": "https://docs.anthropic.com/en/docs/claude-code/context-management"
+    }
+  ]
+}

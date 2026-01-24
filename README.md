@@ -90,88 +90,77 @@ npm run preview
 
 ### 問題ファイルの構造
 
-問題は `src/data/questions/` ディレクトリにカテゴリごとに分かれています：
+問題は `src/data/quizzes.json` に JSON 形式で定義されています：
 
 ```
-src/data/questions/
-├── index.ts          # 全問題を集約
-├── memory.ts         # Memoryカテゴリ
-├── skills.ts         # Skillsカテゴリ
-├── tools.ts          # Toolsカテゴリ
-├── commands.ts       # Commandsカテゴリ
-├── extensions.ts     # Extensionsカテゴリ
-├── session.ts        # Sessionカテゴリ
-├── keyboard.ts       # Keyboardカテゴリ
-└── bestpractices.ts  # Best Practicesカテゴリ
+src/data/
+└── quizzes.json      # 全問題を含むJSONファイル
 ```
 
 ### 問題の形式
 
 各問題は以下の形式で定義されています：
 
-```typescript
+```json
 {
-  id: 'memory-001',              // ユニークID（カテゴリ-連番）
-  category: 'memory',            // カテゴリID
-  difficulty: 'intermediate',    // beginner | intermediate | advanced
-  question: '問題文をここに記述',
-  options: [
+  "id": "memory-001",
+  "category": "memory",
+  "difficulty": "intermediate",
+  "question": "問題文をここに記述",
+  "options": [
     {
-      text: '選択肢1',
-      wrongFeedback: '不正解時に表示するフィードバック（正解の選択肢には不要）'
+      "text": "選択肢1",
+      "wrongFeedback": "不正解時に表示するフィードバック（正解の選択肢には不要）"
     },
     {
-      text: '選択肢2（正解）'
-      // wrongFeedbackは不要
-    },
-    // ... 4つの選択肢
+      "text": "選択肢2（正解）"
+    }
   ],
-  correctIndex: 1,               // 正解の選択肢のインデックス（0始まり）
-  explanation: '正解の解説。なぜその答えが正しいのかを詳しく説明',
-  referenceUrl: 'https://docs.anthropic.com/...',  // 公式ドキュメントへのリンク（任意）
-  aiPrompt: 'AIに質問する際の追加プロンプト（任意）'
+  "correctIndex": 1,
+  "explanation": "正解の解説。なぜその答えが正しいのかを詳しく説明",
+  "referenceUrl": "https://docs.anthropic.com/...",
+  "aiPrompt": "AIに質問する際の追加プロンプト（任意）"
 }
 ```
 
 ### 新しい問題を追加する
 
-1. 該当カテゴリのファイル（例: `src/data/questions/memory.ts`）を開く
-2. 配列に新しい問題オブジェクトを追加
+1. `src/data/quizzes.json` を開く
+2. `quizzes` 配列に新しい問題オブジェクトを追加
 3. IDはユニークになるよう連番を更新
 
-```typescript
-// memory.ts
-export const memoryQuestions: QuizItem[] = [
-  // 既存の問題...
+```json
+{
+  "title": "Claude Code Quiz",
+  "quizzes": [
+    // 既存の問題...
 
-  // 新しい問題を追加
-  {
-    id: 'memory-016',
-    category: 'memory',
-    difficulty: 'advanced',
-    question: '新しい問題文',
-    options: [
-      { text: '選択肢A', wrongFeedback: 'Aが不正解な理由' },
-      { text: '選択肢B', wrongFeedback: 'Bが不正解な理由' },
-      { text: '選択肢C' },  // 正解
-      { text: '選択肢D', wrongFeedback: 'Dが不正解な理由' },
-    ],
-    correctIndex: 2,
-    explanation: 'この問題の解説...',
-    referenceUrl: 'https://docs.anthropic.com/...',
-  },
-]
+    // 新しい問題を追加
+    {
+      "id": "memory-016",
+      "category": "memory",
+      "difficulty": "advanced",
+      "question": "新しい問題文",
+      "options": [
+        { "text": "選択肢A", "wrongFeedback": "Aが不正解な理由" },
+        { "text": "選択肢B", "wrongFeedback": "Bが不正解な理由" },
+        { "text": "選択肢C" },
+        { "text": "選択肢D", "wrongFeedback": "Dが不正解な理由" }
+      ],
+      "correctIndex": 2,
+      "explanation": "この問題の解説...",
+      "referenceUrl": "https://docs.anthropic.com/..."
+    }
+  ]
+}
 ```
 
 ### 新しいカテゴリを追加する
 
-1. `src/data/questions/` に新しいファイルを作成（例: `newcategory.ts`）
-2. `src/data/questions/index.ts` でエクスポートを追加
-3. `src/config/quizConfig.ts` の `CATEGORIES` 配列にカテゴリ定義を追加
+1. `src/domain/valueObjects/Category.ts` の `PREDEFINED_CATEGORIES` 配列にカテゴリ定義を追加
 
 ```typescript
-// quizConfig.ts
-export const CATEGORIES: CategoryConfig[] = [
+export const PREDEFINED_CATEGORIES: Category[] = [
   // 既存のカテゴリ...
   {
     id: 'newcategory',
@@ -184,7 +173,7 @@ export const CATEGORIES: CategoryConfig[] = [
 
 ### JSONファイルからのインポート
 
-アプリ内の「インポート」ボタンから、外部のJSONファイルを読み込むこともできます。形式は `example-quiz.json` を参照してください。
+アプリ内の「データセット管理」パネルから、外部のJSONファイルを読み込むこともできます：
 
 ```json
 {
@@ -212,9 +201,55 @@ export const CATEGORIES: CategoryConfig[] = [
 - **Vite**: ビルドツール
 - **React**: UIライブラリ
 - **TypeScript**: 型安全な開発
-- **Tailwind CSS**: スタイリング
+- **Tailwind CSS**: スタイリング（Claudeブランドカラー採用）
 - **Zustand**: 状態管理
 - **Zod**: ランタイムバリデーション
+- **Vitest**: テストフレームワーク
+
+## アーキテクチャ
+
+本プロジェクトはドメイン駆動設計（DDD）のレイヤードアーキテクチャを採用しています：
+
+```
+src/
+├── domain/              # ドメイン層（ビジネスロジックの中心）
+│   ├── entities/        # エンティティ（Question, UserProgress）
+│   ├── valueObjects/    # 値オブジェクト（Category, Difficulty, QuizMode）
+│   └── services/        # ドメインサービス（QuizSessionService）
+├── application/         # アプリケーション層（ユースケース）
+│   └── useCases/        # ユースケース（StartQuizSession, AnswerQuestion等）
+├── infrastructure/      # インフラ層（外部システムとの接続）
+│   └── persistence/     # 永続化（LocalStorageProgressRepository）
+├── stores/              # 状態管理（Zustand）
+├── components/          # UIコンポーネント
+└── data/                # クイズデータ（JSON）
+```
+
+### レイヤー間の依存関係
+
+- **Domain層**: 他の層に依存しない純粋なビジネスロジック
+- **Application層**: Domain層に依存、Infrastructure層を抽象化して利用
+- **Infrastructure層**: Domain層のインターフェースを実装
+- **UI層**: Application層のユースケースを通じてドメインにアクセス
+
+## テスト
+
+Vitestを使用した包括的なテストスイートが含まれています：
+
+```bash
+# テストを実行
+npm test
+
+# カバレッジレポートを生成
+npm run test:coverage
+```
+
+テストは以下の領域をカバーしています：
+- ドメインエンティティ（Question, UserProgress）
+- 値オブジェクト（Category, Difficulty, QuizMode）
+- ドメインサービス（QuizSessionService）
+- アプリケーションユースケース
+- インフラストラクチャ（リポジトリ）
 
 ## ライセンス
 

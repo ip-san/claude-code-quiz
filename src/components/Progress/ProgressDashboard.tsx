@@ -1,13 +1,24 @@
 import { useState } from 'react'
 import { useQuizStore } from '@/stores/quizStore'
-import { CATEGORIES, getColorHex } from '@/config/quizConfig'
-import type { CategoryConfig } from '@/types/quiz'
-import {
-  getOverallAccuracy,
-  exportProgressToJson,
-  importProgressFromJson,
-  saveProgress,
-} from '@/lib/progressStorage'
+import { PREDEFINED_CATEGORIES, type Category } from '@/domain/valueObjects/Category'
+import { getProgressRepository } from '@/infrastructure/persistence/LocalStorageProgressRepository'
+
+// Color mapping for categories
+const COLOR_MAP: Record<string, string> = {
+  purple: '#a855f7',
+  blue: '#3b82f6',
+  green: '#22c55e',
+  orange: '#f97316',
+  pink: '#ec4899',
+  cyan: '#06b6d4',
+  yellow: '#eab308',
+  emerald: '#10b981',
+  gray: '#6b7280',
+}
+
+function getColorHex(colorName: string): string {
+  return COLOR_MAP[colorName] ?? COLOR_MAP.gray
+}
 
 /**
  * Progress Dashboard component
@@ -26,23 +37,27 @@ export function ProgressDashboard() {
   const [exportStatus, setExportStatus] = useState<string | null>(null)
 
   const categoryStats = getCategoryStats()
-  const overallAccuracy = getOverallAccuracy(userProgress)
+  const overallAccuracy = userProgress.getOverallAccuracy()
+
+  // Empty state check
+  const hasNoProgress = userProgress.totalAttempts === 0
 
   const handleWeakMode = () => {
     startSession({ mode: 'weak' })
   }
 
-  const handleResetProgress = () => {
+  const handleResetProgress = async () => {
     if (
       window.confirm('学習履歴をリセットしますか？この操作は取り消せません。')
     ) {
-      resetUserProgress()
+      await resetUserProgress()
     }
   }
 
   const handleExport = async () => {
     try {
-      const jsonData = exportProgressToJson(userProgress)
+      const progressRepo = getProgressRepository()
+      const jsonData = await progressRepo.export()
       const result = await window.electronAPI.exportProgress(jsonData)
 
       if (result.success) {
@@ -52,7 +67,7 @@ export function ProgressDashboard() {
         setExportStatus(`エラー: ${result.error}`)
         setTimeout(() => setExportStatus(null), 5000)
       }
-    } catch (error) {
+    } catch {
       setExportStatus('エクスポートに失敗しました')
       setTimeout(() => setExportStatus(null), 5000)
     }
@@ -63,51 +78,72 @@ export function ProgressDashboard() {
       const result = await window.electronAPI.importProgress()
 
       if (result.success && result.data) {
-        const parsed = importProgressFromJson(result.data)
+        if (
+          window.confirm(
+            '現在の学習履歴を上書きしますか？この操作は取り消せません。'
+          )
+        ) {
+          const progressRepo = getProgressRepository()
+          const success = await progressRepo.import(result.data)
 
-        if (parsed) {
-          if (
-            window.confirm(
-              '現在の学習履歴を上書きしますか？この操作は取り消せません。'
-            )
-          ) {
-            saveProgress(parsed)
-            loadUserProgress()
+          if (success) {
+            await loadUserProgress()
             setExportStatus('インポートしました')
             setTimeout(() => setExportStatus(null), 3000)
+          } else {
+            setExportStatus('無効なファイル形式です')
+            setTimeout(() => setExportStatus(null), 5000)
           }
-        } else {
-          setExportStatus('無効なファイル形式です')
-          setTimeout(() => setExportStatus(null), 5000)
         }
       } else if (result.error !== 'cancelled') {
         setExportStatus(`エラー: ${result.error}`)
         setTimeout(() => setExportStatus(null), 5000)
       }
-    } catch (error) {
+    } catch {
       setExportStatus('インポートに失敗しました')
       setTimeout(() => setExportStatus(null), 5000)
     }
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 px-4 py-8">
+    <div className="min-h-screen bg-claude-cream px-4 py-8">
       <div className="mx-auto max-w-4xl">
         {/* Header */}
         <div className="mb-8 flex items-center justify-between">
           <div>
-            <h1 className="text-2xl font-bold text-white">学習進捗</h1>
-            <p className="text-slate-400">
+            <h1 className="text-2xl font-bold text-claude-dark">学習進捗</h1>
+            <p className="text-stone-500">
               あなたの学習状況を確認できます
             </p>
           </div>
           <button
             onClick={() => setViewState('menu')}
-            className="rounded-lg border border-slate-600 px-4 py-2 text-slate-300 transition-colors hover:bg-slate-700"
+            className="rounded-lg border border-stone-300 px-4 py-2 text-stone-600 transition-colors hover:bg-stone-50"
           >
             戻る
           </button>
         </div>
+
+        {/* Empty State */}
+        {hasNoProgress && (
+          <div className="mb-8 rounded-lg border border-stone-200 bg-white p-8 text-center shadow-sm">
+            <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-stone-100">
+              <span className="text-3xl">📊</span>
+            </div>
+            <h3 className="mb-2 text-lg font-medium text-claude-dark">
+              まだ学習履歴がありません
+            </h3>
+            <p className="mb-4 text-sm text-stone-500">
+              クイズに挑戦して学習を始めましょう
+            </p>
+            <button
+              onClick={() => setViewState('menu')}
+              className="rounded-lg bg-claude-orange px-6 py-2 text-white hover:bg-claude-orange/90"
+            >
+              クイズを始める
+            </button>
+          </div>
+        )}
 
         {/* Overall Stats */}
         <div className="mb-6 grid grid-cols-2 gap-4 sm:grid-cols-4">
@@ -135,11 +171,11 @@ export function ProgressDashboard() {
 
         {/* Category Progress */}
         <div className="mb-6">
-          <h2 className="mb-4 text-lg font-semibold text-white">
+          <h2 className="mb-4 text-lg font-semibold text-claude-dark">
             カテゴリ別進捗
           </h2>
-          <div className="space-y-3">
-            {CATEGORIES.map((category: CategoryConfig) => {
+          <div className="max-h-96 space-y-3 overflow-y-auto">
+            {PREDEFINED_CATEGORIES.map((category: Category) => {
               const stats = categoryStats[category.id]
               const progress = stats
                 ? Math.round((stats.correctAnswers / Math.max(stats.attemptedQuestions, 1)) * 100)
@@ -150,20 +186,20 @@ export function ProgressDashboard() {
               return (
                 <div
                   key={category.id}
-                  className="rounded-lg border border-slate-700 bg-slate-800/50 p-4"
+                  className="rounded-lg border border-stone-200 bg-white p-4 shadow-sm"
                 >
                   <div className="mb-2 flex items-center justify-between">
                     <div className="flex items-center gap-2">
                       <span>{category.icon}</span>
-                      <span className="font-medium text-white">
+                      <span className="font-medium text-claude-dark">
                         {category.name}
                       </span>
                     </div>
-                    <span className="text-sm text-slate-400">
+                    <span className="text-sm text-stone-500">
                       {attempted}/{total}問回答済み
                     </span>
                   </div>
-                  <div className="mb-1 h-2 overflow-hidden rounded-full bg-slate-700">
+                  <div className="mb-1 h-2 overflow-hidden rounded-full bg-stone-200">
                     <div
                       className="h-full rounded-full transition-all"
                       style={{
@@ -172,7 +208,7 @@ export function ProgressDashboard() {
                       }}
                     />
                   </div>
-                  <div className="flex justify-between text-xs text-slate-500">
+                  <div className="flex justify-between text-xs text-stone-500">
                     <span>正答率: {progress}%</span>
                     <span>
                       {stats?.correctAnswers ?? 0}問正解 / {attempted - (stats?.correctAnswers ?? 0)}問不正解
@@ -190,7 +226,7 @@ export function ProgressDashboard() {
             <button
               onClick={handleWeakMode}
               aria-label="苦手問題に挑戦する"
-              className="flex-1 rounded-lg bg-orange-600 px-6 py-3 font-medium text-white transition-colors hover:bg-orange-700"
+              className="flex-1 rounded-lg bg-claude-orange px-6 py-3 font-medium text-white transition-colors hover:bg-claude-orange/90"
             >
               🎯 苦手問題に挑戦
             </button>
@@ -201,14 +237,14 @@ export function ProgressDashboard() {
             <button
               onClick={handleExport}
               aria-label="学習履歴をエクスポートする"
-              className="flex-1 rounded-lg border border-slate-600 px-6 py-3 text-slate-300 transition-colors hover:bg-slate-700"
+              className="flex-1 rounded-lg border border-stone-300 px-6 py-3 text-stone-600 transition-colors hover:bg-stone-50"
             >
               📥 履歴をエクスポート
             </button>
             <button
               onClick={handleImport}
               aria-label="学習履歴をインポートする"
-              className="flex-1 rounded-lg border border-slate-600 px-6 py-3 text-slate-300 transition-colors hover:bg-slate-700"
+              className="flex-1 rounded-lg border border-stone-300 px-6 py-3 text-stone-600 transition-colors hover:bg-stone-50"
             >
               📤 履歴をインポート
             </button>
@@ -251,10 +287,10 @@ interface StatCardProps {
 
 function StatCard({ label, value, icon }: StatCardProps) {
   return (
-    <div className="rounded-lg border border-slate-700 bg-slate-800/50 p-4">
+    <div className="rounded-lg border border-stone-200 bg-white p-4 shadow-sm">
       <div className="mb-1 text-2xl">{icon}</div>
-      <div className="text-2xl font-bold text-white">{value}</div>
-      <div className="text-sm text-slate-400">{label}</div>
+      <div className="text-2xl font-bold text-claude-dark">{value}</div>
+      <div className="text-sm text-stone-500">{label}</div>
     </div>
   )
 }

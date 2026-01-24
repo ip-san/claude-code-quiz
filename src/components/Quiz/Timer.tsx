@@ -10,9 +10,11 @@ const CRITICAL_TIME_THRESHOLD = 60 // 1 minute critical
  * Displays remaining time and triggers auto-completion when time is up
  */
 export function Timer() {
-  const timeRemaining = useQuizStore((state) => state.timeRemaining)
+  const sessionState = useQuizStore((state) => state.sessionState)
   const updateTimer = useQuizStore((state) => state.updateTimer)
   const intervalRef = useRef<NodeJS.Timeout | null>(null)
+
+  const timeRemaining = sessionState?.timeRemaining ?? null
 
   // Stable callback for timer update
   const tick = useCallback(() => {
@@ -55,10 +57,10 @@ export function Timer() {
     <div
       className={`flex items-center gap-2 rounded-lg px-4 py-2 font-mono text-lg font-bold ${
         isCriticalTime
-          ? 'animate-pulse bg-red-500/20 text-red-400'
+          ? 'animate-pulse bg-red-100 text-red-600'
           : isLowTime
-            ? 'bg-yellow-500/20 text-yellow-400'
-            : 'bg-slate-700/50 text-white'
+            ? 'bg-yellow-100 text-yellow-700'
+            : 'bg-stone-100 text-claude-dark'
       }`}
       role="timer"
       aria-live="polite"

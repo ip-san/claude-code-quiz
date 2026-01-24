@@ -20,19 +20,19 @@ export function OptionButton({
   const getStyles = () => {
     if (!isAnswered) {
       return isSelected
-        ? 'border-blue-500 bg-blue-500/10'
-        : 'border-slate-600 hover:border-slate-500 hover:bg-slate-700/50'
+        ? 'border-claude-orange bg-claude-orange/5'
+        : 'border-stone-200 hover:border-stone-300 hover:bg-stone-50'
     }
 
     if (isCorrect) {
-      return 'border-green-500 bg-green-500/10'
+      return 'border-green-500 bg-green-50'
     }
 
     if (isSelected && !isCorrect) {
-      return 'border-red-500 bg-red-500/10'
+      return 'border-red-500 bg-red-50'
     }
 
-    return 'border-slate-700 opacity-50'
+    return 'border-stone-200 opacity-50'
   }
 
   const getIcon = () => {
@@ -89,13 +89,13 @@ export function OptionButton({
         <span
           className={`flex h-7 w-7 flex-shrink-0 items-center justify-center rounded-full text-sm font-medium ${
             isSelected && !isAnswered
-              ? 'bg-blue-500 text-white'
-              : 'bg-slate-700 text-slate-300'
+              ? 'bg-claude-orange text-white'
+              : 'bg-stone-100 text-stone-600'
           }`}
         >
           {optionLabel}
         </span>
-        <span className="flex-1 leading-relaxed text-slate-200">{text}</span>
+        <span className="flex-1 leading-relaxed text-claude-dark">{text}</span>
         {getIcon()}
       </div>
     </button>

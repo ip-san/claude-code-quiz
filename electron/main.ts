@@ -1,6 +1,11 @@
 import { app, BrowserWindow, ipcMain, dialog, shell, clipboard } from 'electron'
 import { readFile, writeFile } from 'fs/promises'
-import { join } from 'path'
+import { join, dirname } from 'path'
+import { fileURLToPath } from 'url'
+
+// ESM compatibility: Define __dirname equivalent
+const __filename = fileURLToPath(import.meta.url)
+const __dirname = dirname(__filename)
 
 // Security: Disable hardware acceleration for better security
 app.disableHardwareAcceleration()
@@ -25,6 +30,7 @@ function createWindow(): void {
     },
     backgroundColor: '#FAF9F5',
     titleBarStyle: 'hiddenInset',
+    autoHideMenuBar: true,
     show: false,
   })
 

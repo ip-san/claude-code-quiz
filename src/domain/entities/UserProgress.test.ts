@@ -1,0 +1,347 @@
+import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest'
+import { UserProgress } from './UserProgress'
+
+describe('UserProgress Entity', () => {
+  let mockNow: number
+
+  beforeEach(() => {
+    mockNow = 1700000000000 // Fixed timestamp for tests
+    vi.spyOn(Date, 'now').mockImplementation(() => mockNow)
+  })
+
+  afterEach(() => {
+    vi.restoreAllMocks()
+  })
+
+  describe('create()', () => {
+    it('should create UserProgress with default values', () => {
+      const progress = UserProgress.create()
+
+      expect(progress.totalAttempts).toBe(0)
+      expect(progress.totalCorrect).toBe(0)
+      expect(progress.streakDays).toBe(0)
+      expect(progress.modifiedAt).toBe(mockNow)
+      expect(Object.keys(progress.questionProgress)).toHaveLength(0)
+      expect(Object.keys(progress.categoryProgress)).toHaveLength(0)
+    })
+
+    it('should create UserProgress with provided values', () => {
+      const progress = UserProgress.create({
+        totalAttempts: 10,
+        totalCorrect: 7,
+        streakDays: 3,
+        modifiedAt: 1699999999999,
+      })
+
+      expect(progress.totalAttempts).toBe(10)
+      expect(progress.totalCorrect).toBe(7)
+      expect(progress.streakDays).toBe(3)
+      expect(progress.modifiedAt).toBe(1699999999999)
+    })
+  })
+
+  describe('empty()', () => {
+    it('should create empty UserProgress', () => {
+      const progress = UserProgress.empty()
+
+      expect(progress.totalAttempts).toBe(0)
+      expect(progress.totalCorrect).toBe(0)
+      expect(progress.streakDays).toBe(0)
+    })
+  })
+
+  describe('recordAnswer()', () => {
+    it('should record first correct answer', () => {
+      const progress = UserProgress.empty()
+
+      const updated = progress.recordAnswer('q1', 'tools', true)
+
+      expect(updated.totalAttempts).toBe(1)
+      expect(updated.totalCorrect).toBe(1)
+      expect(updated.questionProgress['q1']).toBeDefined()
+      expect(updated.questionProgress['q1'].attempts).toBe(1)
+      expect(updated.questionProgress['q1'].correctCount).toBe(1)
+      expect(updated.questionProgress['q1'].lastCorrect).toBe(true)
+    })
+
+    it('should record first incorrect answer', () => {
+      const progress = UserProgress.empty()
+
+      const updated = progress.recordAnswer('q1', 'tools', false)
+
+      expect(updated.totalAttempts).toBe(1)
+      expect(updated.totalCorrect).toBe(0)
+      expect(updated.questionProgress['q1'].attempts).toBe(1)
+      expect(updated.questionProgress['q1'].correctCount).toBe(0)
+      expect(updated.questionProgress['q1'].lastCorrect).toBe(false)
+    })
+
+    it('should accumulate attempts for same question', () => {
+      let progress = UserProgress.empty()
+
+      progress = progress.recordAnswer('q1', 'tools', false)
+      progress = progress.recordAnswer('q1', 'tools', true)
+      progress = progress.recordAnswer('q1', 'tools', true)
+
+      expect(progress.questionProgress['q1'].attempts).toBe(3)
+      expect(progress.questionProgress['q1'].correctCount).toBe(2)
+      expect(progress.totalAttempts).toBe(3)
+      expect(progress.totalCorrect).toBe(2)
+    })
+
+    it('should update category progress', () => {
+      let progress = UserProgress.empty()
+
+      progress = progress.recordAnswer('q1', 'tools', true)
+      progress = progress.recordAnswer('q2', 'tools', false)
+
+      expect(progress.categoryProgress['tools']).toBeDefined()
+      expect(progress.categoryProgress['tools'].attemptedQuestions).toBe(2)
+      expect(progress.categoryProgress['tools'].correctAnswers).toBe(1)
+    })
+
+    it('should not increment attemptedQuestions for repeated attempts on same question', () => {
+      let progress = UserProgress.empty()
+
+      progress = progress.recordAnswer('q1', 'tools', true)
+      progress = progress.recordAnswer('q1', 'tools', false) // Same question
+      progress = progress.recordAnswer('q1', 'tools', true)  // Same question
+
+      // attemptedQuestions should only count unique questions
+      expect(progress.categoryProgress['tools'].attemptedQuestions).toBe(1)
+      // But correctAnswers count all correct attempts
+      expect(progress.categoryProgress['tools'].correctAnswers).toBe(2)
+    })
+
+    it('should be immutable - original progress unchanged', () => {
+      const original = UserProgress.empty()
+      const updated = original.recordAnswer('q1', 'tools', true)
+
+      expect(original.totalAttempts).toBe(0)
+      expect(updated.totalAttempts).toBe(1)
+    })
+
+    it('should update lastSessionAt', () => {
+      const progress = UserProgress.empty()
+      const updated = progress.recordAnswer('q1', 'tools', true)
+
+      expect(updated.lastSessionAt).toBe(mockNow)
+    })
+  })
+
+  describe('getOverallAccuracy()', () => {
+    it('should return 0 when no attempts', () => {
+      const progress = UserProgress.empty()
+
+      expect(progress.getOverallAccuracy()).toBe(0)
+    })
+
+    it('should calculate correct accuracy', () => {
+      let progress = UserProgress.empty()
+      progress = progress.recordAnswer('q1', 'tools', true)
+      progress = progress.recordAnswer('q2', 'tools', true)
+      progress = progress.recordAnswer('q3', 'tools', false)
+      progress = progress.recordAnswer('q4', 'tools', false)
+
+      expect(progress.getOverallAccuracy()).toBe(50)
+    })
+
+    it('should round accuracy', () => {
+      let progress = UserProgress.empty()
+      progress = progress.recordAnswer('q1', 'tools', true)
+      progress = progress.recordAnswer('q2', 'tools', true)
+      progress = progress.recordAnswer('q3', 'tools', false)
+
+      // 2/3 = 66.67% -> rounds to 67%
+      expect(progress.getOverallAccuracy()).toBe(67)
+    })
+  })
+
+  describe('getQuestionAccuracy()', () => {
+    it('should return null for unattempted question', () => {
+      const progress = UserProgress.empty()
+
+      expect(progress.getQuestionAccuracy('q1')).toBeNull()
+    })
+
+    it('should return accuracy for attempted question', () => {
+      let progress = UserProgress.empty()
+      progress = progress.recordAnswer('q1', 'tools', true)
+      progress = progress.recordAnswer('q1', 'tools', false)
+
+      expect(progress.getQuestionAccuracy('q1')).toBe(50)
+    })
+  })
+
+  describe('isWeakQuestion()', () => {
+    it('should return false for unattempted question', () => {
+      const progress = UserProgress.empty()
+
+      expect(progress.isWeakQuestion('q1')).toBe(false)
+    })
+
+    it('should return false when attempts below minAttempts', () => {
+      let progress = UserProgress.empty()
+      progress = progress.recordAnswer('q1', 'tools', false)
+
+      expect(progress.isWeakQuestion('q1', 50, 2)).toBe(false)
+    })
+
+    it('should return true when accuracy below threshold', () => {
+      let progress = UserProgress.empty()
+      progress = progress.recordAnswer('q1', 'tools', false)
+      progress = progress.recordAnswer('q1', 'tools', false)
+
+      expect(progress.isWeakQuestion('q1', 50, 1)).toBe(true)
+    })
+
+    it('should return false when accuracy at or above threshold', () => {
+      let progress = UserProgress.empty()
+      progress = progress.recordAnswer('q1', 'tools', true)
+      progress = progress.recordAnswer('q1', 'tools', false)
+
+      // 50% accuracy, threshold 50%
+      expect(progress.isWeakQuestion('q1', 50, 1)).toBe(false)
+    })
+
+    it('should use default threshold of 50%', () => {
+      let progress = UserProgress.empty()
+      progress = progress.recordAnswer('q1', 'tools', false)
+      progress = progress.recordAnswer('q1', 'tools', false)
+      progress = progress.recordAnswer('q1', 'tools', true)
+
+      // 33% accuracy < 50%
+      expect(progress.isWeakQuestion('q1')).toBe(true)
+    })
+  })
+
+  describe('hasAttempted()', () => {
+    it('should return false for unattempted question', () => {
+      const progress = UserProgress.empty()
+
+      expect(progress.hasAttempted('q1')).toBe(false)
+    })
+
+    it('should return true for attempted question', () => {
+      let progress = UserProgress.empty()
+      progress = progress.recordAnswer('q1', 'tools', true)
+
+      expect(progress.hasAttempted('q1')).toBe(true)
+    })
+  })
+
+  describe('streak calculation', () => {
+    it('should start streak at 1 for first session', () => {
+      const progress = UserProgress.empty()
+      const updated = progress.recordAnswer('q1', 'tools', true)
+
+      expect(updated.streakDays).toBe(1)
+    })
+
+    it('should maintain streak for same day', () => {
+      let progress = UserProgress.empty()
+      progress = progress.recordAnswer('q1', 'tools', true)
+
+      // Same day, different time
+      mockNow = mockNow + 3600000 // 1 hour later
+      progress = progress.recordAnswer('q2', 'tools', true)
+
+      expect(progress.streakDays).toBe(1)
+    })
+
+    it('should increment streak for consecutive days', () => {
+      let progress = UserProgress.empty()
+      progress = progress.recordAnswer('q1', 'tools', true)
+
+      // Next day
+      mockNow = mockNow + 86400000 // 1 day later
+      vi.spyOn(Date, 'now').mockImplementation(() => mockNow)
+      progress = progress.recordAnswer('q2', 'tools', true)
+
+      expect(progress.streakDays).toBe(2)
+    })
+
+    it('should reset streak after missing a day', () => {
+      let progress = UserProgress.empty()
+      progress = progress.recordAnswer('q1', 'tools', true)
+
+      // Skip a day (2 days later)
+      mockNow = mockNow + 172800000 // 2 days later
+      vi.spyOn(Date, 'now').mockImplementation(() => mockNow)
+      progress = progress.recordAnswer('q2', 'tools', true)
+
+      expect(progress.streakDays).toBe(1)
+    })
+
+    it('should handle month boundary correctly', () => {
+      // Set to Jan 31, 2024 23:00 UTC
+      mockNow = Date.UTC(2024, 0, 31, 23, 0, 0) // Month is 0-indexed
+      vi.spyOn(Date, 'now').mockImplementation(() => mockNow)
+
+      let progress = UserProgress.empty()
+      progress = progress.recordAnswer('q1', 'tools', true)
+
+      // Move to Feb 1, 2024 01:00 UTC (next day, crossing month boundary)
+      mockNow = Date.UTC(2024, 1, 1, 1, 0, 0)
+      vi.spyOn(Date, 'now').mockImplementation(() => mockNow)
+      progress = progress.recordAnswer('q2', 'tools', true)
+
+      expect(progress.streakDays).toBe(2)
+    })
+
+    it('should handle year boundary correctly', () => {
+      // Set to Dec 31, 2024 23:00 UTC
+      mockNow = Date.UTC(2024, 11, 31, 23, 0, 0)
+      vi.spyOn(Date, 'now').mockImplementation(() => mockNow)
+
+      let progress = UserProgress.empty()
+      progress = progress.recordAnswer('q1', 'tools', true)
+
+      // Move to Jan 1, 2025 01:00 UTC (next day, crossing year boundary)
+      mockNow = Date.UTC(2025, 0, 1, 1, 0, 0)
+      vi.spyOn(Date, 'now').mockImplementation(() => mockNow)
+      progress = progress.recordAnswer('q2', 'tools', true)
+
+      expect(progress.streakDays).toBe(2)
+    })
+  })
+
+  describe('toJSON()', () => {
+    it('should return serializable object', () => {
+      let progress = UserProgress.empty()
+      progress = progress.recordAnswer('q1', 'tools', true)
+
+      const json = progress.toJSON()
+
+      expect(json.totalAttempts).toBe(1)
+      expect(json.totalCorrect).toBe(1)
+      expect(json.questionProgress['q1']).toBeDefined()
+      expect(json.categoryProgress['tools']).toBeDefined()
+    })
+
+    it('should create independent copy', () => {
+      let progress = UserProgress.empty()
+      progress = progress.recordAnswer('q1', 'tools', true)
+
+      const json = progress.toJSON()
+      // Cast to mutable type to test that modifying the JSON doesn't affect the original
+      ;(json as { totalAttempts: number }).totalAttempts = 999
+
+      expect(progress.totalAttempts).toBe(1)
+    })
+  })
+
+  describe('immutability', () => {
+    it('should have frozen questionProgress', () => {
+      const progress = UserProgress.empty()
+
+      expect(Object.isFrozen(progress.questionProgress)).toBe(true)
+    })
+
+    it('should have frozen categoryProgress', () => {
+      const progress = UserProgress.empty()
+
+      expect(Object.isFrozen(progress.categoryProgress)).toBe(true)
+    })
+  })
+})
