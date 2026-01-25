@@ -2,7 +2,7 @@
 
 Claude Code の機能と使い方を効率的に学習するためのデスクトップクイズアプリケーションです。
 
-![Claude Code Quiz](build/icon.svg)
+<img src="build/icon.svg" alt="Claude Code Quiz" width="64" height="64">
 
 ## 作成のモチベーション
 
