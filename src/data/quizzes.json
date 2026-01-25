@@ -1236,31 +1236,31 @@
       "id": "ses-008",
       "category": "session",
       "difficulty": "advanced",
-      "question": "コンテキストウィンドウの現在の使用状況を確認できるコマンドは？",
+      "question": "CLIから特定のセッションを再開するためのフラグはどれですか？",
       "options": [
-        { "text": "/status", "wrongFeedback": "/statusはバージョンやモデル情報を表示します。" },
-        { "text": "/context" },
-        { "text": "/usage", "wrongFeedback": "/usageはサブスクリプション制限を表示します。" },
-        { "text": "/memory", "wrongFeedback": "/memoryはCLAUDE.mdの編集用です。" }
+        { "text": "--session", "wrongFeedback": "--sessionフラグではありません。" },
+        { "text": "--resume" },
+        { "text": "--restore", "wrongFeedback": "--restoreフラグではありません。" },
+        { "text": "--load", "wrongFeedback": "--loadフラグではありません。" }
       ],
       "correctIndex": 1,
-      "explanation": "/contextコマンドで現在のコンテキストウィンドウ使用状況をカラーグリッドで視覚的に確認できます。",
-      "referenceUrl": "https://code.claude.com/docs/en/interactive-mode"
+      "explanation": "claude --resume でセッションピッカーを開くか、claude --resume <session-id> で特定のセッションを再開できます。",
+      "referenceUrl": "https://code.claude.com/docs/en/common-workflows"
     },
     {
       "id": "ses-009",
       "category": "session",
       "difficulty": "intermediate",
-      "question": "サブスクライバー向けにclaude.aiからセッションを継続するコマンドは？",
+      "question": "セッションのトランスクリプトはどこに保存されますか？",
       "options": [
-        { "text": "/sync", "wrongFeedback": "/syncではありません。" },
-        { "text": "/teleport" },
-        { "text": "/remote", "wrongFeedback": "/remoteではありません。" },
-        { "text": "/cloud", "wrongFeedback": "/cloudではありません。" }
+        { "text": "~/.claude/sessions/", "wrongFeedback": "このパスではありません。" },
+        { "text": "~/.claude/projects/<project>/<session-id>.jsonl" },
+        { "text": "~/.config/claude/history/", "wrongFeedback": "このパスではありません。" },
+        { "text": "/tmp/claude/sessions/", "wrongFeedback": "一時ディレクトリではありません。" }
       ],
       "correctIndex": 1,
-      "explanation": "/teleportでclaude.aiで開始した会話をClaude Codeで継続できます（サブスクライバー限定）。",
-      "referenceUrl": "https://code.claude.com/docs/en/interactive-mode"
+      "explanation": "セッションは~/.claude/projects/配下にプロジェクトごとにJSONL形式で保存されます。",
+      "referenceUrl": "https://code.claude.com/docs/en/common-workflows"
     },
     {
       "id": "ses-010",
@@ -1341,15 +1341,15 @@
       "id": "key-005",
       "category": "keyboard",
       "difficulty": "advanced",
-      "question": "バックグラウンドタスクの一覧を確認するためのコマンドは何ですか？",
+      "question": "入力中にファイルパスやコマンドの補完候補を表示するキーは何ですか？",
       "options": [
-        { "text": "/background", "wrongFeedback": "/backgroundコマンドではありません。" },
-        { "text": "/tasks" },
-        { "text": "/jobs", "wrongFeedback": "/jobsコマンドではありません。" },
-        { "text": "/processes", "wrongFeedback": "/processesコマンドではありません。" }
+        { "text": "Ctrl+Space", "wrongFeedback": "Ctrl+Spaceではありません。" },
+        { "text": "Tab" },
+        { "text": "Ctrl+P", "wrongFeedback": "Ctrl+Pではありません。" },
+        { "text": "Alt+Tab", "wrongFeedback": "Alt+Tabではありません。" }
       ],
       "correctIndex": 1,
-      "explanation": "/tasksコマンドでバックグラウンドで実行中のタスク一覧を確認できます。",
+      "explanation": "Tabキーでファイルパス、スラッシュコマンド、@メンションなどの補完候補を表示できます。",
       "referenceUrl": "https://code.claude.com/docs/en/interactive-mode"
     },
     {
@@ -1401,16 +1401,16 @@
       "id": "key-009",
       "category": "keyboard",
       "difficulty": "advanced",
-      "question": "すべての権限チェックをスキップして自動承認するパーミッションモードは何ですか？",
+      "question": "プランモードに切り替えるキーボードショートカットは何ですか？",
       "options": [
-        { "text": "autoAccept", "wrongFeedback": "autoAcceptではありません。" },
-        { "text": "bypassPermissions" },
-        { "text": "trustAll", "wrongFeedback": "trustAllではありません。" },
-        { "text": "skipPrompts", "wrongFeedback": "skipPromptsではありません。" }
+        { "text": "Ctrl+P", "wrongFeedback": "Ctrl+Pではありません。" },
+        { "text": "Shift+Tab" },
+        { "text": "Alt+P", "wrongFeedback": "Alt+Pではありません。" },
+        { "text": "Ctrl+Shift+P", "wrongFeedback": "Ctrl+Shift+Pではありません。" }
       ],
       "correctIndex": 1,
-      "explanation": "bypassPermissionsモードではすべての権限チェックがスキップされます。--dangerously-skip-permissionsフラグでも有効化できます。使用には注意が必要です。",
-      "referenceUrl": "https://code.claude.com/docs/en/settings"
+      "explanation": "Shift+Tabでプランモードに切り替えられます。プランモードではClaudeがコードを書く前に計画を立てます。",
+      "referenceUrl": "https://code.claude.com/docs/en/interactive-mode"
     },
     {
       "id": "key-010",
