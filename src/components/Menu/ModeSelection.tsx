@@ -110,17 +110,17 @@ export function ModeSelection() {
   }
 
   return (
-    <div className="min-h-screen bg-claude-cream px-4 py-8">
-      <div className="mx-auto max-w-4xl">
+    <div className="flex min-h-screen flex-col justify-center bg-claude-cream px-4 pb-8 pt-4">
+      <div className="mx-auto w-full max-w-4xl">
         {/* Header */}
-        <div className="mb-8 text-center">
-          <h1 className="mb-2 text-3xl font-bold text-claude-dark">
+        <div className="mb-4 text-center">
+          <h1 className="mb-1 text-2xl font-bold text-claude-dark">
             Claude Code マスタークイズ
           </h1>
-          <p className="text-claude-gray">
+          <p className="text-sm text-claude-gray">
             公式ドキュメントに基づいた実践的な知識をテスト
           </p>
-          <p className="mt-2 text-sm text-stone-400">
+          <p className="mt-1 text-sm text-stone-400">
             全{allQuestions.length}問 | 8カテゴリ
           </p>
 
@@ -128,9 +128,9 @@ export function ModeSelection() {
           {activeSetInfo && (
             <button
               onClick={() => setShowDatasetPanel(!showDatasetPanel)}
-              className="mt-3 inline-flex items-center gap-2 rounded-full border border-stone-300 bg-white px-3 py-1 text-sm text-stone-600 hover:bg-stone-50"
+              className="mt-2 inline-flex items-center gap-2 rounded-full border border-stone-300 bg-white px-3 py-1 text-xs text-stone-600 hover:bg-stone-50"
             >
-              <Database className="h-4 w-4" />
+              <Database className="h-3 w-3" />
               {activeSetInfo.title}
               {activeSetInfo.type === 'default' && (
                 <span className="rounded bg-claude-orange/10 px-1.5 py-0.5 text-xs text-claude-orange">
@@ -143,10 +143,10 @@ export function ModeSelection() {
 
         {/* Dataset Panel */}
         {showDatasetPanel && (
-          <div className="mb-6 rounded-lg border border-stone-200 bg-white p-4 shadow-sm">
-            <h3 className="mb-3 text-lg font-semibold text-claude-dark">データセット管理</h3>
+          <div className="mb-4 rounded-lg border border-stone-200 bg-white p-4 shadow-sm">
+            <h3 className="mb-3 text-base font-semibold text-claude-dark">データセット管理</h3>
 
-            <div className="mb-4 space-y-2">
+            <div className="mb-3 space-y-2">
               {availableSets.map((set) => (
                 <div
                   key={set.id}
@@ -156,11 +156,11 @@ export function ModeSelection() {
                       : 'border-stone-200 bg-stone-50'
                   }`}
                 >
-                  <div className="flex items-center gap-3">
-                    <Database className={`h-5 w-5 ${set.isActive ? 'text-claude-orange' : 'text-stone-400'}`} />
+                  <div className="flex items-center gap-2">
+                    <Database className={`h-4 w-4 ${set.isActive ? 'text-claude-orange' : 'text-stone-400'}`} />
                     <div>
-                      <p className="font-medium text-claude-dark">{set.title}</p>
-                      <p className="text-sm text-stone-500">
+                      <p className="text-sm font-medium text-claude-dark">{set.title}</p>
+                      <p className="text-xs text-stone-500">
                         {set.questionCount}問
                         {set.type === 'default' && ' (読み取り専用)'}
                       </p>
@@ -170,7 +170,7 @@ export function ModeSelection() {
                     {!set.isActive && (
                       <button
                         onClick={() => switchQuizSet(set.id)}
-                        className="rounded bg-claude-orange px-3 py-1 text-sm text-white hover:bg-claude-orange/90"
+                        className="rounded bg-claude-orange px-3 py-1 text-xs text-white hover:bg-claude-orange/90"
                       >
                         使用する
                       </button>
@@ -190,9 +190,9 @@ export function ModeSelection() {
 
             <button
               onClick={handleImportQuizzes}
-              className="flex w-full items-center justify-center gap-2 rounded-lg border border-dashed border-stone-300 py-3 text-stone-500 hover:border-stone-400 hover:bg-stone-50"
+              className="flex w-full items-center justify-center gap-2 rounded-lg border border-dashed border-stone-300 py-2.5 text-sm text-stone-500 hover:border-stone-400 hover:bg-stone-50"
             >
-              <Upload className="h-5 w-5" />
+              <Upload className="h-4 w-4" />
               クイズをインポート
             </button>
 
@@ -203,36 +203,36 @@ export function ModeSelection() {
         )}
 
         {/* Mode Selection */}
-        <div className="mb-6">
-          <h2 className="mb-3 text-lg font-semibold text-claude-dark">
+        <div className="mb-4">
+          <h2 className="mb-2 text-base font-semibold text-claude-dark">
             クイズモード
           </h2>
-          <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
+          <div className="grid grid-cols-2 gap-2 sm:grid-cols-3 lg:grid-cols-6">
             {PREDEFINED_QUIZ_MODES.map((modeConfig) => (
               <button
                 key={modeConfig.id}
                 onClick={() => setSelectedMode(modeConfig.id)}
-                className={`rounded-lg border p-4 text-left transition-all ${
+                className={`rounded-lg border p-3 text-left transition-all ${
                   selectedMode === modeConfig.id
                     ? 'border-claude-orange bg-claude-orange/5 shadow-sm'
                     : 'border-stone-200 bg-white hover:border-stone-300 hover:shadow-sm'
                 }`}
               >
-                <div className="mb-1 flex items-center gap-2">
-                  <span className="text-xl">{modeConfig.icon}</span>
-                  <span className="font-medium text-claude-dark">
+                <div className="mb-1 flex items-center gap-1.5">
+                  <span className="text-lg">{modeConfig.icon}</span>
+                  <span className="text-sm font-medium text-claude-dark">
                     {modeConfig.name}
                   </span>
                 </div>
-                <p className="text-sm text-stone-500">
+                <p className="text-xs text-stone-500 line-clamp-2">
                   {modeConfig.description}
                 </p>
-                <div className="mt-2 flex gap-2 text-xs text-stone-400">
+                <div className="mt-1.5 flex gap-1 text-xs text-stone-400">
                   {modeConfig.questionCount && (
                     <span>{modeConfig.questionCount}問</span>
                   )}
                   {modeConfig.timeLimit && (
-                    <span>{modeConfig.timeLimit}分制限</span>
+                    <span>{modeConfig.timeLimit}分</span>
                   )}
                 </div>
               </button>
@@ -242,11 +242,11 @@ export function ModeSelection() {
 
         {/* Category Filter (for category mode) */}
         {(selectedMode === 'category' || selectedMode === 'custom') && (
-          <div className="mb-6">
-            <h2 className="mb-3 text-lg font-semibold text-claude-dark">
+          <div className="mb-4">
+            <h2 className="mb-2 text-base font-semibold text-claude-dark">
               カテゴリ選択
             </h2>
-            <div className="grid grid-cols-2 gap-2 sm:grid-cols-4">
+            <div className="grid grid-cols-4 gap-2 sm:grid-cols-8">
               {PREDEFINED_CATEGORIES.map((category: Category) => (
                 <button
                   key={category.id}
@@ -255,7 +255,7 @@ export function ModeSelection() {
                       selectedCategory === category.id ? null : category.id
                     )
                   }
-                  className={`rounded-lg border p-3 text-left transition-all ${
+                  className={`rounded-lg border p-2 text-center transition-all ${
                     selectedCategory === category.id
                       ? 'shadow-sm'
                       : 'border-stone-200 bg-white hover:border-stone-300'
@@ -269,15 +269,15 @@ export function ModeSelection() {
                       : {}
                   }
                 >
-                  <div className="flex items-center gap-2">
-                    <span>{category.icon}</span>
-                    <span className="text-sm font-medium text-claude-dark">
+                  <div className="flex flex-col items-center gap-0.5">
+                    <span className="text-lg">{category.icon}</span>
+                    <span className="text-xs font-medium text-claude-dark">
                       {category.name}
                     </span>
+                    <span className="text-xs text-stone-400">
+                      {getCategoryQuestionCount(category.id)}問
+                    </span>
                   </div>
-                  <p className="mt-1 text-xs text-stone-400">
-                    {getCategoryQuestionCount(category.id)}問
-                  </p>
                 </button>
               ))}
             </div>
@@ -286,12 +286,12 @@ export function ModeSelection() {
 
         {/* Difficulty Filter (for custom mode) */}
         {selectedMode === 'custom' && (
-          <div className="mb-6">
-            <h2 className="mb-3 text-lg font-semibold text-claude-dark">難易度</h2>
+          <div className="mb-4">
+            <h2 className="mb-2 text-base font-semibold text-claude-dark">難易度</h2>
             <div className="flex gap-2">
               <button
                 onClick={() => setSelectedDifficulty(null)}
-                className={`rounded-lg border px-4 py-2 transition-all ${
+                className={`rounded-lg border px-4 py-2 text-sm transition-all ${
                   selectedDifficulty === null
                     ? 'border-claude-orange bg-claude-orange/5 text-claude-dark'
                     : 'border-stone-200 bg-white text-stone-500 hover:border-stone-300'
@@ -307,7 +307,7 @@ export function ModeSelection() {
                       selectedDifficulty === diff.id ? null : diff.id
                     )
                   }
-                  className={`rounded-lg border px-4 py-2 transition-all ${
+                  className={`rounded-lg border px-4 py-2 text-sm transition-all ${
                     selectedDifficulty === diff.id
                       ? 'border-claude-orange bg-claude-orange/5 text-claude-dark'
                       : 'border-stone-200 bg-white text-stone-500 hover:border-stone-300'
@@ -321,23 +321,23 @@ export function ModeSelection() {
         )}
 
         {/* Summary & Start Button */}
-        <div className="rounded-lg border border-stone-200 bg-white p-4 shadow-sm">
-          <div className="mb-4 flex items-center justify-between">
+        <div className="mt-6 rounded-lg border border-stone-200 bg-white p-4 shadow-sm">
+          <div className="mb-3 flex items-center justify-between">
             <div>
-              <p className="text-sm text-stone-500">選択中のモード</p>
+              <p className="text-xs text-stone-500">選択中のモード</p>
               <p className="text-lg font-medium text-claude-dark">
                 {mode?.icon} {mode?.name}
               </p>
             </div>
             <div className="text-right">
-              <p className="text-sm text-stone-500">出題数</p>
+              <p className="text-xs text-stone-500">出題数</p>
               <p className="text-lg font-medium text-claude-dark">
                 {mode?.questionCount ?? availableQuizzes.length}問
               </p>
             </div>
             {mode?.timeLimit && (
               <div className="text-right">
-                <p className="text-sm text-stone-500">制限時間</p>
+                <p className="text-xs text-stone-500">制限時間</p>
                 <p className="text-lg font-medium text-claude-dark">
                   {mode.timeLimit}分
                 </p>
@@ -349,13 +349,13 @@ export function ModeSelection() {
             <button
               onClick={handleStart}
               disabled={availableQuizzes.length === 0}
-              className="flex-1 rounded-lg bg-claude-orange px-6 py-3 font-medium text-white transition-colors hover:bg-claude-orange/90 disabled:cursor-not-allowed disabled:opacity-50"
+              className="flex-1 rounded-lg bg-claude-orange px-6 py-2.5 font-medium text-white transition-colors hover:bg-claude-orange/90 disabled:cursor-not-allowed disabled:opacity-50"
             >
               クイズを開始
             </button>
             <button
               onClick={() => setViewState('progress')}
-              className="rounded-lg border border-stone-300 px-6 py-3 text-stone-600 transition-colors hover:bg-stone-50"
+              className="rounded-lg border border-stone-300 px-6 py-2.5 text-stone-600 transition-colors hover:bg-stone-50"
             >
               学習履歴
             </button>
