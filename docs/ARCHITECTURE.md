@@ -137,11 +137,14 @@ Infrastructure (Repositories)
 export class Question {
   readonly id: string
   readonly category: string
-  readonly difficulty: Difficulty
+  readonly difficulty: DifficultyLevel  // 'beginner' | 'intermediate' | 'advanced'
   readonly question: string
-  readonly options: QuestionOption[]
+  readonly options: readonly QuizOption[]
   readonly correctIndex: number
   readonly explanation: string
+  readonly referenceUrl?: string
+
+  static create(props: QuestionProps): Question { ... }
 
   isCorrectAnswer(index: number): boolean {
     return this.correctIndex === index
@@ -156,20 +159,25 @@ export class Question {
 ```typescript
 // src/domain/valueObjects/Difficulty.ts
 export class Difficulty {
-  static readonly BEGINNER = new Difficulty('beginner', '初級', 1)
-  static readonly INTERMEDIATE = new Difficulty('intermediate', '中級', 2)
-  static readonly ADVANCED = new Difficulty('advanced', '上級', 3)
+  readonly id: DifficultyLevel
+  readonly name: string
+  readonly color: string
 
-  private constructor(
-    readonly id: string,
-    readonly label: string,
-    readonly level: number
-  ) {}
+  static create(props: DifficultyProps): Difficulty { ... }
+  static fromId(id: DifficultyLevel): Difficulty { ... }
 
   isHarderThan(other: Difficulty): boolean {
-    return this.level > other.level
+    const order: DifficultyLevel[] = ['beginner', 'intermediate', 'advanced']
+    return order.indexOf(this.id) > order.indexOf(other.id)
   }
 }
+
+// 定義済みの難易度
+export const PREDEFINED_DIFFICULTIES: Difficulty[] = [
+  Difficulty.create({ id: 'beginner', name: '初級', color: '#22C55E' }),
+  Difficulty.create({ id: 'intermediate', name: '中級', color: '#F59E0B' }),
+  Difficulty.create({ id: 'advanced', name: '上級', color: '#EF4444' }),
+]
 ```
 
 ### ドメインサービス
@@ -198,21 +206,25 @@ export class QuizSessionService {
 データの永続化を抽象化。
 
 ```typescript
-// src/domain/repositories/ProgressRepository.ts
-export interface ProgressRepository {
+// src/domain/repositories/IProgressRepository.ts
+export interface IProgressRepository {
+  load(): Promise<UserProgress>
   save(progress: UserProgress): Promise<void>
-  load(): Promise<UserProgress | null>
+  reset(): Promise<void>
+  export(): Promise<string>
+  import(jsonString: string): Promise<boolean>
 }
 
 // src/infrastructure/persistence/LocalStorageProgressRepository.ts
-export class LocalStorageProgressRepository implements ProgressRepository {
-  async save(progress: UserProgress): Promise<void> {
-    localStorage.setItem('progress', JSON.stringify(progress))
+export class LocalStorageProgressRepository implements IProgressRepository {
+  async load(): Promise<UserProgress> {
+    const stored = localStorage.getItem(STORAGE_KEY)
+    // バリデーション付きでロード
+    return stored ? UserProgress.create(result.data) : UserProgress.empty()
   }
 
-  async load(): Promise<UserProgress | null> {
-    const data = localStorage.getItem('progress')
-    return data ? JSON.parse(data) : null
+  async save(progress: UserProgress): Promise<void> {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(progress.toJSON()))
   }
 }
 ```
