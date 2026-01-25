@@ -14,7 +14,8 @@
     "lint": "eslint src electron",
     "test": "vitest run",
     "test:watch": "vitest",
-    "test:coverage": "vitest run --coverage"
+    "test:coverage": "vitest run --coverage",
+    "generate-icons": "node scripts/generate-icons.mjs"
   },
   "dependencies": {
     "lucide-react": "^0.400.0",
@@ -42,6 +43,7 @@
     "eslint-plugin-react-hooks": "^7.0.1",
     "jsdom": "^27.4.0",
     "postcss": "^8.4.38",
+    "sharp": "^0.34.5",
     "tailwindcss": "^3.4.4",
     "typescript": "^5.5.2",
     "typescript-eslint": "^8.53.1",
@@ -58,16 +60,21 @@
     },
     "files": [
       "dist/**/*",
-      "dist-electron/**/*"
+      "dist-electron/**/*",
+      "build/**/*"
     ],
+    "icon": "build/icon.png",
     "mac": {
-      "target": "dmg"
+      "target": "dmg",
+      "icon": "build/icon.png"
     },
     "win": {
-      "target": "nsis"
+      "target": "nsis",
+      "icon": "build/icon.png"
     },
     "linux": {
-      "target": "AppImage"
+      "target": "AppImage",
+      "icon": "build"
     }
   }
 }

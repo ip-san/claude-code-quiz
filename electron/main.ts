@@ -18,7 +18,7 @@
  * - 新規ウィンドウの作成を禁止
  */
 
-import { app, BrowserWindow, ipcMain, dialog, shell, clipboard } from 'electron'
+import { app, BrowserWindow, ipcMain, dialog, shell, clipboard, nativeImage } from 'electron'
 import { readFile, writeFile, stat } from 'fs/promises'
 import { join, dirname } from 'path'
 import { fileURLToPath } from 'url'
@@ -59,11 +59,21 @@ let mainWindow: BrowserWindow | null = null
 const isDev = process.env.NODE_ENV !== 'production' || !app.isPackaged
 
 function createWindow(): void {
+  // アプリアイコンの設定（__dirname は dist-electron/ を指す）
+  const iconPath = join(__dirname, '..', 'build', 'icon.png')
+  const appIcon = nativeImage.createFromPath(iconPath)
+
+  // macOS の Dock アイコンを設定
+  if (process.platform === 'darwin' && app.dock && !appIcon.isEmpty()) {
+    app.dock.setIcon(appIcon)
+  }
+
   mainWindow = new BrowserWindow({
     width: 1000,
     height: 750,
     minWidth: 800,
     minHeight: 600,
+    icon: appIcon.isEmpty() ? undefined : appIcon,
     webPreferences: {
       /**
        * 【重要】preload.cjs を指定
