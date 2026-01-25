@@ -76,7 +76,10 @@ export const QuizItemSchema = z.object({
     .max(6, 'Maximum 6 options allowed'),
   correctIndex: z.number().int().min(0),
   explanation: z.string().min(1, 'Explanation is required'),
-  referenceUrl: z.string().url('Must be a valid URL').optional(),
+  referenceUrl: z.string().url('Must be a valid URL').refine(
+    (url) => url.startsWith('http://') || url.startsWith('https://'),
+    { message: 'URL must start with http:// or https://' }
+  ).optional(),
   aiPrompt: z.string().optional(),
   category: z.string().min(1, 'Category is required'),
   difficulty: DifficultySchema,

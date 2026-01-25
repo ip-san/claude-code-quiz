@@ -8,7 +8,24 @@
       "Bash(git add:*)",
       "Bash(git commit -m \"$\\(cat <<''EOF''\nAdd generate-quiz-data skill and CLAUDE.md\n\n- Add custom skill for auto-generating quiz questions from official docs\n  - Placed in .claude/skills/generate-quiz-data/SKILL.md \\(correct format\\)\n  - YAML frontmatter with name, description, allowed-tools\n  - Maps to existing 8 categories with proper ratios\n- Add CLAUDE.md project memory file\n  - Project overview and architecture documentation\n  - Custom skill usage instructions\n  - Category reference table\n\nCo-Authored-By: Claude Opus 4.5 <noreply@anthropic.com>\nEOF\n\\)\")",
       "Bash(git push)",
-      "Bash(git commit:*)"
+      "Bash(git commit:*)",
+      "Bash(ls:*)",
+      "Bash(pkill:*)",
+      "Bash(npm run dev:*)",
+      "Bash(lsof:*)",
+      "Bash(xargs kill:*)",
+      "Bash(npm run test:coverage:*)",
+      "Bash(python3:*)",
+      "Bash(npm ls:*)",
+      "Bash(npm audit:*)",
+      "Bash(npm run lint)",
+      "Bash(for item in \"Difficulty\" \"Category\" \"QuizMode\")",
+      "Bash(do echo \"=== $item ===\" grep -r \"import.*$item\\\\|from.*$item\" /Users/sesoko/Desktop/workspace/claude-code-quiz-desktop/src --include=\"*.tsx\" --include=\"*.ts\")",
+      "Bash(for pkg in \"zod\" \"zustand\" \"electron-store\" \"lucide-react\" \"react\" \"react-dom\")",
+      "Bash(do echo \"=== $pkg ===\" grep -r \"from ''''$pkg''''\" /Users/sesoko/Desktop/workspace/claude-code-quiz-desktop/src --include=\"*.tsx\" --include=\"*.ts\")",
+      "Bash(npm test:*)",
+      "Bash(find:*)",
+      "Bash(grep:*)"
     ]
   }
 }

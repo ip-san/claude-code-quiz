@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useRef, useEffect, useCallback } from 'react'
 import { useQuizStore } from '@/stores/quizStore'
 import { PREDEFINED_CATEGORIES, type Category } from '@/domain/valueObjects/Category'
 import { getProgressRepository } from '@/infrastructure/persistence/LocalStorageProgressRepository'
@@ -35,6 +35,28 @@ export function ProgressDashboard() {
   } = useQuizStore()
 
   const [exportStatus, setExportStatus] = useState<string | null>(null)
+  const statusTimeoutRef = useRef<NodeJS.Timeout | null>(null)
+
+  // タイムアウトのクリーンアップ（メモリリーク防止）
+  useEffect(() => {
+    return () => {
+      if (statusTimeoutRef.current) {
+        clearTimeout(statusTimeoutRef.current)
+      }
+    }
+  }, [])
+
+  // ステータスメッセージを表示して自動クリア
+  const showStatus = useCallback((message: string, duration: number = 3000) => {
+    if (statusTimeoutRef.current) {
+      clearTimeout(statusTimeoutRef.current)
+    }
+    setExportStatus(message)
+    statusTimeoutRef.current = setTimeout(() => {
+      setExportStatus(null)
+      statusTimeoutRef.current = null
+    }, duration)
+  }, [])
 
   const categoryStats = getCategoryStats()
   const overallAccuracy = userProgress.getOverallAccuracy()
@@ -61,15 +83,12 @@ export function ProgressDashboard() {
       const result = await window.electronAPI.exportProgress(jsonData)
 
       if (result.success) {
-        setExportStatus('エクスポートしました')
-        setTimeout(() => setExportStatus(null), 3000)
+        showStatus('エクスポートしました')
       } else if (result.error !== 'cancelled') {
-        setExportStatus(`エラー: ${result.error}`)
-        setTimeout(() => setExportStatus(null), 5000)
+        showStatus(`エラー: ${result.error}`, 5000)
       }
     } catch {
-      setExportStatus('エクスポートに失敗しました')
-      setTimeout(() => setExportStatus(null), 5000)
+      showStatus('エクスポートに失敗しました', 5000)
     }
   }
 
@@ -88,20 +107,16 @@ export function ProgressDashboard() {
 
           if (success) {
             await loadUserProgress()
-            setExportStatus('インポートしました')
-            setTimeout(() => setExportStatus(null), 3000)
+            showStatus('インポートしました')
           } else {
-            setExportStatus('無効なファイル形式です')
-            setTimeout(() => setExportStatus(null), 5000)
+            showStatus('無効なファイル形式です', 5000)
           }
         }
       } else if (result.error !== 'cancelled') {
-        setExportStatus(`エラー: ${result.error}`)
-        setTimeout(() => setExportStatus(null), 5000)
+        showStatus(`エラー: ${result.error}`, 5000)
       }
     } catch {
-      setExportStatus('インポートに失敗しました')
-      setTimeout(() => setExportStatus(null), 5000)
+      showStatus('インポートに失敗しました', 5000)
     }
   }
 

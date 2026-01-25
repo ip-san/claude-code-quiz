@@ -143,6 +143,12 @@ export class Question {
       if (!data || typeof data !== 'object') return null
       const d = data as Record<string, unknown>
 
+      // correctIndex の型変換とNaNチェック
+      const correctIndex = Number(d.correctIndex ?? 0)
+      if (Number.isNaN(correctIndex)) {
+        return null // 不正な数値は拒否
+      }
+
       return Question.create({
         id: String(d.id ?? ''),
         question: String(d.question ?? ''),
@@ -154,7 +160,7 @@ export class Question {
                 : undefined,
             }))
           : [],
-        correctIndex: Number(d.correctIndex ?? 0),
+        correctIndex,
         explanation: String(d.explanation ?? ''),
         referenceUrl: d.referenceUrl ? String(d.referenceUrl) : undefined,
         aiPrompt: d.aiPrompt ? String(d.aiPrompt) : undefined,

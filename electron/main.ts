@@ -19,7 +19,7 @@
  */
 
 import { app, BrowserWindow, ipcMain, dialog, shell, clipboard } from 'electron'
-import { readFile, writeFile } from 'fs/promises'
+import { readFile, writeFile, stat } from 'fs/promises'
 import { join, dirname } from 'path'
 import { fileURLToPath } from 'url'
 
@@ -209,6 +209,17 @@ ipcMain.handle('import-quiz-file', async (): Promise<{ success: boolean; data?: 
     }
 
     const filePath = result.filePaths[0]
+
+    // ファイルサイズチェック（最大5MB）- メモリ枯渇攻撃対策
+    const MAX_FILE_SIZE = 5 * 1024 * 1024 // 5MB
+    const fileStats = await stat(filePath)
+    if (fileStats.size > MAX_FILE_SIZE) {
+      return {
+        success: false,
+        error: `ファイルサイズが大きすぎます（最大5MB）。現在のサイズ: ${Math.round(fileStats.size / 1024 / 1024 * 10) / 10}MB`,
+      }
+    }
+
     const content = await readFile(filePath, 'utf-8')
 
     return { success: true, data: content }
@@ -271,6 +282,17 @@ ipcMain.handle('import-progress', async (): Promise<{ success: boolean; data?: s
     }
 
     const filePath = result.filePaths[0]
+
+    // ファイルサイズチェック（最大1MB）- 進捗データは小さいはず
+    const MAX_PROGRESS_FILE_SIZE = 1 * 1024 * 1024 // 1MB
+    const fileStats = await stat(filePath)
+    if (fileStats.size > MAX_PROGRESS_FILE_SIZE) {
+      return {
+        success: false,
+        error: `ファイルサイズが大きすぎます（最大1MB）。現在のサイズ: ${Math.round(fileStats.size / 1024 * 10) / 10}KB`,
+      }
+    }
+
     const content = await readFile(filePath, 'utf-8')
 
     return { success: true, data: content }
