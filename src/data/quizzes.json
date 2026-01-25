@@ -1146,15 +1146,15 @@
       "id": "ses-002",
       "category": "session",
       "difficulty": "intermediate",
-      "question": "コンテキストウィンドウが80%を超えた場合、Claudeはどのような動作をしますか？",
+      "question": "コンテキストウィンドウの容量が限界に近づいた場合、Claudeはどのような動作をしますか？",
       "options": [
         { "text": "エラーを出して停止する", "wrongFeedback": "エラーでは停止しません。" },
-        { "text": "自動的に会話を要約して圧縮する" },
+        { "text": "自動的に会話を要約して圧縮する（auto-compaction）" },
         { "text": "新しいセッションを開始する", "wrongFeedback": "新しいセッションは自動開始しません。" },
         { "text": "古いメッセージを削除する", "wrongFeedback": "単純な削除ではありません。" }
       ],
       "correctIndex": 1,
-      "explanation": "コンテキストが80%を超えると自動要約機能が作動し、重要な情報を保持しながら圧縮します。",
+      "explanation": "コンテキストが約95%に達すると自動圧縮（auto-compaction）が作動し、重要な情報を保持しながら会話を要約・圧縮します。",
       "referenceUrl": "https://code.claude.com/docs/en/how-claude-code-works"
     },
     {
@@ -1326,15 +1326,15 @@
       "id": "key-004",
       "category": "keyboard",
       "difficulty": "intermediate",
-      "question": "Vim風のキーバインディングモードを有効にするにはどうしますか？",
+      "question": "Vim風のキーバインディングモードを有効にする正しい方法はどれですか？",
       "options": [
         { "text": "settings.jsonで\"vim\": trueを設定", "wrongFeedback": "この設定形式ではありません。" },
-        { "text": "settings.jsonで\"inputMode\": \"vim\"を設定" },
-        { "text": "/vimコマンドを実行", "wrongFeedback": "/vimコマンドではありません。" },
+        { "text": "/vimコマンドまたは/configで設定" },
+        { "text": "claude --vim フラグで起動", "wrongFeedback": "--vimフラグは存在しません。" },
         { "text": "環境変数VIM_MODE=1を設定", "wrongFeedback": "環境変数ではありません。" }
       ],
       "correctIndex": 1,
-      "explanation": "settings.jsonで\"inputMode\": \"vim\"を設定するとVim風キーバインディングが有効になります。",
+      "explanation": "/vimコマンドで一時的に、/configコマンドで永続的にVim風キーバインディングを有効にできます。",
       "referenceUrl": "https://code.claude.com/docs/en/settings"
     },
     {
@@ -1401,15 +1401,15 @@
       "id": "key-009",
       "category": "keyboard",
       "difficulty": "advanced",
-      "question": "ツールの使用許可を毎回確認なしに自動承認するモードは何ですか？",
+      "question": "すべての権限チェックをスキップして自動承認するパーミッションモードは何ですか？",
       "options": [
-        { "text": "Auto Mode", "wrongFeedback": "Auto Modeではありません。" },
-        { "text": "YOLO Mode" },
-        { "text": "Trust Mode", "wrongFeedback": "Trust Modeではありません。" },
-        { "text": "Skip Mode", "wrongFeedback": "Skip Modeではありません。" }
+        { "text": "autoAccept", "wrongFeedback": "autoAcceptではありません。" },
+        { "text": "bypassPermissions" },
+        { "text": "trustAll", "wrongFeedback": "trustAllではありません。" },
+        { "text": "skipPrompts", "wrongFeedback": "skipPromptsではありません。" }
       ],
       "correctIndex": 1,
-      "explanation": "YOLO ModeではClaudeのツール使用が自動承認されます。使用には注意が必要です。",
+      "explanation": "bypassPermissionsモードではすべての権限チェックがスキップされます。--dangerously-skip-permissionsフラグでも有効化できます。使用には注意が必要です。",
       "referenceUrl": "https://code.claude.com/docs/en/settings"
     },
     {
