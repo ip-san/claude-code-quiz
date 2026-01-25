@@ -10,7 +10,7 @@
   <!-- Code brackets -->
   <path d="M18 22 L10 32 L18 42" stroke="white" stroke-width="4" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
   <path d="M46 22 L54 32 L46 42" stroke="white" stroke-width="4" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
-  <!-- Question mark -->
-  <path d="M28 24 Q28 18 34 18 Q40 18 40 24 Q40 30 34 32 L34 36" stroke="white" stroke-width="4" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
-  <circle cx="34" cy="44" r="2.5" fill="white"/>
+  <!-- Question mark (centered at x=32) -->
+  <path d="M26 24 Q26 18 32 18 Q38 18 38 24 Q38 30 32 32 L32 36" stroke="white" stroke-width="4" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+  <circle cx="32" cy="44" r="2.5" fill="white"/>
 </svg>
