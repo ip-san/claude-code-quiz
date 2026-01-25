@@ -24,15 +24,10 @@ import { join, dirname } from 'path'
 import { fileURLToPath } from 'url'
 
 /**
- * 【ESM 互換性のための __dirname 定義】
+ * 【パス解決】
  *
- * package.json に "type": "module" があるため、このファイルは ESM として扱われる。
- * ESM では __dirname が存在しないため、import.meta.url から導出する。
- *
- * 【なぜ ESM を使うのか】
- * - Vite が ESM を前提としている
- * - 最新の JavaScript 機能（top-level await 等）が使える
- * - Tree-shaking が効きやすい
+ * 開発時: import.meta.url から __dirname を導出
+ * 本番時: app.getAppPath() を使用（ASAR アーカイブでも正しく動作）
  */
 const __filename = fileURLToPath(import.meta.url)
 const __dirname = dirname(__filename)
@@ -56,11 +51,15 @@ let mainWindow: BrowserWindow | null = null
  * - app.isPackaged が false（ビルドされていない状態）
  * の場合は開発モードとみなす
  */
-const isDev = process.env.NODE_ENV !== 'production' || !app.isPackaged
+// app.isPackaged が最も信頼性の高い判定方法
+const isDev = !app.isPackaged
 
 function createWindow(): void {
-  // アプリアイコンの設定（__dirname は dist-electron/ を指す）
-  const iconPath = join(__dirname, '..', 'build', 'icon.png')
+  // アプリのルートパス（開発時は __dirname から、本番時は app.getAppPath() から）
+  const appRoot = isDev ? join(__dirname, '..') : app.getAppPath()
+
+  // アプリアイコンの設定
+  const iconPath = join(appRoot, 'build', 'icon.png')
   const appIcon = nativeImage.createFromPath(iconPath)
 
   // macOS の Dock アイコンを設定
@@ -81,7 +80,7 @@ function createWindow(): void {
        * .cjs 拡張子である理由は vite.config.ts のコメントを参照。
        * package.json の "type": "module" との競合を避けるため。
        */
-      preload: join(__dirname, 'preload.cjs'),
+      preload: join(appRoot, 'dist-electron', 'preload.cjs'),
 
       /**
        * 【セキュリティ設定】
@@ -124,7 +123,8 @@ function createWindow(): void {
     // DevTools を別ウィンドウで開く（デバッグ用）
     mainWindow.webContents.openDevTools({ mode: 'detach' })
   } else {
-    mainWindow.loadFile(join(__dirname, '../dist/index.html'))
+    // 本番環境では app.getAppPath() を使用（ASAR でも正しく動作）
+    mainWindow.loadFile(join(app.getAppPath(), 'dist', 'index.html'))
   }
 
   /**

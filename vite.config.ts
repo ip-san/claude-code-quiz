@@ -86,6 +86,9 @@ function buildPreloadCJS(): Plugin {
 }
 
 export default defineConfig({
+  // Electron用: 相対パスでアセットを読み込む（絶対パスだとfile://で動作しない）
+  base: './',
+
   plugins: [
     react(),
 

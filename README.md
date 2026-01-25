@@ -80,6 +80,30 @@ npm run build
 # macOS用DMGパッケージが release/ に生成される
 ```
 
+### アプリのインストール（macOS）
+
+ビルド後、`release/` フォルダに生成されたDMGファイルからインストールできます：
+
+1. `release/Claude Code Quiz-x.x.x-arm64.dmg` をダブルクリック
+2. 開いたウィンドウで、アプリを Applications フォルダにドラッグ
+3. Launchpad または Applications フォルダから「Claude Code Quiz」を起動
+
+> **注意**: 初回起動時に「開発元を確認できない」という警告が表示される場合があります。
+> その場合は、システム設定 → プライバシーとセキュリティ → 「このまま開く」をクリックしてください。
+
+### アイコンのカスタマイズ
+
+アプリアイコンを変更したい場合：
+
+```bash
+# 1. build/icon.svg を編集
+# 2. アイコンを再生成
+npm run generate-icons
+
+# 3. アプリを再ビルド
+npm run build
+```
+
 ### プレビュー（ビルド後の確認）
 
 ```bash

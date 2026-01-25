@@ -33,10 +33,10 @@ async function generateIcons() {
     console.log(`  ✓ ${size}x${size} -> ${outputPath}`);
   }
 
-  // メインアイコン（256x256）をicon.pngとしてコピー
+  // メインアイコン（512x512）をicon.pngとしてコピー（macOSは512x512以上が必要）
   const mainIconPath = join(buildDir, 'icon.png');
   await sharp(svgBuffer)
-    .resize(256, 256)
+    .resize(512, 512)
     .png()
     .toFile(mainIconPath);
   console.log(`  ✓ Main icon -> ${mainIconPath}`);
