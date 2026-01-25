@@ -2,6 +2,8 @@
 
 Claude Code の機能と使い方を効率的に学習するためのデスクトップクイズアプリケーションです。
 
+![Claude Code Quiz](build/icon.svg)
+
 ## 作成のモチベーション
 
 Claude Code を勉強しています。
@@ -10,58 +12,50 @@ Claude Code を勉強しています。
 
 公式ドキュメントの内容を一通り頭に入れている人は強いと感じます。全てを暗記している必要はありませんが、「こういう機能があったはず」「確かあのコマンドで...」という**脳内インデックス**があれば、必要な時にすぐ調べられるし、AIにも的確な質問ができます。
 
-Claude Code は機能が多岐にわたります。メモリシステム、ツール群、スラッシュコマンド、キーボードショートカット、MCP連携...。ドキュメントを一度読んだだけでは、とても全ては覚えられません。
-
-そこで、4択問題が連なったクイズアプリを作りたいと思いました。
-
 **アクティブリコール（能動的な想起）** と **スペーシング効果（分散学習）** を活用し、繰り返し問題を解くことで脳内インデックスを構築する。間違えた問題を重点的に出題する「苦手問題モード」で、効率的に知識を定着させる。そんなツールです。
 
 ## 機能
 
 ### クイズモード
-- **全問チャレンジ**: 100問を60分で解く本格モード
-- **カテゴリ別**: 特定のカテゴリに絞って学習
-- **ランダム20問**: 手軽に復習したい時に
-- **苦手問題**: 正答率の低い問題を重点的に出題
-- **カスタム**: カテゴリと難易度を自由に組み合わせ
+
+| モード | 説明 |
+|--------|------|
+| 全問チャレンジ | 100問を60分で解く本格モード |
+| カテゴリ別 | 特定のカテゴリに絞って学習 |
+| ランダム20問 | 手軽に復習したい時に |
+| 苦手問題 | 正答率の低い問題を重点的に出題 |
+| カスタム | カテゴリと難易度を自由に組み合わせ |
 
 ### 8つのカテゴリ（100問）
+
 | カテゴリ | 問題数 | 内容 |
 |---------|--------|------|
-| Memory | 15問 | CLAUDE.md、メモリシステム、コンテキスト管理 |
-| Skills | 15問 | スラッシュコマンド、カスタムスキル |
-| Tools | 15問 | Read, Edit, Bash, Glob, Grepなどのツール |
-| Commands | 15問 | CLIコマンド、フラグ、設定 |
+| Memory | 15問 | CLAUDE.md、メモリシステム |
+| Skills | 15問 | カスタムスキル、スラッシュコマンド |
+| Tools | 15問 | Read, Edit, Bash, Glob, Grep |
+| Commands | 15問 | CLI コマンド、フラグ |
 | Extensions | 15問 | MCP、Hooks、サブエージェント |
-| Session | 10問 | セッション管理、履歴、コンテキスト |
-| Keyboard | 10問 | ショートカット、Vimモード |
-| Best Practices | 5問 | 効果的な使い方、ベストプラクティス |
+| Session | 10問 | セッション管理、履歴 |
+| Keyboard | 10問 | ショートカット、Vim モード |
+| Best Practices | 5問 | 効果的な使い方 |
 
-### その他の機能
-- **進捗トラッキング**: 回答履歴、正答率、連続学習日数を記録
-- **エクスポート/インポート**: 学習データのバックアップ・復元
-- **タイマー**: 制限時間モードでの残り時間表示
-- **キーボード操作**: 矢印キー、数字キー、Enterで操作可能
-- **AIプロンプト生成**: 間違えた問題をClaude等で深掘りするためのプロンプトをコピー
+### その他
 
-## インストール
+- 進捗トラッキング（回答履歴、正答率、連続学習日数）
+- エクスポート/インポート
+- タイマー表示
+- キーボード操作対応
+- AI プロンプト生成機能
 
-### 必要環境
-- Node.js 18以上
-- npm または yarn
+## クイックスタート
 
-### セットアップ
+### インストール
 
 ```bash
-# リポジトリをクローン
 git clone git@github.com:ip-san/claude-code-quiz-desktop.git
 cd claude-code-quiz-desktop
-
-# 依存パッケージをインストール
 npm install
 ```
-
-## 実行方法
 
 ### 開発モード
 
@@ -69,255 +63,48 @@ npm install
 npm run dev
 ```
 
-Vite開発サーバーが起動し、Electronウィンドウが開きます。ホットリロードが有効なので、コードを変更すると自動的に反映されます。
-
-### プロダクションビルド
+### アプリのビルド
 
 ```bash
-# ビルド
-npm run build
-
-# macOS用DMGパッケージが release/ に生成される
-```
-
-### アプリのインストール（macOS）
-
-ビルド後、`release/` フォルダに生成されたDMGファイルからインストールできます：
-
-1. `release/Claude Code Quiz-x.x.x-arm64.dmg` をダブルクリック
-2. 開いたウィンドウで、アプリを Applications フォルダにドラッグ
-3. Launchpad または Applications フォルダから「Claude Code Quiz」を起動
-
-> **注意**: 初回起動時に「開発元を確認できない」という警告が表示される場合があります。
-> その場合は、システム設定 → プライバシーとセキュリティ → 「このまま開く」をクリックしてください。
-
-### アイコンのカスタマイズ
-
-アプリアイコンを変更したい場合：
-
-```bash
-# 1. build/icon.svg を編集
-# 2. アイコンを再生成
-npm run generate-icons
-
-# 3. アプリを再ビルド
 npm run build
 ```
 
-### プレビュー（ビルド後の確認）
+`release/` フォルダにインストーラーが生成されます。
 
-```bash
-npm run preview
-```
+詳しいインストール手順は **[docs/INSTALLATION.md](docs/INSTALLATION.md)** を参照してください。
 
-## 問題のメンテナンス
+## ドキュメント
 
-### 問題ファイルの構造
-
-問題は `src/data/quizzes.json` に JSON 形式で定義されています：
-
-```
-src/data/
-└── quizzes.json      # 全問題を含むJSONファイル
-```
-
-### 問題の形式
-
-各問題は以下の形式で定義されています：
-
-```json
-{
-  "id": "memory-001",
-  "category": "memory",
-  "difficulty": "intermediate",
-  "question": "問題文をここに記述",
-  "options": [
-    {
-      "text": "選択肢1",
-      "wrongFeedback": "不正解時に表示するフィードバック（正解の選択肢には不要）"
-    },
-    {
-      "text": "選択肢2（正解）"
-    }
-  ],
-  "correctIndex": 1,
-  "explanation": "正解の解説。なぜその答えが正しいのかを詳しく説明",
-  "referenceUrl": "https://code.claude.com/docs/en/...",
-  "aiPrompt": "AIに質問する際の追加プロンプト（任意）"
-}
-```
-
-### 新しい問題を追加する
-
-1. `src/data/quizzes.json` を開く
-2. `quizzes` 配列に新しい問題オブジェクトを追加
-3. IDはユニークになるよう連番を更新
-
-```json
-{
-  "title": "Claude Code Quiz",
-  "quizzes": [
-    // 既存の問題...
-
-    // 新しい問題を追加
-    {
-      "id": "memory-016",
-      "category": "memory",
-      "difficulty": "advanced",
-      "question": "新しい問題文",
-      "options": [
-        { "text": "選択肢A", "wrongFeedback": "Aが不正解な理由" },
-        { "text": "選択肢B", "wrongFeedback": "Bが不正解な理由" },
-        { "text": "選択肢C" },
-        { "text": "選択肢D", "wrongFeedback": "Dが不正解な理由" }
-      ],
-      "correctIndex": 2,
-      "explanation": "この問題の解説...",
-      "referenceUrl": "https://code.claude.com/docs/en/..."
-    }
-  ]
-}
-```
-
-### 新しいカテゴリを追加する
-
-1. `src/domain/valueObjects/Category.ts` の `PREDEFINED_CATEGORIES` 配列にカテゴリ定義を追加
-
-```typescript
-export const PREDEFINED_CATEGORIES: Category[] = [
-  // 既存のカテゴリ...
-  Category.create({
-    id: 'newcategory',
-    name: '新カテゴリ',
-    description: 'カテゴリの説明',
-    icon: '🆕',
-    color: 'purple',
-    weight: 10,
-  }),
-]
-```
-
-### JSONファイルからのインポート
-
-アプリ内の「データセット管理」パネルから、外部のJSONファイルを読み込むこともできます：
-
-```json
-{
-  "title": "カスタムクイズ",
-  "quizzes": [
-    {
-      "id": "custom-001",
-      "category": "memory",
-      "difficulty": "beginner",
-      "question": "問題文",
-      "options": [
-        { "text": "選択肢1" },
-        { "text": "選択肢2" }
-      ],
-      "correctIndex": 0,
-      "explanation": "解説"
-    }
-  ]
-}
-```
+| ドキュメント | 内容 |
+|-------------|------|
+| [インストールガイド](docs/INSTALLATION.md) | ビルド、インストール、トラブルシューティング |
+| [開発ガイド](docs/DEVELOPMENT.md) | 開発環境、ワークフロー、テスト |
+| [アーキテクチャ](docs/ARCHITECTURE.md) | 設計思想、技術スタック、セキュリティ |
+| [クイズ管理](docs/QUIZ_MANAGEMENT.md) | 問題の追加・編集、Claude Code スキル |
 
 ## 技術スタック
 
-- **Electron**: デスクトップアプリケーションフレームワーク
-- **Vite**: ビルドツール
-- **React**: UIライブラリ
-- **TypeScript**: 型安全な開発
-- **Tailwind CSS**: スタイリング（Claudeブランドカラー採用）
-- **Zustand**: 状態管理
-- **Zod**: ランタイムバリデーション
-- **Vitest**: テストフレームワーク
+- **Electron** - デスクトップアプリケーション
+- **React** + **TypeScript** - UI
+- **Vite** - ビルドツール
+- **Tailwind CSS** - スタイリング
+- **Zustand** - 状態管理
+- **Zod** - バリデーション
+- **Vitest** - テスト
 
-## アーキテクチャ
+## Claude Code スキル
 
-本プロジェクトはドメイン駆動設計（DDD）のレイヤードアーキテクチャを採用しています：
-
-```
-src/
-├── domain/              # ドメイン層（ビジネスロジックの中心）
-│   ├── entities/        # エンティティ（Question, UserProgress, QuizSet）
-│   ├── valueObjects/    # 値オブジェクト（Category, Difficulty, QuizMode）
-│   ├── services/        # ドメインサービス（QuizSessionService）
-│   └── repositories/    # リポジトリインターフェース
-├── infrastructure/      # インフラ層（外部システムとの接続）
-│   ├── persistence/     # 永続化（LocalStorageProgressRepository）
-│   └── validation/      # バリデーション（QuizValidator）
-├── stores/              # 状態管理（Zustand）
-├── components/          # UIコンポーネント
-└── data/                # クイズデータ（JSON）
-```
-
-### レイヤー間の依存関係
-
-- **Domain層**: 他の層に依存しない純粋なビジネスロジック
-- **Infrastructure層**: Domain層のインターフェースを実装
-- **UI層**: Zustand Storeを通じてドメインにアクセス
-
-## テスト
-
-Vitestを使用した包括的なテストスイートが含まれています：
+Claude Code ユーザー向けに、問題の自動生成・検証スキルを用意しています。
 
 ```bash
-# テストを実行
-npm test
+# 問題を自動生成
+/generate-quiz-data 100
 
-# カバレッジレポートを生成
-npm run test:coverage
+# 問題を公式ドキュメントと照合
+/verify-quiz-content
 ```
 
-テストは以下の領域をカバーしています：
-- ドメインエンティティ（Question, UserProgress）
-- 値オブジェクト（Category, Difficulty, QuizMode）
-- ドメインサービス（QuizSessionService）
-- アプリケーションユースケース
-- インフラストラクチャ（リポジトリ）
-
-## クイズ問題の管理
-
-### Claude Code スキル
-
-Claude Code で以下のスキルを使用して、クイズ問題の生成・検証ができます：
-
-#### 問題生成
-
-```bash
-/generate-quiz-data        # 16問のサンプルを生成
-/generate-quiz-data 100    # 100問を生成
-```
-
-公式ドキュメント（code.claude.com）を読み込んでクイズ問題を自動生成します。
-
-詳細は `.claude/skills/generate-quiz-data/SKILL.md` を参照。
-
-#### 内容検証
-
-```bash
-/verify-quiz-content              # 全カテゴリを検証
-/verify-quiz-content memory       # 特定カテゴリのみ検証
-/verify-quiz-content extensions tools  # 複数カテゴリ指定
-```
-
-クイズ内容が公式ドキュメントと整合しているかを検証し、差異を報告します。
-
-**検証項目:**
-- 事実の正確性（正解・解説が正しいか）
-- 用語・名称の正確性（API名、イベント名など）
-- リファレンスURLの有効性
-- 最新性（廃止・名称変更された機能がないか）
-
-詳細は `.claude/skills/verify-quiz-content/SKILL.md` を参照。
-
-### プロンプト（コピペ用）
-
-Claude Code 以外の環境（Claude.ai、API等）でも使用できるプロンプトを用意しています：
-
-📄 **[QUIZ_GENERATOR_PROMPT.md](./QUIZ_GENERATOR_PROMPT.md)**
-
-このファイル内のプロンプトをコピーして Claude に貼り付けるだけで、クイズデータを生成できます。
+詳細は [docs/QUIZ_MANAGEMENT.md](docs/QUIZ_MANAGEMENT.md) を参照してください。
 
 ## ライセンス
 
