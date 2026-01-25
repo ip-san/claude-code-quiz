@@ -59,7 +59,7 @@
         { "text": "ローカルメモリ (./CLAUDE.local.md)", "wrongFeedback": "ローカルメモリは個人的なプロジェクト設定用です。" }
       ],
       "correctIndex": 2,
-      "explanation": "マネージドポリシーは組織全体の設定として最高優先度を持ちます。階層は managed > user > project の順です。",
+      "explanation": "マネージドポリシーは組織全体の設定として最高優先度を持ちます。階層は managed > project > user の順です。",
       "referenceUrl": "https://code.claude.com/docs/en/memory#memory-hierarchy"
     },
     {
@@ -923,13 +923,13 @@
       "difficulty": "intermediate",
       "question": "MCPサーバー設定を記述するファイルはどれですか？",
       "options": [
-        { "text": "mcp.json", "wrongFeedback": "mcp.jsonではありません。" },
-        { "text": "settings.json内のmcpServersセクション" },
+        { "text": "settings.json内のmcpServersセクション", "wrongFeedback": "HooksはsettingsですがMCPは違います。" },
+        { "text": "~/.claude.json または .mcp.json" },
         { "text": "servers.config", "wrongFeedback": "servers.configではありません。" },
         { "text": "CLAUDE.md", "wrongFeedback": "CLAUDE.mdはメモリファイルです。" }
       ],
       "correctIndex": 1,
-      "explanation": "MCPサーバーはsettings.jsonのmcpServersセクションで設定します。",
+      "explanation": "MCPサーバーはユーザー/ローカルスコープでは~/.claude.json、プロジェクトスコープでは.mcp.jsonで設定します。",
       "referenceUrl": "https://code.claude.com/docs/en/mcp#configuration"
     },
     {
@@ -939,12 +939,12 @@
       "question": "Hooksでツール実行の前後にカスタム処理を行う場合、どのイベントを使用しますか？",
       "options": [
         { "text": "onToolStart, onToolEnd", "wrongFeedback": "このイベント名ではありません。" },
-        { "text": "PreToolExecution, PostToolExecution" },
+        { "text": "PreToolUse, PostToolUse" },
         { "text": "beforeTool, afterTool", "wrongFeedback": "このイベント名ではありません。" },
         { "text": "tool:before, tool:after", "wrongFeedback": "このイベント名ではありません。" }
       ],
       "correctIndex": 1,
-      "explanation": "PreToolExecutionとPostToolExecutionイベントでツール実行の前後に処理を挟めます。",
+      "explanation": "PreToolUseとPostToolUseイベントでツール実行の前後に処理を挟めます。失敗時はPostToolUseFailureイベントも使用できます。",
       "referenceUrl": "https://code.claude.com/docs/en/hooks"
     },
     {
@@ -1043,13 +1043,13 @@
       "difficulty": "intermediate",
       "question": "Hooksでコマンド実行結果を変更できるイベントはどれですか？",
       "options": [
-        { "text": "PostToolExecution" },
+        { "text": "PostToolUse" },
         { "text": "CommandResult", "wrongFeedback": "CommandResultではありません。" },
         { "text": "OutputModify", "wrongFeedback": "OutputModifyではありません。" },
         { "text": "ResponseFilter", "wrongFeedback": "ResponseFilterではありません。" }
       ],
       "correctIndex": 0,
-      "explanation": "PostToolExecutionイベントでツール実行後の結果を処理・変更できます。",
+      "explanation": "PostToolUseイベントでツール実行後の結果を処理・変更できます。",
       "referenceUrl": "https://code.claude.com/docs/en/hooks"
     },
     {
@@ -1074,12 +1074,12 @@
       "question": "Code Intelligenceプラグインを有効にするための設定はどこで行いますか？",
       "options": [
         { "text": "CLAUDE.md", "wrongFeedback": "CLAUDE.mdではありません。" },
-        { "text": "settings.jsonのplugins.code-intelligenceセクション" },
+        { "text": "/pluginコマンドでインストール・管理" },
         { "text": "環境変数", "wrongFeedback": "環境変数ではありません。" },
         { "text": "コマンドラインフラグ", "wrongFeedback": "コマンドラインではありません。" }
       ],
       "correctIndex": 1,
-      "explanation": "Code Intelligenceはsettings.jsonのplugins.code-intelligenceセクションで設定します。",
+      "explanation": "Code Intelligenceプラグインは/plugin install plugin-name@marketplaceでインストールし、/pluginコマンドで管理します。",
       "referenceUrl": "https://code.claude.com/docs/en/discover-plugins#code-intelligence"
     },
     {
@@ -1101,15 +1101,15 @@
       "id": "ext-014",
       "category": "extensions",
       "difficulty": "advanced",
-      "question": "Hooksでスクリプトにツール入力を渡す環境変数は何ですか？",
+      "question": "Hooksでスクリプトにツール入力を渡す方法は何ですか？",
       "options": [
-        { "text": "HOOK_INPUT", "wrongFeedback": "HOOK_INPUTではありません。" },
-        { "text": "TOOL_INPUT" },
-        { "text": "CLAUDE_INPUT", "wrongFeedback": "CLAUDE_INPUTではありません。" },
-        { "text": "SCRIPT_ARGS", "wrongFeedback": "SCRIPT_ARGSではありません。" }
+        { "text": "環境変数HOOK_INPUT", "wrongFeedback": "環境変数ではありません。" },
+        { "text": "標準入力（stdin）でJSON形式" },
+        { "text": "環境変数CLAUDE_INPUT", "wrongFeedback": "環境変数ではありません。" },
+        { "text": "コマンドライン引数", "wrongFeedback": "コマンドライン引数ではありません。" }
       ],
       "correctIndex": 1,
-      "explanation": "HooksスクリプトにはTOOL_INPUT環境変数でツールへの入力が渡されます。",
+      "explanation": "Hooksスクリプトには標準入力（stdin）でJSON形式の入力が渡されます。環境変数にはCLAUDE_PROJECT_DIRなどが設定されます。",
       "referenceUrl": "https://code.claude.com/docs/en/hooks"
     },
     {
@@ -1236,15 +1236,15 @@
       "id": "ses-008",
       "category": "session",
       "difficulty": "advanced",
-      "question": "コンテキストウィンドウの現在の使用状況を確認できるキーボードショートカットは？",
+      "question": "コンテキストウィンドウの現在の使用状況を確認できるコマンドは？",
       "options": [
-        { "text": "Ctrl+C", "wrongFeedback": "Ctrl+Cは中断コマンドです。" },
-        { "text": "Ctrl+L" },
-        { "text": "Ctrl+W", "wrongFeedback": "Ctrl+Wではありません。" },
-        { "text": "Ctrl+I", "wrongFeedback": "Ctrl+Iではありません。" }
+        { "text": "/status", "wrongFeedback": "/statusはバージョンやモデル情報を表示します。" },
+        { "text": "/context" },
+        { "text": "/usage", "wrongFeedback": "/usageはサブスクリプション制限を表示します。" },
+        { "text": "/memory", "wrongFeedback": "/memoryはCLAUDE.mdの編集用です。" }
       ],
       "correctIndex": 1,
-      "explanation": "Ctrl+Lでステータスラインに現在のコンテキストウィンドウ使用状況が表示されます。",
+      "explanation": "/contextコマンドで現在のコンテキストウィンドウ使用状況をカラーグリッドで視覚的に確認できます。",
       "referenceUrl": "https://code.claude.com/docs/en/interactive-mode"
     },
     {
@@ -1341,16 +1341,16 @@
       "id": "key-005",
       "category": "keyboard",
       "difficulty": "advanced",
-      "question": "バックグラウンドで実行中のコマンドをフォアグラウンドに戻すキーは何ですか？",
+      "question": "バックグラウンドタスクの一覧を確認するためのコマンドは何ですか？",
       "options": [
-        { "text": "Ctrl+F", "wrongFeedback": "Ctrl+Fではありません。" },
-        { "text": "Ctrl+Z" },
-        { "text": "Ctrl+G", "wrongFeedback": "Ctrl+Gではありません。" },
-        { "text": "Ctrl+R", "wrongFeedback": "Ctrl+Rではありません。" }
+        { "text": "/background", "wrongFeedback": "/backgroundコマンドではありません。" },
+        { "text": "/tasks" },
+        { "text": "/jobs", "wrongFeedback": "/jobsコマンドではありません。" },
+        { "text": "/processes", "wrongFeedback": "/processesコマンドではありません。" }
       ],
       "correctIndex": 1,
-      "explanation": "Ctrl+Zでバックグラウンドタスクのリストを表示し、フォアグラウンドに戻せます。",
-      "referenceUrl": "https://code.claude.com/docs/en/interactive-mode#background"
+      "explanation": "/tasksコマンドでバックグラウンドで実行中のタスク一覧を確認できます。",
+      "referenceUrl": "https://code.claude.com/docs/en/interactive-mode"
     },
     {
       "id": "key-006",
@@ -1386,15 +1386,15 @@
       "id": "key-008",
       "category": "keyboard",
       "difficulty": "intermediate",
-      "question": "ステータスラインを表示/非表示するキーは何ですか？",
+      "question": "ターミナル画面をクリアするキーは何ですか？",
       "options": [
-        { "text": "Ctrl+S", "wrongFeedback": "Ctrl+Sではありません。" },
+        { "text": "Ctrl+C", "wrongFeedback": "Ctrl+Cは実行中の処理をキャンセルします。" },
         { "text": "Ctrl+L" },
-        { "text": "Ctrl+T", "wrongFeedback": "Ctrl+Tではありません。" },
-        { "text": "F1", "wrongFeedback": "F1ではありません。" }
+        { "text": "Ctrl+K", "wrongFeedback": "Ctrl+Kではありません。" },
+        { "text": "Ctrl+X", "wrongFeedback": "Ctrl+Xではありません。" }
       ],
       "correctIndex": 1,
-      "explanation": "Ctrl+Lでステータスラインの表示/非表示を切り替えられます。",
+      "explanation": "Ctrl+Lでターミナル画面をクリアできます。標準的なターミナルショートカットです。",
       "referenceUrl": "https://code.claude.com/docs/en/interactive-mode"
     },
     {

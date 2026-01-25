@@ -15,14 +15,19 @@ allowed-tools: WebFetch, Read, Write, Glob, Grep
 ## Input Source
 
 以下の公式ドキュメントを参照してください：
-- https://docs.anthropic.com/en/docs/claude-code/overview
-- https://docs.anthropic.com/en/docs/claude-code/getting-started
-- https://docs.anthropic.com/en/docs/claude-code/settings
-- https://docs.anthropic.com/en/docs/claude-code/memory
-- https://docs.anthropic.com/en/docs/claude-code/cli-usage
-- https://docs.anthropic.com/en/docs/claude-code/mcp
-- https://docs.anthropic.com/en/docs/claude-code/ide-integrations
-- https://docs.anthropic.com/en/docs/claude-code/tutorials
+- https://code.claude.com/docs/en/overview
+- https://code.claude.com/docs/en/quickstart
+- https://code.claude.com/docs/en/settings
+- https://code.claude.com/docs/en/memory
+- https://code.claude.com/docs/en/interactive-mode
+- https://code.claude.com/docs/en/how-claude-code-works
+- https://code.claude.com/docs/en/mcp
+- https://code.claude.com/docs/en/hooks
+- https://code.claude.com/docs/en/discover-plugins
+- https://code.claude.com/docs/en/common-workflows
+- https://code.claude.com/docs/en/checkpointing
+- https://code.claude.com/docs/en/sub-agents
+- https://code.claude.com/docs/en/best-practices
 
 ## Action
 
@@ -50,7 +55,7 @@ allowed-tools: WebFetch, Read, Write, Glob, Grep
       ],
       "correctIndex": 1,
       "explanation": "正解の詳細な解説",
-      "referenceUrl": "https://docs.anthropic.com/..."
+      "referenceUrl": "https://code.claude.com/docs/en/..."
     }
   ]
 }

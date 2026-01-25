@@ -118,7 +118,7 @@ src/data/
   ],
   "correctIndex": 1,
   "explanation": "正解の解説。なぜその答えが正しいのかを詳しく説明",
-  "referenceUrl": "https://docs.anthropic.com/...",
+  "referenceUrl": "https://code.claude.com/docs/en/...",
   "aiPrompt": "AIに質問する際の追加プロンプト（任意）"
 }
 ```
@@ -149,7 +149,7 @@ src/data/
       ],
       "correctIndex": 2,
       "explanation": "この問題の解説...",
-      "referenceUrl": "https://docs.anthropic.com/..."
+      "referenceUrl": "https://code.claude.com/docs/en/..."
     }
   ]
 }
@@ -252,18 +252,40 @@ npm run test:coverage
 - アプリケーションユースケース
 - インフラストラクチャ（リポジトリ）
 
-## クイズ問題の自動生成
+## クイズ問題の管理
 
 ### Claude Code スキル
 
-Claude Code で以下のスキルを使用すると、公式ドキュメントを読み込んでクイズ問題を自動生成できます：
+Claude Code で以下のスキルを使用して、クイズ問題の生成・検証ができます：
+
+#### 問題生成
 
 ```bash
 /generate-quiz-data        # 16問のサンプルを生成
 /generate-quiz-data 100    # 100問を生成
 ```
 
+公式ドキュメント（code.claude.com）を読み込んでクイズ問題を自動生成します。
+
 詳細は `.claude/skills/generate-quiz-data/SKILL.md` を参照。
+
+#### 内容検証
+
+```bash
+/verify-quiz-content              # 全カテゴリを検証
+/verify-quiz-content memory       # 特定カテゴリのみ検証
+/verify-quiz-content extensions tools  # 複数カテゴリ指定
+```
+
+クイズ内容が公式ドキュメントと整合しているかを検証し、差異を報告します。
+
+**検証項目:**
+- 事実の正確性（正解・解説が正しいか）
+- 用語・名称の正確性（API名、イベント名など）
+- リファレンスURLの有効性
+- 最新性（廃止・名称変更された機能がないか）
+
+詳細は `.claude/skills/verify-quiz-content/SKILL.md` を参照。
 
 ### プロンプト（コピペ用）
 

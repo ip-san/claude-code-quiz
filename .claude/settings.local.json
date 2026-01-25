@@ -25,7 +25,13 @@
       "Bash(do echo \"=== $pkg ===\" grep -r \"from ''''$pkg''''\" /Users/sesoko/Desktop/workspace/claude-code-quiz-desktop/src --include=\"*.tsx\" --include=\"*.ts\")",
       "Bash(npm test:*)",
       "Bash(find:*)",
-      "Bash(grep:*)"
+      "Bash(grep:*)",
+      "Bash(for i in {1..10})",
+      "Bash(do echo \"=== Run $i ===\")",
+      "Bash(done)",
+      "WebFetch(domain:docs.anthropic.com)",
+      "Bash(npm run type-check:*)",
+      "Bash(xargs ls:*)"
     ]
   }
 }
