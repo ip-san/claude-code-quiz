@@ -48,6 +48,7 @@ import {
   type QuizSessionConfig,
   type QuizSessionState,
 } from '@/domain/services/QuizSessionService'
+import { ProgressExportService } from '@/domain/services/ProgressExportService'
 
 // Infrastructure imports
 import {
@@ -108,6 +109,7 @@ interface QuizStore {
   // Session state
   sessionConfig: QuizSessionConfig
   sessionState: QuizSessionState | null
+  sessionWrongAnswers: { questionId: string; selectedAnswer: number }[]
 
   // Progress state (using domain entity)
   userProgress: UserProgress
@@ -137,6 +139,19 @@ interface QuizStore {
   restoreDefault: () => Promise<void>
   switchQuizSet: (setId: string) => Promise<void>
   deleteUserSet: (setId: string) => Promise<void>
+
+  // Bookmark actions
+  toggleBookmark: (questionId: string) => void
+  getBookmarkedCount: () => number
+
+  // Review actions
+  startReviewSession: () => void
+
+  // Hint actions
+  useHint: () => void
+
+  // Export actions
+  exportProgressCsv: () => Promise<void>
 
   // Progress actions
   loadUserProgress: () => Promise<void>
@@ -202,6 +217,7 @@ export const useQuizStore = create<QuizStore>((set, get) => ({
   isDefaultData: true,
   sessionConfig: QuizSessionService.createDefaultConfig(),
   sessionState: null,
+  sessionWrongAnswers: [],
   userProgress: UserProgress.empty(),
   importError: null,
   isLoading: true,
@@ -299,6 +315,7 @@ export const useQuizStore = create<QuizStore>((set, get) => ({
     set({
       sessionConfig: config,
       sessionState,
+      sessionWrongAnswers: [],
       viewState: 'quiz',
     })
   },
@@ -334,23 +351,36 @@ export const useQuizStore = create<QuizStore>((set, get) => ({
     const currentQuestion = QuizSessionService.getCurrentQuestion(state.sessionState)
 
     if (currentQuestion) {
-      // Update progress
+      // Update progress (skip in review mode)
+      if (state.sessionState.isReviewMode) {
+        set({ sessionState: newState })
+        return
+      }
+
       const updatedProgress = state.userProgress.recordAnswer(
         currentQuestion.id,
         currentQuestion.category,
         isCorrect
       )
 
+      // Track wrong answers for review feature
+      const newWrongAnswers = isCorrect
+        ? state.sessionWrongAnswers
+        : [
+            ...state.sessionWrongAnswers,
+            { questionId: currentQuestion.id, selectedAnswer: state.sessionState.selectedAnswer! },
+          ]
+
       // Optimistic update - apply state immediately for responsive UI
       set({
         sessionState: newState,
         userProgress: updatedProgress,
+        sessionWrongAnswers: newWrongAnswers,
       })
 
       // Save progress asynchronously with error handling
       getProgressRepository().save(updatedProgress).catch((error) => {
         console.error('Failed to save progress:', error)
-        // Progress is saved in memory, will be retried on next save
       })
     } else {
       set({ sessionState: newState })
@@ -502,6 +532,77 @@ export const useQuizStore = create<QuizStore>((set, get) => ({
     } catch (error) {
       console.error('Failed to delete user set:', error)
     }
+  },
+
+  // Bookmark actions
+  toggleBookmark: (questionId) => {
+    const state = get()
+    const updatedProgress = state.userProgress.toggleBookmark(questionId)
+    set({ userProgress: updatedProgress })
+    getProgressRepository().save(updatedProgress).catch((error) => {
+      console.error('Failed to save bookmark:', error)
+    })
+  },
+
+  getBookmarkedCount: () => {
+    return get().userProgress.bookmarkedQuestionIds.length
+  },
+
+  // Review actions
+  startReviewSession: () => {
+    const state = get()
+    if (!state.sessionState || state.sessionWrongAnswers.length === 0) return
+
+    const wrongQuestionIds = new Set(state.sessionWrongAnswers.map(w => w.questionId))
+    const wrongQuestions = state.sessionState.questions.filter(q => wrongQuestionIds.has(q.id))
+    const answerMap = new Map(state.sessionWrongAnswers.map(w => [w.questionId, w.selectedAnswer]))
+    const reviewUserAnswers = wrongQuestions.map(q => answerMap.get(q.id) ?? -1)
+
+    const config: QuizSessionConfig = {
+      mode: 'review',
+      categoryFilter: null,
+      difficultyFilter: null,
+      questionCount: null,
+      timeLimit: null,
+      shuffleQuestions: false,
+      shuffleOptions: false,
+    }
+
+    const sessionState = QuizSessionService.createInitialState(
+      [...wrongQuestions],
+      config,
+      { isReviewMode: true, reviewUserAnswers }
+    )
+
+    set({
+      sessionState,
+      sessionConfig: config,
+      viewState: 'quiz',
+    })
+  },
+
+  // Hint actions
+  useHint: () => {
+    const state = get()
+    if (!state.sessionState) return
+    const newSessionState = QuizSessionService.useHint(state.sessionState)
+    set({ sessionState: newSessionState })
+  },
+
+  // Export actions
+  exportProgressCsv: async () => {
+    const state = get()
+    const dateStr = new Date().toISOString().split('T')[0]
+    const questionCsv = ProgressExportService.generateQuestionCsv(
+      state.allQuestions,
+      state.userProgress
+    )
+    const categoryCsv = ProgressExportService.generateCategoryCsv(
+      state.allQuestions,
+      state.userProgress
+    )
+    const combinedCsv = `${questionCsv}\n\n--- カテゴリ別サマリー ---\n${categoryCsv}`
+    await window.electronAPI.exportCsv(combinedCsv, `quiz-progress-${dateStr}.csv`)
   },
 
   // Progress actions

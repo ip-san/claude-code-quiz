@@ -3,6 +3,7 @@ import { useQuizStore } from '@/stores/quizStore'
 import { OptionButton } from './OptionButton'
 import { Feedback } from './Feedback'
 import { getCategoryById } from '@/domain/valueObjects/Category'
+import { Bookmark, Lightbulb } from 'lucide-react'
 
 // Color mapping for categories
 const COLOR_MAP: Record<string, string> = {
@@ -29,12 +30,17 @@ export function QuizCard() {
     submitAnswer,
     nextQuestion,
     endSession,
+    toggleBookmark,
+    useHint,
   } = useQuizStore()
 
   const quiz = getCurrentQuestion()
   const selectedAnswer = sessionState?.selectedAnswer ?? null
   const isAnswered = sessionState?.isAnswered ?? false
   const isCorrect = sessionState?.isCorrect ?? null
+  const isReviewMode = sessionState?.isReviewMode ?? false
+  const hintUsed = sessionState?.hintUsed ?? false
+  const isBookmarked = quiz ? useQuizStore.getState().userProgress.isBookmarked(quiz.id) : false
 
   // Keyboard navigation handler
   const handleKeyDown = useCallback(
@@ -136,43 +142,95 @@ export function QuizCard() {
         isAnswered && !isCorrect ? 'animate-shake' : ''
       } ${isAnswered && isCorrect ? 'animate-pulse-success' : ''}`}
     >
-      {/* Category & Difficulty badges */}
-      <div className="mb-4 flex gap-2">
-        {category && (
-          <span
-            className="flex items-center gap-1 rounded px-2 py-1 text-xs font-medium"
-            style={{
-              backgroundColor: `${getColorHex(category.color ?? 'gray')}15`,
-              color: getColorHex(category.color ?? 'gray'),
-            }}
-          >
-            <span>{category.icon}</span>
-            {category.name}
-          </span>
-        )}
-        {quiz.difficulty && (
-          <span
-            className={`rounded px-2 py-1 text-xs font-medium ${
-              quiz.difficulty === 'beginner'
-                ? 'bg-green-100 text-green-700'
+      {/* Category & Difficulty badges + Bookmark */}
+      <div className="mb-4 flex items-center justify-between">
+        <div className="flex gap-2">
+          {category && (
+            <span
+              className="flex items-center gap-1 rounded px-2 py-1 text-xs font-medium"
+              style={{
+                backgroundColor: `${getColorHex(category.color ?? 'gray')}15`,
+                color: getColorHex(category.color ?? 'gray'),
+              }}
+            >
+              <span>{category.icon}</span>
+              {category.name}
+            </span>
+          )}
+          {quiz.difficulty && (
+            <span
+              className={`rounded px-2 py-1 text-xs font-medium ${
+                quiz.difficulty === 'beginner'
+                  ? 'bg-green-100 text-green-700'
+                  : quiz.difficulty === 'intermediate'
+                    ? 'bg-yellow-100 text-yellow-700'
+                    : 'bg-red-100 text-red-700'
+              }`}
+            >
+              {quiz.difficulty === 'beginner'
+                ? '初級'
                 : quiz.difficulty === 'intermediate'
-                  ? 'bg-yellow-100 text-yellow-700'
-                  : 'bg-red-100 text-red-700'
+                  ? '中級'
+                  : '上級'}
+            </span>
+          )}
+          {isReviewMode && (
+            <span className="rounded bg-amber-100 px-2 py-1 text-xs font-medium text-amber-700">
+              復習
+            </span>
+          )}
+        </div>
+        <button
+          onClick={() => toggleBookmark(quiz.id)}
+          aria-label={isBookmarked ? 'ブックマークを解除' : 'ブックマークに追加'}
+          className="rounded-lg p-1.5 transition-colors hover:bg-stone-100"
+        >
+          <Bookmark
+            className={`h-5 w-5 ${
+              isBookmarked
+                ? 'fill-yellow-500 text-yellow-500'
+                : 'text-stone-400'
             }`}
-          >
-            {quiz.difficulty === 'beginner'
-              ? '初級'
-              : quiz.difficulty === 'intermediate'
-                ? '中級'
-                : '上級'}
-          </span>
-        )}
+          />
+        </button>
       </div>
 
       {/* Question */}
       <h2 className="mb-6 text-lg font-semibold leading-relaxed text-claude-dark">
         {quiz.question}
       </h2>
+
+      {/* Hint */}
+      {quiz.hint && !isAnswered && !isReviewMode && (
+        <div className="mb-4">
+          {!hintUsed ? (
+            <button
+              onClick={useHint}
+              className="flex items-center gap-1.5 rounded-lg border border-amber-300 bg-amber-50 px-3 py-2 text-sm text-amber-700 transition-colors hover:bg-amber-100"
+            >
+              <Lightbulb className="h-4 w-4" />
+              ヒントを表示
+            </button>
+          ) : (
+            <div className="rounded-lg border border-amber-300 bg-amber-50 p-3">
+              <div className="mb-1 flex items-center gap-1.5">
+                <Lightbulb className="h-4 w-4 text-amber-600" />
+                <span className="text-sm font-medium text-amber-700">ヒント</span>
+              </div>
+              <p className="text-sm text-amber-800">{quiz.hint}</p>
+            </div>
+          )}
+        </div>
+      )}
+      {quiz.hint && isAnswered && hintUsed && (
+        <div className="mb-4 rounded-lg border border-amber-200 bg-amber-50/50 p-3">
+          <div className="mb-1 flex items-center gap-1.5">
+            <Lightbulb className="h-4 w-4 text-amber-500" />
+            <span className="text-xs font-medium text-amber-600">使用したヒント</span>
+          </div>
+          <p className="text-xs text-amber-700">{quiz.hint}</p>
+        </div>
+      )}
 
       {/* Options */}
       <div
@@ -196,7 +254,7 @@ export function QuizCard() {
 
       {/* Submit / Next button */}
       <div className="mt-6">
-        {!isAnswered ? (
+        {!isAnswered && !isReviewMode ? (
           <button
             onClick={submitAnswer}
             disabled={selectedAnswer === null}
@@ -215,10 +273,10 @@ export function QuizCard() {
             <Feedback quiz={quiz} isCorrect={isCorrect!} />
             <button
               onClick={nextQuestion}
-              aria-label="次の問題へ進む"
+              aria-label={isReviewMode ? '次の問題を確認する' : '次の問題へ進む'}
               className="mt-4 w-full rounded-lg bg-claude-orange py-3 font-medium text-white hover:bg-claude-orange/90"
             >
-              次の問題へ
+              {isReviewMode ? '次の問題を確認' : '次の問題へ'}
             </button>
           </>
         )}

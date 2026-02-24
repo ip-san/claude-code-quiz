@@ -66,6 +66,10 @@ export interface QuizSessionState {
   readonly isCompleted: boolean
   readonly startedAt: number | null
   readonly timeRemaining: number | null   // 秒単位
+  readonly isReviewMode: boolean
+  readonly reviewUserAnswers: readonly number[]
+  readonly hintUsed: boolean
+  readonly hintsUsedCount: number
 }
 
 /**
@@ -126,6 +130,16 @@ export class QuizSessionService {
       questions = questions.filter(q => q.difficulty === config.difficultyFilter)
     }
 
+    // For bookmark mode, filter to bookmarked questions
+    if (config.mode === 'bookmark') {
+      const bookmarked = questions.filter(q =>
+        userProgress.isBookmarked(q.id)
+      )
+      if (bookmarked.length > 0) {
+        questions = bookmarked
+      }
+    }
+
     // For weak mode, prioritize weak questions
     if (config.mode === 'weak') {
       const weakQuestions = questions.filter(q =>
@@ -164,20 +178,35 @@ export class QuizSessionService {
    */
   static createInitialState(
     questions: Question[],
-    config: QuizSessionConfig
+    config: QuizSessionConfig,
+    options?: { isReviewMode?: boolean; reviewUserAnswers?: number[] }
   ): QuizSessionState {
+    const isReviewMode = options?.isReviewMode ?? false
+    const reviewUserAnswers = options?.reviewUserAnswers ?? []
+
+    // In review mode, pre-populate the first question's state
+    const firstUserAnswer = isReviewMode && reviewUserAnswers.length > 0
+      ? reviewUserAnswers[0] : null
+    const firstQuestion = questions[0]
+    const firstIsCorrect = isReviewMode && firstQuestion && firstUserAnswer !== null
+      ? firstQuestion.isCorrectAnswer(firstUserAnswer) : null
+
     return {
       config,
       questions: Object.freeze(questions),
       currentIndex: 0,
-      selectedAnswer: null,
-      isAnswered: false,
-      isCorrect: null,
+      selectedAnswer: firstUserAnswer,
+      isAnswered: isReviewMode,
+      isCorrect: firstIsCorrect,
       score: 0,
       answeredCount: 0,
       isCompleted: false,
       startedAt: Date.now(),
       timeRemaining: config.timeLimit ? config.timeLimit * 60 : null,
+      isReviewMode,
+      reviewUserAnswers: Object.freeze(reviewUserAnswers),
+      hintUsed: false,
+      hintsUsedCount: 0,
     }
   }
 
@@ -264,12 +293,28 @@ export class QuizSessionService {
       }
     }
 
+    // In review mode, pre-populate the next question's answer state
+    if (state.isReviewMode) {
+      const nextQuestion = state.questions[nextIndex]
+      const userAnswer = state.reviewUserAnswers[nextIndex] ?? null
+      return {
+        ...state,
+        currentIndex: nextIndex,
+        selectedAnswer: userAnswer,
+        isAnswered: true,
+        isCorrect: nextQuestion && userAnswer !== null
+          ? nextQuestion.isCorrectAnswer(userAnswer) : null,
+        hintUsed: false,
+      }
+    }
+
     return {
       ...state,
       currentIndex: nextIndex,
       selectedAnswer: null,
       isAnswered: false,
       isCorrect: null,
+      hintUsed: false,
     }
   }
 
@@ -296,6 +341,20 @@ export class QuizSessionService {
     return {
       ...state,
       timeRemaining: newTime,
+    }
+  }
+
+  /**
+   * ヒントを使用
+   *
+   * 回答済みまたは既にヒント使用済みの場合は何もしない。
+   */
+  static useHint(state: QuizSessionState): QuizSessionState {
+    if (state.isAnswered || state.hintUsed) return state
+    return {
+      ...state,
+      hintUsed: true,
+      hintsUsedCount: state.hintsUsedCount + 1,
     }
   }
 

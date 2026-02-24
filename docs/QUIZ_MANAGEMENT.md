@@ -24,7 +24,7 @@ src/data/quizzes.json
 ```json
 {
   "title": "Claude Code Master Quiz",
-  "version": "1.0.0",
+  "version": "4.0.0",
   "quizzes": [
     {
       "id": "category-001",
@@ -54,13 +54,14 @@ src/data/quizzes.json
 | `category` | ✓ | カテゴリID（後述） |
 | `difficulty` | ✓ | `beginner` / `intermediate` / `advanced` |
 | `question` | ✓ | 問題文 |
-| `options` | ✓ | 選択肢の配列（2〜4個） |
+| `options` | ✓ | 選択肢の配列（2〜6個） |
 | `options[].text` | ✓ | 選択肢のテキスト |
 | `options[].wrongFeedback` | | 不正解時のフィードバック（正解には不要） |
 | `correctIndex` | ✓ | 正解のインデックス（0始まり） |
 | `explanation` | ✓ | 正解の解説 |
-| `referenceUrl` | | 公式ドキュメントへのリンク |
+| `referenceUrl` | ✓ | 公式ドキュメントへのリンク（品質テストで必須） |
 | `aiPrompt` | | AI への追加質問用プロンプト |
+| `hint` | | ヒントテキスト |
 
 ### カテゴリ一覧
 
@@ -111,12 +112,17 @@ src/data/quizzes.json
 ### ID の命名規則
 
 ```
-<category>-<number>
+<prefix>-<number>
 
 例:
-- memory-001
-- skills-015
-- tools-003
+- mem-001
+- skill-015
+- tool-003
+- cmd-010
+- ext-020
+- ses-005
+- key-008
+- bp-012
 ```
 
 番号は連番で、カテゴリごとに管理します。

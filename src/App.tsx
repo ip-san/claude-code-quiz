@@ -81,7 +81,8 @@ function QuizView({
   progress: { current: number; total: number }
   timeRemaining: number | null
 }) {
-  const { endSession } = useQuizStore()
+  const { endSession, sessionState } = useQuizStore()
+  const isReviewMode = sessionState?.isReviewMode ?? false
   const [showQuitDialog, setShowQuitDialog] = useState(false)
 
   const handleQuitClick = () => {
@@ -123,6 +124,11 @@ function QuizView({
         {/* Quiz Header */}
         <div className="mb-6 flex items-center justify-between">
           <div className="flex items-center gap-4">
+            {isReviewMode && (
+              <span className="rounded bg-amber-100 px-2 py-0.5 text-xs font-medium text-amber-700">
+                復習モード
+              </span>
+            )}
             <span className="text-sm text-claude-gray">
               問題 {progress.current} / {progress.total}
             </span>
@@ -140,10 +146,10 @@ function QuizView({
             <button
               onClick={handleQuitClick}
               className="flex items-center gap-1 rounded-lg border border-stone-300 px-3 py-1.5 text-sm text-stone-600 transition-colors hover:bg-stone-100"
-              aria-label="クイズを中止する"
+              aria-label={isReviewMode ? '復習を終了する' : 'クイズを中止する'}
             >
               <X className="h-4 w-4" />
-              中止
+              {isReviewMode ? '復習を終了' : '中止'}
             </button>
           </div>
         </div>

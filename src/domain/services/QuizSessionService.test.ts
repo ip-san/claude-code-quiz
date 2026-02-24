@@ -435,6 +435,123 @@ describe('QuizSessionService', () => {
     })
   })
 
+  describe('bookmark mode filtering', () => {
+    it('should filter to bookmarked questions in bookmark mode', () => {
+      const questions = [
+        createTestQuestion('q1'),
+        createTestQuestion('q2'),
+        createTestQuestion('q3'),
+      ]
+      const config = createDefaultConfig({ mode: 'bookmark' })
+      let progress = UserProgress.empty()
+      progress = progress.toggleBookmark('q2')
+
+      const result = QuizSessionService.prepareSessionQuestions(questions, config, progress)
+
+      expect(result).toHaveLength(1)
+      expect(result[0].id).toBe('q2')
+    })
+
+    it('should return all questions if no bookmarks in bookmark mode', () => {
+      const questions = [
+        createTestQuestion('q1'),
+        createTestQuestion('q2'),
+      ]
+      const config = createDefaultConfig({ mode: 'bookmark' })
+      const progress = UserProgress.empty()
+
+      const result = QuizSessionService.prepareSessionQuestions(questions, config, progress)
+
+      expect(result).toHaveLength(2)
+    })
+  })
+
+  describe('review mode', () => {
+    it('should create review mode initial state', () => {
+      const questions = [createTestQuestion('q1'), createTestQuestion('q2')]
+      const config = createDefaultConfig({ mode: 'review' })
+
+      const state = QuizSessionService.createInitialState(questions, config, {
+        isReviewMode: true,
+        reviewUserAnswers: [1, 2],
+      })
+
+      expect(state.isReviewMode).toBe(true)
+      expect(state.reviewUserAnswers).toEqual([1, 2])
+      expect(state.isAnswered).toBe(true)
+      expect(state.isCorrect).toBe(false)
+    })
+
+    it('should show pre-answered state for review mode nextQuestion', () => {
+      const questions = [createTestQuestion('q1'), createTestQuestion('q2')]
+      const config = createDefaultConfig({ mode: 'review' })
+
+      let state = QuizSessionService.createInitialState(questions, config, {
+        isReviewMode: true,
+        reviewUserAnswers: [1, 2],
+      })
+
+      const nextState = QuizSessionService.nextQuestion(state)
+
+      expect(nextState.currentIndex).toBe(1)
+      expect(nextState.isAnswered).toBe(true)
+      expect(nextState.selectedAnswer).toBe(2)
+    })
+  })
+
+  describe('useHint()', () => {
+    it('should set hintUsed to true', () => {
+      const questions = [createTestQuestion('q1')]
+      const config = createDefaultConfig()
+      const state = QuizSessionService.createInitialState(questions, config)
+
+      const newState = QuizSessionService.useHint(state)
+
+      expect(newState.hintUsed).toBe(true)
+      expect(newState.hintsUsedCount).toBe(1)
+    })
+
+    it('should not change if already answered', () => {
+      const questions = [createTestQuestion('q1')]
+      const config = createDefaultConfig()
+      let state = QuizSessionService.createInitialState(questions, config)
+      state = { ...state, isAnswered: true }
+
+      const newState = QuizSessionService.useHint(state)
+
+      expect(newState.hintUsed).toBe(false)
+    })
+
+    it('should not change if hint already used', () => {
+      const questions = [createTestQuestion('q1')]
+      const config = createDefaultConfig()
+      let state = QuizSessionService.createInitialState(questions, config)
+      state = QuizSessionService.useHint(state)
+
+      const newState = QuizSessionService.useHint(state)
+
+      expect(newState.hintsUsedCount).toBe(1)
+    })
+
+    it('should accumulate hints across questions', () => {
+      const questions = [createTestQuestion('q1'), createTestQuestion('q2')]
+      const config = createDefaultConfig()
+      let state = QuizSessionService.createInitialState(questions, config)
+
+      state = QuizSessionService.useHint(state)
+      expect(state.hintsUsedCount).toBe(1)
+
+      // Simulate answering and moving to next question
+      state = { ...state, isAnswered: true, selectedAnswer: 0 }
+      state = QuizSessionService.nextQuestion(state)
+
+      expect(state.hintUsed).toBe(false) // Reset for new question
+
+      state = QuizSessionService.useHint(state)
+      expect(state.hintsUsedCount).toBe(2)
+    })
+  })
+
   describe('hasPassed()', () => {
     it('should return true when score >= passing score', () => {
       const questions = [createTestQuestion('q1')]

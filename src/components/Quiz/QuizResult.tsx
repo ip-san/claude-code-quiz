@@ -1,5 +1,5 @@
 import { useQuizStore, APP_CONFIG } from '@/stores/quizStore'
-import { Trophy, RotateCcw, Star, Home } from 'lucide-react'
+import { Trophy, RotateCcw, Star, Home, BookOpen, Lightbulb } from 'lucide-react'
 
 // Score thresholds for result messages
 const SCORE_THRESHOLDS = {
@@ -14,10 +14,13 @@ const STAR_COUNT = 5
 const STAR_PERCENTAGE_DIVISOR = 20
 
 export function QuizResult() {
-  const { sessionState, endSession, startSession, sessionConfig } = useQuizStore()
+  const { sessionState, endSession, startSession, startReviewSession, sessionConfig, sessionWrongAnswers } = useQuizStore()
 
   const score = sessionState?.score ?? 0
   const answeredCount = sessionState?.answeredCount ?? 0
+  const hintsUsedCount = sessionState?.hintsUsedCount ?? 0
+  const isReviewMode = sessionState?.isReviewMode ?? false
+  const hasWrongAnswers = sessionWrongAnswers.length > 0
 
   // Prevent NaN when no questions answered (edge case: timer expired immediately)
   const percentage = answeredCount > 0
@@ -130,7 +133,20 @@ export function QuizResult() {
         </div>
 
         {/* Message */}
-        <p className="mb-8 text-stone-500">{result.message}</p>
+        <p className="mb-4 text-stone-500">{result.message}</p>
+
+        {/* Hints used indicator */}
+        {hintsUsedCount > 0 && (
+          <div className="mb-4 inline-flex items-center gap-1.5 rounded-full bg-amber-100 px-3 py-1 text-sm text-amber-700">
+            <Lightbulb className="h-4 w-4" />
+            ヒント使用: {hintsUsedCount}回
+          </div>
+        )}
+
+        {/* Review mode indicator */}
+        {isReviewMode && (
+          <p className="mb-4 text-sm text-stone-400">復習モードのため、スコアには反映されません</p>
+        )}
 
         {/* Stars visualization */}
         <div className="mb-8 flex justify-center gap-1" role="img" aria-label={`${Math.ceil(percentage / STAR_PERCENTAGE_DIVISOR)}つ星の評価`}>
@@ -149,6 +165,15 @@ export function QuizResult() {
 
         {/* Action buttons */}
         <div className="flex flex-col gap-3">
+          {hasWrongAnswers && !isReviewMode && (
+            <button
+              onClick={startReviewSession}
+              className="inline-flex w-full items-center justify-center gap-2 rounded-lg bg-amber-500 px-6 py-3 font-medium text-white transition-colors hover:bg-amber-600"
+            >
+              <BookOpen className="h-5 w-5" />
+              間違えた問題を復習（{sessionWrongAnswers.length}問）
+            </button>
+          )}
           <button
             onClick={handleRetry}
             className="inline-flex w-full items-center justify-center gap-2 rounded-lg bg-claude-orange px-6 py-3 font-medium text-white transition-colors hover:bg-claude-orange/90"

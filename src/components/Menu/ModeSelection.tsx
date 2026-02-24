@@ -47,12 +47,15 @@ export function ModeSelection() {
     deleteUserSet,
     importQuizzes,
     importError,
+    getBookmarkedCount,
   } = useQuizStore()
 
   const [selectedMode, setSelectedMode] = useState<QuizModeId>('random')
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null)
   const [selectedDifficulty, setSelectedDifficulty] = useState<DifficultyLevel | null>(null)
   const [showDatasetPanel, setShowDatasetPanel] = useState(false)
+
+  const bookmarkedCount = getBookmarkedCount()
 
   // Memoize mode lookup to avoid re-finding on every render
   const mode = useMemo(
@@ -208,35 +211,49 @@ export function ModeSelection() {
             クイズモード
           </h2>
           <div className="grid grid-cols-2 gap-2 sm:grid-cols-3 lg:grid-cols-6">
-            {PREDEFINED_QUIZ_MODES.map((modeConfig) => (
-              <button
-                key={modeConfig.id}
-                onClick={() => setSelectedMode(modeConfig.id)}
-                className={`rounded-lg border p-3 text-left transition-all ${
-                  selectedMode === modeConfig.id
-                    ? 'border-claude-orange bg-claude-orange/5 shadow-sm'
-                    : 'border-stone-200 bg-white hover:border-stone-300 hover:shadow-sm'
-                }`}
-              >
-                <div className="mb-1 flex items-center gap-1.5">
-                  <span className="text-lg">{modeConfig.icon}</span>
-                  <span className="text-sm font-medium text-claude-dark">
-                    {modeConfig.name}
-                  </span>
-                </div>
-                <p className="text-xs text-stone-500 line-clamp-2">
-                  {modeConfig.description}
-                </p>
-                <div className="mt-1.5 flex gap-1 text-xs text-stone-400">
-                  {modeConfig.questionCount && (
-                    <span>{modeConfig.questionCount}問</span>
-                  )}
-                  {modeConfig.timeLimit && (
-                    <span>{modeConfig.timeLimit}分</span>
-                  )}
-                </div>
-              </button>
-            ))}
+            {PREDEFINED_QUIZ_MODES
+              .filter((m) => m.id !== 'review')
+              .map((modeConfig) => {
+              const isBookmarkDisabled = modeConfig.id === 'bookmark' && bookmarkedCount === 0
+              return (
+                <button
+                  key={modeConfig.id}
+                  onClick={() => !isBookmarkDisabled && setSelectedMode(modeConfig.id)}
+                  disabled={isBookmarkDisabled}
+                  className={`rounded-lg border p-3 text-left transition-all ${
+                    isBookmarkDisabled
+                      ? 'cursor-not-allowed border-stone-200 bg-stone-50 opacity-50'
+                      : selectedMode === modeConfig.id
+                        ? 'border-claude-orange bg-claude-orange/5 shadow-sm'
+                        : 'border-stone-200 bg-white hover:border-stone-300 hover:shadow-sm'
+                  }`}
+                >
+                  <div className="mb-1 flex items-center gap-1.5">
+                    <span className="text-lg">{modeConfig.icon}</span>
+                    <span className="text-sm font-medium text-claude-dark">
+                      {modeConfig.name}
+                    </span>
+                  </div>
+                  <p className="text-xs text-stone-500 line-clamp-2">
+                    {modeConfig.description}
+                  </p>
+                  <div className="mt-1.5 flex gap-1 text-xs text-stone-400">
+                    {modeConfig.id === 'bookmark' ? (
+                      <span>{bookmarkedCount}問</span>
+                    ) : (
+                      <>
+                        {modeConfig.questionCount && (
+                          <span>{modeConfig.questionCount}問</span>
+                        )}
+                        {modeConfig.timeLimit && (
+                          <span>{modeConfig.timeLimit}分</span>
+                        )}
+                      </>
+                    )}
+                  </div>
+                </button>
+              )
+            })}
           </div>
         </div>
 

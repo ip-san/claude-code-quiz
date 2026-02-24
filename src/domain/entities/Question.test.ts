@@ -209,6 +209,40 @@ describe('Question Entity', () => {
     })
   })
 
+  describe('hint', () => {
+    it('should create question with hint', () => {
+      const question = createTestQuestion({ hint: 'This is a hint' })
+      expect(question.hint).toBe('This is a hint')
+    })
+
+    it('should create question without hint', () => {
+      const question = createTestQuestion()
+      expect(question.hint).toBeUndefined()
+    })
+
+    it('should include hint in toJSON', () => {
+      const question = createTestQuestion({ hint: 'Test hint' })
+      const json = question.toJSON()
+      expect(json.hint).toBe('Test hint')
+    })
+
+    it('should restore hint from fromData', () => {
+      const rawData = {
+        id: 'hint-001',
+        question: 'Test question',
+        options: [{ text: 'Option 1' }, { text: 'Option 2' }],
+        correctIndex: 0,
+        explanation: 'Test explanation',
+        category: 'memory',
+        difficulty: 'intermediate',
+        hint: 'A helpful hint',
+      }
+
+      const question = Question.fromData(rawData)
+      expect(question?.hint).toBe('A helpful hint')
+    })
+  })
+
   describe('equals()', () => {
     it('should return true for same id', () => {
       const question1 = createTestQuestion()

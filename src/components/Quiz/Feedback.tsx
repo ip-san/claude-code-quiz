@@ -24,6 +24,10 @@ export function Feedback({ quiz, isCorrect }: FeedbackProps) {
   const selectedAnswer = sessionState?.selectedAnswer ?? null
   const selectedOption =
     selectedAnswer !== null ? quiz.options[selectedAnswer] : null
+  const isReviewMode = sessionState?.isReviewMode ?? false
+  const reviewUserAnswers = sessionState?.reviewUserAnswers ?? []
+  const currentIndex = sessionState?.currentIndex ?? 0
+  const originalUserAnswer = isReviewMode ? reviewUserAnswers[currentIndex] : null
 
   const handleOpenReference = async () => {
     if (!quiz.referenceUrl) return
@@ -92,6 +96,20 @@ export function Feedback({ quiz, isCorrect }: FeedbackProps) {
           </>
         )}
       </div>
+
+      {/* Review mode: show original user answer */}
+      {isReviewMode && originalUserAnswer !== null && originalUserAnswer !== quiz.correctIndex && (
+        <div className="mb-4 rounded-lg border border-amber-200 bg-amber-50 p-3">
+          <p className="text-sm text-amber-800">
+            <span className="font-medium">あなたの回答:</span>{' '}
+            {quiz.options[originalUserAnswer]?.text}
+          </p>
+          <p className="mt-1 text-sm text-green-700">
+            <span className="font-medium">正解:</span>{' '}
+            {quiz.options[quiz.correctIndex]?.text}
+          </p>
+        </div>
+      )}
 
       {/* Wrong feedback - emphasized for incorrect answers */}
       {!isCorrect && selectedOption?.wrongFeedback && (

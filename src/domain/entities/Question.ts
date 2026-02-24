@@ -49,6 +49,7 @@ export interface QuestionProps {
   readonly explanation: string
   readonly referenceUrl?: string
   readonly aiPrompt?: string
+  readonly hint?: string
   readonly category: string
   readonly difficulty: DifficultyLevel
   readonly tags?: string[]
@@ -62,6 +63,7 @@ export class Question {
   readonly explanation: string
   readonly referenceUrl?: string
   readonly aiPrompt?: string
+  readonly hint?: string
   readonly category: string
   readonly difficulty: DifficultyLevel
   readonly tags: readonly string[]
@@ -79,6 +81,7 @@ export class Question {
     this.explanation = props.explanation
     this.referenceUrl = props.referenceUrl
     this.aiPrompt = props.aiPrompt
+    this.hint = props.hint
     this.category = props.category
     this.difficulty = props.difficulty
     this.tags = Object.freeze(props.tags ?? [])
@@ -164,6 +167,7 @@ export class Question {
         explanation: String(d.explanation ?? ''),
         referenceUrl: d.referenceUrl ? String(d.referenceUrl) : undefined,
         aiPrompt: d.aiPrompt ? String(d.aiPrompt) : undefined,
+        hint: d.hint ? String(d.hint) : undefined,
         category: String(d.category ?? ''),
         difficulty: (d.difficulty as DifficultyLevel) ?? 'beginner',
         tags: Array.isArray(d.tags) ? d.tags.map(String) : undefined,
@@ -258,6 +262,7 @@ ${this.referenceUrl ? `**参考:** ${this.referenceUrl}` : ''}
       explanation: this.explanation,
       referenceUrl: this.referenceUrl,
       aiPrompt: this.aiPrompt,
+      hint: this.hint,
       category: this.category,
       difficulty: this.difficulty,
       tags: [...this.tags],

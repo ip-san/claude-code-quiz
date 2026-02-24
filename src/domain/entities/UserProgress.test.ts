@@ -331,6 +331,77 @@ describe('UserProgress Entity', () => {
     })
   })
 
+  describe('bookmarks', () => {
+    it('should start with empty bookmarks', () => {
+      const progress = UserProgress.create()
+      expect(progress.bookmarkedQuestionIds).toEqual([])
+    })
+
+    it('should add a bookmark', () => {
+      const progress = UserProgress.create()
+      const updated = progress.toggleBookmark('q1')
+
+      expect(updated.isBookmarked('q1')).toBe(true)
+      expect(updated.bookmarkedQuestionIds).toContain('q1')
+    })
+
+    it('should remove a bookmark when toggled again', () => {
+      const progress = UserProgress.create()
+      const added = progress.toggleBookmark('q1')
+      const removed = added.toggleBookmark('q1')
+
+      expect(removed.isBookmarked('q1')).toBe(false)
+      expect(removed.bookmarkedQuestionIds).not.toContain('q1')
+    })
+
+    it('should not modify original on toggle', () => {
+      const original = UserProgress.create()
+      const updated = original.toggleBookmark('q1')
+
+      expect(original.isBookmarked('q1')).toBe(false)
+      expect(updated.isBookmarked('q1')).toBe(true)
+    })
+
+    it('should manage multiple bookmarks', () => {
+      let progress = UserProgress.create()
+      progress = progress.toggleBookmark('q1')
+      progress = progress.toggleBookmark('q2')
+      progress = progress.toggleBookmark('q3')
+
+      expect(progress.bookmarkedQuestionIds).toHaveLength(3)
+      expect(progress.isBookmarked('q1')).toBe(true)
+      expect(progress.isBookmarked('q2')).toBe(true)
+      expect(progress.isBookmarked('q3')).toBe(true)
+    })
+
+    it('should preserve bookmarks in toJSON', () => {
+      let progress = UserProgress.create()
+      progress = progress.toggleBookmark('q1')
+      progress = progress.toggleBookmark('q2')
+
+      const json = progress.toJSON()
+      expect(json.bookmarkedQuestionIds).toEqual(['q1', 'q2'])
+    })
+
+    it('should restore bookmarks from create', () => {
+      const progress = UserProgress.create({
+        bookmarkedQuestionIds: ['q1', 'q2'],
+      })
+
+      expect(progress.isBookmarked('q1')).toBe(true)
+      expect(progress.isBookmarked('q2')).toBe(true)
+      expect(progress.isBookmarked('q3')).toBe(false)
+    })
+
+    it('should have frozen bookmarkedQuestionIds', () => {
+      const progress = UserProgress.create({
+        bookmarkedQuestionIds: ['q1'],
+      })
+
+      expect(Object.isFrozen(progress.bookmarkedQuestionIds)).toBe(true)
+    })
+  })
+
   describe('immutability', () => {
     it('should have frozen questionProgress', () => {
       const progress = UserProgress.empty()

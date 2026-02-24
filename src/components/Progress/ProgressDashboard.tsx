@@ -32,6 +32,7 @@ export function ProgressDashboard() {
     startSession,
     resetUserProgress,
     loadUserProgress,
+    exportProgressCsv,
   } = useQuizStore()
 
   const [exportStatus, setExportStatus] = useState<string | null>(null)
@@ -89,6 +90,15 @@ export function ProgressDashboard() {
       }
     } catch {
       showStatus('エクスポートに失敗しました', 5000)
+    }
+  }
+
+  const handleCsvExport = async () => {
+    try {
+      await exportProgressCsv()
+      showStatus('CSVをエクスポートしました')
+    } catch {
+      showStatus('CSVエクスポートに失敗しました', 5000)
     }
   }
 
@@ -264,6 +274,15 @@ export function ProgressDashboard() {
               📤 履歴をインポート
             </button>
           </div>
+
+          {/* CSV Export button */}
+          <button
+            onClick={handleCsvExport}
+            aria-label="CSVで進捗をエクスポートする"
+            className="w-full rounded-lg border border-stone-300 px-6 py-3 text-stone-600 transition-colors hover:bg-stone-50"
+          >
+            📊 CSVでエクスポート（管理者向け）
+          </button>
 
           {/* Status message */}
           {exportStatus && (

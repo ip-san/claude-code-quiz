@@ -81,6 +81,7 @@ export const QuizItemSchema = z.object({
     { message: 'URL must start with http:// or https://' }
   ).optional(),
   aiPrompt: z.string().optional(),
+  hint: z.string().optional(),
   category: z.string().min(1, 'Category is required'),
   difficulty: DifficultySchema,
   tags: z.array(z.string()).optional(),
@@ -162,6 +163,7 @@ export const UserProgressSchema = z.object({
   totalCorrect: z.number().int().min(0),
   streakDays: z.number().int().min(0),
   lastSessionAt: z.number(),
+  bookmarkedQuestionIds: z.array(z.string()).optional(),
 })
 
 // ============================================================

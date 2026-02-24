@@ -273,6 +273,39 @@ ipcMain.handle('export-progress', async (_event, data: string): Promise<{ succes
 })
 
 /**
+ * CSV ファイルのエクスポート
+ *
+ * BOM 付き UTF-8 で書き出すことで、Excel での日本語文字化けを防ぐ。
+ */
+ipcMain.handle('export-csv', async (_event, data: string, defaultFilename: string): Promise<{ success: boolean; error?: string }> => {
+  try {
+    if (!mainWindow) {
+      return { success: false, error: 'Window not available' }
+    }
+
+    const result = await dialog.showSaveDialog(mainWindow, {
+      title: 'CSV をエクスポート',
+      defaultPath: defaultFilename,
+      filters: [{ name: 'CSV Files', extensions: ['csv'] }],
+    })
+
+    if (result.canceled || !result.filePath) {
+      return { success: false, error: 'cancelled' }
+    }
+
+    // BOM 付き UTF-8 で Excel 互換性を確保
+    const bom = '\uFEFF'
+    await writeFile(result.filePath, bom + data, 'utf-8')
+    return { success: true }
+  } catch (error) {
+    return {
+      success: false,
+      error: error instanceof Error ? error.message : 'Unknown error',
+    }
+  }
+})
+
+/**
  * 学習進捗データのインポート
  */
 ipcMain.handle('import-progress', async (): Promise<{ success: boolean; data?: string; error?: string }> => {

@@ -9,6 +9,7 @@ Object.defineProperty(window, 'electronAPI', {
     importQuizFile: vi.fn().mockResolvedValue({ success: true, data: '{}' }),
     exportProgress: vi.fn().mockResolvedValue({ success: true }),
     importProgress: vi.fn().mockResolvedValue({ success: true, data: '{}' }),
+    exportCsv: vi.fn().mockResolvedValue({ success: true }),
   },
   writable: true,
 })

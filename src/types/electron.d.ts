@@ -8,6 +8,7 @@ interface ElectronAPI {
   importQuizFile: () => Promise<{ success: boolean; data?: string; error?: string }>
   exportProgress: (data: string) => Promise<{ success: boolean; error?: string }>
   importProgress: () => Promise<{ success: boolean; data?: string; error?: string }>
+  exportCsv: (data: string, defaultFilename: string) => Promise<{ success: boolean; error?: string }>
 }
 
 declare global {

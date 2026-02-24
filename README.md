@@ -26,18 +26,18 @@ Claude Code を勉強しています。
 | 苦手問題 | 正答率の低い問題を重点的に出題 |
 | カスタム | カテゴリと難易度を自由に組み合わせ |
 
-### 8つのカテゴリ（100問）
+### 8つのカテゴリ（443問）
 
 | カテゴリ | 問題数 | 内容 |
 |---------|--------|------|
-| Memory | 15問 | CLAUDE.md、メモリシステム |
-| Skills | 15問 | カスタムスキル、スラッシュコマンド |
-| Tools | 15問 | Read, Edit, Bash, Glob, Grep |
-| Commands | 15問 | CLI コマンド、フラグ |
-| Extensions | 15問 | MCP、Hooks、サブエージェント |
-| Session | 10問 | セッション管理、履歴 |
-| Keyboard | 10問 | ショートカット、Vim モード |
-| Best Practices | 5問 | 効果的な使い方 |
+| Memory | 35問 | CLAUDE.md、メモリシステム |
+| Skills | 30問 | カスタムスキル、スラッシュコマンド |
+| Tools | 53問 | Read, Edit, Bash, Glob, Grep |
+| Commands | 64問 | CLI コマンド、フラグ |
+| Extensions | 88問 | MCP、Hooks、サブエージェント |
+| Session | 97問 | セッション管理、履歴 |
+| Keyboard | 30問 | ショートカット、Vim モード |
+| Best Practices | 46問 | 効果的な使い方 |
 
 ### その他
 

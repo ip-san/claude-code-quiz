@@ -37,7 +37,6 @@ npm install
 - ESLint
 - Prettier
 - Tailwind CSS IntelliSense
-- TypeScript Vue Plugin (Volar)
 
 ## 開発サーバーの起動
 

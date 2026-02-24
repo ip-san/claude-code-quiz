@@ -72,6 +72,7 @@ export interface UserProgressProps {
   readonly totalCorrect: number
   readonly streakDays: number
   readonly lastSessionAt: number
+  readonly bookmarkedQuestionIds?: readonly string[]
 }
 
 export class UserProgress {
@@ -82,6 +83,7 @@ export class UserProgress {
   readonly totalCorrect: number
   readonly streakDays: number
   readonly lastSessionAt: number
+  readonly bookmarkedQuestionIds: readonly string[]
 
   private constructor(props: UserProgressProps) {
     this.modifiedAt = props.modifiedAt
@@ -91,6 +93,7 @@ export class UserProgress {
     this.totalCorrect = props.totalCorrect
     this.streakDays = props.streakDays
     this.lastSessionAt = props.lastSessionAt
+    this.bookmarkedQuestionIds = Object.freeze([...(props.bookmarkedQuestionIds ?? [])])
   }
 
   /**
@@ -107,6 +110,7 @@ export class UserProgress {
       totalCorrect: props.totalCorrect ?? 0,
       streakDays: props.streakDays ?? 0,
       lastSessionAt: props.lastSessionAt ?? 0,
+      bookmarkedQuestionIds: props.bookmarkedQuestionIds ?? [],
     })
   }
 
@@ -279,6 +283,31 @@ export class UserProgress {
   }
 
   /**
+   * ブックマークをトグル（追加/解除）
+   *
+   * 不変更新パターンで新しいインスタンスを返す。
+   */
+  toggleBookmark(questionId: string): UserProgress {
+    const isCurrentlyBookmarked = this.bookmarkedQuestionIds.includes(questionId)
+    const newBookmarks = isCurrentlyBookmarked
+      ? this.bookmarkedQuestionIds.filter(id => id !== questionId)
+      : [...this.bookmarkedQuestionIds, questionId]
+
+    return UserProgress.create({
+      ...this.toJSON(),
+      bookmarkedQuestionIds: newBookmarks,
+      modifiedAt: Date.now(),
+    })
+  }
+
+  /**
+   * ブックマークされているかを判定
+   */
+  isBookmarked(questionId: string): boolean {
+    return this.bookmarkedQuestionIds.includes(questionId)
+  }
+
+  /**
    * JSON シリアライズ用
    */
   toJSON(): UserProgressProps {
@@ -290,6 +319,7 @@ export class UserProgress {
       totalCorrect: this.totalCorrect,
       streakDays: this.streakDays,
       lastSessionAt: this.lastSessionAt,
+      bookmarkedQuestionIds: [...this.bookmarkedQuestionIds],
     }
   }
 }

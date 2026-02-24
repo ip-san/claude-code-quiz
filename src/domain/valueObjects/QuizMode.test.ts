@@ -39,7 +39,7 @@ describe('QuizMode Value Object', () => {
     })
 
     it('should accept all valid mode ids', () => {
-      const validModes = ['full', 'category', 'random', 'weak', 'custom'] as const
+      const validModes = ['full', 'category', 'random', 'weak', 'custom', 'bookmark', 'review'] as const
 
       validModes.forEach(modeId => {
         const mode = QuizMode.create({
@@ -160,8 +160,8 @@ describe('QuizMode Value Object', () => {
 })
 
 describe('PREDEFINED_QUIZ_MODES', () => {
-  it('should have 5 predefined modes', () => {
-    expect(PREDEFINED_QUIZ_MODES).toHaveLength(5)
+  it('should have 7 predefined modes', () => {
+    expect(PREDEFINED_QUIZ_MODES).toHaveLength(7)
   })
 
   it('should have all required modes', () => {
@@ -172,6 +172,8 @@ describe('PREDEFINED_QUIZ_MODES', () => {
     expect(ids).toContain('random')
     expect(ids).toContain('weak')
     expect(ids).toContain('custom')
+    expect(ids).toContain('bookmark')
+    expect(ids).toContain('review')
   })
 
   it('should have unique ids', () => {
@@ -206,6 +208,26 @@ describe('PREDEFINED_QUIZ_MODES', () => {
 
       expect(mode?.questionCount).toBe(20)
       expect(mode?.shuffleQuestions).toBe(true)
+    })
+  })
+
+  describe('bookmark mode', () => {
+    it('should have correct configuration', () => {
+      const mode = getQuizModeById('bookmark')
+
+      expect(mode?.questionCount).toBeNull()
+      expect(mode?.shuffleQuestions).toBe(true)
+      expect(mode?.shuffleOptions).toBe(false)
+    })
+  })
+
+  describe('review mode', () => {
+    it('should have correct configuration', () => {
+      const mode = getQuizModeById('review')
+
+      expect(mode?.questionCount).toBeNull()
+      expect(mode?.shuffleQuestions).toBe(false)
+      expect(mode?.shuffleOptions).toBe(false)
     })
   })
 })

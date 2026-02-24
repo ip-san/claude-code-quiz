@@ -105,6 +105,13 @@ const electronAPI = {
   importProgress: (): Promise<{ success: boolean; data?: string; error?: string }> => {
     return ipcRenderer.invoke('import-progress')
   },
+
+  /**
+   * CSV ファイルのエクスポート
+   */
+  exportCsv: (data: string, defaultFilename: string): Promise<{ success: boolean; error?: string }> => {
+    return ipcRenderer.invoke('export-csv', data, defaultFilename)
+  },
 } as const
 
 /**
