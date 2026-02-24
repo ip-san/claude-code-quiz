@@ -155,8 +155,9 @@ export class UserProgress {
     // Update category progress
     const existingCategory = this.categoryProgress[categoryId]
     const isFirstAttempt = !existing || existing.attempts === 0
+    const isFirstCorrect = isCorrect && (!existing || existing.correctCount === 0)
     const attemptedQuestions = (existingCategory?.attemptedQuestions ?? 0) + (isFirstAttempt ? 1 : 0)
-    const correctAnswers = (existingCategory?.correctAnswers ?? 0) + (isCorrect ? 1 : 0)
+    const correctAnswers = (existingCategory?.correctAnswers ?? 0) + (isFirstCorrect ? 1 : 0)
 
     const newCategoryProgress: CategoryProgress = {
       categoryId,

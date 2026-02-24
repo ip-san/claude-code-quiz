@@ -109,8 +109,8 @@ describe('UserProgress Entity', () => {
 
       // attemptedQuestions should only count unique questions
       expect(progress.categoryProgress['tools'].attemptedQuestions).toBe(1)
-      // But correctAnswers count all correct attempts
-      expect(progress.categoryProgress['tools'].correctAnswers).toBe(2)
+      // correctAnswers counts unique questions answered correctly (not total correct attempts)
+      expect(progress.categoryProgress['tools'].correctAnswers).toBe(1)
     })
 
     it('should be immutable - original progress unchanged', () => {
