@@ -486,7 +486,7 @@ describe('QuizSessionService', () => {
       const questions = [createTestQuestion('q1'), createTestQuestion('q2')]
       const config = createDefaultConfig({ mode: 'review' })
 
-      let state = QuizSessionService.createInitialState(questions, config, {
+      const state = QuizSessionService.createInitialState(questions, config, {
         isReviewMode: true,
         reviewUserAnswers: [1, 2],
       })

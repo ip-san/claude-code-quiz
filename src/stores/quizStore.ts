@@ -585,6 +585,7 @@ export const useQuizStore = create<QuizStore>((set, get) => ({
   useHint: () => {
     const state = get()
     if (!state.sessionState) return
+    // eslint-disable-next-line react-hooks/rules-of-hooks -- QuizSessionService.useHint is not a React Hook
     const newSessionState = QuizSessionService.useHint(state.sessionState)
     set({ sessionState: newSessionState })
   },
