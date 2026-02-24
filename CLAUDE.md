@@ -76,4 +76,4 @@ npm run build    # プロダクションビルド
 | extensions | Extensions | 🧩 | 15% |
 | session | Session & Context | 📚 | 10% |
 | keyboard | Keyboard & UI | ⌨️ | 10% |
-| bestpractices | Best Practices | 💡 | 5% |
+| bestpractices | Best Practices | 💡 | 10% |

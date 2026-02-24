@@ -118,7 +118,7 @@ export const PREDEFINED_CATEGORIES: Category[] = [
     description: '効果的な使い方、プロンプト設計、ワークフロー',
     icon: '💡',
     color: 'green',
-    weight: 5,
+    weight: 10,
   }),
 ]
 
