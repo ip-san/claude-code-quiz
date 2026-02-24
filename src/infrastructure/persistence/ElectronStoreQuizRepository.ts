@@ -266,7 +266,6 @@ export class ElectronStoreQuizRepository implements IQuizRepository {
     const result = validateQuizFile(jsonString)
     if (!result.success || !result.data) {
       const errorMessage = result.errors?.join(', ') ?? 'Unknown validation error'
-      console.error('Import validation failed:', errorMessage)
       throw new Error(`バリデーションエラー: ${errorMessage}`)
     }
 

@@ -702,7 +702,7 @@
         },
         {
           "text": "ユーザーのみが呼び出せる",
-          "wrongFeedback": "逆です。"
+          "wrongFeedback": "user-invocable: falseはユーザーからの呼び出しを制限し、Claudeのみが呼び出せるようにする設定です。"
         },
         {
           "text": "Skillが完全に無効化される",
@@ -3177,32 +3177,6 @@
       "correctIndex": 1,
       "explanation": "組み込みツールは12種類：Read, Write, Edit, Bash, Grep, Glob, WebFetch, WebSearch, Task, NotebookEdit, AskUserQuestion, MCPです。",
       "referenceUrl": "https://code.claude.com/docs/en/settings"
-    },
-    {
-      "id": "tool-022",
-      "category": "tools",
-      "difficulty": "intermediate",
-      "question": "Readツールで大きなPDFファイルを読む場合の制約は何ですか？",
-      "options": [
-        {
-          "text": "先頭5ページのみ読める",
-          "wrongFeedback": "ページ指定で任意の範囲が読めます。"
-        },
-        {
-          "text": "自動的に全ページが読み込まれる",
-          "wrongFeedback": "大きなPDFは全ページ読み込みに失敗します。"
-        },
-        {
-          "text": "PDFは読めない",
-          "wrongFeedback": "PDFも読めます。"
-        },
-        {
-          "text": "10ページ以上のPDFはpagesパラメータでページ範囲を指定する必要がある"
-        }
-      ],
-      "correctIndex": 3,
-      "explanation": "10ページを超えるPDFはpagesパラメータ（例：\"1-5\"）でページ範囲を指定する必要があります。1回のリクエストで最大20ページまでです。",
-      "referenceUrl": "https://code.claude.com/docs/en/how-claude-code-works#tools"
     },
     {
       "id": "tool-023",
@@ -9963,32 +9937,6 @@
       "correctIndex": 3,
       "explanation": "--from-pr フラグを使うと、指定したPRの変更を別のgit worktreeで安全にレビューできます。現在の作業ディレクトリに影響を与えずに、隔離された環境でPRを評価できます。",
       "referenceUrl": "https://code.claude.com/docs/en/overview"
-    },
-    {
-      "id": "ses-084",
-      "category": "session",
-      "difficulty": "intermediate",
-      "question": "Claude Codeの設定スコープの優先順位として正しいものはどれですか？",
-      "options": [
-        {
-          "text": "CLI > Managed > Project > Local > User",
-          "wrongFeedback": "Managedが最も優先度が高いです。正しくは Managed > CLI > Local > Project > User です。"
-        },
-        {
-          "text": "Managed > CLI > Local > Project > User（左が最優先）"
-        },
-        {
-          "text": "Project > Local > User > CLI > Managed",
-          "wrongFeedback": "正しい優先順位は Managed > CLI > Local > Project > User です。"
-        },
-        {
-          "text": "User > Project > Local > CLI > Managed",
-          "wrongFeedback": "優先順位が逆です。Managedが最も優先度が高く、Userが最も低いです。"
-        }
-      ],
-      "correctIndex": 1,
-      "explanation": "設定の優先順位は Managed（組織管理） > CLI（コマンドライン引数） > Local（.claude.local.json） > Project（.claude.json） > User（~/.claude/settings.json）です。",
-      "referenceUrl": "https://code.claude.com/docs/en/settings"
     },
     {
       "id": "ses-085",

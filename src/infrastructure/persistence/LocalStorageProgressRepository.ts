@@ -73,15 +73,13 @@ export class LocalStorageProgressRepository implements IProgressRepository {
     try {
       const result = validateUserProgress(jsonString)
       if (!result.success || !result.data) {
-        console.error('Import validation failed:', result.errors)
         return false
       }
 
       const progress = UserProgress.create(result.data)
       await this.save(progress)
       return true
-    } catch (error) {
-      console.error('Failed to import progress:', error)
+    } catch {
       return false
     }
   }
