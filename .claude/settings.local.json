@@ -30,8 +30,18 @@
       "Bash(do echo \"=== Run $i ===\")",
       "Bash(done)",
       "WebFetch(domain:docs.anthropic.com)",
+      "WebFetch(domain:code.claude.com)",
       "Bash(npm run type-check:*)",
-      "Bash(xargs ls:*)"
+      "Bash(xargs ls:*)",
+      "Bash(node scripts/generate-icons.mjs:*)",
+      "Bash(npm run generate-icons:*)",
+      "Bash(open:*)",
+      "Bash(xargs:*)",
+      "Bash(npx asar:*)",
+      "Bash(\"release/mac-arm64/Claude Code Quiz.app/Contents/MacOS/Claude Code Quiz\")",
+      "Bash(git push:*)",
+      "Bash(node -e:*)",
+      "Bash(git status:*)"
     ]
   }
 }

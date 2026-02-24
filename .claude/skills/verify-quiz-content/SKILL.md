@@ -1,7 +1,7 @@
 ---
 name: verify-quiz-content
 description: クイズ内容と公式ドキュメントの整合性をチェックする。クイズ検証、ドキュメントチェック、quiz verify、内容確認
-allowed-tools: WebFetch, Read, Glob, Grep, Task
+allowed-tools: WebFetch, Read, Glob, Grep, Task, Bash
 ---
 
 # Quiz Content Verification Skill
@@ -12,52 +12,64 @@ allowed-tools: WebFetch, Read, Glob, Grep, Task
 
 `src/data/quizzes.json` の内容が最新の公式ドキュメント (code.claude.com) と整合しているかを検証し、差異を報告します。
 
+## Step 0: Automated Quality Check (最初に実行)
+
+まず自動テストで構造的な問題を検出：
+
+```bash
+npm test
+npm run quiz:check
+npm run quiz:stats
+```
+
+これにより以下が自動検証されます：
+- ID重複
+- correctIndex の偏り（35%上限）
+- wrongFeedback の構造（正解に付いていないか、不正解に欠けていないか）
+- カテゴリの妥当性
+- 問題文・解説の文字数
+- referenceUrl の形式
+- 難易度分布
+
+**自動テストが失敗した場合は、まずその問題を修正してください。**
+
 ## Official Documentation Sources
 
-以下の公式ドキュメントを検証の参照元とします：
+以下の公式ドキュメント（14ページ）を検証の参照元とします：
 
 ### Core Documentation
 - https://code.claude.com/docs/en/overview
 - https://code.claude.com/docs/en/quickstart
 - https://code.claude.com/docs/en/settings
 - https://code.claude.com/docs/en/memory
+
+### Interactive & Tools
 - https://code.claude.com/docs/en/interactive-mode
 - https://code.claude.com/docs/en/how-claude-code-works
 
-### Extension & Integration
+### Extensions & Integration
 - https://code.claude.com/docs/en/mcp
 - https://code.claude.com/docs/en/hooks
 - https://code.claude.com/docs/en/discover-plugins
+- https://code.claude.com/docs/en/sub-agents
 
 ### Advanced Topics
 - https://code.claude.com/docs/en/common-workflows
 - https://code.claude.com/docs/en/checkpointing
-- https://code.claude.com/docs/en/sub-agents
 - https://code.claude.com/docs/en/best-practices
 
-## Verification Process
+## Step 1: Fact Verification
 
-### Step 1: Load Quiz Data
-```
-Read src/data/quizzes.json
-```
-
-### Step 2: Categorize and Distribute Verification
 カテゴリごとに並列でTaskエージェントを起動して効率的に検証：
 
 ```
-Task (subagent_type: Explore) for each category:
-- memory: CLAUDE.md, メモリ階層, @インポート
-- skills: カスタムスキル, frontmatter, スラッシュコマンド
-- tools: 組み込みツール (Read/Write/Edit/Bash等)
-- commands: CLIコマンド, /context, /compact等
-- extensions: MCP, Hooks, Plugins
-- session: セッション管理, --resume, --continue
-- keyboard: キーボードショートカット, Vimモード
-- bestpractices: ベストプラクティス, 効果的な使い方
+Task (subagent_type: general-purpose) for each category:
+  1. WebFetchで該当ドキュメントページを取得
+  2. 各問題の正解・不正解・解説を照合
+  3. 差異を報告
 ```
 
-### Step 3: Verification Checklist
+### Verification Checklist
 
 各クイズ問題について以下を検証：
 
@@ -81,17 +93,13 @@ Task (subagent_type: Explore) for each category:
 
 ## Output Format
 
-検証結果を以下の形式で報告：
-
 ### 問題なしの場合
 ```
 ## 検証結果サマリー
 
 ✅ 全 [N] 問の検証が完了しました。
-- memory: 15問 OK
-- skills: 15問 OK
-- tools: 15問 OK
-...
+- 自動テスト: PASS (14/14)
+- ファクトチェック: memory 28問 OK, skills 26問 OK, ...
 
 重大な問題は見つかりませんでした。
 ```
@@ -106,18 +114,13 @@ Task (subagent_type: Explore) for each category:
 
 | Quiz ID | 問題内容 | 現在の内容 | 正しい内容 | 参照元 |
 |---------|---------|-----------|-----------|--------|
-| ext-003 | イベント名が間違い | PreToolExecution | PreToolUse | hooks.md |
+| ext-003 | イベント名が間違い | PreToolExecution | PreToolUse | hooks |
 
 ### Minor Issues (推奨修正)
 
 | Quiz ID | 問題内容 | 詳細 |
 |---------|---------|------|
 | mem-011 | 数値が古い可能性 | "200行" → 最新値を確認 |
-
-### 修正コマンド
-
-以下のコマンドで自動修正できます:
-[修正用のEdit tool呼び出し例を提示]
 ```
 
 ## Severity Levels
@@ -134,18 +137,11 @@ Task (subagent_type: Explore) for each category:
   - 例: `/verify-quiz-content extensions tools` → 複数カテゴリ指定可能
 - 引数なしの場合は全カテゴリを検証
 
-## Automation Tips
-
-大規模な検証を効率的に行うため：
-
-1. **並列実行**: 各カテゴリをTaskエージェントで並列検証
-2. **キャッシュ活用**: WebFetchはキャッシュされるため、同一ドキュメントの再取得は高速
-3. **差分フォーカス**: 前回検証からの変更点に注目
-
 ## Post-Verification
 
 検証完了後、問題が見つかった場合は：
 
 1. 修正内容をユーザーに確認
 2. 承認後、quizzes.json を直接編集
-3. ビルドテストを実行して確認
+3. `npm run quiz:randomize` で正答位置を再ランダム化
+4. `npm test` でテスト実行して確認
