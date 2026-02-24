@@ -20,17 +20,7 @@
 
 import { app, BrowserWindow, ipcMain, dialog, shell, clipboard, nativeImage } from 'electron'
 import { readFile, writeFile, stat } from 'fs/promises'
-import { join, dirname } from 'path'
-import { fileURLToPath } from 'url'
-
-/**
- * 【パス解決】
- *
- * 開発時: import.meta.url から __dirname を導出
- * 本番時: app.getAppPath() を使用（ASAR アーカイブでも正しく動作）
- */
-const __filename = fileURLToPath(import.meta.url)
-const __dirname = dirname(__filename)
+import { join } from 'path'
 
 /**
  * 【ハードウェアアクセラレーション無効化】

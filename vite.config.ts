@@ -3,82 +3,109 @@
  *
  * 【重要な設計判断】
  * このプロジェクトでは package.json に "type": "module" を設定しているため、
- * Electron の preload スクリプトで ESM/CommonJS の競合が発生しました。
+ * Electron の main / preload スクリプトで ESM/CommonJS の競合が発生する。
  *
- * 【ハマりポイント】
- * 1. Electron の preload スクリプトは CommonJS 形式でなければならない
- * 2. しかし "type": "module" があると .js ファイルは ESM として解釈される
- * 3. vite-plugin-electron の rollupOptions.output.format: 'cjs' は無視される
- *    （内部で esbuild を使用しているため）
+ * 【問題】
+ * 1. Electron 31 (Node v20.18.0) で ESM 形式の main.js を読み込むと
+ *    cjsPreparseModuleExports でクラッシュする既知の問題がある
+ * 2. preload スクリプトも CommonJS 形式でなければならない
+ * 3. "type": "module" があると .js ファイルは ESM として解釈される
+ * 4. vite-plugin-electron は内部で esbuild を使用し、format 設定を無視する
  *
  * 【解決策】
- * - preload スクリプトは vite-plugin-electron から除外
- * - カスタム Vite プラグインで esbuild を直接呼び出し、.cjs 形式で出力
+ * - vite-plugin-electron を使わず、esbuild で直接 CJS 形式に変換
  * - .cjs 拡張子は "type": "module" の影響を受けず、常に CommonJS として解釈される
- *
- * 【エラー例】もし preload.js として出力した場合：
- * "ERR_REQUIRE_ESM: require() of ES Module ... not supported"
+ * - dev モードでは Vite サーバー起動後に Electron プロセスを自動起動
  */
 
 import { defineConfig, Plugin } from 'vite'
 import react from '@vitejs/plugin-react'
-import electron from 'vite-plugin-electron'
-import electronRenderer from 'vite-plugin-electron-renderer'
 import { resolve } from 'path'
 import { build } from 'esbuild'
 import { mkdirSync, existsSync } from 'fs'
+import { spawn, ChildProcess } from 'child_process'
 
 /**
- * カスタムプラグイン: preload スクリプトを CommonJS 形式でビルド
- *
- * 【なぜ vite-plugin-electron を使わないのか】
- * vite-plugin-electron は内部で esbuild を使用しており、
- * rollupOptions の format 設定を無視します。
- * そのため、preload スクリプトが ESM 形式で出力されてしまい、
- * Electron が読み込めなくなります。
- *
- * 【なぜ esbuild を直接使うのか】
- * esbuild は format: 'cjs' を正しく尊重し、
- * require() を使った純粋な CommonJS コードを出力します。
+ * Electron の main.ts と preload.ts を CJS 形式でビルドし、
+ * dev モードでは Electron プロセスを自動起動するプラグイン
  */
-function buildPreloadCJS(): Plugin {
-  return {
-    name: 'build-preload-cjs',
+function buildElectronCJS(): Plugin {
+  const esbuildOptions = {
+    bundle: true,
+    platform: 'node' as const,
+    target: 'node18',
+    format: 'cjs' as const,
+    external: ['electron'],
+  }
 
-    /**
-     * ビルド開始時に preload.cjs を生成
-     */
-    async buildStart() {
-      if (!existsSync('dist-electron')) {
-        mkdirSync('dist-electron', { recursive: true })
-      }
+  let electronProcess: ChildProcess | null = null
 
-      await build({
+  async function buildAll() {
+    if (!existsSync('dist-electron')) {
+      mkdirSync('dist-electron', { recursive: true })
+    }
+
+    await Promise.all([
+      build({
+        ...esbuildOptions,
+        entryPoints: ['electron/main.ts'],
+        outfile: 'dist-electron/main.cjs',
+      }),
+      build({
+        ...esbuildOptions,
         entryPoints: ['electron/preload.ts'],
-        bundle: true,
-        platform: 'node',
-        target: 'node18',
-        format: 'cjs', // ここが重要: CommonJS 形式を強制
-        outfile: 'dist-electron/preload.cjs', // .cjs 拡張子で出力
-        external: ['electron'], // electron は外部モジュールとして扱う
-      })
+        outfile: 'dist-electron/preload.cjs',
+      }),
+    ])
+  }
+
+  function startElectron() {
+    // 既存の Electron プロセスを終了
+    if (electronProcess) {
+      electronProcess.kill()
+      electronProcess = null
+    }
+
+    // Electron プロセスを起動
+    // ELECTRON_RUN_AS_NODE を削除（VSCode 等の Electron ベース環境から継承されると
+    // Electron が Node.js モードで起動してしまい、GUI が表示されない）
+    const electronBin = resolve('node_modules', '.bin', 'electron')
+    const env = { ...process.env, NODE_ENV: 'development' }
+    delete env.ELECTRON_RUN_AS_NODE
+    electronProcess = spawn(electronBin, ['.'], {
+      stdio: 'inherit',
+      env,
+    })
+
+    electronProcess.on('close', (code) => {
+      if (code !== null) {
+        // Electron が正常終了した場合、Vite サーバーも終了
+        process.exit(0)
+      }
+    })
+  }
+
+  return {
+    name: 'build-electron-cjs',
+
+    // プロダクションビルド時に Electron ファイルをビルド
+    async buildStart() {
+      await buildAll()
     },
 
-    /**
-     * 開発サーバー起動時: preload.ts の変更を監視して再ビルド
-     */
+    // dev モード: Electron 自動起動 + ファイル監視
     configureServer(server) {
+      // Vite サーバー起動後に Electron をビルド & 起動
+      server.httpServer?.once('listening', async () => {
+        await buildAll()
+        startElectron()
+      })
+
+      // Electron ファイルの変更を監視して再ビルド & 再起動
       server.watcher.on('change', async (file) => {
-        if (file.includes('preload.ts')) {
-          await build({
-            entryPoints: ['electron/preload.ts'],
-            bundle: true,
-            platform: 'node',
-            target: 'node18',
-            format: 'cjs',
-            outfile: 'dist-electron/preload.cjs',
-            external: ['electron'],
-          })
+        if (file.includes('electron/main.ts') || file.includes('electron/preload.ts')) {
+          await buildAll()
+          startElectron()
         }
       })
     },
@@ -92,30 +119,8 @@ export default defineConfig({
   plugins: [
     react(),
 
-    // 【順序重要】buildPreloadCJS を electron より前に配置
-    // これにより、Electron 起動前に preload.cjs が確実に存在する
-    buildPreloadCJS(),
-
-    // main.ts のみを vite-plugin-electron でビルド
-    // preload.ts は上記のカスタムプラグインで処理するため除外
-    electron([
-      {
-        entry: 'electron/main.ts',
-        vite: {
-          build: {
-            outDir: 'dist-electron',
-            rollupOptions: {
-              external: ['electron'],
-            },
-          },
-        },
-      },
-      // 【注意】ここに preload の entry を追加しないこと！
-      // 追加すると ESM 形式で出力されてしまう
-    ]),
-
-    // Renderer プロセスで Node.js API を使用可能にする
-    electronRenderer(),
+    // main.ts と preload.ts を CJS 形式でビルド + dev 時に Electron 自動起動
+    buildElectronCJS(),
   ],
 
   resolve: {
