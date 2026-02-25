@@ -148,6 +148,9 @@ interface QuizStore {
   // Review actions
   startReviewSession: () => void
 
+  // Daily goal actions
+  setDailyGoal: (goal: number) => void
+
   // Hint actions
   useHint: () => void
 
@@ -599,6 +602,20 @@ export const useQuizStore = create<QuizStore>((set, get) => ({
       sessionState,
       sessionConfig: config,
       viewState: 'quiz',
+    })
+  },
+
+  // Daily goal actions
+  setDailyGoal: (goal) => {
+    const state = get()
+    const updatedProgress = UserProgress.create({
+      ...state.userProgress.toJSON(),
+      dailyGoal: goal,
+      modifiedAt: Date.now(),
+    })
+    set({ userProgress: updatedProgress })
+    getProgressRepository().save(updatedProgress).catch((error) => {
+      console.error('Failed to save daily goal:', error)
     })
   },
 

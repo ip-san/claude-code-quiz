@@ -44,6 +44,23 @@ export interface QuestionProgress {
   readonly correctCount: number
   readonly lastAttemptAt: number
   readonly lastCorrect: boolean
+  readonly nextReviewAt?: number
+}
+
+/**
+ * セッション履歴レコード
+ *
+ * 各クイズセッション完了時に記録される。
+ * セッション履歴グラフや成長分析に使用。
+ */
+export interface SessionRecord {
+  readonly id: string
+  readonly completedAt: number
+  readonly mode: string
+  readonly categoryFilter: string | null
+  readonly score: number
+  readonly totalQuestions: number
+  readonly percentage: number
 }
 
 /**
@@ -73,6 +90,9 @@ export interface UserProgressProps {
   readonly streakDays: number
   readonly lastSessionAt: number
   readonly bookmarkedQuestionIds?: readonly string[]
+  readonly dailyGoal?: number
+  readonly dailyAnswerCounts?: Record<string, number>
+  readonly sessionHistory?: readonly SessionRecord[]
 }
 
 export class UserProgress {
@@ -84,6 +104,9 @@ export class UserProgress {
   readonly streakDays: number
   readonly lastSessionAt: number
   readonly bookmarkedQuestionIds: readonly string[]
+  readonly dailyGoal: number
+  readonly dailyAnswerCounts: Readonly<Record<string, number>>
+  readonly sessionHistory: readonly SessionRecord[]
 
   private constructor(props: UserProgressProps) {
     this.modifiedAt = props.modifiedAt
@@ -94,6 +117,9 @@ export class UserProgress {
     this.streakDays = props.streakDays
     this.lastSessionAt = props.lastSessionAt
     this.bookmarkedQuestionIds = Object.freeze([...(props.bookmarkedQuestionIds ?? [])])
+    this.dailyGoal = props.dailyGoal ?? 10
+    this.dailyAnswerCounts = Object.freeze({ ...(props.dailyAnswerCounts ?? {}) })
+    this.sessionHistory = Object.freeze([...(props.sessionHistory ?? [])])
   }
 
   /**
@@ -111,6 +137,9 @@ export class UserProgress {
       streakDays: props.streakDays ?? 0,
       lastSessionAt: props.lastSessionAt ?? 0,
       bookmarkedQuestionIds: props.bookmarkedQuestionIds ?? [],
+      dailyGoal: props.dailyGoal,
+      dailyAnswerCounts: props.dailyAnswerCounts,
+      sessionHistory: props.sessionHistory,
     })
   }
 
@@ -172,6 +201,13 @@ export class UserProgress {
     // Calculate new streak
     const newStreakDays = this.calculateNewStreak(now)
 
+    // Update daily answer count
+    const todayStr = this.getDateString(now)
+    const newDailyCounts = {
+      ...this.dailyAnswerCounts,
+      [todayStr]: (this.dailyAnswerCounts[todayStr] ?? 0) + 1,
+    }
+
     return new UserProgress({
       modifiedAt: now,
       questionProgress: {
@@ -186,6 +222,10 @@ export class UserProgress {
       totalCorrect: this.totalCorrect + (isCorrect ? 1 : 0),
       streakDays: newStreakDays,
       lastSessionAt: now,
+      bookmarkedQuestionIds: this.bookmarkedQuestionIds,
+      dailyGoal: this.dailyGoal,
+      dailyAnswerCounts: newDailyCounts,
+      sessionHistory: this.sessionHistory,
     })
   }
 
@@ -237,6 +277,24 @@ export class UserProgress {
 
     // Gap in days - reset streak
     return 1
+  }
+
+  /**
+   * タイムスタンプをローカル日付文字列（YYYY-MM-DD）に変換
+   */
+  private getDateString(timestamp: number): string {
+    const d = new Date(timestamp)
+    const year = d.getFullYear()
+    const month = String(d.getMonth() + 1).padStart(2, '0')
+    const day = String(d.getDate()).padStart(2, '0')
+    return `${year}-${month}-${day}`
+  }
+
+  /**
+   * 指定日の回答数を取得
+   */
+  getDailyCount(dateStr: string): number {
+    return this.dailyAnswerCounts[dateStr] ?? 0
   }
 
   /**
@@ -321,6 +379,9 @@ export class UserProgress {
       streakDays: this.streakDays,
       lastSessionAt: this.lastSessionAt,
       bookmarkedQuestionIds: [...this.bookmarkedQuestionIds],
+      dailyGoal: this.dailyGoal,
+      dailyAnswerCounts: { ...this.dailyAnswerCounts },
+      sessionHistory: [...this.sessionHistory],
     }
   }
 }
