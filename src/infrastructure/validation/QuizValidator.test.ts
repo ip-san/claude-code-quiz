@@ -150,7 +150,7 @@ describe('QuizValidator', () => {
       const result = validateQuizFile(json)
 
       expect(result.success).toBe(false)
-      expect(result.errors?.some(e => e.includes('correctIndex must be within'))).toBe(true)
+      expect(result.errors?.some(e => e.includes('must be within options array bounds'))).toBe(true)
     })
 
     it('should reject quiz with invalid difficulty', () => {

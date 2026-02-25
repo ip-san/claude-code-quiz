@@ -41,6 +41,13 @@ export interface QuizOption {
  * 外部からの入力データ型として使用される。
  * Question.create() の引数として渡される。
  */
+/**
+ * 問題タイプ
+ * - single: 単一選択（従来の4択）
+ * - multi: 複数選択（「該当するものを全て選んでください」）
+ */
+export type QuestionType = 'single' | 'multi'
+
 export interface QuestionProps {
   readonly id: string
   readonly question: string
@@ -53,6 +60,8 @@ export interface QuestionProps {
   readonly category: string
   readonly difficulty: DifficultyLevel
   readonly tags?: string[]
+  readonly type?: QuestionType
+  readonly correctIndices?: number[]
 }
 
 export class Question {
@@ -67,6 +76,8 @@ export class Question {
   readonly category: string
   readonly difficulty: DifficultyLevel
   readonly tags: readonly string[]
+  readonly type: QuestionType
+  readonly correctIndices: readonly number[]
 
   /**
    * Private constructor - 外部から直接 new できない
@@ -85,6 +96,12 @@ export class Question {
     this.category = props.category
     this.difficulty = props.difficulty
     this.tags = Object.freeze(props.tags ?? [])
+    this.type = props.type ?? 'single'
+    this.correctIndices = Object.freeze(
+      props.type === 'multi' && props.correctIndices
+        ? [...props.correctIndices]
+        : [props.correctIndex]
+    )
   }
 
   /**
@@ -114,8 +131,23 @@ export class Question {
     if (props.options.length > 6) {
       throw new Error('Maximum 6 options allowed')
     }
-    if (props.correctIndex < 0 || props.correctIndex >= props.options.length) {
-      throw new Error('correctIndex must be within options array bounds')
+    if (props.type === 'multi') {
+      if (!props.correctIndices || props.correctIndices.length < 2) {
+        throw new Error('Multi-select questions require at least 2 correct indices')
+      }
+      const uniqueIndices = new Set(props.correctIndices)
+      if (uniqueIndices.size !== props.correctIndices.length) {
+        throw new Error('correctIndices must not contain duplicates')
+      }
+      for (const idx of props.correctIndices) {
+        if (idx < 0 || idx >= props.options.length) {
+          throw new Error('All correctIndices must be within options array bounds')
+        }
+      }
+    } else {
+      if (props.correctIndex < 0 || props.correctIndex >= props.options.length) {
+        throw new Error('correctIndex must be within options array bounds')
+      }
     }
     if (!props.explanation || props.explanation.trim().length === 0) {
       throw new Error('Explanation is required')
@@ -152,6 +184,11 @@ export class Question {
         return null // 不正な数値は拒否
       }
 
+      const questionType = d.type === 'multi' ? 'multi' as QuestionType : 'single' as QuestionType
+      const correctIndices = Array.isArray(d.correctIndices)
+        ? d.correctIndices.map(Number).filter(n => !Number.isNaN(n))
+        : undefined
+
       return Question.create({
         id: String(d.id ?? ''),
         question: String(d.question ?? ''),
@@ -171,6 +208,8 @@ export class Question {
         category: String(d.category ?? ''),
         difficulty: (d.difficulty as DifficultyLevel) ?? 'beginner',
         tags: Array.isArray(d.tags) ? d.tags.map(String) : undefined,
+        type: questionType,
+        correctIndices,
       })
     } catch {
       return null
@@ -178,24 +217,64 @@ export class Question {
   }
 
   /**
-   * 回答が正解かどうかを判定
+   * 複数選択問題かどうか
+   */
+  get isMultiSelect(): boolean {
+    return this.type === 'multi'
+  }
+
+  /**
+   * 回答が正解かどうかを判定（単一選択用）
    */
   isCorrectAnswer(answerIndex: number): boolean {
     return answerIndex === this.correctIndex
   }
 
   /**
-   * 正解の選択肢を取得
+   * 複数選択の回答が正解かどうかを判定
+   *
+   * 完全一致のみ正解：全正解を選び、かつ不正解を1つも選んでいない場合のみ true
+   */
+  isCorrectMultiAnswer(selectedIndices: number[]): boolean {
+    if (!this.isMultiSelect) return false
+    if (selectedIndices.length !== this.correctIndices.length) return false
+    const selected = new Set(selectedIndices)
+    const correct = new Set(this.correctIndices as number[])
+    for (const idx of selected) {
+      if (!correct.has(idx)) return false
+    }
+    return true
+  }
+
+  /**
+   * 正解の選択肢を取得（単一選択の後方互換用）
    */
   getCorrectOption(): QuizOption {
     return this.options[this.correctIndex]
   }
 
   /**
+   * 全正解の選択肢を取得
+   */
+  getCorrectOptions(): QuizOption[] {
+    return this.correctIndices.map(i => this.options[i])
+  }
+
+  /**
+   * 指定インデックスが正解かどうか
+   */
+  isCorrectIndex(index: number): boolean {
+    if (this.isMultiSelect) {
+      return this.correctIndices.includes(index)
+    }
+    return index === this.correctIndex
+  }
+
+  /**
    * 不正解時のフィードバックを取得
    */
   getWrongFeedback(answerIndex: number): string | undefined {
-    if (answerIndex === this.correctIndex) return undefined
+    if (this.isCorrectIndex(answerIndex)) return undefined
     return this.options[answerIndex]?.wrongFeedback
   }
 
@@ -208,11 +287,15 @@ export class Question {
   generateAIPrompt(): string {
     if (this.aiPrompt) return this.aiPrompt
 
-    const correctAnswer = this.getCorrectOption().text
+    const correctAnswers = this.isMultiSelect
+      ? this.getCorrectOptions().map(o => o.text).join('\n- ')
+      : this.getCorrectOption().text
+    const prefix = this.isMultiSelect ? '正解（複数）:\n- ' : '正解: '
+
     return `Claude Codeの以下の問題について詳しく説明してください：
 
 問題: ${this.question}
-正解: ${correctAnswer}
+${prefix}${correctAnswers}
 解説: ${this.explanation}
 
 この機能の使い方や具体例も含めて教えてください。`
@@ -224,12 +307,15 @@ export class Question {
    * 「AIに質問」機能でクリップボードにコピーする際に使用。
    */
   toMarkdown(): string {
-    const correctAnswer = this.getCorrectOption().text
+    const correctSection = this.isMultiSelect
+      ? `**正解（複数）:**\n${this.getCorrectOptions().map(o => `- ${o.text}`).join('\n')}`
+      : `**正解:** ${this.getCorrectOption().text}`
+
     return `## Claude Code Quiz
 
 **問題:** ${this.question}
 
-**正解:** ${correctAnswer}
+${correctSection}
 
 **解説:** ${this.explanation}
 
@@ -266,6 +352,8 @@ ${this.referenceUrl ? `**参考:** ${this.referenceUrl}` : ''}
       category: this.category,
       difficulty: this.difficulty,
       tags: [...this.tags],
+      type: this.type,
+      correctIndices: this.isMultiSelect ? [...this.correctIndices] : undefined,
     }
   }
 }

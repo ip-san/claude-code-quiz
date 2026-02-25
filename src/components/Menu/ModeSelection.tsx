@@ -57,6 +57,12 @@ export function ModeSelection() {
 
   const bookmarkedCount = getBookmarkedCount()
 
+  // Memoize getting-started question count (tag-based)
+  const gettingStartedCount = useMemo(
+    () => allQuestions.filter(q => q.tags.includes('getting-started')).length,
+    [allQuestions]
+  )
+
   // Memoize mode lookup to avoid re-finding on every render
   const mode = useMemo(
     () => PREDEFINED_QUIZ_MODES.find((m) => m.id === selectedMode),
@@ -210,7 +216,7 @@ export function ModeSelection() {
           <h2 className="mb-2 text-base font-semibold text-claude-dark">
             クイズモード
           </h2>
-          <div className="grid grid-cols-2 gap-2 sm:grid-cols-3 lg:grid-cols-6">
+          <div className="grid grid-cols-2 gap-2 sm:grid-cols-3 lg:grid-cols-7">
             {PREDEFINED_QUIZ_MODES
               .filter((m) => m.id !== 'review')
               .map((modeConfig) => {
@@ -238,7 +244,9 @@ export function ModeSelection() {
                     {modeConfig.description}
                   </p>
                   <div className="mt-1.5 flex gap-1 text-xs text-stone-400">
-                    {modeConfig.id === 'bookmark' ? (
+                    {modeConfig.id === 'gettingstarted' ? (
+                      <span>{gettingStartedCount}問</span>
+                    ) : modeConfig.id === 'bookmark' ? (
                       <span>{bookmarkedCount}問</span>
                     ) : (
                       <>
@@ -349,7 +357,9 @@ export function ModeSelection() {
             <div className="text-right">
               <p className="text-xs text-stone-500">出題数</p>
               <p className="text-lg font-medium text-claude-dark">
-                {mode?.questionCount ?? availableQuizzes.length}問
+                {selectedMode === 'gettingstarted'
+                  ? gettingStartedCount
+                  : (mode?.questionCount ?? availableQuizzes.length)}問
               </p>
             </div>
             {mode?.timeLimit && (

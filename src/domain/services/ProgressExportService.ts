@@ -31,7 +31,7 @@ export class ProgressExportService {
     return [
       headers.join(','),
       ...rows.map(row => row.map(v => this.escapeCsvValue(String(v))).join(','))
-    ].join('\n')
+    ].join('\r\n')
   }
 
   /**
@@ -73,7 +73,7 @@ export class ProgressExportService {
     return [
       headers.join(','),
       ...rows.map(row => row.map(v => this.escapeCsvValue(String(v))).join(','))
-    ].join('\n')
+    ].join('\r\n')
   }
 
   /**

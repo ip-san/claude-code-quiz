@@ -18,6 +18,8 @@ import quizData from '../../data/quizzes.json'
 import { PREDEFINED_CATEGORIES } from '../../domain/valueObjects/Category'
 
 const quizzes = quizData.quizzes
+const singleQuizzes = quizzes.filter(q => q.type !== 'multi')
+const multiQuizzes = quizzes.filter(q => q.type === 'multi')
 
 describe('Quiz Content Quality', () => {
   describe('ID の一意性', () => {
@@ -28,13 +30,13 @@ describe('Quiz Content Quality', () => {
     })
   })
 
-  describe('correctIndex の分布', () => {
+  describe('correctIndex の分布（単一選択問題）', () => {
     it('特定のインデックスに35%以上集中していないこと', () => {
       const counts = [0, 0, 0, 0, 0, 0]
-      quizzes.forEach(q => {
+      singleQuizzes.forEach(q => {
         counts[q.correctIndex] = (counts[q.correctIndex] || 0) + 1
       })
-      const total = quizzes.length
+      const total = singleQuizzes.length
       const maxAllowedPct = 0.35
 
       counts.forEach((count, index) => {
@@ -49,14 +51,14 @@ describe('Quiz Content Quality', () => {
     })
 
     it('少なくとも3つ以上の異なるインデックスが使用されていること', () => {
-      const usedIndices = new Set(quizzes.map(q => q.correctIndex))
+      const usedIndices = new Set(singleQuizzes.map(q => q.correctIndex))
       expect(usedIndices.size).toBeGreaterThanOrEqual(3)
     })
   })
 
-  describe('wrongFeedback の構造', () => {
+  describe('wrongFeedback の構造（単一選択問題）', () => {
     it('正解選択肢に wrongFeedback が付いていないこと', () => {
-      const violations = quizzes.filter(q => {
+      const violations = singleQuizzes.filter(q => {
         const correct = q.options[q.correctIndex]
         return 'wrongFeedback' in correct && correct.wrongFeedback !== undefined
       })
@@ -66,7 +68,7 @@ describe('Quiz Content Quality', () => {
 
     it('不正解選択肢に wrongFeedback が存在すること', () => {
       const violations: string[] = []
-      quizzes.forEach(q => {
+      singleQuizzes.forEach(q => {
         q.options.forEach((opt, i) => {
           if (i !== q.correctIndex && !opt.wrongFeedback) {
             violations.push(`${q.id} option[${i}]`)
@@ -74,6 +76,52 @@ describe('Quiz Content Quality', () => {
         })
       })
       expect(violations, `wrongFeedback が欠けている: ${violations.slice(0, 10).join(', ')}`).toEqual([])
+    })
+  })
+
+  describe('wrongFeedback の構造（複数選択問題）', () => {
+    it('正解選択肢に wrongFeedback が付いていないこと', () => {
+      const violations: string[] = []
+      multiQuizzes.forEach(q => {
+        const correctSet = new Set(q.correctIndices ?? [])
+        q.options.forEach((opt, i) => {
+          if (correctSet.has(i) && 'wrongFeedback' in opt && opt.wrongFeedback !== undefined) {
+            violations.push(`${q.id} option[${i}]`)
+          }
+        })
+      })
+      expect(violations, `正解に wrongFeedback がある: ${violations.join(', ')}`).toEqual([])
+    })
+
+    it('不正解選択肢に wrongFeedback が存在すること', () => {
+      const violations: string[] = []
+      multiQuizzes.forEach(q => {
+        const correctSet = new Set(q.correctIndices ?? [])
+        q.options.forEach((opt, i) => {
+          if (!correctSet.has(i) && !opt.wrongFeedback) {
+            violations.push(`${q.id} option[${i}]`)
+          }
+        })
+      })
+      expect(violations, `wrongFeedback が欠けている: ${violations.slice(0, 10).join(', ')}`).toEqual([])
+    })
+
+    it('correctIndices が2個以上であること', () => {
+      const violations = multiQuizzes.filter(q => !q.correctIndices || q.correctIndices.length < 2)
+      const ids = violations.map(q => q.id)
+      expect(ids, `correctIndices が2個未満: ${ids.join(', ')}`).toEqual([])
+    })
+
+    it('correctIndices が全て options 範囲内であること', () => {
+      const violations: string[] = []
+      multiQuizzes.forEach(q => {
+        (q.correctIndices ?? []).forEach(idx => {
+          if (idx < 0 || idx >= q.options.length) {
+            violations.push(`${q.id} correctIndices[${idx}]`)
+          }
+        })
+      })
+      expect(violations, `範囲外の correctIndices: ${violations.join(', ')}`).toEqual([])
     })
   })
 
@@ -118,6 +166,38 @@ describe('Quiz Content Quality', () => {
       )
       const details = invalid.map(q => `${q.id}: "${q.referenceUrl}"`)
       expect(details, `無効なURL: ${details.join(', ')}`).toEqual([])
+    })
+  })
+
+  describe('はじめてモードのタグ品質', () => {
+    const gettingStartedQuizzes = quizzes.filter(q =>
+      q.tags && q.tags.includes('getting-started')
+    )
+
+    it('getting-started タグ付き問題が20問以上あること', () => {
+      expect(gettingStartedQuizzes.length).toBeGreaterThanOrEqual(20)
+    })
+
+    it('すべてのgetting-started問題にソート用タグがあること', () => {
+      const missingOrder = gettingStartedQuizzes.filter(q =>
+        !q.tags!.some((t: string) => t.startsWith('getting-started-'))
+      )
+      const ids = missingOrder.map(q => q.id)
+      expect(ids, `ソートタグがない: ${ids.join(', ')}`).toEqual([])
+    })
+
+    it('ソート用タグに重複がないこと', () => {
+      const orderTags = gettingStartedQuizzes.flatMap(q =>
+        q.tags!.filter((t: string) => t.startsWith('getting-started-'))
+      )
+      const duplicates = orderTags.filter((t: string, i: number) => orderTags.indexOf(t) !== i)
+      expect(duplicates, `重複タグ: ${duplicates.join(', ')}`).toEqual([])
+    })
+
+    it('getting-started問題はすべてbeginner難易度であること', () => {
+      const nonBeginner = gettingStartedQuizzes.filter(q => q.difficulty !== 'beginner')
+      const ids = nonBeginner.map(q => q.id)
+      expect(ids, `beginner以外: ${ids.join(', ')}`).toEqual([])
     })
   })
 

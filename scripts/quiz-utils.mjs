@@ -49,18 +49,38 @@ function randomize() {
   }
 
   const counts = [0, 0, 0, 0]
+  let multiCount = 0
   data.quizzes = data.quizzes.map(q => {
+    const optionIndices = Array.from({ length: q.options.length }, (_, i) => i)
+    const shuffledIndices = shuffle(optionIndices)
+    const newOptions = shuffledIndices.map(i => q.options[i])
+
+    if (q.type === 'multi' && q.correctIndices) {
+      // Multi-select: remap correctIndices
+      const oldCorrectSet = new Set(q.correctIndices)
+      const newCorrectIndices = []
+      shuffledIndices.forEach((oldIdx, newIdx) => {
+        if (oldCorrectSet.has(oldIdx)) {
+          newCorrectIndices.push(newIdx)
+        }
+      })
+      newCorrectIndices.sort((a, b) => a - b)
+      multiCount++
+      return { ...q, options: newOptions, correctIndex: newCorrectIndices[0], correctIndices: newCorrectIndices }
+    }
+
+    // Single-select: remap correctIndex
     const correctOption = q.options[q.correctIndex]
-    const indices = shuffle([0, 1, 2, 3])
-    const newOptions = indices.map(i => q.options[i])
     const newCorrectIndex = newOptions.indexOf(correctOption)
     counts[newCorrectIndex]++
     return { ...q, options: newOptions, correctIndex: newCorrectIndex }
   })
 
   saveQuizzes(data)
+  const singleCount = data.quizzes.length - multiCount
   console.log(`Randomized ${data.quizzes.length} questions (seed: ${seed})`)
-  console.log('Distribution:', counts.map((c, i) => `index${i}: ${c} (${(c / data.quizzes.length * 100).toFixed(1)}%)`).join(', '))
+  console.log(`  Single-select: ${singleCount}, Multi-select: ${multiCount}`)
+  console.log('Distribution (single):', counts.map((c, i) => `index${i}: ${c} (${(c / Math.max(singleCount, 1) * 100).toFixed(1)}%)`).join(', '))
 }
 
 // === Statistics ===
@@ -68,7 +88,9 @@ function stats() {
   const data = loadQuizzes()
   const quizzes = data.quizzes
 
-  console.log(`Total: ${quizzes.length} questions\n`)
+  const singleQuizzes = quizzes.filter(q => q.type !== 'multi')
+  const multiQuizzes = quizzes.filter(q => q.type === 'multi')
+  console.log(`Total: ${quizzes.length} questions (single: ${singleQuizzes.length}, multi: ${multiQuizzes.length})\n`)
 
   // Category distribution
   const categories = {}
@@ -86,14 +108,14 @@ function stats() {
     console.log(`  ${diff.padEnd(15)} ${String(count).padStart(3)} (${(count / quizzes.length * 100).toFixed(1)}%)`)
   })
 
-  // correctIndex distribution
+  // correctIndex distribution (single-select only)
   const indices = [0, 0, 0, 0, 0, 0]
-  quizzes.forEach(q => { indices[q.correctIndex] = (indices[q.correctIndex] || 0) + 1 })
-  console.log('\n=== correctIndex Distribution ===')
+  singleQuizzes.forEach(q => { indices[q.correctIndex] = (indices[q.correctIndex] || 0) + 1 })
+  console.log('\n=== correctIndex Distribution (single-select) ===')
   indices.forEach((count, i) => {
     if (count > 0) {
-      const pct = (count / quizzes.length * 100).toFixed(1)
-      const bar = '█'.repeat(Math.round(count / quizzes.length * 40))
+      const pct = (count / singleQuizzes.length * 100).toFixed(1)
+      const bar = '█'.repeat(Math.round(count / singleQuizzes.length * 40))
       console.log(`  index ${i}: ${String(count).padStart(3)} (${pct}%) ${bar}`)
     }
   })
@@ -133,19 +155,22 @@ function check() {
     issues++
   }
 
-  // correctIndex bias
+  const singleQuizzes = quizzes.filter(q => q.type !== 'multi')
+  const multiQuizzes = quizzes.filter(q => q.type === 'multi')
+
+  // correctIndex bias (single-select only)
   const counts = [0, 0, 0, 0]
-  quizzes.forEach(q => { counts[q.correctIndex] = (counts[q.correctIndex] || 0) + 1 })
+  singleQuizzes.forEach(q => { counts[q.correctIndex] = (counts[q.correctIndex] || 0) + 1 })
   counts.forEach((c, i) => {
-    const pct = c / quizzes.length
+    const pct = c / Math.max(singleQuizzes.length, 1)
     if (pct > 0.35) {
       console.log(`FAIL: correctIndex=${i} is ${(pct * 100).toFixed(1)}% (>35%)`)
       issues++
     }
   })
 
-  // wrongFeedback structure
-  quizzes.forEach(q => {
+  // wrongFeedback structure (single-select)
+  singleQuizzes.forEach(q => {
     const correct = q.options[q.correctIndex]
     if (correct.wrongFeedback) {
       console.log(`FAIL: ${q.id} correct answer has wrongFeedback`)
@@ -154,6 +179,32 @@ function check() {
     q.options.forEach((opt, i) => {
       if (i !== q.correctIndex && !opt.wrongFeedback) {
         console.log(`FAIL: ${q.id} option[${i}] missing wrongFeedback`)
+        issues++
+      }
+    })
+  })
+
+  // wrongFeedback structure (multi-select)
+  multiQuizzes.forEach(q => {
+    if (!q.correctIndices || q.correctIndices.length < 2) {
+      console.log(`FAIL: ${q.id} multi-select needs at least 2 correctIndices`)
+      issues++
+      return
+    }
+    const correctSet = new Set(q.correctIndices)
+    q.options.forEach((opt, i) => {
+      if (correctSet.has(i) && opt.wrongFeedback) {
+        console.log(`FAIL: ${q.id} correct option[${i}] has wrongFeedback`)
+        issues++
+      }
+      if (!correctSet.has(i) && !opt.wrongFeedback) {
+        console.log(`FAIL: ${q.id} option[${i}] missing wrongFeedback`)
+        issues++
+      }
+    })
+    q.correctIndices.forEach(idx => {
+      if (idx < 0 || idx >= q.options.length) {
+        console.log(`FAIL: ${q.id} correctIndices[${idx}] out of bounds`)
         issues++
       }
     })

@@ -27,6 +27,7 @@ export function QuizCard() {
     getCurrentQuestion,
     sessionState,
     selectAnswer,
+    toggleAnswer,
     submitAnswer,
     nextQuestion,
     endSession,
@@ -36,11 +37,13 @@ export function QuizCard() {
 
   const quiz = getCurrentQuestion()
   const selectedAnswer = sessionState?.selectedAnswer ?? null
+  const selectedAnswers = sessionState?.selectedAnswers ?? []
   const isAnswered = sessionState?.isAnswered ?? false
   const isCorrect = sessionState?.isCorrect ?? null
   const isReviewMode = sessionState?.isReviewMode ?? false
   const hintUsed = sessionState?.hintUsed ?? false
   const isBookmarked = quiz ? useQuizStore.getState().userProgress.isBookmarked(quiz.id) : false
+  const isMultiSelect = quiz?.isMultiSelect ?? false
 
   // Keyboard navigation handler
   const handleKeyDown = useCallback(
@@ -49,50 +52,85 @@ export function QuizCard() {
 
       const optionCount = quiz.options.length
 
-      switch (e.key) {
-        case 'ArrowUp':
-        case 'ArrowLeft':
-          e.preventDefault()
-          if (!isAnswered) {
-            const prevIndex = selectedAnswer === null
-              ? optionCount - 1
-              : (selectedAnswer - 1 + optionCount) % optionCount
-            selectAnswer(prevIndex)
-          }
-          break
-        case 'ArrowDown':
-        case 'ArrowRight':
-          e.preventDefault()
-          if (!isAnswered) {
-            const nextIndex = selectedAnswer === null
-              ? 0
-              : (selectedAnswer + 1) % optionCount
-            selectAnswer(nextIndex)
-          }
-          break
-        case 'Enter':
-        case ' ':
-          e.preventDefault()
-          if (!isAnswered && selectedAnswer !== null) {
-            submitAnswer()
-          } else if (isAnswered) {
-            nextQuestion()
-          }
-          break
-        case '1':
-        case '2':
-        case '3':
-        case '4':
-          if (!isAnswered) {
-            const index = parseInt(e.key) - 1
-            if (index < optionCount) {
-              selectAnswer(index)
+      if (isMultiSelect) {
+        // Multi-select keyboard handling
+        switch (e.key) {
+          case '1':
+          case '2':
+          case '3':
+          case '4':
+          case '5':
+          case '6':
+            if (!isAnswered) {
+              const index = parseInt(e.key) - 1
+              if (index < optionCount) {
+                toggleAnswer(index)
+              }
             }
-          }
-          break
+            break
+          case 'Enter':
+            e.preventDefault()
+            if (!isAnswered && selectedAnswers.length > 0) {
+              submitAnswer()
+            } else if (isAnswered) {
+              nextQuestion()
+            }
+            break
+          case ' ':
+            // Space alone does not submit in multi-select (used for toggle via number keys)
+            e.preventDefault()
+            if (isAnswered) {
+              nextQuestion()
+            }
+            break
+        }
+      } else {
+        // Single-select keyboard handling
+        switch (e.key) {
+          case 'ArrowUp':
+          case 'ArrowLeft':
+            e.preventDefault()
+            if (!isAnswered) {
+              const prevIndex = selectedAnswer === null
+                ? optionCount - 1
+                : (selectedAnswer - 1 + optionCount) % optionCount
+              selectAnswer(prevIndex)
+            }
+            break
+          case 'ArrowDown':
+          case 'ArrowRight':
+            e.preventDefault()
+            if (!isAnswered) {
+              const nextIdx = selectedAnswer === null
+                ? 0
+                : (selectedAnswer + 1) % optionCount
+              selectAnswer(nextIdx)
+            }
+            break
+          case 'Enter':
+          case ' ':
+            e.preventDefault()
+            if (!isAnswered && selectedAnswer !== null) {
+              submitAnswer()
+            } else if (isAnswered) {
+              nextQuestion()
+            }
+            break
+          case '1':
+          case '2':
+          case '3':
+          case '4':
+            if (!isAnswered) {
+              const index = parseInt(e.key) - 1
+              if (index < optionCount) {
+                selectAnswer(index)
+              }
+            }
+            break
+        }
       }
     },
-    [quiz, selectedAnswer, isAnswered, selectAnswer, submitAnswer, nextQuestion]
+    [quiz, selectedAnswer, selectedAnswers, isAnswered, isMultiSelect, selectAnswer, toggleAnswer, submitAnswer, nextQuestion]
   )
 
   // Register keyboard listener
@@ -232,22 +270,32 @@ export function QuizCard() {
         </div>
       )}
 
+      {/* Multi-select indicator */}
+      {isMultiSelect && (
+        <div className="mb-4 flex items-center gap-2 rounded-lg border border-indigo-200 bg-indigo-50 px-3 py-2">
+          <span className="text-sm font-medium text-indigo-700">
+            該当するものを全て選んでください
+          </span>
+        </div>
+      )}
+
       {/* Options */}
       <div
         className="space-y-3"
-        role="listbox"
-        aria-label="回答選択肢"
-        aria-activedescendant={selectedAnswer !== null ? `option-${selectedAnswer}` : undefined}
+        role={isMultiSelect ? 'group' : 'listbox'}
+        aria-label={isMultiSelect ? '複数選択回答' : '回答選択肢'}
+        aria-activedescendant={!isMultiSelect && selectedAnswer !== null ? `option-${selectedAnswer}` : undefined}
       >
         {quiz.options.map((option, index) => (
           <OptionButton
             key={index}
             index={index}
             text={option.text}
-            isSelected={selectedAnswer === index}
-            isCorrect={index === quiz.correctIndex}
+            isSelected={isMultiSelect ? selectedAnswers.includes(index) : selectedAnswer === index}
+            isCorrect={quiz.isCorrectIndex(index)}
             isAnswered={isAnswered}
-            onClick={() => selectAnswer(index)}
+            isMultiSelect={isMultiSelect}
+            onClick={() => isMultiSelect ? toggleAnswer(index) : selectAnswer(index)}
           />
         ))}
       </div>
@@ -257,11 +305,15 @@ export function QuizCard() {
         {!isAnswered && !isReviewMode ? (
           <button
             onClick={submitAnswer}
-            disabled={selectedAnswer === null}
-            aria-disabled={selectedAnswer === null}
-            aria-label={selectedAnswer === null ? '選択肢を選んでください' : '回答を確定する'}
+            disabled={isMultiSelect ? selectedAnswers.length === 0 : selectedAnswer === null}
+            aria-disabled={isMultiSelect ? selectedAnswers.length === 0 : selectedAnswer === null}
+            aria-label={
+              (isMultiSelect ? selectedAnswers.length === 0 : selectedAnswer === null)
+                ? '選択肢を選んでください'
+                : '回答を確定する'
+            }
             className={`w-full rounded-lg py-3 font-medium transition-all ${
-              selectedAnswer !== null
+              (isMultiSelect ? selectedAnswers.length > 0 : selectedAnswer !== null)
                 ? 'bg-claude-orange text-white hover:bg-claude-orange/90'
                 : 'cursor-not-allowed bg-stone-200 text-stone-400'
             }`}

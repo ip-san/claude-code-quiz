@@ -22,12 +22,16 @@ export function Feedback({ quiz, isCorrect }: FeedbackProps) {
   const [markdownCopied, setMarkdownCopied] = useState(false)
 
   const selectedAnswer = sessionState?.selectedAnswer ?? null
+  const selectedAnswers = sessionState?.selectedAnswers ?? []
   const selectedOption =
     selectedAnswer !== null ? quiz.options[selectedAnswer] : null
   const isReviewMode = sessionState?.isReviewMode ?? false
   const reviewUserAnswers = sessionState?.reviewUserAnswers ?? []
+  const reviewUserMultiAnswers = sessionState?.reviewUserMultiAnswers ?? []
   const currentIndex = sessionState?.currentIndex ?? 0
   const originalUserAnswer = isReviewMode ? reviewUserAnswers[currentIndex] : null
+  const originalUserMultiAnswers = isReviewMode ? reviewUserMultiAnswers[currentIndex] ?? [] : []
+  const isMultiSelect = quiz.isMultiSelect
 
   const handleOpenReference = async () => {
     if (!quiz.referenceUrl) return
@@ -98,7 +102,27 @@ export function Feedback({ quiz, isCorrect }: FeedbackProps) {
       </div>
 
       {/* Review mode: show original user answer */}
-      {isReviewMode && originalUserAnswer !== null && originalUserAnswer !== quiz.correctIndex && (
+      {isReviewMode && isMultiSelect && originalUserMultiAnswers.length > 0 && !isCorrect && (
+        <div className="mb-4 rounded-lg border border-amber-200 bg-amber-50 p-3">
+          <p className="text-sm text-amber-800">
+            <span className="font-medium">あなたの回答:</span>
+          </p>
+          <ul className="ml-4 mt-1 list-disc text-sm text-amber-800">
+            {originalUserMultiAnswers.map(i => (
+              <li key={i}>{quiz.options[i]?.text}</li>
+            ))}
+          </ul>
+          <p className="mt-2 text-sm text-green-700">
+            <span className="font-medium">正解:</span>
+          </p>
+          <ul className="ml-4 mt-1 list-disc text-sm text-green-700">
+            {quiz.getCorrectOptions().map((opt, i) => (
+              <li key={i}>{opt.text}</li>
+            ))}
+          </ul>
+        </div>
+      )}
+      {isReviewMode && !isMultiSelect && originalUserAnswer !== null && originalUserAnswer !== quiz.correctIndex && (
         <div className="mb-4 rounded-lg border border-amber-200 bg-amber-50 p-3">
           <p className="text-sm text-amber-800">
             <span className="font-medium">あなたの回答:</span>{' '}
@@ -112,7 +136,34 @@ export function Feedback({ quiz, isCorrect }: FeedbackProps) {
       )}
 
       {/* Wrong feedback - emphasized for incorrect answers */}
-      {!isCorrect && selectedOption?.wrongFeedback && (
+      {!isCorrect && isMultiSelect && (
+        (() => {
+          // Collect wrongFeedback from incorrectly selected options
+          const wrongSelected = selectedAnswers
+            .filter(i => !quiz.isCorrectIndex(i))
+            .map(i => quiz.options[i])
+            .filter(opt => opt?.wrongFeedback)
+          if (wrongSelected.length === 0) return null
+          return (
+            <div className="mb-4 rounded-lg border border-red-200 bg-red-50 p-4">
+              <div className="flex items-start gap-2">
+                <AlertTriangle className="mt-0.5 h-5 w-5 flex-shrink-0 text-amber-500" />
+                <div>
+                  <p className="mb-1 font-medium text-claude-dark">
+                    なぜこの回答が誤りなのか
+                  </p>
+                  {wrongSelected.map((opt, i) => (
+                    <p key={i} className="text-sm leading-relaxed text-stone-600">
+                      {opt.wrongFeedback}
+                    </p>
+                  ))}
+                </div>
+              </div>
+            </div>
+          )
+        })()
+      )}
+      {!isCorrect && !isMultiSelect && selectedOption?.wrongFeedback && (
         <div className="mb-4 rounded-lg border border-red-200 bg-red-50 p-4">
           <div className="flex items-start gap-2">
             <AlertTriangle className="mt-0.5 h-5 w-5 flex-shrink-0 text-amber-500" />
@@ -125,6 +176,18 @@ export function Feedback({ quiz, isCorrect }: FeedbackProps) {
               </p>
             </div>
           </div>
+        </div>
+      )}
+
+      {/* Multi-select: show correct answers when wrong (non-review mode) */}
+      {!isCorrect && isMultiSelect && !isReviewMode && (
+        <div className="mb-4 rounded-lg border border-green-200 bg-green-50 p-3">
+          <p className="text-sm font-medium text-green-700">正解:</p>
+          <ul className="ml-4 mt-1 list-disc text-sm text-green-700">
+            {quiz.getCorrectOptions().map((opt, i) => (
+              <li key={i}>{opt.text}</li>
+            ))}
+          </ul>
         </div>
       )}
 

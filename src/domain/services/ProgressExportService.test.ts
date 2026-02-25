@@ -37,7 +37,7 @@ describe('ProgressExportService', () => {
       const progress = UserProgress.empty()
 
       const csv = ProgressExportService.generateQuestionCsv(questions, progress)
-      const lines = csv.split('\n')
+      const lines = csv.split('\r\n')
 
       expect(lines[0]).toBe('問題ID,カテゴリ,難易度,回答回数,正解回数,正答率(%),最終回答日時')
     })
@@ -48,7 +48,7 @@ describe('ProgressExportService', () => {
       progress = progress.recordAnswer('q1', 'tools', true)
 
       const csv = ProgressExportService.generateQuestionCsv(questions, progress)
-      const lines = csv.split('\n')
+      const lines = csv.split('\r\n')
 
       expect(lines).toHaveLength(2) // header + 1 data row
       expect(lines[1]).toContain('q1')
@@ -61,7 +61,7 @@ describe('ProgressExportService', () => {
       const progress = UserProgress.empty()
 
       const csv = ProgressExportService.generateQuestionCsv(questions, progress)
-      const lines = csv.split('\n')
+      const lines = csv.split('\r\n')
 
       expect(lines[1]).toContain('q1,tools,beginner,0,0,0,')
     })
@@ -73,7 +73,7 @@ describe('ProgressExportService', () => {
       progress = progress.recordAnswer('q1', 'tools', false)
 
       const csv = ProgressExportService.generateQuestionCsv(questions, progress)
-      const lines = csv.split('\n')
+      const lines = csv.split('\r\n')
       const fields = lines[1].split(',')
 
       expect(fields[3]).toBe('2')   // attempts
@@ -88,7 +88,7 @@ describe('ProgressExportService', () => {
       const progress = UserProgress.empty()
 
       const csv = ProgressExportService.generateCategoryCsv(questions, progress)
-      const lines = csv.split('\n')
+      const lines = csv.split('\r\n')
 
       expect(lines[0]).toBe('カテゴリ,総問題数,回答済み,正答率(%)')
     })
@@ -102,7 +102,7 @@ describe('ProgressExportService', () => {
       const progress = UserProgress.empty()
 
       const csv = ProgressExportService.generateCategoryCsv(questions, progress)
-      const lines = csv.split('\n')
+      const lines = csv.split('\r\n')
 
       expect(lines).toHaveLength(3) // header + 2 categories
     })
@@ -116,7 +116,7 @@ describe('ProgressExportService', () => {
       progress = progress.recordAnswer('q1', 'tools', true)
 
       const csv = ProgressExportService.generateCategoryCsv(questions, progress)
-      const lines = csv.split('\n')
+      const lines = csv.split('\r\n')
       const toolsRow = lines.find(l => l.startsWith('tools'))
 
       expect(toolsRow).toBeDefined()

@@ -272,4 +272,202 @@ describe('Question Entity', () => {
       expect(Array.isArray(json.tags)).toBe(true)
     })
   })
+
+  // ================================================
+  // Multi-select question tests
+  // ================================================
+
+  describe('Multi-select questions', () => {
+    const createMultiQuestion = (overrides = {}): Question => {
+      return Question.create({
+        id: 'multi-001',
+        question: 'Which of these are valid ways to switch models?',
+        options: [
+          { text: '/model command' },
+          { text: 'Settings file' },
+          { text: 'Restart the app', wrongFeedback: 'Restarting does not switch models' },
+          { text: 'CLI flag --model', wrongFeedback: 'This flag does not exist' },
+        ],
+        correctIndex: 0,
+        correctIndices: [0, 1],
+        explanation: 'You can switch models via /model command or settings file.',
+        category: 'commands',
+        difficulty: 'intermediate',
+        type: 'multi',
+        ...overrides,
+      })
+    }
+
+    describe('create() - multi-select validation', () => {
+      it('should create a multi-select question with valid data', () => {
+        const q = createMultiQuestion()
+        expect(q.type).toBe('multi')
+        expect(q.isMultiSelect).toBe(true)
+        expect(q.correctIndices).toEqual([0, 1])
+      })
+
+      it('should throw if correctIndices has less than 2 items', () => {
+        expect(() => createMultiQuestion({ correctIndices: [0] })).toThrow(
+          'Multi-select questions require at least 2 correct indices'
+        )
+      })
+
+      it('should throw if correctIndices is missing for multi type', () => {
+        expect(() => createMultiQuestion({ correctIndices: undefined })).toThrow(
+          'Multi-select questions require at least 2 correct indices'
+        )
+      })
+
+      it('should throw if correctIndices has duplicates', () => {
+        expect(() => createMultiQuestion({ correctIndices: [0, 0] })).toThrow(
+          'correctIndices must not contain duplicates'
+        )
+      })
+
+      it('should throw if correctIndices is out of bounds', () => {
+        expect(() => createMultiQuestion({ correctIndices: [0, 10] })).toThrow(
+          'All correctIndices must be within options array bounds'
+        )
+      })
+    })
+
+    describe('isCorrectMultiAnswer()', () => {
+      it('should return true for exact match', () => {
+        const q = createMultiQuestion()
+        expect(q.isCorrectMultiAnswer([0, 1])).toBe(true)
+        expect(q.isCorrectMultiAnswer([1, 0])).toBe(true) // Order doesn't matter
+      })
+
+      it('should return false for partial selection', () => {
+        const q = createMultiQuestion()
+        expect(q.isCorrectMultiAnswer([0])).toBe(false)
+      })
+
+      it('should return false for extra selection', () => {
+        const q = createMultiQuestion()
+        expect(q.isCorrectMultiAnswer([0, 1, 2])).toBe(false)
+      })
+
+      it('should return false for wrong selection', () => {
+        const q = createMultiQuestion()
+        expect(q.isCorrectMultiAnswer([2, 3])).toBe(false)
+      })
+
+      it('should return false for single-select question', () => {
+        const q = createTestQuestion()
+        expect(q.isCorrectMultiAnswer([0])).toBe(false)
+      })
+    })
+
+    describe('isCorrectIndex()', () => {
+      it('should identify correct indices in multi-select', () => {
+        const q = createMultiQuestion()
+        expect(q.isCorrectIndex(0)).toBe(true)
+        expect(q.isCorrectIndex(1)).toBe(true)
+        expect(q.isCorrectIndex(2)).toBe(false)
+        expect(q.isCorrectIndex(3)).toBe(false)
+      })
+
+      it('should work for single-select', () => {
+        const q = createTestQuestion()
+        expect(q.isCorrectIndex(0)).toBe(true)
+        expect(q.isCorrectIndex(1)).toBe(false)
+      })
+    })
+
+    describe('getCorrectOptions()', () => {
+      it('should return all correct options for multi-select', () => {
+        const q = createMultiQuestion()
+        const opts = q.getCorrectOptions()
+        expect(opts).toHaveLength(2)
+        expect(opts[0].text).toBe('/model command')
+        expect(opts[1].text).toBe('Settings file')
+      })
+    })
+
+    describe('getWrongFeedback() for multi-select', () => {
+      it('should return undefined for correct indices', () => {
+        const q = createMultiQuestion()
+        expect(q.getWrongFeedback(0)).toBeUndefined()
+        expect(q.getWrongFeedback(1)).toBeUndefined()
+      })
+
+      it('should return feedback for wrong indices', () => {
+        const q = createMultiQuestion()
+        expect(q.getWrongFeedback(2)).toBe('Restarting does not switch models')
+        expect(q.getWrongFeedback(3)).toBe('This flag does not exist')
+      })
+    })
+
+    describe('fromData() - multi-select', () => {
+      it('should parse multi-select question from raw data', () => {
+        const rawData = {
+          id: 'multi-raw-001',
+          question: 'Select all correct answers',
+          options: [
+            { text: 'A' },
+            { text: 'B' },
+            { text: 'C', wrongFeedback: 'Wrong' },
+          ],
+          correctIndex: 0,
+          correctIndices: [0, 1],
+          explanation: 'A and B are correct',
+          category: 'tools',
+          difficulty: 'beginner',
+          type: 'multi',
+        }
+
+        const q = Question.fromData(rawData)
+        expect(q).not.toBeNull()
+        expect(q!.type).toBe('multi')
+        expect(q!.isMultiSelect).toBe(true)
+        expect(q!.correctIndices).toEqual([0, 1])
+      })
+    })
+
+    describe('toJSON() - multi-select', () => {
+      it('should include type and correctIndices', () => {
+        const q = createMultiQuestion()
+        const json = q.toJSON()
+        expect(json.type).toBe('multi')
+        expect(json.correctIndices).toEqual([0, 1])
+      })
+
+      it('should not include correctIndices for single-select', () => {
+        const q = createTestQuestion()
+        const json = q.toJSON()
+        expect(json.type).toBe('single')
+        expect(json.correctIndices).toBeUndefined()
+      })
+    })
+
+    describe('toMarkdown() - multi-select', () => {
+      it('should list all correct answers', () => {
+        const q = createMultiQuestion()
+        const md = q.toMarkdown()
+        expect(md).toContain('正解（複数）')
+        expect(md).toContain('/model command')
+        expect(md).toContain('Settings file')
+      })
+    })
+
+    describe('generateAIPrompt() - multi-select', () => {
+      it('should list all correct answers', () => {
+        const q = createMultiQuestion()
+        const prompt = q.generateAIPrompt()
+        expect(prompt).toContain('正解（複数）')
+        expect(prompt).toContain('/model command')
+        expect(prompt).toContain('Settings file')
+      })
+    })
+
+    describe('default type for existing questions', () => {
+      it('should default to single type', () => {
+        const q = createTestQuestion()
+        expect(q.type).toBe('single')
+        expect(q.isMultiSelect).toBe(false)
+        expect(q.correctIndices).toEqual([0])
+      })
+    })
+  })
 })

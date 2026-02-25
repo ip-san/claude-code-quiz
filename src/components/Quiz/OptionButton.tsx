@@ -1,4 +1,4 @@
-import { Check, X } from 'lucide-react'
+import { Check, X, Square, CheckSquare } from 'lucide-react'
 
 interface OptionButtonProps {
   index: number
@@ -6,6 +6,7 @@ interface OptionButtonProps {
   isSelected: boolean
   isCorrect: boolean
   isAnswered: boolean
+  isMultiSelect?: boolean
   onClick: () => void
 }
 
@@ -15,6 +16,7 @@ export function OptionButton({
   isSelected,
   isCorrect,
   isAnswered,
+  isMultiSelect = false,
   onClick,
 }: OptionButtonProps) {
   const getStyles = () => {
@@ -74,27 +76,54 @@ export function OptionButton({
     return base
   }
 
+  // Multi-select: checkbox-style badge / Single-select: circle badge
+  const renderBadge = () => {
+    if (isMultiSelect) {
+      if (isSelected && !isAnswered) {
+        return (
+          <CheckSquare
+            className="h-6 w-6 flex-shrink-0 text-claude-orange"
+            aria-hidden="true"
+          />
+        )
+      }
+      return (
+        <Square
+          className={`h-6 w-6 flex-shrink-0 ${
+            isAnswered ? 'text-stone-300' : 'text-stone-400'
+          }`}
+          aria-hidden="true"
+        />
+      )
+    }
+
+    return (
+      <span
+        className={`flex h-7 w-7 flex-shrink-0 items-center justify-center rounded-full text-sm font-medium ${
+          isSelected && !isAnswered
+            ? 'bg-claude-orange text-white'
+            : 'bg-stone-100 text-stone-600'
+        }`}
+      >
+        {optionLabel}
+      </span>
+    )
+  }
+
   return (
     <button
       onClick={onClick}
       disabled={isAnswered}
       aria-label={getAriaLabel()}
       aria-pressed={isSelected}
-      role="option"
+      aria-checked={isMultiSelect ? isSelected : undefined}
+      role={isMultiSelect ? 'checkbox' : 'option'}
       className={`no-select w-full rounded-xl border-2 p-4 text-left transition-all ${getStyles()} ${
         isAnswered ? 'cursor-default' : 'cursor-pointer'
       }`}
     >
       <div className="flex items-start gap-3">
-        <span
-          className={`flex h-7 w-7 flex-shrink-0 items-center justify-center rounded-full text-sm font-medium ${
-            isSelected && !isAnswered
-              ? 'bg-claude-orange text-white'
-              : 'bg-stone-100 text-stone-600'
-          }`}
-        >
-          {optionLabel}
-        </span>
+        {renderBadge()}
         <span className="flex-1 leading-relaxed text-claude-dark">{text}</span>
         {getIcon()}
       </div>

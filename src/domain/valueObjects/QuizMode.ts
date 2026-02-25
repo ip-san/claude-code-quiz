@@ -2,7 +2,7 @@
  * QuizMode Value Object
  * Represents different quiz session modes
  */
-export type QuizModeId = 'full' | 'category' | 'random' | 'weak' | 'custom' | 'bookmark' | 'review'
+export type QuizModeId = 'full' | 'category' | 'random' | 'weak' | 'custom' | 'bookmark' | 'review' | 'gettingstarted'
 
 export interface QuizModeProps {
   readonly id: QuizModeId
@@ -37,7 +37,7 @@ export class QuizMode {
   }
 
   static create(props: QuizModeProps): QuizMode {
-    const validModes: QuizModeId[] = ['full', 'category', 'random', 'weak', 'custom', 'bookmark', 'review']
+    const validModes: QuizModeId[] = ['full', 'category', 'random', 'weak', 'custom', 'bookmark', 'review', 'gettingstarted']
     if (!validModes.includes(props.id)) {
       throw new Error(`Invalid quiz mode: ${props.id}`)
     }
@@ -80,6 +80,16 @@ export class QuizMode {
 
 // Pre-defined quiz modes
 export const PREDEFINED_QUIZ_MODES: QuizMode[] = [
+  QuizMode.create({
+    id: 'gettingstarted',
+    name: 'はじめてモード',
+    description: 'Claude Codeの基本を順番に学習',
+    icon: '🚀',
+    questionCount: null,
+    timeLimit: null,
+    shuffleQuestions: false,
+    shuffleOptions: false,
+  }),
   QuizMode.create({
     id: 'full',
     name: '本格試験モード',

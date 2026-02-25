@@ -72,9 +72,11 @@ function buildElectronCJS(): Plugin {
     const electronBin = resolve('node_modules', '.bin', 'electron')
     const env = { ...process.env, NODE_ENV: 'development' }
     delete env.ELECTRON_RUN_AS_NODE
+    // shell: true で Windows の .cmd ファイルも正しく実行される
     electronProcess = spawn(electronBin, ['.'], {
       stdio: 'inherit',
       env,
+      shell: true,
     })
 
     electronProcess.on('close', (code) => {
@@ -103,7 +105,9 @@ function buildElectronCJS(): Plugin {
 
       // Electron ファイルの変更を監視して再ビルド & 再起動
       server.watcher.on('change', async (file) => {
-        if (file.includes('electron/main.ts') || file.includes('electron/preload.ts')) {
+        // Windows のバックスラッシュパスでもマッチするよう正規化
+        const normalized = file.replace(/\\/g, '/')
+        if (normalized.includes('electron/main.ts') || normalized.includes('electron/preload.ts')) {
           await buildAll()
           startElectron()
         }

@@ -59,6 +59,7 @@ export interface QuizSessionState {
   readonly questions: readonly Question[]
   readonly currentIndex: number
   readonly selectedAnswer: number | null
+  readonly selectedAnswers: readonly number[]  // 複数選択用
   readonly isAnswered: boolean
   readonly isCorrect: boolean | null
   readonly score: number
@@ -68,6 +69,7 @@ export interface QuizSessionState {
   readonly timeRemaining: number | null   // 秒単位
   readonly isReviewMode: boolean
   readonly reviewUserAnswers: readonly number[]
+  readonly reviewUserMultiAnswers: readonly (readonly number[])[]  // 複数選択の復習用
   readonly hintUsed: boolean
   readonly hintsUsedCount: number
 }
@@ -130,6 +132,20 @@ export class QuizSessionService {
       questions = questions.filter(q => q.difficulty === config.difficultyFilter)
     }
 
+    // For getting-started mode, filter to tagged questions and sort by order tag
+    if (config.mode === 'gettingstarted') {
+      questions = questions.filter(q =>
+        q.tags.includes('getting-started')
+      )
+      questions.sort((a, b) => {
+        const getOrder = (q: Question): number => {
+          const orderTag = q.tags.find(t => t.startsWith('getting-started-'))
+          return orderTag ? parseInt(orderTag.replace('getting-started-', ''), 10) : 999
+        }
+        return getOrder(a) - getOrder(b)
+      })
+    }
+
     // For bookmark mode, filter to bookmarked questions
     if (config.mode === 'bookmark') {
       const bookmarked = questions.filter(q =>
@@ -179,23 +195,39 @@ export class QuizSessionService {
   static createInitialState(
     questions: Question[],
     config: QuizSessionConfig,
-    options?: { isReviewMode?: boolean; reviewUserAnswers?: number[] }
+    options?: {
+      isReviewMode?: boolean
+      reviewUserAnswers?: number[]
+      reviewUserMultiAnswers?: number[][]
+    }
   ): QuizSessionState {
     const isReviewMode = options?.isReviewMode ?? false
     const reviewUserAnswers = options?.reviewUserAnswers ?? []
+    const reviewUserMultiAnswers = options?.reviewUserMultiAnswers ?? []
 
     // In review mode, pre-populate the first question's state
-    const firstUserAnswer = isReviewMode && reviewUserAnswers.length > 0
-      ? reviewUserAnswers[0] : null
     const firstQuestion = questions[0]
-    const firstIsCorrect = isReviewMode && firstQuestion && firstUserAnswer !== null
-      ? firstQuestion.isCorrectAnswer(firstUserAnswer) : null
+    let firstUserAnswer: number | null = null
+    let firstSelectedAnswers: readonly number[] = []
+    let firstIsCorrect: boolean | null = null
+
+    if (isReviewMode && firstQuestion) {
+      if (firstQuestion.isMultiSelect) {
+        firstSelectedAnswers = reviewUserMultiAnswers[0] ?? []
+        firstIsCorrect = firstQuestion.isCorrectMultiAnswer([...firstSelectedAnswers])
+      } else {
+        firstUserAnswer = reviewUserAnswers.length > 0 ? reviewUserAnswers[0] : null
+        firstIsCorrect = firstUserAnswer !== null
+          ? firstQuestion.isCorrectAnswer(firstUserAnswer) : null
+      }
+    }
 
     return {
       config,
       questions: Object.freeze(questions),
       currentIndex: 0,
       selectedAnswer: firstUserAnswer,
+      selectedAnswers: Object.freeze(firstSelectedAnswers as number[]),
       isAnswered: isReviewMode,
       isCorrect: firstIsCorrect,
       score: 0,
@@ -205,6 +237,7 @@ export class QuizSessionService {
       timeRemaining: config.timeLimit ? config.timeLimit * 60 : null,
       isReviewMode,
       reviewUserAnswers: Object.freeze(reviewUserAnswers),
+      reviewUserMultiAnswers: Object.freeze(reviewUserMultiAnswers.map(a => Object.freeze([...a]))),
       hintUsed: false,
       hintsUsedCount: 0,
     }
@@ -226,7 +259,7 @@ export class QuizSessionService {
   }
 
   /**
-   * 回答を選択
+   * 回答を選択（単一選択用）
    *
    * すでに回答済みの場合は何もしない。
    */
@@ -244,6 +277,32 @@ export class QuizSessionService {
   }
 
   /**
+   * 回答をトグル（複数選択用）
+   *
+   * すでに選択されていれば解除、されていなければ追加。
+   * 回答済みの場合は何もしない。
+   */
+  static toggleAnswer(
+    state: QuizSessionState,
+    answerIndex: number
+  ): QuizSessionState {
+    if (state.isAnswered) {
+      return state
+    }
+    const current = [...state.selectedAnswers]
+    const idx = current.indexOf(answerIndex)
+    if (idx >= 0) {
+      current.splice(idx, 1)
+    } else {
+      current.push(answerIndex)
+    }
+    return {
+      ...state,
+      selectedAnswers: Object.freeze(current),
+    }
+  }
+
+  /**
    * 回答を確定
    *
    * 【戻り値】
@@ -256,7 +315,7 @@ export class QuizSessionService {
     newState: QuizSessionState
     isCorrect: boolean
   } | null {
-    if (state.selectedAnswer === null || state.isAnswered) {
+    if (state.isAnswered) {
       return null
     }
 
@@ -265,7 +324,19 @@ export class QuizSessionService {
       return null
     }
 
-    const isCorrect = currentQuestion.isCorrectAnswer(state.selectedAnswer)
+    let isCorrect: boolean
+
+    if (currentQuestion.isMultiSelect) {
+      if (state.selectedAnswers.length === 0) {
+        return null
+      }
+      isCorrect = currentQuestion.isCorrectMultiAnswer([...state.selectedAnswers])
+    } else {
+      if (state.selectedAnswer === null) {
+        return null
+      }
+      isCorrect = currentQuestion.isCorrectAnswer(state.selectedAnswer)
+    }
 
     const newState: QuizSessionState = {
       ...state,
@@ -296,11 +367,24 @@ export class QuizSessionService {
     // In review mode, pre-populate the next question's answer state
     if (state.isReviewMode) {
       const nextQuestion = state.questions[nextIndex]
+      if (nextQuestion?.isMultiSelect) {
+        const userMultiAnswer = state.reviewUserMultiAnswers[nextIndex] ?? []
+        return {
+          ...state,
+          currentIndex: nextIndex,
+          selectedAnswer: null,
+          selectedAnswers: Object.freeze([...userMultiAnswer]),
+          isAnswered: true,
+          isCorrect: nextQuestion.isCorrectMultiAnswer([...userMultiAnswer]),
+          hintUsed: false,
+        }
+      }
       const userAnswer = state.reviewUserAnswers[nextIndex] ?? null
       return {
         ...state,
         currentIndex: nextIndex,
         selectedAnswer: userAnswer,
+        selectedAnswers: Object.freeze([]),
         isAnswered: true,
         isCorrect: nextQuestion && userAnswer !== null
           ? nextQuestion.isCorrectAnswer(userAnswer) : null,
@@ -312,6 +396,7 @@ export class QuizSessionService {
       ...state,
       currentIndex: nextIndex,
       selectedAnswer: null,
+      selectedAnswers: Object.freeze([]),
       isAnswered: false,
       isCorrect: null,
       hintUsed: false,

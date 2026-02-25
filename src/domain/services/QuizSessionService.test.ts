@@ -580,4 +580,247 @@ describe('QuizSessionService', () => {
       expect(QuizSessionService.hasPassed(state)).toBe(true)
     })
   })
+
+  describe('getting-started mode filtering', () => {
+    const createTaggedQuestion = (
+      id: string,
+      tags: string[],
+      category = 'bestpractices'
+    ): Question => {
+      return Question.create({
+        id,
+        question: `Test question ${id}`,
+        options: [{ text: 'Option A' }, { text: 'Option B' }, { text: 'Option C' }],
+        correctIndex: 0,
+        explanation: 'Test explanation',
+        category,
+        difficulty: 'beginner',
+        tags,
+      })
+    }
+
+    it('should filter to getting-started tagged questions', () => {
+      const questions = [
+        createTaggedQuestion('gs-1', ['getting-started', 'getting-started-010']),
+        createTestQuestion('q1'),
+        createTaggedQuestion('gs-2', ['getting-started', 'getting-started-020']),
+      ]
+      const config = createDefaultConfig({ mode: 'gettingstarted', shuffleQuestions: false })
+      const progress = UserProgress.empty()
+
+      const result = QuizSessionService.prepareSessionQuestions(questions, config, progress)
+
+      expect(result).toHaveLength(2)
+      expect(result.every(q => q.tags.includes('getting-started'))).toBe(true)
+    })
+
+    it('should sort by getting-started-NNN order tag', () => {
+      const questions = [
+        createTaggedQuestion('gs-3', ['getting-started', 'getting-started-030']),
+        createTaggedQuestion('gs-1', ['getting-started', 'getting-started-010']),
+        createTaggedQuestion('gs-2', ['getting-started', 'getting-started-020']),
+      ]
+      const config = createDefaultConfig({ mode: 'gettingstarted', shuffleQuestions: false })
+      const progress = UserProgress.empty()
+
+      const result = QuizSessionService.prepareSessionQuestions(questions, config, progress)
+
+      expect(result.map(q => q.id)).toEqual(['gs-1', 'gs-2', 'gs-3'])
+    })
+
+    it('should place questions without order tag at the end', () => {
+      const questions = [
+        createTaggedQuestion('gs-2', ['getting-started', 'getting-started-020']),
+        createTaggedQuestion('gs-x', ['getting-started']),
+        createTaggedQuestion('gs-1', ['getting-started', 'getting-started-010']),
+      ]
+      const config = createDefaultConfig({ mode: 'gettingstarted', shuffleQuestions: false })
+      const progress = UserProgress.empty()
+
+      const result = QuizSessionService.prepareSessionQuestions(questions, config, progress)
+
+      expect(result.map(q => q.id)).toEqual(['gs-1', 'gs-2', 'gs-x'])
+    })
+
+    it('should return empty array when no tagged questions exist', () => {
+      const questions = [
+        createTestQuestion('q1'),
+        createTestQuestion('q2'),
+      ]
+      const config = createDefaultConfig({ mode: 'gettingstarted', shuffleQuestions: false })
+      const progress = UserProgress.empty()
+
+      const result = QuizSessionService.prepareSessionQuestions(questions, config, progress)
+
+      expect(result).toHaveLength(0)
+    })
+  })
+
+  // ================================================
+  // Multi-select question tests
+  // ================================================
+
+  describe('Multi-select questions', () => {
+    const createMultiQuestion = (id: string): Question => {
+      return Question.create({
+        id,
+        question: `Multi-select question ${id}`,
+        options: [
+          { text: 'Correct A' },
+          { text: 'Correct B' },
+          { text: 'Wrong C', wrongFeedback: 'C is wrong' },
+          { text: 'Wrong D', wrongFeedback: 'D is wrong' },
+        ],
+        correctIndex: 0,
+        correctIndices: [0, 1],
+        explanation: 'A and B are correct',
+        category: 'tools',
+        difficulty: 'beginner',
+        type: 'multi',
+      })
+    }
+
+    describe('toggleAnswer()', () => {
+      it('should add answer to selectedAnswers', () => {
+        const questions = [createMultiQuestion('mq1')]
+        const config = createDefaultConfig()
+        let state = QuizSessionService.createInitialState(questions, config)
+
+        state = QuizSessionService.toggleAnswer(state, 0)
+        expect([...state.selectedAnswers]).toEqual([0])
+
+        state = QuizSessionService.toggleAnswer(state, 2)
+        expect([...state.selectedAnswers]).toEqual([0, 2])
+      })
+
+      it('should remove answer if already selected', () => {
+        const questions = [createMultiQuestion('mq1')]
+        const config = createDefaultConfig()
+        let state = QuizSessionService.createInitialState(questions, config)
+
+        state = QuizSessionService.toggleAnswer(state, 0)
+        state = QuizSessionService.toggleAnswer(state, 1)
+        expect([...state.selectedAnswers]).toEqual([0, 1])
+
+        state = QuizSessionService.toggleAnswer(state, 0)
+        expect([...state.selectedAnswers]).toEqual([1])
+      })
+
+      it('should not change if already answered', () => {
+        const questions = [createMultiQuestion('mq1')]
+        const config = createDefaultConfig()
+        let state = QuizSessionService.createInitialState(questions, config)
+        state = { ...state, isAnswered: true }
+
+        const newState = QuizSessionService.toggleAnswer(state, 0)
+        expect(newState).toBe(state)
+      })
+    })
+
+    describe('submitAnswer() - multi-select', () => {
+      it('should mark correct for exact match', () => {
+        const questions = [createMultiQuestion('mq1')]
+        const config = createDefaultConfig()
+        let state = QuizSessionService.createInitialState(questions, config)
+
+        state = QuizSessionService.toggleAnswer(state, 0)
+        state = QuizSessionService.toggleAnswer(state, 1)
+
+        const result = QuizSessionService.submitAnswer(state)
+        expect(result).not.toBeNull()
+        expect(result?.isCorrect).toBe(true)
+        expect(result?.newState.score).toBe(1)
+      })
+
+      it('should mark incorrect for partial selection', () => {
+        const questions = [createMultiQuestion('mq1')]
+        const config = createDefaultConfig()
+        let state = QuizSessionService.createInitialState(questions, config)
+
+        state = QuizSessionService.toggleAnswer(state, 0) // only 1 of 2 correct
+
+        const result = QuizSessionService.submitAnswer(state)
+        expect(result?.isCorrect).toBe(false)
+        expect(result?.newState.score).toBe(0)
+      })
+
+      it('should mark incorrect when wrong option included', () => {
+        const questions = [createMultiQuestion('mq1')]
+        const config = createDefaultConfig()
+        let state = QuizSessionService.createInitialState(questions, config)
+
+        state = QuizSessionService.toggleAnswer(state, 0)
+        state = QuizSessionService.toggleAnswer(state, 1)
+        state = QuizSessionService.toggleAnswer(state, 2) // wrong option added
+
+        const result = QuizSessionService.submitAnswer(state)
+        expect(result?.isCorrect).toBe(false)
+      })
+
+      it('should return null if no answers selected', () => {
+        const questions = [createMultiQuestion('mq1')]
+        const config = createDefaultConfig()
+        const state = QuizSessionService.createInitialState(questions, config)
+
+        const result = QuizSessionService.submitAnswer(state)
+        expect(result).toBeNull()
+      })
+    })
+
+    describe('nextQuestion() - multi-select reset', () => {
+      it('should reset selectedAnswers for next question', () => {
+        const questions = [createMultiQuestion('mq1'), createTestQuestion('q2')]
+        const config = createDefaultConfig()
+        let state = QuizSessionService.createInitialState(questions, config)
+        state = QuizSessionService.toggleAnswer(state, 0)
+        state = QuizSessionService.toggleAnswer(state, 1)
+        state = { ...state, isAnswered: true }
+
+        const newState = QuizSessionService.nextQuestion(state)
+        expect([...newState.selectedAnswers]).toEqual([])
+        expect(newState.selectedAnswer).toBeNull()
+      })
+    })
+
+    describe('createInitialState() - multi-select', () => {
+      it('should initialize selectedAnswers as empty', () => {
+        const questions = [createMultiQuestion('mq1')]
+        const config = createDefaultConfig()
+        const state = QuizSessionService.createInitialState(questions, config)
+
+        expect([...state.selectedAnswers]).toEqual([])
+      })
+    })
+
+    describe('review mode - multi-select', () => {
+      it('should pre-populate selectedAnswers in review mode', () => {
+        const questions = [createMultiQuestion('mq1')]
+        const config = createDefaultConfig({ mode: 'review' })
+
+        const state = QuizSessionService.createInitialState(questions, config, {
+          isReviewMode: true,
+          reviewUserAnswers: [],
+          reviewUserMultiAnswers: [[0, 2]], // selected 0 and 2 (partial correct)
+        })
+
+        expect(state.isReviewMode).toBe(true)
+        expect(state.isAnswered).toBe(true)
+        expect([...state.selectedAnswers]).toEqual([0, 2])
+        expect(state.isCorrect).toBe(false) // 0,2 != 0,1
+      })
+
+      it('should show correct in review mode for exact match', () => {
+        const questions = [createMultiQuestion('mq1')]
+        const config = createDefaultConfig({ mode: 'review' })
+
+        const state = QuizSessionService.createInitialState(questions, config, {
+          isReviewMode: true,
+          reviewUserAnswers: [],
+          reviewUserMultiAnswers: [[0, 1]],
+        })
+
+        expect(state.isCorrect).toBe(true)
+      })
+    })
+  })
 })

@@ -48,8 +48,9 @@ function createWindow(): void {
   // アプリのルートパス（開発時は __dirname から、本番時は app.getAppPath() から）
   const appRoot = isDev ? join(__dirname, '..') : app.getAppPath()
 
-  // アプリアイコンの設定
-  const iconPath = join(appRoot, 'build', 'icon.png')
+  // アプリアイコンの設定（Windows は .ico、それ以外は .png）
+  const iconFile = process.platform === 'win32' ? 'icon.ico' : 'icon.png'
+  const iconPath = join(appRoot, 'build', iconFile)
   const appIcon = nativeImage.createFromPath(iconPath)
 
   // macOS の Dock アイコンを設定
@@ -97,7 +98,7 @@ function createWindow(): void {
       webSecurity: true,
     },
     backgroundColor: '#FAF9F5', // Claude ブランドカラー（クリーム系）
-    titleBarStyle: 'hiddenInset', // macOS でタイトルバーを統合
+    titleBarStyle: process.platform === 'darwin' ? 'hiddenInset' : 'default',
     autoHideMenuBar: true, // Windows/Linux でメニューバーを自動非表示
     show: false, // 準備完了まで非表示（ちらつき防止）
   })

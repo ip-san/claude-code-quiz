@@ -67,6 +67,13 @@ export const QuizOptionSchema = z.object({
  * correctIndex が options.length 未満であることを確認。
  * これは単純な min/max では表現できないため refine を使用。
  */
+/**
+ * 問題タイプスキーマ
+ * - single: 単一選択（デフォルト）
+ * - multi: 複数選択（「該当するものを全て選んでください」）
+ */
+export const QuestionTypeSchema = z.enum(['single', 'multi']).default('single')
+
 export const QuizItemSchema = z.object({
   id: z.string().min(1, 'Quiz ID is required'),
   question: z.string().min(1, 'Question is required'),
@@ -85,9 +92,23 @@ export const QuizItemSchema = z.object({
   category: z.string().min(1, 'Category is required'),
   difficulty: DifficultySchema,
   tags: z.array(z.string()).optional(),
+  type: QuestionTypeSchema,
+  correctIndices: z.array(z.number().int().min(0)).optional(),
 }).refine(
-  (data) => data.correctIndex < data.options.length,
-  { message: 'correctIndex must be within options array bounds' }
+  (data) => {
+    if (data.type === 'multi') {
+      // multi: correctIndices must exist with at least 2 entries, all within bounds
+      if (!data.correctIndices || data.correctIndices.length < 2) return false
+      const unique = new Set(data.correctIndices)
+      if (unique.size !== data.correctIndices.length) return false
+      return data.correctIndices.every(i => i < data.options.length)
+    }
+    // single: correctIndex must be within bounds
+    return data.correctIndex < data.options.length
+  },
+  {
+    message: 'correctIndex/correctIndices must be within options array bounds',
+  }
 )
 
 /**

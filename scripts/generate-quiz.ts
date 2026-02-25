@@ -1,5 +1,3 @@
-#!/usr/bin/env npx ts-node
-
 /**
  * Claude Code Quiz Generator
  *
@@ -7,7 +5,7 @@
  * カスタムスキル /generate-quiz-data の補助ツールとして使用。
  *
  * Usage:
- *   npx ts-node scripts/generate-quiz.ts
+ *   npx tsx scripts/generate-quiz.ts
  *
  * Output:
  *   - カテゴリ別の問題テンプレート
@@ -341,7 +339,8 @@ function main() {
 // Export for programmatic use
 export { generateQuizTemplate, generateAIPrompt, DOCUMENTATION_SECTIONS }
 
-// Run if called directly
-if (require.main === module) {
+// Run if called directly (ESM compatible)
+import { fileURLToPath } from 'url'
+if (process.argv[1] === fileURLToPath(import.meta.url)) {
   main()
 }

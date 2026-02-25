@@ -109,7 +109,7 @@ interface QuizStore {
   // Session state
   sessionConfig: QuizSessionConfig
   sessionState: QuizSessionState | null
-  sessionWrongAnswers: { questionId: string; selectedAnswer: number }[]
+  sessionWrongAnswers: { questionId: string; selectedAnswer: number; selectedAnswers?: number[] }[]
 
   // Progress state (using domain entity)
   userProgress: UserProgress
@@ -127,6 +127,7 @@ interface QuizStore {
   // Session actions
   startSession: (config: Partial<QuizSessionConfig>) => void
   selectAnswer: (index: number) => void
+  toggleAnswer: (index: number) => void
   submitAnswer: () => void
   nextQuestion: () => void
   endSession: () => void
@@ -328,6 +329,14 @@ export const useQuizStore = create<QuizStore>((set, get) => ({
     set({ sessionState: newSessionState })
   },
 
+  toggleAnswer: (index) => {
+    const state = get()
+    if (!state.sessionState) return
+
+    const newSessionState = QuizSessionService.toggleAnswer(state.sessionState, index)
+    set({ sessionState: newSessionState })
+  },
+
   /**
    * 回答を確定する
    *
@@ -368,7 +377,13 @@ export const useQuizStore = create<QuizStore>((set, get) => ({
         ? state.sessionWrongAnswers
         : [
             ...state.sessionWrongAnswers,
-            { questionId: currentQuestion.id, selectedAnswer: state.sessionState.selectedAnswer! },
+            {
+              questionId: currentQuestion.id,
+              selectedAnswer: state.sessionState.selectedAnswer ?? -1,
+              selectedAnswers: currentQuestion.isMultiSelect
+                ? [...state.sessionState.selectedAnswers]
+                : undefined,
+            },
           ]
 
       // Optimistic update - apply state immediately for responsive UI
@@ -556,7 +571,13 @@ export const useQuizStore = create<QuizStore>((set, get) => ({
     const wrongQuestionIds = new Set(state.sessionWrongAnswers.map(w => w.questionId))
     const wrongQuestions = state.sessionState.questions.filter(q => wrongQuestionIds.has(q.id))
     const answerMap = new Map(state.sessionWrongAnswers.map(w => [w.questionId, w.selectedAnswer]))
+    const multiAnswerMap = new Map(
+      state.sessionWrongAnswers
+        .filter(w => w.selectedAnswers)
+        .map(w => [w.questionId, w.selectedAnswers!])
+    )
     const reviewUserAnswers = wrongQuestions.map(q => answerMap.get(q.id) ?? -1)
+    const reviewUserMultiAnswers = wrongQuestions.map(q => multiAnswerMap.get(q.id) ?? [])
 
     const config: QuizSessionConfig = {
       mode: 'review',
@@ -571,7 +592,7 @@ export const useQuizStore = create<QuizStore>((set, get) => ({
     const sessionState = QuizSessionService.createInitialState(
       [...wrongQuestions],
       config,
-      { isReviewMode: true, reviewUserAnswers }
+      { isReviewMode: true, reviewUserAnswers, reviewUserMultiAnswers }
     )
 
     set({
@@ -602,7 +623,7 @@ export const useQuizStore = create<QuizStore>((set, get) => ({
       state.allQuestions,
       state.userProgress
     )
-    const combinedCsv = `${questionCsv}\n\n--- カテゴリ別サマリー ---\n${categoryCsv}`
+    const combinedCsv = `${questionCsv}\r\n\r\n--- カテゴリ別サマリー ---\r\n${categoryCsv}`
     await window.electronAPI.exportCsv(combinedCsv, `quiz-progress-${dateStr}.csv`)
   },
 
