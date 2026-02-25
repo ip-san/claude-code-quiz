@@ -62,7 +62,7 @@ describe('QuizMode Value Object', () => {
       const mode = QuizMode.fromId('full')
 
       expect(mode.id).toBe('full')
-      expect(mode.name).toBe('本格試験モード')
+      expect(mode.name).toBe('実力テスト')
     })
 
     it('should throw error for unknown id', () => {
@@ -106,8 +106,14 @@ describe('QuizMode Value Object', () => {
       expect(mode.hasQuestionLimit()).toBe(true)
     })
 
+    it('should return true when questionCount is 100', () => {
+      const mode = QuizMode.fromId('full') // 100 question limit
+
+      expect(mode.hasQuestionLimit()).toBe(true)
+    })
+
     it('should return false when questionCount is null', () => {
-      const mode = QuizMode.fromId('full') // No question limit (all questions)
+      const mode = QuizMode.fromId('category') // No question limit
 
       expect(mode.hasQuestionLimit()).toBe(false)
     })
@@ -174,7 +180,7 @@ describe('PREDEFINED_QUIZ_MODES', () => {
     expect(ids).toContain('custom')
     expect(ids).toContain('bookmark')
     expect(ids).toContain('review')
-    expect(ids).toContain('gettingstarted')
+    expect(ids).toContain('overview')
   })
 
   it('should have unique ids', () => {
@@ -189,7 +195,7 @@ describe('PREDEFINED_QUIZ_MODES', () => {
       const mode = getQuizModeById('full')
 
       expect(mode?.timeLimit).toBe(60)
-      expect(mode?.questionCount).toBeNull()
+      expect(mode?.questionCount).toBe(100)
       expect(mode?.shuffleQuestions).toBe(true)
     })
   })
@@ -227,6 +233,17 @@ describe('PREDEFINED_QUIZ_MODES', () => {
       const mode = getQuizModeById('review')
 
       expect(mode?.questionCount).toBeNull()
+      expect(mode?.shuffleQuestions).toBe(false)
+      expect(mode?.shuffleOptions).toBe(false)
+    })
+  })
+
+  describe('overview mode', () => {
+    it('should have correct configuration', () => {
+      const mode = getQuizModeById('overview')
+
+      expect(mode?.questionCount).toBeNull()
+      expect(mode?.timeLimit).toBeNull()
       expect(mode?.shuffleQuestions).toBe(false)
       expect(mode?.shuffleOptions).toBe(false)
     })

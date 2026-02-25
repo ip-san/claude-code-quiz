@@ -169,35 +169,36 @@ describe('Quiz Content Quality', () => {
     })
   })
 
-  describe('はじめてモードのタグ品質', () => {
-    const gettingStartedQuizzes = quizzes.filter(q =>
-      q.tags && q.tags.includes('getting-started')
+  describe('全体像モードのタグ品質', () => {
+    const overviewQuizzes = quizzes.filter(q =>
+      q.tags && q.tags.includes('overview')
     )
 
-    it('getting-started タグ付き問題が20問以上あること', () => {
-      expect(gettingStartedQuizzes.length).toBeGreaterThanOrEqual(20)
+    it('overview タグ付き問題が30問以上あること', () => {
+      expect(overviewQuizzes.length).toBeGreaterThanOrEqual(30)
     })
 
-    it('すべてのgetting-started問題にソート用タグがあること', () => {
-      const missingOrder = gettingStartedQuizzes.filter(q =>
-        !q.tags!.some((t: string) => t.startsWith('getting-started-'))
+    it('すべてのoverview問題にソート用タグがあること', () => {
+      const missingOrder = overviewQuizzes.filter(q =>
+        !q.tags!.some((t: string) => t.startsWith('overview-'))
       )
       const ids = missingOrder.map(q => q.id)
       expect(ids, `ソートタグがない: ${ids.join(', ')}`).toEqual([])
     })
 
     it('ソート用タグに重複がないこと', () => {
-      const orderTags = gettingStartedQuizzes.flatMap(q =>
-        q.tags!.filter((t: string) => t.startsWith('getting-started-'))
+      const orderTags = overviewQuizzes.flatMap(q =>
+        q.tags!.filter((t: string) => t.startsWith('overview-'))
       )
       const duplicates = orderTags.filter((t: string, i: number) => orderTags.indexOf(t) !== i)
       expect(duplicates, `重複タグ: ${duplicates.join(', ')}`).toEqual([])
     })
 
-    it('getting-started問題はすべてbeginner難易度であること', () => {
-      const nonBeginner = gettingStartedQuizzes.filter(q => q.difficulty !== 'beginner')
-      const ids = nonBeginner.map(q => q.id)
-      expect(ids, `beginner以外: ${ids.join(', ')}`).toEqual([])
+    it('全8カテゴリが含まれていること', () => {
+      const categories = new Set(overviewQuizzes.map(q => q.category))
+      const required = ['memory', 'skills', 'tools', 'commands', 'extensions', 'session', 'keyboard', 'bestpractices']
+      const missing = required.filter(c => !categories.has(c))
+      expect(missing, `欠落カテゴリ: ${missing.join(', ')}`).toEqual([])
     })
   })
 

@@ -6,7 +6,7 @@ interface SessionHistoryListProps {
 }
 
 const MODE_LABELS: Record<string, string> = {
-  full: '本格試験',
+  full: '実力テスト',
   category: 'カテゴリ別',
   random: 'ランダム',
   weak: '苦手克服',

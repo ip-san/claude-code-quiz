@@ -88,15 +88,15 @@ npm run quiz:randomize # correctIndex ランダム化
 - 正解選択肢に `wrongFeedback` を付けない
 - 不正解選択肢には必ず `wrongFeedback` を付ける
 - correctIndex は追加後に `npm run quiz:randomize` でランダム化する
-- `tags` フィールドでクロスカテゴリのグループ化が可能（例: はじめてモード）
+- `tags` フィールドでクロスカテゴリのグループ化が可能（例: 全体像モード）
 
 ## タグシステム
 
 `tags` フィールドを使って問題をクロスカテゴリでグループ化できる。
 問題は元のカテゴリに所属したまま、タグで別のモードにも登場させられる。
 
-- `getting-started`: はじめてモード対象問題
-- `getting-started-NNN`: はじめてモード内の出題順序（010, 020, ... で管理）
+- `overview`: 全体像モード対象問題
+- `overview-NNN`: 全体像モード内の出題順序（010, 020, ... で管理）
 
 ## 現在のカテゴリ
 
@@ -123,4 +123,4 @@ npm run quiz:randomize # correctIndex ランダム化
 | session | ses- | ses-001 |
 | keyboard | key- | key-001 |
 | bestpractices | bp- | bp-001 |
-| gettingstarted | gs- | gs-001 |
+| (legacy) | gs- | gs-001 |

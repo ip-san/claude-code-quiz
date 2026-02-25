@@ -581,7 +581,7 @@ describe('QuizSessionService', () => {
     })
   })
 
-  describe('getting-started mode filtering', () => {
+  describe('overview mode filtering', () => {
     const createTaggedQuestion = (
       id: string,
       tags: string[],
@@ -599,47 +599,47 @@ describe('QuizSessionService', () => {
       })
     }
 
-    it('should filter to getting-started tagged questions', () => {
+    it('should filter to overview tagged questions', () => {
       const questions = [
-        createTaggedQuestion('gs-1', ['getting-started', 'getting-started-010']),
+        createTaggedQuestion('ov-1', ['overview', 'overview-010']),
         createTestQuestion('q1'),
-        createTaggedQuestion('gs-2', ['getting-started', 'getting-started-020']),
+        createTaggedQuestion('ov-2', ['overview', 'overview-020']),
       ]
-      const config = createDefaultConfig({ mode: 'gettingstarted', shuffleQuestions: false })
+      const config = createDefaultConfig({ mode: 'overview', shuffleQuestions: false })
       const progress = UserProgress.empty()
 
       const result = QuizSessionService.prepareSessionQuestions(questions, config, progress)
 
       expect(result).toHaveLength(2)
-      expect(result.every(q => q.tags.includes('getting-started'))).toBe(true)
+      expect(result.every(q => q.tags.includes('overview'))).toBe(true)
     })
 
-    it('should sort by getting-started-NNN order tag', () => {
+    it('should sort by overview-NNN order tag', () => {
       const questions = [
-        createTaggedQuestion('gs-3', ['getting-started', 'getting-started-030']),
-        createTaggedQuestion('gs-1', ['getting-started', 'getting-started-010']),
-        createTaggedQuestion('gs-2', ['getting-started', 'getting-started-020']),
+        createTaggedQuestion('ov-3', ['overview', 'overview-030']),
+        createTaggedQuestion('ov-1', ['overview', 'overview-010']),
+        createTaggedQuestion('ov-2', ['overview', 'overview-020']),
       ]
-      const config = createDefaultConfig({ mode: 'gettingstarted', shuffleQuestions: false })
+      const config = createDefaultConfig({ mode: 'overview', shuffleQuestions: false })
       const progress = UserProgress.empty()
 
       const result = QuizSessionService.prepareSessionQuestions(questions, config, progress)
 
-      expect(result.map(q => q.id)).toEqual(['gs-1', 'gs-2', 'gs-3'])
+      expect(result.map(q => q.id)).toEqual(['ov-1', 'ov-2', 'ov-3'])
     })
 
     it('should place questions without order tag at the end', () => {
       const questions = [
-        createTaggedQuestion('gs-2', ['getting-started', 'getting-started-020']),
-        createTaggedQuestion('gs-x', ['getting-started']),
-        createTaggedQuestion('gs-1', ['getting-started', 'getting-started-010']),
+        createTaggedQuestion('ov-2', ['overview', 'overview-020']),
+        createTaggedQuestion('ov-x', ['overview']),
+        createTaggedQuestion('ov-1', ['overview', 'overview-010']),
       ]
-      const config = createDefaultConfig({ mode: 'gettingstarted', shuffleQuestions: false })
+      const config = createDefaultConfig({ mode: 'overview', shuffleQuestions: false })
       const progress = UserProgress.empty()
 
       const result = QuizSessionService.prepareSessionQuestions(questions, config, progress)
 
-      expect(result.map(q => q.id)).toEqual(['gs-1', 'gs-2', 'gs-x'])
+      expect(result.map(q => q.id)).toEqual(['ov-1', 'ov-2', 'ov-x'])
     })
 
     it('should return empty array when no tagged questions exist', () => {
@@ -647,7 +647,7 @@ describe('QuizSessionService', () => {
         createTestQuestion('q1'),
         createTestQuestion('q2'),
       ]
-      const config = createDefaultConfig({ mode: 'gettingstarted', shuffleQuestions: false })
+      const config = createDefaultConfig({ mode: 'overview', shuffleQuestions: false })
       const progress = UserProgress.empty()
 
       const result = QuizSessionService.prepareSessionQuestions(questions, config, progress)

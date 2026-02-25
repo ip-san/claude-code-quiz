@@ -57,9 +57,9 @@ export function ModeSelection() {
 
   const bookmarkedCount = getBookmarkedCount()
 
-  // Memoize getting-started question count (tag-based)
-  const gettingStartedCount = useMemo(
-    () => allQuestions.filter(q => q.tags.includes('getting-started')).length,
+  // Memoize overview question count (tag-based)
+  const overviewCount = useMemo(
+    () => allQuestions.filter(q => q.tags.includes('overview')).length,
     [allQuestions]
   )
 
@@ -244,8 +244,8 @@ export function ModeSelection() {
                     {modeConfig.description}
                   </p>
                   <div className="mt-1.5 flex gap-1 text-xs text-stone-400">
-                    {modeConfig.id === 'gettingstarted' ? (
-                      <span>{gettingStartedCount}問</span>
+                    {modeConfig.id === 'overview' ? (
+                      <span>{overviewCount}問</span>
                     ) : modeConfig.id === 'bookmark' ? (
                       <span>{bookmarkedCount}問</span>
                     ) : (
@@ -357,8 +357,8 @@ export function ModeSelection() {
             <div className="text-right">
               <p className="text-xs text-stone-500">出題数</p>
               <p className="text-lg font-medium text-claude-dark">
-                {selectedMode === 'gettingstarted'
-                  ? gettingStartedCount
+                {selectedMode === 'overview'
+                  ? overviewCount
                   : (mode?.questionCount ?? availableQuizzes.length)}問
               </p>
             </div>

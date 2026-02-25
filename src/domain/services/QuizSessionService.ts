@@ -132,15 +132,15 @@ export class QuizSessionService {
       questions = questions.filter(q => q.difficulty === config.difficultyFilter)
     }
 
-    // For getting-started mode, filter to tagged questions and sort by order tag
-    if (config.mode === 'gettingstarted') {
+    // For overview mode, filter to tagged questions and sort by order tag
+    if (config.mode === 'overview') {
       questions = questions.filter(q =>
-        q.tags.includes('getting-started')
+        q.tags.includes('overview')
       )
       questions.sort((a, b) => {
         const getOrder = (q: Question): number => {
-          const orderTag = q.tags.find(t => t.startsWith('getting-started-'))
-          return orderTag ? parseInt(orderTag.replace('getting-started-', ''), 10) : 999
+          const orderTag = q.tags.find(t => t.startsWith('overview-'))
+          return orderTag ? parseInt(orderTag.replace('overview-', ''), 10) : 999
         }
         return getOrder(a) - getOrder(b)
       })

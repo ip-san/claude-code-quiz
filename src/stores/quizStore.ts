@@ -295,7 +295,7 @@ export const useQuizStore = create<QuizStore>((set, get) => ({
       questionCount:
         configOverrides.questionCount !== undefined
           ? configOverrides.questionCount
-          : modeConfig?.questionCount ?? state.sessionConfig.questionCount,
+          : modeConfig ? modeConfig.questionCount : state.sessionConfig.questionCount,
       shuffleQuestions:
         modeConfig?.shuffleQuestions ?? state.sessionConfig.shuffleQuestions,
       shuffleOptions:
