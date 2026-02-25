@@ -13,6 +13,7 @@ import {
   type DifficultyLevel,
 } from '@/domain/valueObjects/Difficulty'
 import { Database, Upload, Trash2 } from 'lucide-react'
+import { ResumeSessionBanner } from './ResumeSessionBanner'
 
 // Color mapping for categories
 const COLOR_MAP: Record<string, string> = {
@@ -48,6 +49,7 @@ export function ModeSelection() {
     importQuizzes,
     importError,
     getBookmarkedCount,
+    userProgress,
   } = useQuizStore()
 
   const [selectedMode, setSelectedMode] = useState<QuizModeId>('random')
@@ -61,6 +63,12 @@ export function ModeSelection() {
   const overviewCount = useMemo(
     () => allQuestions.filter(q => q.tags.includes('overview')).length,
     [allQuestions]
+  )
+
+  // Memoize unanswered question count
+  const unansweredCount = useMemo(
+    () => allQuestions.filter(q => !userProgress.hasAttempted(q.id)).length,
+    [allQuestions, userProgress]
   )
 
   // Memoize mode lookup to avoid re-finding on every render
@@ -121,6 +129,9 @@ export function ModeSelection() {
   return (
     <div className="flex min-h-screen flex-col justify-center bg-claude-cream px-4 pb-8 pt-4">
       <div className="mx-auto w-full max-w-4xl">
+        {/* Resume session banner */}
+        <ResumeSessionBanner />
+
         {/* Header */}
         <div className="mb-4 text-center">
           <h1 className="mb-1 text-2xl font-bold text-claude-dark">
@@ -220,14 +231,16 @@ export function ModeSelection() {
             {PREDEFINED_QUIZ_MODES
               .filter((m) => m.id !== 'review')
               .map((modeConfig) => {
-              const isBookmarkDisabled = modeConfig.id === 'bookmark' && bookmarkedCount === 0
+              const isDisabled =
+                (modeConfig.id === 'bookmark' && bookmarkedCount === 0) ||
+                (modeConfig.id === 'unanswered' && unansweredCount === 0)
               return (
                 <button
                   key={modeConfig.id}
-                  onClick={() => !isBookmarkDisabled && setSelectedMode(modeConfig.id)}
-                  disabled={isBookmarkDisabled}
+                  onClick={() => !isDisabled && setSelectedMode(modeConfig.id)}
+                  disabled={isDisabled}
                   className={`rounded-lg border p-3 text-left transition-all ${
-                    isBookmarkDisabled
+                    isDisabled
                       ? 'cursor-not-allowed border-stone-200 bg-stone-50 opacity-50'
                       : selectedMode === modeConfig.id
                         ? 'border-claude-orange bg-claude-orange/5 shadow-sm'
@@ -248,6 +261,8 @@ export function ModeSelection() {
                       <span>{overviewCount}問</span>
                     ) : modeConfig.id === 'bookmark' ? (
                       <span>{bookmarkedCount}問</span>
+                    ) : modeConfig.id === 'unanswered' ? (
+                      <span>{unansweredCount}問</span>
                     ) : (
                       <>
                         {modeConfig.questionCount && (
@@ -359,7 +374,9 @@ export function ModeSelection() {
               <p className="text-lg font-medium text-claude-dark">
                 {selectedMode === 'overview'
                   ? overviewCount
-                  : (mode?.questionCount ?? availableQuizzes.length)}問
+                  : selectedMode === 'unanswered'
+                    ? unansweredCount
+                    : (mode?.questionCount ?? availableQuizzes.length)}問
               </p>
             </div>
             {mode?.timeLimit && (

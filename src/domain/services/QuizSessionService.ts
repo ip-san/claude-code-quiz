@@ -176,6 +176,14 @@ export class QuizSessionService {
       }
     }
 
+    // For unanswered mode, filter to unanswered questions
+    if (config.mode === 'unanswered') {
+      const unanswered = questions.filter(q => !userProgress.hasAttempted(q.id))
+      if (unanswered.length > 0) {
+        questions = unanswered
+      }
+    }
+
     // Shuffle if needed
     if (config.shuffleQuestions) {
       questions = this.shuffleArray(questions)

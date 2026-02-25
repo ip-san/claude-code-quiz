@@ -1,5 +1,7 @@
+import { useMemo } from 'react'
 import { useQuizStore, APP_CONFIG } from '@/stores/quizStore'
-import { Trophy, RotateCcw, Star, Home, BookOpen, Lightbulb } from 'lucide-react'
+import { getCategoryById } from '@/domain/valueObjects/Category'
+import { Trophy, RotateCcw, Star, Home, BookOpen, Lightbulb, ArrowRight, Target } from 'lucide-react'
 
 // Score thresholds for result messages
 const SCORE_THRESHOLDS = {
@@ -21,12 +23,54 @@ export function QuizResult() {
   const hintsUsedCount = sessionState?.hintsUsedCount ?? 0
   const isReviewMode = sessionState?.isReviewMode ?? false
   const hasWrongAnswers = sessionWrongAnswers.length > 0
+  const isOverviewMode = sessionConfig.mode === 'overview'
 
   // Prevent NaN when no questions answered (edge case: timer expired immediately)
   const percentage = answeredCount > 0
     ? Math.round((score / answeredCount) * 100)
     : 0
   const isPassing = percentage >= APP_CONFIG.passingScore
+
+  // Recommendation for overview mode: find weakest category from wrong answers
+  const recommendation = useMemo(() => {
+    if (!isOverviewMode || isReviewMode) return null
+
+    if (!hasWrongAnswers) {
+      return { type: 'perfect' as const }
+    }
+
+    // Count wrong answers per category
+    const categoryCounts: Record<string, number> = {}
+    for (const wrong of sessionWrongAnswers) {
+      const question = sessionState?.questions.find(q => q.id === wrong.questionId)
+      if (question) {
+        categoryCounts[question.category] = (categoryCounts[question.category] ?? 0) + 1
+      }
+    }
+
+    // Find the category with most wrong answers
+    let weakestCategory = ''
+    let maxWrong = 0
+    for (const [cat, count] of Object.entries(categoryCounts)) {
+      if (count > maxWrong) {
+        maxWrong = count
+        weakestCategory = cat
+      }
+    }
+
+    if (!weakestCategory) return null
+
+    const category = getCategoryById(weakestCategory)
+    if (!category) return null
+
+    return {
+      type: 'category' as const,
+      categoryId: weakestCategory,
+      categoryName: category.name,
+      categoryIcon: category.icon,
+      wrongCount: maxWrong,
+    }
+  }, [isOverviewMode, isReviewMode, hasWrongAnswers, sessionWrongAnswers, sessionState?.questions])
 
   const getMessage = () => {
     if (percentage === SCORE_THRESHOLDS.PERFECT) {
@@ -82,6 +126,21 @@ export function QuizResult() {
 
   const handleBackToMenu = () => {
     endSession()
+  }
+
+  const handleStartCategorySession = (categoryId: string) => {
+    startSession({
+      mode: 'category',
+      categoryFilter: categoryId,
+      questionCount: null,
+      timeLimit: null,
+      shuffleQuestions: true,
+      shuffleOptions: false,
+    })
+  }
+
+  const handleStartFullTest = () => {
+    startSession({ mode: 'full' })
   }
 
   return (
@@ -149,7 +208,7 @@ export function QuizResult() {
         )}
 
         {/* Stars visualization */}
-        <div className="mb-8 flex justify-center gap-1" role="img" aria-label={`${Math.ceil(percentage / STAR_PERCENTAGE_DIVISOR)}つ星の評価`}>
+        <div className="mb-6 flex justify-center gap-1" role="img" aria-label={`${Math.ceil(percentage / STAR_PERCENTAGE_DIVISOR)}つ星の評価`}>
           {[...Array(STAR_COUNT)].map((_, i) => (
             <Star
               key={i}
@@ -162,6 +221,42 @@ export function QuizResult() {
             />
           ))}
         </div>
+
+        {/* Recommendation for overview mode */}
+        {recommendation && (
+          <div className="mb-6 rounded-xl border border-indigo-200 bg-indigo-50 p-4 text-left">
+            <p className="mb-2 text-xs font-semibold text-indigo-500">次のおすすめ</p>
+            {recommendation.type === 'perfect' ? (
+              <>
+                <p className="mb-3 text-sm text-stone-600">
+                  全体像を把握できました！実力テストで総合力を試してみましょう。
+                </p>
+                <button
+                  onClick={handleStartFullTest}
+                  className="inline-flex items-center gap-1.5 rounded-lg bg-indigo-500 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-indigo-600"
+                >
+                  <Target className="h-4 w-4" />
+                  実力テストに挑戦
+                  <ArrowRight className="h-4 w-4" />
+                </button>
+              </>
+            ) : (
+              <>
+                <p className="mb-3 text-sm text-stone-600">
+                  <span className="font-medium">{recommendation.categoryIcon} {recommendation.categoryName}</span>
+                  で{recommendation.wrongCount}問間違えました。カテゴリ別学習で深掘りしてみましょう。
+                </p>
+                <button
+                  onClick={() => handleStartCategorySession(recommendation.categoryId)}
+                  className="inline-flex items-center gap-1.5 rounded-lg bg-indigo-500 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-indigo-600"
+                >
+                  {recommendation.categoryIcon} {recommendation.categoryName}を深掘り
+                  <ArrowRight className="h-4 w-4" />
+                </button>
+              </>
+            )}
+          </div>
+        )}
 
         {/* Action buttons */}
         <div className="flex flex-col gap-3">

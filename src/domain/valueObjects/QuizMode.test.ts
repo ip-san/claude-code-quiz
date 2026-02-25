@@ -166,8 +166,8 @@ describe('QuizMode Value Object', () => {
 })
 
 describe('PREDEFINED_QUIZ_MODES', () => {
-  it('should have 8 predefined modes', () => {
-    expect(PREDEFINED_QUIZ_MODES).toHaveLength(8)
+  it('should have 9 predefined modes', () => {
+    expect(PREDEFINED_QUIZ_MODES).toHaveLength(9)
   })
 
   it('should have all required modes', () => {

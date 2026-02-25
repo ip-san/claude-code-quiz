@@ -55,6 +55,10 @@ import {
   getQuizRepository,
   getProgressRepository,
 } from '@/infrastructure'
+import {
+  getSessionRepository,
+  type SavedSessionData,
+} from '@/infrastructure/persistence/SessionRepository'
 
 // ============================================================
 // View State
@@ -114,6 +118,9 @@ interface QuizStore {
   // Progress state (using domain entity)
   userProgress: UserProgress
 
+  // Saved session state (for resume)
+  savedSession: SavedSessionData | null
+
   // Import state
   importError: string | null
   isLoading: boolean
@@ -144,6 +151,10 @@ interface QuizStore {
   // Bookmark actions
   toggleBookmark: (questionId: string) => void
   getBookmarkedCount: () => number
+
+  // Resume actions
+  resumeSession: () => void
+  discardSavedSession: () => void
 
   // Review actions
   startReviewSession: () => void
@@ -212,6 +223,27 @@ const APP_CONFIG = {
  * コンポーネントで const { viewState } = useQuizStore() とすると、
  * viewState が変わった時だけ再レンダリングされる。
  */
+/**
+ * セッション状態のスナップショットを保存（途中再開用）
+ */
+function saveSessionSnapshot(
+  sessionState: QuizSessionState,
+  wrongAnswers: { questionId: string; selectedAnswer: number; selectedAnswers?: number[] }[]
+): void {
+  const data: SavedSessionData = {
+    sessionConfig: sessionState.config,
+    questionIds: sessionState.questions.map(q => q.id),
+    currentIndex: sessionState.currentIndex,
+    score: sessionState.score,
+    answeredCount: sessionState.answeredCount,
+    startedAt: sessionState.startedAt ?? Date.now(),
+    wrongAnswers: [...wrongAnswers],
+    hintsUsedCount: sessionState.hintsUsedCount,
+    savedAt: Date.now(),
+  }
+  getSessionRepository().save(data)
+}
+
 export const useQuizStore = create<QuizStore>((set, get) => ({
   // Initial state
   viewState: 'menu',
@@ -223,6 +255,7 @@ export const useQuizStore = create<QuizStore>((set, get) => ({
   sessionState: null,
   sessionWrongAnswers: [],
   userProgress: UserProgress.empty(),
+  savedSession: null,
   importError: null,
   isLoading: true,
 
@@ -256,12 +289,16 @@ export const useQuizStore = create<QuizStore>((set, get) => ({
       // Load progress
       const progress = await progressRepo.load()
 
+      // Load saved session (for resume)
+      const savedSession = getSessionRepository().load()
+
       set({
         allQuestions: questions,
         activeSetInfo: allSetsInfo.find(s => s.isActive) ?? null,
         availableSets: allSetsInfo,
         isDefaultData: activeSet.type === 'default',
         userProgress: progress,
+        savedSession,
         isLoading: false,
       })
     } catch (error) {
@@ -320,8 +357,14 @@ export const useQuizStore = create<QuizStore>((set, get) => ({
       sessionConfig: config,
       sessionState,
       sessionWrongAnswers: [],
+      savedSession: null,
       viewState: 'quiz',
     })
+
+    // Save initial session snapshot for resume (skip review mode)
+    if (config.mode !== 'review') {
+      saveSessionSnapshot(sessionState, [])
+    }
   },
 
   selectAnswer: (index) => {
@@ -412,16 +455,22 @@ export const useQuizStore = create<QuizStore>((set, get) => ({
     const newSessionState = QuizSessionService.nextQuestion(state.sessionState)
 
     if (newSessionState.isCompleted) {
+      getSessionRepository().clear()
       set({
         sessionState: newSessionState,
         viewState: 'result',
       })
     } else {
       set({ sessionState: newSessionState })
+      // Save session for resume (skip review mode)
+      if (!newSessionState.isReviewMode) {
+        saveSessionSnapshot(newSessionState, get().sessionWrongAnswers)
+      }
     }
   },
 
   endSession: () => {
+    getSessionRepository().clear()
     set({
       viewState: 'menu',
       sessionState: null,
@@ -436,6 +485,7 @@ export const useQuizStore = create<QuizStore>((set, get) => ({
     const newSessionState = QuizSessionService.updateTimer(state.sessionState)
 
     if (newSessionState.isCompleted && !state.sessionState.isCompleted) {
+      getSessionRepository().clear()
       set({
         sessionState: newSessionState,
         viewState: 'result',
@@ -564,6 +614,50 @@ export const useQuizStore = create<QuizStore>((set, get) => ({
 
   getBookmarkedCount: () => {
     return get().userProgress.bookmarkedQuestionIds.length
+  },
+
+  // Resume actions
+  resumeSession: () => {
+    const state = get()
+    const saved = state.savedSession
+    if (!saved) return
+
+    // Reconstruct questions from IDs
+    const questionMap = new Map(state.allQuestions.map(q => [q.id, q]))
+    const questions = saved.questionIds
+      .map(id => questionMap.get(id))
+      .filter((q): q is Question => q !== undefined)
+
+    if (questions.length === 0) {
+      getSessionRepository().clear()
+      set({ savedSession: null })
+      return
+    }
+
+    // Reconstruct session state starting from the saved currentIndex
+    // The question at currentIndex has not been answered yet
+    const sessionState = QuizSessionService.createInitialState(questions, saved.sessionConfig)
+    const resumedState: QuizSessionState = {
+      ...sessionState,
+      currentIndex: saved.currentIndex,
+      score: saved.score,
+      answeredCount: saved.answeredCount,
+      startedAt: saved.startedAt,
+      hintsUsedCount: saved.hintsUsedCount,
+    }
+
+    set({
+      sessionConfig: saved.sessionConfig,
+      sessionState: resumedState,
+      sessionWrongAnswers: [...saved.wrongAnswers],
+      savedSession: null,
+      viewState: 'quiz',
+    })
+  },
+
+  discardSavedSession: () => {
+    getSessionRepository().clear()
+    set({ savedSession: null })
   },
 
   // Review actions

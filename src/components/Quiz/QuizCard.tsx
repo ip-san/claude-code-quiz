@@ -1,8 +1,10 @@
-import { useEffect, useCallback } from 'react'
+import { useEffect, useCallback, useMemo } from 'react'
 import { useQuizStore } from '@/stores/quizStore'
 import { OptionButton } from './OptionButton'
 import { Feedback } from './Feedback'
+import { ChapterIndicator } from './ChapterIndicator'
 import { getCategoryById } from '@/domain/valueObjects/Category'
+import { getChapterFromTags, OVERVIEW_CHAPTERS } from '@/domain/valueObjects/OverviewChapter'
 import { Bookmark, Lightbulb } from 'lucide-react'
 
 // Color mapping for categories
@@ -44,6 +46,19 @@ export function QuizCard() {
   const hintUsed = sessionState?.hintUsed ?? false
   const isBookmarked = quiz ? useQuizStore.getState().userProgress.isBookmarked(quiz.id) : false
   const isMultiSelect = quiz?.isMultiSelect ?? false
+
+  // Chapter indicator for overview mode
+  const isOverviewMode = sessionState?.config.mode === 'overview'
+  const currentChapter = useMemo(() => {
+    if (!isOverviewMode || !quiz) return null
+    return getChapterFromTags(quiz.tags)
+  }, [isOverviewMode, quiz])
+  const previousChapter = useMemo(() => {
+    if (!isOverviewMode || !sessionState || sessionState.currentIndex === 0) return null
+    const prevQuestion = sessionState.questions[sessionState.currentIndex - 1]
+    return prevQuestion ? getChapterFromTags(prevQuestion.tags) : null
+  }, [isOverviewMode, sessionState])
+  const showChapterIndicator = isOverviewMode && currentChapter && currentChapter.id !== previousChapter?.id
 
   // Keyboard navigation handler
   const handleKeyDown = useCallback(
@@ -175,12 +190,21 @@ export function QuizCard() {
   const category = getCategoryById(quiz.category)
 
   return (
-    <div
-      className={`rounded-2xl border border-stone-200 bg-white p-8 shadow-sm ${
-        isAnswered && !isCorrect ? 'animate-shake' : ''
-      } ${isAnswered && isCorrect ? 'animate-pulse-success' : ''}`}
-    >
-      {/* Category & Difficulty badges + Bookmark */}
+    <>
+      {/* Chapter indicator for overview mode */}
+      {showChapterIndicator && currentChapter && (
+        <ChapterIndicator
+          chapter={currentChapter}
+          totalChapters={OVERVIEW_CHAPTERS.length}
+        />
+      )}
+
+      <div
+        className={`rounded-2xl border border-stone-200 bg-white p-8 shadow-sm ${
+          isAnswered && !isCorrect ? 'animate-shake' : ''
+        } ${isAnswered && isCorrect ? 'animate-pulse-success' : ''}`}
+      >
+        {/* Category & Difficulty badges + Bookmark */}
       <div className="mb-4 flex items-center justify-between">
         <div className="flex gap-2">
           {category && (
@@ -334,5 +358,6 @@ export function QuizCard() {
         )}
       </div>
     </div>
+    </>
   )
 }

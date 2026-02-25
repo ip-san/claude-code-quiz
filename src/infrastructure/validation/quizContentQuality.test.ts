@@ -180,7 +180,7 @@ describe('Quiz Content Quality', () => {
 
     it('すべてのoverview問題にソート用タグがあること', () => {
       const missingOrder = overviewQuizzes.filter(q =>
-        !q.tags!.some((t: string) => t.startsWith('overview-'))
+        !q.tags!.some((t: string) => /^overview-\d+$/.test(t))
       )
       const ids = missingOrder.map(q => q.id)
       expect(ids, `ソートタグがない: ${ids.join(', ')}`).toEqual([])
@@ -188,7 +188,7 @@ describe('Quiz Content Quality', () => {
 
     it('ソート用タグに重複がないこと', () => {
       const orderTags = overviewQuizzes.flatMap(q =>
-        q.tags!.filter((t: string) => t.startsWith('overview-'))
+        q.tags!.filter((t: string) => /^overview-\d+$/.test(t))
       )
       const duplicates = orderTags.filter((t: string, i: number) => orderTags.indexOf(t) !== i)
       expect(duplicates, `重複タグ: ${duplicates.join(', ')}`).toEqual([])

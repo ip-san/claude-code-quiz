@@ -1,10 +1,11 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useState, useMemo } from 'react'
 import { useQuizStore } from '@/stores/quizStore'
 import { ModeSelection } from '@/components/Menu/ModeSelection'
 import { QuizCard } from '@/components/Quiz/QuizCard'
 import { QuizResult } from '@/components/Quiz/QuizResult'
 import { Timer } from '@/components/Quiz/Timer'
 import { ProgressDashboard } from '@/components/Progress/ProgressDashboard'
+import { getChapterFromTags } from '@/domain/valueObjects/OverviewChapter'
 import { Loader2, X } from 'lucide-react'
 
 export default function App() {
@@ -83,7 +84,15 @@ function QuizView({
 }) {
   const { endSession, sessionState } = useQuizStore()
   const isReviewMode = sessionState?.isReviewMode ?? false
+  const isOverviewMode = sessionState?.config.mode === 'overview'
   const [showQuitDialog, setShowQuitDialog] = useState(false)
+
+  // Current chapter info for overview mode
+  const currentChapter = useMemo(() => {
+    if (!isOverviewMode || !sessionState) return null
+    const currentQuestion = sessionState.questions[sessionState.currentIndex]
+    return currentQuestion ? getChapterFromTags(currentQuestion.tags) : null
+  }, [isOverviewMode, sessionState])
 
   const handleQuitClick = () => {
     setShowQuitDialog(true)
@@ -127,6 +136,11 @@ function QuizView({
             {isReviewMode && (
               <span className="rounded bg-amber-100 px-2 py-0.5 text-xs font-medium text-amber-700">
                 復習モード
+              </span>
+            )}
+            {isOverviewMode && currentChapter && (
+              <span className="rounded bg-claude-orange/10 px-2 py-0.5 text-xs font-medium text-claude-orange">
+                {currentChapter.icon} Ch.{currentChapter.id}
               </span>
             )}
             <span className="text-sm text-claude-gray">
