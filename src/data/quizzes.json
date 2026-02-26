@@ -102,15 +102,15 @@
           "wrongFeedback": "ユーザーメモリは個人設定用ですが、最高優先度ではありません。"
         },
         {
-          "text": "ローカルメモリ (./`CLAUDE.local.md`)",
+          "text": "ローカルメモリ (`./CLAUDE.local.md`)",
           "wrongFeedback": "ローカルメモリは個人的なプロジェクト設定用です。"
         },
         {
-          "text": "プロジェクトメモリ (./`CLAUDE.md`)",
+          "text": "プロジェクトメモリ (`./CLAUDE.md`)",
           "wrongFeedback": "プロジェクトメモリはチーム共有用ですが、最高優先度ではありません。"
         },
         {
-          "text": "マネージドポリシー (/Library/Application Support/ClaudeCode/`CLAUDE.md`)"
+          "text": "マネージドポリシー (`/Library/Application Support/ClaudeCode/CLAUDE.md`)"
         }
       ],
       "correctIndex": 3,
@@ -398,7 +398,7 @@
         },
         {
           "text": "`permissions`のdenyルールにSkill(deploy)を追加して、Claudeからのアクセスをブロックする",
-          "wrongFeedback": "`permissions`.denyでSkillをブロックすると、Claudeだけでなくユーザーの/コマンド呼び出しも含めて完全にブロックされます。ユーザー手動実行だけ許可したい場合はdisable-model-invocationが適切です。"
+          "wrongFeedback": "`permissions.deny`でSkillをブロックすると、Claudeだけでなくユーザーの/コマンド呼び出しも含めて完全にブロックされます。ユーザー手動実行だけ許可したい場合はdisable-model-invocationが適切です。"
         },
         {
           "text": "frontmatterで`user-invocable: false`を設定し、ユーザーからのメニュー呼び出しを無効化する",
@@ -526,7 +526,7 @@
       "question": "チーム全員が共有するプロジェクト固有のSkillと、自分だけが全プロジェクトで使うSkillを両方作りたい場合、それぞれどこに配置すべきですか？",
       "options": [
         {
-          "text": "チーム共有は`.claude/skills/`に配置してバージョン管理にコミットし、個人用は~/`.claude/skills/`に配置する"
+          "text": "チーム共有は`.claude/skills/`に配置してバージョン管理にコミットし、個人用は`~/.claude/skills/`に配置する"
         },
         {
           "text": "チーム共有はプラグインとして配布し、個人用は.claude/commands/に配置する",
@@ -537,12 +537,12 @@
           "wrongFeedback": "disable-model-invocationはClaudeの自動呼び出しを防ぐ設定であり、Skillの公開範囲を制御するものではありません。個人用Skillを`.claude/skills/`に入れるとチーム全員に見えてしまいます。"
         },
         {
-          "text": "チーム共有は~/`.claude/skills/`に配置して各メンバーにコピーしてもらい、個人用も同じ場所に配置する",
-          "wrongFeedback": "~/`.claude/skills/`はユーザーローカルのパスなので、チームメンバー間での自動共有やバージョン管理ができません。チーム共有にはプロジェクトの`.claude/skills/`を使いバージョン管理にコミットするのが適切です。"
+          "text": "チーム共有は`~/.claude/skills/`に配置して各メンバーにコピーしてもらい、個人用も同じ場所に配置する",
+          "wrongFeedback": "`~/.claude/skills/`はユーザーローカルのパスなので、チームメンバー間での自動共有やバージョン管理ができません。チーム共有にはプロジェクトの`.claude/skills/`を使いバージョン管理にコミットするのが適切です。"
         }
       ],
       "correctIndex": 0,
-      "explanation": "Skillの配置場所がスコープを決定します。`.claude/skills/`はプロジェクトスコープでバージョン管理にコミットすればチーム共有が可能です。~/`.claude/skills/`はユーザースコープで全プロジェクトで利用でき、他のメンバーには影響しません。",
+      "explanation": "Skillの配置場所がスコープを決定します。`.claude/skills/`はプロジェクトスコープでバージョン管理にコミットすればチーム共有が可能です。`~/.claude/skills/`はユーザースコープで全プロジェクトで利用でき、他のメンバーには影響しません。",
       "category": "skills",
       "difficulty": "beginner",
       "referenceUrl": "https://code.claude.com/docs/en/skills#skill-locations"
@@ -1275,8 +1275,8 @@
           "wrongFeedback": "`/debug`はセッションのデバッグログを読み込んで問題を調査するコマンドです。MCPサーバーの接続管理や再接続操作はできません。"
         },
         {
-          "text": "/doctor — インストール状態を診断するが、MCP接続の詳細管理はできない",
-          "wrongFeedback": "/doctorはClaude Code自体のインストール状態と依存関係を診断するコマンドです。MCPサーバーの個別の接続状態やOAuth認証の管理には対応していません。"
+          "text": "`/doctor` — インストール状態を診断するが、MCP接続の詳細管理はできない",
+          "wrongFeedback": "`/doctor`はClaude Code自体のインストール状態と依存関係を診断するコマンドです。MCPサーバーの個別の接続状態やOAuth認証の管理には対応していません。"
         },
         {
           "text": "`/status` — 現在のモデルやアカウント情報を表示するが、MCPサーバー固有の管理機能はない",
@@ -1284,7 +1284,7 @@
         }
       ],
       "correctIndex": 0,
-      "explanation": "`/mcp`コマンドはMCPサーバーの接続状態を管理する専用コマンドです。各サーバーの接続状況確認、OAuth認証のフロー開始、サーバーの再接続などを対話的に行えます。一般的なシステム診断には/doctor、セッションログの調査には`/debug`、設定概要の確認には`/status`を使います。",
+      "explanation": "`/mcp`コマンドはMCPサーバーの接続状態を管理する専用コマンドです。各サーバーの接続状況確認、OAuth認証のフロー開始、サーバーの再接続などを対話的に行えます。一般的なシステム診断には`/doctor`、セッションログの調査には`/debug`、設定概要の確認には`/status`を使います。",
       "referenceUrl": "https://code.claude.com/docs/en/interactive-mode"
     },
     {
@@ -2926,7 +2926,7 @@
       "question": "コードレビュー用サブエージェントが過去のレビューで見つけたパターンやアンチパターンを蓄積し、次回以降のレビューに活かせるようにするには、どの設定が適切ですか？",
       "options": [
         {
-          "text": "frontmatterで`memory: user`を設定し、~/`.claude/agent-memory/`<name>/にクロスプロジェクトの知識を蓄積させる"
+          "text": "frontmatterで`memory: user`を設定し、`~/.claude/agent-memory/`<name>/にクロスプロジェクトの知識を蓄積させる"
         },
         {
           "text": "skillsフィールドでレビュー規約のSkillをプリロードし、毎回参照させる",
@@ -2942,7 +2942,7 @@
         }
       ],
       "correctIndex": 0,
-      "explanation": "memoryフィールドを設定すると、サブエージェントに永続的なディレクトリが割り当てられます。`memory: user`の場合は~/`.claude/agent-memory/`<name>/に保存され、全プロジェクトで共有されます。Read/Write/Editツールが自動有効化され、MEMORY.mdの最初の200行がシステムプロンプトに含まれます。",
+      "explanation": "memoryフィールドを設定すると、サブエージェントに永続的なディレクトリが割り当てられます。`memory: user`の場合は`~/.claude/agent-memory/`<name>/に保存され、全プロジェクトで共有されます。Read/Write/Editツールが自動有効化され、MEMORY.mdの最初の200行がシステムプロンプトに含まれます。",
       "category": "skills",
       "difficulty": "intermediate",
       "referenceUrl": "https://code.claude.com/docs/en/sub-agents"
@@ -5651,7 +5651,7 @@
           "wrongFeedback": "構文が異なります。"
         },
         {
-          "text": "`permissions`.denyにTask(subagent-name)を追加"
+          "text": "`permissions.deny`にTask(subagent-name)を追加"
         },
         {
           "text": "disable: Task(name)",
@@ -5663,7 +5663,7 @@
         }
       ],
       "correctIndex": 1,
-      "explanation": "`permissions`.denyリストにTask(subagent-name)を追加することで、特定のサブエージェントの起動を禁止できます。Task(agent_type)構文でエージェントタイプも制御可能です。",
+      "explanation": "`permissions.deny`リストにTask(subagent-name)を追加することで、特定のサブエージェントの起動を禁止できます。Task(agent_type)構文でエージェントタイプも制御可能です。",
       "referenceUrl": "https://code.claude.com/docs/en/sub-agents"
     },
     {
@@ -6282,7 +6282,7 @@
           "wrongFeedback": "ProjectとLocalはプロジェクトディレクトリ配下です。"
         },
         {
-          "text": "User: ~/`settings.json`、Project: ./`settings.json`",
+          "text": "User: `~/settings.json`、Project: `./settings.json`",
           "wrongFeedback": "パスが異なります。"
         }
       ],
@@ -6892,7 +6892,7 @@
       "id": "ses-040",
       "category": "session",
       "difficulty": "intermediate",
-      "question": "`permissions`.additionalDirectoriesの目的は何ですか？",
+      "question": "`permissions.additionalDirectories`の目的は何ですか？",
       "options": [
         {
           "text": "ログ出力ディレクトリの指定",
@@ -6911,7 +6911,7 @@
         }
       ],
       "correctIndex": 3,
-      "explanation": "`permissions`.additionalDirectoriesはメインプロジェクト以外のディレクトリにもClaude Codeからアクセスできるようにする設定です。モノレポや関連プロジェクト間での作業に便利です。",
+      "explanation": "`permissions.additionalDirectories`はメインプロジェクト以外のディレクトリにもClaude Codeからアクセスできるようにする設定です。モノレポや関連プロジェクト間での作業に便利です。",
       "referenceUrl": "https://code.claude.com/docs/en/settings"
     },
     {
@@ -7930,7 +7930,7 @@
         }
       ],
       "correctIndex": 3,
-      "explanation": "`dontAsk`モードではパーミッションプロンプトが自動的に拒否されます。ただし、`permissions`.allowで明示的に許可されたツールは引き続き動作します。他にdefault, `acceptEdits`, `bypassPermissions`, planモードがあります。",
+      "explanation": "`dontAsk`モードではパーミッションプロンプトが自動的に拒否されます。ただし、`permissions.allow`で明示的に許可されたツールは引き続き動作します。他にdefault, `acceptEdits`, `bypassPermissions`, planモードがあります。",
       "referenceUrl": "https://code.claude.com/docs/en/sub-agents"
     },
     {
@@ -7977,12 +7977,12 @@
           "wrongFeedback": "パスが異なります。"
         },
         {
-          "text": "~/`.claude/agent-memory/`<name>/",
+          "text": "`~/.claude/agent-memory/`<name>/",
           "wrongFeedback": "これはuserスコープの場所です。"
         }
       ],
       "correctIndex": 0,
-      "explanation": "memoryスコープは3種類あります：user（~/`.claude/agent-memory/`<name>/、全プロジェクト共通）、project（`.claude/agent-memory/`<name>/、VCS共有可能）、local（.claude/agent-memory-local/<name>/、VCS非共有）。メモリ有効時、MEMORY.mdの先頭200行がコンテキストに含まれます。",
+      "explanation": "memoryスコープは3種類あります：user（`~/.claude/agent-memory/`<name>/、全プロジェクト共通）、project（`.claude/agent-memory/`<name>/、VCS共有可能）、local（.claude/agent-memory-local/<name>/、VCS非共有）。メモリ有効時、MEMORY.mdの先頭200行がコンテキストに含まれます。",
       "referenceUrl": "https://code.claude.com/docs/en/sub-agents"
     },
     {
@@ -8488,7 +8488,7 @@
       "id": "ses-073",
       "category": "session",
       "difficulty": "advanced",
-      "question": "`permissions`.disableBypassPermissionsMode: \"disable\"を設定すると何が起きますか？",
+      "question": "`permissions.disableBypassPermissionsMode`: \"disable\"を設定すると何が起きますか？",
       "options": [
         {
           "text": "パーミッションプロンプトが省略される",
@@ -8507,7 +8507,7 @@
         }
       ],
       "correctIndex": 1,
-      "explanation": "`permissions`.disableBypassPermissionsModeを\"disable\"に設定すると、`--dangerously-skip-permissions`フラグの使用が防止されます。組織のセキュリティポリシーでパーミッションチェックの迂回を禁止したい場合に使用します。",
+      "explanation": "`permissions.disableBypassPermissionsMode`を\"disable\"に設定すると、`--dangerously-skip-permissions`フラグの使用が防止されます。組織のセキュリティポリシーでパーミッションチェックの迂回を禁止したい場合に使用します。",
       "referenceUrl": "https://code.claude.com/docs/en/settings"
     },
     {
@@ -8671,15 +8671,15 @@
       "question": "組み込みのExploreサブエージェントが不要なファイル探索を頻繁に行い、セッションが遅くなっている場合、このサブエージェントだけを無効化するにはどうすればよいですか？",
       "options": [
         {
-          "text": "`settings.json`の`permissions`.deny配列にTask(Explore)を追加するか、CLI起動時に--`disallowedTools` \"Task(Explore)\"を指定する"
+          "text": "`settings.json`の`permissions.deny`配列にTask(Explore)を追加するか、CLI起動時に`--disallowedTools` \"Task(Explore)\"を指定する"
         },
         {
           "text": "~/.claude/agents/ディレクトリにexplore.mdファイルを作成し、enabled: falseをフロントマターに設定する",
-          "wrongFeedback": "サブエージェントのフロントマターにenabled: falseというフィールドは存在しません。特定のサブエージェントを無効化するには`permissions`.deny配列にTask(agent-name)形式で追加します。"
+          "wrongFeedback": "サブエージェントのフロントマターにenabled: falseというフィールドは存在しません。特定のサブエージェントを無効化するには`permissions.deny`配列にTask(agent-name)形式で追加します。"
         },
         {
           "text": "`/agents`コマンドでExploreを選択し、削除する",
-          "wrongFeedback": "Exploreは組み込みサブエージェントなので`/agents`から削除することはできません。組み込み・カスタム問わずサブエージェントを無効化するには`permissions`.deny配列にTask(agent-name)を追加します。"
+          "wrongFeedback": "Exploreは組み込みサブエージェントなので`/agents`から削除することはできません。組み込み・カスタム問わずサブエージェントを無効化するには`permissions.deny`配列にTask(agent-name)を追加します。"
         },
         {
           "text": "環境変数CLAUDE_CODE_DISABLE_BACKGROUND_TASKS=1を設定して、すべてのバックグラウンドタスクを無効化する",
@@ -8687,7 +8687,7 @@
         }
       ],
       "correctIndex": 0,
-      "explanation": "特定のサブエージェントを無効化するには、`settings.json`の`permissions`.deny配列にTask(agent-name)形式で追加します。例えばTask(Explore)やTask(my-custom-agent)のように指定します。CLIの--`disallowedTools`フラグでも同様の指定が可能で、組み込みエージェントとカスタムエージェントの両方に対応しています。",
+      "explanation": "特定のサブエージェントを無効化するには、`settings.json`の`permissions.deny`配列にTask(agent-name)形式で追加します。例えばTask(Explore)やTask(my-custom-agent)のように指定します。CLIの`--disallowedTools`フラグでも同様の指定が可能で、組み込みエージェントとカスタムエージェントの両方に対応しています。",
       "category": "extensions",
       "difficulty": "intermediate",
       "referenceUrl": "https://code.claude.com/docs/en/sub-agents"
@@ -9462,7 +9462,7 @@
           "wrongFeedback": "`/config`コマンドはユーザー設定の変更に使いますが、テレメトリ制御は環境変数で行います。組織レベルの制御にはmanaged_settingsのenv設定が適切です。"
         },
         {
-          "text": "managed_settingsの`permissions`.denyでテレメトリ関連の通信をブロックする",
+          "text": "managed_settingsの`permissions.deny`でテレメトリ関連の通信をブロックする",
           "wrongFeedback": "`permissions`のdenyリストはClaude Codeのツール実行（Bash、Read、WebFetch等）を制限するもので、内部のテレメトリ通信を直接制御するものではありません。"
         }
       ],
@@ -9507,22 +9507,22 @@
       "options": [
         {
           "text": "環境変数でコマンド制限リストを設定する",
-          "wrongFeedback": "コマンド制限は環境変数ではなく`settings.json`の`permissions`.denyで管理します。"
+          "wrongFeedback": "コマンド制限は環境変数ではなく`settings.json`の`permissions.deny`で管理します。"
         },
         {
-          "text": "CLIの--`disallowedTools`フラグでツール全体を無効化する",
-          "wrongFeedback": "--`disallowedTools`はツール全体を無効化するフラグです。特定のBashコマンドの細かい制御には`permissions`.denyでBash(パターン)を使います。"
+          "text": "CLIの`--disallowedTools`フラグでツール全体を無効化する",
+          "wrongFeedback": "`--disallowedTools`はツール全体を無効化するフラグです。特定のBashコマンドの細かい制御には`permissions.deny`でBash(パターン)を使います。"
         },
         {
           "text": "`CLAUDE.md`に「このコマンドを実行しないでください」と記述する",
-          "wrongFeedback": "`CLAUDE.md`への記述はガイダンスですが、技術的な制限にはなりません。`permissions`.denyで設定します。"
+          "wrongFeedback": "`CLAUDE.md`への記述はガイダンスですが、技術的な制限にはなりません。`permissions.deny`で設定します。"
         },
         {
-          "text": "`settings.json`の`permissions`.denyにBash(コマンドパターン)を追加してブロックする"
+          "text": "`settings.json`の`permissions.deny`にBash(コマンドパターン)を追加してブロックする"
         }
       ],
       "correctIndex": 3,
-      "explanation": "`settings.json`の`permissions`.denyにBash(パターン)を追加することで、特定のBashコマンドをブロックできます。例：「Bash(curl *)」「Bash(rm -rf *)」のようにパターンマッチで制御します。企業のManaged設定で一括管理することも可能です。",
+      "explanation": "`settings.json`の`permissions.deny`にBash(パターン)を追加することで、特定のBashコマンドをブロックできます。例：「Bash(curl *)」「Bash(rm -rf *)」のようにパターンマッチで制御します。企業のManaged設定で一括管理することも可能です。",
       "referenceUrl": "https://code.claude.com/docs/en/settings",
       "hint": "設定ファイルで特定のコマンドを明示的に禁止する方法があります。"
     },
@@ -9864,11 +9864,11 @@
           "wrongFeedback": "`CLAUDE.md`はガイダンスのみで、ツール許可の技術的制御はできません。"
         },
         {
-          "text": "`.claude/settings.json` の`permissions`.allowにルールを定義（プロジェクトレベル）"
+          "text": "`.claude/settings.json` の`permissions.allow`にルールを定義（プロジェクトレベル）"
         }
       ],
       "correctIndex": 3,
-      "explanation": "プロジェクトレベルの`.claude/settings.json`に`permissions`.allowルールを設定することで、チーム全体に一貫したツール実行許可ポリシーを適用できます。例：「Bash(npm run *)」「Edit」などのパターンでリポジトリにコミットして共有します。",
+      "explanation": "プロジェクトレベルの`.claude/settings.json`に`permissions.allow`ルールを設定することで、チーム全体に一貫したツール実行許可ポリシーを適用できます。例：「Bash(npm run *)」「Edit」などのパターンでリポジトリにコミットして共有します。",
       "referenceUrl": "https://code.claude.com/docs/en/settings",
       "hint": "プロジェクトレベルの設定ファイルでツール許可を一括管理できます。"
     },
@@ -10269,7 +10269,7 @@
         }
       ],
       "correctIndex": 1,
-      "explanation": "`settings.json`の`permissions`設定で、ツールごとの許可レベルをカスタマイズできます。`permissions`.allow（自動許可）、`permissions`.deny（拒否）、`permissions`.ask（都度確認）の3段階で制御します。例：「Edit」をallowに追加するとファイル編集時の確認をスキップできます。",
+      "explanation": "`settings.json`の`permissions`設定で、ツールごとの許可レベルをカスタマイズできます。`permissions.allow`（自動許可）、`permissions.deny`（拒否）、`permissions.ask`（都度確認）の3段階で制御します。例：「Edit」をallowに追加するとファイル編集時の確認をスキップできます。",
       "referenceUrl": "https://code.claude.com/docs/en/settings"
     },
     {
@@ -10624,23 +10624,23 @@
       "question": "macOS / LinuxでClaude Codeをインストールする推奨方法はどれですか？",
       "options": [
         {
-          "text": "apt-get install claude-code",
-          "wrongFeedback": "apt-getではインストールできません。推奨のネイティブインストールはcurl -fsSL https://claude.ai/install.sh | bashです。"
+          "text": "`apt-get install claude-code`",
+          "wrongFeedback": "apt-getではインストールできません。推奨のネイティブインストールは`curl -fsSL https://claude.ai/install.sh | bash`です。"
         },
         {
-          "text": "curl -fsSL https://claude.ai/install.sh | bash"
+          "text": "`curl -fsSL https://claude.ai/install.sh | bash`"
         },
         {
-          "text": "npm install -g claude-code",
-          "wrongFeedback": "npmではインストールできません。推奨方法はcurl -fsSL https://claude.ai/install.sh | bashです。他にHomebrew（brew install --cask claude-code）も利用可能です。"
+          "text": "`npm install -g claude-code`",
+          "wrongFeedback": "npmではインストールできません。推奨方法は`curl -fsSL https://claude.ai/install.sh | bash`です。他にHomebrew（brew install --cask claude-code）も利用可能です。"
         },
         {
-          "text": "pip install claude-code",
-          "wrongFeedback": "pipではインストールできません。推奨方法はcurl -fsSL https://claude.ai/install.sh | bashです。Homebrewやwingetも利用可能です。"
+          "text": "`pip install claude-code`",
+          "wrongFeedback": "pipではインストールできません。推奨方法は`curl -fsSL https://claude.ai/install.sh | bash`です。Homebrewやwingetも利用可能です。"
         }
       ],
       "correctIndex": 1,
-      "explanation": "Claude Codeの推奨インストール方法はネイティブインストールで、macOS/Linux/WSLではcurl -fsSL https://claude.ai/install.sh | bashを実行します。ネイティブインストールはバックグラウンドで自動更新されます。Homebrew（brew install --cask claude-code）やWinGetも利用可能ですが、自動更新はされません。",
+      "explanation": "Claude Codeの推奨インストール方法はネイティブインストールで、macOS/Linux/WSLでは`curl -fsSL https://claude.ai/install.sh | bash`を実行します。ネイティブインストールはバックグラウンドで自動更新されます。Homebrew（brew install --cask claude-code）やWinGetも利用可能ですが、自動更新はされません。",
       "referenceUrl": "https://code.claude.com/docs/en/quickstart",
       "tags": [
         "overview",
@@ -10717,23 +10717,23 @@
       "question": "Claude Codeをインストールした後、プロジェクトで最初に実行すべきコマンドは何ですか？",
       "options": [
         {
-          "text": "claude --setup を実行する",
-          "wrongFeedback": "--setupフラグは存在しません。プロジェクトディレクトリでcdしてからclaudeを実行するだけで開始できます。初回使用時にログインが求められます。"
+          "text": "`claude --setup` を実行する",
+          "wrongFeedback": "--setupフラグは存在しません。プロジェクトディレクトリでcdしてから`claude`を実行するだけで開始できます。初回使用時にログインが求められます。"
         },
         {
-          "text": "claude init --global を実行する",
-          "wrongFeedback": "そのようなコマンドはありません。cd your-project && claude を実行するだけで始められます。"
+          "text": "`claude init --global` を実行する",
+          "wrongFeedback": "そのようなコマンドはありません。`cd your-project && claude` を実行するだけで始められます。"
         },
         {
           "text": "設定ファイルを手動で作成する",
           "wrongFeedback": "設定ファイルの手動作成は不要です。プロジェクトディレクトリでclaudeを実行するだけで、ウェルカム画面が表示され使い始めることができます。"
         },
         {
-          "text": "プロジェクトディレクトリに移動して claude を実行する"
+          "text": "プロジェクトディレクトリに移動して `claude` を実行する"
         }
       ],
       "correctIndex": 3,
-      "explanation": "Claude Codeの使い始めはシンプルです。ターミナルでプロジェクトディレクトリに移動（cd your-project）してからclaudeを実行するだけです。初回使用時にログインプロンプトが表示されます。ログイン後、資格情報は保存され、次回以降は自動的に接続されます。",
+      "explanation": "Claude Codeの使い始めはシンプルです。ターミナルでプロジェクトディレクトリに移動(`cd your-project`)してから`claude`を実行するだけです。初回使用時にログインプロンプトが表示されます。ログイン後、資格情報は保存され、次回以降は自動的に接続されます。",
       "referenceUrl": "https://code.claude.com/docs/en/quickstart",
       "tags": [
         "overview",
