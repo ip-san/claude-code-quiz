@@ -128,6 +128,7 @@ interface QuizStore {
   getBookmarkedCount: () => number
 
   // Resume actions
+  suspendSession: () => void
   resumeSession: () => void
   discardSavedSession: () => void
 
@@ -410,6 +411,9 @@ export const useQuizStore = create<QuizStore>((set, get) => ({
       getProgressRepository().save(updatedProgress).catch((error) => {
         console.error('Failed to save progress:', error)
       })
+
+      // Save session snapshot so resume picks up the updated score/answeredCount
+      saveSessionSnapshot(newState, newWrongAnswers)
     } else {
       set({ sessionState: newState })
     }
@@ -477,6 +481,24 @@ export const useQuizStore = create<QuizStore>((set, get) => ({
   },
 
   // Resume actions
+  suspendSession: () => {
+    const state = get()
+    if (state.sessionState && !state.sessionState.isCompleted) {
+      saveSessionSnapshot(state.sessionState, state.sessionWrongAnswers)
+      const saved = getSessionRepository().load()
+      set({
+        viewState: 'menu',
+        sessionState: null,
+        savedSession: saved,
+      })
+    } else {
+      set({
+        viewState: 'menu',
+        sessionState: null,
+      })
+    }
+  },
+
   resumeSession: () => {
     const state = get()
     const saved = state.savedSession

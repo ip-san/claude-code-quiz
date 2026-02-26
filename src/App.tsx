@@ -82,7 +82,7 @@ function QuizView({
   progress: { current: number; total: number }
   timeRemaining: number | null
 }) {
-  const { endSession, sessionState } = useQuizStore()
+  const { endSession, suspendSession, sessionState } = useQuizStore()
   const isReviewMode = sessionState?.isReviewMode ?? false
   const isOverviewMode = sessionState?.config.mode === 'overview'
   const [showQuitDialog, setShowQuitDialog] = useState(false)
@@ -100,7 +100,11 @@ function QuizView({
 
   const handleConfirmQuit = () => {
     setShowQuitDialog(false)
-    endSession()
+    if (isReviewMode) {
+      endSession()
+    } else {
+      suspendSession()
+    }
   }
 
   const handleCancelQuit = () => {
@@ -177,10 +181,12 @@ function QuizView({
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
           <div className="mx-4 w-full max-w-sm rounded-lg bg-white p-6 shadow-xl">
             <h3 className="mb-2 text-lg font-semibold text-claude-dark">
-              クイズを中止しますか？
+              {isReviewMode ? '復習を中止しますか？' : 'クイズを中止しますか？'}
             </h3>
             <p className="mb-6 text-sm text-stone-500">
-              現在の進捗は保存されません。メニューに戻ります。
+              {isReviewMode
+                ? 'メニューに戻ります。'
+                : '進捗は保存されます。あとで続きから再開できます。'}
             </p>
             <div className="flex gap-3">
               <button

@@ -41,9 +41,13 @@ const ID_PREFIX_TO_CATEGORY: Record<string, string> = {
 
 /** 有効なドキュメントページパス */
 const VALID_DOC_PAGES = [
+  // code.claude.com pages
   'overview', 'quickstart', 'settings', 'memory', 'interactive-mode',
   'how-claude-code-works', 'mcp', 'hooks', 'discover-plugins',
   'sub-agents', 'common-workflows', 'checkpointing', 'best-practices', 'skills',
+  'model-config',
+  // platform.claude.com pages
+  'agent-sdk/overview',
 ]
 
 /** 有効なタグパターン */
@@ -255,20 +259,29 @@ describe('Quiz Content Quality', () => {
       expect(ids, `referenceUrl がない: ${ids.join(', ')}`).toEqual([])
     })
 
-    it('referenceUrl が code.claude.com のドキュメントURLであること', () => {
+    it('referenceUrl が公式ドキュメントURLであること', () => {
+      const validPrefixes = [
+        'https://code.claude.com/docs/en/',
+        'https://platform.claude.com/docs/en/',
+      ]
       const invalid = quizzes.filter(q =>
-        q.referenceUrl && !q.referenceUrl.startsWith('https://code.claude.com/docs/en/')
+        q.referenceUrl && !validPrefixes.some(p => q.referenceUrl.startsWith(p))
       )
       const details = invalid.map(q => `${q.id}: "${q.referenceUrl}"`)
       expect(details, `無効なURL: ${details.join(', ')}`).toEqual([])
     })
 
     it('referenceUrl のパスが既知のドキュメントページであること', () => {
-      const prefix = 'https://code.claude.com/docs/en/'
+      const prefixes = [
+        'https://code.claude.com/docs/en/',
+        'https://platform.claude.com/docs/en/',
+      ]
       const violations: string[] = []
       quizzes.forEach(q => {
         if (!q.referenceUrl) return
-        const pathWithFragment = q.referenceUrl.slice(prefix.length)
+        const matchedPrefix = prefixes.find(p => q.referenceUrl.startsWith(p))
+        if (!matchedPrefix) return // URL形式のチェックは別テストで実施済み
+        const pathWithFragment = q.referenceUrl.slice(matchedPrefix.length)
         const page = pathWithFragment.split('#')[0]
         if (!VALID_DOC_PAGES.includes(page)) {
           violations.push(`${q.id}: unknown page "${page}"`)
