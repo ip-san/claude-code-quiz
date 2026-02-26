@@ -6,6 +6,7 @@ import { ChapterIndicator } from './ChapterIndicator'
 import { getCategoryById } from '@/domain/valueObjects/Category'
 import { getChapterFromTags, OVERVIEW_CHAPTERS } from '@/domain/valueObjects/OverviewChapter'
 import { Bookmark, Lightbulb } from 'lucide-react'
+import { QuizText } from './QuizText'
 
 // Color mapping for categories
 const COLOR_MAP: Record<string, string> = {
@@ -259,11 +260,11 @@ export function QuizCard() {
 
       {/* Question */}
       <h2 className="mb-6 text-lg font-semibold leading-relaxed text-claude-dark">
-        {quiz.question}
+        <QuizText text={quiz.question} />
       </h2>
 
       {/* Hint */}
-      {quiz.hint && !isAnswered && !isReviewMode && (
+      {!isAnswered && !isReviewMode && (
         <div className="mb-4">
           {!hintUsed ? (
             <button
@@ -279,18 +280,22 @@ export function QuizCard() {
                 <Lightbulb className="h-4 w-4 text-amber-600" />
                 <span className="text-sm font-medium text-amber-700">ヒント</span>
               </div>
-              <p className="text-sm text-amber-800">{quiz.hint}</p>
+              <p className="text-sm text-amber-800">
+                {quiz.hint
+                  ? <QuizText text={quiz.hint} />
+                  : '公式ドキュメントを確認してみましょう。回答後に参照リンクが表示されます。'}
+              </p>
             </div>
           )}
         </div>
       )}
-      {quiz.hint && isAnswered && hintUsed && (
+      {isAnswered && hintUsed && quiz.hint && (
         <div className="mb-4 rounded-lg border border-amber-200 bg-amber-50/50 p-3">
           <div className="mb-1 flex items-center gap-1.5">
             <Lightbulb className="h-4 w-4 text-amber-500" />
             <span className="text-xs font-medium text-amber-600">使用したヒント</span>
           </div>
-          <p className="text-xs text-amber-700">{quiz.hint}</p>
+          <p className="text-xs text-amber-700"><QuizText text={quiz.hint} /></p>
         </div>
       )}
 

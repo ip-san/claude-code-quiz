@@ -10,6 +10,7 @@ import {
   AlertTriangle,
   FileText,
 } from 'lucide-react'
+import { QuizText } from './QuizText'
 
 interface FeedbackProps {
   quiz: Question
@@ -109,7 +110,7 @@ export function Feedback({ quiz, isCorrect }: FeedbackProps) {
           </p>
           <ul className="ml-4 mt-1 list-disc text-sm text-amber-800">
             {originalUserMultiAnswers.map(i => (
-              <li key={i}>{quiz.options[i]?.text}</li>
+              <li key={i}><QuizText text={quiz.options[i]?.text ?? ''} /></li>
             ))}
           </ul>
           <p className="mt-2 text-sm text-green-700">
@@ -117,7 +118,7 @@ export function Feedback({ quiz, isCorrect }: FeedbackProps) {
           </p>
           <ul className="ml-4 mt-1 list-disc text-sm text-green-700">
             {quiz.getCorrectOptions().map((opt, i) => (
-              <li key={i}>{opt.text}</li>
+              <li key={i}><QuizText text={opt.text} /></li>
             ))}
           </ul>
         </div>
@@ -126,11 +127,11 @@ export function Feedback({ quiz, isCorrect }: FeedbackProps) {
         <div className="mb-4 rounded-lg border border-amber-200 bg-amber-50 p-3">
           <p className="text-sm text-amber-800">
             <span className="font-medium">あなたの回答:</span>{' '}
-            {quiz.options[originalUserAnswer]?.text}
+            <QuizText text={quiz.options[originalUserAnswer]?.text ?? ''} />
           </p>
           <p className="mt-1 text-sm text-green-700">
             <span className="font-medium">正解:</span>{' '}
-            {quiz.options[quiz.correctIndex]?.text}
+            <QuizText text={quiz.options[quiz.correctIndex]?.text ?? ''} />
           </p>
         </div>
       )}
@@ -154,7 +155,7 @@ export function Feedback({ quiz, isCorrect }: FeedbackProps) {
                   </p>
                   {wrongSelected.map((opt, i) => (
                     <p key={i} className="text-sm leading-relaxed text-stone-600">
-                      {opt.wrongFeedback}
+                      <QuizText text={opt.wrongFeedback!} />
                     </p>
                   ))}
                 </div>
@@ -172,7 +173,7 @@ export function Feedback({ quiz, isCorrect }: FeedbackProps) {
                 なぜこの回答が誤りなのか
               </p>
               <p className="text-sm leading-relaxed text-stone-600">
-                {selectedOption.wrongFeedback}
+                <QuizText text={selectedOption.wrongFeedback!} />
               </p>
             </div>
           </div>
@@ -185,7 +186,7 @@ export function Feedback({ quiz, isCorrect }: FeedbackProps) {
           <p className="text-sm font-medium text-green-700">正解:</p>
           <ul className="ml-4 mt-1 list-disc text-sm text-green-700">
             {quiz.getCorrectOptions().map((opt, i) => (
-              <li key={i}>{opt.text}</li>
+              <li key={i}><QuizText text={opt.text} /></li>
             ))}
           </ul>
         </div>
@@ -196,7 +197,7 @@ export function Feedback({ quiz, isCorrect }: FeedbackProps) {
         <p className="mb-1 text-sm font-medium text-claude-dark">解説</p>
         <div className="max-h-48 overflow-y-auto">
           <p className="text-sm leading-relaxed text-stone-600">
-            {quiz.explanation}
+            <QuizText text={quiz.explanation} />
           </p>
         </div>
       </div>

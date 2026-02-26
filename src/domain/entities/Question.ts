@@ -52,7 +52,7 @@ export interface QuestionProps {
   readonly id: string
   readonly question: string
   readonly options: QuizOption[]
-  readonly correctIndex: number
+  readonly correctIndex?: number
   readonly explanation: string
   readonly referenceUrl?: string
   readonly aiPrompt?: string
@@ -88,7 +88,6 @@ export class Question {
     this.id = props.id
     this.question = props.question
     this.options = Object.freeze([...props.options])
-    this.correctIndex = props.correctIndex
     this.explanation = props.explanation
     this.referenceUrl = props.referenceUrl
     this.aiPrompt = props.aiPrompt
@@ -97,11 +96,13 @@ export class Question {
     this.difficulty = props.difficulty
     this.tags = Object.freeze(props.tags ?? [])
     this.type = props.type ?? 'single'
-    this.correctIndices = Object.freeze(
-      props.type === 'multi' && props.correctIndices
-        ? [...props.correctIndices]
-        : [props.correctIndex]
-    )
+    if (this.type === 'multi' && props.correctIndices) {
+      this.correctIndices = Object.freeze([...props.correctIndices])
+      this.correctIndex = props.correctIndex ?? props.correctIndices[0]
+    } else {
+      this.correctIndex = props.correctIndex ?? 0
+      this.correctIndices = Object.freeze([this.correctIndex])
+    }
   }
 
   /**
@@ -145,7 +146,8 @@ export class Question {
         }
       }
     } else {
-      if (props.correctIndex < 0 || props.correctIndex >= props.options.length) {
+      const ci = props.correctIndex ?? 0
+      if (ci < 0 || ci >= props.options.length) {
         throw new Error('correctIndex must be within options array bounds')
       }
     }
@@ -178,9 +180,9 @@ export class Question {
       if (!data || typeof data !== 'object') return null
       const d = data as Record<string, unknown>
 
-      // correctIndex の型変換とNaNチェック
-      const correctIndex = Number(d.correctIndex ?? 0)
-      if (Number.isNaN(correctIndex)) {
+      // correctIndex の型変換（multi では省略可能）
+      const correctIndex = d.correctIndex != null ? Number(d.correctIndex) : undefined
+      if (correctIndex != null && Number.isNaN(correctIndex)) {
         return null // 不正な数値は拒否
       }
 
@@ -344,7 +346,7 @@ ${this.referenceUrl ? `**参考:** ${this.referenceUrl}` : ''}
       id: this.id,
       question: this.question,
       options: [...this.options],
-      correctIndex: this.correctIndex,
+      correctIndex: this.isMultiSelect ? undefined : this.correctIndex,
       explanation: this.explanation,
       referenceUrl: this.referenceUrl,
       aiPrompt: this.aiPrompt,

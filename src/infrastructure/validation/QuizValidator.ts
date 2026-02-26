@@ -81,7 +81,7 @@ export const QuizItemSchema = z.object({
     .array(QuizOptionSchema)
     .min(2, 'At least 2 options are required')
     .max(6, 'Maximum 6 options allowed'),
-  correctIndex: z.number().int().min(0),
+  correctIndex: z.number().int().min(0).optional(),
   explanation: z.string().min(1, 'Explanation is required'),
   referenceUrl: z.string().url('Must be a valid URL').refine(
     (url) => url.startsWith('http://') || url.startsWith('https://'),
@@ -103,7 +103,8 @@ export const QuizItemSchema = z.object({
       if (unique.size !== data.correctIndices.length) return false
       return data.correctIndices.every(i => i < data.options.length)
     }
-    // single: correctIndex must be within bounds
+    // single: correctIndex is required and must be within bounds
+    if (data.correctIndex == null) return false
     return data.correctIndex < data.options.length
   },
   {

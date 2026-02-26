@@ -288,7 +288,6 @@ describe('Question Entity', () => {
           { text: 'Restart the app', wrongFeedback: 'Restarting does not switch models' },
           { text: 'CLI flag --model', wrongFeedback: 'This flag does not exist' },
         ],
-        correctIndex: 0,
         correctIndices: [0, 1],
         explanation: 'You can switch models via /model command or settings file.',
         category: 'commands',
@@ -409,7 +408,6 @@ describe('Question Entity', () => {
             { text: 'B' },
             { text: 'C', wrongFeedback: 'Wrong' },
           ],
-          correctIndex: 0,
           correctIndices: [0, 1],
           explanation: 'A and B are correct',
           category: 'tools',
@@ -426,11 +424,12 @@ describe('Question Entity', () => {
     })
 
     describe('toJSON() - multi-select', () => {
-      it('should include type and correctIndices', () => {
+      it('should include type and correctIndices but not correctIndex', () => {
         const q = createMultiQuestion()
         const json = q.toJSON()
         expect(json.type).toBe('multi')
         expect(json.correctIndices).toEqual([0, 1])
+        expect(json.correctIndex).toBeUndefined()
       })
 
       it('should not include correctIndices for single-select', () => {
@@ -438,6 +437,7 @@ describe('Question Entity', () => {
         const json = q.toJSON()
         expect(json.type).toBe('single')
         expect(json.correctIndices).toBeUndefined()
+        expect(json.correctIndex).toBeDefined()
       })
     })
 

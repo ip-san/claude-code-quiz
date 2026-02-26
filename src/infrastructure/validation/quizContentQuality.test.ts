@@ -34,7 +34,8 @@ describe('Quiz Content Quality', () => {
     it('特定のインデックスに35%以上集中していないこと', () => {
       const counts = [0, 0, 0, 0, 0, 0]
       singleQuizzes.forEach(q => {
-        counts[q.correctIndex] = (counts[q.correctIndex] || 0) + 1
+        const ci = q.correctIndex ?? 0
+        counts[ci] = (counts[ci] || 0) + 1
       })
       const total = singleQuizzes.length
       const maxAllowedPct = 0.35
@@ -51,7 +52,7 @@ describe('Quiz Content Quality', () => {
     })
 
     it('少なくとも3つ以上の異なるインデックスが使用されていること', () => {
-      const usedIndices = new Set(singleQuizzes.map(q => q.correctIndex))
+      const usedIndices = new Set(singleQuizzes.map(q => q.correctIndex ?? 0))
       expect(usedIndices.size).toBeGreaterThanOrEqual(3)
     })
   })
@@ -59,7 +60,7 @@ describe('Quiz Content Quality', () => {
   describe('wrongFeedback の構造（単一選択問題）', () => {
     it('正解選択肢に wrongFeedback が付いていないこと', () => {
       const violations = singleQuizzes.filter(q => {
-        const correct = q.options[q.correctIndex]
+        const correct = q.options[q.correctIndex ?? 0]
         return 'wrongFeedback' in correct && correct.wrongFeedback !== undefined
       })
       const ids = violations.map(q => q.id)
@@ -104,6 +105,12 @@ describe('Quiz Content Quality', () => {
         })
       })
       expect(violations, `wrongFeedback が欠けている: ${violations.slice(0, 10).join(', ')}`).toEqual([])
+    })
+
+    it('correctIndex フィールドが存在しないこと（correctIndices のみ使用）', () => {
+      const violations = multiQuizzes.filter(q => 'correctIndex' in q)
+      const ids = violations.map(q => q.id)
+      expect(ids, `multi問題に correctIndex がある: ${ids.join(', ')}`).toEqual([])
     })
 
     it('correctIndices が2個以上であること', () => {

@@ -1,4 +1,5 @@
 import { Check, X, Square, CheckSquare } from 'lucide-react'
+import { QuizText } from './QuizText'
 
 interface OptionButtonProps {
   index: number
@@ -124,7 +125,7 @@ export function OptionButton({
     >
       <div className="flex items-start gap-3">
         {renderBadge()}
-        <span className="flex-1 leading-relaxed text-claude-dark">{text}</span>
+        <span className="flex-1 leading-relaxed text-claude-dark"><QuizText text={text} /></span>
         {getIcon()}
       </div>
     </button>

@@ -66,7 +66,7 @@ function randomize() {
       })
       newCorrectIndices.sort((a, b) => a - b)
       multiCount++
-      return { ...q, options: newOptions, correctIndex: newCorrectIndices[0], correctIndices: newCorrectIndices }
+      return { ...q, options: newOptions, correctIndices: newCorrectIndices }
     }
 
     // Single-select: remap correctIndex
