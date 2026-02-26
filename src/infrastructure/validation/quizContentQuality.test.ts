@@ -6,11 +6,15 @@
  * コンテンツレベルの問題を検出する。
  *
  * 検出対象:
- * - ID重複
- * - correctIndex の偏り（特定位置に集中していないか）
+ * - ID重複・命名規則
+ * - correctIndex / correctIndices の整合性と偏り
  * - wrongFeedback の構造（正解に付いていないか、不正解に欠けていないか）
  * - カテゴリの妥当性（PREDEFINED_CATEGORIES と一致するか）
- * - 問題文・解説の空チェック
+ * - 問題文・解説の空チェック・重複チェック
+ * - 選択肢テキストの重複
+ * - referenceUrl のドキュメントページ妥当性
+ * - タグの妥当性
+ * - 全体像モードのタグ品質
  */
 
 import { describe, it, expect } from 'vitest'
@@ -20,39 +24,123 @@ import { PREDEFINED_CATEGORIES } from '../../domain/valueObjects/Category'
 const quizzes = quizData.quizzes
 const singleQuizzes = quizzes.filter(q => q.type !== 'multi')
 const multiQuizzes = quizzes.filter(q => q.type === 'multi')
+const validCategoryIds = PREDEFINED_CATEGORIES.map(c => c.id)
+
+/** ID prefix → category の対応表（gs- はレガシー） */
+const ID_PREFIX_TO_CATEGORY: Record<string, string> = {
+  'mem': 'memory',
+  'skill': 'skills',
+  'tool': 'tools',
+  'cmd': 'commands',
+  'ext': 'extensions',
+  'ses': 'session',
+  'key': 'keyboard',
+  'bp': 'bestpractices',
+}
+
+/** 有効なドキュメントページパス */
+const VALID_DOC_PAGES = [
+  'overview', 'quickstart', 'settings', 'memory', 'interactive-mode',
+  'how-claude-code-works', 'mcp', 'hooks', 'discover-plugins',
+  'sub-agents', 'common-workflows', 'checkpointing', 'best-practices', 'skills',
+]
+
+/** 有効なタグパターン */
+const VALID_TAG_PATTERNS = [
+  /^overview$/,
+  /^overview-\d+$/,
+  /^overview-ch-\d+$/,
+]
 
 describe('Quiz Content Quality', () => {
-  describe('ID の一意性', () => {
+  describe('ID の一意性と命名規則', () => {
     it('すべてのIDが一意であること', () => {
       const ids = quizzes.map(q => q.id)
       const duplicates = ids.filter((id, i) => ids.indexOf(id) !== i)
       expect(duplicates).toEqual([])
     })
+
+    it('IDが命名規則に準拠していること（prefix-NNN 形式）', () => {
+      const violations = quizzes.filter(q => !/^[a-z]+-\d{3}$/.test(q.id))
+      const ids = violations.map(q => q.id)
+      expect(ids, `命名規則違反: ${ids.join(', ')}`).toEqual([])
+    })
+
+    it('IDプレフィックスがカテゴリと対応していること（gs- レガシーを除く）', () => {
+      const violations: string[] = []
+      quizzes.forEach(q => {
+        const prefix = q.id.replace(/-\d+$/, '')
+        if (prefix === 'gs') return // レガシーIDは除外
+        const expectedCategory = ID_PREFIX_TO_CATEGORY[prefix]
+        if (expectedCategory && q.category !== expectedCategory) {
+          violations.push(`${q.id}: prefix "${prefix}" → expected "${expectedCategory}", got "${q.category}"`)
+        }
+        if (!expectedCategory && !ID_PREFIX_TO_CATEGORY[prefix]) {
+          violations.push(`${q.id}: unknown prefix "${prefix}"`)
+        }
+      })
+      expect(violations, `ID-カテゴリ不一致: ${violations.join(', ')}`).toEqual([])
+    })
+  })
+
+  describe('correctIndex / correctIndices の整合性', () => {
+    it('単一選択問題に correctIndex が必ず存在すること', () => {
+      const violations = singleQuizzes.filter(q => q.correctIndex == null)
+      const ids = violations.map(q => q.id)
+      expect(ids, `correctIndex がない single 問題: ${ids.join(', ')}`).toEqual([])
+    })
+
+    it('単一選択問題に correctIndices が存在しないこと', () => {
+      const violations = singleQuizzes.filter(q => 'correctIndices' in q && q.correctIndices != null)
+      const ids = violations.map(q => q.id)
+      expect(ids, `single 問題に correctIndices がある: ${ids.join(', ')}`).toEqual([])
+    })
+
+    it('複数選択問題に correctIndex が存在しないこと（correctIndices のみ使用）', () => {
+      const violations = multiQuizzes.filter(q => 'correctIndex' in q)
+      const ids = violations.map(q => q.id)
+      expect(ids, `multi 問題に correctIndex がある: ${ids.join(', ')}`).toEqual([])
+    })
+
+    it('複数選択問題に correctIndices が2個以上あること', () => {
+      const violations = multiQuizzes.filter(q => !q.correctIndices || q.correctIndices.length < 2)
+      const ids = violations.map(q => q.id)
+      expect(ids, `correctIndices が2個未満: ${ids.join(', ')}`).toEqual([])
+    })
+
+    it('複数選択問題の correctIndices が全て options 範囲内であること', () => {
+      const violations: string[] = []
+      multiQuizzes.forEach(q => {
+        (q.correctIndices ?? []).forEach(idx => {
+          if (idx < 0 || idx >= q.options.length) {
+            violations.push(`${q.id} correctIndices[${idx}]`)
+          }
+        })
+      })
+      expect(violations, `範囲外の correctIndices: ${violations.join(', ')}`).toEqual([])
+    })
   })
 
   describe('correctIndex の分布（単一選択問題）', () => {
     it('特定のインデックスに35%以上集中していないこと', () => {
-      const counts = [0, 0, 0, 0, 0, 0]
+      const counts = new Map<number, number>()
       singleQuizzes.forEach(q => {
-        const ci = q.correctIndex ?? 0
-        counts[ci] = (counts[ci] || 0) + 1
+        const ci = q.correctIndex!
+        counts.set(ci, (counts.get(ci) ?? 0) + 1)
       })
       const total = singleQuizzes.length
-      const maxAllowedPct = 0.35
 
-      counts.forEach((count, index) => {
-        if (count > 0) {
-          const pct = count / total
-          expect(
-            pct,
-            `correctIndex=${index} が ${(pct * 100).toFixed(1)}% (${count}/${total}) で偏りすぎ`
-          ).toBeLessThanOrEqual(maxAllowedPct)
-        }
-      })
+      for (const [index, count] of counts) {
+        const pct = count / total
+        expect(
+          pct,
+          `correctIndex=${index} が ${(pct * 100).toFixed(1)}% (${count}/${total}) で偏りすぎ`
+        ).toBeLessThanOrEqual(0.35)
+      }
     })
 
     it('少なくとも3つ以上の異なるインデックスが使用されていること', () => {
-      const usedIndices = new Set(singleQuizzes.map(q => q.correctIndex ?? 0))
+      const usedIndices = new Set(singleQuizzes.map(q => q.correctIndex!))
       expect(usedIndices.size).toBeGreaterThanOrEqual(3)
     })
   })
@@ -60,7 +148,7 @@ describe('Quiz Content Quality', () => {
   describe('wrongFeedback の構造（単一選択問題）', () => {
     it('正解選択肢に wrongFeedback が付いていないこと', () => {
       const violations = singleQuizzes.filter(q => {
-        const correct = q.options[q.correctIndex ?? 0]
+        const correct = q.options[q.correctIndex!]
         return 'wrongFeedback' in correct && correct.wrongFeedback !== undefined
       })
       const ids = violations.map(q => q.id)
@@ -106,35 +194,9 @@ describe('Quiz Content Quality', () => {
       })
       expect(violations, `wrongFeedback が欠けている: ${violations.slice(0, 10).join(', ')}`).toEqual([])
     })
-
-    it('correctIndex フィールドが存在しないこと（correctIndices のみ使用）', () => {
-      const violations = multiQuizzes.filter(q => 'correctIndex' in q)
-      const ids = violations.map(q => q.id)
-      expect(ids, `multi問題に correctIndex がある: ${ids.join(', ')}`).toEqual([])
-    })
-
-    it('correctIndices が2個以上であること', () => {
-      const violations = multiQuizzes.filter(q => !q.correctIndices || q.correctIndices.length < 2)
-      const ids = violations.map(q => q.id)
-      expect(ids, `correctIndices が2個未満: ${ids.join(', ')}`).toEqual([])
-    })
-
-    it('correctIndices が全て options 範囲内であること', () => {
-      const violations: string[] = []
-      multiQuizzes.forEach(q => {
-        (q.correctIndices ?? []).forEach(idx => {
-          if (idx < 0 || idx >= q.options.length) {
-            violations.push(`${q.id} correctIndices[${idx}]`)
-          }
-        })
-      })
-      expect(violations, `範囲外の correctIndices: ${violations.join(', ')}`).toEqual([])
-    })
   })
 
   describe('カテゴリの妥当性', () => {
-    const validCategoryIds = PREDEFINED_CATEGORIES.map(c => c.id)
-
     it('すべてのカテゴリが PREDEFINED_CATEGORIES に含まれること', () => {
       const invalidCategories = quizzes.filter(q => !validCategoryIds.includes(q.category))
       const details = invalidCategories.map(q => `${q.id}: "${q.category}"`)
@@ -145,6 +207,22 @@ describe('Quiz Content Quality', () => {
       const categoriesUsed = new Set(quizzes.map(q => q.category))
       const missing = validCategoryIds.filter(id => !categoriesUsed.has(id))
       expect(missing, `問題がないカテゴリ: ${missing.join(', ')}`).toEqual([])
+    })
+  })
+
+  describe('選択肢の品質', () => {
+    it('同一問題内に重複する選択肢テキストがないこと', () => {
+      const violations: string[] = []
+      quizzes.forEach(q => {
+        const seen = new Set<string>()
+        q.options.forEach((opt, i) => {
+          if (seen.has(opt.text)) {
+            violations.push(`${q.id} option[${i}]: "${opt.text}"`)
+          }
+          seen.add(opt.text)
+        })
+      })
+      expect(violations, `重複選択肢: ${violations.join(', ')}`).toEqual([])
     })
   })
 
@@ -161,6 +239,12 @@ describe('Quiz Content Quality', () => {
       expect(details, `解説文が短すぎる: ${details.join(', ')}`).toEqual([])
     })
 
+    it('問題文と解説文が同一でないこと', () => {
+      const violations = quizzes.filter(q => q.question === q.explanation)
+      const ids = violations.map(q => q.id)
+      expect(ids, `問題文と解説が同一: ${ids.join(', ')}`).toEqual([])
+    })
+
     it('すべての問題に referenceUrl があること', () => {
       const missing = quizzes.filter(q => !q.referenceUrl)
       const ids = missing.map(q => q.id)
@@ -173,6 +257,34 @@ describe('Quiz Content Quality', () => {
       )
       const details = invalid.map(q => `${q.id}: "${q.referenceUrl}"`)
       expect(details, `無効なURL: ${details.join(', ')}`).toEqual([])
+    })
+
+    it('referenceUrl のパスが既知のドキュメントページであること', () => {
+      const prefix = 'https://code.claude.com/docs/en/'
+      const violations: string[] = []
+      quizzes.forEach(q => {
+        if (!q.referenceUrl) return
+        const pathWithFragment = q.referenceUrl.slice(prefix.length)
+        const page = pathWithFragment.split('#')[0]
+        if (!VALID_DOC_PAGES.includes(page)) {
+          violations.push(`${q.id}: unknown page "${page}"`)
+        }
+      })
+      expect(violations, `不明なドキュメントページ: ${violations.join(', ')}`).toEqual([])
+    })
+  })
+
+  describe('タグの妥当性', () => {
+    it('すべてのタグが既知のパターンに一致すること', () => {
+      const violations: string[] = []
+      quizzes.forEach(q => {
+        (q.tags ?? []).forEach((tag: string) => {
+          if (!VALID_TAG_PATTERNS.some(p => p.test(tag))) {
+            violations.push(`${q.id}: unknown tag "${tag}"`)
+          }
+        })
+      })
+      expect(violations, `不明なタグ: ${violations.join(', ')}`).toEqual([])
     })
   })
 
@@ -201,10 +313,9 @@ describe('Quiz Content Quality', () => {
       expect(duplicates, `重複タグ: ${duplicates.join(', ')}`).toEqual([])
     })
 
-    it('全8カテゴリが含まれていること', () => {
+    it('全カテゴリが含まれていること', () => {
       const categories = new Set(overviewQuizzes.map(q => q.category))
-      const required = ['memory', 'skills', 'tools', 'commands', 'extensions', 'session', 'keyboard', 'bestpractices']
-      const missing = required.filter(c => !categories.has(c))
+      const missing = validCategoryIds.filter(c => !categories.has(c))
       expect(missing, `欠落カテゴリ: ${missing.join(', ')}`).toEqual([])
     })
   })
