@@ -20,6 +20,7 @@
 import { describe, it, expect } from 'vitest'
 import quizData from '../../data/quizzes.json'
 import { PREDEFINED_CATEGORIES } from '../../domain/valueObjects/Category'
+import { PREDEFINED_TOPIC_TAGS } from '../../domain/valueObjects/TopicTag'
 
 const quizzes = quizData.quizzes
 const singleQuizzes = quizzes.filter(q => q.type !== 'multi')
@@ -50,7 +51,10 @@ const VALID_TAG_PATTERNS = [
   /^overview$/,
   /^overview-\d+$/,
   /^overview-ch-\d+$/,
+  /^topic-[a-z]+(-[a-z]+)*$/,
 ]
+
+const validTopicTagIds = PREDEFINED_TOPIC_TAGS.map(t => t.id)
 
 describe('Quiz Content Quality', () => {
   describe('ID の一意性と命名規則', () => {
@@ -285,6 +289,18 @@ describe('Quiz Content Quality', () => {
         })
       })
       expect(violations, `不明なタグ: ${violations.join(', ')}`).toEqual([])
+    })
+
+    it('topic-* タグが PREDEFINED_TOPIC_TAGS に定義済みであること', () => {
+      const violations: string[] = []
+      quizzes.forEach(q => {
+        (q.tags ?? []).forEach((tag: string) => {
+          if (tag.startsWith('topic-') && !validTopicTagIds.includes(tag)) {
+            violations.push(`${q.id}: undefined topic tag "${tag}"`)
+          }
+        })
+      })
+      expect(violations, `未定義のトピックタグ: ${violations.join(', ')}`).toEqual([])
     })
   })
 
