@@ -72,24 +72,6 @@ const electronAPI = {
   },
 
   /**
-   * クイズ JSON ファイルのインポート
-   *
-   * 【フロー】
-   * 1. Main プロセスがファイル選択ダイアログを表示
-   * 2. ユーザーがファイルを選択
-   * 3. Main プロセスがファイル内容を読み込み
-   * 4. 文字列として Renderer に返す
-   * 5. Renderer 側（QuizValidator）で JSON パース・バリデーション
-   *
-   * 【なぜファイルパスを返さないのか】
-   * - Renderer にファイルシステムへのアクセス権を与えないため
-   * - sandbox: true の制約を維持するため
-   */
-  importQuizFile: (): Promise<{ success: boolean; data?: string; error?: string }> => {
-    return ipcRenderer.invoke('import-quiz-file')
-  },
-
-  /**
    * 学習進捗データのエクスポート
    *
    * Renderer から JSON 文字列を受け取り、Main プロセスで

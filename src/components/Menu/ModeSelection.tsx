@@ -12,7 +12,6 @@ import {
   PREDEFINED_DIFFICULTIES,
   type DifficultyLevel,
 } from '@/domain/valueObjects/Difficulty'
-import { Database, Upload, Trash2 } from 'lucide-react'
 import { ResumeSessionBanner } from './ResumeSessionBanner'
 
 // Color mapping for categories
@@ -42,12 +41,6 @@ export function ModeSelection() {
     getFilteredQuestions,
     startSession,
     setViewState,
-    availableSets,
-    activeSetInfo,
-    switchQuizSet,
-    deleteUserSet,
-    importQuizzes,
-    importError,
     getBookmarkedCount,
     userProgress,
   } = useQuizStore()
@@ -55,7 +48,6 @@ export function ModeSelection() {
   const [selectedMode, setSelectedMode] = useState<QuizModeId>('random')
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null)
   const [selectedDifficulty, setSelectedDifficulty] = useState<DifficultyLevel | null>(null)
-  const [showDatasetPanel, setShowDatasetPanel] = useState(false)
 
   const bookmarkedCount = getBookmarkedCount()
 
@@ -102,26 +94,6 @@ export function ModeSelection() {
     })
   }
 
-  const handleImportQuizzes = async () => {
-    try {
-      if (!window.electronAPI) {
-        return
-      }
-      const result = await window.electronAPI.importQuizFile()
-      if (result.success && result.data) {
-        const success = await importQuizzes(result.data)
-        if (!success) {
-          console.error('Import validation failed')
-        }
-      } else if (result.error && result.error !== 'cancelled') {
-        console.error('File import error:', result.error)
-      }
-    } catch (error) {
-      console.error('Failed to import quiz file:', error)
-      alert('Error: ' + (error instanceof Error ? error.message : String(error)))
-    }
-  }
-
   const getCategoryQuestionCount = (categoryId: string) => {
     return categoryQuestionCounts[categoryId] ?? 0
   }
@@ -144,83 +116,7 @@ export function ModeSelection() {
             全{allQuestions.length}問 | 8カテゴリ
           </p>
 
-          {/* Dataset indicator */}
-          {activeSetInfo && (
-            <button
-              onClick={() => setShowDatasetPanel(!showDatasetPanel)}
-              className="mt-2 inline-flex items-center gap-2 rounded-full border border-stone-300 bg-white px-3 py-1 text-xs text-stone-600 hover:bg-stone-50"
-            >
-              <Database className="h-3 w-3" />
-              {activeSetInfo.title}
-              {activeSetInfo.type === 'default' && (
-                <span className="rounded bg-claude-orange/10 px-1.5 py-0.5 text-xs text-claude-orange">
-                  デフォルト
-                </span>
-              )}
-            </button>
-          )}
         </div>
-
-        {/* Dataset Panel */}
-        {showDatasetPanel && (
-          <div className="mb-4 rounded-lg border border-stone-200 bg-white p-4 shadow-sm">
-            <h3 className="mb-3 text-base font-semibold text-claude-dark">データセット管理</h3>
-
-            <div className="mb-3 space-y-2">
-              {availableSets.map((set) => (
-                <div
-                  key={set.id}
-                  className={`flex items-center justify-between rounded-lg border p-3 ${
-                    set.isActive
-                      ? 'border-claude-orange bg-claude-orange/5'
-                      : 'border-stone-200 bg-stone-50'
-                  }`}
-                >
-                  <div className="flex items-center gap-2">
-                    <Database className={`h-4 w-4 ${set.isActive ? 'text-claude-orange' : 'text-stone-400'}`} />
-                    <div>
-                      <p className="text-sm font-medium text-claude-dark">{set.title}</p>
-                      <p className="text-xs text-stone-500">
-                        {set.questionCount}問
-                        {set.type === 'default' && ' (読み取り専用)'}
-                      </p>
-                    </div>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    {!set.isActive && (
-                      <button
-                        onClick={() => switchQuizSet(set.id)}
-                        className="rounded bg-claude-orange px-3 py-1 text-xs text-white hover:bg-claude-orange/90"
-                      >
-                        使用する
-                      </button>
-                    )}
-                    {set.type === 'user' && (
-                      <button
-                        onClick={() => deleteUserSet(set.id)}
-                        className="rounded bg-red-50 p-1.5 text-red-500 hover:bg-red-100"
-                      >
-                        <Trash2 className="h-4 w-4" />
-                      </button>
-                    )}
-                  </div>
-                </div>
-              ))}
-            </div>
-
-            <button
-              onClick={handleImportQuizzes}
-              className="flex w-full items-center justify-center gap-2 rounded-lg border border-dashed border-stone-300 py-2.5 text-sm text-stone-500 hover:border-stone-400 hover:bg-stone-50"
-            >
-              <Upload className="h-4 w-4" />
-              クイズをインポート
-            </button>
-
-            {importError && (
-              <p className="mt-2 text-sm text-red-500">{importError}</p>
-            )}
-          </div>
-        )}
 
         {/* Mode Selection */}
         <div className="mb-4">

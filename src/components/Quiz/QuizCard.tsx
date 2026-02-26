@@ -40,7 +40,7 @@ export function QuizCard() {
 
   const quiz = getCurrentQuestion()
   const selectedAnswer = sessionState?.selectedAnswer ?? null
-  const selectedAnswers = sessionState?.selectedAnswers ?? []
+  const selectedAnswers = useMemo(() => sessionState?.selectedAnswers ?? [], [sessionState?.selectedAnswers])
   const isAnswered = sessionState?.isAnswered ?? false
   const isCorrect = sessionState?.isCorrect ?? null
   const isReviewMode = sessionState?.isReviewMode ?? false

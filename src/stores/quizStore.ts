@@ -79,20 +79,6 @@ type ViewState = 'menu' | 'quiz' | 'result' | 'progress'
 // ============================================================
 
 /**
- * クイズセット情報
- *
- * 複数のクイズセットを管理するための情報。
- * 'default' は組み込みのクイズ、'user' はインポートされたクイズ。
- */
-interface QuizSetInfo {
-  id: string
-  title: string
-  type: 'default' | 'user'
-  questionCount: number
-  isActive: boolean
-}
-
-/**
  * ストアのインターフェース定義
  *
  * 【設計原則】
@@ -106,9 +92,6 @@ interface QuizStore {
 
   // Quiz data (using domain entities)
   allQuestions: Question[]
-  activeSetInfo: QuizSetInfo | null
-  availableSets: QuizSetInfo[]
-  isDefaultData: boolean
 
   // Session state
   sessionConfig: QuizSessionConfig
@@ -121,8 +104,6 @@ interface QuizStore {
   // Saved session state (for resume)
   savedSession: SavedSessionData | null
 
-  // Import state
-  importError: string | null
   isLoading: boolean
 
   // View actions
@@ -141,12 +122,6 @@ interface QuizStore {
 
   // Timer actions
   updateTimer: () => void
-
-  // Data actions
-  importQuizzes: (jsonString: string) => Promise<boolean>
-  restoreDefault: () => Promise<void>
-  switchQuizSet: (setId: string) => Promise<void>
-  deleteUserSet: (setId: string) => Promise<void>
 
   // Bookmark actions
   toggleBookmark: (questionId: string) => void
@@ -248,15 +223,11 @@ export const useQuizStore = create<QuizStore>((set, get) => ({
   // Initial state
   viewState: 'menu',
   allQuestions: [],
-  activeSetInfo: null,
-  availableSets: [],
-  isDefaultData: true,
   sessionConfig: QuizSessionService.createDefaultConfig(),
   sessionState: null,
   sessionWrongAnswers: [],
   userProgress: UserProgress.empty(),
   savedSession: null,
-  importError: null,
   isLoading: true,
 
   // View actions
@@ -283,7 +254,6 @@ export const useQuizStore = create<QuizStore>((set, get) => ({
 
       // Load quiz data
       const activeSet = await quizRepo.getActiveSet()
-      const allSetsInfo = await quizRepo.getAllSetsInfo()
       const questions = [...activeSet.questions]
 
       // Load progress
@@ -294,9 +264,6 @@ export const useQuizStore = create<QuizStore>((set, get) => ({
 
       set({
         allQuestions: questions,
-        activeSetInfo: allSetsInfo.find(s => s.isActive) ?? null,
-        availableSets: allSetsInfo,
-        isDefaultData: activeSet.type === 'default',
         userProgress: progress,
         savedSession,
         isLoading: false,
@@ -492,113 +459,6 @@ export const useQuizStore = create<QuizStore>((set, get) => ({
       })
     } else {
       set({ sessionState: newSessionState })
-    }
-  },
-
-  /**
-   * クイズデータのインポート
-   *
-   * 【バリデーションの場所】
-   * Repository 内で QuizValidator を使用してバリデーション。
-   * 不正なデータは Repository で弾かれる。
-   *
-   * 【エラーハンドリング】
-   * - バリデーションエラー: importError に設定
-   * - ユーザーがキャンセル: 何もしない
-   */
-  importQuizzes: async (jsonString) => {
-    try {
-      // Clear previous error
-      set({ importError: null })
-
-      const quizRepo = getQuizRepository()
-      const importedSet = await quizRepo.importFromJson(jsonString)
-
-      if (!importedSet) {
-        set({ importError: 'クイズデータの形式が無効です。JSONファイルの構造を確認してください。' })
-        return false
-      }
-
-      // Switch to the imported set
-      await quizRepo.setActiveSet(importedSet.id)
-
-      // Refresh data
-      const allSetsInfo = await quizRepo.getAllSetsInfo()
-
-      set({
-        allQuestions: [...importedSet.questions],
-        activeSetInfo: allSetsInfo.find(s => s.isActive) ?? null,
-        availableSets: allSetsInfo,
-        isDefaultData: false,
-        importError: null,
-        viewState: 'menu',
-      })
-
-      return true
-    } catch (error) {
-      set({
-        importError: error instanceof Error ? error.message : 'Import failed',
-      })
-      return false
-    }
-  },
-
-  restoreDefault: async () => {
-    try {
-      const quizRepo = getQuizRepository()
-      await quizRepo.restoreToDefault()
-
-      const activeSet = await quizRepo.getActiveSet()
-      const allSetsInfo = await quizRepo.getAllSetsInfo()
-
-      set({
-        allQuestions: [...activeSet.questions],
-        activeSetInfo: allSetsInfo.find(s => s.isActive) ?? null,
-        availableSets: allSetsInfo,
-        isDefaultData: true,
-        importError: null,
-        viewState: 'menu',
-      })
-    } catch (error) {
-      console.error('Failed to restore default:', error)
-    }
-  },
-
-  switchQuizSet: async (setId) => {
-    try {
-      const quizRepo = getQuizRepository()
-      await quizRepo.setActiveSet(setId)
-
-      const activeSet = await quizRepo.getActiveSet()
-      const allSetsInfo = await quizRepo.getAllSetsInfo()
-
-      set({
-        allQuestions: [...activeSet.questions],
-        activeSetInfo: allSetsInfo.find(s => s.isActive) ?? null,
-        availableSets: allSetsInfo,
-        isDefaultData: activeSet.type === 'default',
-      })
-    } catch (error) {
-      console.error('Failed to switch quiz set:', error)
-    }
-  },
-
-  deleteUserSet: async (setId) => {
-    try {
-      const quizRepo = getQuizRepository()
-      await quizRepo.deleteUserSet(setId)
-
-      const activeSet = await quizRepo.getActiveSet()
-      const allSetsInfo = await quizRepo.getAllSetsInfo()
-
-      set({
-        allQuestions: [...activeSet.questions],
-        activeSetInfo: allSetsInfo.find(s => s.isActive) ?? null,
-        availableSets: allSetsInfo,
-        isDefaultData: activeSet.type === 'default',
-      })
-    } catch (error) {
-      console.error('Failed to delete user set:', error)
     }
   },
 

@@ -1,4 +1,4 @@
-import type { QuizSet, QuizSetType } from '../entities/QuizSet'
+import type { QuizSet } from '../entities/QuizSet'
 import type { Question } from '../entities/Question'
 
 /**
@@ -14,34 +14,9 @@ export interface IQuizRepository {
   getDefaultSet(): Promise<QuizSet>
 
   /**
-   * Get all user-imported quiz sets
-   */
-  getUserSets(): Promise<QuizSet[]>
-
-  /**
-   * Get a specific quiz set by ID
-   */
-  getSetById(id: string): Promise<QuizSet | null>
-
-  /**
    * Get the currently active quiz set
    */
   getActiveSet(): Promise<QuizSet>
-
-  /**
-   * Set the active quiz set by ID
-   */
-  setActiveSet(id: string): Promise<void>
-
-  /**
-   * Save a user quiz set (only for user type)
-   */
-  saveUserSet(set: QuizSet): Promise<void>
-
-  /**
-   * Delete a user quiz set (only for user type)
-   */
-  deleteUserSet(id: string): Promise<void>
 
   /**
    * Get all questions from the active set
@@ -58,35 +33,4 @@ export interface IQuizRepository {
    */
   getQuestionsByDifficulty(difficulty: string): Promise<Question[]>
 
-  /**
-   * Check if a set is the active set
-   */
-  isActiveSet(id: string): Promise<boolean>
-
-  /**
-   * Get the type of a quiz set
-   */
-  getSetType(id: string): Promise<QuizSetType | null>
-
-  /**
-   * Import quiz data from JSON string
-   * Returns the created QuizSet or throws an error if validation fails
-   */
-  importFromJson(jsonString: string): Promise<QuizSet | null>
-
-  /**
-   * Restore to default quiz set
-   */
-  restoreToDefault(): Promise<void>
-
-  /**
-   * Get info about all available sets (for UI display)
-   */
-  getAllSetsInfo(): Promise<Array<{
-    id: string
-    title: string
-    type: QuizSetType
-    questionCount: number
-    isActive: boolean
-  }>>
 }

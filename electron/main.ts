@@ -185,54 +185,6 @@ ipcMain.handle('copy-to-clipboard', async (_event, text: string): Promise<boolea
 })
 
 /**
- * クイズ JSON ファイルのインポート
- *
- * 【フロー】
- * 1. ファイル選択ダイアログを表示
- * 2. ユーザーが JSON ファイルを選択
- * 3. ファイル内容を読み込んで返す
- * 4. バリデーションは Renderer 側（QuizValidator）で行う
- */
-ipcMain.handle('import-quiz-file', async (): Promise<{ success: boolean; data?: string; error?: string }> => {
-  try {
-    if (!mainWindow) {
-      return { success: false, error: 'Window not available' }
-    }
-
-    const result = await dialog.showOpenDialog(mainWindow, {
-      title: 'クイズファイルを選択',
-      filters: [{ name: 'JSON Files', extensions: ['json'] }],
-      properties: ['openFile'],
-    })
-
-    if (result.canceled || result.filePaths.length === 0) {
-      return { success: false, error: 'cancelled' }
-    }
-
-    const filePath = result.filePaths[0]
-
-    // ファイルサイズチェック（最大5MB）- メモリ枯渇攻撃対策
-    const MAX_FILE_SIZE = 5 * 1024 * 1024 // 5MB
-    const fileStats = await stat(filePath)
-    if (fileStats.size > MAX_FILE_SIZE) {
-      return {
-        success: false,
-        error: `ファイルサイズが大きすぎます（最大5MB）。現在のサイズ: ${Math.round(fileStats.size / 1024 / 1024 * 10) / 10}MB`,
-      }
-    }
-
-    const content = await readFile(filePath, 'utf-8')
-
-    return { success: true, data: content }
-  } catch (error) {
-    return {
-      success: false,
-      error: error instanceof Error ? error.message : 'Unknown error',
-    }
-  }
-})
-
-/**
  * 学習進捗データのエクスポート
  *
  * ファイル名にはエクスポート日付を含める。
