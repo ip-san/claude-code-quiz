@@ -30,7 +30,7 @@ IDは既存の最大番号の続きから採番してください。
 
 ## Input Source
 
-以下の公式ドキュメント（14ページ）を参照してください：
+以下の公式ドキュメント（16ページ）を参照してください：
 
 ### Core Documentation
 - https://code.claude.com/docs/en/overview
@@ -52,7 +52,11 @@ IDは既存の最大番号の続きから採番してください。
 - https://code.claude.com/docs/en/common-workflows
 - https://code.claude.com/docs/en/checkpointing
 - https://code.claude.com/docs/en/best-practices
-- https://code.claude.com/docs/en/skills（未追加の場合）
+- https://code.claude.com/docs/en/skills
+- https://code.claude.com/docs/en/model-config
+
+### Agent SDK
+- https://platform.claude.com/docs/en/agent-sdk/overview
 
 ## Output Format
 
@@ -101,9 +105,14 @@ IDは既存の最大番号の続きから採番してください。
 1. **正確性:** 公式ドキュメントの内容に基づく正確な情報のみ
 2. **実践性:** 実際の開発シーンで役立つ実践的な問題
 3. **wrongFeedback:** 正解選択肢にはwrongFeedbackを付けない。不正解選択肢には必ず「なぜ誤りなのか」の説明を含める
-4. **referenceUrl:** 各問題に `https://code.claude.com/docs/en/` で始まるURLを必ず含める。パスは以下の14ページのいずれか: overview, quickstart, settings, memory, interactive-mode, how-claude-code-works, mcp, hooks, discover-plugins, sub-agents, common-workflows, checkpointing, best-practices, skills
+4. **referenceUrl:** 各問題に正しいドメインで始まるURLを必ず含める
+   - `https://code.claude.com/docs/en/{page}` — 16ページ: overview, quickstart, settings, memory, interactive-mode, how-claude-code-works, mcp, hooks, discover-plugins, sub-agents, common-workflows, checkpointing, best-practices, skills, model-config
+   - `https://platform.claude.com/docs/en/agent-sdk/overview` — Agent SDK関連
 5. **日本語:** 問題文・選択肢・解説・wrongFeedbackはすべて日本語
 6. **選択肢4つ:** 各問題に正確に4つの選択肢を含める
+7. **バッククォート書式:** コード用語・ファイルパス・コマンド・環境変数・設定キーはバッククォートで囲む
+   - 例: `CLAUDE.md`、`/clear`、`npm test`、`.claude/settings.json`、`CLAUDE_AUTOCOMPACT_PCT_OVERRIDE`
+   - 問題文・選択肢・解説・wrongFeedbackすべてに適用する
 
 ### 暗記問題の禁止（最重要）
 
@@ -128,6 +137,33 @@ IDは既存の最大番号の続きから採番してください。
 3. **誤解しやすいポイントを突く** — よくある勘違いや混同しやすい概念を選択肢に含める
 4. **wrongFeedback で学びを提供する** — 単に「間違いです」ではなく、なぜそれが不適切かを説明する
 
+### 不正解選択肢の品質基準
+
+**不正解選択肢はもっともらしいものにする。** 明らかに的外れな選択肢は学習効果が低い。
+
+❌ **NG例（明らかに間違い）:**
+- Bashモードのプレフィックス: `>`, `$`, `#`（開発者なら知識なしでも除外できる）
+- 架空のコマンド名: `/magic-fix`, `/auto-solve`
+
+✅ **OK例（もっともらしい）:**
+- 類似する実在の機能名・コマンド名（混同しやすいもの）
+- 他のツールでは正しいが Claude Code では異なる設定方法
+- 一見正しそうだが重要な違いがあるアプローチ
+
+### wrongFeedback の品質基準
+
+wrongFeedback は「学びの機会」として活用する。具体的にドキュメントの該当箇所を参照しながら説明する。
+
+❌ **NG例（弱い wrongFeedback）:**
+- 「これは正しくありません」
+- 「この機能は存在しません」
+- 「このパスではありません」
+
+✅ **OK例（具体的な wrongFeedback）:**
+- 「`.config/`はXDG規約のディレクトリですが、Claude Codeは`.claude/`ディレクトリを使用します。プロジェクト設定は`.claude/settings.json`に配置します。」
+- 「`--from-pr`は作業ツリーでのPRレビューではなく、特定のPRにリンクされたセッションを再開するオプションです。」
+- 「`disallowedCommands`は旧APIの名前です。現在は`permissions.deny`で権限を管理します。」
+
 ### 重複・冗長の防止
 
 生成前に必ず既存問題を確認し、以下を避ける：
@@ -147,6 +183,9 @@ npm run quiz:coverage
 - **環境変数名の誤記:** 例）`CLAUDE_CODE_AUTOCOMPACT_PCT_OVERRIDE` → 正しくは `CLAUDE_AUTOCOMPACT_PCT_OVERRIDE`
 - **コマンド動作の誤解:** 例）`--from-pr` はワークツリーでのPRレビューではなくセッションリンク
 - **存在しない機能の記述:** ドキュメントで確認できない機能を正解にしない
+- **ツールカテゴリ数の誤り:** 例）「4つのカテゴリ」→ 正しくは5つ（Code intelligence含む）
+- **設定キー名の旧名称使用:** 例）`disallowedCommands` → 正しくは `permissions.deny`
+- **スキル定義のキー名:** 例）`allowed_tools`（アンダースコア）→ 正しくは `allowed-tools`（ハイフン）
 - 生成後に必ずドキュメントと照合し、正解選択肢の根拠を確認すること
 
 ## Post-Generation Steps（重要）

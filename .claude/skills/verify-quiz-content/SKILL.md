@@ -35,7 +35,7 @@ npm run quiz:stats
 
 ## Official Documentation Sources
 
-以下の公式ドキュメント（14ページ）を検証の参照元とします：
+以下の公式ドキュメント（16ページ + Agent SDK）を検証の参照元とします：
 
 ### Core Documentation
 - https://code.claude.com/docs/en/overview
@@ -57,17 +57,28 @@ npm run quiz:stats
 - https://code.claude.com/docs/en/common-workflows
 - https://code.claude.com/docs/en/checkpointing
 - https://code.claude.com/docs/en/best-practices
+- https://code.claude.com/docs/en/skills
+- https://code.claude.com/docs/en/model-config
+
+### Agent SDK（別ドメイン）
+- https://platform.claude.com/docs/en/agent-sdk/overview
 
 ## Step 1: Fact Verification
 
-カテゴリごとに並列でTaskエージェントを起動して効率的に検証：
+**⚠️ レートリミット対策:** 8カテゴリ全てを同時に並列検証するとAPIレートリミットに抵触する可能性が高い。**2〜3カテゴリずつバッチで実行する**こと。
 
 ```
-Task (subagent_type: general-purpose) for each category:
+# バッチ1: memory, skills, tools (並列)
+# バッチ2: commands, extensions (並列)
+# バッチ3: session, keyboard, bestpractices (並列)
+
+Task (subagent_type: general-purpose) for each category in batch:
   1. WebFetchで該当ドキュメントページを取得
   2. 各問題の正解・不正解・解説を照合
   3. 差異を報告
 ```
+
+引数で特定カテゴリが指定された場合は、そのカテゴリのみ並列実行で問題ない。
 
 ### Verification Checklist
 
@@ -79,10 +90,15 @@ Task (subagent_type: general-purpose) for each category:
 - 誤答選択肢の wrongFeedback が正確か
 - explanation が正しい情報を含んでいるか
 
-**過去に見つかった典型的な誤り:**
+**過去に見つかった典型的な誤り（重点チェック項目）:**
 - 環境変数名の誤記（例: `CLAUDE_CODE_AUTOCOMPACT_PCT_OVERRIDE` → 正しくは `CLAUDE_AUTOCOMPACT_PCT_OVERRIDE`）
-- コマンド動作の誤解（例: `--from-pr` の挙動）
+- コマンド動作の誤解（例: `--from-pr` はワークツリーでのPRレビューではなくセッションリンク）
 - ドキュメントで確認できない機能を正解にしてしまう
+- ツールカテゴリ数の誤り（例: 「4つ」→ 正しくは5つ、Code intelligence含む）
+- 設定キーの旧名称（例: `disallowedCommands` → 正しくは `permissions.deny`）
+- スキル定義のキー名形式（例: `allowed_tools` → 正しくは `allowed-tools`ハイフン区切り）
+- managed policy パスの誤記（`/managed/` の有無）
+- wrongFeedback がドキュメントと矛盾（例: `/clear` の頻繁使用を非推奨としているが、ドキュメントは推奨している）
 
 #### B. 用語・名称の正確性
 
@@ -94,12 +110,21 @@ Task (subagent_type: general-purpose) for each category:
 
 - referenceUrl が有効なURLか
 - リンク先のページが存在するか
-- パスは14ページのいずれか: overview, quickstart, settings, memory, interactive-mode, how-claude-code-works, mcp, hooks, discover-plugins, sub-agents, common-workflows, checkpointing, best-practices, skills
+- 有効なドメインとパス：
+  - `https://code.claude.com/docs/en/{page}` — 16ページ: overview, quickstart, settings, memory, interactive-mode, how-claude-code-works, mcp, hooks, discover-plugins, sub-agents, common-workflows, checkpointing, best-practices, skills, model-config
+  - `https://platform.claude.com/docs/en/agent-sdk/overview` — Agent SDK関連
 
 #### D. 最新性
 
 - 廃止された機能を参照していないか
 - 名称変更された機能の旧名を使っていないか
+
+#### D2. バッククォート書式
+
+- コード用語・ファイルパス・コマンド・環境変数・設定キーがバッククォートで囲まれているか
+  - 例: `CLAUDE.md`、`/clear`、`.claude/settings.json`、`CLAUDE_AUTOCOMPACT_PCT_OVERRIDE`
+- question, options[].text, explanation, options[].wrongFeedback すべてが対象
+- ディレクトリパス（`.claude/`）の末尾パターンに注意: `.claude/memory.txt` の途中で切れないこと
 
 #### E. 問題の質（暗記問題チェック）
 
@@ -114,6 +139,25 @@ Task (subagent_type: general-purpose) for each category:
 - 実践シナリオが設定されている
 - 誤解しやすいポイントを突いている
 - wrongFeedback が学びを提供している
+
+#### E2. wrongFeedback の品質チェック
+
+wrongFeedback が具体的で学習効果のある説明になっているか確認する。
+
+**要改善:**
+- 「これは正しくありません」「この機能は存在しません」（抽象的すぎる）
+- 「このパスではありません」「不十分です」（理由がない）
+
+**良い例:**
+- 具体的にどの機能・設定と混同しやすいか説明
+- 正しい情報を併記（「〜ではなく、実際は〜です」）
+- ドキュメントの該当箇所を間接的に参照
+
+#### E3. 不正解選択肢のもっともらしさ
+
+不正解選択肢が「明らかに間違い」ではなく「もっともらしい」ものになっているか確認する。
+- 開発者の一般知識だけで除外できる選択肢は不適切
+- Claude Code 固有の知識がないと判別できない選択肢が理想
 
 #### F. 重複・冗長チェック
 
@@ -167,6 +211,18 @@ Task (subagent_type: general-purpose) for each category:
 | Quiz ID (残す方) | Quiz ID (削除候補) | 重複内容 |
 |------------------|-------------------|---------|
 | ext-010 | ext-045 | MCP設定の同一観点 |
+
+### バッククォート書式
+
+| Quiz ID | フィールド | 対象テキスト | 修正内容 |
+|---------|----------|-------------|---------|
+| mem-005 | question | CLAUDE.md → `CLAUDE.md` | バッククォート追加 |
+
+### wrongFeedback 品質
+
+| Quiz ID | 現在のwrongFeedback | 問題点 | 改善案 |
+|---------|-------------------|--------|--------|
+| ext-020 | 「これは違います」 | 抽象的 | 具体的な理由を追記 |
 ```
 
 ## Severity Levels
