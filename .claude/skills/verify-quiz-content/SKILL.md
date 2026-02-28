@@ -90,15 +90,20 @@ Task (subagent_type: general-purpose) for each category in batch:
 - 誤答選択肢の wrongFeedback が正確か
 - explanation が正しい情報を含んでいるか
 
-**過去に見つかった典型的な誤り（重点チェック項目）:**
-- 環境変数名の誤記（例: `CLAUDE_CODE_AUTOCOMPACT_PCT_OVERRIDE` → 正しくは `CLAUDE_AUTOCOMPACT_PCT_OVERRIDE`）
+**検証の原則:**
+- 数値（スコープ数、イベント数、モデル対応範囲など）は公式ドキュメントで都度確認する。過去の正解が最新とは限らない
+- 環境変数名・設定キー名・コマンドフラグは正式名称をドキュメントと照合する
+- wrongFeedback の内容もドキュメントと矛盾していないか確認する
+
+**よくある誤りパターン:**
+- 環境変数名の誤記（例: `CLAUDE_CODE_AUTOCOMPACT_*` → 正しくは `CLAUDE_AUTOCOMPACT_*`）
 - コマンド動作の誤解（例: `--from-pr` はワークツリーでのPRレビューではなくセッションリンク）
 - ドキュメントで確認できない機能を正解にしてしまう
-- ツールカテゴリ数の誤り（例: 「4つ」→ 正しくは5つ、Code intelligence含む）
 - 設定キーの旧名称（例: `disallowedCommands` → 正しくは `permissions.deny`）
-- スキル定義のキー名形式（例: `allowed_tools` → 正しくは `allowed-tools`ハイフン区切り）
-- managed policy パスの誤記（`/managed/` の有無）
-- wrongFeedback がドキュメントと矛盾（例: `/clear` の頻繁使用を非推奨としているが、ドキュメントは推奨している）
+- スキル定義のキー名形式（アンダースコアではなくハイフン区切り）
+- 設定スコープ・Hookイベント・ツールカテゴリ等の「数」が古い
+- `MAX_THINKING_TOKENS`の対応モデル範囲が不完全（ドキュメントで最新を確認）
+- キーバインド動作の未ドキュメント記述（例: `Ctrl+C` 2回で終了 — 未ドキュメント）
 
 #### B. 用語・名称の正確性
 
@@ -110,9 +115,23 @@ Task (subagent_type: general-purpose) for each category in batch:
 
 - referenceUrl が有効なURLか
 - リンク先のページが存在するか
+- **アンカー（`#fragment`）が実際のページ見出しと一致するか** — アンカー不一致は頻出するため重点チェック
 - 有効なドメインとパス：
   - `https://code.claude.com/docs/en/{page}` — 16ページ: overview, quickstart, settings, memory, interactive-mode, how-claude-code-works, mcp, hooks, discover-plugins, sub-agents, common-workflows, checkpointing, best-practices, skills, model-config
   - `https://platform.claude.com/docs/en/agent-sdk/overview` — Agent SDK関連
+
+**既知の正しいアンカー（ドキュメント更新で変わりうるため、検証時にWebFetchで再確認すること）:**
+
+memoryページ:
+- `#claudemd-imports`（`@`インポート関連）
+- `#determine-memory-type`（メモリ階層・スコープ関連）
+- `#directly-edit-memories-with-memory`（`/memory`コマンド関連）
+- `#how-claude-looks-up-memories`（サブディレクトリ検索関連）
+- `#user-level-rules`（ユーザールール関連）
+- `#path-specific-rules`
+
+skillsページ:
+- `#run-skills-in-a-subagent`（サブエージェント実行関連）
 
 #### D. 最新性
 
@@ -122,9 +141,20 @@ Task (subagent_type: general-purpose) for each category in batch:
 #### D2. バッククォート書式
 
 - コード用語・ファイルパス・コマンド・環境変数・設定キーがバッククォートで囲まれているか
-  - 例: `CLAUDE.md`、`/clear`、`.claude/settings.json`、`CLAUDE_AUTOCOMPACT_PCT_OVERRIDE`
 - question, options[].text, explanation, options[].wrongFeedback すべてが対象
 - ディレクトリパス（`.claude/`）の末尾パターンに注意: `.claude/memory.txt` の途中で切れないこと
+
+**バッククォートが必要な主要カテゴリ:**
+- **ツール名:** `Bash`, `Read`, `Edit`, `Write`, `Grep`, `Glob`, `WebFetch`, `WebSearch`, `NotebookEdit`, `AskUserQuestion`, `Task`, `TodoWrite`
+- **Hookイベント名:** `PreToolUse`, `PostToolUse`, `PostToolUseFailure`, `UserPromptSubmit`, `SessionStart`, `SessionEnd`, `Stop` 等
+- **ファイルパス:** `settings.json`, `CLAUDE.md`, `CLAUDE.local.md`, `.mcp.json`, `managed-mcp.json`, `.claude/settings.json`, `~/.claude/settings.json`
+- **設定キー:** `permissions.allow`, `permissions.deny`, `output_mode`, `run_in_background`, `old_string`, `new_string`, `edit_mode`, `autoMemoryEnabled` 等
+- **環境変数:** `ALL_CAPS_WITH_UNDERSCORES`パターン（例: `CLAUDE_CODE_EFFORT_LEVEL`, `BASH_DEFAULT_TIMEOUT_MS`）
+- **スラッシュコマンド:** `/compact`, `/clear`, `/resume`, `/memory`, `/model`, `/doctor`, `/init`, `/rewind` 等
+- **CLIフラグ:** `--dangerously-skip-permissions`, `--from-pr`, `--continue`, `--worktree` 等
+- **技術用語:** `ripgrep`, `bypassPermissions`, `acceptEdits`, `dontAsk`, `JSON-RPC`, `stdio`, `SSE`, `mTLS`
+
+**ヒント:** バッククォート欠落は広範囲にわたることが多い。大量の場合は正規表現ベースの自動修正スクリプトで一括対応が効率的。
 
 #### E. 問題の質（暗記問題チェック）
 
@@ -144,14 +174,22 @@ Task (subagent_type: general-purpose) for each category in batch:
 
 wrongFeedback が具体的で学習効果のある説明になっているか確認する。
 
-**要改善:**
+**完全NGパターン（即修正）:**
+- 「この選択肢は正しくありません。正解の解説を参照してください。」（学習効果ゼロ）
+
+**要改善パターン:**
 - 「これは正しくありません」「この機能は存在しません」（抽象的すぎる）
 - 「このパスではありません」「不十分です」（理由がない）
+- 「〜は有効なモードです。」「〜は組み込みエージェントです。」（一文で終わり、何をするかの説明なし）
+- 「サポートされています。」「〜コマンドではありません。」（何が正しいかの情報なし）
 
 **良い例:**
 - 具体的にどの機能・設定と混同しやすいか説明
 - 正しい情報を併記（「〜ではなく、実際は〜です」）
 - ドキュメントの該当箇所を間接的に参照
+- 2文以上で理由と正しい情報を提供
+
+**傾向:** 完全NGパターンや一文型wrongFeedbackはtoolsカテゴリとextensionsカテゴリに特に多い傾向がある。
 
 #### E3. 不正解選択肢のもっともらしさ
 
@@ -243,7 +281,36 @@ wrongFeedback が具体的で学習効果のある説明になっているか確
 
 検証完了後、問題が見つかった場合は：
 
-1. 修正内容をユーザーに確認
-2. 承認後、quizzes.json を直接編集
-3. `npm run quiz:randomize` で正答位置を再ランダム化
-4. `npm test` でテスト実行して確認
+1. 修正内容をユーザーに確認（修正範囲の選択肢を提示）
+2. 承認後、修正を実施
+
+### 修正の効率的なアプローチ
+
+**少量（〜10件）:** 手動で `Edit` ツールで直接修正
+
+**大量（10件以上）:** 一時的なNode.jsスクリプトで一括修正が効率的
+
+```
+scripts/fix-*.mjs パターンで一時スクリプトを作成
+→ 実行して確認
+→ 完了後にスクリプトを削除
+```
+
+**バッククォート修正（50件以上）:** 正規表現ベースの自動修正スクリプトが必須
+- ツール名・環境変数・パス等をカテゴリ別に定義
+- 二重バッククォート防止のガード（既にバッククォート内か確認）
+- `--dry-run`オプションでプレビュー後に適用
+- 冪等性を確認（2回目の実行で0件変更）
+
+**暗記問題リライト:** `question`フィールドのみ変更（options/explanation は既存を維持）
+
+**重複削除:** IDリストで `splice` → バージョン番号をインクリメント
+
+### 修正後の必須手順
+
+```bash
+npm run quiz:randomize   # correctIndex 再ランダム化
+npm run quiz:check       # 構造チェック
+npm test                 # 全テスト通過確認
+npm run quiz:stats       # 分布確認
+```

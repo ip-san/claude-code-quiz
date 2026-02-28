@@ -111,7 +111,13 @@ IDは既存の最大番号の続きから採番してください。
 5. **日本語:** 問題文・選択肢・解説・wrongFeedbackはすべて日本語
 6. **選択肢4つ:** 各問題に正確に4つの選択肢を含める
 7. **バッククォート書式:** コード用語・ファイルパス・コマンド・環境変数・設定キーはバッククォートで囲む
-   - 例: `CLAUDE.md`、`/clear`、`npm test`、`.claude/settings.json`、`CLAUDE_AUTOCOMPACT_PCT_OVERRIDE`
+   - **ツール名:** `Bash`, `Read`, `Edit`, `Write`, `Grep`, `Glob`, `WebFetch`, `WebSearch`, `NotebookEdit`, `AskUserQuestion`, `Task`
+   - **Hookイベント:** `PreToolUse`, `PostToolUse`, `PostToolUseFailure`, `UserPromptSubmit`, `SessionStart`, `SessionEnd` 等
+   - **パス:** `CLAUDE.md`, `settings.json`, `.claude/settings.json`, `.mcp.json` 等
+   - **環境変数:** `CLAUDE_CODE_EFFORT_LEVEL`, `BASH_DEFAULT_TIMEOUT_MS` 等（ALL_CAPS_WITH_UNDERSCORESパターン）
+   - **コマンド:** `/compact`, `/clear`, `/resume`, `--from-pr`, `--continue` 等
+   - **設定キー:** `permissions.allow`, `output_mode`, `run_in_background`, `autoMemoryEnabled` 等
+   - **技術用語:** `ripgrep`, `bypassPermissions`, `acceptEdits`, `dontAsk`, `JSON-RPC`, `stdio`
    - 問題文・選択肢・解説・wrongFeedbackすべてに適用する
 
 ### 暗記問題の禁止（最重要）
@@ -158,6 +164,9 @@ wrongFeedback は「学びの機会」として活用する。具体的にドキ
 - 「これは正しくありません」
 - 「この機能は存在しません」
 - 「このパスではありません」
+- 「この選択肢は正しくありません。正解の解説を参照してください。」（学習効果ゼロ、絶対NG）
+- 「〜は有効なモードです。」（一文で終わり、何をするかの説明なし）
+- 「サポートされています。」（何が正しいかの情報なし）
 
 ✅ **OK例（具体的な wrongFeedback）:**
 - 「`.config/`はXDG規約のディレクトリですが、Claude Codeは`.claude/`ディレクトリを使用します。プロジェクト設定は`.claude/settings.json`に配置します。」
@@ -179,14 +188,31 @@ npm run quiz:coverage
 
 ### 事実正確性の確認ポイント
 
-過去に見つかった典型的な誤り：
-- **環境変数名の誤記:** 例）`CLAUDE_CODE_AUTOCOMPACT_PCT_OVERRIDE` → 正しくは `CLAUDE_AUTOCOMPACT_PCT_OVERRIDE`
+**原則:** 数値（スコープ数、イベント数、モデル対応範囲など）は公式ドキュメントで都度確認する。
+
+よくある誤りパターン：
+- **環境変数名の誤記:** 例）`CLAUDE_CODE_AUTOCOMPACT_*` → 正しくは `CLAUDE_AUTOCOMPACT_*`
 - **コマンド動作の誤解:** 例）`--from-pr` はワークツリーでのPRレビューではなくセッションリンク
 - **存在しない機能の記述:** ドキュメントで確認できない機能を正解にしない
-- **ツールカテゴリ数の誤り:** 例）「4つのカテゴリ」→ 正しくは5つ（Code intelligence含む）
 - **設定キー名の旧名称使用:** 例）`disallowedCommands` → 正しくは `permissions.deny`
-- **スキル定義のキー名:** 例）`allowed_tools`（アンダースコア）→ 正しくは `allowed-tools`（ハイフン）
+- **スキル定義のキー名:** アンダースコアではなくハイフン区切り（例: `allowed-tools`）
+- **数値の断定:** スコープ数・イベント数・対応モデル等は変動するため、ドキュメントで最新を確認
+- **キーバインド動作:** ドキュメントに記載のない動作を正解にしない
 - 生成後に必ずドキュメントと照合し、正解選択肢の根拠を確認すること
+
+### referenceUrl のアンカー指定
+
+referenceUrlにアンカー（`#fragment`）を付ける場合、実際のページ見出しと一致させること。アンカーはドキュメント更新で変わりうるため、WebFetchで再確認すること。
+
+**memoryページの既知のアンカー:**
+- `#claudemd-imports`（`@`インポート関連）
+- `#determine-memory-type`（メモリ階層・スコープ関連）
+- `#directly-edit-memories-with-memory`（`/memory`コマンド関連）
+- `#how-claude-looks-up-memories`（サブディレクトリ検索関連）
+- `#user-level-rules`（ユーザールール関連）
+
+**skillsページの既知のアンカー:**
+- `#run-skills-in-a-subagent`（サブエージェント実行関連）
 
 ## Post-Generation Steps（重要）
 
