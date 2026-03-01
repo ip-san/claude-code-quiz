@@ -43,7 +43,7 @@ const ID_PREFIX_TO_CATEGORY: Record<string, string> = {
 const VALID_DOC_PAGES = [
   // code.claude.com pages
   'overview', 'quickstart', 'settings', 'memory', 'interactive-mode',
-  'how-claude-code-works', 'mcp', 'hooks', 'discover-plugins',
+  'how-claude-code-works', 'mcp', 'hooks', 'discover-plugins', 'plugin-marketplaces',
   'sub-agents', 'common-workflows', 'checkpointing', 'best-practices', 'skills',
   'model-config',
   // platform.claude.com pages
