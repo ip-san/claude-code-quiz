@@ -384,6 +384,7 @@ wrongFeedback が具体的で学習効果のある説明になっているか確
 **サブエージェントへの指示例（promptに追記）:**
 ```
 重要: このエージェントは問題を報告するだけです。quizzes.jsonへの直接修正は行わないこと。
+検証レポートは .claude/tmp/verify_{category}.json に保存すること。
 ```
 
 ### サブエージェント報告の照合（Critical/Major指摘の実データ確認）
