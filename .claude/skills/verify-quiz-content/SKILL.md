@@ -26,6 +26,8 @@ npm run quiz:stats
 - ID重複
 - correctIndex の偏り（35%上限）
 - wrongFeedback の構造（正解に付いていないか、不正解に欠けていないか）
+
+**注意: 複数選択問題（`type: "multi"`）は `correctIndex` の代わりに `correctIndices`（整数配列）を使用する。** このフォーマットは正規の仕様であり、`correctIndex` が存在しなくても構造バグではない。自動テストはこの形式を正しく処理する。
 - カテゴリの妥当性
 - 問題文・解説の文字数
 - referenceUrl の形式
@@ -62,6 +64,9 @@ npm run quiz:stats
 
 ### Agent SDK（別ドメイン）
 - https://platform.claude.com/docs/en/agent-sdk/overview
+
+### 補足参照ページ（referenceUrl には使用不可だがファクトチェックに有用）
+- https://code.claude.com/docs/en/permissions — パーミッション設定の完全リファレンス。`defaultMode`有効値（`default`/`acceptEdits`/`plan`/`dontAsk`/`bypassPermissions`の5つ）、パーミッションルール構文、managed-only設定の詳細。**注意:** `settings`ページは`defaultMode`の例として`acceptEdits`のみを示すが、完全な有効値リストはこのページにある。`defaultMode`関連の問題を検証する際は必ずこのページを確認すること
 
 ## Step 1: Fact Verification
 
@@ -110,50 +115,42 @@ Task (subagent_type: general-purpose) for each category in batch:
 - wrongFeedback の内容もドキュメントと矛盾していないか確認する
 
 **よくある誤りパターン:**
-- 環境変数名の誤記（例: `CLAUDE_CODE_AUTOCOMPACT_*` → 正しくは `CLAUDE_AUTOCOMPACT_*`）
-- コマンド動作の誤解（例: `--from-pr` はワークツリーでのPRレビューではなくセッションリンク）
 - ドキュメントで確認できない機能を正解・explanation・wrongFeedback に含めてしまう
-- 設定キーの旧名称（例: `disallowedCommands` → 正しくは `permissions.deny`）
 - スキル定義のキー名形式（アンダースコアではなくハイフン区切り）
 - 設定スコープ・Hookイベント・ツールカテゴリ等の「数」が古い（question の前提として現れる場合も含む）
 - `MAX_THINKING_TOKENS`の対応モデル範囲が不完全（ドキュメントで最新を確認）
-- キーバインド動作の未ドキュメント記述（例: `Ctrl+C` 2回で終了 — 未ドキュメント）
 - explanation 内の「注意：〜」注記が事実に反している（例: 公式記載の環境変数を「非公式」と書くケース）
 - **ドキュメントに記載のない数値を断定:** 具体的な数値がドキュメントに存在しない場合に、特定の数値として断定している。パターンは2種類ある: (a) ドキュメントが "Not specified" と明示しているケース（例: `BASH_DEFAULT_TIMEOUT_MS`のデフォルト値）、(b) ドキュメントに数値自体が掲載されていないケース（例: 非アダプティブモデルの思考予算トークン数 — model-configページに具体値の記載なし）。いずれも「〜トークン」「〜秒」「〜文字」のような数値断定はドキュメントで根拠を確認すること
+- **ドキュメント記載の制限・数値を「未規定」と断定（逆方向の誤り）:** wrongFeedback や explanation で「〜という制限はありません」「〜は定められていません」と書く場合も、ドキュメントで実際にその制限・数値が未記載かを確認する。ドキュメントに記載されている制限を誤って「ない」と述べるのは、上記「ない数値を断定する」パターンと逆方向の誤りで同等に有害。特に、不正解選択肢が**具体的な数値**（「500行」等）を含む場合、それを否定しようとして「数値は存在しない」と wrongFeedback に書くと、別の正しい数値（200行）もまとめて否定してしまうリスクがある（例: `CLAUDE.md`の行数制限について「具体的な行数制限は定められていません」と書いていたが、docs は "target under 200 lines per CLAUDE.md file" と明記している）
 - **設定フィールド省略時のデフォルト動作の断言:** explanation や wrongFeedback で「フィールドを省略すると〇〇になる」「指定しない場合は〇〇モード」と断言している場合、そのデフォルト動作をドキュメントで明示的に確認する。デフォルト値は直感と逆になることがある（例: `spinnerVerbs.mode` を省略すると `"append"`（追加）がデフォルト。「省略=replace（置き換え）」は誤り — ドキュメントに "append" がデフォルトと明記されている）
-- **環境変数の settings ページリスト照合:** question・options・explanation・wrongFeedback で言及する環境変数が、settings ページの環境変数テーブルに存在するか確認する。テーブルに存在しない env var は未ドキュメントとみなし、問題・解説での使用を禁止する（例: `USE_BUILTIN_RIPGREP` は settings ページの env var テーブルに記載なし → 削除対象）
+- **環境変数の settings ページリスト照合:** question・options・explanation・wrongFeedback で言及する環境変数が、settings ページの環境変数テーブルに存在するか確認する。テーブルに存在しない env var は未ドキュメントとみなし、問題・解説での使用を禁止する（例: `USE_BUILTIN_RIPGREP` は settings ページの env var テーブルに記載なし → 削除対象）。**ただし、settings ページは env var の網羅リストではない**— 機能専用ページにのみ記載される env var が存在する（例: `MCP_TIMEOUT` は settings ページになく、mcp ページの Tips セクションに記載）。settings テーブルで見つからない場合は、該当機能のドキュメントページも確認してから「未ドキュメント」と断定すること
+- **`settings`ページの設定がリンク先の別ページで定義されている場合がある:** `settings`ページに`defaultMode`の「例: `acceptEdits`」とだけ記載されていても、実際の有効値の完全リストは`permissions`ページ（`/en/permissions#permission-modes`）で定義されている。**settingsページは設定のリストであり、設定値の仕様を完全に記載するとは限らない**。設定値の検証は、settingsページがリンクしている専用ページ（permissionsページ等）も合わせて確認すること。（例: `defaultMode`有効値は`default`/`acceptEdits`/`plan`/`dontAsk`/`bypassPermissions`の5つ。settingsページの例`acceptEdits`だけを見て「4つ」と誤判定するパターンは v4.22.0 で実際に発生した）
 - **referenceUrl に新ドキュメントページを使っている場合は VALID_DOC_PAGES を確認:** Step 0 の `npm test` が「unknown doc page」エラーで失敗する場合、`src/infrastructure/validation/quizContentQuality.test.ts` の `VALID_DOC_PAGES` リストに該当ページ名が含まれているか確認する。修正は同ファイルのリストにページ名を追加するだけ（例: `plugin-marketplaces` は既存16ページに含まれないため追加が必要）。新規ドキュメントページが追加されたときに発生するパターン
 - **モデル固有機能のスコープ誤り:** エフォートレベル・Extended Thinking等の機能がどのモデルに適用されるか個別に確認する（例: エフォートレベル調整は Opus 4.6 専用、Sonnet 4.6 には非対応）
 - **CLIフラグの組み合わせ省略:** 単独では動作しないフラグを単体で示している（例: `--fork-session` → 正しくは `--continue --fork-session`）
 - **パスの動的部分の省略:** テンプレート的なパスの変数部分が欠落している（例: `~/.claude/projects/memory/` → 正しくは `~/.claude/projects/<project>/memory/`）
 - **存在しないフレーズの引用:** 「公式ドキュメントは『〜』を推奨」と書く場合、その正確なフレーズがドキュメント本文に存在するか確認する（例: "Delegate, don't dictate" はドキュメントに未掲載。"Ruthlessly prune" / "Keep it concise" も memory ベストプラクティスページに記載なし — 実際は "Review periodically" "Be specific" "Use structure to organize"）
-- **機能間の「同一」「同等」断言の確認:** explanation で「AはBと同じ機能・同じリストを操作する」という記述は、ドキュメントで両者の関係を確認する。見た目が似た2つの機能が実は別実装の可能性がある（例: `Ctrl+T` の Task List と `/todos` はどちらもタスク関連だが別機能 — Task List は新機能でClaudeが複雑作業時に作成するリスト、`/todos` は旧来の TODO コマンドで `CLAUDE_CODE_ENABLE_TASKS=false` で旧実装に戻せると明記されている）
-- **機能の非影響範囲の誤記:** ある設定・フィールドが「何をしないか」もドキュメントで確認する。特に「A機能を有効にするとB機能も制限される」と断定するケースは要注意（例: `allowed-tools` はリスト外ツールを制限しない — 通常のパーミッション設定に委ねるだけ）
-- **設定の副作用・無効化される機能の欠落:** 設定・フラグを説明する際は「何が有効になるか」だけでなく「何が無効化されるか」もドキュメントで確認して記載されているか検証する。多機能な設定には「有効化されるもの」と「無効化されるもの」が共存することが多く、後者の省略は学習者が実害を受ける（例: `CLAUDE_CODE_SIMPLE=1` の explanation で「最小限ツールで動作」とだけ書き、「MCPツール・フック・`CLAUDE.md`が無効化される」という副作用が欠落していた）
-- **除外条件の翻訳精度:** "up to but not including X" を「Xまで」と訳すと X を含む意味になる誤り。「Xの手前まで（Xは含まない）」と表記すること（例: "recurses up to but not including the root directory" → 「ルートまで再帰的に」は誤り、「ルートの手前まで再帰的に、ルートは含まない」が正しい）
-- **explanation の論理的整合性:** 原則・根拠を引用して結論を正当化する場合、その原則が結論を本当に支持しているか確認する。特に「〜という原則により X が最高権限」という説明は、原則と結論が逆になっていないか注意（例: 「より具体的な指示が優先される」原則は、最も広域なマネージドポリシーの最高権限を支持しない）
-- **セットアップコマンドの用途混同:** 複数のセットアップコマンドが存在する場合、それぞれの用途を確認する（例: `/terminal-setup` は Shift+Enter バインディング（一部ターミナル）と Option+T ショートカットの有効化に使用。`Alt+B`・`Alt+F`等の他のOption/Altショートカットには別途ターミナルで「Option as Meta」設定が必要）
-- **CLIサブコマンド・スラッシュコマンドの存在確認:** 問題文・選択肢・explanation で言及する CLI サブコマンド（例: `claude commit`）やスラッシュコマンド（例: `/commit`）は、必ず公式 CLI リファレンスページで存在を確認する。ドキュメントに記載のないコマンドを正解・説明に含めてはいけない
-- **ドキュメント未記載の旧名称・エイリアス引用:** 「旧`/handoff`」「旧称〜」「以前は〜と呼ばれていた」等の記述はドキュメントで根拠を確認する。ドキュメントに記載のない旧称・エイリアスを explanation に含めてはいけない
-- **固定フレーズ・ワークフロー名の翻訳精度:** 公式ワークフローの各フェーズ名は意味が変わる意訳を禁止する（例: 「Explore→Plan→Implement→**Commit**」の最後のフェーズを「検証」と訳すのは誤り — コミットと検証は全く異なる行為）
-- **修正時に導入される否定文の検証:** explanation や wrongFeedback に「〜ではありません」「〜とは異なります」「〜専用です」という否定・限定文を追加する修正は、その否定が排他的に正確かをドキュメントで再確認する。「AはBのためのもの」という説明はAがBだけに使われるか（他の用途がないか）を確認すること（例: `/terminal-setup` は「Shift+Enter専用」ではなく「Shift+Enter と Option+T の両方」に使われる）
-- **選択肢内の表記形式の統一:** 同一問題の選択肢間で、変数名・コマンド名・設定キーの記載形式を統一する。不正解選択肢が「`CLAUDE_CODE_TMPDIR`」のように具体的な名称を示しているのに、正解選択肢だけ名称なしの説明文のみになっていないか確認する（例: ses-047 で正解選択肢に `CLAUDE_CONFIG_DIR` が欠落していた）
-- **`hint`フィールドの整合性:** `hint`フィールドが正解選択肢の内容へと正しく誘導しているか確認する。ヒントが問われているファイル・設定・概念と別のものを説明していないか注意する（例: `CLAUDE.local.md` を問う問題のヒントが「すべてのプロジェクトに適用される設定」と書かれていた — これは `~/.claude/CLAUDE.md` の説明であり逆方向のヒント）
-- **ドキュメント未記載のプラットフォーム言及:** explanation や question で言及するインターフェース・プラットフォーム（iOS アプリ、ブラウザ拡張等）がドキュメントに記載されているか確認する（例: `/teleport` の説明に「iOSアプリから」と書いたが docs は「claude.ai web session」のみ記載）
+- **機能間の「同一」「同等」断言の確認:** explanation で「AはBと同じ機能・同じリストを操作する」という記述は、ドキュメントで両者の関係を確認する。見た目が似た2つの機能が実は別実装の可能性がある
+- **設定の副作用・無効化される機能の欠落:** 設定・フラグを説明する際は「何が有効になるか」だけでなく「何が無効化されるか」もドキュメントで確認して記載されているか検証する。多機能な設定には「有効化されるもの」と「無効化されるもの」が共存することが多く、後者の省略は学習者が実害を受ける
+- **CLIサブコマンド・スラッシュコマンドの存在確認:** 問題文・選択肢・explanation で言及する CLI サブコマンドやスラッシュコマンドは、必ず公式 CLI リファレンスページで存在を確認する。ドキュメントに記載のないコマンドを正解・説明に含めてはいけない
+- **ドキュメント未記載の旧名称・エイリアス引用:** 「旧称〜」「以前は〜と呼ばれていた」等の記述はドキュメントで根拠を確認する。ドキュメントに記載のない旧称・エイリアスを explanation に含めてはいけない
+- **修正時に導入される否定文の検証:** explanation や wrongFeedback に「〜ではありません」「〜専用です」という否定・限定文を追加する修正は、その否定が排他的に正確かをドキュメントで再確認する。「AはBのためのもの」という説明はAがBだけに使われるか（他の用途がないか）を確認すること
 - **設定・フラグの「無視される条件」の欠落:** 「X=0 で全モデル Y を無効化できる」のような全称断定は、その設定が特定条件下で無視されないかをドキュメントで確認する。設定値が「無視される」場合、その条件（どのモデル・モード・フラグが必要か）を明示する（例: `MAX_THINKING_TOKENS=0` は Opus/Sonnet 4.6 ではアダプティブ推論中は無視されるため全モデル無効化にならない。`CLAUDE_CODE_DISABLE_ADAPTIVE_THINKING=1` を設定した上でのみ有効）
 - **動作表現の精度（「削除・切り捨て」vs「ロードしない・スキップ」）:** 機能の動作を説明する際、ドキュメントの正確な動詞・表現を使う。「削除される」「切り捨てられる」「無効化される」はドキュメントの表現と意味が異なる場合がある（例: docs の `"not loaded automatically"` を「切り捨てられる」と書くと、ファイルが削除される印象を与えて誤り — 実際にはファイルは存在するがロード対象外）
 - **hookのexit codeと出力先の正確性:** hook スクリプトの exit code ごとの stdout/stderr の送信先を正確に確認する。exit 0: stdout が Claude のコンテキストに追加される。exit 1: stderr がユーザーに表示されエラーとして記録される（処理は継続）。exit 2: ブロッキングエラー — stderr の送信先は**イベントによって異なる**（`PreToolUse`/`PostToolUse` 等ではClaudeへのフィードバック、`Notification`/`SessionStart`/`SessionEnd` 等ではユーザーへの表示のみ）。イベントごとの動作はドキュメントの「Exit code 2 behavior per event」テーブルで個別確認すること
 - **条件固有の動作を別の条件に一般化しない:** ある条件A（イベント・コマンド・ツール等）における動作が正しくても、別の条件Bに同じ動作が適用できるとは限らない。特に「〜の場合は〜」という修正を行う際は、類似する他の条件への適用が正しいかをドキュメントで確認する（例: exit 2 の stderr 送信先は Hook イベントによって異なる — 「全イベントでClaudeへのフィードバック」という一般化は誤り）
 - **UI固有の詳細動作の断定禁止:** セッションピッカー・ダイアログ等の UI 固有の詳細（キーバインド、選択肢の表示順、グループ化方式等）はドキュメントに明記されていない場合が多い。「Pキーでプレビュー」「フォーク済みセッションはルートの下にグループ化」等のUI内部動作を断定してはいけない。ドキュメントで確認できる機能（コマンドの動作・CLIフラグの挙動）のみを問う
 - **外部知識・汎用LLM知識の混入:** Anthropic APIやプロンプトエンジニアリングの一般知識（例: 「think」「think hard」「ultrathink」という記述が思考トークンを増やす）を、Claude Code docs に記載がないままClaude Code固有の動作として断言してはいけない。explanation・wrongFeedbackで言及するClaude Code固有の動作は必ず公式ドキュメントで根拠を確認すること。「一般的にLLMではこう動く」という知識とドキュメント記載の動作は区別する
+- **制限・許可設定の列挙完全性:** 設定が「Xのみが許可/実行される」という説明の場合、ドキュメントが示す完全な許可リストを確認する。実際には「XとY」の複数が許可されているのに「Xのみ」と不完全に断言している可能性がある（例: `allowManagedHooksOnly: true` は「Managed設定のHooksとSDK Hooksのみ」が許可されるが、「Managed設定のHooksのみ」と記述されていた — SDK Hooksが欠落）。設定説明のdocsテーブルで列挙されている全ての許可対象を確認すること
+- **過去のMEMORY記録を最終権威にしない:** MEMORY.mdに「〜が正式名称」「〜は確認済みfalsealarm」と記録されていても、実際のドキュメントページを直接確認すること。特に製品名・サービス名・環境変数名は、過去の検証で誤って記録されたまま後の検証でも引き継がれることがある（例: v4.13.0で「Microsoft Azure Foundry（正式名称）」と誤記録 → v4.22.0でも踏襲 → 実際のページタイトルは「Microsoft Foundry」）。"過去に確認済み"という記録があっても、重要な固有名詞・設定値は専用ページで再検証する
 
 #### B. 用語・名称の正確性
 
 - APIやコマンド名が正式名称か
 - イベント名やフック名が正確か
 - 設定ファイル名やパスが正しいか
-- サードパーティプロバイダー名・サービス名の正式表記をドキュメントで確認する（例: 「Microsoft Foundry」→「Microsoft Azure Foundry」のような略称・非公式表記に注意）
-- **SDK・ライブラリ名の改名確認:** SDKやライブラリは改名されることがある。quiz内容で言及するSDK名は公式ページの最新名称と照合する（例: 「Claude Code SDK」→「Claude Code Agent SDK」→「Claude Agent SDK」と改名済み。旧称を補足として記載する場合は「旧称：〜」と明示する）
+- サードパーティプロバイダー名・サービス名の正式表記は **専用ドキュメントページのH1タイトルを最終権威** として確認する。本文中の言及より、専用ページのタイトルを優先する（例: ページタイトルが "Claude Code on Microsoft Foundry" であれば「Microsoft Foundry」が正式名称。「Microsoft Azure Foundry」という表記はdocsに存在しない）。過去のMEMORY記録より実際のページタイトルを優先すること
+- **SDK・ライブラリ名の改名確認:** SDKやライブラリは改名されることがある。quiz内容で言及するSDK名は公式ページの最新名称と照合する（例: 「Claude Code SDK」→「Claude Code Agent SDK」→「Claude Agent SDK」と改名済み。旧称を補足として記載する場合は「旧称：〜」と明示する）。**改名を1箇所修正した後は、同じ旧名称がquiz全体の他の問題にも残っていないか Grep で全件検索する**（point-in-time修正ではなく全件修正が必要）。**ただし、改名後も旧名称が特定コンテキストで依然として正しい場合がある** — 例えば `Task`ツールは Claude Code CLI では`Agent`に改名されたが、Agent SDKの`allowedTools`設定には`Task`と指定する必要がある。旧名称を「誤り」と判定する前に、CLI文脈か SDK文脈かを確認すること
 
 #### C. リファレンスURLの有効性
 
@@ -167,6 +164,7 @@ Task (subagent_type: general-purpose) for each category in batch:
   - CLIワークフロー（パイプ `|`, CI/CD, Gitコミット, fork-session）→ `common-workflows`
   - 組み込みスラッシュコマンド（`/login`, `/compact`, `/model` 等）→ `interactive-mode`
   - Claude Codeのコア動作（ツールカテゴリ・Compact Instructions・セッション管理・アジェンティックループ）→ `how-claude-code-works`
+  - ベストプラクティス・スケールアップ（CLAUDE.md書き方・サブエージェント活用パターン・並列実行・ファンアウト・Plan Modeワークフロー）→ `best-practices`
   - 注: `how-claude-code-works` は非常に包括的なページであり、一見別のページが適切に見える内容（Compact Instructions・Code Intelligenceカテゴリ・fork-session等）も実はここに記載されていることが多い。安易に「このページでは説明が足りない」とflagしないこと
 - 有効なドメインとパス：
   - `https://code.claude.com/docs/en/{page}` — 16ページ: overview, quickstart, settings, memory, interactive-mode, how-claude-code-works, mcp, hooks, discover-plugins, sub-agents, common-workflows, checkpointing, best-practices, skills, model-config
@@ -174,13 +172,16 @@ Task (subagent_type: general-purpose) for each category in batch:
 
 **既知の正しいアンカー（ドキュメント更新で変わりうるため、検証時にWebFetchで再確認すること）:**
 
-memoryページ:
-- `#claudemd-imports`（`@`インポート関連）
-- `#determine-memory-type`（メモリ階層・スコープ関連）
-- `#directly-edit-memories-with-memory`（`/memory`コマンド関連）
-- `#how-claude-looks-up-memories`（サブディレクトリ検索関連）
+memoryページ（2026-03-01確認済み、ページ大幅再構成後）:
+- `#import-additional-files`（`@`インポート関連）
+- `#choose-where-to-put-claudemd-files`（メモリ階層・スコープ関連）
+- `#view-and-edit-with-memory`（`/memory`コマンド関連）
+- `#how-claudemd-files-load`（サブディレクトリ検索・ロード順関連）
 - `#user-level-rules`（ユーザールール関連）
 - `#path-specific-rules`
+
+**注意: 以下の古いアンカーは無効（ページ再構成で消滅）:**
+`#claudemd-imports`, `#determine-memory-type`, `#directly-edit-memories-with-memory`, `#how-claude-looks-up-memories`
 
 skillsページ:
 - `#run-skills-in-a-subagent`（サブエージェント実行関連）
@@ -360,8 +361,54 @@ wrongFeedback が具体的で学習効果のある説明になっているか確
 
 検証完了後、問題が見つかった場合は：
 
-1. 修正内容をユーザーに確認（修正範囲の選択肢を提示）
-2. 承認後、修正を実施
+1. **サブエージェント報告の実データ照合（修正前に必須）**
+2. 修正内容をユーザーに確認（修正範囲の選択肢を提示）
+3. 承認後、修正を実施
+
+### ⚠️ 検証サブエージェントはREPORT専用にすること
+
+**3バッチのサブエージェントを並列実行する際、各エージェントに `quizzes.json` を直接修正させてはいけない。** 複数のエージェントが同じJSONファイルを並列で書き換えると、以下の問題が発生する：
+
+- **バージョン番号の競合:** あるエージェントが v4.31.0 のファイルを読んで v4.28.0 と書き戻し、別のエージェントの変更が上書きされる
+- **内容の巻き戻し:** 後から書き込んだエージェントが、先に書き込んだエージェントの修正を上書きして消去する
+
+**正しいワークフロー:**
+1. 3バッチの検証エージェントは「報告のみ」を実施（ファイル変更禁止）
+2. 主エージェント（このskillを実行しているClaude）が報告を受け取り、実データを照合してから修正を適用
+3. バージョン番号のインクリメントも主エージェントが一括管理する
+
+**サブエージェントへの指示例（promptに追記）:**
+```
+重要: このエージェントは問題を報告するだけです。quizzes.jsonへの直接修正は行わないこと。
+```
+
+### サブエージェント報告の照合（Critical/Major指摘の実データ確認）
+
+サブエージェントが報告した Critical・Major の問題は、**修正を実施する前に必ず実際のJSONデータを直接読み込んで照合すること**。
+
+**照合が特に必要なケース:**
+- 「options[N].wrongFeedbackに〜という記述がある」という具体的引用を含む指摘
+- 「explanationに〜と書かれている」「questionで〜と前提している」という引用形式の指摘
+- 指摘内容が過去の検証記録と矛盾する場合
+
+**理由:** サブエージェントはWebFetchの結果とquizデータの照合過程でhallucination（存在しない記述を「ある」と誤報告）を起こすことがある。実際のフィールド値と一致しない指摘を鵜呑みにすると、存在しない問題を修正しようとして混乱する（例: mem-003でエージェントが「上書きされる可能性があります」というwrongFeedbackが存在すると報告したが、実際のJSONにはその記述はなかった）。
+
+**照合の効率的な方法:**
+
+```bash
+node -e "
+const data = JSON.parse(require('fs').readFileSync('src/data/quizzes.json','utf8'));
+const q = data.quizzes.find(q => q.id === 'XXX-NNN');
+q.options.forEach((o,i) => {
+  const marker = i === q.correctIndex ? '[CORRECT]' : '[wrong]';
+  console.log(marker, o.text);
+  if (o.wrongFeedback) console.log('  wF:', o.wrongFeedback);
+});
+console.log('explanation:', q.explanation);
+"
+```
+
+照合の結果、実際のフィールド値が指摘内容と一致する場合のみ修正へ進む。
 
 ### 修正の効率的なアプローチ
 
