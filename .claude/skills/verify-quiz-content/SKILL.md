@@ -144,6 +144,8 @@ Task (subagent_type: general-purpose) for each category in batch:
 - **制限・許可設定の列挙完全性:** 設定が「Xのみが許可/実行される」という説明の場合、ドキュメントが示す完全な許可リストを確認する。実際には「XとY」の複数が許可されているのに「Xのみ」と不完全に断言している可能性がある（例: `allowManagedHooksOnly: true` は「Managed設定のHooksとSDK Hooksのみ」が許可されるが、「Managed設定のHooksのみ」と記述されていた — SDK Hooksが欠落）。設定説明のdocsテーブルで列挙されている全ての許可対象を確認すること
 - **セッション再開時の「完全なコンテキスト」断言の不完全さ:** explanation や wrongFeedback で「セッション再開時に完全なコンテキストが復元されます」と書く場合、「完全な」という表現が誤解を招く可能性がある。docs は "Your full conversation history is restored, **but session-scoped permissions are not**. You'll need to re-approve those." と明記している。メッセージ履歴とツール使用結果は復元されるが、セッションスコープの許可設定（事前承認済みコマンド等）は復元されない。「完全な」「シームレスに」という表現がこの制約を隠している場合は注記を追加すること（参照: `how-claude-code-works` "Resume or fork sessions" セクション）
 - **過去のMEMORY記録を最終権威にしない:** MEMORY.mdに「〜が正式名称」「〜は確認済みfalsealarm」と記録されていても、実際のドキュメントページを直接確認すること。特に製品名・サービス名・環境変数名は、過去の検証で誤って記録されたまま後の検証でも引き継がれることがある（例: v4.13.0で「Microsoft Azure Foundry（正式名称）」と誤記録 → v4.22.0でも踏襲 → 実際のページタイトルは「Microsoft Foundry」）。"過去に確認済み"という記録があっても、重要な固有名詞・設定値は専用ページで再検証する
+- **異なるサブシステムのフィールド名・用語の混入:** 設定名やフィールド名がサブシステムをまたいで誤引用される。似た概念（「拒否リスト」「許可リスト」等）が異なる設定領域に存在する場合、文脈に合ったフィールド名を使用しているか確認する（例: `sandbox.network.allowManagedDomainsOnly` の説明で `deniedMcpServers`（MCPサーバーの設定名）を引用していたが、正しくは「拒否ドメイン（denied domains）」— ネットワークドメインとMCPサーバーは別のサブシステム）
+- **ドキュメントの「A and B」を「A」のみ引用（対象の不完全列挙）:** ドキュメントが機能の対象を複数列挙している場合（例: "Backgrounds bash commands **and agents**"）、quiz が片方だけを言及して不完全になるパターン。特にキーボードショートカットやツールの説明で、対象が複数ある場合はドキュメントの列挙を完全に反映すること
 
 #### B. 用語・名称の正確性
 
