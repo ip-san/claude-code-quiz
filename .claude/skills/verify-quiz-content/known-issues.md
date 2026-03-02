@@ -103,3 +103,27 @@
 ## 外部知識の混入（具体例）
 
 - 「think」「think hard」「ultrathink」という記述が思考トークンを増やすという知識は、Claude Code docs に記載がないまま Claude Code 固有の動作として断言してはいけない
+- `CLAUDE_CODE_SHELL_PREFIX` の用途例として「nix-shell」「Docker exec」を記載 → ドキュメントは "for logging or auditing" のみ。ドキュメントに記載のない用途例を追加しない
+
+## ドキュメントの例示を完全リストと誤認
+
+- best-practices ページの強調キーワード: ドキュメントは "adding emphasis (e.g., **'IMPORTANT'** or **'YOU MUST'**)" と2例を挙げるだけ。explanation/wrongFeedback に `ALWAYS` `NEVER` を追加してドキュメント推奨と記述するのは拡大解釈
+- 「e.g.」「for example」「such as」で列挙されているものは例示であり、完全なリストではない。quiz で「ドキュメントが推奨する」と書く場合は実際に記載されている語のみに限定すること
+
+## スコープ名とパスの混同
+
+- `~/.claude/CLAUDE.md` は **User scope**（個人設定）。**Managed policy** のパスはプラットフォーム別:
+  - macOS: `/Library/Application Support/ClaudeCode/CLAUDE.md`
+  - Linux/WSL: `/etc/claude-code/CLAUDE.md`
+  - Windows: `C:\Program Files\ClaudeCode\CLAUDE.md`
+- explanation でスコープ名を併記する際はパスとスコープの対応を正確に
+
+## 許可設定の無効化対象の欠落（追加例）
+
+- `allowManagedHooksOnly: true` が無効化するのは user, project, **plugin** hooks の3種。「User/Project/Local」と書くと plugin hooks が抜ける
+- ドキュメント原文: "prevents loading of user, project, and plugin hooks"
+
+## 動作主体の誤帰属（具体例）
+
+- CLI ツールの学習: ドキュメントは "Try prompts like `Use 'foo-cli-tool --help' to learn about foo tool`" とユーザーが指示する形。「自動的に学習できる」は誤帰属（Claude が自発的に --help を実行するわけではない）
+- 「インストール」と「起動」: `claude` コマンドはインストール済みの状態で**起動**するコマンド。インストールは npm/curl/Homebrew 等が行う
