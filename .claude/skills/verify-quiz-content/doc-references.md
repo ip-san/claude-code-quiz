@@ -27,7 +27,7 @@
 
 ## 有効なドメインとパス
 
-- `https://code.claude.com/docs/en/{page}` — 16ページ: overview, quickstart, settings, memory, interactive-mode, how-claude-code-works, mcp, hooks, discover-plugins, sub-agents, common-workflows, checkpointing, best-practices, skills, model-config, sandboxing
+- `https://code.claude.com/docs/en/{page}` — 17ページ: overview, quickstart, settings, memory, interactive-mode, how-claude-code-works, mcp, hooks, discover-plugins, sub-agents, common-workflows, checkpointing, best-practices, skills, model-config, sandboxing, cli-reference
 - `https://platform.claude.com/docs/en/agent-sdk/overview` — Agent SDK 関連
 
 ### 補足参照ページ（referenceUrl には使用不可だがファクトチェックに有用）

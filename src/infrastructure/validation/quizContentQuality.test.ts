@@ -45,7 +45,7 @@ const VALID_DOC_PAGES = [
   'overview', 'quickstart', 'settings', 'memory', 'interactive-mode',
   'how-claude-code-works', 'mcp', 'hooks', 'discover-plugins', 'plugin-marketplaces',
   'sub-agents', 'common-workflows', 'checkpointing', 'best-practices', 'skills',
-  'model-config', 'sandboxing',
+  'model-config', 'sandboxing', 'cli-reference',
   // platform.claude.com pages
   'agent-sdk/overview',
 ]
