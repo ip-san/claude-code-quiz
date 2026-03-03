@@ -53,6 +53,17 @@
   - `Notification`/`SessionStart`/`SessionEnd` 等 → ユーザーへの表示のみ
 - イベントごとの動作はドキュメントの「Exit code 2 behavior per event」テーブルで個別確認すること
 
+## exit code 2 と JSON `decision: "block"` の混同（偽陽性パターン）
+
+`UserPromptSubmit` に対して検証エージェントがよく起こす混同：
+
+- **exit code 2（JSONなし）**: stderr → Claude へのフィードバック（docs 一般ルール: "stderr text is fed back to Claude as an error message"）
+- **JSON `decision: "block"` の `reason`**: ユーザーへの表示のみ（docs: "Shown to the user when decision is 'block'. Not added to context"）
+
+hooks.md では JSON decision の `reason` の説明が "Shown to the user" となっているため、
+エージェントが「UserPromptSubmit の exit 2 もユーザーへ表示」と誤報告するケースが発生（v4.43.0 検証で確認）。
+**exit code 2 の一般ルールは UserPromptSubmit でも変わらず Claude へのフィードバック**。
+
 ## UI 固有の詳細（ドキュメント記載済み）
 
 - セッションピッカーのキーバインドは `common-workflows`（"Use the session picker" セクション）に掲載済み: `P`=プレビュー、`R`=リネーム、`B`=ブランチフィルター、`/`=検索、`A`=全プロジェクト切替、`↑↓`=ナビゲート
@@ -72,6 +83,13 @@
 ## サブシステム間のフィールド名混入
 
 - `sandbox.network.allowManagedDomainsOnly` の説明で `deniedMcpServers`（MCP サーバーの設定名）を引用していた事例 — 正しくは「拒否ドメイン（denied domains）」。ネットワークドメインと MCP サーバーは別のサブシステム
+
+## 「推奨」と「非推奨」の混同
+
+- ドキュメントが「AはBより推奨（recommended）」と記載していても、「Bは非推奨（deprecated）」とは限らない
+- 「推奨」は相対的な優先度を示すだけであり、「非推奨」はそれより強い公式宣言
+- **具体例（v4.42.0）**: mcp.md は "HTTP servers are the recommended option" と記載しているが、SSE について "deprecated" の文字は存在しない。quiz が "SSEは現在は非推奨です" と断定していたため修正
+- `deprecated` という表現はドキュメントに明示的に記載されている場合のみ使用すること
 
 ## 存在しないフレーズの引用（具体例）
 

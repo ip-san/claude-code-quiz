@@ -19,7 +19,7 @@
  *   .claude/tmp/verify-targets.json — 今回検証が必要な問題リスト
  */
 
-import { readFileSync, writeFileSync, existsSync, mkdirSync } from 'fs'
+import { readFileSync, writeFileSync, existsSync, mkdirSync, statSync } from 'fs'
 import { resolve, dirname } from 'path'
 import { fileURLToPath } from 'url'
 import { createHash } from 'crypto'
@@ -51,6 +51,9 @@ const CATEGORY_DOC_MAP = {
 
 // Supplementary docs always available for cross-reference
 const SUPPLEMENTARY_DOCS = ['settings', 'permissions', 'overview', 'agent-sdk-overview']
+
+// Cache validity: 24 hours (must match fetch-docs.mjs CACHE_TTL_MS)
+const CACHE_TTL_MS = 24 * 60 * 60 * 1000
 
 /**
  * Get relevant doc pages for a category (primary + supplementary)
@@ -254,9 +257,29 @@ function cmdDiff(args) {
   }
 
   // Include per-category doc mapping for targets only
+  const neededDocPages = new Set()
   for (const cat of result.categories) {
     if (byCategory[cat] && byCategory[cat].length > 0) {
-      output.categoryDocMap[cat] = getDocsForCategory(cat)
+      const docs = getDocsForCategory(cat)
+      output.categoryDocMap[cat] = docs
+      docs.forEach(d => neededDocPages.add(d))
+    }
+  }
+
+  // Check if all needed doc caches are valid (allows skipping docs:fetch)
+  if (neededDocPages.size > 0) {
+    let allCached = true
+    for (const docName of neededDocPages) {
+      const filePath = resolve(DOCS_DIR, `${docName}.md`)
+      if (!existsSync(filePath)) { allCached = false; break }
+      const stat = statSync(filePath)
+      if (stat.size <= 1024 || (Date.now() - stat.mtimeMs) >= CACHE_TTL_MS) {
+        allCached = false; break
+      }
+    }
+    output.allDocsCached = allCached
+    if (allCached) {
+      console.log(`\nDoc cache: all ${neededDocPages.size} needed pages are valid (docs:fetch can be skipped)`)
     }
   }
 

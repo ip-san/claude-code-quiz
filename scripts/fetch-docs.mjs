@@ -8,9 +8,10 @@
  * スキル実行時の WebFetch 重複呼び出しを排除し、検証・生成の高速化を実現。
  *
  * Usage:
- *   node scripts/fetch-docs.mjs          # 全ページ取得
- *   node scripts/fetch-docs.mjs --force  # キャッシュを無視して再取得
- *   node scripts/fetch-docs.mjs --status # キャッシュ状態を表示
+ *   node scripts/fetch-docs.mjs                          # 全ページ取得
+ *   node scripts/fetch-docs.mjs --force                  # キャッシュを無視して再取得
+ *   node scripts/fetch-docs.mjs --status                 # キャッシュ状態を表示
+ *   node scripts/fetch-docs.mjs --pages memory,settings  # 指定ページのみ取得
  *
  * Output:
  *   .claude/tmp/docs/{page-name}.md
@@ -266,27 +267,48 @@ async function main() {
 
   const force = args.includes('--force')
 
+  // --pages filter: only fetch specified pages (comma-separated)
+  const pagesArg = args.find(a => a.startsWith('--pages'))
+  let pagesToFetch = DOC_PAGES
+  if (pagesArg) {
+    // Support both --pages=a,b and --pages a,b
+    let pageNames
+    if (pagesArg.includes('=')) {
+      pageNames = pagesArg.split('=')[1].split(',').map(s => s.trim())
+    } else {
+      const idx = args.indexOf('--pages')
+      pageNames = (args[idx + 1] || '').split(',').map(s => s.trim())
+    }
+    pagesToFetch = DOC_PAGES.filter(p => pageNames.includes(p.name))
+    if (pagesToFetch.length === 0) {
+      console.error(`No matching pages found for: ${pageNames.join(', ')}`)
+      console.error(`Available: ${DOC_PAGES.map(p => p.name).join(', ')}`)
+      process.exit(1)
+    }
+  }
+
   mkdirSync(DOCS_DIR, { recursive: true })
 
-  console.log(`Fetching ${DOC_PAGES.length} documentation pages via Jina Reader...`)
+  console.log(`Fetching ${pagesToFetch.length} documentation pages via Jina Reader...`)
   if (force) console.log('  (--force: ignoring cache)')
+  if (pagesArg) console.log(`  (--pages: ${pagesToFetch.map(p => p.name).join(', ')})`)
   console.log()
 
   // Fetch in parallel batches of 3 (Jina rate limit: ~200 req/min)
   const BATCH_SIZE = 3
   const results = []
 
-  for (let i = 0; i < DOC_PAGES.length; i += BATCH_SIZE) {
-    const batch = DOC_PAGES.slice(i, i + BATCH_SIZE)
+  for (let i = 0; i < pagesToFetch.length; i += BATCH_SIZE) {
+    const batch = pagesToFetch.slice(i, i + BATCH_SIZE)
     const batchResults = await Promise.all(batch.map(p => fetchPage(p, force)))
     results.push(...batchResults)
 
     // Progress indicator
-    const done = Math.min(i + BATCH_SIZE, DOC_PAGES.length)
-    process.stdout.write(`\r  Progress: ${done}/${DOC_PAGES.length}`)
+    const done = Math.min(i + BATCH_SIZE, pagesToFetch.length)
+    process.stdout.write(`\r  Progress: ${done}/${pagesToFetch.length}`)
 
     // Brief pause between batches
-    if (i + BATCH_SIZE < DOC_PAGES.length) {
+    if (i + BATCH_SIZE < pagesToFetch.length) {
       await new Promise(r => setTimeout(r, 1000))
     }
   }
