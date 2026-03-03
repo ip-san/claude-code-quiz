@@ -30,33 +30,37 @@ IDは既存の最大番号の続きから採番してください。
 
 ## Input Source
 
-以下の公式ドキュメント（16ページ）を参照してください：
+### ドキュメント事前キャッシュ（推奨）
 
-### Core Documentation
-- https://code.claude.com/docs/en/overview
-- https://code.claude.com/docs/en/quickstart
-- https://code.claude.com/docs/en/settings
-- https://code.claude.com/docs/en/memory
+**生成前に `npm run docs:fetch` でドキュメントをローカルキャッシュしておくと、WebFetch が不要になり大幅に高速化される。**
 
-### Interactive & Tools
-- https://code.claude.com/docs/en/interactive-mode
-- https://code.claude.com/docs/en/how-claude-code-works
+```bash
+npm run docs:fetch          # 全ページ取得（キャッシュ済みはスキップ）
+npm run docs:status         # キャッシュ状態を確認
+```
 
-### Extensions & Integration
-- https://code.claude.com/docs/en/mcp
-- https://code.claude.com/docs/en/hooks
-- https://code.claude.com/docs/en/discover-plugins
-- https://code.claude.com/docs/en/sub-agents
+キャッシュ先: `.claude/tmp/docs/{page-name}.md`
 
-### Advanced Topics
-- https://code.claude.com/docs/en/common-workflows
-- https://code.claude.com/docs/en/checkpointing
-- https://code.claude.com/docs/en/best-practices
-- https://code.claude.com/docs/en/skills
-- https://code.claude.com/docs/en/model-config
+キャッシュが存在する場合は Read で読み、存在しない場合のみ WebFetch する。
 
-### Agent SDK
-- https://platform.claude.com/docs/en/agent-sdk/overview
+### 公式ドキュメント（16ページ + Agent SDK）
+
+以下のページが参照元。キャッシュ済みの場合は `.claude/tmp/docs/{page-name}.md` を Read で読む。
+
+#### Core Documentation
+- overview / quickstart / settings / memory
+
+#### Interactive & Tools
+- interactive-mode / how-claude-code-works
+
+#### Extensions & Integration
+- mcp / hooks / discover-plugins / sub-agents
+
+#### Advanced Topics
+- common-workflows / checkpointing / best-practices / skills / model-config
+
+#### Agent SDK（別ドメイン）
+- agent-sdk-overview
 
 ## Output Format
 

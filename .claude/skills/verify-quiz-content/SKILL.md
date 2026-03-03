@@ -12,13 +12,6 @@ allowed-tools: WebFetch, Read, Glob, Grep, Task, Bash
 
 `src/data/quizzes.json` の内容が最新の公式ドキュメント (code.claude.com) と整合しているかを検証し、差異を報告します。
 
-## 補助ファイル
-
-このスキルは以下の補助ファイルと組み合わせて使用する。検証開始前に必ず Read で読み込むこと。
-
-- **`known-issues.md`** — 過去の検証で発見されたプロジェクト固有の具体例・教訓集
-- **`doc-references.md`** — referenceUrl マッピング、既知のアンカー、バッククォート対象用語リスト
-
 ## Step 0: Automated Quality Check (最初に実行)
 
 まず自動テストで構造的な問題を検出：
@@ -42,63 +35,175 @@ npm run quiz:stats
 
 **自動テストが失敗した場合は、まずその問題を修正してください。**
 
-## Official Documentation Sources
+## Step 1: ドキュメント事前キャッシュ + 差分抽出
 
-以下の公式ドキュメント（16ページ + Agent SDK）を検証の参照元とします：
+### 1a. ドキュメントキャッシュ
 
-### Core Documentation
-- https://code.claude.com/docs/en/overview
-- https://code.claude.com/docs/en/quickstart
-- https://code.claude.com/docs/en/settings
-- https://code.claude.com/docs/en/memory
+```bash
+npm run docs:fetch
+```
 
-### Interactive & Tools
-- https://code.claude.com/docs/en/interactive-mode
-- https://code.claude.com/docs/en/how-claude-code-works
+- キャッシュ先: `.claude/tmp/docs/{page-name}.md`
+- 有効期限: 24時間（`--force` で強制再取得）
 
-### Extensions & Integration
-- https://code.claude.com/docs/en/mcp
-- https://code.claude.com/docs/en/hooks
-- https://code.claude.com/docs/en/discover-plugins
-- https://code.claude.com/docs/en/sub-agents
+### 1b. 差分抽出（高速化の要）
 
-### Advanced Topics
-- https://code.claude.com/docs/en/common-workflows
-- https://code.claude.com/docs/en/checkpointing
-- https://code.claude.com/docs/en/best-practices
-- https://code.claude.com/docs/en/skills
-- https://code.claude.com/docs/en/model-config
+```bash
+npm run verify:diff              # 差分モード（通常）
+npm run verify:diff:full         # フルスキャン（定期的に実行）
+npm run verify:diff -- memory    # 特定カテゴリのみ
+```
 
-### Agent SDK（別ドメイン）
-- https://platform.claude.com/docs/en/agent-sdk/overview
+差分モードは以下の3条件で再検証対象を判定：
+1. **新規問題**: 前回検証時に存在しなかった問題
+2. **内容変更**: question/options/explanation/referenceUrl のハッシュが変化
+3. **ドキュメント変更**: その問題のカテゴリが参照するドキュメントが更新された
 
-### 補足参照ページ・有効なドメインとパス・既知のアンカー
+結果は `.claude/tmp/verify-targets.json` に保存される。
 
-→ **`doc-references.md`** を参照
+**`--full` フラグ**: エージェント見落としのキャッチ用。バージョンアップ時や定期的に実行を推奨。
 
-## Step 1: Fact Verification
+### 1c. 検証対象の確認
 
-**レートリミット対策:** 8カテゴリ全てを同時に並列検証すると API レートリミットに抵触する可能性が高い。**2〜3カテゴリずつバッチで実行する**こと。
+`.claude/tmp/verify-targets.json` を Read で読み込み、検証対象カテゴリとドキュメントマッピングを確認する。
+
+- `targets`: 検証が必要な問題リスト
+- `categoryDocMap`: カテゴリごとに読むべきドキュメント一覧
+- `skippedCount`: スキップされた問題数
+
+**targets が 0 件の場合**: 差分なし。「検証対象なし」と報告して終了。
+
+## Step 2: Fact Verification
+
+**差分抽出で特定されたカテゴリのみサブエージェントを起動する。**
+
+各カテゴリのサブエージェントには以下を prompt に含める：
+
+1. **検証対象の問題ID一覧**（verify-targets.json の targets から該当カテゴリを抽出）
+2. **読むべきドキュメント一覧**（categoryDocMap から取得）
+3. **補助情報（後述の「サブエージェント用プロンプトテンプレート」参照）**
 
 ```
-# バッチ1: memory, skills, tools (並列)
-# バッチ2: commands, extensions (並列)
-# バッチ3: session, keyboard, bestpractices (並列)
-
-Task (subagent_type: general-purpose) for each category in batch:
-  1. WebFetchで該当ドキュメントページを取得
-  2. 各問題について以下を照合：
-     a. question（問題文）の前提・数値・機能名がドキュメントと一致するか
-     b. 正解選択肢がドキュメントの内容と一致するか
-     c. explanation 内の全フィールド（注記文・CLIフラグ・数値含む）がドキュメントと一致するか
-     d. wrongFeedback の批判内容自体がドキュメントと矛盾していないか
-     e. question ↔ explanation ↔ wrongFeedback 間の内部矛盾がないか
+# サブエージェント起動パターン
+Task (subagent_type: general-purpose) for each category with targets:
+  1. `.claude/tmp/docs/` から categoryDocMap に指定されたドキュメントのみ Read
+     （キャッシュが存在しない場合のみ WebFetch でフォールバック）
+  2. verify-targets.json で指定された問題IDのみ検証
   3. 差異を報告
 ```
 
-引数で特定カテゴリが指定された場合は、そのカテゴリのみ並列実行で問題ない。
+引数で特定カテゴリが指定された場合は、そのカテゴリのみ実行。
 
-### Verification Checklist
+**注意:** API の並列呼び出し上限により、一度に起動するサブエージェントは最大4つまでとする。
+
+### サブエージェント用プロンプトテンプレート
+
+以下のテンプレートの `{CATEGORY}`, `{TARGET_IDS}`, `{DOC_PAGES}` を置き換えてサブエージェントに渡す。
+**補助情報（known-issues, doc-references）はテンプレートに埋め込み済みなので、サブエージェントが別ファイルを Read する必要はない。**
+
+````
+あなたは "{CATEGORY}" カテゴリのクイズ検証エージェントです。
+
+重要: このエージェントは問題を報告するだけです。quizzes.jsonへの直接修正は行わないこと。
+検証レポートは .claude/tmp/verify_{CATEGORY}.json に保存すること。
+
+## 検証対象
+以下の問題IDのみ検証してください: {TARGET_IDS}
+
+## ドキュメント参照
+まず `.claude/tmp/docs/` のキャッシュ済みファイルを Read で読むこと。
+キャッシュが存在しない場合のみ WebFetch でフォールバック。
+必要なページ: {DOC_PAGES}
+
+## 検証チェックリスト
+
+### A. 事実の正確性
+検証対象フィールドは **question・options[].text・explanation・options[].wrongFeedback の全て**。
+- question に含まれる前提・数値・機能名がドキュメントと一致しているか
+- 正解選択肢がドキュメントの内容と一致しているか
+- explanation が正しい情報を含んでいるか
+- wrongFeedback がドキュメントと矛盾していないか
+
+### B. 用語・名称の正確性
+- API やコマンド名が正式名称か
+- 設定ファイル名やパスが正しいか
+- サードパーティプロバイダー名は専用ドキュメントページの H1 タイトルを最終権威として確認
+
+### C. リファレンス URL の有効性
+- referenceUrl が有効か、アンカーがページ見出しと一致するか
+- referenceUrl の参照先が問題内容に最も直接的か
+
+### D. 内部一貫性
+- question ↔ explanation の整合性
+- explanation ↔ wrongFeedback の整合性
+- wrongFeedback 同士の整合性
+
+### E. バッククォート書式
+コード用語・ファイルパス・コマンド・環境変数・設定キーがバッククォートで囲まれているか。
+対象: ツール名(Bash,Read,Edit等), Hookイベント名, ファイルパス, 設定キー, 環境変数, スラッシュコマンド, CLIフラグ, 技術用語(ripgrep,bypassPermissions等)
+
+## よくある誤りパターン
+- ドキュメントで確認できない機能を含めてしまう
+- 列挙の「数」が古い（設定スコープ・Hookイベント等）
+- 環境変数の逆値動作の断定（`VAR=1` の動作 → `VAR=0` で逆とは限らない）
+- ドキュメントに記載のない数値の断定
+- デフォルト動作の誤断言
+- CLIフラグの組み合わせ省略（`--fork-session` は `--continue` と併用必須）
+- 存在しないフレーズの引用
+- 外部知識の混入（Claude Code docs に記載のない動作を固有動作として断言）
+- ドキュメントの例示を完全リストと誤認（「e.g.」で列挙されているものは例示）
+
+## プロジェクト固有の既知パターン（known-issues 要約）
+- `CLAUDE_CODE_DISABLE_AUTO_MEMORY=1` で無効化OK、`=0` で有効化は根拠なし
+- `BASH_DEFAULT_TIMEOUT_MS` のデフォルト値: "Not specified"
+- `spinnerVerbs.mode` 省略時は `"append"`（`"replace"` ではない）
+- `USE_BUILTIN_RIPGREP`: 未ドキュメント。`MCP_TIMEOUT`: mcp ページに記載あり
+- `defaultMode` は5値: default/acceptEdits/plan/dontAsk/bypassPermissions（permissions ページ参照）
+- `allowManagedHooksOnly: true` は user, project, **plugin** hooks を無効化（3種）
+- `Ctrl+B`: "Backgrounds bash commands **and agents**"
+- Managed CLAUDE.md パス: macOS=/Library/Application Support/ClaudeCode/CLAUDE.md（~/.claude/CLAUDE.md は User scope）
+- best-practices 強調キーワード: "IMPORTANT" と "YOU MUST" のみ記載。ALWAYS/NEVER は未記載
+- `CLAUDE_CODE_SHELL_PREFIX`: docs は "for logging or auditing" のみ
+- CLI ツール学習: ユーザーが `--help` 使用を指示（自動学習ではない）
+- Task→Agent 改名: CLI は `Agent`、Agent SDK `allowedTools` は `Task`
+
+## referenceUrl マッピング
+| 機能カテゴリ | 推奨ページ |
+|-------------|-----------|
+| 環境変数 | settings |
+| CLIワークフロー | common-workflows |
+| スラッシュコマンド | interactive-mode |
+| コア動作（ツールカテゴリ等） | how-claude-code-works |
+| ベストプラクティス | best-practices |
+| CLAUDE.md 刈り込み | best-practices |
+| 画像添付・クリップボード | interactive-mode |
+
+## 既知の正しいアンカー（memory ページ）
+- `#import-additional-files`, `#choose-where-to-put-claudemd-files`
+- `#view-and-edit-with-memory`, `#how-claudemd-files-load`
+- `#user-level-rules`, `#path-specific-rules`
+
+## レポート形式
+```json
+{
+  "category": "{CATEGORY}",
+  "verified": ["id1", "id2"],
+  "issues": [
+    {
+      "id": "xxx-NNN",
+      "severity": "critical|major|minor|info",
+      "type": "fact|terminology|url|consistency|backtick|quality",
+      "field": "question|options|explanation|wrongFeedback|referenceUrl",
+      "current": "現在の内容",
+      "expected": "正しい内容",
+      "reference": "参照ドキュメント"
+    }
+  ]
+}
+```
+````
+
+### Verification Checklist（主エージェント用完全版）
 
 各クイズ問題について以下を検証：
 
@@ -145,7 +250,7 @@ Task (subagent_type: general-purpose) for each category in batch:
 - **異なるサブシステムのフィールド名・用語の混入:** 文脈に合ったフィールド名を使用しているか確認する
 - **ドキュメントの「A and B」を「A」のみ引用:** 対象が複数ある場合はドキュメントの列挙を完全に反映すること
 
-→ 各パターンの **具体例** は **`known-issues.md`** を参照
+> 各パターンの **具体例** は **`known-issues.md`** を参照
 
 #### B. 用語・名称の正確性
 
@@ -162,7 +267,7 @@ Task (subagent_type: general-purpose) for each category in batch:
 - **アンカー（`#fragment`）が実際のページ見出しと一致するか** — アンカー不一致は頻出するため重点チェック
 - **referenceUrl の参照先ページが問題内容に最も直接的か確認する**
 
-→ 機能別の推奨マッピング・既知のアンカーは **`doc-references.md`** を参照
+> 機能別の推奨マッピング・既知のアンカーは **`doc-references.md`** を参照
 
 #### D. 最新性
 
@@ -176,77 +281,44 @@ Task (subagent_type: general-purpose) for each category in batch:
 - ディレクトリパス（`.claude/`）の末尾パターンに注意: `.claude/memory.txt` の途中で切れないこと
 - **URL・ファイルパス途中へのバッククォート挿入禁止:** URL 文字列やファイルパスの途中にバッククォートを挿入してはいけない。パス・URL 全体をまとめてバッククォートで囲む
 
-→ 対象用語リストは **`doc-references.md`** を参照
-
-**ヒント:** バッククォート欠落は広範囲にわたることが多い。大量の場合は正規表現ベースの自動修正スクリプトで一括対応が効率的。
+> 対象用語リストは **`doc-references.md`** を参照
 
 #### D3. 内部一貫性チェック
 
-問題内部のフィールド間で矛盾がないか確認する（ドキュメントとの照合とは別に行う）：
+問題内部のフィールド間で矛盾がないか確認する：
 
-- **question ↔ explanation の整合性:** 問題文が問いかける内容と、explanation・正解が説明する内容が一致しているか
-- **explanation ↔ wrongFeedback の整合性:** explanation で述べている事実と wrongFeedback の内容が矛盾していないか
-- **wrongFeedback 同士の整合性:** 複数の wrongFeedback が互いに矛盾していないか
-- **選択肢の相互矛盾:** ある選択肢の wrongFeedback が別の選択肢の内容を肯定してしまっていないか
+- **question ↔ explanation の整合性**
+- **explanation ↔ wrongFeedback の整合性**
+- **wrongFeedback 同士の整合性**
+- **選択肢の相互矛盾**
 
 #### E. 問題の質（暗記問題チェック）
 
 以下のパターンに該当する問題を「要リライト」として報告する：
-
 - **丸暗記型:** デフォルト値・パス・キーバインド・環境変数名をそのまま問う
 - **表面的:** 「〜とは何ですか」「〜の名前は」のような定義の暗記
 - **シナリオなし:** 実務的な状況設定がなく、知識の有無だけで回答できる
 
-**良い問題の基準:**
-- 「なぜ」「いつ」「どう使い分ける」を問う
-- 実践シナリオが設定されている
-- 誤解しやすいポイントを突いている
-- wrongFeedback が学びを提供している
-
 #### E2. wrongFeedback の品質チェック
 
-wrongFeedback が具体的で学習効果のある説明になっているか確認する。
-
 **完全NGパターン（即修正）:**
-- 「この選択肢は正しくありません。正解の解説を参照してください。」（学習効果ゼロ）
+- 「この選択肢は正しくありません。正解の解説を参照してください。」
 
 **要改善パターン:**
 - 「これは正しくありません」「この機能は存在しません」（抽象的すぎる）
-- 「このパスではありません」「不十分です」（理由がない）
-- 「〜は有効なモードです。」「〜は組み込みエージェントです。」（一文で終わり、何をするかの説明なし）
-- 「サポートされています。」「〜コマンドではありません。」（何が正しいかの情報なし）
-
-**良い例:**
-- 具体的にどの機能・設定と混同しやすいか説明
-- 正しい情報を併記（「〜ではなく、実際は〜です」）
-- ドキュメントの該当箇所を間接的に参照
-- 2文以上で理由と正しい情報を提供
-
-**傾向:** 完全NGパターンや一文型 wrongFeedback は tools カテゴリと extensions カテゴリに特に多い傾向がある。
+- 一文で終わり、何をするかの説明なし
 
 #### E3. 不正解選択肢のもっともらしさ
 
-不正解選択肢が「明らかに間違い」ではなく「もっともらしい」ものになっているか確認する。
-- 開発者の一般知識だけで除外できる選択肢は不適切
-- Claude Code 固有の知識がないと判別できない選択肢が理想
+不正解選択肢が「明らかに間違い」ではなく「もっともらしい」ものになっているか。
 
 #### F. 重複・冗長チェック
 
-以下の観点で冗長な問題を特定する：
-
-- **完全重複:** 同じ概念を同じ角度から問う
-- **類似重複:** 表現を変えただけで本質的に同じ
-- **カバレッジ偏り:** 特定の機能に問題が集中しすぎている
-
-重複が見つかった場合は、どちらの問題を残すべきかを品質の高い方を基準に提案する。
+- **完全重複・類似重複・カバレッジ偏り** を特定
 
 #### G. クロスクイズ一貫性チェック
 
-**同一カテゴリ内の複数問題が互いに矛盾していないか確認する。**
-
-一つの問題の explanation で述べている事実が、別の問題の explanation・wrongFeedback と食い違う場合がある。
-
-**確認方法:** カテゴリ内の関連する概念（設定スコープ数、エージェント種別、Hook数等）について、複数問題の記述が統一されているか目視確認する。
+同一カテゴリ内の複数問題が互いに矛盾していないか確認する。
 
 ## Output Format
 
@@ -255,8 +327,9 @@ wrongFeedback が具体的で学習効果のある説明になっているか確
 ## 検証結果サマリー
 
 ✅ 全 [N] 問の検証が完了しました。
-- 自動テスト: PASS (14/14)
+- 自動テスト: PASS
 - ファクトチェック: memory 28問 OK, skills 26問 OK, ...
+- モード: incremental (差分: X問検証, Y問スキップ)
 
 重大な問題は見つかりませんでした。
 ```
@@ -266,42 +339,18 @@ wrongFeedback が具体的で学習効果のある説明になっているか確
 ## 検証結果サマリー
 
 ⚠️ [N] 件の問題が見つかりました。
+- モード: incremental (差分: X問検証, Y問スキップ)
 
 ### Critical Issues (修正必須)
 
 | Quiz ID | 問題内容 | 現在の内容 | 正しい内容 | 参照元 |
 |---------|---------|-----------|-----------|--------|
-| ext-003 | イベント名が間違い | PreToolExecution | PreToolUse | hooks |
 
 ### Minor Issues (推奨修正)
-
-| Quiz ID | 問題内容 | 詳細 |
-|---------|---------|------|
-| mem-011 | 数値が古い可能性 | "200行" → 最新値を確認 |
-
 ### 暗記問題（要リライト）
-
-| Quiz ID | 現在の問題文 | 問題点 | リライト案 |
-|---------|-------------|--------|-----------|
-| key-005 | 〜のショートカットキーは？ | キーの丸暗記 | シナリオ型に変更 |
-
 ### 重複・冗長
-
-| Quiz ID (残す方) | Quiz ID (削除候補) | 重複内容 |
-|------------------|-------------------|---------|
-| ext-010 | ext-045 | MCP設定の同一観点 |
-
 ### バッククォート書式
-
-| Quiz ID | フィールド | 対象テキスト | 修正内容 |
-|---------|----------|-------------|---------|
-| mem-005 | question | CLAUDE.md → `CLAUDE.md` | バッククォート追加 |
-
 ### wrongFeedback 品質
-
-| Quiz ID | 現在のwrongFeedback | 問題点 | 改善案 |
-|---------|-------------------|--------|--------|
-| ext-020 | 「これは違います」 | 抽象的 | 具体的な理由を追記 |
 ```
 
 ## Severity Levels
@@ -316,7 +365,10 @@ wrongFeedback が具体的で学習効果のある説明になっているか確
 - `$ARGUMENTS` にカテゴリ名を指定した場合、そのカテゴリのみ検証
   - 例: `/verify-quiz-content memory` → memory カテゴリのみ
   - 例: `/verify-quiz-content extensions tools` → 複数カテゴリ指定可能
-- 引数なしの場合は全カテゴリを検証
+- `--full` を含む場合はフルスキャン（差分なしで全問検証）
+  - 例: `/verify-quiz-content --full`
+  - 例: `/verify-quiz-content memory --full`
+- 引数なしの場合は差分モードで全カテゴリを検証
 
 ## Post-Verification
 
@@ -328,31 +380,16 @@ wrongFeedback が具体的で学習効果のある説明になっているか確
 
 ### 検証サブエージェントは REPORT 専用にすること
 
-**3バッチのサブエージェントを並列実行する際、各エージェントに `quizzes.json` を直接修正させてはいけない。** 複数のエージェントが同じ JSON ファイルを並列で書き換えると、バージョン番号の競合や内容の巻き戻しが発生する。
+**サブエージェントに `quizzes.json` を直接修正させてはいけない。** 複数のエージェントが同じ JSON ファイルを並列で書き換えると、バージョン番号の競合や内容の巻き戻しが発生する。
 
 **正しいワークフロー:**
-1. 3バッチの検証エージェントは「報告のみ」を実施（ファイル変更禁止）
+1. 検証エージェントは「報告のみ」を実施（ファイル変更禁止）
 2. 主エージェント（このスキルを実行している Claude）が報告を受け取り、実データを照合してから修正を適用
 3. バージョン番号のインクリメントも主エージェントが一括管理する
 
-**サブエージェントへの指示例（prompt に追記）:**
-```
-重要: このエージェントは問題を報告するだけです。quizzes.jsonへの直接修正は行わないこと。
-検証レポートは .claude/tmp/verify_{category}.json に保存すること。
-```
-
-### サブエージェント報告の照合（Critical/Major 指摘の実データ確認）
+### サブエージェント報告の照合
 
 サブエージェントが報告した Critical・Major の問題は、**修正を実施する前に必ず実際の JSON データを直接読み込んで照合すること**。
-
-**照合が特に必要なケース:**
-- 「options[N].wrongFeedback に〜という記述がある」という具体的引用を含む指摘
-- 「explanation に〜と書かれている」「question で〜と前提している」という引用形式の指摘
-- 指摘内容が過去の検証記録と矛盾する場合
-
-**理由:** サブエージェントは WebFetch の結果と quiz データの照合過程で hallucination（存在しない記述を「ある」と誤報告）を起こすことがある。
-
-**照合の効率的な方法:**
 
 ```bash
 node -e "
@@ -367,35 +404,12 @@ console.log('explanation:', q.explanation);
 "
 ```
 
-照合の結果、実際のフィールド値が指摘内容と一致する場合のみ修正へ進む。
-
-### 修正の効率的なアプローチ
-
-**少量（〜10件）:** 手動で `Edit` ツールで直接修正
-
-**大量（10件以上）:** 一時的な Node.js スクリプトで一括修正が効率的
-
-```
-scripts/fix-*.mjs パターンで一時スクリプトを作成
-→ 実行して確認
-→ 完了後にスクリプトを削除
-```
-
-**バッククォート修正（50件以上）:** 正規表現ベースの自動修正スクリプトが必須
-- ツール名・環境変数・パス等をカテゴリ別に定義
-- 二重バッククォート防止のガード（既にバッククォート内か確認）
-- `--dry-run` オプションでプレビュー後に適用
-- 冪等性を確認（2回目の実行で0件変更）
-
-**暗記問題リライト:** `question` フィールドのみ変更（options/explanation は既存を維持）
-
-**重複削除:** ID リストで `splice` → バージョン番号をインクリメント
-
 ### 修正後の必須手順
 
 ```bash
 npm run quiz:randomize   # correctIndex 再ランダム化
 npm run quiz:check       # 構造チェック
 npm test                 # 全テスト通過確認
+npm run verify:save      # 検証状態を保存（次回の差分用）
 npm run quiz:stats       # 分布確認
 ```

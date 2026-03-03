@@ -18,6 +18,13 @@
     "quiz:stats": "node scripts/quiz-utils.mjs stats",
     "quiz:coverage": "node scripts/quiz-utils.mjs coverage",
     "quiz:check": "node scripts/quiz-utils.mjs check",
+    "docs:fetch": "node scripts/fetch-docs.mjs",
+    "docs:status": "node scripts/fetch-docs.mjs --status",
+    "verify:diff": "node scripts/verify-state.mjs diff",
+    "verify:diff:full": "node scripts/verify-state.mjs diff --full",
+    "verify:save": "node scripts/verify-state.mjs save",
+    "verify:status": "node scripts/verify-state.mjs status",
+    "verify:mapping": "node scripts/verify-state.mjs mapping",
     "generate-icons": "node scripts/generate-icons.mjs",
     "prepare": "husky"
   },
