@@ -94,11 +94,13 @@
 ## MEMORY 記録の信頼性
 
 - v4.13.0 で「Microsoft Azure Foundry（正式名称）」と誤記録 → v4.22.0 でも踏襲 → 実際のページタイトルは「Microsoft Foundry」
+- v4.39.3 で cmd-024 に「SSE は非推奨」と記載 → MEMORY にも「MCP SSE transport is deprecated → use HTTP」と記録済みだったが、実際の mcp ページには "deprecated" の文字列が存在しなかった
 - 過去に確認済みという記録があっても、重要な固有名詞・設定値は専用ページで再検証する
 
 ## 対象の不完全列挙（具体例）
 
 - `Ctrl+B`: "Backgrounds bash commands **and agents**" — 「bash commands」のみの記述は不完全
+- ext-029: Hook のブロッキング対応イベントを「5つ」と記載していたが、実際は9つ（`PostToolUse`, `TeammateIdle`, `TaskCompleted`, `ConfigChange` が欠落）。explanation 中の「など」が不完全な列挙を隠蔽していた
 
 ## 外部知識の混入（具体例）
 
