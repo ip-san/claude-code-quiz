@@ -14,6 +14,7 @@
 | 組み込みスラッシュコマンド（`/login`, `/compact`, `/model` 等） | `interactive-mode` | |
 | Claude Codeのコア動作（ツールカテゴリ・Compact Instructions・セッション管理・アジェンティックループ） | `how-claude-code-works` | 非常に包括的なページ。安易に「不足」とflagしないこと |
 | ベストプラクティス・スケールアップ（CLAUDE.md書き方・サブエージェント活用・並列実行・Plan Mode） | `best-practices` | |
+| 「Delegate, don't dictate」（委任 vs 指示のアプローチ論） | `how-claude-code-works` | `best-practices` ではない |
 | CLAUDE.md の刈り込み指針 | `best-practices` | `memory` ではなく "Write an effective CLAUDE.md" セクション |
 | セッションピッカーのキーバインド・フォーク済みセッションのグループ化 | `common-workflows` | "Use the session picker" セクション |
 | 画像添付・クリップボード操作（ドラッグ＆ドロップ、`Ctrl+V`） | `interactive-mode` | `how-claude-code-works` ではない |

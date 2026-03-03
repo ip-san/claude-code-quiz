@@ -20,9 +20,9 @@
 
 ## 環境変数の照合
 
-- `USE_BUILTIN_RIPGREP`: settings ページの env var テーブルに記載なし → 未ドキュメント
 - `MCP_TIMEOUT`: settings ページにはないが、mcp ページの Tips セクションに記載 → ドキュメント化済み
-- `MCP_TOOL_TIMEOUT`: 未ドキュメント
+- `MCP_TOOL_TIMEOUT`: settings ページ記載済み（2026-03-03 確認）
+- `USE_BUILTIN_RIPGREP`: settings ページ記載済み（2026-03-03 確認）。`0` に設定するとシステムの `rg` を使用
 
 ## settings ページとリンク先の乖離
 
@@ -74,8 +74,8 @@
 
 ## 存在しないフレーズの引用（具体例）
 
-- "Delegate, don't dictate" はドキュメントに未掲載
-- "Ruthlessly prune" / "Keep it concise" も memory ベストプラクティスページに記載なし
+- "Delegate, don't dictate" は `how-claude-code-works` ページに掲載済み（`best-practices` ではない）
+- "Ruthlessly prune" / "Keep it concise" は memory ベストプラクティスページに記載なし
 - 実際は "Review periodically" "Be specific" "Use structure to organize"
 
 ## CLIフラグの組み合わせ（具体例）
@@ -100,7 +100,7 @@
 ## 対象の不完全列挙（具体例）
 
 - `Ctrl+B`: "Backgrounds bash commands **and agents**" — 「bash commands」のみの記述は不完全
-- ext-029: Hook のブロッキング対応イベントを「5つ」と記載していたが、実際は9つ（`PostToolUse`, `TeammateIdle`, `TaskCompleted`, `ConfigChange` が欠落）。explanation 中の「など」が不完全な列挙を隠蔽していた
+- ext-029: Hook のブロッキング対応イベント（Can block = Yes）は9つ: `PreToolUse`, `UserPromptSubmit`, `PermissionRequest`, `Stop`, `SubagentStop`, `TeammateIdle`, `TaskCompleted`, `ConfigChange`, `WorktreeCreate`。**`PostToolUse` は Can block = No**（ツール実行済みのため exit 2 でも stderr を Claude に表示するだけ）
 
 ## 外部知識の混入（具体例）
 
@@ -124,6 +124,12 @@
 
 - `allowManagedHooksOnly: true` が無効化するのは user, project, **plugin** hooks の3種。「User/Project/Local」と書くと plugin hooks が抜ける
 - ドキュメント原文: "prevents loading of user, project, and plugin hooks"
+
+## ドキュメントに根拠のないアクセス制限の断定
+
+- cmd-012: `/teleport`に「サブスクリプションプランのユーザーのみ利用可能」と記載していたが、ドキュメントには利用制限の記述なし
+- 「〜プランのみ」「〜ユーザーのみ」「〜環境のみ」のようなアクセス制限は、ドキュメントに明記されている場合のみ記載する
+- 外部知識やリリースノートの情報を docs 記載と混同しないこと
 
 ## 動作主体の誤帰属（具体例）
 
