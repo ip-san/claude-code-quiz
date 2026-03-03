@@ -149,6 +149,7 @@ Task (subagent_type: general-purpose, model: "sonnet", max_turns: 20) for each c
 - API やコマンド名が正式名称か
 - 設定ファイル名やパスが正しいか
 - サードパーティプロバイダー名は専用ドキュメントページの H1 タイトルを最終権威として確認
+- **大文字/小文字の一致**: 技術用語はドキュメントの表記を正確に転記（例: bubblewrap, Seatbelt — 固有名詞の大小文字をドキュメントで確認）
 
 ### C. リファレンス URL の有効性
 - referenceUrl が有効か、アンカーがページ見出しと一致するか
@@ -162,6 +163,11 @@ Task (subagent_type: general-purpose, model: "sonnet", max_turns: 20) for each c
 ### E. バッククォート書式
 コード用語・ファイルパス・コマンド・環境変数・設定キーがバッククォートで囲まれているか。
 対象: ツール名(Bash,Read,Edit等), Hookイベント名, ファイルパス, 設定キー, 環境変数, スラッシュコマンド, CLIフラグ, 技術用語(ripgrep,bypassPermissions等)
+
+**よく見落とされるパターン（毎回検出される再発項目）:**
+- キーボードショートカット: Ctrl+X → `Ctrl+X`。同一問題内で一部だけバッククォートありは不整合
+- 環境変数=値: `ENV_VAR`=1 ではなく `ENV_VAR=1`（=値も含めてバッククォート内）
+- プレースホルダー引数: [issue-number] → `[issue-number]`。コード要素としてバッククォート必要
 
 ## よくある誤りパターン
 - ドキュメントで確認できない機能を含めてしまう

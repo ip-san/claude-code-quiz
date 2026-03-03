@@ -48,21 +48,22 @@
 
 - exit 0: stdout が Claude のコンテキストに追加
 - exit 1: stderr がユーザーに表示されエラーとして記録（処理は継続）
-- exit 2: ブロッキングエラー — stderr の送信先は **イベントによって異なる**
-  - `PreToolUse`/`PostToolUse`/`UserPromptSubmit` → Claude へのフィードバック
-  - `Notification`/`SessionStart`/`SessionEnd` 等 → ユーザーへの表示のみ
-- イベントごとの動作はドキュメントの「Exit code 2 behavior per event」テーブルで個別確認すること
+- exit 2: ブロッキング制御 — **`reason`/stderr の送信先はイベントごとの decision control テーブルで決まる**
+  - `PostToolUse`/`Stop`/`SubagentStop` → `reason` を **Claude へフィードバック**
+  - `UserPromptSubmit`/`ConfigChange` → `reason` を **ユーザーへ表示のみ**（"Not added to context"）
+  - `PreToolUse`/`PermissionRequest` → `hookSpecificOutput` による制御（別メカニズム）
+  - `TeammateIdle`/`TaskCompleted` → Exit code のみ（stderr は Claude へフィードバック）
+  - `Notification`/`SessionStart`/`SessionEnd` 等 → ブロッキング不可
+- **各イベントセクションの decision control テーブルを個別確認すること。一般ルールで一括判定してはいけない**
 
-## exit code 2 と JSON `decision: "block"` の混同（偽陽性パターン）
+## UserPromptSubmit の reason 送信先（v4.43.1 で確定）
 
-`UserPromptSubmit` に対して検証エージェントがよく起こす混同：
+hooks.md の UserPromptSubmit decision control テーブル:
+- `reason`: "Shown to the user when decision is 'block'. **Not added to context**"
+- `additionalContext`: "String added to Claude's context"（これが Claude にコンテキストを渡す正しいフィールド）
 
-- **exit code 2（JSONなし）**: stderr → Claude へのフィードバック（docs 一般ルール: "stderr text is fed back to Claude as an error message"）
-- **JSON `decision: "block"` の `reason`**: ユーザーへの表示のみ（docs: "Shown to the user when decision is 'block'. Not added to context"）
-
-hooks.md では JSON decision の `reason` の説明が "Shown to the user" となっているため、
-エージェントが「UserPromptSubmit の exit 2 もユーザーへ表示」と誤報告するケースが発生（v4.43.0 検証で確認）。
-**exit code 2 の一般ルールは UserPromptSubmit でも変わらず Claude へのフィードバック**。
+v4.43.0 以前の known-issues では「exit code 2 の一般ルールで UserPromptSubmit の stderr も Claude へ」と記載していたが、
+**イベント固有の decision control テーブルが一般ルールに優先する**ことが v4.43.1 検証で確定。
 
 ## UI 固有の詳細（ドキュメント記載済み）
 
