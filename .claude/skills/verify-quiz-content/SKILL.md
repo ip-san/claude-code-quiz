@@ -73,23 +73,27 @@ npm run verify:diff -- memory    # 特定カテゴリのみ
 
 **targets が 0 件の場合**: 差分なし。「検証対象なし」と報告して終了。
 
+diff コマンドは同時にカテゴリ別クイズデータを `.claude/tmp/quizzes/{category}.json` に分割出力する。
+各ファイルにはそのカテゴリの全問題が含まれ、検証対象の問題には `_needsVerification: true` フラグが付く。
+
 ## Step 2: Fact Verification
 
 **差分抽出で特定されたカテゴリのみサブエージェントを起動する。**
 
 各カテゴリのサブエージェントには以下を prompt に含める：
 
-1. **検証対象の問題ID一覧**（verify-targets.json の targets から該当カテゴリを抽出）
+1. **カテゴリ別クイズファイルのパス**（`.claude/tmp/quizzes/{category}.json` — 全体450KBではなく30〜120KB）
 2. **読むべきドキュメント一覧**（categoryDocMap から取得）
 3. **補助情報（後述の「サブエージェント用プロンプトテンプレート」参照）**
 
 ```
 # サブエージェント起動パターン
 Task (subagent_type: general-purpose) for each category with targets:
-  1. `.claude/tmp/docs/` から categoryDocMap に指定されたドキュメントのみ Read
+  1. `.claude/tmp/quizzes/{category}.json` を Read（全体JSONではなくカテゴリ分のみ）
+  2. `.claude/tmp/docs/` から categoryDocMap に指定されたドキュメントのみ Read
      （キャッシュが存在しない場合のみ WebFetch でフォールバック）
-  2. verify-targets.json で指定された問題IDのみ検証
-  3. 差異を報告
+  3. `_needsVerification: true` の問題のみ検証（他は一貫性チェックの参照用）
+  4. 差異を報告
 ```
 
 引数で特定カテゴリが指定された場合は、そのカテゴリのみ実行。
@@ -98,7 +102,7 @@ Task (subagent_type: general-purpose) for each category with targets:
 
 ### サブエージェント用プロンプトテンプレート
 
-以下のテンプレートの `{CATEGORY}`, `{TARGET_IDS}`, `{DOC_PAGES}` を置き換えてサブエージェントに渡す。
+以下のテンプレートの `{CATEGORY}`, `{DOC_PAGES}` を置き換えてサブエージェントに渡す。
 **補助情報（known-issues, doc-references）はテンプレートに埋め込み済みなので、サブエージェントが別ファイルを Read する必要はない。**
 
 ````
@@ -107,8 +111,11 @@ Task (subagent_type: general-purpose) for each category with targets:
 重要: このエージェントは問題を報告するだけです。quizzes.jsonへの直接修正は行わないこと。
 検証レポートは .claude/tmp/verify_{CATEGORY}.json に保存すること。
 
-## 検証対象
-以下の問題IDのみ検証してください: {TARGET_IDS}
+## データ読み込み（重要: 全体JSONではなくカテゴリ別ファイルを使用）
+1. `.claude/tmp/quizzes/{CATEGORY}.json` を Read（カテゴリ分のみ、30〜120KB）
+   - `_needsVerification: true` の問題が検証対象
+   - それ以外の問題はクロスクイズ一貫性チェックの参照用
+2. **`src/data/quizzes.json` は読まないこと**（450KBの全体ファイルは不要）
 
 ## ドキュメント参照
 まず `.claude/tmp/docs/` のキャッシュ済みファイルを Read で読むこと。

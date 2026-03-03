@@ -30,6 +30,7 @@ const QUIZ_PATH = resolve(ROOT, 'src/data/quizzes.json')
 const DOCS_DIR = resolve(ROOT, '.claude/tmp/docs')
 const STATE_PATH = resolve(ROOT, '.claude/tmp/verify-state.json')
 const TARGETS_PATH = resolve(ROOT, '.claude/tmp/verify-targets.json')
+const QUIZ_SPLIT_DIR = resolve(ROOT, '.claude/tmp/quizzes')
 
 // ============================================================
 // Category → Document Mapping
@@ -262,6 +263,45 @@ function cmdDiff(args) {
   mkdirSync(dirname(TARGETS_PATH), { recursive: true })
   writeFileSync(TARGETS_PATH, JSON.stringify(output, null, 2) + '\n')
   console.log(`\nTargets saved to: ${TARGETS_PATH}`)
+
+  // Split quiz data by category (only categories with targets)
+  if (result.targets.length > 0) {
+    splitQuizzesByCategory(result.targets, byCategory)
+  }
+}
+
+/**
+ * Split quiz data into per-category JSON files for sub-agents.
+ * Each file contains only the questions that need verification.
+ * Sub-agents read ~30-120KB instead of the full 450KB quizzes.json.
+ */
+function splitQuizzesByCategory(targets, byCategory) {
+  const data = JSON.parse(readFileSync(QUIZ_PATH, 'utf8'))
+  mkdirSync(QUIZ_SPLIT_DIR, { recursive: true })
+
+  const targetIds = new Set(targets.map(t => t.id))
+  let totalSplit = 0
+
+  for (const [cat, catTargets] of Object.entries(byCategory)) {
+    const catTargetIds = new Set(catTargets.map(t => t.id))
+    const catQuizzes = data.quizzes.filter(q => q.category === cat)
+
+    // Mark which questions need verification vs context-only
+    const output = catQuizzes.map(q => ({
+      ...q,
+      _needsVerification: catTargetIds.has(q.id),
+    }))
+
+    const outPath = resolve(QUIZ_SPLIT_DIR, `${cat}.json`)
+    writeFileSync(outPath, JSON.stringify(output, null, 2) + '\n')
+
+    const sizeKB = (Buffer.byteLength(JSON.stringify(output, null, 2)) / 1024).toFixed(1)
+    const verifyCount = output.filter(q => q._needsVerification).length
+    console.log(`  Split: ${cat}.json (${output.length} questions, ${verifyCount} to verify, ${sizeKB}KB)`)
+    totalSplit++
+  }
+
+  console.log(`\n${totalSplit} category files saved to: ${QUIZ_SPLIT_DIR}/`)
 }
 
 function cmdSave() {
