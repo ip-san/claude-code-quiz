@@ -69,8 +69,8 @@ targets > 0 の場合、以下を実行する：
    - これにより全19ページではなく必要なページのみフェッチし、大幅に短縮
    - **`allDocsCached: true`** が verify-targets.json に含まれている場合、docs:fetch 自体をスキップ可能
 2. **`npm test` の起動タイミングはモードで分岐:**
-   - **サブエージェントモード (targets > 5)**: `npm test` を **バックグラウンドで起動**（`run_in_background: true`）し、タスク ID を記録して即座に Step 2 へ進む
-   - **インラインモード (targets ≤ 5)**: `npm test` は **この時点では起動しない**。修正が発生した場合のみ Post-Verification で実行する
+   - **サブエージェントモード (targets > 30)**: `npm test` を **バックグラウンドで起動**（`run_in_background: true`）し、タスク ID を記録して即座に Step 2 へ進む
+   - **インラインモード (targets ≤ 30)**: `npm test` は **この時点では起動しない**。修正が発生した場合のみ Post-Verification で実行する
 
 diff コマンドは同時にカテゴリ別クイズデータを `.claude/tmp/quizzes/{category}.json` に分割出力する。
 各ファイルにはそのカテゴリの全問題が含まれ、検証対象の問題には `_needsVerification: true` フラグが付く。
@@ -79,36 +79,48 @@ diff コマンドは同時にカテゴリ別クイズデータを `.claude/tmp/q
 
 **検証対象の問題数に応じてモードを切り替える。**
 
-### 2a. インライン検証モード（targets ≤ 5問）
+### 2a. インライン検証モード（targets ≤ 30問）
 
-検証対象が **5問以下** の場合、サブエージェントを起動せず **メインエージェントが直接検証** する。
-サブエージェント起動のオーバーヘッド（コンテキスト構築 + API呼び出し）を回避し、大幅に高速化。
+検証対象が **30問以下** の場合、サブエージェントを起動せず **メインエージェントが直接検証** する。
+サブエージェント起動のオーバーヘッド（コンテキスト構築 + API呼び出し + Read x N）を回避し、大幅に高速化。
 
 手順:
 1. 対象問題の JSON データを `node -e` で抽出表示
 2. `.claude/tmp/docs/` から対象カテゴリのドキュメントを Read
-3. サブエージェント用テンプレートの検証チェックリスト（A〜E）に沿って検証
+3. `.claude/skills/verify-quiz-content/sub-agent-template.md` を Read し、検証チェックリスト（A〜E）とknown-issuesに沿って検証
 4. 問題があれば Post-Verification セクションの形式で報告
 
-### 2b. サブエージェント検証モード（targets > 5問）
+### 2b. サブエージェント検証モード（targets > 30問）
 
 **差分抽出で特定されたカテゴリのみサブエージェントを起動する。**
 
 各カテゴリのサブエージェントには以下を prompt に含める：
 
-1. **カテゴリ別クイズファイルのパス**（`.claude/tmp/quizzes/{category}.json` — 全体450KBではなく30〜120KB）
-2. **読むべきドキュメント一覧**（categoryDocMap から取得）
+1. **検証対象の問題データ（JSON を直接埋め込み）** — Read ツール呼び出しを1回削減
+   - `_needsVerification: true` の問題のみ prompt に埋め込む
+   - 同カテゴリの他の問題は `.claude/tmp/quizzes/{category}.json` のパスを記載（必要時のみ Read）
+2. **読むべきドキュメント一覧**（categoryDocMap から取得、条件付き — Step 3参照）
 3. **補助情報（後述の「サブエージェント用プロンプトテンプレート」参照）**
 
 ```
 # サブエージェント起動パターン
-Task (subagent_type: general-purpose, model: "sonnet", max_turns: 20) for each category with targets:
-  1. `.claude/tmp/quizzes/{category}.json` を Read（全体JSONではなくカテゴリ分のみ）
-  2. `.claude/tmp/docs/` から categoryDocMap に指定されたドキュメントのみ Read
+Task (subagent_type: general-purpose, model: "haiku", max_turns: 20) for each category with targets:
+  1. 検証対象の問題データは prompt に埋め込み済み（Read 不要）
+  2. `.claude/tmp/docs/` から必要なドキュメントのみ Read
      （キャッシュが存在しない場合のみ WebFetch でフォールバック）
-  3. `_needsVerification: true` の問題のみ検証（他は一貫性チェックの参照用）
+  3. `_needsVerification: true` の問題のみ検証
   4. 差異を報告
 ```
+
+**prompt 構築時のデータ抽出方法:**
+```bash
+node -e "
+const data = JSON.parse(require('fs').readFileSync('.claude/tmp/quizzes/{CATEGORY}.json','utf8'));
+const targets = data.filter(q => q._needsVerification);
+console.log(JSON.stringify(targets, null, 2));
+"
+```
+この出力を prompt の `{QUIZ_DATA}` プレースホルダーに埋め込む。
 
 引数で特定カテゴリが指定された場合は、そのカテゴリのみ実行。
 
@@ -116,120 +128,14 @@ Task (subagent_type: general-purpose, model: "sonnet", max_turns: 20) for each c
 
 ### サブエージェント用プロンプトテンプレート
 
-以下のテンプレートの `{CATEGORY}`, `{DOC_PAGES}` を置き換えてサブエージェントに渡す。
-**補助情報（known-issues, doc-references）はテンプレートに埋め込み済みなので、サブエージェントが別ファイルを Read する必要はない。**
+**テンプレートは別ファイルに分離済み。サブエージェントモード時のみ Read すること。**
 
-````
-あなたは "{CATEGORY}" カテゴリのクイズ検証エージェントです。
-
-重要: このエージェントは問題を報告するだけです。quizzes.jsonへの直接修正は行わないこと。
-検証レポートは .claude/tmp/verify_{CATEGORY}.json に保存すること。
-
-## データ読み込み（重要: 全体JSONではなくカテゴリ別ファイルを使用）
-1. `.claude/tmp/quizzes/{CATEGORY}.json` を Read（カテゴリ分のみ、30〜120KB）
-   - `_needsVerification: true` の問題が検証対象
-   - それ以外の問題はクロスクイズ一貫性チェックの参照用
-2. **`src/data/quizzes.json` は読まないこと**（450KBの全体ファイルは不要）
-
-## ドキュメント参照
-まず `.claude/tmp/docs/` のキャッシュ済みファイルを Read で読むこと。
-キャッシュが存在しない場合のみ WebFetch でフォールバック。
-必要なページ: {DOC_PAGES}
-
-## 検証チェックリスト
-
-### A. 事実の正確性
-検証対象フィールドは **question・options[].text・explanation・options[].wrongFeedback の全て**。
-- question に含まれる前提・数値・機能名がドキュメントと一致しているか
-- 正解選択肢がドキュメントの内容と一致しているか
-- explanation が正しい情報を含んでいるか
-- wrongFeedback がドキュメントと矛盾していないか
-
-### B. 用語・名称の正確性
-- API やコマンド名が正式名称か
-- 設定ファイル名やパスが正しいか
-- サードパーティプロバイダー名は専用ドキュメントページの H1 タイトルを最終権威として確認
-- **大文字/小文字の一致**: 技術用語はドキュメントの表記を正確に転記（例: bubblewrap, Seatbelt — 固有名詞の大小文字をドキュメントで確認）
-
-### C. リファレンス URL の有効性
-- referenceUrl が有効か、アンカーがページ見出しと一致するか
-- referenceUrl の参照先が問題内容に最も直接的か
-
-### D. 内部一貫性
-- question ↔ explanation の整合性
-- explanation ↔ wrongFeedback の整合性
-- wrongFeedback 同士の整合性
-
-### E. バッククォート書式
-コード用語・ファイルパス・コマンド・環境変数・設定キーがバッククォートで囲まれているか。
-対象: ツール名(Bash,Read,Edit等), Hookイベント名, ファイルパス, 設定キー, 環境変数, スラッシュコマンド, CLIフラグ, 技術用語(ripgrep,bypassPermissions等)
-
-**よく見落とされるパターン（毎回検出される再発項目）:**
-- キーボードショートカット: Ctrl+X → `Ctrl+X`。同一問題内で一部だけバッククォートありは不整合
-- 環境変数=値: `ENV_VAR`=1 ではなく `ENV_VAR=1`（=値も含めてバッククォート内）
-- プレースホルダー引数: [issue-number] → `[issue-number]`。コード要素としてバッククォート必要
-
-## よくある誤りパターン
-- ドキュメントで確認できない機能を含めてしまう
-- 列挙の「数」が古い（設定スコープ・Hookイベント等）
-- 環境変数の逆値動作の断定（`VAR=1` の動作 → `VAR=0` で逆とは限らない）
-- ドキュメントに記載のない数値の断定
-- デフォルト動作の誤断言
-- CLIフラグの組み合わせ省略（`--fork-session` は `--continue` と併用必須）
-- 存在しないフレーズの引用
-- 外部知識の混入（Claude Code docs に記載のない動作を固有動作として断言）
-- ドキュメントの例示を完全リストと誤認（「e.g.」で列挙されているものは例示）
-- 「など」「等」で不完全な列挙を隠蔽（実際の件数をドキュメントで確認し、正確な数を記載するか、列挙を省略しない）
-
-## プロジェクト固有の既知パターン（known-issues 要約）
-- `CLAUDE_CODE_DISABLE_AUTO_MEMORY=1` で無効化OK、`=0` で有効化は根拠なし
-- `BASH_DEFAULT_TIMEOUT_MS` のデフォルト値: "Not specified"
-- `spinnerVerbs.mode` 省略時は `"append"`（`"replace"` ではない）
-- `USE_BUILTIN_RIPGREP`: settings ページ記載済み（2026-03-03 確認）。`MCP_TIMEOUT`: mcp ページに記載あり
-- `defaultMode` は5値: default/acceptEdits/plan/dontAsk/bypassPermissions（permissions ページ参照）
-- `allowManagedHooksOnly: true` は user, project, **plugin** hooks を無効化（3種）
-- `Ctrl+B`: "Backgrounds bash commands **and agents**"
-- Managed CLAUDE.md パス: macOS=/Library/Application Support/ClaudeCode/CLAUDE.md（~/.claude/CLAUDE.md は User scope）
-- best-practices 強調キーワード: "IMPORTANT" と "YOU MUST" のみ記載。ALWAYS/NEVER は未記載
-- `CLAUDE_CODE_SHELL_PREFIX`: docs は "for logging or auditing" のみ
-- CLI ツール学習: ユーザーが `--help` 使用を指示（自動学習ではない）
-- Task→Agent 改名: CLI は `Agent`、Agent SDK `allowedTools` は `Task`
-
-## referenceUrl マッピング
-| 機能カテゴリ | 推奨ページ |
-|-------------|-----------|
-| 環境変数 | settings |
-| CLIワークフロー | common-workflows |
-| スラッシュコマンド | interactive-mode |
-| コア動作（ツールカテゴリ等） | how-claude-code-works |
-| ベストプラクティス | best-practices |
-| CLAUDE.md 刈り込み | best-practices |
-| 画像添付・クリップボード | interactive-mode |
-
-## 既知の正しいアンカー（memory ページ）
-- `#import-additional-files`, `#choose-where-to-put-claudemd-files`
-- `#view-and-edit-with-memory`, `#how-claudemd-files-load`
-- `#user-level-rules`, `#path-specific-rules`
-
-## レポート形式
-```json
-{
-  "category": "{CATEGORY}",
-  "verified": ["id1", "id2"],
-  "issues": [
-    {
-      "id": "xxx-NNN",
-      "severity": "critical|major|minor|info",
-      "type": "fact|terminology|url|consistency|backtick|quality",
-      "field": "question|options|explanation|wrongFeedback|referenceUrl",
-      "current": "現在の内容",
-      "expected": "正しい内容",
-      "reference": "参照ドキュメント"
-    }
-  ]
-}
 ```
-````
+Read: .claude/skills/verify-quiz-content/sub-agent-template.md
+```
+
+テンプレート内の `{CATEGORY}`, `{DOC_PAGES}`, `{QUIZ_DATA}` を置き換えてサブエージェントに渡す。
+補助情報（known-issues, doc-references）はテンプレートに埋め込み済みなので、サブエージェントが別ファイルを Read する必要はない。
 
 ### サブエージェント報告の照合ガイド（主エージェント用）
 
@@ -299,8 +205,8 @@ Task (subagent_type: general-purpose, model: "sonnet", max_turns: 20) for each c
 検証完了後、問題が見つかった場合は：
 
 1. **報告の実データ照合（修正前に必須）**
-   - サブエージェントモード (2b): サブエージェント報告を照合（下記「サブエージェント報告の照合」参照）
-   - インラインモード (2a): メインエージェントが直接検証済みのため照合ステップは不要。そのまま修正へ
+   - サブエージェントモード (2b, targets > 30): サブエージェント報告を照合（下記「サブエージェント報告の照合」参照）
+   - インラインモード (2a, targets ≤ 30): メインエージェントが直接検証済みのため照合ステップは不要。そのまま修正へ
 2. 修正内容をユーザーに確認（修正範囲の選択肢を提示）
 3. 承認後、修正を実施
 
@@ -343,11 +249,11 @@ npm run quiz:stats       # 分布確認
 
 **`npm test` の確認:**
 
-- **サブエージェントモード (2b)**: Step 1b でバックグラウンド起動済み
+- **サブエージェントモード (2b, targets > 30)**: Step 1b でバックグラウンド起動済み
   ```
   TaskOutput(task_id=<記録済みID>, block=false) で状態確認
     → 完了していた場合: 結果を確認。失敗があれば追加修正
     → まだ実行中の場合: TaskOutput(block=true, timeout=60000) で待機して結果を確認
     → タスクIDが不明/失敗した場合: npm test をフォアグラウンドで実行
   ```
-- **インラインモード (2a)**: 修正を適用した場合のみ `npm test` をフォアグラウンドで実行。修正なし（問題なし）の場合はスキップ
+- **インラインモード (2a, targets ≤ 30)**: 修正を適用した場合のみ `npm test` をフォアグラウンドで実行。修正なし（問題なし）の場合はスキップ

@@ -56,11 +56,21 @@ const SUPPLEMENTARY_DOCS = ['settings', 'permissions', 'overview', 'agent-sdk-ov
 const CACHE_TTL_MS = 24 * 60 * 60 * 1000
 
 /**
- * Get relevant doc pages for a category (primary + supplementary)
+ * Get relevant doc pages for a category.
+ * Supplementary docs are only included if they appear in the target questions'
+ * referenceUrls, avoiding unnecessary doc reads by sub-agents.
+ * @param {string} category
+ * @param {Set<string>} [referencedPages] - doc page names extracted from target referenceUrls
  */
-function getDocsForCategory(category) {
+function getDocsForCategory(category, referencedPages) {
   const primary = CATEGORY_DOC_MAP[category] || []
-  const all = new Set([...primary, ...SUPPLEMENTARY_DOCS])
+  const all = new Set(primary)
+  // Only add supplementary docs that are actually referenced by target questions
+  for (const doc of SUPPLEMENTARY_DOCS) {
+    if (referencedPages && referencedPages.has(doc)) {
+      all.add(doc)
+    }
+  }
   return [...all]
 }
 
@@ -194,7 +204,7 @@ function computeDiff(categories, fullScan) {
 }
 
 function quizRef(quiz) {
-  return { id: quiz.id, category: quiz.category }
+  return { id: quiz.id, category: quiz.category, referenceUrl: quiz.referenceUrl }
 }
 
 // ============================================================
@@ -256,11 +266,21 @@ function cmdDiff(args) {
     totalCount: result.targets.length + result.skipped.length,
   }
 
+  // Extract doc page names referenced by target questions
+  const referencedPages = new Set()
+  for (const t of result.targets) {
+    if (t.referenceUrl) {
+      const match = t.referenceUrl.match(/\/docs\/en\/([^#?/]+)/)
+      if (match) referencedPages.add(match[1])
+    }
+  }
+
   // Include per-category doc mapping for targets only
+  // Supplementary docs are only added if referenced by target questions
   const neededDocPages = new Set()
   for (const cat of result.categories) {
     if (byCategory[cat] && byCategory[cat].length > 0) {
-      const docs = getDocsForCategory(cat)
+      const docs = getDocsForCategory(cat, referencedPages)
       output.categoryDocMap[cat] = docs
       docs.forEach(d => neededDocPages.add(d))
     }

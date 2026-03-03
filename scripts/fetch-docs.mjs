@@ -294,8 +294,8 @@ async function main() {
   if (pagesArg) console.log(`  (--pages: ${pagesToFetch.map(p => p.name).join(', ')})`)
   console.log()
 
-  // Fetch in parallel batches of 3 (Jina rate limit: ~200 req/min)
-  const BATCH_SIZE = 3
+  // Fetch in parallel batches of 5 (Jina rate limit: ~200 req/min)
+  const BATCH_SIZE = 5
   const results = []
 
   for (let i = 0; i < pagesToFetch.length; i += BATCH_SIZE) {
@@ -309,7 +309,7 @@ async function main() {
 
     // Brief pause between batches
     if (i + BATCH_SIZE < pagesToFetch.length) {
-      await new Promise(r => setTimeout(r, 1000))
+      await new Promise(r => setTimeout(r, 500))
     }
   }
   console.log('\n')

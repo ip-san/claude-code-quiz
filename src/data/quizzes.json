@@ -10044,7 +10044,7 @@
         0,
         2
       ],
-      "explanation": "スラッシュコマンド形式のスキルは `.claude/commands/`（プロジェクトレベル、リポジトリで共有可能）と `~/.claude/commands/`（ユーザーレベル、個人用）に配置できます。なお現在の推奨形式は `.claude/skills/<name>/SKILL.md`（プロジェクト）/ `~/.claude/skills/<name>/SKILL.md`（個人）で、こちらはサブディレクトリ構造を持ちます。`commands/` 形式も引き続き有効です。",
+      "explanation": "スラッシュコマンド形式のスキルは `.claude/commands/`（プロジェクトレベル、リポジトリで共有可能）と `~/.claude/commands/`（ユーザーレベル、個人用）に配置できます。なお `.claude/skills/<name>/SKILL.md` 形式も利用可能で、同名の場合は skill 形式が優先されます。`commands/` 形式も引き続き有効です。",
       "referenceUrl": "https://code.claude.com/docs/en/skills#where-skills-live"
     },
     {
