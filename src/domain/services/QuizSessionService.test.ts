@@ -552,6 +552,74 @@ describe('QuizSessionService', () => {
     })
   })
 
+  describe('retryQuestion()', () => {
+    it('should reset answered state for incorrect answer', () => {
+      const questions = [createTestQuestion('q1')]
+      const config = createDefaultConfig()
+      let state = QuizSessionService.createInitialState(questions, config)
+      state = QuizSessionService.selectAnswer(state, 1) // wrong answer
+      const submitted = QuizSessionService.submitAnswer(state)!
+      state = submitted.newState
+
+      expect(state.isAnswered).toBe(true)
+      expect(state.isCorrect).toBe(false)
+
+      const retried = QuizSessionService.retryQuestion(state)
+      expect(retried.selectedAnswer).toBeNull()
+      expect(retried.selectedAnswers).toEqual([])
+      expect(retried.isAnswered).toBe(false)
+      expect(retried.isCorrect).toBeNull()
+      expect(retried.hintUsed).toBe(false)
+    })
+
+    it('should not allow retry for correct answer', () => {
+      const questions = [createTestQuestion('q1')]
+      const config = createDefaultConfig()
+      let state = QuizSessionService.createInitialState(questions, config)
+      state = QuizSessionService.selectAnswer(state, 0) // correct answer
+      const submitted = QuizSessionService.submitAnswer(state)!
+      state = submitted.newState
+
+      const retried = QuizSessionService.retryQuestion(state)
+      expect(retried).toBe(state) // unchanged
+    })
+
+    it('should not allow retry in review mode', () => {
+      const questions = [createTestQuestion('q1')]
+      const config = createDefaultConfig()
+      const state = QuizSessionService.createInitialState(questions, config, {
+        isReviewMode: true,
+        reviewUserAnswers: [1],
+      })
+
+      const retried = QuizSessionService.retryQuestion(state)
+      expect(retried).toBe(state) // unchanged
+    })
+
+    it('should not allow retry when not yet answered', () => {
+      const questions = [createTestQuestion('q1')]
+      const config = createDefaultConfig()
+      const state = QuizSessionService.createInitialState(questions, config)
+
+      const retried = QuizSessionService.retryQuestion(state)
+      expect(retried).toBe(state) // unchanged
+    })
+
+    it('should preserve score and answeredCount', () => {
+      const questions = [createTestQuestion('q1'), createTestQuestion('q2')]
+      const config = createDefaultConfig()
+      let state = QuizSessionService.createInitialState(questions, config)
+      state = QuizSessionService.selectAnswer(state, 1) // wrong
+      const submitted = QuizSessionService.submitAnswer(state)!
+      state = submitted.newState
+
+      const retried = QuizSessionService.retryQuestion(state)
+      expect(retried.score).toBe(state.score)
+      expect(retried.answeredCount).toBe(state.answeredCount)
+      expect(retried.currentIndex).toBe(state.currentIndex)
+    })
+  })
+
   describe('hasPassed()', () => {
     it('should return true when score >= passing score', () => {
       const questions = [createTestQuestion('q1')]

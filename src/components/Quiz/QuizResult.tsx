@@ -16,7 +16,7 @@ const STAR_COUNT = 5
 const STAR_PERCENTAGE_DIVISOR = 20
 
 export function QuizResult() {
-  const { sessionState, endSession, startSession, startReviewSession, sessionConfig, sessionWrongAnswers } = useQuizStore()
+  const { sessionState, endSession, startSession, retrySession, startReviewSession, sessionConfig, sessionWrongAnswers } = useQuizStore()
 
   const score = sessionState?.score ?? 0
   const answeredCount = sessionState?.answeredCount ?? 0
@@ -121,7 +121,7 @@ export function QuizResult() {
   const result = getMessage()
 
   const handleRetry = () => {
-    startSession(sessionConfig)
+    retrySession()
   }
 
   const handleBackToMenu = () => {

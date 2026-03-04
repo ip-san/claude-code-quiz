@@ -114,6 +114,8 @@ interface QuizStore {
 
   // Session actions
   startSession: (config: Partial<QuizSessionConfig>) => void
+  retrySession: () => void
+  retryQuestion: () => void
   selectAnswer: (index: number) => void
   toggleAnswer: (index: number) => void
   submitAnswer: () => void
@@ -333,6 +335,47 @@ export const useQuizStore = create<QuizStore>((set, get) => ({
     if (config.mode !== 'review') {
       saveSessionSnapshot(sessionState, [])
     }
+  },
+
+  /**
+   * 同じ問題セットでセッションをやり直す
+   *
+   * startSession と異なり、問題の再選出を行わず、
+   * 直前のセッションと同じ問題セットを使用する。
+   * shuffleQuestions が有効なら順序だけ再シャッフルする。
+   */
+  retrySession: () => {
+    const state = get()
+    if (!state.sessionState) return
+
+    const config = state.sessionConfig
+    let questions = [...state.sessionState.questions]
+
+    if (config.shuffleQuestions) {
+      questions = QuizSessionService.shuffleArray(questions)
+    }
+
+    const sessionState = QuizSessionService.createInitialState(questions, config)
+
+    set({
+      sessionConfig: config,
+      sessionState,
+      sessionWrongAnswers: [],
+      savedSession: null,
+      viewState: 'quiz',
+    })
+
+    if (config.mode !== 'review') {
+      saveSessionSnapshot(sessionState, [])
+    }
+  },
+
+  retryQuestion: () => {
+    const state = get()
+    if (!state.sessionState) return
+
+    const newSessionState = QuizSessionService.retryQuestion(state.sessionState)
+    set({ sessionState: newSessionState })
   },
 
   selectAnswer: (index) => {

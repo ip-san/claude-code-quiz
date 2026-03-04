@@ -5,7 +5,7 @@ import { Feedback } from './Feedback'
 import { ChapterIndicator } from './ChapterIndicator'
 import { getCategoryById } from '@/domain/valueObjects/Category'
 import { getChapterFromTags, OVERVIEW_CHAPTERS } from '@/domain/valueObjects/OverviewChapter'
-import { Bookmark, Lightbulb } from 'lucide-react'
+import { Bookmark, Lightbulb, RotateCcw } from 'lucide-react'
 import { QuizText } from './QuizText'
 
 // Color mapping for categories
@@ -33,6 +33,7 @@ export function QuizCard() {
     toggleAnswer,
     submitAnswer,
     nextQuestion,
+    retryQuestion,
     endSession,
     toggleBookmark,
     useHint,
@@ -67,6 +68,13 @@ export function QuizCard() {
       if (!quiz) return
 
       const optionCount = quiz.options.length
+
+      // Retry shortcut (r key) - works in both single and multi-select
+      if (e.key === 'r' && isAnswered && isCorrect === false && !isReviewMode) {
+        e.preventDefault()
+        retryQuestion()
+        return
+      }
 
       if (isMultiSelect) {
         // Multi-select keyboard handling
@@ -146,7 +154,7 @@ export function QuizCard() {
         }
       }
     },
-    [quiz, selectedAnswer, selectedAnswers, isAnswered, isMultiSelect, selectAnswer, toggleAnswer, submitAnswer, nextQuestion]
+    [quiz, selectedAnswer, selectedAnswers, isAnswered, isCorrect, isReviewMode, isMultiSelect, selectAnswer, toggleAnswer, submitAnswer, nextQuestion, retryQuestion]
   )
 
   // Register keyboard listener
@@ -352,13 +360,25 @@ export function QuizCard() {
         ) : (
           <>
             <Feedback quiz={quiz} isCorrect={isCorrect!} />
-            <button
-              onClick={nextQuestion}
-              aria-label={isReviewMode ? '次の問題を確認する' : '次の問題へ進む'}
-              className="mt-4 w-full rounded-lg bg-claude-orange py-3 font-medium text-white hover:bg-claude-orange/90"
-            >
-              {isReviewMode ? '次の問題を確認' : '次の問題へ'}
-            </button>
+            <div className="mt-4 flex flex-col gap-2">
+              {isCorrect === false && !isReviewMode && (
+                <button
+                  onClick={retryQuestion}
+                  aria-label="この問題をもう一度挑戦する (R)"
+                  className="inline-flex w-full items-center justify-center gap-2 rounded-lg border-2 border-claude-orange py-3 font-medium text-claude-orange hover:bg-claude-orange/5"
+                >
+                  <RotateCcw className="h-4 w-4" />
+                  もう一度挑戦 <span className="text-xs opacity-60">(R)</span>
+                </button>
+              )}
+              <button
+                onClick={nextQuestion}
+                aria-label={isReviewMode ? '次の問題を確認する' : '次の問題へ進む'}
+                className="w-full rounded-lg bg-claude-orange py-3 font-medium text-white hover:bg-claude-orange/90"
+              >
+                {isReviewMode ? '次の問題を確認' : '次の問題へ'}
+              </button>
+            </div>
           </>
         )}
       </div>

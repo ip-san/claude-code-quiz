@@ -438,6 +438,26 @@ export class QuizSessionService {
   }
 
   /**
+   * 現在の問題をリトライ（回答済み状態をリセット）
+   *
+   * 不正解の場合にのみリトライ可能。
+   * スコアは変更しないが、リトライ後に正解してもスコアに加算しない。
+   */
+  static retryQuestion(state: QuizSessionState): QuizSessionState {
+    if (!state.isAnswered || state.isCorrect || state.isReviewMode) {
+      return state
+    }
+    return {
+      ...state,
+      selectedAnswer: null,
+      selectedAnswers: Object.freeze([]),
+      isAnswered: false,
+      isCorrect: null,
+      hintUsed: false,
+    }
+  }
+
+  /**
    * ヒントを使用
    *
    * 回答済みまたは既にヒント使用済みの場合は何もしない。
