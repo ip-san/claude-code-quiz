@@ -92,8 +92,8 @@ targets > 0 の場合、以下を実行する：
    - これにより全19ページではなく必要なページのみフェッチし、大幅に短縮
    - **`allDocsCached: true`** が verify-targets.json に含まれている場合、docs:fetch 自体をスキップ可能
 2. **`npm test` の起動タイミングはモードで分岐:**
-   - **サブエージェントモード (targets > 30)**: `npm test` を **バックグラウンドで起動**（`run_in_background: true`）し、タスク ID を記録して即座に Step 2 へ進む
-   - **インラインモード (targets ≤ 30)**: `npm test` は **この時点では起動しない**。修正が発生した場合のみ Post-Verification で実行する
+   - **サブエージェントモード (targets > 50)**: `npm test` を **バックグラウンドで起動**（`run_in_background: true`）し、タスク ID を記録して即座に Step 2 へ進む
+   - **インラインモード (targets ≤ 50)**: `npm test` は **この時点では起動しない**。修正が発生した場合のみ Post-Verification で実行する
 
 diff コマンドは同時にカテゴリ別クイズデータを `.claude/tmp/quizzes/{category}.json` に分割出力する。
 各ファイルにはそのカテゴリの全問題が含まれ、検証対象の問題には `_needsVerification: true` フラグが付く。
@@ -102,9 +102,9 @@ diff コマンドは同時にカテゴリ別クイズデータを `.claude/tmp/q
 
 **検証対象の問題数に応じてモードを切り替える。**
 
-### 2a. インライン検証モード（targets ≤ 30問）
+### 2a. インライン検証モード（targets ≤ 50問）
 
-検証対象が **30問以下** の場合、サブエージェントを起動せず **メインエージェントが直接検証** する。
+検証対象が **50問以下** の場合、サブエージェントを起動せず **メインエージェントが直接検証** する。
 サブエージェント起動のオーバーヘッド（コンテキスト構築 + API呼び出し + Read x N）を回避し、大幅に高速化。
 
 手順:
@@ -117,7 +117,7 @@ diff コマンドは同時にカテゴリ別クイズデータを `.claude/tmp/q
 3. `.claude/skills/verify-quiz-content/sub-agent-template.md` を Read し、検証チェックリスト（A〜E）とknown-issuesに沿って検証
 4. 問題があれば Post-Verification セクションの形式で報告
 
-### 2b. サブエージェント検証モード（targets > 30問）
+### 2b. サブエージェント検証モード（targets > 50問）
 
 **差分抽出で特定されたカテゴリのみサブエージェントを起動する。**
 
@@ -151,14 +151,14 @@ node scripts/fetch-docs.mjs --assemble extensions
 
 ```
 # サブエージェント起動パターン
-Task (subagent_type: general-purpose, model: "haiku", max_turns: 30) for each category with targets:
+Task (subagent_type: general-purpose, model: "haiku", max_turns: 20) for each category with targets:
   1. 検証対象の問題データは prompt に埋め込み済み（Read 不要）
   2. ドキュメントコンテンツは prompt に埋め込み済み（Read 不要）
   3. `_needsVerification: true` の問題のみ検証
   4. 差異を報告
 ```
 
-> **max_turns: 30 の理由:** `max_turns: 10` では大カテゴリ（session 92問、extensions 110問）で検証が途中打ち切りになり coverage gap が発生する。30 に設定することで全問カバーが保証される。
+> **max_turns: 20 の理由:** `max_turns: 10` では大カテゴリで途中打ち切りになるが、全データが prompt に埋め込み済みのため Read 不要。20 で十分カバーでき、セッション時間を短縮できる。
 
 **prompt 構築時のデータ抽出方法:**
 ```bash
@@ -253,8 +253,8 @@ Read: .claude/skills/verify-quiz-content/sub-agent-template.md
 検証完了後、問題が見つかった場合は：
 
 1. **報告の実データ照合（修正前に必須）**
-   - サブエージェントモード (2b, targets > 30): サブエージェント報告を照合（下記「サブエージェント報告の照合」参照）
-   - インラインモード (2a, targets ≤ 30): メインエージェントが直接検証済みのため照合ステップは不要。そのまま修正へ
+   - サブエージェントモード (2b, targets > 50): サブエージェント報告を照合（下記「サブエージェント報告の照合」参照）
+   - インラインモード (2a, targets ≤ 50): メインエージェントが直接検証済みのため照合ステップは不要。そのまま修正へ
 2. 修正内容をユーザーに確認（修正範囲の選択肢を提示）
 3. 承認後、修正を実施
 
@@ -298,11 +298,11 @@ npm run quiz:stats       # 分布確認
 
 **`npm test` の確認:**
 
-- **サブエージェントモード (2b, targets > 30)**: Step 1b でバックグラウンド起動済み
+- **サブエージェントモード (2b, targets > 50)**: Step 1b でバックグラウンド起動済み
   ```
   TaskOutput(task_id=<記録済みID>, block=false) で状態確認
     → 完了していた場合: 結果を確認。失敗があれば追加修正
     → まだ実行中の場合: TaskOutput(block=true, timeout=60000) で待機して結果を確認
     → タスクIDが不明/失敗した場合: npm test をフォアグラウンドで実行
   ```
-- **インラインモード (2a, targets ≤ 30)**: 修正を適用した場合のみ `npm test` をフォアグラウンドで実行。修正なし（問題なし）の場合はスキップ
+- **インラインモード (2a, targets ≤ 50)**: 修正を適用した場合のみ `npm test` をフォアグラウンドで実行。修正なし（問題なし）の場合はスキップ
