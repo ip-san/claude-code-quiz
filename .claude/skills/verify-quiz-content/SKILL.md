@@ -14,7 +14,7 @@ allowed-tools: WebFetch, Read, Glob, Grep, Task, Bash
 
 ## Step 0: 機械的 lint + 構造チェック + 差分抽出（並列実行）
 
-3つの独立したチェックを **同時に Bash ツールで並列実行** する。
+4つの独立したチェックを **同時に Bash ツールで並列実行** する。
 
 **Bash ツール 1:**
 ```bash
@@ -32,6 +32,13 @@ npm run verify:diff              # 差分モード（通常）
 npm run verify:diff:full         # フルスキャン（定期的に実行）
 npm run verify:diff -- memory    # 特定カテゴリのみ
 ```
+
+**Bash ツール 4（同時に呼び出す）:**
+```bash
+rm -f .claude/tmp/verify_*.json
+```
+
+> **旧レポートクリアの理由:** サブエージェントは問題なしの場合にレポートファイルを書かないことがある。旧ファイルが残ると、主エージェントが前回スキャンの結果を「今回の結果」と誤認する。スキャン開始時に全削除することで「存在するファイル = 今回のスキャンが書いたファイル」が保証される。
 
 ### quiz:lint の結果処理
 
@@ -144,12 +151,14 @@ node scripts/fetch-docs.mjs --assemble extensions
 
 ```
 # サブエージェント起動パターン
-Task (subagent_type: general-purpose, model: "haiku", max_turns: 10) for each category with targets:
+Task (subagent_type: general-purpose, model: "haiku", max_turns: 30) for each category with targets:
   1. 検証対象の問題データは prompt に埋め込み済み（Read 不要）
   2. ドキュメントコンテンツは prompt に埋め込み済み（Read 不要）
   3. `_needsVerification: true` の問題のみ検証
   4. 差異を報告
 ```
+
+> **max_turns: 30 の理由:** `max_turns: 10` では大カテゴリ（session 92問、extensions 110問）で検証が途中打ち切りになり coverage gap が発生する。30 に設定することで全問カバーが保証される。
 
 **prompt 構築時のデータ抽出方法:**
 ```bash

@@ -63,7 +63,7 @@
 - **wrongFeedback 構造の誤認**: wrongFeedback は「なぜその選択肢が誤りか」を説明するフィールド。選択肢テキストが「X」で wrongFeedback が「実際は X ではない」と述べるのは**正常な構造**（矛盾ではない）。wrongFeedback の内容がドキュメントと合致しているかのみを検証すること
 
 ## プロジェクト固有の既知パターン（known-issues 要約）
-- `CLAUDE_CODE_DISABLE_AUTO_MEMORY=1` で無効化OK、`=0` で有効化は根拠なし
+- `CLAUDE_CODE_DISABLE_AUTO_MEMORY=1` で無効化OK、`=0` で強制有効化も settings.md に記載あり（"Set to `0` to force auto memory on during the gradual rollout"）
 - `BASH_DEFAULT_TIMEOUT_MS` のデフォルト値: "Not specified"
 - `BASH_MAX_TIMEOUT_MS`: settings.md L739 に記載あり（モデルが設定できる最大タイムアウト）— 「未記載」と報告するのは偽陽性
 - `spinnerVerbs.mode` 省略時は `"append"`（`"replace"` ではない）
@@ -72,6 +72,7 @@
 - `MAX_MCP_OUTPUT_TOKENS`: デフォルト 25,000 トークン、10,000 超で警告（settings.md L804）
 - `CLAUDE_CODE_CLIENT_CERT` / `CLAUDE_CODE_CLIENT_KEY` / `CLAUDE_CODE_CLIENT_KEY_PASSPHRASE`: mTLS認証用として settings.md L745-747 に記載あり — 「未記載」と報告するのは偽陽性
 - `CLAUDE_CODE_ADDITIONAL_DIRECTORIES_CLAUDE_MD=1` は `--add-dir` フラグとの**併用必須**（単独では機能しない）
+- `CLAUDE_AUTOCOMPACT_PCT_OVERRIDE`: 1-100 の値、コンテキスト容量の何%で自動コンパクションを開始するかの閾値（settings ページ記載）
 - `defaultMode` は5値: default/acceptEdits/plan/dontAsk/bypassPermissions（permissions ページ参照）
 - `allowManagedHooksOnly: true` は user, project, **plugin** hooks を無効化（3種）
 - `Ctrl+B`: "Backgrounds bash commands **and agents**"
@@ -81,6 +82,8 @@
 - CLI ツール学習: ユーザーが `--help` 使用を指示（自動学習ではない）
 - Task→Agent 改名: CLI は `Agent`、Agent SDK `allowedTools` は `Task`
 - `allowed-tools` in Skills: 許可リスト（指定ツールをパーミッション確認なしで使用可）、リスト外ツールは通常のパーミッション設定に従う（使用禁止にはならない）
+- `gs-NNN` プレフィックスの ID は legacy 形式として意図的に存在する。ID フォーマット違反（commands カテゴリなのに gs- 等）として報告しないこと
+- `https://platform.claude.com/docs/en/agent-sdk/...` は Agent SDK 関連問題の有効な referenceUrl。無効 URL・不適切な参照先として報告しないこと
 
 ## referenceUrl マッピング
 | 機能カテゴリ | 推奨ページ |
