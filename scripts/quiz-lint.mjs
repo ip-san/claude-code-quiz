@@ -293,7 +293,7 @@ function extractDocAnchors() {
     const headingAnchors = new Set()
 
     // Extract headings and convert to slugs
-    const headingRegex = /^#{1,3}\s+(.+)$/gm
+    const headingRegex = /^#{1,4}\s+(.+)$/gm
     let match
     while ((match = headingRegex.exec(content)) !== null) {
       const heading = match[1].trim()

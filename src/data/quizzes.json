@@ -1148,7 +1148,7 @@
       ],
       "correctIndex": 0,
       "explanation": "`!`プレフィックスで`Bash`モードに入り、Claudeを介さずにコマンドを直接実行できます（例：`! npm test`）。コマンドの出力は会話コンテキストに追加されるため、その後Claudeに結果について質問できます。Claudeに依頼するよりも素早くコマンドを実行したい場合に便利です。",
-      "referenceUrl": "https://code.claude.com/docs/en/interactive-mode#bash-mode",
+      "referenceUrl": "https://code.claude.com/docs/en/interactive-mode#bash-mode-with-prefix",
       "hint": "bashコマンドをその場で実行する特別な記号（プレフィックス）を考えてみましょう。",
       "tags": [
         "overview",
@@ -7848,7 +7848,7 @@
       ],
       "correctIndex": 0,
       "explanation": "プラグインマーケットプレイスは5つのソースタイプをサポートします：相対パス（文字列）、`github`（GitHubリポジトリ）、`url`（クローン可能なURL）、`npm`（npmパッケージ）、`pip`（Pythonパッケージ）。Dockerソースタイプは存在しません。",
-      "referenceUrl": "https://code.claude.com/docs/en/plugin-marketplaces#plugin-sources"
+      "referenceUrl": "https://code.claude.com/docs/en/discover-plugins"
     },
     {
       "id": "ses-066",

@@ -12,29 +12,45 @@ allowed-tools: WebFetch, Read, Glob, Grep, Task, Bash
 
 `src/data/quizzes.json` の内容が最新の公式ドキュメント (code.claude.com) と整合しているかを検証し、差異を報告します。
 
-## Step 0+1a: 構造チェック + 差分抽出（並列実行）
+## Step 0: 機械的 lint + 構造チェック + 差分抽出（並列実行）
 
-`quiz:check` と `verify:diff` は独立しているため、**2つの Bash ツールを同時に呼び出して並列実行** する。
+3つの独立したチェックを **同時に Bash ツールで並列実行** する。
 
 **Bash ツール 1:**
+```bash
+npm run quiz:lint                # バッククォート自動修正 + URL アンカー検証 + 用語チェック
+```
+
+**Bash ツール 2（同時に呼び出す）:**
 ```bash
 npm run quiz:check
 ```
 
-**Bash ツール 2（同時に呼び出す）:**
+**Bash ツール 3（同時に呼び出す）:**
 ```bash
 npm run verify:diff              # 差分モード（通常）
 npm run verify:diff:full         # フルスキャン（定期的に実行）
 npm run verify:diff -- memory    # 特定カテゴリのみ
 ```
 
-`quiz:check` が検証する項目：
+### quiz:lint の結果処理
+
+`quiz:lint` はバッククォート不足を **自動修正** し、URL アンカーと用語の問題を **レポート** する。
+
+- **Backtick**: 自動修正済み。修正があった場合はログに表示される
+- **URL Anchors**: レポートのみ。`invalid-anchor` や `unknown-page` があれば手動修正が必要
+- **Terminology**: レポートのみ。`skipWrongOptions` 対象（不正解選択肢で意図的に使用）は無視してよい
+
+**quiz:lint でバッククォートが自動修正された場合、LLM 検証（Step 2）ではチェックリスト E（バッククォート書式）の検出が大幅に減少する。** これにより偽陽性が削減され、検証精度が向上する。
+
+### quiz:check が検証する項目
+
 - ID重複、correctIndex の偏り（35%上限）、wrongFeedback の構造
 - カテゴリの妥当性、問題文・解説の文字数、referenceUrl の形式、難易度分布
 
 **注意: 複数選択問題（`type: "multi"`）は `correctIndex` の代わりに `correctIndices`（整数配列）を使用する。** このフォーマットは正規の仕様であり、`correctIndex` が存在しなくても構造バグではない。自動テストはこの形式を正しく処理する。
 
-**構造チェックが失敗した場合は、差分抽出の結果に関わらずまず構造問題を修正してください。**
+**構造チェックまたは quiz:lint の URL/用語チェックが失敗した場合は、差分抽出の結果に関わらずまず問題を修正してください。**
 
 `npm test`（全テスト）は後のステップで実行する。
 
@@ -264,6 +280,7 @@ console.log('explanation:', q.explanation);
 ### 修正後の必須手順
 
 ```bash
+npm run quiz:lint        # バッククォート再修正 + URL/用語チェック
 npm run quiz:randomize   # correctIndex 再ランダム化
 npm run quiz:check       # 構造チェック
 npm run verify:save      # 検証状態を保存（次回の差分用）
