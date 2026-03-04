@@ -27,6 +27,11 @@
     "verify:save": "node scripts/verify-state.mjs save",
     "verify:status": "node scripts/verify-state.mjs status",
     "verify:mapping": "node scripts/verify-state.mjs mapping",
+    "quiz:lint": "node scripts/quiz-lint.mjs all",
+    "quiz:lint:dry": "node scripts/quiz-lint.mjs all --dry-run",
+    "quiz:lint:backtick": "node scripts/quiz-lint.mjs backtick",
+    "quiz:lint:url": "node scripts/quiz-lint.mjs url",
+    "quiz:lint:terminology": "node scripts/quiz-lint.mjs terminology",
     "generate-icons": "node scripts/generate-icons.mjs",
     "prepare": "husky"
   },

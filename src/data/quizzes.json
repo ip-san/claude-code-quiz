@@ -1063,7 +1063,7 @@
         }
       ],
       "correctIndex": 0,
-      "explanation": "`Ctrl+B`でBashコマンドやエージェントをバックグラウンドに移動するか、Claudeに対してバックグラウンドで実行するよう依頼します。tmux環境では`Ctrl+B`がtmuxプレフィックスと競合するため2回押す必要があります。バックグラウンドタスクは`/tasks`コマンドで一覧管理できます。",
+      "explanation": "`Ctrl+B`で`Bash`コマンドやエージェントをバックグラウンドに移動するか、Claudeに対してバックグラウンドで実行するよう依頼します。tmux環境では`Ctrl+B`がtmuxプレフィックスと競合するため2回押す必要があります。バックグラウンドタスクは`/tasks`コマンドで一覧管理できます。",
       "referenceUrl": "https://code.claude.com/docs/en/interactive-mode#background-bash-commands"
     },
     {
@@ -1310,7 +1310,7 @@
         }
       ],
       "correctIndex": 2,
-      "explanation": "プランモードはコードベースの探索と実装計画の策定に特化した読み取り専用モードです。`Glob`、`Grep`、`Read`などの検索・読み取りツールは使えますが、`Edit`、`Write`、`Bash`などの変更操作は制限されます。`Shift+Tab`またはAlt+Mでパーミッションモードを切り替えられます。",
+      "explanation": "プランモードはコードベースの探索と実装計画の策定に特化した読み取り専用モードです。`Glob`、`Grep`、`Read`などの検索・読み取りツールは使えますが、`Edit`、`Write`、`Bash`などの変更操作は制限されます。`Shift+Tab`または`Alt+M`でパーミッションモードを切り替えられます。",
       "referenceUrl": "https://code.claude.com/docs/en/interactive-mode",
       "tags": [
         "overview",
@@ -1552,7 +1552,7 @@
         }
       ],
       "correctIndex": 1,
-      "explanation": "`PostToolUse`イベントはツール実行成功後に発火し、`matcher`でEdit|Writeを指定することで、ファイル編集・書き込み直後にlintチェックを自動実行できます。`PreToolUse`は実行前のため編集結果を検証できず、`Stop`や`SessionEnd`は個々の編集に対する即時フィードバックに適していません。",
+      "explanation": "`PostToolUse`イベントはツール実行成功後に発火し、`matcher`で`Edit`|`Write`を指定することで、ファイル編集・書き込み直後にlintチェックを自動実行できます。`PreToolUse`は実行前のため編集結果を検証できず、`Stop`や`SessionEnd`は個々の編集に対する即時フィードバックに適していません。",
       "category": "extensions",
       "difficulty": "intermediate",
       "referenceUrl": "https://code.claude.com/docs/en/hooks"
@@ -2030,7 +2030,7 @@
           "wrongFeedback": "`-t`フラグは存在しません。`/compact`の後にスペースを空けて直接テキストでフォーカスを指定します。"
         },
         {
-          "text": "`/compact` --focus <topic>",
+          "text": "`/compact` `--focus` <topic>",
           "wrongFeedback": "`--focus`フラグは不要です。`/compact`の後にスペースを空けて直接フォーカス指示を記述します（例：`/compact` データベース関連の議論に集中）。"
         },
         {
@@ -2292,16 +2292,16 @@
       "options": [
         {
           "text": "`Ctrl+Enter` で改行を挿入する",
-          "wrongFeedback": "`Ctrl+Enter`は複数行入力の方法としてサポートされていません。\\+Enter、Option+Enter、`Shift+Enter`（一部ターミナル）、Ctrl+Jが利用可能です。"
+          "wrongFeedback": "`Ctrl+Enter`は複数行入力の方法としてサポートされていません。\\+Enter、`Option+Enter`、`Shift+Enter`（一部ターミナル）、`Ctrl+J`が利用可能です。"
         },
         {
-          "text": "Ctrl+J で改行を挿入する"
+          "text": "`Ctrl+J` で改行を挿入する"
         },
         {
           "text": "行末に \\ を入力してからEnterを押す"
         },
         {
-          "text": "Option+Enter（macOS）で改行を挿入する"
+          "text": "`Option+Enter`（macOS）で改行を挿入する"
         }
       ],
       "correctIndices": [
@@ -2309,7 +2309,7 @@
         2,
         3
       ],
-      "explanation": "Claude Codeでの複数行入力は、\\+Enter（全ターミナル対応）、Option+Enter（macOS）、Ctrl+J（line feed）で行えます。また、iTerm2、WezTerm、Ghostty、Kittyでは`Shift+Enter`もそのまま使えます。",
+      "explanation": "Claude Codeでの複数行入力は、\\+Enter（全ターミナル対応）、`Option+Enter`（macOS）、`Ctrl+J`（line feed）で行えます。また、iTerm2、WezTerm、Ghostty、Kittyでは`Shift+Enter`もそのまま使えます。",
       "referenceUrl": "https://code.claude.com/docs/en/interactive-mode"
     },
     {
@@ -2485,8 +2485,8 @@
           "wrongFeedback": "チェックポイントはコードと会話の両方を特定時点に復元できますが、コンテキスト使用量の回復には使えません。コンテキスト管理には`/compact`が適切です。"
         },
         {
-          "text": "定期的にgit commitでセーブポイントを作り、必要時にgit resetで戻る",
-          "wrongFeedback": "git commitはコードの永続的な履歴管理に適していますが、会話コンテキストの圧縮にはなりません。コンテキストウィンドウの効率化には`/compact`が必要です。"
+          "text": "定期的に`git commit`でセーブポイントを作り、必要時に`git reset`で戻る",
+          "wrongFeedback": "`git commit`はコードの永続的な履歴管理に適していますが、会話コンテキストの圧縮にはなりません。コンテキストウィンドウの効率化には`/compact`が必要です。"
         },
         {
           "text": "セッションをForkして1時間ごとに新しいブランチで作業を続ける",
@@ -2669,7 +2669,7 @@
         },
         {
           "text": "`/compact`コマンドを定期的に手動実行して、コンテキストの空き容量を確保する",
-          "wrongFeedback": "`/compact`は一時的な対処にはなりますが、CLAUDE.mdの内容は圧縮後も保持されますが、会話中に口頭で伝えた指示は圧縮で失われる可能性があります。`CLAUDE.md`に指示を記載し、Compact Instructionsで保持内容を指定するのが根本的な解決策です。"
+          "wrongFeedback": "`/compact`は一時的な対処にはなりますが、`CLAUDE.md`の内容は圧縮後も保持されますが、会話中に口頭で伝えた指示は圧縮で失われる可能性があります。`CLAUDE.md`に指示を記載し、Compact Instructionsで保持内容を指定するのが根本的な解決策です。"
         },
         {
           "text": "セッション開始時に重要な指示を繰り返し入力して、コンテキスト内での優先度を高める",
@@ -2765,8 +2765,8 @@
       "question": "新しいサブエージェントを作成したいが、YAMLフロントマターの書き方に慣れていない場合、最も効率的にサブエージェントを作成できる方法はどれですか？",
       "options": [
         {
-          "text": "--agentsフラグでJSON定義を渡してCLIから一時的なサブエージェントを作成する",
-          "wrongFeedback": "--agentsフラグはCLI起動時にJSON形式でサブエージェントを定義する方法で、自動化やテストに適しています。しかしYAMLに不慣れなユーザーにとっては、`/agents`の対話的UIとClaude生成機能の方が直感的です。"
+          "text": "`--agents`フラグでJSON定義を渡してCLIから一時的なサブエージェントを作成する",
+          "wrongFeedback": "`--agents`フラグはCLI起動時にJSON形式でサブエージェントを定義する方法で、自動化やテストに適しています。しかしYAMLに不慣れなユーザーにとっては、`/agents`の対話的UIとClaude生成機能の方が直感的です。"
         },
         {
           "text": "`/agents`コマンドで対話的インターフェースを開き、「Generate with Claude」でClaudeにシステムプロンプトと設定を自動生成させる"
@@ -3217,7 +3217,7 @@
           "text": "`claude mcp add` `--transport http` <name> <url>"
         },
         {
-          "text": "claude install-mcp <name>",
+          "text": "`claude install-mcp` <name>",
           "wrongFeedback": "このサブコマンドは存在しません。MCPサーバーの追加は`claude mcp add`で行います。"
         },
         {
@@ -3241,12 +3241,12 @@
           "text": "cat diff.txt | `claude -p` 'review this diff' `--output-format stream-json` でストリーミングJSONとして各ターンの結果をリアルタイムに受け取る"
         },
         {
-          "text": "`claude -p` 'review this diff' --input diff.txt `--output-format json` で入力ファイルを指定しJSON配列として結果を受け取る",
-          "wrongFeedback": "--inputフラグは存在しません。パイプ（cat file | `claude -p`）で入力を渡します。また`--output-format json`は全完了後のJSON配列出力で、リアルタイム処理にはstream-jsonが適しています"
+          "text": "`claude -p` 'review this diff' `--input` diff.txt `--output-format json` で入力ファイルを指定しJSON配列として結果を受け取る",
+          "wrongFeedback": "`--input`フラグは存在しません。パイプ（cat file | `claude -p`）で入力を渡します。また`--output-format json`は全完了後のJSON配列出力で、リアルタイム処理にはstream-jsonが適しています"
         },
         {
-          "text": "claude --review diff.txt --format structured でレビューモードを起動し構造化出力を取得する",
-          "wrongFeedback": "--reviewフラグや--formatフラグは存在しません。CI/CDでの非対話実行は-pフラグ、出力形式は`--output-format`で指定します"
+          "text": "`claude --review` diff.txt `--format` structured でレビューモードを起動し構造化出力を取得する",
+          "wrongFeedback": "`--review`フラグや`--format`フラグは存在しません。CI/CDでの非対話実行は-pフラグ、出力形式は`--output-format`で指定します"
         },
         {
           "text": "`claude -p` 'review this diff' < diff.txt `--output-format text` でテキスト出力をパースして処理する",
@@ -3547,7 +3547,7 @@
     },
     {
       "id": "ext-022",
-      "question": "`SessionStart`フックで、nvm use 20などの環境セットアップコマンドの結果を後続の`Bash`ツール実行に引き継ぎたい場合、どうすべきですか？",
+      "question": "`SessionStart`フックで、`nvm use` 20などの環境セットアップコマンドの結果を後続の`Bash`ツール実行に引き継ぎたい場合、どうすべきですか？",
       "options": [
         {
           "text": "`CLAUDE_PROJECT_DIR`配下に`.env`ファイルを作成して環境変数を記述する",
@@ -3951,7 +3951,7 @@
           "wrongFeedback": "変更がある場合は自動削除されません。Claudeがworktreeを保持するか削除するか確認し、削除を選ぶと未コミットの変更とコミットが破棄されます"
         },
         {
-          "text": "worktreeは常に保持され、git worktree remove で手動削除が必要になる",
+          "text": "worktreeは常に保持され、`git worktree remove` で手動削除が必要になる",
           "wrongFeedback": "変更がない場合はworktreeとブランチが自動的に削除されます。変更がある場合のみ保持するか削除するかの確認が行われます"
         }
       ],
@@ -4162,7 +4162,7 @@
         },
         {
           "text": "デフォルトでは無効で、明示的にオンにする必要がある",
-          "wrongFeedback": "Extended Thinkingはデフォルトで有効。Option+T(macOS)/`Alt+T`(Win/Linux)で切り替え可能"
+          "wrongFeedback": "Extended Thinkingはデフォルトで有効。`Option+T`(macOS)/`Alt+T`(Win/Linux)で切り替え可能"
         }
       ],
       "correctIndex": 1,
@@ -4232,7 +4232,7 @@
       "options": [
         {
           "text": "`Shift+Enter`が使えない場合は複数行入力自体が不可能なので、1行ずつ送信するしかない",
-          "wrongFeedback": "`Shift+Enter`が使えなくても、\\+EnterやOption+Enter（macOS）、Ctrl+Jなど別の複数行入力方法があります"
+          "wrongFeedback": "`Shift+Enter`が使えなくても、\\+Enterや`Option+Enter`（macOS）、`Ctrl+J`など別の複数行入力方法があります"
         },
         {
           "text": "`Shift+Enter`は全てのターミナルで標準対応しているため、Claude Code側の設定が壊れている",
@@ -4247,7 +4247,7 @@
         }
       ],
       "correctIndex": 3,
-      "explanation": "`Shift+Enter`によるClaude Code内での改行は、iTerm2、WezTerm、Ghostty、Kittyでは追加設定なしで動作します。それ以外のターミナルでは`/terminal-setup`コマンドを実行して`Shift+Enter`バインディングをインストールする必要があります。代替として\\+EnterやCtrl+Jも使えます。",
+      "explanation": "`Shift+Enter`によるClaude Code内での改行は、iTerm2、WezTerm、Ghostty、Kittyでは追加設定なしで動作します。それ以外のターミナルでは`/terminal-setup`コマンドを実行して`Shift+Enter`バインディングをインストールする必要があります。代替として\\+Enterや`Ctrl+J`も使えます。",
       "category": "keyboard",
       "difficulty": "intermediate",
       "referenceUrl": "https://code.claude.com/docs/en/interactive-mode"
@@ -4820,7 +4820,7 @@
         },
         {
           "text": "worktreeは依存関係を自動的にインストールするため、ブランチ切り替えより環境セットアップが速い",
-          "wrongFeedback": "worktreeは依存関係を自動インストールしません。各worktreeでnpm installなどの環境セットアップは手動で行う必要があります"
+          "wrongFeedback": "worktreeは依存関係を自動インストールしません。各worktreeで`npm install`などの環境セットアップは手動で行う必要があります"
         }
       ],
       "correctIndex": 0,
@@ -4886,7 +4886,7 @@
       "question": "サンドボックスを有効にした環境で、npmパッケージのインストール時にnpmjs.orgへのアクセスが必要な場合、どのように設定すべきですか？",
       "options": [
         {
-          "text": "`permissions`のallowリストに`Bash`(npm install)を追加する",
+          "text": "`permissions`のallowリストに`Bash`(`npm install`)を追加する",
           "wrongFeedback": "`permissions`のallowリストはツール実行の許可制御で、サンドボックスのネットワーク制限とは別の仕組みです。ネットワークアクセスにはsandbox.network設定が必要です。"
         },
         {
@@ -4897,7 +4897,7 @@
           "wrongFeedback": "`HTTP_PROXY`はプロキシ経由の通信設定であり、サンドボックスのネットワーク制限を直接バイパスするものではありません。allowedDomainsで正しく許可すべきです。"
         },
         {
-          "text": "サンドボックスを無効にしてからnpm installを実行し、完了後に再度有効にする",
+          "text": "サンドボックスを無効にしてから`npm install`を実行し、完了後に再度有効にする",
           "wrongFeedback": "サンドボックスの無効化と再有効化は手動操作が必要で、無効の間にセキュリティリスクが生じます。allowedDomainsで必要なドメインだけを許可する方が安全です。"
         }
       ],
@@ -5545,7 +5545,7 @@
         },
         {
           "text": "git addで変更をステージしてから`claude -p` \"generate commit message\"でメッセージだけ生成する",
-          "wrongFeedback": "メッセージ生成のみでは手動でgit commitを実行する必要があります。`claude`を起動してコミット全体をClaudeに依頼する方が効率的です。"
+          "wrongFeedback": "メッセージ生成のみでは手動で`git commit`を実行する必要があります。`claude`を起動してコミット全体をClaudeに依頼する方が効率的です。"
         },
         {
           "text": "claude を起動してから「commit my changes」と入力し、対話的にコミットを行う"
@@ -5588,8 +5588,8 @@
       "question": "コードベースのアーキテクチャを分析したいが、誤ってファイルを変更したくない。Plan Modeで安全に分析を行う方法として正しいのはどれですか？",
       "options": [
         {
-          "text": "`claude -p` --no-write で非対話モードを起動し、書き込みを禁止して分析する",
-          "wrongFeedback": "--no-writeフラグは存在しません。安全なコード分析には`--permission-mode` planを使用し、Plan Modeで読み取り専用の分析を行います"
+          "text": "`claude -p` `--no-write` で非対話モードを起動し、書き込みを禁止して分析する",
+          "wrongFeedback": "`--no-write`フラグは存在しません。安全なコード分析には`--permission-mode` planを使用し、Plan Modeで読み取り専用の分析を行います"
         },
         {
           "text": "セッション中に`/plan`コマンドを実行してPlan Modeを有効化する",
@@ -5599,8 +5599,8 @@
           "text": "`claude --permission-mode plan` で起動するか、セッション中に`Shift+Tab`でパーミッションモードを切り替える（Normal→Auto-Accept→Plan）。`/plan`コマンドでも直接切り替え可能"
         },
         {
-          "text": "claude --readonly で起動し、読み取り専用モードでファイルを分析する",
-          "wrongFeedback": "--readonlyフラグは存在しません。読み取り専用の分析には`--permission-mode` planを使用します。Plan ModeではClaudeが読み取り専用操作のみでコードベースを分析します"
+          "text": "claude `--readonly` で起動し、読み取り専用モードでファイルを分析する",
+          "wrongFeedback": "`--readonly`フラグは存在しません。読み取り専用の分析には`--permission-mode` planを使用します。Plan ModeではClaudeが読み取り専用操作のみでコードベースを分析します"
         }
       ],
       "correctIndex": 2,
@@ -6264,8 +6264,8 @@
       "question": "チームメンバーがVimキーバインディングを試したいと言っています。永続設定する前にまず一時的に体験させる方法と、永続的に設定する方法の正しい組み合わせはどれですか？",
       "options": [
         {
-          "text": "一時的に有効化: `/statusline` でVim表示を追加、永続的に設定: `/vim` --permanent",
-          "wrongFeedback": "`/statusline`はステータスラインのUI設定用であり、`/vim`に--permanentオプションはありません"
+          "text": "一時的に有効化: `/statusline` でVim表示を追加、永続的に設定: `/vim` `--permanent`",
+          "wrongFeedback": "`/statusline`はステータスラインのUI設定用であり、`/vim`に`--permanent`オプションはありません"
         },
         {
           "text": "一時的に有効化: `/config` で vim を on に設定、永続的に設定: `CLAUDE.md` に記載する",
@@ -6398,8 +6398,8 @@
           "wrongFeedback": "`DISABLE_AUTOUPDATER`はClaude Code本体とプラグイン両方の自動更新を無効にします。プラグインだけ無効にしたい場合はマーケットプレイス単位で制御します。"
         },
         {
-          "text": "claude --no-auto-updateフラグで起動する",
-          "wrongFeedback": "--no-auto-updateという起動フラグは存在しません。自動更新の制御はマーケットプレイス単位または`DISABLE_AUTOUPDATER`環境変数で行います。"
+          "text": "claude `--no-auto-update`フラグで起動する",
+          "wrongFeedback": "`--no-auto-update`という起動フラグは存在しません。自動更新の制御はマーケットプレイス単位または`DISABLE_AUTOUPDATER`環境変数で行います。"
         },
         {
           "text": "`/plugin`のMarketplacesタブで個別のマーケットプレイスの自動更新を無効にする"
@@ -6485,12 +6485,12 @@
           "wrongFeedback": "App Store以外の方法もあります。"
         },
         {
-          "text": "npm install のみ",
+          "text": "`npm install` のみ",
           "wrongFeedback": "npmではなく専用インストーラーやパッケージマネージャーを使用します。"
         }
       ],
       "correctIndex": 0,
-      "explanation": "macOS/Linuxではcurlでネイティブインストール、Homebrewでbrew install --cask claude-code、WindowsではWinGetも使用可能です。ネイティブは自動更新対応ですが、Homebrew/WinGetは手動更新です。",
+      "explanation": "macOS/Linuxではcurlでネイティブインストール、Homebrewで`brew install --cask claude-code`、WindowsではWinGetも使用可能です。ネイティブは自動更新対応ですが、Homebrew/WinGetは手動更新です。",
       "referenceUrl": "https://code.claude.com/docs/en/overview"
     },
     {
@@ -6589,7 +6589,7 @@
           "text": "非アクティブなセッションは30日後に自動削除され、チェックポイントやサブエージェントのトランスクリプトも含まれる"
         },
         {
-          "text": "テキストデータのみ削除され、チェックポイント（git stash）は永久に保持される",
+          "text": "テキストデータのみ削除され、チェックポイント（`git stash`）は永久に保持される",
           "wrongFeedback": "チェックポイントやサブエージェントトランスクリプトを含む全データが削除されます。"
         }
       ],
@@ -6679,26 +6679,26 @@
       "id": "ses-039",
       "category": "session",
       "difficulty": "advanced",
-      "question": "パーミッションルールの構文 `Bash`(npm run *) はどのような動作にマッチしますか？",
+      "question": "パーミッションルールの構文 `Bash`(`npm run` *) はどのような動作にマッチしますか？",
       "options": [
         {
           "text": "npmコマンド全般",
-          "wrongFeedback": "npm runで始まるコマンドのみです。"
+          "wrongFeedback": "`npm run`で始まるコマンドのみです。"
         },
         {
-          "text": "npm run testのみ",
-          "wrongFeedback": "ワイルドカード*により、npm runで始まるすべてのコマンドにマッチします。"
+          "text": "`npm run` testのみ",
+          "wrongFeedback": "ワイルドカード*により、`npm run`で始まるすべてのコマンドにマッチします。"
         },
         {
           "text": "npmのインストールコマンド",
-          "wrongFeedback": "npm installではなくnpm runです。"
+          "wrongFeedback": "`npm install`ではなく`npm run`です。"
         },
         {
-          "text": "「npm run」で始まるすべての`Bash`コマンド"
+          "text": "「`npm run`」で始まるすべての`Bash`コマンド"
         }
       ],
       "correctIndex": 3,
-      "explanation": "Tool(specifier)構文でツール使用を細かく制御できます。`Bash`(npm run *)は「npm run」で始まるすべての`Bash`コマンドにマッチし、ワイルドカード(*)がサポートされています。",
+      "explanation": "Tool(specifier)構文でツール使用を細かく制御できます。`Bash`(`npm run` *)は「`npm run`」で始まるすべての`Bash`コマンドにマッチし、ワイルドカード(*)がサポートされています。",
       "referenceUrl": "https://code.claude.com/docs/en/settings"
     },
     {
@@ -6740,8 +6740,8 @@
           "wrongFeedback": "自動更新を完全に無効化するとセキュリティパッチや重要な修正も受け取れなくなります。安定版チャネルを指定する方が、安定性と更新のバランスが取れます。"
         },
         {
-          "text": "managed_settingsでavailableModelsを固定することで間接的にバージョンを固定する",
-          "wrongFeedback": "availableModelsはユーザーが選択可能なAIモデルを制限する設定で、Claude Code自体のソフトウェアバージョン管理とは関係ありません。"
+          "text": "managed_settingsで`availableModels`を固定することで間接的にバージョンを固定する",
+          "wrongFeedback": "`availableModels`はユーザーが選択可能なAIモデルを制限する設定で、Claude Code自体のソフトウェアバージョン管理とは関係ありません。"
         },
         {
           "text": "`autoUpdatesChannel`を\"stable\"に設定して安定版リリースのみを受け取るようにする"
@@ -6784,7 +6784,7 @@
       "question": "企業の管理者がClaude Codeで使用可能なモデルをSonnetとHaikuに制限し、ユーザーが他のモデルに切り替えられないようにしたい場合、最適な設定方法はどれですか？",
       "options": [
         {
-          "text": "各ユーザーの`~/.claude/settings.json`にavailableModelsを設定するよう依頼する",
+          "text": "各ユーザーの`~/.claude/settings.json`に`availableModels`を設定するよう依頼する",
           "wrongFeedback": "ユーザー設定は各個人が自由に変更できるため、制限の強制力がありません。managed_settingsは最上位の優先度を持ち、ユーザーが上書きできない設定です。"
         },
         {
@@ -6792,7 +6792,7 @@
           "wrongFeedback": "環境変数`ANTHROPIC_MODEL`はモデル名のオーバーライドに使えますが、ユーザーが環境変数を変更すれば別のモデルを使用できるため、強制力がありません。"
         },
         {
-          "text": "managed_settingsでavailableModelsに[\"sonnet\", \"haiku\"]を設定する"
+          "text": "managed_settingsで`availableModels`に[\"sonnet\", \"haiku\"]を設定する"
         },
         {
           "text": "プロジェクトの`.claude/settings.json`でmodelキーを\"sonnet\"に固定する",
@@ -6939,7 +6939,7 @@
       "id": "ses-052",
       "category": "session",
       "difficulty": "advanced",
-      "question": "allowManagedHooksOnlyをtrueに設定すると何が起きますか？",
+      "question": "`allowManagedHooksOnly`をtrueに設定すると何が起きますか？",
       "options": [
         {
           "text": "Managed設定で定義されたHooksとSDK Hooksのみが実行を許可される"
@@ -6958,7 +6958,7 @@
         }
       ],
       "correctIndex": 0,
-      "explanation": "allowManagedHooksOnly（Managed設定専用キー）をtrueにすると、User/Project/Pluginスコープで定義されたHooksは実行されず、Managed設定のHooksとSDK Hooksのみが許可されます。同様にallowManagedPermissionRulesOnlyでパーミッションルールも制限できます。",
+      "explanation": "`allowManagedHooksOnly`（Managed設定専用キー）をtrueにすると、User/Project/Pluginスコープで定義されたHooksは実行されず、Managed設定のHooksとSDK Hooksのみが許可されます。同様にallowManagedPermissionRulesOnlyでパーミッションルールも制限できます。",
       "referenceUrl": "https://code.claude.com/docs/en/settings"
     },
     {
@@ -7542,7 +7542,7 @@
       "id": "ext-061",
       "category": "extensions",
       "difficulty": "advanced",
-      "question": "CLI --agentsフラグで渡したサブエージェント定義の特徴は何ですか？",
+      "question": "CLI `--agents`フラグで渡したサブエージェント定義の特徴は何ですか？",
       "options": [
         {
           "text": "プロジェクトの`.claude/agents/`に自動保存される",
@@ -7561,7 +7561,7 @@
         }
       ],
       "correctIndex": 2,
-      "explanation": "--agentsフラグで渡されたサブエージェントはそのセッションのみ有効で、ディスクには保存されません。クイックテストや自動化スクリプトに便利です。JSON形式で全フロントマターフィールド（description, tools, model等）を指定できます。",
+      "explanation": "`--agents`フラグで渡されたサブエージェントはそのセッションのみ有効で、ディスクには保存されません。クイックテストや自動化スクリプトに便利です。JSON形式で全フロントマターフィールド（description, tools, model等）を指定できます。",
       "referenceUrl": "https://code.claude.com/docs/en/sub-agents"
     },
     {
@@ -7613,7 +7613,7 @@
         }
       ],
       "correctIndex": 0,
-      "explanation": "`Agent`(agent_type)構文はサブエージェントの起動を特定のタイプに制限するホワイトリストです。`Agent`(worker, researcher)はworkerとresearcherのみ起動可能にし、他のタイプの起動要求は失敗します。この制限はclaude --agentのメインスレッドにのみ適用されます。（v2.1.63でTaskツールがAgentに改名。旧`Task`()はエイリアスとして動作）",
+      "explanation": "`Agent`(agent_type)構文はサブエージェントの起動を特定のタイプに制限するホワイトリストです。`Agent`(worker, researcher)はworkerとresearcherのみ起動可能にし、他のタイプの起動要求は失敗します。この制限はclaude `--agent`のメインスレッドにのみ適用されます。（v2.1.63でTaskツールがAgentに改名。旧`Task`()はエイリアスとして動作）",
       "referenceUrl": "https://code.claude.com/docs/en/sub-agents"
     },
     {
@@ -7982,7 +7982,7 @@
         }
       ],
       "correctIndex": 1,
-      "explanation": "Homebrew（brew install --cask claude-code）とWinGet（winget install Anthropic.ClaudeCode）でのインストールは自動更新されません。brew upgrade claude-code / winget upgrade Anthropic.ClaudeCode で手動更新が必要です。ネイティブインストール（curl）は自動更新対応です。",
+      "explanation": "Homebrew（`brew install --cask claude-code`）とWinGet（winget install Anthropic.ClaudeCode）でのインストールは自動更新されません。brew upgrade claude-code / winget upgrade Anthropic.ClaudeCode で手動更新が必要です。ネイティブインストール（curl）は自動更新対応です。",
       "referenceUrl": "https://code.claude.com/docs/en/overview"
     },
     {
@@ -8051,7 +8051,7 @@
           "text": "tail -f app.log | `claude -p` \"異常を検知したらSlackに通知して\" のようなパイプライン連携"
         },
         {
-          "text": "claude --guiで起動する",
+          "text": "claude `--gui`で起動する",
           "wrongFeedback": "そのようなフラグはありません。"
         },
         {
@@ -8060,7 +8060,7 @@
         }
       ],
       "correctIndex": 1,
-      "explanation": "Claude CodeはUnix哲学に従い、パイプラインで他のツールと連携できます。例：tail -f app.log | `claude -p` \"異常通知\"、git diff main --name-only | `claude -p` \"セキュリティレビュー\"、`claude -p` \"新しい文字列をフランス語に翻訳してPR作成\" 等。",
+      "explanation": "Claude CodeはUnix哲学に従い、パイプラインで他のツールと連携できます。例：tail -f app.log | `claude -p` \"異常通知\"、git diff main `--name-only` | `claude -p` \"セキュリティレビュー\"、`claude -p` \"新しい文字列をフランス語に翻訳してPR作成\" 等。",
       "referenceUrl": "https://code.claude.com/docs/en/common-workflows"
     },
     {
@@ -8145,7 +8145,7 @@
       "id": "ses-071",
       "category": "session",
       "difficulty": "advanced",
-      "question": "spinnerVerbs設定でmode: \"append\"を指定すると何が起きますか？",
+      "question": "`spinnerVerbs`設定でmode: \"append\"を指定すると何が起きますか？",
       "options": [
         {
           "text": "カスタム動詞がデフォルトのスピナー動詞に追加される"
@@ -8164,7 +8164,7 @@
         }
       ],
       "correctIndex": 0,
-      "explanation": "spinnerVerbs.modeを\"append\"に設定すると、spinnerVerbs.verbsで指定したカスタム動詞がデフォルトのスピナー動詞に追加されます。modeを省略した場合のデフォルトは`\"append\"`（追加）モードです。デフォルト動詞を完全に置き換えるには`\"replace\"`を明示する必要があります。spinnerTipsEnabledでスピナーのTips表示も制御できます。",
+      "explanation": "`spinnerVerbs`.modeを\"append\"に設定すると、`spinnerVerbs`.verbsで指定したカスタム動詞がデフォルトのスピナー動詞に追加されます。modeを省略した場合のデフォルトは`\"append\"`（追加）モードです。デフォルト動詞を完全に置き換えるには`\"replace\"`を明示する必要があります。spinnerTipsEnabledでスピナーのTips表示も制御できます。",
       "referenceUrl": "https://code.claude.com/docs/en/settings"
     },
     {
@@ -8617,22 +8617,22 @@
       "options": [
         {
           "text": "環境変数を変更する",
-          "wrongFeedback": "環境変数でも設定可能ですが、最も手軽な方法はOption+P（macOS）/ Alt+P のショートカットです。"
+          "wrongFeedback": "環境変数でも設定可能ですが、最も手軽な方法は`Option+P`（macOS）/ `Alt+P` のショートカットです。"
         },
         {
           "text": "設定ファイルを直接編集する",
-          "wrongFeedback": "設定ファイルでも可能ですが、最も簡単な方法はOption+P（macOS）/ Alt+P のショートカットです。"
+          "wrongFeedback": "設定ファイルでも可能ですが、最も簡単な方法は`Option+P`（macOS）/ `Alt+P` のショートカットです。"
         },
         {
           "text": "Claude Codeを再起動して選択する",
-          "wrongFeedback": "再起動は不要で、セッション中にOption+P（macOS）/ Alt+P でモデルを切り替えられます。"
+          "wrongFeedback": "再起動は不要で、セッション中に`Option+P`（macOS）/ `Alt+P` でモデルを切り替えられます。"
         },
         {
-          "text": "Option+P（macOS）/ Alt+P キーでモデルセレクターを開く"
+          "text": "`Option+P`（macOS）/ `Alt+P` キーでモデルセレクターを開く"
         }
       ],
       "correctIndex": 3,
-      "explanation": "Option+P（macOS）/ Alt+P でモデルセレクターを開き、利用可能なモデル（Opus、Sonnet、Haiku等）を切り替えられます。なお、`Option+T` / `Alt+T` はExtended Thinkingの切替に使用するショートカットです。",
+      "explanation": "`Option+P`（macOS）/ `Alt+P` でモデルセレクターを開き、利用可能なモデル（Opus、Sonnet、Haiku等）を切り替えられます。なお、`Option+T` / `Alt+T` はExtended Thinkingの切替に使用するショートカットです。",
       "referenceUrl": "https://code.claude.com/docs/en/interactive-mode"
     },
     {
@@ -8694,7 +8694,7 @@
       "question": "Claude Codeのセッション中に「この操作は期待通りに動かない」と気づいた場合、最も適切な対処はどれですか？",
       "options": [
         {
-          "text": "git reset --hard HEAD で手動リセットする",
+          "text": "`git reset --hard` HEAD で手動リセットする",
           "wrongFeedback": "これは危険な操作です。`/rewind` コマンドは安全にチェックポイントに戻れます。"
         },
         {
@@ -8779,7 +8779,7 @@
           "wrongFeedback": "正しい構文は Tool(specifier) 形式の `WebFetch`(domain:example.com) です。"
         },
         {
-          "text": "`WebFetch` --allow-domain example.com",
+          "text": "`WebFetch` `--allow-domain` example.com",
           "wrongFeedback": "CLIフラグ形式ではなく、Tool(specifier) 構文で指定します。"
         },
         {
@@ -8821,14 +8821,14 @@
       "id": "ext-076",
       "category": "extensions",
       "difficulty": "intermediate",
-      "question": "Hooksでgit commitの前に自動的にlintを実行したい場合、どのイベントを使用すべきですか？",
+      "question": "Hooksで`git commit`の前に自動的にlintを実行したい場合、どのイベントを使用すべきですか？",
       "options": [
         {
           "text": "`Stop` イベント",
           "wrongFeedback": "`Stop`はエージェント停止時のイベントです。特定のツール実行前には`PreToolUse`を使います。"
         },
         {
-          "text": "`PreToolUse` イベントで `Bash` ツール（git commit を含む）をマッチング"
+          "text": "`PreToolUse` イベントで `Bash` ツール（`git commit` を含む）をマッチング"
         },
         {
           "text": "`PostToolUse` イベント",
@@ -8840,7 +8840,7 @@
         }
       ],
       "correctIndex": 1,
-      "explanation": "`PreToolUse`イベントは全てのツール実行前に発火し、`matcher`で`Bash`ツールを指定してgit commitコマンドを検出できます。フックスクリプト内でlintを実行し、問題があれば`exit code 2`を返してcommitをブロックする流れです。`PostToolUse`（実行後）や`Stop`（応答完了時）ではcommit前の制御ができません。",
+      "explanation": "`PreToolUse`イベントは全てのツール実行前に発火し、`matcher`で`Bash`ツールを指定して`git commit`コマンドを検出できます。フックスクリプト内でlintを実行し、問題があれば`exit code 2`を返してcommitをブロックする流れです。`PostToolUse`（実行後）や`Stop`（応答完了時）ではcommit前の制御ができません。",
       "referenceUrl": "https://code.claude.com/docs/en/hooks"
     },
     {
@@ -8857,11 +8857,11 @@
           "text": "`Ctrl+B`"
         },
         {
-          "text": "Ctrl+Z",
-          "wrongFeedback": "Ctrl+Zはプロセスの一時停止です。Claude Codeでのバックグラウンド実行は`Ctrl+B`です。"
+          "text": "`Ctrl+Z`",
+          "wrongFeedback": "`Ctrl+Z`はプロセスの一時停止です。Claude Codeでのバックグラウンド実行は`Ctrl+B`です。"
         },
         {
-          "text": "Ctrl+Shift+B",
+          "text": "`Ctrl+Shift+B`",
           "wrongFeedback": "正しいショートカットは`Ctrl+B`（Shiftなし）です。"
         }
       ],
@@ -8876,8 +8876,8 @@
       "question": "Claude Codeをスクリプトやパイプラインに組み込む場合、推奨されるフラグはどれですか？",
       "options": [
         {
-          "text": "claude --interactive でスクリプトモードにする",
-          "wrongFeedback": "--interactive フラグは存在しません。-p でパイプモード（非インタラクティブ）実行します。"
+          "text": "claude `--interactive` でスクリプトモードにする",
+          "wrongFeedback": "`--interactive` フラグは存在しません。-p でパイプモード（非インタラクティブ）実行します。"
         },
         {
           "text": "`claude -p` \"タスク\" でワンショット実行し、標準出力に結果を返す"
@@ -8939,8 +8939,8 @@
           "text": "`--from-pr` フラグでPR番号またはURLを指定する"
         },
         {
-          "text": "--pr フラグでPR番号を指定する",
-          "wrongFeedback": "--prフラグは存在しません。PRに紐づくセッションの再開には`--from-pr`を使用します。"
+          "text": "`--pr` フラグでPR番号を指定する",
+          "wrongFeedback": "`--pr`フラグは存在しません。PRに紐づくセッションの再開には`--from-pr`を使用します。"
         }
       ],
       "correctIndex": 2,
@@ -9438,8 +9438,8 @@
           "text": "`.claude/settings.json` の`permissions.allow`にルールを定義（プロジェクトレベル）"
         },
         {
-          "text": "package.jsonのclaudeセクション",
-          "wrongFeedback": "package.jsonにClaude Code用のセクションはありません。"
+          "text": "`package.json`のclaudeセクション",
+          "wrongFeedback": "`package.json`にClaude Code用のセクションはありません。"
         },
         {
           "text": "`~/.claude/settings.json`",
@@ -9447,7 +9447,7 @@
         }
       ],
       "correctIndex": 1,
-      "explanation": "プロジェクトレベルの`.claude/settings.json`に`permissions.allow`ルールを設定することで、チーム全体に一貫したツール実行許可ポリシーを適用できます。例：「`Bash`(npm run *)」「`Edit`」などのパターンでリポジトリにコミットして共有します。",
+      "explanation": "プロジェクトレベルの`.claude/settings.json`に`permissions.allow`ルールを設定することで、チーム全体に一貫したツール実行許可ポリシーを適用できます。例：「`Bash`(`npm run` *)」「`Edit`」などのパターンでリポジトリにコミットして共有します。",
       "referenceUrl": "https://code.claude.com/docs/en/settings",
       "hint": "プロジェクトレベルの設定ファイルでツール許可を一括管理できます。"
     },
@@ -9587,7 +9587,7 @@
       "question": "チームでClaude Codeのプラグイン機能を使いたいが、一部メンバーの環境で`/plugin`コマンドが認識されない場合、まず確認すべきことは何ですか？",
       "options": [
         {
-          "text": "claude --versionでバージョンを確認し、最新バージョンであることを確かめ、古い場合は更新する"
+          "text": "claude `--version`でバージョンを確認し、最新バージョンであることを確かめ、古い場合は更新する"
         },
         {
           "text": "`.claude/settings.json`でenablePlugins: trueを設定する",
@@ -9598,12 +9598,12 @@
           "wrongFeedback": "`CLAUDE.md`はClaudeへの指示用ファイルであり、プラグイン機能の有効化には使用しません。バージョンが古い可能性を最初に確認すべきです。"
         },
         {
-          "text": "/loginコマンドで再認証を行い、プラグイン権限を取得する",
+          "text": "`/login`コマンドで再認証を行い、プラグイン権限を取得する",
           "wrongFeedback": "プラグイン機能は認証の種類ではなくバージョンに依存します。`/plugin`が認識されない場合はまずバージョンの確認が必要です。"
         }
       ],
       "correctIndex": 0,
-      "explanation": "プラグイン機能（`/plugin`コマンド）はclaude --versionでバージョンを確認し、古い場合はbrew upgrade claude-code（Homebrew）やnpm update -g @anthropic-ai/claude-code（npm）で最新バージョンに更新する必要があります。",
+      "explanation": "プラグイン機能（`/plugin`コマンド）はclaude `--version`でバージョンを確認し、古い場合はbrew upgrade claude-code（Homebrew）やnpm update -g @anthropic-ai/claude-code（npm）で最新バージョンに更新する必要があります。",
       "category": "commands",
       "difficulty": "beginner",
       "referenceUrl": "https://code.claude.com/docs/en/discover-plugins"
@@ -9733,7 +9733,7 @@
           "text": "`permissions.deny`に`Bash(git push --force *)`を追加し、差分確認を依頼する"
         },
         {
-          "text": "Claude Codeにgit pushの実行を許可しない",
+          "text": "Claude Codeに`git push`の実行を許可しない",
           "wrongFeedback": "pushの完全禁止は厳しすぎます。よりバランスの取れた方法があります。"
         }
       ],
@@ -10242,7 +10242,7 @@
         },
         {
           "text": "`claude --setup` を実行する",
-          "wrongFeedback": "--setupフラグは存在しません。プロジェクトディレクトリでcdしてから`claude`を実行するだけで開始できます。初回使用時にログインが求められます。"
+          "wrongFeedback": "`--setup`フラグは存在しません。プロジェクトディレクトリでcdしてから`claude`を実行するだけで開始できます。初回使用時にログインが求められます。"
         },
         {
           "text": "プロジェクトディレクトリに移動して `claude` を実行する"
@@ -10324,15 +10324,15 @@
           "text": "`/help` を入力するか、入力欄が空の状態で / を入力する"
         },
         {
-          "text": "Ctrl+H を押す",
-          "wrongFeedback": "Ctrl+Hではコマンド一覧は表示されません。`/help` と入力するか、入力欄が空の状態で / を入力してください。? を押すとキーボードショートカットの一覧が表示されます。"
+          "text": "`Ctrl+H` を押す",
+          "wrongFeedback": "`Ctrl+H`ではコマンド一覧は表示されません。`/help` と入力するか、入力欄が空の状態で / を入力してください。? を押すとキーボードショートカットの一覧が表示されます。"
         },
         {
           "text": "設定ファイルを確認する",
           "wrongFeedback": "設定ファイルを見る必要はありません。インタラクティブモード中に `/help` を入力するのが最も簡単な方法です。"
         },
         {
-          "text": "claude --list-commands をターミナルで実行する",
+          "text": "claude `--list-commands` をターミナルで実行する",
           "wrongFeedback": "そのフラグは存在しません。インタラクティブモード中に `/help` を入力するか、入力欄が空の状態で / を入力するとコマンド一覧が表示されます。"
         }
       ],
@@ -10458,26 +10458,26 @@
       "id": "ext-091",
       "category": "extensions",
       "difficulty": "intermediate",
-      "question": "テストファイル（*.test.ts）を編集するたびに、Claudeに指示しなくても自動的にnpm testを実行させたい場合、最も適切な方法はどれですか？",
+      "question": "テストファイル（*.test.ts）を編集するたびに、Claudeに指示しなくても自動的に`npm test`を実行させたい場合、最も適切な方法はどれですか？",
       "options": [
         {
-          "text": "`PostToolUse` Hookを設定し、`Write`/`Edit`ツールでテストファイルが変更された時にnpm testを自動実行する"
+          "text": "`PostToolUse` Hookを設定し、`Write`/`Edit`ツールでテストファイルが変更された時に`npm test`を自動実行する"
         },
         {
           "text": "MCPサーバーを構築してファイル監視とテスト実行のカスタムツールを提供する",
           "wrongFeedback": "MCPサーバーは外部サービス連携用の仕組みで、ファイル変更のイベント監視機能は持ちません。`PostToolUse` Hookなら、ツール実行後のイベントに応じて自動的にシェルコマンドを実行できます。"
         },
         {
-          "text": "`CLAUDE.md`に「テストファイル編集後は必ずnpm testを実行すること」と記述する",
+          "text": "`CLAUDE.md`に「テストファイル編集後は必ず`npm test`を実行すること」と記述する",
           "wrongFeedback": "`CLAUDE.md`の指示はClaudeへの助言であり、確実な実行を保証しません。Claudeが従わない場合もあります。確実に自動実行したい場合はHooksでシステムレベルの強制が必要です。"
         },
         {
-          "text": "Skillを作成して「テスト編集後はnpm testを実行する」というワークフローを定義する",
+          "text": "Skillを作成して「テスト編集後は`npm test`を実行する」というワークフローを定義する",
           "wrongFeedback": "Skillsは/コマンドで手動呼び出しが必要なプロンプトテンプレートです。「指示なしで自動実行」したい場合はHooksが適切です。Hooksはイベント（`PostToolUse`等）に応じてシェルコマンドを自動実行します。"
         }
       ],
       "correctIndex": 0,
-      "explanation": "Hooksはイベント駆動で自動実行されるシェルコマンドです。`PostToolUse`イベントで`Write`/`Edit`ツールのテストファイル変更を検知し、npm testを自動実行できます。一方、Skillsは手動呼び出し（/コマンド）、`CLAUDE.md`は助言的指示、MCPは外部サービス接続と、それぞれ「自動実行」の仕組みではありません。",
+      "explanation": "Hooksはイベント駆動で自動実行されるシェルコマンドです。`PostToolUse`イベントで`Write`/`Edit`ツールのテストファイル変更を検知し、`npm test`を自動実行できます。一方、Skillsは手動呼び出し（/コマンド）、`CLAUDE.md`は助言的指示、MCPは外部サービス接続と、それぞれ「自動実行」の仕組みではありません。",
       "referenceUrl": "https://code.claude.com/docs/en/hooks"
     },
     {
@@ -10510,21 +10510,21 @@
       "id": "ext-093",
       "category": "extensions",
       "difficulty": "intermediate",
-      "question": "「テストを実行せずにgit commitすることを確実に防止したい」場合、`CLAUDE.md`への記述とHooksのどちらが適切ですか？",
+      "question": "「テストを実行せずに`git commit`することを確実に防止したい」場合、`CLAUDE.md`への記述とHooksのどちらが適切ですか？",
       "options": [
         {
           "text": "`CLAUDE.md`に「テスト実行前のcommit禁止」と記述すれば十分。Hooksは過剰な対策である",
           "wrongFeedback": "`CLAUDE.md`の記述はClaudeへの助言であり、技術的な強制力がありません。Claudeが指示を見落としたり無視したりする可能性があります。確実な防止にはHooksによるシステムレベルの制御が必要です。"
         },
         {
-          "text": "`PreToolUse` Hookを設定して`Bash`ツールのgit commitコマンドを検出・ブロックする。`CLAUDE.md`の指示は助言であり確実な防止にならない"
+          "text": "`PreToolUse` Hookを設定して`Bash`ツールの`git commit`コマンドを検出・ブロックする。`CLAUDE.md`の指示は助言であり確実な防止にならない"
         },
         {
           "text": "`CLAUDE.md`とHooksの両方を設定する必要があるが、主な防止力は`CLAUDE.md`にある",
           "wrongFeedback": "両方設定するのは有効ですが、主な防止力はHooks（システムレベルの強制）側にあります。`CLAUDE.md`は補助的なガイダンスであり、技術的なブロック機能はHooksが担います。"
         },
         {
-          "text": "`settings.json`の`permissions.deny`でgit commitを禁止する方がHooksより適切",
+          "text": "`settings.json`の`permissions.deny`で`git commit`を禁止する方がHooksより適切",
           "wrongFeedback": "`permissions.deny`はコマンド全体を禁止しますが、「テスト未実行時のみブロック」という条件付き制御はできません。Hooksなら条件分岐のあるシェルスクリプトを実行でき、柔軟な制御が可能です。"
         }
       ],
@@ -10598,12 +10598,12 @@
           "wrongFeedback": "手動でファイルを戻すのはエラーが起きやすく、会話コンテキスト内の変更7〜10に関する履歴も残ります。`/rewind`ならファイル変更と会話コンテキストの両方をチェックポイント時点に正確に復元できます。"
         },
         {
-          "text": "git reset --hardで最新コミットに戻し、変更1〜6を再度実装する",
-          "wrongFeedback": "git reset --hardは全変更を破棄する危険な操作です。また未コミットの変更1〜6も失われます。`/rewind`を使えばチェックポイント単位で安全に部分的なundoが可能です。"
+          "text": "`git reset --hard`で最新コミットに戻し、変更1〜6を再度実装する",
+          "wrongFeedback": "`git reset --hard`は全変更を破棄する危険な操作です。また未コミットの変更1〜6も失われます。`/rewind`を使えばチェックポイント単位で安全に部分的なundoが可能です。"
         },
         {
-          "text": "git stashで変更を退避し、必要なファイルだけ手動で戻す",
-          "wrongFeedback": "git stashはすべての変更を一括退避するため、1〜6と7〜10の選択的な分離が困難です。また会話コンテキストは復元されません。`/rewind`ならチェックポイント単位で会話とファイルの両方を復元できます。"
+          "text": "`git stash`で変更を退避し、必要なファイルだけ手動で戻す",
+          "wrongFeedback": "`git stash`はすべての変更を一括退避するため、1〜6と7〜10の選択的な分離が困難です。また会話コンテキストは復元されません。`/rewind`ならチェックポイント単位で会話とファイルの両方を復元できます。"
         }
       ],
       "correctIndex": 0,
