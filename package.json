@@ -19,6 +19,8 @@
     "quiz:coverage": "node scripts/quiz-utils.mjs coverage",
     "quiz:check": "node scripts/quiz-utils.mjs check",
     "docs:fetch": "node scripts/fetch-docs.mjs",
+    "docs:split": "node scripts/fetch-docs.mjs --split",
+    "docs:assemble": "node scripts/fetch-docs.mjs --assemble",
     "docs:status": "node scripts/fetch-docs.mjs --status",
     "verify:diff": "node scripts/verify-state.mjs diff",
     "verify:diff:full": "node scripts/verify-state.mjs diff --full",

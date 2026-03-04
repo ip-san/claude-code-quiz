@@ -52,6 +52,23 @@ const CATEGORY_DOC_MAP = {
 // Supplementary docs always available for cross-reference
 const SUPPLEMENTARY_DOCS = ['settings', 'permissions', 'overview', 'agent-sdk-overview']
 
+// Section selection for large docs (> 40KB).
+// Maps category → doc → H2 section slugs to include.
+// 'ALL' = include all sections. Omitted docs = 'ALL' (default).
+const CATEGORY_DOC_SECTIONS = {
+  extensions: {
+    hooks: 'ALL',
+    settings: ['configuration-scopes', 'plugin-configuration', 'environment-variables', 'tools-available-to-claude'],
+  },
+  memory: {
+    settings: ['configuration-scopes', 'settings-files', 'environment-variables'],
+  },
+  session: {
+    settings: 'ALL',
+  },
+  // tools, skills, commands, keyboard, bestpractices: 大ファイルなし → 全セクション
+}
+
 // Cache validity: 24 hours (must match fetch-docs.mjs CACHE_TTL_MS)
 const CACHE_TTL_MS = 24 * 60 * 60 * 1000
 
@@ -283,6 +300,16 @@ function cmdDiff(args) {
       const docs = getDocsForCategory(cat, referencedPages)
       output.categoryDocMap[cat] = docs
       docs.forEach(d => neededDocPages.add(d))
+    }
+  }
+
+  // Add section selection hints for large docs
+  output.categorySectionMap = {}
+  for (const [cat, docs] of Object.entries(output.categoryDocMap)) {
+    output.categorySectionMap[cat] = {}
+    for (const doc of docs) {
+      const sectionHints = CATEGORY_DOC_SECTIONS[cat]?.[doc]
+      output.categorySectionMap[cat][doc] = sectionHints || 'ALL'
     }
   }
 

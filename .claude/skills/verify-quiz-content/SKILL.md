@@ -86,7 +86,11 @@ diff コマンドは同時にカテゴリ別クイズデータを `.claude/tmp/q
 
 手順:
 1. 対象問題の JSON データを `node -e` で抽出表示
-2. `.claude/tmp/docs/` から対象カテゴリのドキュメントを Read
+2. 対象カテゴリごとにドキュメントを取得:
+   ```bash
+   node scripts/fetch-docs.mjs --assemble {CATEGORY}
+   ```
+   この出力をドキュメント参照として使う（セクションの自動選択・結合済み）
 3. `.claude/skills/verify-quiz-content/sub-agent-template.md` を Read し、検証チェックリスト（A〜E）とknown-issuesに沿って検証
 4. 問題があれば Post-Verification セクションの形式で報告
 
@@ -94,20 +98,39 @@ diff コマンドは同時にカテゴリ別クイズデータを `.claude/tmp/q
 
 **差分抽出で特定されたカテゴリのみサブエージェントを起動する。**
 
+#### Step 2b-1: ドキュメントコンテンツの組み立て
+
+各カテゴリの `{DOC_CONTENT}` は **Bash コマンド一発** で組み立てる:
+
+```bash
+node scripts/fetch-docs.mjs --assemble {CATEGORY}
+```
+
+このコマンドは `verify-targets.json` の `categorySectionMap` に従い、セクションファイルを読み込んで結合した結果を stdout に出力する。
+出力をそのまま `{DOC_CONTENT}` プレースホルダーに埋め込む。
+
+**例:** extensions カテゴリの場合
+```bash
+node scripts/fetch-docs.mjs --assemble extensions
+# → hooks 全セクション + settings の一部セクション + mcp 全セクション + discover-plugins 全セクションを結合出力
+```
+
+#### Step 2b-2: サブエージェント起動
+
 各カテゴリのサブエージェントには以下を prompt に含める：
 
-1. **検証対象の問題データ（JSON を直接埋め込み）** — Read ツール呼び出しを1回削減
+1. **検証対象の問題データ（JSON を直接埋め込み）** — `{QUIZ_DATA}`
    - `_needsVerification: true` の問題のみ prompt に埋め込む
    - 同カテゴリの他の問題は `.claude/tmp/quizzes/{category}.json` のパスを記載（必要時のみ Read）
-2. **読むべきドキュメント一覧**（categoryDocMap から取得、条件付き — Step 3参照）
-3. **補助情報（後述の「サブエージェント用プロンプトテンプレート」参照）**
+2. **ドキュメントコンテンツ（Step 2b-1 で組み立て済み）** — `{DOC_CONTENT}`
+   - サブエージェントは `Read` / `WebFetch` を使わない（全コンテンツが prompt 内に存在）
+3. **補助情報（テンプレートに埋め込み済み）**
 
 ```
 # サブエージェント起動パターン
-Task (subagent_type: general-purpose, model: "haiku", max_turns: 20) for each category with targets:
+Task (subagent_type: general-purpose, model: "haiku", max_turns: 10) for each category with targets:
   1. 検証対象の問題データは prompt に埋め込み済み（Read 不要）
-  2. `.claude/tmp/docs/` から必要なドキュメントのみ Read
-     （キャッシュが存在しない場合のみ WebFetch でフォールバック）
+  2. ドキュメントコンテンツは prompt に埋め込み済み（Read 不要）
   3. `_needsVerification: true` の問題のみ検証
   4. 差異を報告
 ```
@@ -124,7 +147,7 @@ console.log(JSON.stringify(targets, null, 2));
 
 引数で特定カテゴリが指定された場合は、そのカテゴリのみ実行。
 
-**注意:** 一度に起動するサブエージェントは最大4つまで。5カテゴリ以上ある場合は2ラウンドに分けて実行する（8並列は接続タイムアウトやAPI負荷の原因になる）。
+**注意:** カテゴリごとに1サブエージェントを起動し、全カテゴリを同時に並列実行する（Haiku モデルのため8並列でもタイムアウトの問題はない）。
 
 ### サブエージェント用プロンプトテンプレート
 
@@ -134,7 +157,7 @@ console.log(JSON.stringify(targets, null, 2));
 Read: .claude/skills/verify-quiz-content/sub-agent-template.md
 ```
 
-テンプレート内の `{CATEGORY}`, `{DOC_PAGES}`, `{QUIZ_DATA}` を置き換えてサブエージェントに渡す。
+テンプレート内の `{CATEGORY}`, `{DOC_CONTENT}`, `{QUIZ_DATA}` を置き換えてサブエージェントに渡す。
 補助情報（known-issues, doc-references）はテンプレートに埋め込み済みなので、サブエージェントが別ファイルを Read する必要はない。
 
 ### サブエージェント報告の照合ガイド（主エージェント用）

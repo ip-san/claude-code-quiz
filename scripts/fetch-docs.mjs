@@ -8,16 +8,18 @@
  * スキル実行時の WebFetch 重複呼び出しを排除し、検証・生成の高速化を実現。
  *
  * Usage:
- *   node scripts/fetch-docs.mjs                          # 全ページ取得
- *   node scripts/fetch-docs.mjs --force                  # キャッシュを無視して再取得
- *   node scripts/fetch-docs.mjs --status                 # キャッシュ状態を表示
- *   node scripts/fetch-docs.mjs --pages memory,settings  # 指定ページのみ取得
+ *   node scripts/fetch-docs.mjs                                  # 全ページ取得
+ *   node scripts/fetch-docs.mjs --force                          # キャッシュを無視して再取得
+ *   node scripts/fetch-docs.mjs --status                         # キャッシュ状態を表示
+ *   node scripts/fetch-docs.mjs --pages memory,settings          # 指定ページのみ取得
+ *   node scripts/fetch-docs.mjs --assemble <category>            # カテゴリ用ドキュメント組み立て (verify-targets.json 必要)
+ *   node scripts/fetch-docs.mjs --assemble --pages hooks,mcp    # ページ指定で組み立て (verify-targets.json 不要)
  *
  * Output:
  *   .claude/tmp/docs/{page-name}.md
  */
 
-import { writeFileSync, mkdirSync, existsSync, statSync } from 'fs'
+import { writeFileSync, readFileSync, mkdirSync, existsSync, statSync, rmSync } from 'fs'
 import { resolve, dirname } from 'path'
 import { fileURLToPath } from 'url'
 
@@ -137,13 +139,256 @@ function cleanMarkdown(raw) {
   text = cleaned.join('\n')
 
   // === Phase 3: Normalize ===
-  text = text.replace(/^(.+)\n-{3,}$/gm, '## $1')
+  // Setext H2 (---) → ATX H2 — コードフェンス外のみ変換
+  {
+    const rawLines = text.split('\n')
+    const normalizedLines = []
+    let inCodeFence = false
+    for (let i = 0; i < rawLines.length; i++) {
+      const line = rawLines[i]
+      if (/^`{3,}/.test(line)) inCodeFence = !inCodeFence
+      const nextLine = rawLines[i + 1]
+      if (!inCodeFence && nextLine !== undefined && /^-{3,}$/.test(nextLine) && line.trim().length > 0) {
+        normalizedLines.push('## ' + line)
+        i++ // skip ---
+        continue
+      }
+      normalizedLines.push(line)
+    }
+    text = normalizedLines.join('\n')
+  }
   text = text.replace(/^(# .+)\s*-\s*Claude Code Docs\s*$/gm, '$1')
   text = text.replace(/\n{4,}/g, '\n\n')
   text = text.replace(/[ \t]+$/gm, '')
   text = text.trim()
 
   return text
+}
+
+// ====== Section Splitting ======
+
+/**
+ * GitHub 互換のアンカースラッグ生成
+ */
+function slugify(title) {
+  return title.toLowerCase()
+    .replace(/`/g, '')
+    .replace(/[^a-z0-9\s-]/g, '')
+    .trim()
+    .replace(/\s+/g, '-')
+}
+
+/**
+ * H3 レベルで分割（大きな H2 セクション内部用）
+ */
+function splitAtH3(lines) {
+  const sections = []
+  let current = null
+  let inFence = false
+
+  for (const line of lines) {
+    if (/^`{3,}/.test(line)) inFence = !inFence
+    if (!inFence && line.startsWith('### ')) {
+      if (current) sections.push(current)
+      current = { title: line.slice(4).trim(), slug: slugify(line.slice(4).trim()), lines: [line] }
+    } else if (current) {
+      current.lines.push(line)
+    }
+    // H3 前のテキスト（H2 見出し直後の導入文等）は含めない
+  }
+  if (current) sections.push(current)
+  return sections
+}
+
+/**
+ * ドキュメントを H2 単位でセクションファイルに分割。
+ * 20KB 超の H2 セクションは H3 レベルでさらに分割。
+ *
+ * @param {string} pageName - ページ名 (e.g. "hooks")
+ * @param {string} markdown - cleanMarkdown 済みのテキスト
+ * @param {string} sectionsDir - 出力先 (.claude/tmp/docs/sections/{pageName}/)
+ * @returns {Array} セクションインデックス
+ */
+function splitDocIntoSections(pageName, markdown, sectionsDir) {
+  // 既存ディレクトリをクリアして再作成
+  rmSync(sectionsDir, { recursive: true, force: true })
+  mkdirSync(sectionsDir, { recursive: true })
+
+  const lines = markdown.split('\n')
+  const rawSections = []
+  let current = null
+  let inFence = false
+
+  for (let i = 0; i < lines.length; i++) {
+    const line = lines[i]
+    if (/^`{3,}/.test(line)) inFence = !inFence
+
+    if (!inFence && line.startsWith('## ') && !line.startsWith('### ')) {
+      if (current) rawSections.push(current)
+      current = {
+        title: line.slice(3).trim(),
+        slug: slugify(line.slice(3).trim()),
+        lines: [line],
+      }
+    } else if (current) {
+      current.lines.push(line)
+    }
+  }
+  if (current) rawSections.push(current)
+
+  // 偽 H2 フィルタ（YAML キーワードやバッククォートで始まるもの）
+  const YAML_PATTERN = /^(description:|command:|model:|tools:|  -|disallowedTools:|allowed-tools:|context:|disable-)/
+  const realSections = rawSections.filter(s =>
+    !s.title.startsWith('`') && !YAML_PATTERN.test(s.title) && s.slug.length > 0
+  )
+
+  if (realSections.length === 0) return []
+
+  const H3_SPLIT_THRESHOLD = 20_000 // 20KB
+  const index = []
+
+  for (const section of realSections) {
+    const content = section.lines.join('\n')
+    const bytes = Buffer.byteLength(content, 'utf8')
+
+    if (bytes > H3_SPLIT_THRESHOLD) {
+      // H3 レベルで分割
+      const h3Dir = resolve(sectionsDir, section.slug)
+      mkdirSync(h3Dir, { recursive: true })
+
+      const h3Sections = splitAtH3(section.lines)
+      const h3Index = []
+
+      for (const h3 of h3Sections) {
+        const h3Content = h3.lines.join('\n')
+        writeFileSync(resolve(h3Dir, h3.slug + '.md'), h3Content + '\n')
+        h3Index.push({ slug: h3.slug, title: h3.title, chars: Buffer.byteLength(h3Content, 'utf8') })
+      }
+
+      writeFileSync(resolve(h3Dir, '_index.json'), JSON.stringify(h3Index, null, 2) + '\n')
+
+      index.push({
+        slug: section.slug,
+        title: section.title,
+        level: 2,
+        chars: bytes,
+        h3Split: true,
+        h3Sections: h3Index.map(h => h.slug),
+      })
+    } else {
+      writeFileSync(resolve(sectionsDir, section.slug + '.md'), content + '\n')
+      index.push({ slug: section.slug, title: section.title, level: 2, chars: bytes })
+    }
+  }
+
+  writeFileSync(resolve(sectionsDir, '_index.json'), JSON.stringify(index, null, 2) + '\n')
+  return index
+}
+
+/**
+ * 指定ドキュメントページの全セクションを読み込んで結合する内部関数。
+ * セクションディレクトリが存在しない場合はフラットファイルにフォールバック。
+ *
+ * @param {string} docName - ページ名 (e.g. "hooks")
+ * @param {string[]|'ALL'} selection - 読み込むセクションスラッグ、または 'ALL'
+ * @returns {string[]} 結合用のコンテンツパーツ
+ */
+function readDocSections(docName, selection) {
+  const parts = []
+  const sectionsDir = resolve(DOCS_DIR, 'sections', docName)
+  const indexPath = resolve(sectionsDir, '_index.json')
+
+  // セクションディレクトリが存在しない場合はフラットファイルにフォールバック
+  if (!existsSync(indexPath)) {
+    const flatPath = resolve(DOCS_DIR, `${docName}.md`)
+    if (existsSync(flatPath)) {
+      const content = readFileSync(flatPath, 'utf8').replace(/^<!--.*?-->\n/gm, '').trim()
+      parts.push(`--- ${docName} ---\n\n${content}`)
+    }
+    return parts
+  }
+
+  const index = JSON.parse(readFileSync(indexPath, 'utf8'))
+
+  // 対象セクションを決定
+  const slugsToInclude = selection === 'ALL'
+    ? index.map(s => s.slug)
+    : selection
+
+  for (const slug of slugsToInclude) {
+    const entry = index.find(s => s.slug === slug)
+    if (!entry) continue
+
+    if (entry.h3Split) {
+      // H3 分割セクション: サブディレクトリの全ファイルを読む
+      const h3Dir = resolve(sectionsDir, slug)
+      const h3IndexPath = resolve(h3Dir, '_index.json')
+      if (existsSync(h3IndexPath)) {
+        const h3Index = JSON.parse(readFileSync(h3IndexPath, 'utf8'))
+        for (const h3 of h3Index) {
+          const h3Path = resolve(h3Dir, `${h3.slug}.md`)
+          if (existsSync(h3Path)) {
+            parts.push(readFileSync(h3Path, 'utf8').trim())
+          }
+        }
+      }
+    } else {
+      const sectionPath = resolve(sectionsDir, `${slug}.md`)
+      if (existsSync(sectionPath)) {
+        parts.push(readFileSync(sectionPath, 'utf8').trim())
+      }
+    }
+  }
+
+  return parts
+}
+
+/**
+ * カテゴリ用のドキュメントコンテンツを組み立てて stdout に出力。
+ *
+ * 2つのモード:
+ * 1. カテゴリモード: verify-targets.json の categorySectionMap に従いセクション選択
+ *    Usage: node scripts/fetch-docs.mjs --assemble <category>
+ * 2. ページ指定モード: 指定ページの全セクションを結合（verify-targets.json 不要）
+ *    Usage: node scripts/fetch-docs.mjs --assemble --pages hooks,settings,mcp
+ */
+function assembleDocContent(category, pageNames) {
+  const parts = []
+
+  if (pageNames) {
+    // ページ指定モード: 各ページの全セクションを読み込み
+    for (const pageName of pageNames) {
+      parts.push(...readDocSections(pageName, 'ALL'))
+    }
+  } else {
+    // カテゴリモード: verify-targets.json から categorySectionMap を取得
+    const targetsPath = resolve(ROOT, '.claude/tmp/verify-targets.json')
+    if (!existsSync(targetsPath)) {
+      console.error('verify-targets.json not found. Run verify:diff first, or use --pages to specify pages directly.')
+      process.exit(1)
+    }
+
+    const targets = JSON.parse(readFileSync(targetsPath, 'utf8'))
+    const sectionMap = targets.categorySectionMap?.[category]
+
+    if (!sectionMap) {
+      console.error(`Category "${category}" not found in categorySectionMap.`)
+      console.error(`Available: ${Object.keys(targets.categorySectionMap || {}).join(', ')}`)
+      process.exit(1)
+    }
+
+    for (const [docName, selection] of Object.entries(sectionMap)) {
+      parts.push(...readDocSections(docName, selection))
+    }
+  }
+
+  if (parts.length === 0) {
+    console.error('No content found. Check that docs are cached (npm run docs:fetch).')
+    process.exit(1)
+  }
+
+  // 結合して出力
+  process.stdout.write(parts.join('\n\n---\n\n') + '\n')
 }
 
 /**
@@ -199,7 +444,11 @@ async function fetchPage(page, force = false) {
 
       writeFileSync(outPath, header + markdown + '\n')
 
-      return { name: page.name, status: 'fetched', path: outPath, size: markdown.length }
+      // セクション分割
+      const sectionsDir = resolve(DOCS_DIR, 'sections', page.name)
+      const sectionIndex = splitDocIntoSections(page.name, markdown, sectionsDir)
+
+      return { name: page.name, status: 'fetched', path: outPath, size: markdown.length, sections: sectionIndex.length }
     } catch (err) {
       if (attempt === 3) {
         return { name: page.name, status: 'error', error: err.message }
@@ -265,6 +514,55 @@ async function main() {
     return
   }
 
+  // --assemble: ドキュメントコンテンツを組み立てて stdout に出力
+  // Mode 1: --assemble <category>        (categorySectionMap 経由、verify-targets.json 必要)
+  // Mode 2: --assemble --pages a,b,c     (ページ直接指定、verify-targets.json 不要)
+  if (args.includes('--assemble')) {
+    const catIdx = args.indexOf('--assemble')
+    const pagesIdx = args.indexOf('--pages', catIdx)
+
+    if (pagesIdx !== -1) {
+      // ページ指定モード
+      const pagesStr = args[pagesIdx + 1]
+      if (!pagesStr) {
+        console.error('Usage: node scripts/fetch-docs.mjs --assemble --pages hooks,settings,mcp')
+        process.exit(1)
+      }
+      const pageNames = pagesStr.split(',').map(s => s.trim())
+      assembleDocContent(null, pageNames)
+    } else {
+      // カテゴリモード
+      const category = args[catIdx + 1]
+      if (!category || category.startsWith('--')) {
+        console.error('Usage: node scripts/fetch-docs.mjs --assemble <category>')
+        console.error('   or: node scripts/fetch-docs.mjs --assemble --pages hooks,settings')
+        process.exit(1)
+      }
+      assembleDocContent(category, null)
+    }
+    return
+  }
+
+  // --split: 既存キャッシュのセクション分割のみ（再フェッチなし）
+  if (args.includes('--split')) {
+    console.log('Splitting cached docs into sections...\n')
+    for (const page of DOC_PAGES) {
+      const filePath = resolve(DOCS_DIR, `${page.name}.md`)
+      if (!existsSync(filePath)) {
+        console.log(`  [SKIP] ${page.name} (not cached)`)
+        continue
+      }
+      const content = readFileSync(filePath, 'utf8')
+      // メタデータヘッダーを除去
+      const markdown = content.replace(/^<!--.*?-->\n/gm, '').trim()
+      const sectionsDir = resolve(DOCS_DIR, 'sections', page.name)
+      const index = splitDocIntoSections(page.name, markdown, sectionsDir)
+      const h3Count = index.filter(s => s.h3Split).reduce((sum, s) => sum + s.h3Sections.length, 0)
+      console.log(`  [SPLIT] ${page.name}: ${index.length} sections${h3Count ? ` (+${h3Count} H3)` : ''}`)
+    }
+    return
+  }
+
   const force = args.includes('--force')
 
   // --pages filter: only fetch specified pages (comma-separated)
@@ -322,7 +620,8 @@ async function main() {
   console.log('Results:')
   for (const r of results) {
     if (r.status === 'fetched') {
-      console.log(`  [FETCHED] ${r.name} (${(r.size / 1024).toFixed(1)}KB)`)
+      const secInfo = r.sections ? `, ${r.sections} sections` : ''
+      console.log(`  [FETCHED] ${r.name} (${(r.size / 1024).toFixed(1)}KB${secInfo})`)
     } else if (r.status === 'cached') {
       console.log(`  [CACHED]  ${r.name} (${(r.size / 1024).toFixed(1)}KB)`)
     } else {

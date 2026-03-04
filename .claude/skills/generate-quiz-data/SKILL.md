@@ -30,37 +30,37 @@ IDは既存の最大番号の続きから採番してください。
 
 ## Input Source
 
-### ドキュメント事前キャッシュ（推奨）
+### ドキュメント取得
 
-**生成前に `npm run docs:fetch` でドキュメントをローカルキャッシュしておくと、WebFetch が不要になり大幅に高速化される。**
+**`--assemble --pages` コマンドでカテゴリに必要なドキュメントを一括取得する。** セクション分割済みキャッシュから効率的に読み込むため、大ファイルの Read 失敗が発生しない。
 
 ```bash
+# キャッシュが古い場合のみ実行（24h TTL）
 npm run docs:fetch          # 全ページ取得（キャッシュ済みはスキップ）
 npm run docs:status         # キャッシュ状態を確認
 ```
 
-キャッシュ先: `.claude/tmp/docs/{page-name}.md`
+**カテゴリごとのドキュメント取得:**
+```bash
+node scripts/fetch-docs.mjs --assemble --pages memory
+node scripts/fetch-docs.mjs --assemble --pages mcp,hooks,discover-plugins,sub-agents
+node scripts/fetch-docs.mjs --assemble --pages settings,checkpointing,overview,quickstart
+```
 
-キャッシュが存在する場合は Read で読み、存在しない場合のみ WebFetch する。
+このコマンドはセクション分割済みキャッシュ（`.claude/tmp/docs/sections/`）から必要な内容を結合して stdout に出力する。出力をそのままドキュメント参照として使用する。
 
-### 公式ドキュメント（16ページ + Agent SDK）
+### カテゴリ別ドキュメントページ対応表
 
-以下のページが参照元。キャッシュ済みの場合は `.claude/tmp/docs/{page-name}.md` を Read で読む。
-
-#### Core Documentation
-- overview / quickstart / settings / memory
-
-#### Interactive & Tools
-- interactive-mode / how-claude-code-works
-
-#### Extensions & Integration
-- mcp / hooks / discover-plugins / sub-agents
-
-#### Advanced Topics
-- common-workflows / checkpointing / best-practices / skills / model-config
-
-#### Agent SDK（別ドメイン）
-- agent-sdk-overview
+| カテゴリ | `--pages` 引数 |
+|---------|---------------|
+| memory | `memory` |
+| skills | `skills,how-claude-code-works` |
+| tools | `how-claude-code-works,settings` |
+| commands | `interactive-mode,quickstart,overview` |
+| extensions | `mcp,hooks,discover-plugins,sub-agents` |
+| session | `settings,checkpointing,overview,quickstart` |
+| keyboard | `interactive-mode` |
+| bestpractices | `best-practices,common-workflows,quickstart` |
 
 ## Output Format
 

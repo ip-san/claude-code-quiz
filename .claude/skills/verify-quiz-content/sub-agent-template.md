@@ -10,11 +10,10 @@
 クロスクイズ一貫性チェックが必要な場合のみ `.claude/tmp/quizzes/{CATEGORY}.json` を Read。
 **`src/data/quizzes.json` は読まないこと**（450KBの全体ファイルは不要）。
 
-## ドキュメント参照
-まず `.claude/tmp/docs/` のキャッシュ済みファイルを Read で読むこと。
-キャッシュが存在しない場合のみ WebFetch でフォールバック。
-必要なページ: {DOC_PAGES}
-（注: supplementary docs は対象問題の referenceUrl に含まれる場合のみ自動追加済み）
+## ドキュメントコンテンツ（プロンプト内に埋め込み済み — Read 不要）
+以下は検証に必要なドキュメントの内容です。**`Read` や `WebFetch` でドキュメントを取得する必要はありません。**
+
+{DOC_CONTENT}
 
 ## 検証チェックリスト
 
@@ -60,12 +59,19 @@
 - 外部知識の混入（Claude Code docs に記載のない動作を固有動作として断言）
 - ドキュメントの例示を完全リストと誤認（「e.g.」で列挙されているものは例示）
 - 「など」「等」で不完全な列挙を隠蔽（実際の件数をドキュメントで確認し、正確な数を記載するか、列挙を省略しない）
+- **multi問の correctIndices 誤認**: `type: "multi"` の問題は `correctIndex` が undefined で `correctIndices`（整数配列）を使用する。全選択肢が誤りに見えても、先に `type` フィールドを確認すること。— 「全選択肢 [wrong]」報告は偽陽性の典型
+- **wrongFeedback 構造の誤認**: wrongFeedback は「なぜその選択肢が誤りか」を説明するフィールド。選択肢テキストが「X」で wrongFeedback が「実際は X ではない」と述べるのは**正常な構造**（矛盾ではない）。wrongFeedback の内容がドキュメントと合致しているかのみを検証すること
 
 ## プロジェクト固有の既知パターン（known-issues 要約）
 - `CLAUDE_CODE_DISABLE_AUTO_MEMORY=1` で無効化OK、`=0` で有効化は根拠なし
 - `BASH_DEFAULT_TIMEOUT_MS` のデフォルト値: "Not specified"
+- `BASH_MAX_TIMEOUT_MS`: settings.md L739 に記載あり（モデルが設定できる最大タイムアウト）— 「未記載」と報告するのは偽陽性
 - `spinnerVerbs.mode` 省略時は `"append"`（`"replace"` ではない）
-- `USE_BUILTIN_RIPGREP`: settings ページ記載済み（2026-03-03 確認）。`MCP_TIMEOUT`: mcp ページに記載あり
+- `USE_BUILTIN_RIPGREP`: settings ページ記載済み（2026-03-03 確認）
+- `MCP_TIMEOUT`: サーバー起動タイムアウト（mcp ページ記載）。`MCP_TOOL_TIMEOUT`: ツール実行タイムアウト（settings ページ L809 記載）。両者は別々の変数
+- `MAX_MCP_OUTPUT_TOKENS`: デフォルト 25,000 トークン、10,000 超で警告（settings.md L804）
+- `CLAUDE_CODE_CLIENT_CERT` / `CLAUDE_CODE_CLIENT_KEY` / `CLAUDE_CODE_CLIENT_KEY_PASSPHRASE`: mTLS認証用として settings.md L745-747 に記載あり — 「未記載」と報告するのは偽陽性
+- `CLAUDE_CODE_ADDITIONAL_DIRECTORIES_CLAUDE_MD=1` は `--add-dir` フラグとの**併用必須**（単独では機能しない）
 - `defaultMode` は5値: default/acceptEdits/plan/dontAsk/bypassPermissions（permissions ページ参照）
 - `allowManagedHooksOnly: true` は user, project, **plugin** hooks を無効化（3種）
 - `Ctrl+B`: "Backgrounds bash commands **and agents**"
@@ -74,6 +80,7 @@
 - `CLAUDE_CODE_SHELL_PREFIX`: docs は "for logging or auditing" のみ
 - CLI ツール学習: ユーザーが `--help` 使用を指示（自動学習ではない）
 - Task→Agent 改名: CLI は `Agent`、Agent SDK `allowedTools` は `Task`
+- `allowed-tools` in Skills: 許可リスト（指定ツールをパーミッション確認なしで使用可）、リスト外ツールは通常のパーミッション設定に従う（使用禁止にはならない）
 
 ## referenceUrl マッピング
 | 機能カテゴリ | 推奨ページ |
