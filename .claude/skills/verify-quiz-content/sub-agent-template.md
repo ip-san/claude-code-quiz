@@ -84,6 +84,7 @@
 - `allowed-tools` in Skills: 許可リスト（指定ツールをパーミッション確認なしで使用可）、リスト外ツールは通常のパーミッション設定に従う（使用禁止にはならない）
 - `gs-NNN` プレフィックスの ID は legacy 形式として意図的に存在する。ID フォーマット違反（commands カテゴリなのに gs- 等）として報告しないこと
 - `https://platform.claude.com/docs/en/agent-sdk/...` は Agent SDK 関連問題の有効な referenceUrl。無効 URL・不適切な参照先として報告しないこと
+- `CLAUDE_CODE_EFFORT_LEVEL`（low/medium/high）: Opus 4.6 **と Sonnet 4.6** の両方でサポート。「Opus 4.6専用」は誤り — 過去に複数カテゴリで同じ誤りが残存していた
 
 ## referenceUrl マッピング
 | 機能カテゴリ | 推奨ページ |
