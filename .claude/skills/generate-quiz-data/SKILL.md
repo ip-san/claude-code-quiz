@@ -117,10 +117,22 @@ node scripts/fetch-docs.mjs --assemble --pages settings,checkpointing,overview,q
    - **機能別 referenceUrl の推奨マッピング:** `.claude/skills/verify-quiz-content/doc-references.md` を参照
 5. **日本語:** 問題文・選択肢・解説・wrongFeedbackはすべて日本語
 6. **選択肢4つ:** 各問題に正確に4つの選択肢を含める
-7. **バッククォート書式:** コード用語・ファイルパス・コマンド・環境変数・設定キーはバッククォートで囲む（ツール名・Hookイベント名・パス・env var・スラッシュコマンド・CLIフラグ・設定キー・技術用語が対象）
-   - 問題文・選択肢・解説・wrongFeedbackすべてに適用する
+7. **バッククォート書式:** コード用語・ファイルパス・コマンド・環境変数・設定キーはバッククォートで囲む
+   - **全フィールド対象:** question・options[].text・explanation・wrongFeedback すべてに漏れなく適用する
    - **URL・ファイルパス途中へのバッククォート挿入禁止:** パス・URL 全体をまとめてバッククォートで囲む
-   - 対象用語の完全リスト: `.claude/skills/verify-quiz-content/doc-references.md` を参照
+   - **同一問題内での不整合禁止:** 同じ用語が問題文ではバッククォートあり、選択肢ではなし、のような不整合を避ける
+   - **対象カテゴリ一覧:**
+     - ツール名: `Bash`, `Read`, `Edit`, `Write`, `Grep`, `Glob`, `WebFetch`, `WebSearch`, `NotebookEdit`, `TodoWrite`
+     - Hook イベント名: `PreToolUse`, `PostToolUse`, `UserPromptSubmit`, `Stop`, `SessionStart` 等
+     - ファイルパス: `CLAUDE.md`, `settings.json`, `.mcp.json`, `~/.claude/settings.json` 等
+     - 設定キー: `allowed-tools`, `defaultMode`, `allowManagedHooksOnly`, `permissions.deny` 等
+     - 環境変数: `UPPER_SNAKE_CASE` パターン全般（`CLAUDE_CODE_*`, `MAX_*`, `MCP_*`, `BASH_*` 等）
+     - スラッシュコマンド: `/compact`, `/memory`, `/model`, `/rewind` 等
+     - CLI フラグ: `--continue`, `--dangerously-skip-permissions`, `--from-pr` 等
+     - キーボードショートカット: `Ctrl+C`, `Shift+Tab`, `Alt+M` 等
+     - 技術用語: `ripgrep`, `bubblewrap`, `Seatbelt`, `stdio`, `SSE`, `mTLS` 等
+   - **生成後チェック:** `npm run quiz:lint:backtick --dry-run` で自動検出可能。生成後に必ず実行すること
+   - 完全リスト: `.claude/skills/verify-quiz-content/doc-references.md` を参照
 
 ### 暗記問題の禁止（最重要）
 
