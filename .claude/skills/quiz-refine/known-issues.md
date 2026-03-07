@@ -199,5 +199,4 @@ v4.43.0 以前の known-issues では「exit code 2 の一般ルールで UserPr
 
 ### 短い wrongFeedback（v4.46.0 時点）
 
-以下の問題は wrongFeedback が一文で終わっており、教育的価値の拡充余地がある:
-- cmd-049, cmd-057, cmd-058, cmd-062, key-001（一部エントリ）
+~~cmd-049, cmd-057, cmd-058, cmd-062, key-001~~ → v4.46.0 で修正済み（5問6エントリ拡充）
