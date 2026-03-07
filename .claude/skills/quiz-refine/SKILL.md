@@ -1,26 +1,35 @@
 ---
-name: auto-verify-fix
-description: クイズの自律検証・修正・スキル改善提案。反復回数を指定して実行。auto verify fix、自律検証
+name: quiz-refine
+description: クイズの検証・修正。--dry-run で報告のみ。quiz refine、クイズ検証、自律修正
 context: fork
-allowed-tools: Read, Edit, Write, Bash, Grep, Glob
+allowed-tools: Read, Write, Bash, Grep, Glob
 ---
 
-# Auto Verify & Fix Skill
+# Quiz Refine Skill
 
-あなたはクイズコンテンツの自律検証・修正エージェントです。
-クイズデータを公式ドキュメントと照合し、問題を**直接修正**し、スキル改善を提案します。
+あなたはクイズコンテンツの検証・修正エージェントです。
+クイズデータを公式ドキュメントと照合し、問題を検証・修正します。
 
 ## 引数パース
 
 `$ARGUMENTS` を以下のように解釈する:
 
 ```
-/auto-verify-fix 3          → iterations=3, categories=全カテゴリ
-/auto-verify-fix 2 memory   → iterations=2, categories=[memory]
-/auto-verify-fix 1 memory tools → iterations=1, categories=[memory, tools]
+/quiz-refine                     → iterations=1, categories=全, incremental, fix
+/quiz-refine 3                   → iterations=3, categories=全, incremental, fix
+/quiz-refine 2 memory tools      → iterations=2, categories=[memory, tools], incremental, fix
+/quiz-refine --dry-run           → iterations=1, categories=全, incremental, report only
+/quiz-refine --dry-run memory    → iterations=1, categories=[memory], incremental, report only
+/quiz-refine --full              → iterations=1, categories=全, full scan, fix
+/quiz-refine 3 --full            → iterations=3, categories=全, full scan, fix
+/quiz-refine --dry-run --full    → iterations=1, categories=全, full scan, report only
 ```
 
-- 最初の数値 = 反復回数（必須、1-5）
+パースルール:
+- 最初の数値 = 反復回数（省略時 1、範囲 1-5）
+- `--dry-run` = 報告のみモード（ファイル変更禁止）
+- `--full` = 全件スキャン（前回 verified-ok で変更なしの問題はスキップ）
+- `--force` = 全問強制再検証（verifyResults を無視、全問を対象にする）
 - 残り = カテゴリフィルタ（省略時は全8カテゴリ）
 - 有効カテゴリ: memory, skills, tools, commands, extensions, session, keyboard, bestpractices
 
@@ -30,6 +39,8 @@ allowed-tools: Read, Edit, Write, Bash, Grep, Glob
 
 **重要:** すべての Bash コマンドはプロジェクトルート（`package.json` がある場所）で実行すること。
 フルパスをハードコードせず、カレントディレクトリまたは相対パスを使用する。
+
+### Step 0a: lint + check + 旧レポートクリア（並列実行）
 
 以下を **並列で** 実行:
 
@@ -45,18 +56,51 @@ npm run quiz:check
 
 **Bash 3:**
 ```bash
-rm -f .claude/tmp/verify_*.json .claude/tmp/skill-proposals.md
+rm -f .claude/tmp/verify_*.json .claude/tmp/verify_*.md .claude/tmp/skill-proposals.md
 ```
 
-lint 完了後に:
+### Step 0b: 差分抽出（lint 完了後に実行）
+
+`quiz:lint` でファイルが変更された可能性があるため、**Step 0a 完了後** に実行する。
+
 ```bash
-npm run verify:diff:full
+# フラグで切替
+npm run verify:diff          # incremental（デフォルト）
+npm run verify:diff:full     # --full（verified-ok はスキップ）
+npm run verify:diff:force    # --force（全問強制再検証）
 ```
 
-次に、対象カテゴリに必要なドキュメントをキャッシュ:
+カテゴリ指定がある場合:
 ```bash
-npm run docs:fetch
+npm run verify:diff -- memory tools    # 特定カテゴリのみ
 ```
+
+### quiz:lint の結果処理
+
+- **Backtick**: 自動修正済み。修正があった場合はログに表示される
+- **URL Anchors**: レポートのみ。`invalid-anchor` や `unknown-page` があれば手動修正が必要
+- **Terminology**: レポートのみ。`skipWrongOptions` 対象は無視してよい
+
+**構造チェックまたは quiz:lint の URL/用語チェックが失敗した場合は、差分抽出の結果に関わらずまず問題を修正してください。**
+
+**注意: 複数選択問題（`type: "multi"`）は `correctIndex` の代わりに `correctIndices`（整数配列）を使用する。** このフォーマットは正規の仕様であり、構造バグではない。
+
+## Step 1: 早期終了チェック
+
+`.claude/tmp/verify-targets.json` を Read で読み込む。
+
+- `targets`: 検証が必要な問題リスト
+- `categoryDocMap`: カテゴリごとに読むべきドキュメント一覧
+- `skippedCount`: スキップされた問題数
+
+**targets が 0 件の場合**: 差分なし。「検証対象なし」と報告して**即座に終了**。
+
+targets > 0 の場合、対象カテゴリのドキュメントをキャッシュ:
+```bash
+# categoryDocMap の全ページを --pages に渡す
+node scripts/fetch-docs.mjs --pages memory,best-practices,settings
+```
+**`allDocsCached: true`** が verify-targets.json に含まれている場合、docs:fetch 自体をスキップ可能。
 
 ## 反復ループ
 
@@ -65,13 +109,12 @@ For iteration = 1..N:
   For each target category (順次処理):
     1. カテゴリ別クイズデータ読み込み
     2. 関連ドキュメント取得
-    3. 検証チェックリスト A-F 適用
-    4. 問題を直接修正
+    3. 検証チェックリスト A-H 適用
+    4. [fix mode] 問題を直接修正 / [dry-run] レポートに蓄積
     5. 修正内容と学習パターンをメモ
   End for
 
-  npm run quiz:randomize
-  npm run quiz:check
+  [fix mode] npm run quiz:randomize && npm run quiz:check
   反復サマリー出力
 End for
 ```
@@ -90,18 +133,33 @@ node scripts/fetch-docs.mjs --assemble {CATEGORY}
 ```
 stdout にドキュメント内容が出力される。
 
-**3. 検証 → 修正:**
-各問題について検証チェックリスト A-F を適用。
-- **critical/major**: `Edit` ツールで `src/data/quizzes.json` を直接修正
+**3. 検証 → 修正/報告:**
+各問題について検証チェックリスト A-H を適用。
+
+**fix mode:**
+- **critical/major**: `quiz:edit` コマンドで修正
 - **minor**: 修正するが、判断に迷う場合はスキップしてログに記録
 - **info**: ログに記録のみ（修正しない）
 
+**dry-run mode:**
+- 全 severity をレポートに蓄積（ファイル変更なし）
+- `.claude/tmp/verify_{CATEGORY}.json` にレポート保存
+
+**修正コマンド（fix mode）:**
+```bash
+# フィールド別の修正例
+node scripts/quiz-utils.mjs edit {ID} question "新しい問題文"
+node scripts/quiz-utils.mjs edit {ID} explanation "新しい解説"
+node scripts/quiz-utils.mjs edit {ID} referenceUrl "https://code.claude.com/docs/en/..."
+node scripts/quiz-utils.mjs edit {ID} option.2 "新しい選択肢テキスト"
+node scripts/quiz-utils.mjs edit {ID} wrongFeedback.1 "新しいフィードバック"
+```
+
 **修正時の注意:**
-- `Edit` ツールは `old_string` がファイル内でユニークである必要がある
-- 問題の `"id": "xxx-NNN"` の前後を含めて十分なコンテキストを指定する
 - 1問ずつ修正する（バッチ修正しない）
 - 正解選択肢に `wrongFeedback` を付けない
 - 不正解選択肢には必ず `wrongFeedback` を付ける
+- コマンドは変更前後の diff を自動出力する
 
 ### 反復間の再検証
 
@@ -111,6 +169,8 @@ iteration 2 以降では:
 - 新しいパターンを発見したら学習メモに追記
 
 ## Step Final: 後処理
+
+### fix mode
 
 全イテレーション完了後:
 
@@ -124,9 +184,20 @@ npm run verify:save
 
 テストが失敗した場合は原因を調査して修正を試みる。
 
-最後に **スキル改善提案** を `.claude/tmp/skill-proposals.md` に書き出す。
+最後に **スキル改善提案** を `.claude/tmp/skill-proposals.md` に書き出し、高・中汎用性の提案を自動マージ:
 
-## スキル改善提案の書き出し
+```bash
+node scripts/quiz-utils.mjs merge-proposals
+```
+
+### dry-run mode
+
+修正は行わないため `randomize`/`check`/`test`/`verify:save` は不要。
+レポートを出力して終了。
+
+---
+
+## スキル改善提案の書き出し（fix mode のみ）
 
 全イテレーションで観察したパターンを分析し、以下の形式で書き出す:
 
@@ -141,8 +212,8 @@ npm run verify:save
 - **観察**: どのような誤りパターンを発見したか（具体的な問題IDを含む）
 - **頻度**: 何件の問題で確認されたか
 - **提案**: SKILL.md / known-issues.md にどう反映すべきか
-- **対象ファイル**: generate-quiz-data/SKILL.md | verify-quiz-content/known-issues.md | verify-quiz-content/sub-agent-template.md
-- **汎用性**: [高/中/低] — 今後の生成・検証でも再発が予想されるか
+- **対象ファイル**: quiz-refine/SKILL.md | quiz-refine/known-issues.md | generate-quiz-data/SKILL.md
+- **汎用性**: [高/中/低]
   - 高: 構造的なパターン（生成ルールの欠如、チェックリスト項目の不足）
   - 中: 特定ドキュメントの変更に起因（ドキュメント更新時に再確認が必要）
   - 低: 個別の事実誤認（1回限りの修正で解決）
@@ -154,16 +225,18 @@ npm run verify:save
 ```
 
 **重要**: 汎用性「低」の提案は参考情報として記録するだけで、スキル更新は不要。
-汎用性「高」「中」のみがスキル更新の候補。
 
-## 最終サマリー
+---
 
-処理完了後、以下を出力:
+## 出力形式
+
+### fix mode — 最終サマリー
 
 ```
-## Auto Verify & Fix Complete
+## Quiz Refine Complete
 - Iterations: N
 - Categories processed: [list]
+- Mode: fix (incremental|full)
 - Fixes applied: X (critical: N, major: N, minor: N)
 - Skipped (info): N
 - Test result: PASS/FAIL
@@ -171,10 +244,9 @@ npm run verify:save
 - Proposals file: .claude/tmp/skill-proposals.md
 ```
 
-## 修正レポート（必須）
+### fix mode — 修正レポート（必須）
 
-**重要:** 修正を行った場合、最終サマリーの後に必ず修正した問題の一覧と解説を出力すること。
-ユーザーがレビューしやすいように、以下の形式で出力する:
+修正を行った場合、最終サマリーの後に修正した問題の一覧と解説を出力する:
 
 ```markdown
 ## 修正一覧
@@ -198,7 +270,6 @@ npm run verify:save
 |---------|------|------|
 | wrongFeedback品質改善 | 短すぎる説明を具体的情報に拡充 | N |
 | 事実誤り修正 | ドキュメントと不一致の記述を修正 | N |
-| 用語修正 | 正式名称・正しい表記に統一 | N |
 
 ## カテゴリ別件数
 
@@ -206,10 +277,32 @@ npm run verify:save
 |---------|------|
 | session | N |
 | extensions | N |
-| ... | ... |
 ```
 
 修正0件の場合は「修正なし - 全問題がドキュメントと一致」と出力する。
+
+### dry-run mode — レポート
+
+```markdown
+## 検証結果サマリー
+
+- Mode: dry-run (incremental|full)
+- 検証対象: X問 (スキップ: Y問)
+
+### Critical Issues (修正必須)
+
+| Quiz ID | 問題内容 | 現在の内容 | 正しい内容 | 参照元 |
+|---------|---------|-----------|-----------|--------|
+
+### Major Issues
+### Minor Issues
+### Info（品質改善提案）
+```
+
+問題なしの場合:
+```
+✅ 全 [N] 問の検証が完了しました。重大な問題は見つかりませんでした。
+```
 
 ---
 
@@ -249,6 +342,18 @@ npm run verify:save
 ### F. wrongFeedback 品質
 - 「`X`ではありません。」だけの一行は品質不足（severity: info で記録のみ）
 - 正しいショートカット/コマンドが何かを教える内容であるべき
+
+### G. 解説の教育的価値
+- explanation が正解の言い換えだけでなく、**なぜそうなのか**（仕組み・背景）を含んでいるか
+- 不正解選択肢が間違いである理由に触れているか（全てでなくても代表的な誤解に言及）
+- 学習者が「次回同様の問題を見たとき判断できる知識」を得られる内容か
+- **severity:** critical=10文字以下, major=正解のリフレーズのみ（理由なし）, info=理由あるが他選択肢に触れず
+
+### H. 不正解選択肢の妥当性（Distractor Quality）
+- 各不正解選択肢が「ありそうだが間違い」の水準を満たしているか
+- 正解だけが著しく長い/具体的で、不正解が明らかに雑なフィラーになっていないか
+- 技術的に全く関係のない選択肢がないか
+- **severity: info**（機械チェック `quiz:lint distractor` と併用）
 
 ---
 

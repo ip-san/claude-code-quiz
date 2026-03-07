@@ -54,33 +54,19 @@ npm run quiz:randomize # correctIndex ランダム化
 2. `npm run quiz:check` で品質チェック
 3. `npm test` でテスト通過確認
 
-### /verify-quiz-content
+### /quiz-refine
 
-クイズ内容と公式ドキュメントの整合性を検証するスキル。
-
-**使用方法:**
-```
-/verify-quiz-content              # 全カテゴリ検証
-/verify-quiz-content memory       # 特定カテゴリのみ
-```
-
-### /auto-verify-fix
-
-クイズの自律検証・修正・スキル改善提案スキル。`context: fork` で独立エージェントとして実行。
+クイズの検証・修正スキル。`context: fork` で独立エージェントとして実行。
 
 **使用方法:**
 ```
-/auto-verify-fix 3              # 全カテゴリ3イテレーション
-/auto-verify-fix 2 memory       # memoryのみ2イテレーション
-/auto-verify-fix 1 memory tools # memory+toolsを1イテレーション
+/quiz-refine                    # 1回, 全カテゴリ, 差分検証+修正
+/quiz-refine 3                  # 3回反復, 全カテゴリ
+/quiz-refine 2 memory tools     # 2回反復, 指定カテゴリのみ
+/quiz-refine --dry-run          # 報告のみ（修正しない）
+/quiz-refine --full             # 全件スキャン（差分ではなく全問）
+/quiz-refine --dry-run --full   # 全件スキャン+報告のみ
 ```
-
-**動作:**
-1. lint + docs:fetch + verify:diff で前処理
-2. カテゴリ順次処理: ドキュメント照合 → 直接修正
-3. 各イテレーション後に randomize + check
-4. 最終: npm test + verify:save
-5. `.claude/tmp/skill-proposals.md` にスキル改善提案を書き出し
 
 **完了後の手順:**
 1. `git diff` で修正内容をレビュー

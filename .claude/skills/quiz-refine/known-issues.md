@@ -36,6 +36,7 @@
 ## モデル固有機能のスコープ
 
 - エフォートレベル調整（`CLAUDE_CODE_EFFORT_LEVEL`: low/medium/high）は Opus 4.6 **と Sonnet 4.6** の両方でサポート。「Opus 4.6専用」は誤り
+- **Opus 4.6 のデフォルトは Max/Team サブスクライバーでは `medium`**（`high` ではない）。model-config ページに "Opus 4.6 defaults to medium effort for Max and Team subscribers" と明記
 - `MAX_THINKING_TOKENS`（非ゼロ値）は Opus/Sonnet 4.6 ではアダプティブ推論中は無視される — `CLAUDE_CODE_DISABLE_ADAPTIVE_THINKING=1` を設定した上でのみ有効
 - **ただし `MAX_THINKING_TOKENS=0` はどのモデルでも thinking を完全に無効化できる例外** — docs: "The one exception: setting MAX_THINKING_TOKENS=0 still disables thinking entirely on any model."
 - **Opus 4.6 の推論機能の正式用語は「adaptive reasoning」** — model-config ページは "Extended Thinking" を使わず "effort levels control Opus 4.6's adaptive reasoning" と表現する。quiz の question/explanation で "Extended Thinking" と書くのは用語の不一致（v4.41.0 bp-018 で修正）
@@ -164,3 +165,7 @@ v4.43.0 以前の known-issues では「exit code 2 の一般ルールで UserPr
 
 - CLI ツールの学習: ドキュメントは "Try prompts like `Use 'foo-cli-tool --help' to learn about foo tool`" とユーザーが指示する形。「自動的に学習できる」は誤帰属（Claude が自発的に --help を実行するわけではない）
 - 「インストール」と「起動」: `claude` コマンドはインストール済みの状態で**起動**するコマンド。インストールは npm/curl/Homebrew 等が行う
+
+## effort level default value
+
+- ses-045とses-102の両方がeffort levelのデフォルト値を"high"と記述していたが、ドキュメント(model-config)では「Opus 4.6 defaults to medium effort for Max and Team subscribers」と明記されている → known-issues.mdに「`CLAUDE_CODE_EFFORT_LEVEL`: Opus 4.6のデフォルトはMax/TeamサブスクライバーではmediumM（highではない）」を追加

@@ -114,7 +114,7 @@ node scripts/fetch-docs.mjs --assemble --pages settings,checkpointing,overview,q
    - `https://platform.claude.com/docs/en/agent-sdk/overview` — Agent SDK関連
    - **referenceUrl は問題内容に最も直接的なページを選ぶ:** `quickstart` や `overview` は概要ページであり、機能の詳細を問う問題には機能専用ページ（`memory`・`best-practices`・`discover-plugins`・`hooks` 等）を参照すること（例: CLAUDE.md 肥大化対処法の問題 → `memory` ページ。ベストプラクティスの問題 → `best-practices` ページ）
    - **`overview` / `quickstart` は使わないことを原則とする:** これらは機能の全体概要・導入手順ページであり、特定機能（セッション管理・フック・スキル・CI/CD統合・テレポート等）を問う問題には適さない。セッション再開なら `interactive-mode`、CI/CD統合なら `common-workflows`、CLAUDE.md なら `memory` のように機能専用ページを選ぶこと
-   - **機能別 referenceUrl の推奨マッピング:** `.claude/skills/verify-quiz-content/doc-references.md` を参照
+   - **機能別 referenceUrl の推奨マッピング:** `.claude/skills/quiz-refine/doc-references.md` を参照
 5. **日本語:** 問題文・選択肢・解説・wrongFeedbackはすべて日本語
 6. **選択肢4つ:** 各問題に正確に4つの選択肢を含める
 7. **バッククォート書式:** コード用語・ファイルパス・コマンド・環境変数・設定キーはバッククォートで囲む
@@ -132,7 +132,7 @@ node scripts/fetch-docs.mjs --assemble --pages settings,checkpointing,overview,q
      - キーボードショートカット: `Ctrl+C`, `Shift+Tab`, `Alt+M` 等
      - 技術用語: `ripgrep`, `bubblewrap`, `Seatbelt`, `stdio`, `SSE`, `mTLS` 等
    - **生成後チェック:** `npm run quiz:lint:backtick --dry-run` で自動検出可能。生成後に必ず実行すること
-   - 完全リスト: `.claude/skills/verify-quiz-content/doc-references.md` を参照
+   - 完全リスト: `.claude/skills/quiz-refine/doc-references.md` を参照
 
 ### 暗記問題の禁止（最重要）
 
@@ -235,7 +235,7 @@ npm run quiz:search -- "キーワード"  # 特定トピックの既存問題を
 7. **条件固有の動作の一般化:** ある条件での動作が別の条件にも適用できるとは限らない（例: Hook exit code 2 の送信先はイベントにより異なる）
 8. **referenceUrl に新ページを使う場合:** `src/infrastructure/validation/quizContentQuality.test.ts` の `VALID_DOC_PAGES` リストに追加が必要（`npm test` が失敗する）
 
-> 検証ラウンドで蓄積された具体例・教訓は verify スキルの `known-issues.md` を参照
+> 検証ラウンドで蓄積された具体例・教訓は quiz-refine スキルの `known-issues.md` を参照
 
 ### 内部一貫性チェック（生成直後に必ず確認）
 

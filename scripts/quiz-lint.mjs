@@ -12,6 +12,8 @@
  *   node scripts/quiz-lint.mjs backtick --dry-run  # 修正せずレポートのみ
  *   node scripts/quiz-lint.mjs url                 # referenceUrl アンカー検証
  *   node scripts/quiz-lint.mjs terminology         # 用語辞書チェック
+ *   node scripts/quiz-lint.mjs distractor          # 不正解選択肢の質チェック
+ *   node scripts/quiz-lint.mjs difficulty           # difficulty ラベル妥当性チェック
  *   node scripts/quiz-lint.mjs all                 # 全チェック実行
  *   node scripts/quiz-lint.mjs all --dry-run       # 全チェック（修正なし）
  */
@@ -635,6 +637,189 @@ function printQualityReport(issues) {
 }
 
 // ============================================================
+// 5. Distractor Quality Lint
+// ============================================================
+
+function lintDistractors(quizzes) {
+  const issues = []
+
+  for (const quiz of quizzes) {
+    // Skip multi-select (no single correctIndex)
+    if (quiz.type === 'multi') continue
+    const ci = quiz.correctIndex
+
+    const correctLen = quiz.options[ci].text.length
+    const wrongOpts = quiz.options.filter((_, i) => i !== ci)
+    const wrongLens = wrongOpts.map(o => o.text.length)
+    const avgWrongLen = wrongLens.reduce((s, v) => s + v, 0) / wrongLens.length
+
+    // Rule 1: Correct answer conspicuously longer than wrong options
+    if (correctLen > avgWrongLen * 2 && correctLen > 30) {
+      issues.push({
+        id: quiz.id,
+        type: 'correct-too-long',
+        message: `正解(${correctLen}文字)が不正解の平均(${Math.round(avgWrongLen)}文字)の2倍以上`,
+      })
+    }
+
+    // Rule 2: Wrong option too short to be plausible
+    quiz.options.forEach((opt, i) => {
+      if (i === ci) return
+      if (opt.text.length < 8) {
+        issues.push({
+          id: quiz.id,
+          type: 'distractor-too-short',
+          message: `options[${i}] が短すぎる(${opt.text.length}文字): "${opt.text}"`,
+        })
+      }
+    })
+
+    // Rule 3: Only correct answer has backtick-formatted terms
+    const correctHasBacktick = /`[^`]+`/.test(quiz.options[ci].text)
+    const wrongsWithBacktick = wrongOpts.filter(o => /`[^`]+`/.test(o.text))
+    if (correctHasBacktick && wrongsWithBacktick.length === 0) {
+      issues.push({
+        id: quiz.id,
+        type: 'format-giveaway',
+        message: '正解のみバッククォート含有、不正解は全てプレーンテキスト',
+      })
+    }
+
+    // Rule 4: Large variance among wrong option lengths
+    if (wrongLens.length >= 3) {
+      const minWrong = Math.min(...wrongLens)
+      const maxWrong = Math.max(...wrongLens)
+      if (maxWrong > minWrong * 4 && maxWrong > 40) {
+        issues.push({
+          id: quiz.id,
+          type: 'distractor-variance',
+          message: `不正解間の長さ差が大きい(${minWrong}〜${maxWrong}文字)`,
+        })
+      }
+    }
+  }
+
+  return issues
+}
+
+function printDistractorReport(issues) {
+  if (issues.length === 0) {
+    console.log('  No distractor issues found.')
+    return
+  }
+
+  const byType = {}
+  for (const issue of issues) {
+    if (!byType[issue.type]) byType[issue.type] = []
+    byType[issue.type].push(issue)
+  }
+
+  console.log(`  ${issues.length} distractor issues:\n`)
+  for (const [type, typeIssues] of Object.entries(byType)) {
+    console.log(`  [${type}] (${typeIssues.length})`)
+    for (const issue of typeIssues) {
+      console.log(`    ${issue.id}: ${issue.message}`)
+    }
+  }
+}
+
+// ============================================================
+// 6. Difficulty Validation Lint
+// ============================================================
+
+const BEGINNER_SIGNALS = [
+  /どのファイル(に|を|で|が)/,
+  /^[^。]{0,30}何ですか/,
+  /どれですか$/,
+  /として正しいのはどれ/,
+  /特徴として/,
+  /最も(基本的な|適切な)/,
+]
+
+const ADVANCED_SIGNALS = [
+  /ない(もの|こと)?は(どれ|どの)/,   // NOT-type questions
+  /以下.*すべて/,                      // "all of the following"
+  /組み合わせ/,                        // combination
+  /かつ.*場合/,                        // multi-condition
+  /exit\s*(code\s*)?\d+/i,            // specific exit codes
+  /(\d+)つ.*条件/,                     // N conditions
+]
+
+function assessComplexity(quiz) {
+  const q = quiz.question
+  let score = 0
+
+  // Question length
+  if (q.length > 120) score += 1
+  if (q.length > 200) score += 1
+  if (q.length < 50) score -= 1
+
+  // Scenario-based
+  if (/場合|状況|シナリオ/.test(q)) score += 1
+
+  // Beginner signals
+  for (const p of BEGINNER_SIGNALS) {
+    if (p.test(q)) { score -= 1; break }
+  }
+
+  // Advanced signals
+  for (const p of ADVANCED_SIGNALS) {
+    if (p.test(q)) { score += 1; break }
+  }
+
+  // Technical density: backtick term count
+  const btCount = (q.match(/`[^`]+`/g) || []).length
+  if (btCount >= 3) score += 1
+
+  return score
+}
+
+function lintDifficulty(quizzes) {
+  const issues = []
+  const LEVEL_MAP = { beginner: 0, intermediate: 1, advanced: 2 }
+  const LEVEL_NAMES = ['beginner', 'intermediate', 'advanced']
+
+  for (const quiz of quizzes) {
+    const score = assessComplexity(quiz)
+    const labeled = quiz.difficulty
+    const labeledLevel = LEVEL_MAP[labeled] ?? 1
+
+    let expectedLevel
+    if (score <= -1) expectedLevel = 0      // beginner
+    else if (score >= 2) expectedLevel = 2  // advanced
+    else expectedLevel = 1                  // intermediate
+
+    const gap = Math.abs(labeledLevel - expectedLevel)
+    if (gap >= 2) {
+      issues.push({
+        id: quiz.id,
+        type: 'difficulty-mismatch',
+        labeled,
+        expected: LEVEL_NAMES[expectedLevel],
+        score,
+        message: `difficulty="${labeled}" だが内容は "${LEVEL_NAMES[expectedLevel]}" レベル (score=${score})`,
+        question: quiz.question.slice(0, 70),
+      })
+    }
+  }
+
+  return issues
+}
+
+function printDifficultyReport(issues) {
+  if (issues.length === 0) {
+    console.log('  No difficulty mismatches found.')
+    return
+  }
+
+  console.log(`  ${issues.length} difficulty mismatches:\n`)
+  for (const issue of issues) {
+    console.log(`  ${issue.id} [${issue.labeled} → ${issue.expected}, score=${issue.score}]`)
+    console.log(`    Q: ${issue.question}`)
+  }
+}
+
+// ============================================================
 // Output Formatting
 // ============================================================
 
@@ -701,9 +886,9 @@ const args = process.argv.slice(2)
 const command = args[0] || 'all'
 const dryRun = args.includes('--dry-run')
 
-if (!['backtick', 'url', 'terminology', 'quality', 'filter-report', 'all'].includes(command)) {
+if (!['backtick', 'url', 'terminology', 'quality', 'distractor', 'difficulty', 'filter-report', 'all'].includes(command)) {
   console.log('Usage: node scripts/quiz-lint.mjs <command> [--dry-run]')
-  console.log('Commands: backtick, url, terminology, quality, filter-report <path>, all')
+  console.log('Commands: backtick, url, terminology, quality, distractor, difficulty, filter-report <path>, all')
   process.exit(1)
 }
 
@@ -753,6 +938,22 @@ if (command === 'quality' || command === 'all') {
   const qualityIssues = lintQuality(data.quizzes)
   printQualityReport(qualityIssues)
   if (qualityIssues.length > 0) hasIssues = true
+  console.log()
+}
+
+if (command === 'distractor' || command === 'all') {
+  console.log('[Distractor]')
+  const distractorIssues = lintDistractors(data.quizzes)
+  printDistractorReport(distractorIssues)
+  if (distractorIssues.length > 0) hasIssues = true
+  console.log()
+}
+
+if (command === 'difficulty' || command === 'all') {
+  console.log('[Difficulty]')
+  const difficultyIssues = lintDifficulty(data.quizzes)
+  printDifficultyReport(difficultyIssues)
+  if (difficultyIssues.length > 0) hasIssues = true
   console.log()
 }
 

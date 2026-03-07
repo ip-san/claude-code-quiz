@@ -22,6 +22,7 @@
 import { writeFileSync, readFileSync, mkdirSync, existsSync, statSync, rmSync } from 'fs'
 import { resolve, dirname } from 'path'
 import { fileURLToPath } from 'url'
+import { CATEGORY_DOC_MAP } from './quiz-constants.mjs'
 
 const __dirname = dirname(fileURLToPath(import.meta.url))
 const ROOT = resolve(__dirname, '..')
@@ -504,6 +505,104 @@ function showStatus() {
 }
 
 /**
+ * Check for doc updates by comparing cached hashes with live content.
+ * Reports which pages changed and how many quiz questions are affected.
+ */
+async function checkUpdates() {
+  // Load verify-state for stored doc hashes
+  const STATE_PATH = resolve(ROOT, '.claude/tmp/verify-state.json')
+  let storedHashes = {}
+  if (existsSync(STATE_PATH)) {
+    try {
+      const state = JSON.parse(readFileSync(STATE_PATH, 'utf8'))
+      storedHashes = state.docHashes || {}
+    } catch { /* ignore */ }
+  }
+
+  // Load quiz data for impact counting
+  const QUIZ_PATH = resolve(ROOT, 'src/data/quizzes.json')
+  const quizData = JSON.parse(readFileSync(QUIZ_PATH, 'utf8'))
+
+  // Build reverse mapping: doc → categories
+  const docCategories = {}
+  for (const [cat, docs] of Object.entries(CATEGORY_DOC_MAP)) {
+    for (const doc of docs) {
+      if (!docCategories[doc]) docCategories[doc] = []
+      docCategories[doc].push(cat)
+    }
+  }
+
+  console.log('Checking for documentation updates...\n')
+
+  // Fetch all pages fresh (ignore TTL)
+  mkdirSync(DOCS_DIR, { recursive: true })
+  const results = []
+  const BATCH_SIZE = 5
+
+  for (let i = 0; i < DOC_PAGES.length; i += BATCH_SIZE) {
+    const batch = DOC_PAGES.slice(i, i + BATCH_SIZE)
+    const batchResults = await Promise.all(batch.map(p => fetchPage(p, true)))
+    results.push(...batchResults)
+    process.stdout.write(`\r  Progress: ${Math.min(i + BATCH_SIZE, DOC_PAGES.length)}/${DOC_PAGES.length}`)
+    if (i + BATCH_SIZE < DOC_PAGES.length) {
+      await new Promise(r => setTimeout(r, 500))
+    }
+  }
+  console.log('\n')
+
+  // Compare hashes
+  const { createHash } = await import('crypto')
+  const changed = []
+  const unchanged = []
+  const errors = results.filter(r => r.status === 'error')
+
+  for (const r of results) {
+    if (r.status === 'error') continue
+    const filePath = resolve(DOCS_DIR, `${r.name}.md`)
+    const content = readFileSync(filePath, 'utf8')
+    const body = content.replace(/^<!--.*?-->\n/gm, '').trim()
+    const currentHash = createHash('sha256').update(body).digest('hex').slice(0, 16)
+    const storedHash = storedHashes[r.name]
+
+    if (!storedHash || currentHash !== storedHash) {
+      changed.push(r.name)
+    } else {
+      unchanged.push(r.name)
+    }
+  }
+
+  // Report
+  console.log('Doc Change Report:\n')
+
+  if (changed.length === 0 && errors.length === 0) {
+    console.log('  All pages unchanged since last verification.')
+    return
+  }
+
+  for (const name of changed) {
+    const cats = docCategories[name] || []
+    const affectedQuizzes = quizData.quizzes.filter(q => cats.includes(q.category))
+    console.log(`  CHANGED: ${name} (affects ${affectedQuizzes.length} questions in: ${cats.join(', ') || 'none'})`)
+  }
+
+  for (const r of errors) {
+    console.log(`  ERROR:   ${r.name}: ${r.error}`)
+  }
+
+  console.log(`\n  ${unchanged.length} unchanged, ${changed.length} changed, ${errors.length} errors`)
+
+  if (changed.length > 0) {
+    const totalAffected = new Set()
+    for (const name of changed) {
+      const cats = docCategories[name] || []
+      quizData.quizzes.filter(q => cats.includes(q.category)).forEach(q => totalAffected.add(q.id))
+    }
+    console.log(`\n  Total affected questions: ${totalAffected.size}`)
+    console.log(`  Run \`/quiz-refine\` to verify affected questions.`)
+  }
+}
+
+/**
  * Main
  */
 async function main() {
@@ -560,6 +659,12 @@ async function main() {
       const h3Count = index.filter(s => s.h3Split).reduce((sum, s) => sum + s.h3Sections.length, 0)
       console.log(`  [SPLIT] ${page.name}: ${index.length} sections${h3Count ? ` (+${h3Count} H3)` : ''}`)
     }
+    return
+  }
+
+  // --check-updates: compare cached docs against live versions
+  if (args.includes('--check-updates')) {
+    await checkUpdates()
     return
   }
 

@@ -9,7 +9,8 @@
  *
  * Usage:
  *   node scripts/verify-state.mjs diff              # 差分のみ抽出（デフォルト）
- *   node scripts/verify-state.mjs diff --full        # 全問再検証（フルスキャン）
+ *   node scripts/verify-state.mjs diff --full        # 全問再検証（verified-ok はスキップ）
+ *   node scripts/verify-state.mjs diff --force       # 全問強制再検証（verifyResults 無視）
  *   node scripts/verify-state.mjs diff memory tools  # 特定カテゴリのみ
  *   node scripts/verify-state.mjs save               # 検証完了後に状態を保存
  *   node scripts/verify-state.mjs status             # 現在の状態を表示
@@ -23,6 +24,7 @@ import { readFileSync, writeFileSync, existsSync, mkdirSync, statSync } from 'fs
 import { resolve, dirname } from 'path'
 import { fileURLToPath } from 'url'
 import { createHash } from 'crypto'
+import { CATEGORY_DOC_MAP, SUPPLEMENTARY_DOCS } from './quiz-constants.mjs'
 
 const __dirname = dirname(fileURLToPath(import.meta.url))
 const ROOT = resolve(__dirname, '..')
@@ -31,26 +33,6 @@ const DOCS_DIR = resolve(ROOT, '.claude/tmp/docs')
 const STATE_PATH = resolve(ROOT, '.claude/tmp/verify-state.json')
 const TARGETS_PATH = resolve(ROOT, '.claude/tmp/verify-targets.json')
 const QUIZ_SPLIT_DIR = resolve(ROOT, '.claude/tmp/quizzes')
-
-// ============================================================
-// Category → Document Mapping
-// ============================================================
-// Each category maps to the doc pages its questions primarily reference.
-// This allows sub-agents to read ONLY relevant docs instead of all 19.
-
-const CATEGORY_DOC_MAP = {
-  memory: ['memory', 'best-practices', 'settings'],
-  skills: ['skills', 'sub-agents', 'best-practices'],
-  tools: ['how-claude-code-works', 'interactive-mode', 'sub-agents'],
-  commands: ['interactive-mode', 'cli-reference', 'common-workflows'],
-  extensions: ['mcp', 'hooks', 'discover-plugins', 'settings'],
-  session: ['how-claude-code-works', 'common-workflows', 'checkpointing', 'settings'],
-  keyboard: ['interactive-mode', 'common-workflows'],
-  bestpractices: ['best-practices', 'model-config', 'common-workflows', 'sandboxing'],
-}
-
-// Supplementary docs always available for cross-reference
-const SUPPLEMENTARY_DOCS = ['settings', 'permissions', 'overview', 'agent-sdk-overview']
 
 // Section selection for large docs (> 40KB).
 // Maps category → doc → H2 section slugs to include.
@@ -133,9 +115,11 @@ function hashDocFile(docName) {
 
 function loadState() {
   if (!existsSync(STATE_PATH)) {
-    return { quizHashes: {}, docHashes: {}, lastVerified: null }
+    return { quizHashes: {}, docHashes: {}, verifyResults: {}, lastVerified: null }
   }
-  return JSON.parse(readFileSync(STATE_PATH, 'utf8'))
+  const state = JSON.parse(readFileSync(STATE_PATH, 'utf8'))
+  if (!state.verifyResults) state.verifyResults = {}
+  return state
 }
 
 function saveState(state) {
@@ -147,7 +131,7 @@ function saveState(state) {
 // Diff Logic
 // ============================================================
 
-function computeDiff(categories, fullScan) {
+function computeDiff(categories, fullScan, forceScan) {
   const data = JSON.parse(readFileSync(QUIZ_PATH, 'utf8'))
   const state = loadState()
 
@@ -158,6 +142,13 @@ function computeDiff(categories, fullScan) {
   SUPPLEMENTARY_DOCS.forEach(d => allDocNames.add(d))
   for (const docName of allDocNames) {
     currentDocHashes[docName] = hashDocFile(docName)
+  }
+
+  // Build per-category combined doc hash for verifyResults comparison
+  const categoryDocHashMap = {}
+  for (const [cat, docs] of Object.entries(CATEGORY_DOC_MAP)) {
+    const combined = docs.map(d => currentDocHashes[d] || '').join(':')
+    categoryDocHashMap[cat] = hashString(combined)
   }
 
   // Find which docs changed since last verification
@@ -183,24 +174,36 @@ function computeDiff(categories, fullScan) {
     const currentHash = hashQuiz(quiz)
     const previousHash = state.quizHashes[quiz.id]
 
+    if (forceScan) {
+      // --force: ignore verifyResults, re-verify everything
+      needsVerification.push({ ...quizRef(quiz), reason: 'force-scan' })
+      continue
+    }
+
     if (fullScan) {
+      // --full: skip questions that are verified-ok with matching hashes
+      const vr = state.verifyResults[quiz.id]
+      if (vr && vr.status === 'ok'
+        && previousHash && currentHash === previousHash
+        && vr.docHash === categoryDocHashMap[quiz.category]) {
+        skippable.push({ ...quizRef(quiz), reason: 'verified-ok' })
+        continue
+      }
       needsVerification.push({ ...quizRef(quiz), reason: 'full-scan' })
       continue
     }
 
-    // New question (no previous hash)
+    // Incremental mode
     if (!previousHash) {
       needsVerification.push({ ...quizRef(quiz), reason: 'new' })
       continue
     }
 
-    // Quiz content changed
     if (currentHash !== previousHash) {
       needsVerification.push({ ...quizRef(quiz), reason: 'content-changed' })
       continue
     }
 
-    // Referenced docs changed
     const categoryDocs = CATEGORY_DOC_MAP[quiz.category] || []
     const hasDocChange = categoryDocs.some(doc => changedDocs.has(doc))
     if (hasDocChange) {
@@ -216,6 +219,7 @@ function computeDiff(categories, fullScan) {
     skipped: skippable,
     changedDocs: [...changedDocs],
     currentDocHashes,
+    categoryDocHashMap,
     categories: targetCategories,
   }
 }
@@ -230,9 +234,10 @@ function quizRef(quiz) {
 
 function cmdDiff(args) {
   const fullScan = args.includes('--full')
+  const forceScan = args.includes('--force')
   const categories = args.filter(a => !a.startsWith('--'))
 
-  const result = computeDiff(categories, fullScan)
+  const result = computeDiff(categories, fullScan, forceScan)
 
   // Group targets by category
   const byCategory = {}
@@ -243,8 +248,10 @@ function cmdDiff(args) {
 
   console.log('=== Verification Diff ===\n')
 
-  if (fullScan) {
-    console.log('Mode: FULL SCAN (--full)\n')
+  if (forceScan) {
+    console.log('Mode: FORCE SCAN (--force, ignoring verifyResults)\n')
+  } else if (fullScan) {
+    console.log('Mode: FULL SCAN (--full, skipping verified-ok)\n')
   } else {
     console.log('Mode: INCREMENTAL (diff)\n')
   }
@@ -378,9 +385,40 @@ function cmdSave() {
   const data = JSON.parse(readFileSync(QUIZ_PATH, 'utf8'))
   const state = loadState()
 
+  // Load previous targets to determine which questions were verified this round
+  let previousTargetIds = new Set()
+  if (existsSync(TARGETS_PATH)) {
+    try {
+      const targets = JSON.parse(readFileSync(TARGETS_PATH, 'utf8'))
+      previousTargetIds = new Set(targets.targets.map(t => t.id))
+    } catch { /* ignore parse errors */ }
+  }
+
+  // Compute current hashes for verifyResults
+  const currentQuizHashes = {}
+  for (const quiz of data.quizzes) {
+    currentQuizHashes[quiz.id] = hashQuiz(quiz)
+  }
+
+  // Build per-category combined doc hash
+  const currentDocHashes = {}
+  const allDocNames = new Set()
+  Object.values(CATEGORY_DOC_MAP).flat().forEach(d => allDocNames.add(d))
+  SUPPLEMENTARY_DOCS.forEach(d => allDocNames.add(d))
+  for (const docName of allDocNames) {
+    const hash = hashDocFile(docName)
+    if (hash) currentDocHashes[docName] = hash
+  }
+
+  const categoryDocHashMap = {}
+  for (const [cat, docs] of Object.entries(CATEGORY_DOC_MAP)) {
+    const combined = docs.map(d => currentDocHashes[d] || '').join(':')
+    categoryDocHashMap[cat] = hashString(combined)
+  }
+
   // Update quiz hashes
   for (const quiz of data.quizzes) {
-    state.quizHashes[quiz.id] = hashQuiz(quiz)
+    state.quizHashes[quiz.id] = currentQuizHashes[quiz.id]
   }
 
   // Remove hashes for deleted quizzes
@@ -388,24 +426,52 @@ function cmdSave() {
   for (const id of Object.keys(state.quizHashes)) {
     if (!currentIds.has(id)) {
       delete state.quizHashes[id]
+      delete state.verifyResults[id]
+    }
+  }
+
+  // Update verifyResults for questions that were targets this round
+  let okCount = 0
+  let fixedCount = 0
+  const now = new Date().toISOString()
+
+  for (const quiz of data.quizzes) {
+    if (!previousTargetIds.has(quiz.id)) continue
+
+    const prevHash = state.verifyResults[quiz.id]?.savedQuizHash
+    const currentHash = currentQuizHashes[quiz.id]
+
+    if (prevHash && currentHash !== prevHash) {
+      // Quiz was modified during this verification round → fixed
+      state.verifyResults[quiz.id] = {
+        status: 'fixed',
+        docHash: categoryDocHashMap[quiz.category],
+        savedQuizHash: currentHash,
+        checkedAt: now,
+      }
+      fixedCount++
+    } else {
+      // Quiz was not modified → verified ok
+      state.verifyResults[quiz.id] = {
+        status: 'ok',
+        docHash: categoryDocHashMap[quiz.category],
+        savedQuizHash: currentHash,
+        checkedAt: now,
+      }
+      okCount++
     }
   }
 
   // Update doc hashes
-  const allDocNames = new Set()
-  Object.values(CATEGORY_DOC_MAP).flat().forEach(d => allDocNames.add(d))
-  SUPPLEMENTARY_DOCS.forEach(d => allDocNames.add(d))
-  for (const docName of allDocNames) {
-    const hash = hashDocFile(docName)
-    if (hash) state.docHashes[docName] = hash
-  }
+  state.docHashes = { ...state.docHashes, ...currentDocHashes }
 
-  state.lastVerified = new Date().toISOString()
+  state.lastVerified = now
   saveState(state)
 
   console.log(`Verification state saved.`)
   console.log(`  Quizzes tracked: ${Object.keys(state.quizHashes).length}`)
   console.log(`  Doc pages tracked: ${Object.keys(state.docHashes).length}`)
+  console.log(`  Verify results: ${Object.keys(state.verifyResults).length} (${okCount} ok, ${fixedCount} fixed this round)`)
   console.log(`  Timestamp: ${state.lastVerified}`)
 }
 
@@ -479,6 +545,6 @@ switch (command) {
   case 'mapping': cmdMapping(); break
   default:
     console.log('Usage: node scripts/verify-state.mjs <command>')
-    console.log('Commands: diff, diff --full, save, status, mapping')
+    console.log('Commands: diff, diff --full, diff --force, save, status, mapping')
     process.exit(1)
 }
