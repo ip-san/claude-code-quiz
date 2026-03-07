@@ -48,6 +48,11 @@
 - 環境変数=値: `ENV_VAR`=1 ではなく `ENV_VAR=1`（=値も含めてバッククォート内）
 - プレースホルダー引数: [issue-number] → `[issue-number]`。コード要素としてバッククォート必要
 
+### F. wrongFeedback 品質
+wrongFeedback が学習効果のある説明になっているか。
+- 「`X`ではありません。」だけの一行 wrongFeedback は品質不足（severity: info, type: quality で報告）
+- 正しいショートカット/コマンドが何かを教える内容であるべき（例: 「`Ctrl+E`は行末へのカーソル移動です。〜には`Ctrl+K`を使います。」）
+
 ## よくある誤りパターン
 - ドキュメントで確認できない機能を含めてしまう
 - 列挙の「数」が古い（設定スコープ・Hookイベント等）
@@ -85,6 +90,8 @@
 - `gs-NNN` プレフィックスの ID は legacy 形式として意図的に存在する。ID フォーマット違反（commands カテゴリなのに gs- 等）として報告しないこと
 - `https://platform.claude.com/docs/en/agent-sdk/...` は Agent SDK 関連問題の有効な referenceUrl。無効 URL・不適切な参照先として報告しないこと
 - `CLAUDE_CODE_EFFORT_LEVEL`（low/medium/high）: Opus 4.6 **と Sonnet 4.6** の両方でサポート。「Opus 4.6専用」は誤り — 過去に複数カテゴリで同じ誤りが残存していた
+- `Shift+Tab` or `Alt+M` (**some configurations**): `Alt+M` は一部の環境のみ。無条件に「または`Alt+M`」と書くのは不正確 — 「一部の環境では」の限定が必要
+- ドキュメント未記載の実装詳細（例: `$EDITOR` 環境変数名）を explanation に含めない。ドキュメントが "default text editor" としか書いていない場合はその表現を使う
 
 ## referenceUrl マッピング
 | 機能カテゴリ | 推奨ページ |
@@ -103,6 +110,8 @@
 - `#user-level-rules`, `#path-specific-rules`
 
 ## レポート形式
+**必ず `.json` 形式で保存すること**（`.md` や `.txt` ではない）。ファイル名: `.claude/tmp/verify_{CATEGORY}.json`
+
 ```json
 {
   "category": "{CATEGORY}",
