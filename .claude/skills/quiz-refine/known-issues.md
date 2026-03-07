@@ -190,3 +190,14 @@ v4.43.0 以前の known-issues では「exit code 2 の一般ルールで UserPr
 ## effort level default value
 
 - ses-045とses-102の両方がeffort levelのデフォルト値を"high"と記述していたが、ドキュメント(model-config)では「Opus 4.6 defaults to medium effort for Max and Team subscribers」と明記されている → known-issues.mdに「`CLAUDE_CODE_EFFORT_LEVEL`: Opus 4.6のデフォルトはMax/TeamサブスクライバーではmediumM（highではない）」を追加
+
+---
+
+## 要改善候補（info-level 蓄積）
+
+> スキャンで info-level として報告されたが即時修正不要の項目。将来の品質改善パスで対応する。
+
+### 短い wrongFeedback（v4.46.0 時点）
+
+以下の問題は wrongFeedback が一文で終わっており、教育的価値の拡充余地がある:
+- cmd-049, cmd-057, cmd-058, cmd-062, key-001（一部エントリ）

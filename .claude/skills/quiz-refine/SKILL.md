@@ -234,6 +234,7 @@ node scripts/quiz-utils.mjs merge-proposals
 - Iterations: N
 - Categories processed: [list]
 - Mode: fix (incremental|full)
+- Scope: X verified + Y skipped (verified-ok) = Z total
 - Fixes applied: X (critical: N, major: N, minor: N)
 - Skipped (info): N
 - Test result: PASS/FAIL

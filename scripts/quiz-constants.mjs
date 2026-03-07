@@ -9,7 +9,7 @@ export const CATEGORY_DOC_MAP = {
   tools: ['how-claude-code-works', 'interactive-mode', 'sub-agents'],
   commands: ['interactive-mode', 'cli-reference', 'common-workflows'],
   extensions: ['mcp', 'hooks', 'discover-plugins', 'settings'],
-  session: ['how-claude-code-works', 'common-workflows', 'checkpointing', 'settings'],
+  session: ['how-claude-code-works', 'common-workflows', 'checkpointing', 'settings', 'model-config', 'sandboxing'],
   keyboard: ['interactive-mode', 'common-workflows'],
   bestpractices: ['best-practices', 'model-config', 'common-workflows', 'sandboxing'],
 }
