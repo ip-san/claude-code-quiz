@@ -166,6 +166,27 @@ v4.43.0 以前の known-issues では「exit code 2 の一般ルールで UserPr
 - CLI ツールの学習: ドキュメントは "Try prompts like `Use 'foo-cli-tool --help' to learn about foo tool`" とユーザーが指示する形。「自動的に学習できる」は誤帰属（Claude が自発的に --help を実行するわけではない）
 - 「インストール」と「起動」: `claude` コマンドはインストール済みの状態で**起動**するコマンド。インストールは npm/curl/Homebrew 等が行う
 
+## 存在しないスラッシュコマンド・機能の混同
+
+- `/summarize` はスラッシュコマンドとして存在しない。要約機能は `/rewind` メニュー内の「Summarize from here」オプションに統合済み
+- `CLAUDE_CODE_SIMPLE=1`: minimal prompt、Bash/file のみ、MCP/hooks/CLAUDE.md 無効。quiz で通常モードの機能として記述しないこと
+
+## UI 機能の名前混同
+
+- **Task List** (`Ctrl+T`): ビルトインの進捗追跡 UI
+- **`/todos`**: スラッシュコマンド（`CLAUDE_CODE_ENABLE_TASKS=false` 時に利用可能）
+- **`/tasks`**: 別のスラッシュコマンド
+- これら3つは異なる機能。quiz で混同しないこと
+
+## チェックポイント復元オプション
+
+- チェックポイント復元時は5つの選択肢がある: restore code+conv, conv only, code only, summarize, never mind
+- 「2つ」「3つ」等の不正確な数値を記述しないこと
+
+## Tool Search のモデル要件
+
+- Tool Search は Sonnet 4+ / Opus 4+ が必要。Haiku は非対応（MCP ページに記載）
+
 ## effort level default value
 
 - ses-045とses-102の両方がeffort levelのデフォルト値を"high"と記述していたが、ドキュメント(model-config)では「Opus 4.6 defaults to medium effort for Max and Team subscribers」と明記されている → known-issues.mdに「`CLAUDE_CODE_EFFORT_LEVEL`: Opus 4.6のデフォルトはMax/TeamサブスクライバーではmediumM（highではない）」を追加
