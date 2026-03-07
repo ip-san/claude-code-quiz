@@ -27,11 +27,6 @@ export function Feedback({ quiz, isCorrect }: FeedbackProps) {
   const selectedOption =
     selectedAnswer !== null ? quiz.options[selectedAnswer] : null
   const isReviewMode = sessionState?.isReviewMode ?? false
-  const reviewUserAnswers = sessionState?.reviewUserAnswers ?? []
-  const reviewUserMultiAnswers = sessionState?.reviewUserMultiAnswers ?? []
-  const currentIndex = sessionState?.currentIndex ?? 0
-  const originalUserAnswer = isReviewMode ? reviewUserAnswers[currentIndex] : null
-  const originalUserMultiAnswers = isReviewMode ? reviewUserMultiAnswers[currentIndex] ?? [] : []
   const isMultiSelect = quiz.isMultiSelect
 
   const handleOpenReference = async () => {
@@ -102,14 +97,14 @@ export function Feedback({ quiz, isCorrect }: FeedbackProps) {
         )}
       </div>
 
-      {/* Review mode: show original user answer */}
-      {isReviewMode && isMultiSelect && originalUserMultiAnswers.length > 0 && !isCorrect && (
+      {/* Review mode: show user's current answer vs correct answer */}
+      {isReviewMode && !isCorrect && isMultiSelect && selectedAnswers.length > 0 && (
         <div className="mb-4 rounded-lg border border-amber-200 bg-amber-50 p-3">
           <p className="text-sm text-amber-800">
             <span className="font-medium">あなたの回答:</span>
           </p>
           <ul className="ml-4 mt-1 list-disc text-sm text-amber-800">
-            {originalUserMultiAnswers.map(i => (
+            {selectedAnswers.map(i => (
               <li key={i}><QuizText text={quiz.options[i]?.text ?? ''} /></li>
             ))}
           </ul>
@@ -123,11 +118,11 @@ export function Feedback({ quiz, isCorrect }: FeedbackProps) {
           </ul>
         </div>
       )}
-      {isReviewMode && !isMultiSelect && originalUserAnswer !== null && originalUserAnswer !== quiz.correctIndex && (
+      {isReviewMode && !isCorrect && !isMultiSelect && selectedAnswer !== null && selectedAnswer !== quiz.correctIndex && (
         <div className="mb-4 rounded-lg border border-amber-200 bg-amber-50 p-3">
           <p className="text-sm text-amber-800">
             <span className="font-medium">あなたの回答:</span>{' '}
-            <QuizText text={quiz.options[originalUserAnswer]?.text ?? ''} />
+            <QuizText text={quiz.options[selectedAnswer]?.text ?? ''} />
           </p>
           <p className="mt-1 text-sm text-green-700">
             <span className="font-medium">正解:</span>{' '}
