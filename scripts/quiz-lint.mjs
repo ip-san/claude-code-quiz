@@ -543,6 +543,98 @@ function filterReport(reportPath) {
 }
 
 // ============================================================
+// 5. Quality Checks (mechanical subset of generate skill rules)
+// ============================================================
+
+/**
+ * Mechanical quality checks that can be automated:
+ * - wrongFeedback minimum length (too short = low learning value)
+ * - Memorization-style question patterns (暗記問題)
+ */
+
+const WEAK_WRONG_FEEDBACK_PATTERNS = [
+  /^.{1,15}$/,  // 15 chars or less (e.g., "正しくありません")
+  /^この選択肢は正しくありません/,
+  /^正解の解説を参照/,
+  /^サポートされています。$/,
+  /^有効な.{1,5}です。$/,
+]
+
+const MEMORIZATION_PATTERNS = [
+  /デフォルト値は(何|どれ|いくつ)ですか/,
+  /のキーボードショートカットは(何|どれ)ですか/,
+  /の環境変数名は(何|どれ)ですか/,
+  /のコマンド名は(何|どれ)ですか/,
+  /のパスは(何|どれ)ですか/,
+  /の正式名称は(何|どれ)ですか/,
+]
+
+function lintQuality(quizzes) {
+  const issues = []
+
+  for (const quiz of quizzes) {
+    // Check wrongFeedback quality
+    const correctSet = quiz.type === 'multi'
+      ? new Set(quiz.correctIndices || [])
+      : new Set([quiz.correctIndex])
+
+    quiz.options.forEach((opt, i) => {
+      if (correctSet.has(i) || !opt.wrongFeedback) return
+
+      for (const pattern of WEAK_WRONG_FEEDBACK_PATTERNS) {
+        if (pattern.test(opt.wrongFeedback)) {
+          issues.push({
+            id: quiz.id,
+            type: 'weak-wrongFeedback',
+            field: `options[${i}].wrongFeedback`,
+            value: opt.wrongFeedback,
+            message: `wrongFeedback が短すぎるか学習効果が低い (${opt.wrongFeedback.length}文字)`,
+          })
+          break
+        }
+      }
+    })
+
+    // Check for memorization-style questions
+    for (const pattern of MEMORIZATION_PATTERNS) {
+      if (pattern.test(quiz.question)) {
+        issues.push({
+          id: quiz.id,
+          type: 'memorization',
+          field: 'question',
+          value: quiz.question.slice(0, 60),
+          message: '暗記型の問題パターンが検出されました（理解・シナリオ型への書き換えを推奨）',
+        })
+        break
+      }
+    }
+  }
+
+  return issues
+}
+
+function printQualityReport(issues) {
+  if (issues.length === 0) {
+    console.log('  No quality issues found.')
+    return
+  }
+
+  const byType = {}
+  for (const issue of issues) {
+    if (!byType[issue.type]) byType[issue.type] = []
+    byType[issue.type].push(issue)
+  }
+
+  console.log(`  ${issues.length} quality issues:\n`)
+  for (const [type, typeIssues] of Object.entries(byType)) {
+    console.log(`  [${type}] (${typeIssues.length})`)
+    for (const issue of typeIssues) {
+      console.log(`    ${issue.id} [${issue.field}]: ${issue.message}`)
+    }
+  }
+}
+
+// ============================================================
 // Output Formatting
 // ============================================================
 
@@ -609,9 +701,9 @@ const args = process.argv.slice(2)
 const command = args[0] || 'all'
 const dryRun = args.includes('--dry-run')
 
-if (!['backtick', 'url', 'terminology', 'filter-report', 'all'].includes(command)) {
+if (!['backtick', 'url', 'terminology', 'quality', 'filter-report', 'all'].includes(command)) {
   console.log('Usage: node scripts/quiz-lint.mjs <command> [--dry-run]')
-  console.log('Commands: backtick, url, terminology, filter-report <path>, all')
+  console.log('Commands: backtick, url, terminology, quality, filter-report <path>, all')
   process.exit(1)
 }
 
@@ -653,6 +745,14 @@ if (command === 'terminology' || command === 'all') {
   const termIssues = lintTerminology(data.quizzes)
   printTerminologyReport(termIssues)
   if (termIssues.length > 0) hasIssues = true
+  console.log()
+}
+
+if (command === 'quality' || command === 'all') {
+  console.log('[Quality]')
+  const qualityIssues = lintQuality(data.quizzes)
+  printQualityReport(qualityIssues)
+  if (qualityIssues.length > 0) hasIssues = true
   console.log()
 }
 

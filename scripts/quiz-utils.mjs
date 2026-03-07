@@ -218,6 +218,49 @@ function check() {
   }
 }
 
+// === Search existing questions ===
+function search() {
+  const keyword = process.argv.slice(3).join(' ')
+  if (!keyword) {
+    console.log('Usage: node scripts/quiz-utils.mjs search <keyword>')
+    console.log('Searches question, options, explanation, and wrongFeedback fields.')
+    process.exit(1)
+  }
+
+  const data = loadQuizzes()
+  const lowerKeyword = keyword.toLowerCase()
+  const matches = []
+
+  for (const q of data.quizzes) {
+    const searchable = [
+      q.question,
+      q.explanation,
+      ...q.options.map(o => o.text),
+      ...q.options.filter(o => o.wrongFeedback).map(o => o.wrongFeedback),
+    ].join(' ').toLowerCase()
+
+    if (searchable.includes(lowerKeyword)) {
+      matches.push(q)
+    }
+  }
+
+  if (matches.length === 0) {
+    console.log(`No questions found matching "${keyword}"`)
+    return
+  }
+
+  console.log(`=== ${matches.length} questions matching "${keyword}" ===\n`)
+  for (const q of matches) {
+    const correctText = q.type === 'multi'
+      ? q.correctIndices.map(i => q.options[i].text).join(' / ')
+      : q.options[q.correctIndex].text
+    console.log(`  ${q.id.padEnd(12)} [${q.category}/${q.difficulty}]`)
+    console.log(`    Q: ${q.question.slice(0, 80)}${q.question.length > 80 ? '...' : ''}`)
+    console.log(`    A: ${correctText.slice(0, 80)}${correctText.length > 80 ? '...' : ''}`)
+    console.log()
+  }
+}
+
 // === Main ===
 const command = process.argv[2]
 switch (command) {
@@ -225,8 +268,9 @@ switch (command) {
   case 'stats': stats(); break
   case 'coverage': coverage(); break
   case 'check': check(); break
+  case 'search': search(); break
   default:
     console.log('Usage: node scripts/quiz-utils.mjs <command>')
-    console.log('Commands: randomize, stats, coverage, check')
+    console.log('Commands: randomize, stats, coverage, check, search <keyword>')
     process.exit(1)
 }

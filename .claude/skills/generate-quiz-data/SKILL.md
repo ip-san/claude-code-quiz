@@ -186,6 +186,7 @@ wrongFeedback は「学びの機会」として活用する。具体的にドキ
 # 既存問題の確認
 npm run quiz:stats
 npm run quiz:coverage
+npm run quiz:search -- "キーワード"  # 特定トピックの既存問題をキーワード検索
 ```
 
 ### 事実正確性の確認ポイント

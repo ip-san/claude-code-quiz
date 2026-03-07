@@ -18,6 +18,7 @@
     "quiz:stats": "node scripts/quiz-utils.mjs stats",
     "quiz:coverage": "node scripts/quiz-utils.mjs coverage",
     "quiz:check": "node scripts/quiz-utils.mjs check",
+    "quiz:search": "node scripts/quiz-utils.mjs search",
     "docs:fetch": "node scripts/fetch-docs.mjs",
     "docs:split": "node scripts/fetch-docs.mjs --split",
     "docs:assemble": "node scripts/fetch-docs.mjs --assemble",
