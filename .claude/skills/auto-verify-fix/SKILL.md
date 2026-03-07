@@ -28,31 +28,34 @@ allowed-tools: Read, Edit, Write, Bash, Grep, Glob
 
 ## Step 0: 前処理
 
+**重要:** すべての Bash コマンドはプロジェクトルート（`package.json` がある場所）で実行すること。
+フルパスをハードコードせず、カレントディレクトリまたは相対パスを使用する。
+
 以下を **並列で** 実行:
 
 **Bash 1:**
 ```bash
-cd /Users/sesoko/Desktop/workspace/claude-code-quiz-desktop && npm run quiz:lint
+npm run quiz:lint
 ```
 
 **Bash 2:**
 ```bash
-cd /Users/sesoko/Desktop/workspace/claude-code-quiz-desktop && npm run quiz:check
+npm run quiz:check
 ```
 
 **Bash 3:**
 ```bash
-cd /Users/sesoko/Desktop/workspace/claude-code-quiz-desktop && rm -f .claude/tmp/verify_*.json .claude/tmp/skill-proposals.md
+rm -f .claude/tmp/verify_*.json .claude/tmp/skill-proposals.md
 ```
 
 lint 完了後に:
 ```bash
-cd /Users/sesoko/Desktop/workspace/claude-code-quiz-desktop && npm run verify:diff:full
+npm run verify:diff:full
 ```
 
 次に、対象カテゴリに必要なドキュメントをキャッシュ:
 ```bash
-cd /Users/sesoko/Desktop/workspace/claude-code-quiz-desktop && npm run docs:fetch
+npm run docs:fetch
 ```
 
 ## 反復ループ
@@ -77,13 +80,13 @@ End for
 
 **1. クイズデータ読み込み:**
 ```bash
-cd /Users/sesoko/Desktop/workspace/claude-code-quiz-desktop && cat .claude/tmp/quizzes/{CATEGORY}.json
+cat .claude/tmp/quizzes/{CATEGORY}.json
 ```
 ファイルが存在しない場合は `npm run verify:diff:full` を再実行。
 
 **2. ドキュメント取得:**
 ```bash
-cd /Users/sesoko/Desktop/workspace/claude-code-quiz-desktop && node scripts/fetch-docs.mjs --assemble {CATEGORY}
+node scripts/fetch-docs.mjs --assemble {CATEGORY}
 ```
 stdout にドキュメント内容が出力される。
 
@@ -112,11 +115,11 @@ iteration 2 以降では:
 全イテレーション完了後:
 
 ```bash
-cd /Users/sesoko/Desktop/workspace/claude-code-quiz-desktop && npm run quiz:randomize && npm run quiz:check && npm test
+npm run quiz:randomize && npm run quiz:check && npm test
 ```
 
 ```bash
-cd /Users/sesoko/Desktop/workspace/claude-code-quiz-desktop && npm run verify:save
+npm run verify:save
 ```
 
 テストが失敗した場合は原因を調査して修正を試みる。
