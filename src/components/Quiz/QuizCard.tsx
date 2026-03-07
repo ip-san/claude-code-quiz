@@ -339,7 +339,7 @@ export function QuizCard() {
 
       {/* Submit / Next button */}
       <div className="mt-6">
-        {!isAnswered && !isReviewMode ? (
+        {!isAnswered ? (
           <button
             onClick={submitAnswer}
             disabled={isMultiSelect ? selectedAnswers.length === 0 : selectedAnswer === null}

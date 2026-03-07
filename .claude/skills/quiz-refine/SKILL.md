@@ -2,7 +2,7 @@
 name: quiz-refine
 description: クイズの検証・修正。--dry-run で報告のみ。quiz refine、クイズ検証、自律修正
 context: fork
-allowed-tools: Read, Write, Bash, Grep, Glob
+allowed-tools: Read, Write, Edit, Bash, Grep, Glob, TodoWrite
 ---
 
 # Quiz Refine Skill
@@ -10,69 +10,72 @@ allowed-tools: Read, Write, Bash, Grep, Glob
 あなたはクイズコンテンツの検証・修正エージェントです。
 クイズデータを公式ドキュメントと照合し、問題を検証・修正します。
 
+**自律実行ルール:** AskUserQuestion を使わないこと。判断に迷う場合はスキップしてログに記録し、次に進む。全ステップをユーザー確認なしで最後まで実行する。
+
 ## 引数パース
 
-`$ARGUMENTS` を以下のように解釈する:
+`$ARGUMENTS` を以下のアルゴリズムで **厳密に** パースすること。自然言語的に解釈しない。
+
+**パースアルゴリズム（必ずこの順序で実行）:**
 
 ```
-/quiz-refine                     → iterations=1, categories=全, incremental, fix
-/quiz-refine 3                   → iterations=3, categories=全, incremental, fix
-/quiz-refine 2 memory tools      → iterations=2, categories=[memory, tools], incremental, fix
-/quiz-refine --dry-run           → iterations=1, categories=全, incremental, report only
-/quiz-refine --dry-run memory    → iterations=1, categories=[memory], incremental, report only
-/quiz-refine --full              → iterations=1, categories=全, full scan, fix
-/quiz-refine 3 --full            → iterations=3, categories=全, full scan, fix
-/quiz-refine --dry-run --full    → iterations=1, categories=全, full scan, report only
+1. ARGS = "$ARGUMENTS" を空白で分割
+2. ITERATIONS = 1, DRY_RUN = false, SCAN_MODE = "incremental", CATEGORIES = []
+3. ARGS の各トークンについて:
+   - "--dry-run" なら → DRY_RUN = true
+   - "--full" なら → SCAN_MODE = "full"
+   - "--force" なら → SCAN_MODE = "force"
+   - 数値（1-10）なら → ITERATIONS = その値
+   - 有効カテゴリ名なら → CATEGORIES に追加
+4. CATEGORIES が空なら → 全8カテゴリ
 ```
 
-パースルール:
-- 最初の数値 = 反復回数（省略時 1、範囲 1-5）
-- `--dry-run` = 報告のみモード（ファイル変更禁止）
-- `--full` = 全件スキャン（前回 verified-ok で変更なしの問題はスキップ）
-- `--force` = 全問強制再検証（verifyResults を無視、全問を対象にする）
-- 残り = カテゴリフィルタ（省略時は全8カテゴリ）
-- 有効カテゴリ: memory, skills, tools, commands, extensions, session, keyboard, bestpractices
+**例:**
+```
+""                    → iterations=1, scan=incremental, fix
+"3"                   → iterations=3, scan=incremental, fix
+"2 memory tools"      → iterations=2, scan=incremental, fix, categories=[memory,tools]
+"--dry-run"           → iterations=1, scan=incremental, report only
+"--force"             → iterations=1, scan=force, fix
+"10 --force"          → iterations=10, scan=force, fix
+"5 --full"            → iterations=5, scan=full, fix
+"--dry-run --full"    → iterations=1, scan=full, report only
+```
 
+**SCAN_MODE の違い:**
+- `incremental`: 変更があった問題のみ（デフォルト）
+- `full`: verified-ok で変更なしの問題はスキップ、それ以外を全件
+- `force`: verifyResults を完全無視、全問を対象にする
+
+有効カテゴリ: memory, skills, tools, commands, extensions, session, keyboard, bestpractices
 引数が不正な場合はエラーメッセージを返して終了。
+
+**パース結果を最初に出力して確認すること:**
+```
+Parsed: iterations=N, scan=MODE, dry_run=BOOL, categories=[...]
+```
 
 ## Step 0: 前処理
 
 **重要:** すべての Bash コマンドはプロジェクトルート（`package.json` がある場所）で実行すること。
 フルパスをハードコードせず、カレントディレクトリまたは相対パスを使用する。
 
-### Step 0a: lint + check + 旧レポートクリア（並列実行）
+### Step 0a: lint + check + 旧レポートクリア + 差分抽出（1コマンド）
 
-以下を **並列で** 実行:
+**以下を1つの Bash 呼び出しにまとめて実行する（許可プロンプト削減）:**
 
-**Bash 1:**
 ```bash
-npm run quiz:lint
+npm run quiz:lint && npm run quiz:check && rm -f .claude/tmp/verify_*.json .claude/tmp/verify_*.md .claude/tmp/skill-proposals.md 2>/dev/null; VERIFY_CMD="verify:diff"; if [ "$SCAN_MODE" = "full" ]; then VERIFY_CMD="verify:diff:full"; elif [ "$SCAN_MODE" = "force" ]; then VERIFY_CMD="verify:diff:force"; fi; npm run $VERIFY_CMD
 ```
 
-**Bash 2:**
+**重要: SCAN_MODE は上記パースアルゴリズムの結果を使う。実際のコマンドは以下から選択:**
+- SCAN_MODE=incremental → `npm run verify:diff`
+- SCAN_MODE=full → `npm run verify:diff:full`
+- SCAN_MODE=force → `npm run verify:diff:force`
+
+カテゴリ指定がある場合は末尾に追加:
 ```bash
-npm run quiz:check
-```
-
-**Bash 3:**
-```bash
-rm -f .claude/tmp/verify_*.json .claude/tmp/verify_*.md .claude/tmp/skill-proposals.md
-```
-
-### Step 0b: 差分抽出（lint 完了後に実行）
-
-`quiz:lint` でファイルが変更された可能性があるため、**Step 0a 完了後** に実行する。
-
-```bash
-# フラグで切替
-npm run verify:diff          # incremental（デフォルト）
-npm run verify:diff:full     # --full（verified-ok はスキップ）
-npm run verify:diff:force    # --force（全問強制再検証）
-```
-
-カテゴリ指定がある場合:
-```bash
-npm run verify:diff -- memory tools    # 特定カテゴリのみ
+npm run verify:diff -- memory tools
 ```
 
 ### quiz:lint の結果処理
@@ -114,7 +117,7 @@ For iteration = 1..N:
     5. 修正内容と学習パターンをメモ
   End for
 
-  [fix mode] npm run quiz:randomize && npm run quiz:check
+  [fix mode] `npm run quiz:randomize && npm run quiz:check`（1回の Bash 呼び出し）
   反復サマリー出力
 End for
 ```
@@ -122,9 +125,7 @@ End for
 ### カテゴリ処理の詳細
 
 **1. クイズデータ読み込み:**
-```bash
-cat .claude/tmp/quizzes/{CATEGORY}.json
-```
+Read ツールで `.claude/tmp/quizzes/{CATEGORY}.json` を読む（Bash 不要）。
 ファイルが存在しない場合は `npm run verify:diff:full` を再実行。
 
 **2. ドキュメント取得:**
@@ -172,14 +173,10 @@ iteration 2 以降では:
 
 ### fix mode
 
-全イテレーション完了後:
+全イテレーション完了後、**1つの Bash 呼び出し** にまとめる:
 
 ```bash
-npm run quiz:randomize && npm run quiz:check && npm test
-```
-
-```bash
-npm run verify:save
+npm run quiz:randomize && npm run quiz:check && npm test && npm run verify:save
 ```
 
 テストが失敗した場合は原因を調査して修正を試みる。
