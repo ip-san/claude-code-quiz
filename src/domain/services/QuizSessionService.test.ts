@@ -584,16 +584,19 @@ describe('QuizSessionService', () => {
       expect(retried).toBe(state) // unchanged
     })
 
-    it('should not allow retry in review mode', () => {
+    it('should allow retry in review mode for wrong answers', () => {
       const questions = [createTestQuestion('q1')]
       const config = createDefaultConfig()
       const state = QuizSessionService.createInitialState(questions, config, {
         isReviewMode: true,
-        reviewUserAnswers: [1],
+        reviewUserAnswers: [1], // wrong answer (correct is 0)
       })
 
       const retried = QuizSessionService.retryQuestion(state)
-      expect(retried).toBe(state) // unchanged
+      expect(retried).not.toBe(state)
+      expect(retried.isAnswered).toBe(false)
+      expect(retried.selectedAnswer).toBeNull()
+      expect(retried.isCorrect).toBeNull()
     })
 
     it('should not allow retry when not yet answered', () => {

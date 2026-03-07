@@ -70,7 +70,7 @@ export function QuizCard() {
       const optionCount = quiz.options.length
 
       // Retry shortcut (r key) - works in both single and multi-select
-      if (e.key === 'r' && isAnswered && isCorrect === false && !isReviewMode) {
+      if (e.key === 'r' && isAnswered && isCorrect === false) {
         e.preventDefault()
         retryQuestion()
         return
@@ -272,7 +272,7 @@ export function QuizCard() {
       </h2>
 
       {/* Hint */}
-      {!isAnswered && !isReviewMode && (
+      {!isAnswered && (
         <div className="mb-4">
           {!hintUsed ? (
             <button
@@ -361,7 +361,7 @@ export function QuizCard() {
           <>
             <Feedback quiz={quiz} isCorrect={isCorrect!} />
             <div className="mt-4 flex flex-col gap-2">
-              {isCorrect === false && !isReviewMode && (
+              {isCorrect === false && (
                 <button
                   onClick={retryQuestion}
                   aria-label="この問題をもう一度挑戦する (R)"

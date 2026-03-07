@@ -444,7 +444,7 @@ export class QuizSessionService {
    * スコアは変更しないが、リトライ後に正解してもスコアに加算しない。
    */
   static retryQuestion(state: QuizSessionState): QuizSessionState {
-    if (!state.isAnswered || state.isCorrect || state.isReviewMode) {
+    if (!state.isAnswered || state.isCorrect) {
       return state
     }
     return {

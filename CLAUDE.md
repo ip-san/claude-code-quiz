@@ -64,6 +64,29 @@ npm run quiz:randomize # correctIndex ランダム化
 /verify-quiz-content memory       # 特定カテゴリのみ
 ```
 
+### /auto-verify-fix
+
+クイズの自律検証・修正・スキル改善提案スキル。`context: fork` で独立エージェントとして実行。
+
+**使用方法:**
+```
+/auto-verify-fix 3              # 全カテゴリ3イテレーション
+/auto-verify-fix 2 memory       # memoryのみ2イテレーション
+/auto-verify-fix 1 memory tools # memory+toolsを1イテレーション
+```
+
+**動作:**
+1. lint + docs:fetch + verify:diff で前処理
+2. カテゴリ順次処理: ドキュメント照合 → 直接修正
+3. 各イテレーション後に randomize + check
+4. 最終: npm test + verify:save
+5. `.claude/tmp/skill-proposals.md` にスキル改善提案を書き出し
+
+**完了後の手順:**
+1. `git diff` で修正内容をレビュー
+2. `.claude/tmp/skill-proposals.md` を確認
+3. 汎用性の高い提案のみスキルファイルに反映
+
 ## クイズデータ形式
 
 `src/data/quizzes.json` に準拠したJSON形式：
