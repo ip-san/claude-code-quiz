@@ -44,18 +44,48 @@ const DOC_PAGES = [
   // Extensions & Integration
   { name: 'mcp', url: 'https://code.claude.com/docs/en/mcp' },
   { name: 'hooks', url: 'https://code.claude.com/docs/en/hooks' },
+  { name: 'hooks-guide', url: 'https://code.claude.com/docs/en/hooks-guide' },
   { name: 'discover-plugins', url: 'https://code.claude.com/docs/en/discover-plugins' },
+  { name: 'plugins', url: 'https://code.claude.com/docs/en/plugins' },
+  { name: 'plugins-reference', url: 'https://code.claude.com/docs/en/plugins-reference' },
+  { name: 'plugin-marketplaces', url: 'https://code.claude.com/docs/en/plugin-marketplaces' },
   { name: 'sub-agents', url: 'https://code.claude.com/docs/en/sub-agents' },
+  { name: 'agent-teams', url: 'https://code.claude.com/docs/en/agent-teams' },
+  { name: 'skills', url: 'https://code.claude.com/docs/en/skills' },
   // Advanced
   { name: 'common-workflows', url: 'https://code.claude.com/docs/en/common-workflows' },
   { name: 'checkpointing', url: 'https://code.claude.com/docs/en/checkpointing' },
   { name: 'best-practices', url: 'https://code.claude.com/docs/en/best-practices' },
-  { name: 'skills', url: 'https://code.claude.com/docs/en/skills' },
   { name: 'model-config', url: 'https://code.claude.com/docs/en/model-config' },
   { name: 'sandboxing', url: 'https://code.claude.com/docs/en/sandboxing' },
+  { name: 'headless', url: 'https://code.claude.com/docs/en/headless' },
+  // Customization & UI
+  { name: 'keybindings', url: 'https://code.claude.com/docs/en/keybindings' },
+  { name: 'output-styles', url: 'https://code.claude.com/docs/en/output-styles' },
+  { name: 'statusline', url: 'https://code.claude.com/docs/en/statusline' },
+  { name: 'terminal-config', url: 'https://code.claude.com/docs/en/terminal-config' },
+  { name: 'fast-mode', url: 'https://code.claude.com/docs/en/fast-mode' },
+  // Platforms & IDE
+  { name: 'vs-code', url: 'https://code.claude.com/docs/en/vs-code' },
+  { name: 'jetbrains', url: 'https://code.claude.com/docs/en/jetbrains' },
+  { name: 'desktop', url: 'https://code.claude.com/docs/en/desktop' },
+  { name: 'chrome', url: 'https://code.claude.com/docs/en/chrome' },
+  { name: 'slack', url: 'https://code.claude.com/docs/en/slack' },
+  // CI/CD & Automation
+  { name: 'github-actions', url: 'https://code.claude.com/docs/en/github-actions' },
+  { name: 'gitlab-ci-cd', url: 'https://code.claude.com/docs/en/gitlab-ci-cd' },
+  { name: 'scheduled-tasks', url: 'https://code.claude.com/docs/en/scheduled-tasks' },
+  { name: 'remote-control', url: 'https://code.claude.com/docs/en/remote-control' },
+  // Enterprise & Configuration
+  { name: 'server-managed-settings', url: 'https://code.claude.com/docs/en/server-managed-settings' },
+  { name: 'devcontainer', url: 'https://code.claude.com/docs/en/devcontainer' },
   // Supplementary (not for referenceUrl but useful for fact-checking)
   { name: 'permissions', url: 'https://code.claude.com/docs/en/permissions' },
   { name: 'cli-reference', url: 'https://code.claude.com/docs/en/cli-reference' },
+  { name: 'setup', url: 'https://code.claude.com/docs/en/setup' },
+  { name: 'features-overview', url: 'https://code.claude.com/docs/en/features-overview' },
+  { name: 'desktop-quickstart', url: 'https://code.claude.com/docs/en/desktop-quickstart' },
+  { name: 'authentication', url: 'https://code.claude.com/docs/en/authentication' },
   // Agent SDK (different domain)
   { name: 'agent-sdk-overview', url: 'https://platform.claude.com/docs/en/agent-sdk/overview' },
 ]

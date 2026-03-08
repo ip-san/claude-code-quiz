@@ -41,11 +41,28 @@ const ID_PREFIX_TO_CATEGORY: Record<string, string> = {
 
 /** 有効なドキュメントページパス */
 const VALID_DOC_PAGES = [
-  // code.claude.com pages
-  'overview', 'quickstart', 'settings', 'memory', 'interactive-mode',
-  'how-claude-code-works', 'mcp', 'hooks', 'discover-plugins',
-  'sub-agents', 'common-workflows', 'checkpointing', 'best-practices', 'skills',
-  'model-config', 'sandboxing', 'cli-reference',
+  // code.claude.com pages — Core
+  'overview', 'quickstart', 'settings', 'memory',
+  // Interactive & Tools
+  'interactive-mode', 'how-claude-code-works',
+  // Extensions & Integration
+  'mcp', 'hooks', 'hooks-guide', 'discover-plugins',
+  'plugins', 'plugins-reference', 'plugin-marketplaces',
+  'sub-agents', 'agent-teams', 'skills',
+  // Advanced
+  'common-workflows', 'checkpointing', 'best-practices',
+  'model-config', 'sandboxing', 'headless',
+  // Customization & UI
+  'keybindings', 'output-styles', 'statusline', 'terminal-config', 'fast-mode',
+  // Platforms & IDE
+  'vs-code', 'jetbrains', 'desktop', 'chrome', 'slack',
+  // CI/CD & Automation
+  'github-actions', 'gitlab-ci-cd', 'scheduled-tasks', 'remote-control',
+  // Enterprise & Configuration
+  'server-managed-settings', 'devcontainer',
+  // Supplementary
+  'permissions', 'cli-reference', 'setup', 'features-overview',
+  'desktop-quickstart', 'authentication',
   // platform.claude.com pages
   'agent-sdk/overview',
 ]

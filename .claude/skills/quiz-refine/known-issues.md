@@ -191,6 +191,34 @@ v4.43.0 以前の known-issues では「exit code 2 の一般ルールで UserPr
 
 - ses-045とses-102の両方がeffort levelのデフォルト値を"high"と記述していたが、ドキュメント(model-config)では「Opus 4.6 defaults to medium effort for Max and Team subscribers」と明記されている → known-issues.mdに「`CLAUDE_CODE_EFFORT_LEVEL`: Opus 4.6のデフォルトはMax/TeamサブスクライバーではmediumM（highではない）」を追加
 
+## 存在しないCLIサブコマンド
+
+- `claude commit` は CLI サブコマンドとして存在しない。MEMORY で確認済み
+
+## Sandboxing の技術名称
+
+- macOS: Seatbelt, Linux/WSL2: bubblewrap。ドキュメントページ: `/en/sandboxing`
+
+## Hook イベント総数
+
+- Hook event types は全 18 種（`InstructionsLoaded` を含む）
+
+## 環境変数（追加）
+
+- `BASH_MAX_TIMEOUT_MS`: settings.md 記載済み（モデルが設定可能な最大タイムアウト）
+- `CLAUDE_CODE_CLIENT_CERT`/`CLAUDE_CODE_CLIENT_KEY`/`CLAUDE_CODE_CLIENT_KEY_PASSPHRASE`: mTLS 用として settings.md に記載あり
+- `CLAUDE_AUTOCOMPACT_PCT_OVERRIDE`: 1-100 値。コンテキストの何%でオートコンパクションが発火するかの閾値（settings page）
+
+## Plugin source types
+
+- Plugin の source は5種類: relative path, github, url, npm, pip
+
+## キーボードショートカット（追加）
+
+- `Ctrl+C` = generation cancel のみ（exit ではない）。`Ctrl+D` = exit
+- `/terminal-setup` で `Shift+Enter` と `Option+T` が有効化される。`Alt+B`/`F`/`Y`/`M`/`P` は "Option as Meta" 設定が必要
+- `Shift+Tab` でパーミッションモード切替（Normal→Auto-Accept→Plan）。`Alt+M` は "some configurations" のみ（interactive-mode.md）— 全環境対応ではない
+
 ---
 
 ## 要改善候補（info-level 蓄積）

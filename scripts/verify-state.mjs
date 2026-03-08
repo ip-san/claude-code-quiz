@@ -40,6 +40,7 @@ const QUIZ_SPLIT_DIR = resolve(ROOT, '.claude/tmp/quizzes')
 const CATEGORY_DOC_SECTIONS = {
   extensions: {
     hooks: 'ALL',
+    'hooks-guide': 'ALL',
     settings: ['configuration-scopes', 'plugin-configuration', 'environment-variables', 'tools-available-to-claude'],
   },
   memory: {
@@ -48,7 +49,10 @@ const CATEGORY_DOC_SECTIONS = {
   session: {
     settings: 'ALL',
   },
-  // tools, skills, commands, keyboard, bestpractices: 大ファイルなし → 全セクション
+  commands: {
+    settings: ['environment-variables'],
+  },
+  // tools, skills, keyboard, bestpractices: セクション選択不要 → 全セクション
 }
 
 // Cache validity: 24 hours (must match fetch-docs.mjs CACHE_TTL_MS)

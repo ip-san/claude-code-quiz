@@ -18,7 +18,29 @@
 | CLAUDE.md の刈り込み指針 | `best-practices` | `memory` ではなく "Write an effective CLAUDE.md" セクション |
 | セッションピッカーのキーバインド・フォーク済みセッションのグループ化 | `common-workflows` | "Use the session picker" セクション |
 | 画像添付・クリップボード操作（ドラッグ＆ドロップ、`Ctrl+V`） | `interactive-mode` | `how-claude-code-works` ではない |
-| プラン/プラットフォーム限定コマンド（`/teleport` 等） | `interactive-mode` | `claude-code-on-the-web` は VALID_DOC_PAGES 外のため使用不可 |
+| プラン/プラットフォーム限定コマンド（`/teleport` 等） | `interactive-mode` | |
+| Hook ワークフロー・ユースケース | `hooks-guide` | `hooks`（リファレンス）と使い分け |
+| プラグイン作成 | `plugins` | `discover-plugins`（利用側）とは別 |
+| プラグインAPI・設定キー | `plugins-reference` | プラグインの詳細仕様 |
+| プラグインマーケットプレイス | `plugin-marketplaces` | マーケットプレイス構築 |
+| エージェントチーム・オーケストレーション | `agent-teams` | `sub-agents`（個別エージェント）とは別 |
+| ヘッドレス/プログラマティック実行 | `headless` | SDK/CI での非対話利用 |
+| キーバインドカスタマイズ | `keybindings` | `interactive-mode`（デフォルトキー）とは別 |
+| 出力スタイル | `output-styles` | 出力形式のカスタマイズ |
+| ステータスライン | `statusline` | ターミナルステータスラインのカスタマイズ |
+| ターミナル設定 | `terminal-config` | ターミナル最適化 |
+| 高速モード | `fast-mode` | 応答速度の最適化 |
+| VS Code 固有機能 | `vs-code` | @メンション、インラインdiff等 |
+| JetBrains 固有機能 | `jetbrains` | JetBrains プラグイン |
+| デスクトップアプリ固有機能 | `desktop` | ビジュアルdiff、スケジュール等 |
+| Chrome 拡張 | `chrome` | ウェブデバッグ統合 |
+| Slack 統合 | `slack` | Slack ボット連携 |
+| GitHub Actions | `github-actions` | GH Actions でのCI/CD |
+| GitLab CI/CD | `gitlab-ci-cd` | GitLab でのCI/CD |
+| スケジュールタスク | `scheduled-tasks` | 定期実行 |
+| リモートコントロール | `remote-control` | 別デバイスからの継続 |
+| サーバー管理設定 | `server-managed-settings` | エンタープライズ設定管理 |
+| 開発コンテナ | `devcontainer` | Dev Container 設定 |
 
 ### referenceUrl の危険パターン
 
@@ -27,22 +49,36 @@
 
 ## 有効なドメインとパス
 
-- `https://code.claude.com/docs/en/{page}` — 17ページ: overview, quickstart, settings, memory, interactive-mode, how-claude-code-works, mcp, hooks, discover-plugins, sub-agents, common-workflows, checkpointing, best-practices, skills, model-config, sandboxing, cli-reference
+- `https://code.claude.com/docs/en/{page}` — 43ページ:
+  - Core: overview, quickstart, settings, memory
+  - Interactive: interactive-mode, how-claude-code-works
+  - Extensions: mcp, hooks, hooks-guide, discover-plugins, plugins, plugins-reference, plugin-marketplaces, sub-agents, agent-teams, skills
+  - Advanced: common-workflows, checkpointing, best-practices, model-config, sandboxing, headless
+  - Customization: keybindings, output-styles, statusline, terminal-config, fast-mode
+  - Platforms: vs-code, jetbrains, desktop, chrome, slack
+  - CI/CD: github-actions, gitlab-ci-cd, scheduled-tasks, remote-control
+  - Enterprise: server-managed-settings, devcontainer
+  - Supplementary: permissions, cli-reference, setup, features-overview, desktop-quickstart, authentication
 - `https://platform.claude.com/docs/en/agent-sdk/overview` — Agent SDK 関連
 
 ### ページリスト同期チェック（新規ドキュメントページ追加時）
 
-ドキュメントページを追加・削除した場合、以下の3箇所を同期更新すること:
+ドキュメントページを追加・削除した場合、以下の4箇所を同期更新すること:
 
-1. **このファイル** (`doc-references.md`): 上記の17ページリスト
+1. **このファイル** (`doc-references.md`): 上記の43ページリスト
 2. **`generate-quiz-data/SKILL.md`**: ページ数とカテゴリ→ドキュメントマッピング表
 3. **`scripts/quiz-constants.mjs`**: `CATEGORY_DOC_MAP` と `SUPPLEMENTARY_DOCS`
+4. **`src/infrastructure/validation/quizContentQuality.test.ts`**: `VALID_DOC_PAGES` 配列
 
 いずれか1つだけ更新すると、検証カバレッジに漏れが生じる。
 
 ### 補足参照ページ（referenceUrl には使用不可だがファクトチェックに有用）
 
 - `https://code.claude.com/docs/en/permissions` — パーミッション設定の完全リファレンス。`defaultMode` 有効値の完全リスト、パーミッションルール構文、managed-only設定の詳細
+- `https://code.claude.com/docs/en/setup` — インストール・アップデート詳細
+- `https://code.claude.com/docs/en/features-overview` — 機能一覧ページ
+- `https://code.claude.com/docs/en/desktop-quickstart` — デスクトップアプリ導入ガイド
+- `https://code.claude.com/docs/en/authentication` — 認証方法
 
 ## 既知の正しいアンカー
 
