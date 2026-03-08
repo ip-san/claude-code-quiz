@@ -88,6 +88,10 @@ npm run verify:diff -- memory tools
 
 **注意: 複数選択問題（`type: "multi"`）は `correctIndex` の代わりに `correctIndices`（整数配列）を使用する。** このフォーマットは正規の仕様であり、構造バグではない。
 
+### Step 0b: MEMORY→known-issues 同期チェック
+
+MEMORY.md の「Verified Facts」セクションと `known-issues.md` を比較し、MEMORY に記載されているがknown-issues に未反映の事実があれば known-issues.md に追記する。これにより検証エージェントが最新の確認済み事実を参照できる。
+
 ## Step 1: 早期終了チェック
 
 `.claude/tmp/verify-targets.json` を Read で読み込む。
@@ -340,6 +344,7 @@ node scripts/quiz-utils.mjs merge-proposals
 ### F. wrongFeedback 品質
 - 「`X`ではありません。」だけの一行は品質不足（severity: info で記録のみ）
 - 正しいショートカット/コマンドが何かを教える内容であるべき
+- **文字数目安:** 30文字以下の wrongFeedback は info severity で記録（「なぜ誤りか」の説明が不足している可能性）。修正時は正解との違い・正しい知識を補足する
 
 ### G. 解説の教育的価値
 - explanation が正解の言い換えだけでなく、**なぜそうなのか**（仕組み・背景）を含んでいるか

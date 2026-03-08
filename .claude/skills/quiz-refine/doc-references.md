@@ -30,6 +30,16 @@
 - `https://code.claude.com/docs/en/{page}` — 17ページ: overview, quickstart, settings, memory, interactive-mode, how-claude-code-works, mcp, hooks, discover-plugins, sub-agents, common-workflows, checkpointing, best-practices, skills, model-config, sandboxing, cli-reference
 - `https://platform.claude.com/docs/en/agent-sdk/overview` — Agent SDK 関連
 
+### ページリスト同期チェック（新規ドキュメントページ追加時）
+
+ドキュメントページを追加・削除した場合、以下の3箇所を同期更新すること:
+
+1. **このファイル** (`doc-references.md`): 上記の17ページリスト
+2. **`generate-quiz-data/SKILL.md`**: ページ数とカテゴリ→ドキュメントマッピング表
+3. **`scripts/quiz-constants.mjs`**: `CATEGORY_DOC_MAP` と `SUPPLEMENTARY_DOCS`
+
+いずれか1つだけ更新すると、検証カバレッジに漏れが生じる。
+
 ### 補足参照ページ（referenceUrl には使用不可だがファクトチェックに有用）
 
 - `https://code.claude.com/docs/en/permissions` — パーミッション設定の完全リファレンス。`defaultMode` 有効値の完全リスト、パーミッションルール構文、managed-only設定の詳細
