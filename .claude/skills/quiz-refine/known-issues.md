@@ -44,6 +44,7 @@
 ## スキル定義のキー名形式
 
 - スキル定義のキー名はアンダースコアではなくハイフン区切り（例: `allowed-tools` であり `allowed_tools` ではない）
+- `allowed-tools` in Skills: 許可リスト（grants without per-use approval）。リスト外のツールは通常のパーミッション設定に従う（ブロックされるのではない）
 
 ## Hook の exit code 詳細
 
@@ -106,6 +107,10 @@ v4.43.0 以前の known-issues では「exit code 2 の一般ルールで UserPr
 ## パスの動的部分（具体例）
 
 - `~/.claude/projects/memory/` → 正しくは `~/.claude/projects/<project>/memory/`
+
+## Memory ページのアンカー（2026-03-01 確認）
+
+- 有効アンカー: `#import-additional-files`, `#choose-where-to-put-claudemd-files`, `#view-and-edit-with-memory`, `#how-claudemd-files-load`, `#user-level-rules`, `#path-specific-rules`
 
 ## SDK・ライブラリの改名履歴
 
@@ -208,6 +213,8 @@ v4.43.0 以前の known-issues では「exit code 2 の一般ルールで UserPr
 - `BASH_MAX_TIMEOUT_MS`: settings.md 記載済み（モデルが設定可能な最大タイムアウト）
 - `CLAUDE_CODE_CLIENT_CERT`/`CLAUDE_CODE_CLIENT_KEY`/`CLAUDE_CODE_CLIENT_KEY_PASSPHRASE`: mTLS 用として settings.md に記載あり
 - `CLAUDE_AUTOCOMPACT_PCT_OVERRIDE`: 1-100 値。コンテキストの何%でオートコンパクションが発火するかの閾値（settings page）
+- `MAX_MCP_OUTPUT_TOKENS`: デフォルト 25,000 / 警告は 10,000 トークン時点（settings page）
+- `CLAUDE_CODE_ADDITIONAL_DIRECTORIES_CLAUDE_MD=1`: `--add-dir` フラグとの併用が必須。単独設定では機能しない
 
 ## Plugin source types
 
