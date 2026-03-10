@@ -218,13 +218,21 @@ v4.43.0 以前の known-issues では「exit code 2 の一般ルールで UserPr
 
 ## Plugin source types
 
-- Plugin の source は5種類: relative path, github, url, npm, pip
+- Plugin の source は6種類: relative path, github, url, git-subdir, npm, pip（2026-03-10 確認、`git-subdir` はモノレポ向けスパースクローン）
+- plugin-marketplaces ページにて `git-subdir` が6番目のソースタイプとして追加されていた。ext-073, ext-130 が「5種類」と記述していた → known-issues.md のPlugin source types項目を5→6に更新。MEMORY.md も更新
 
 ## キーボードショートカット（追加）
 
 - `Ctrl+C` = generation cancel のみ（exit ではない）。`Ctrl+D` = exit
 - `/terminal-setup` で `Shift+Enter` と `Option+T` が有効化される。`Alt+B`/`F`/`Y`/`M`/`P` は "Option as Meta" 設定が必要
 - `Shift+Tab` でパーミッションモード切替（Normal→Auto-Accept→Plan）。`Alt+M` は "some configurations" のみ（interactive-mode.md）— 全環境対応ではない
+
+---
+
+## エージェントチームのプラットフォーム制限
+
+- エージェントチームは CLI と Agent SDK でのみ利用可能。デスクトップアプリでは利用不可（docs: "Agent teams: multi-agent orchestration is available via the CLI and Agent SDK, not in Desktop"）
+- quiz でエージェントチームのプラットフォーム対応を記述する場合はこの制限を正確に反映すること
 
 ---
 
@@ -235,3 +243,20 @@ v4.43.0 以前の known-issues では「exit code 2 の一般ルールで UserPr
 ### 短い wrongFeedback（v4.46.0 時点）
 
 ~~cmd-049, cmd-057, cmd-058, cmd-062, key-001~~ → v4.46.0 で修正済み（5問6エントリ拡充）
+
+## Lint auto-fix for proper nouns (Git Bash)
+
+- quiz:lint のバッククォート自動修正が "Git Bash" を "Git `Bash`" に変換した。"Git Bash" はプロダクト名であり、ツール名 `Bash` とは異なる → quiz:lint のバッククォート自動修正に "Git Bash" などの固有名詞の例外パターンを追加検討
+- ses-133 で quiz:lint のバッククォート自動修正が "Git Bash" を "Git `Bash`" に変換した。"Git Bash" は Git for Windows に含まれるプロダクト名であり、Claude Code のツール名 `Bash` とは異なる → quiz-lint.mjs のバッククォート自動修正に "Git Bash" などの固有名詞の例外パターンを追加する
+- ses-133 で quiz:lint が "Git Bash" を "Git `Bash`" に変換。"Git Bash" は Git for Windows のプロダクト名でありツール名 `Bash` とは異なる → quiz-lint.mjs のバッククォート自動修正に "Git Bash" の例外パターンを追加
+- ses-133 で quiz:lint のバッククォート自動修正が "Git Bash" を "Git `Bash`" に繰り返し変換している。"Git Bash" は Git for Windows のプロダクト名であり、Claude Code のツール名 `Bash` とは異なる → quiz-lint.mjs のバッククォート自動修正に "Git Bash" の例外パターンを追加する
+- quiz:lint のバッククォート自動修正が "Git Bash" を "Git `Bash`" に変換し続ける。ses-133 で毎回修正が必要。 → quiz-lint.mjs のバッククォート自動修正に "Git Bash" を例外パターンとして追加する
+
+## Agent teams terminology (teammates vs subagents)
+
+- skill-039 の wrongFeedback がデスクトップアプリでの利用可能性を誤って記述していた。docs は "available via the CLI and Agent SDK, not in Desktop" と明記 → エージェントチーム関連問題の生成時に CLI/Agent SDK のみ利用可能というプラットフォーム制限を明記するガイドラインを追加
+- key-016 が question タイトルに "拡張思考（Extended Thinking）" を使用。model-config docs では Opus 4.6/Sonnet 4.6 の思考機能は "adaptive reasoning" と表記。ただし settings.md と interactive-mode.md では一般的な思考機能として "Extended Thinking" を使用しており、用語の使い分けが必要 → known-issues.md に「"Extended Thinking" は一般的な思考機能名として使用可。Opus 4.6/Sonnet 4.6 固有の動作を説明する場合は "adaptive reasoning" を使用」というガイドラインを追加
+
+## CLAUDE.md line count recommendation inconsistency
+
+- skill-048 が 500行を正解としていたが、memory page は "target under 200 lines per CLAUDE.md file" と明記。features-overview に "~500 lines" と "200 lines" の両方が記載されており混乱の原因 → known-issues.md に「CLAUDE.md 推奨行数は200行/ファイル（memory page）。features-overview に ~500 lines の記載もあるが、200 がプライマリ推奨」を追加

@@ -204,6 +204,10 @@ function lintBackticks(quizzes, dryRun) {
           if (/["""][^"""]*$/.test(textBefore) && /^[^"""]*["""]/.test(textAfter)) {
             return match
           }
+          // Skip product names containing tool names (e.g., "Git Bash" is not the Bash tool)
+          if (tool === 'Bash' && /Git\s$/.test(textBefore)) {
+            return match
+          }
           changed = true
           return `\`${match}\``
         })
