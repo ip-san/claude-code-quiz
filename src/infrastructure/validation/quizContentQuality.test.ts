@@ -60,6 +60,14 @@ const VALID_DOC_PAGES = [
   'github-actions', 'gitlab-ci-cd', 'scheduled-tasks', 'remote-control',
   // Enterprise & Configuration
   'server-managed-settings', 'devcontainer',
+  // Cloud & Provider
+  'claude-code-on-the-web', 'amazon-bedrock', 'google-vertex-ai',
+  'microsoft-foundry', 'llm-gateway',
+  // Enterprise & Security (new)
+  'network-config', 'third-party-integrations', 'analytics',
+  'monitoring-usage', 'security',
+  // Features (new)
+  'code-review', 'troubleshooting',
   // Supplementary
   'permissions', 'cli-reference', 'setup', 'features-overview',
   'desktop-quickstart', 'authentication',

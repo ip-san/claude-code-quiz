@@ -55,8 +55,11 @@
   - `UserPromptSubmit`/`ConfigChange` → `reason` を **ユーザーへ表示のみ**（"Not added to context"）
   - `PreToolUse`/`PermissionRequest` → `hookSpecificOutput` による制御（別メカニズム）
   - `TeammateIdle`/`TaskCompleted` → Exit code のみ（stderr は Claude へフィードバック）
+  - `Elicitation` → ブロック可。exit 2 でエリシテーションを拒否
+  - `ElicitationResult` → ブロック可。exit 2 で応答をブロック（action は decline に変更）
   - `Notification`/`SessionStart`/`SessionEnd` 等 → ブロッキング不可
 - **各イベントセクションの decision control テーブルを個別確認すること。一般ルールで一括判定してはいけない**
+- ext-029 の explanation がブロッキング可能なイベントを9つ列挙していたが、`Elicitation` と `ElicitationResult` の2つが欠落していた（docs では11イベントがブロッキング可能） → known-issues.md のブロッキング対応イベントリストを9→11に更新（Elicitation, ElicitationResult を追加）
 
 ## UserPromptSubmit の reason 送信先（v4.43.1 で確定）
 
@@ -97,8 +100,8 @@ v4.43.0 以前の known-issues では「exit code 2 の一般ルールで UserPr
 ## 存在しないフレーズの引用（具体例）
 
 - "Delegate, don't dictate" は `how-claude-code-works` ページに掲載済み（`best-practices` ではない）
-- "Ruthlessly prune" / "Keep it concise" は memory ベストプラクティスページに記載なし
-- 実際は "Review periodically" "Be specific" "Use structure to organize"
+- "Ruthlessly prune" は best-practices ページの「The over-specified CLAUDE.md」パターンの Fix として記載済み（2026-03-10 確認）。memory ページにはなし
+- "Keep it concise" は memory ベストプラクティスページに記載なし
 
 ## CLIフラグの組み合わせ（具体例）
 
@@ -129,7 +132,7 @@ v4.43.0 以前の known-issues では「exit code 2 の一般ルールで UserPr
 ## 対象の不完全列挙（具体例）
 
 - `Ctrl+B`: "Backgrounds bash commands **and agents**" — 「bash commands」のみの記述は不完全
-- ext-029: Hook のブロッキング対応イベント（Can block = Yes）は9つ: `PreToolUse`, `UserPromptSubmit`, `PermissionRequest`, `Stop`, `SubagentStop`, `TeammateIdle`, `TaskCompleted`, `ConfigChange`, `WorktreeCreate`。**`PostToolUse` は Can block = No**（ツール実行済みのため exit 2 でも stderr を Claude に表示するだけ）
+- ext-029: Hook のブロッキング対応イベント（Can block = Yes）は11: `PreToolUse`, `UserPromptSubmit`, `PermissionRequest`, `Stop`, `SubagentStop`, `TeammateIdle`, `TaskCompleted`, `ConfigChange`, `WorktreeCreate`, `Elicitation`, `ElicitationResult`。**`PostToolUse` は Can block = No**（ツール実行済みのため exit 2 でも stderr を Claude に表示するだけ）
 
 ## multi-select 問題の完全性検証
 
@@ -195,6 +198,8 @@ v4.43.0 以前の known-issues では「exit code 2 の一般ルールで UserPr
 ## effort level default value
 
 - ses-045とses-102の両方がeffort levelのデフォルト値を"high"と記述していたが、ドキュメント(model-config)では「Opus 4.6 defaults to medium effort for Max and Team subscribers」と明記されている → known-issues.mdに「`CLAUDE_CODE_EFFORT_LEVEL`: Opus 4.6のデフォルトはMax/TeamサブスクライバーではmediumM（highではない）」を追加
+- ses-045 と ses-102 がエフォートレベルを「3段階」(low/medium/high) と記述していたが、docs (model-config page) では第4レベル `max` (Opus 4.6専用、セッション単位、永続化されない) と `/effort auto` (デフォルトリセット) が追加されている。また ses-102 の explanation が設定方法を「3つ」と記述していたが、`/effort` コマンドと `--effort` CLI フラグの追加で4つになっている → generate-quiz-data SKILL.md にエフォートレベルの4段階 + auto、および設定方法4種を明記する
+- key-016, ses-045 のエフォートレベル値が low/medium/high の3つのみで、max と auto が欠落していた → generate-quiz-data SKILL.md にエフォートレベルの5値 (low/medium/high/max/auto) と、設定方法5種（/effort, --effort, env var, settings, /model slider）を明記
 
 ## 存在しないCLIサブコマンド
 
@@ -206,7 +211,7 @@ v4.43.0 以前の known-issues では「exit code 2 の一般ルールで UserPr
 
 ## Hook イベント総数
 
-- Hook event types は全 18 種（`InstructionsLoaded` を含む）
+- Hook event types は全 21 種（`InstructionsLoaded`、`PostCompact`、`Elicitation`、`ElicitationResult` を含む）。v4.44.0 時点では 18 種だったが、`PostCompact`、`Elicitation`、`ElicitationResult` が追加された
 
 ## 環境変数（追加）
 
@@ -251,12 +256,34 @@ v4.43.0 以前の known-issues では「exit code 2 の一般ルールで UserPr
 - ses-133 で quiz:lint が "Git Bash" を "Git `Bash`" に変換。"Git Bash" は Git for Windows のプロダクト名でありツール名 `Bash` とは異なる → quiz-lint.mjs のバッククォート自動修正に "Git Bash" の例外パターンを追加
 - ses-133 で quiz:lint のバッククォート自動修正が "Git Bash" を "Git `Bash`" に繰り返し変換している。"Git Bash" は Git for Windows のプロダクト名であり、Claude Code のツール名 `Bash` とは異なる → quiz-lint.mjs のバッククォート自動修正に "Git Bash" の例外パターンを追加する
 - quiz:lint のバッククォート自動修正が "Git Bash" を "Git `Bash`" に変換し続ける。ses-133 で毎回修正が必要。 → quiz-lint.mjs のバッククォート自動修正に "Git Bash" を例外パターンとして追加する
+- quiz:lint reported 206 distractor issues (correct-too-long, format-giveaway, distractor-too-short) → Consider a dedicated pass to balance option lengths and add backticks to wrong options
+- quiz:lint reported distractor issues (correct-too-long, format-giveaway, distractor-too-short) → Consider a dedicated pass to balance option lengths and add backticks to wrong options
+- quiz:lint のバッククォート自動修正が毎回 bp-059, bp-061, bp-064 で修正を行う（7 fixes in 3 questions）。これらは `WebFetch` や `Bash` のようなツール名が自由テキスト内で使われるケース → quiz:lint のバッククォート自動修正ルールをより精密にするか、修正済みの結果が保存されるようワークフローを調整
 
 ## Agent teams terminology (teammates vs subagents)
 
 - skill-039 の wrongFeedback がデスクトップアプリでの利用可能性を誤って記述していた。docs は "available via the CLI and Agent SDK, not in Desktop" と明記 → エージェントチーム関連問題の生成時に CLI/Agent SDK のみ利用可能というプラットフォーム制限を明記するガイドラインを追加
 - key-016 が question タイトルに "拡張思考（Extended Thinking）" を使用。model-config docs では Opus 4.6/Sonnet 4.6 の思考機能は "adaptive reasoning" と表記。ただし settings.md と interactive-mode.md では一般的な思考機能として "Extended Thinking" を使用しており、用語の使い分けが必要 → known-issues.md に「"Extended Thinking" は一般的な思考機能名として使用可。Opus 4.6/Sonnet 4.6 固有の動作を説明する場合は "adaptive reasoning" を使用」というガイドラインを追加
+- cmd-033 の explanation が「`claude commit` サブコマンドは存在しません」と正しく否定的に述べているのに、terminology checker がフラグした → quiz:lint の terminology チェックで「存在しない」「ではありません」等の否定パターンとの共起を除外する
+
+## dontAsk パーミッションモードのプラットフォーム制限
+
+- `dontAsk` パーミッションモードは CLI のみで利用可能。デスクトップアプリでは利用不可
+- quiz で `dontAsk` モードを記述する場合は CLI 限定であることを正確に反映すること
 
 ## CLAUDE.md line count recommendation inconsistency
 
 - skill-048 が 500行を正解としていたが、memory page は "target under 200 lines per CLAUDE.md file" と明記。features-overview に "~500 lines" と "200 lines" の両方が記載されており混乱の原因 → known-issues.md に「CLAUDE.md 推奨行数は200行/ファイル（memory page）。features-overview に ~500 lines の記載もあるが、200 がプライマリ推奨」を追加
+
+## quiz:lint distractor issues accumulation
+
+- 206件の distractor issues（correct-too-long: 106, format-giveaway: 46, distractor-too-short: 54）が蓄積。正解の長さの偏りとバッククォート書式の不均衡が多い → 専用パスとして distractor 品質改善バッチを検討（正解の短縮 or 不正解への具体性追加）
+- 206件のdistractor issues（correct-too-long: 106, format-giveaway: 46, distractor-too-short: 54）が蓄積したまま → 専用の distractor 品質改善バッチを検討
+
+## Automated pattern scanning efficiency
+
+- 557問のフルスキャンで、Known Issues に記載された全パターンを自動スクリプトで検証したが、全て既に修正済みであった → 今回の自動スキャンスクリプトのパターンをquiz-utils.mjsに統合し、quiz:fact-checkのカバレッジを拡張する
+
+## allowManagedHooksOnly wrongFeedback precision
+
+- ses-052 の wrongFeedback.2 が「マネージド以外のHooks」と曖昧に記述しており、SDK hooks が許可される点が不明確 → wrongFeedback で allowManagedHooksOnly の範囲を記述する場合は「User/Project/Plugin のフックが無効化される。Managed と SDK のフックは許可される」と正確に記述するガイドラインを追加

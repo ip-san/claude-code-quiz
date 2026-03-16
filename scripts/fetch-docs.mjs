@@ -86,6 +86,21 @@ const DOC_PAGES = [
   { name: 'features-overview', url: 'https://code.claude.com/docs/en/features-overview' },
   { name: 'desktop-quickstart', url: 'https://code.claude.com/docs/en/desktop-quickstart' },
   { name: 'authentication', url: 'https://code.claude.com/docs/en/authentication' },
+  // Cloud & Provider
+  { name: 'claude-code-on-the-web', url: 'https://code.claude.com/docs/en/claude-code-on-the-web' },
+  { name: 'amazon-bedrock', url: 'https://code.claude.com/docs/en/amazon-bedrock' },
+  { name: 'google-vertex-ai', url: 'https://code.claude.com/docs/en/google-vertex-ai' },
+  { name: 'microsoft-foundry', url: 'https://code.claude.com/docs/en/microsoft-foundry' },
+  { name: 'llm-gateway', url: 'https://code.claude.com/docs/en/llm-gateway' },
+  // Enterprise & Security
+  { name: 'network-config', url: 'https://code.claude.com/docs/en/network-config' },
+  { name: 'third-party-integrations', url: 'https://code.claude.com/docs/en/third-party-integrations' },
+  { name: 'analytics', url: 'https://code.claude.com/docs/en/analytics' },
+  { name: 'monitoring-usage', url: 'https://code.claude.com/docs/en/monitoring-usage' },
+  { name: 'security', url: 'https://code.claude.com/docs/en/security' },
+  // Features
+  { name: 'code-review', url: 'https://code.claude.com/docs/en/code-review' },
+  { name: 'troubleshooting', url: 'https://code.claude.com/docs/en/troubleshooting' },
   // Agent SDK (different domain)
   { name: 'agent-sdk-overview', url: 'https://platform.claude.com/docs/en/agent-sdk/overview' },
 ]
