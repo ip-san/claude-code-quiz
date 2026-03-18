@@ -80,9 +80,56 @@ node scripts/fetch-docs.mjs --assemble --pages settings,checkpointing,overview,q
   ],
   "correctIndex": 1,
   "explanation": "正解の詳細な解説（日本語）",
-  "referenceUrl": "https://code.claude.com/docs/en/..."
+  "referenceUrl": "https://code.claude.com/docs/en/...",
+  "diagram": { ... }
 }
 ```
+
+### `diagram` フィールド（オプション）
+
+構造的な概念（階層・フロー・循環・比較）を解説する問題には、`diagram` フィールドを追加する。
+解説テキストの下にアニメーション付き図として表示される。
+
+**4つのタイプ:**
+
+```json
+// hierarchy: スコープ優先順位・階層
+{ "type": "hierarchy", "label": "設定スコープ優先順位", "items": [
+  { "text": "Managed", "sub": "IT管理者配布" },
+  { "text": "CLI", "sub": "コマンドライン引数" }
+]}
+
+// flow: 時系列・手順・パイプライン
+{ "type": "flow", "label": "Hook実行タイミング", "steps": [
+  { "text": "PreToolUse", "sub": "ブロック可能" },
+  { "text": "ツール実行", "sub": "" },
+  { "text": "PostToolUse", "sub": "フィードバック" }
+]}
+
+// cycle: 循環状態遷移
+{ "type": "cycle", "label": "パーミッションモード", "trigger": "Shift+Tab", "states": [
+  { "text": "Normal", "sub": "全操作に確認要" },
+  { "text": "Auto-Accept", "sub": "編集は自動承認" },
+  { "text": "Plan", "sub": "読み取り専用" }
+]}
+
+// comparison: 比較・対照（2〜4カラム）
+{ "type": "comparison", "label": "Skills vs Hooks vs MCP", "columns": [
+  { "heading": "Skills", "items": ["プロンプトテンプレ", "/コマンドで呼出"] },
+  { "heading": "Hooks", "items": ["シェルコマンド自動実行", "イベント駆動"] },
+  { "heading": "MCP", "items": ["外部サービス接続", "ツール提供"] }
+]}
+```
+
+**いつ `diagram` を追加するか:**
+- スコープ優先順位・階層構造 → `hierarchy`
+- 処理の順序・パイプライン → `flow`
+- 状態のトグル・循環 → `cycle`
+- 2つ以上の概念の違い・使い分け → `comparison`
+
+**いつ追加しないか:**
+- 単純な事実確認の問題（ダイアグラムが不要）
+- テキスト解説だけで十分理解できる問題
 
 ## Categories (8 categories)
 

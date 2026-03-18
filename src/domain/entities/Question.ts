@@ -23,6 +23,7 @@
  */
 
 import type { DifficultyLevel } from '../valueObjects/Difficulty'
+import type { DiagramData } from '../../infrastructure/validation/QuizValidator'
 
 /**
  * 選択肢の値オブジェクト
@@ -62,6 +63,7 @@ export interface QuestionProps {
   readonly tags?: string[]
   readonly type?: QuestionType
   readonly correctIndices?: number[]
+  readonly diagram?: DiagramData
 }
 
 export class Question {
@@ -78,6 +80,7 @@ export class Question {
   readonly tags: readonly string[]
   readonly type: QuestionType
   readonly correctIndices: readonly number[]
+  readonly diagram?: DiagramData
 
   /**
    * Private constructor - 外部から直接 new できない
@@ -95,6 +98,7 @@ export class Question {
     this.category = props.category
     this.difficulty = props.difficulty
     this.tags = Object.freeze(props.tags ?? [])
+    this.diagram = props.diagram ? Object.freeze(props.diagram) : undefined
     this.type = props.type ?? 'single'
     if (this.type === 'multi' && props.correctIndices) {
       this.correctIndices = Object.freeze([...props.correctIndices])
@@ -212,6 +216,7 @@ export class Question {
         tags: Array.isArray(d.tags) ? d.tags.map(String) : undefined,
         type: questionType,
         correctIndices,
+        diagram: d.diagram as DiagramData | undefined,
       })
     } catch {
       return null
@@ -356,6 +361,7 @@ ${this.referenceUrl ? `**参考:** ${this.referenceUrl}` : ''}
       tags: [...this.tags],
       type: this.type,
       correctIndices: this.isMultiSelect ? [...this.correctIndices] : undefined,
+      diagram: this.diagram,
     }
   }
 }

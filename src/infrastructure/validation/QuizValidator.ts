@@ -74,6 +74,58 @@ export const QuizOptionSchema = z.object({
  */
 export const QuestionTypeSchema = z.enum(['single', 'multi']).default('single')
 
+// ============================================================
+// Diagram Schemas
+// ============================================================
+
+const DiagramItemSchema = z.object({
+  text: z.string().min(1),
+  sub: z.string().optional(),
+})
+
+const HierarchyDiagramSchema = z.object({
+  type: z.literal('hierarchy'),
+  label: z.string().optional(),
+  items: z.array(DiagramItemSchema).min(2).max(10),
+})
+
+const FlowDiagramSchema = z.object({
+  type: z.literal('flow'),
+  label: z.string().optional(),
+  steps: z.array(DiagramItemSchema).min(2).max(10),
+})
+
+const CycleDiagramSchema = z.object({
+  type: z.literal('cycle'),
+  label: z.string().optional(),
+  trigger: z.string().optional(),
+  states: z.array(DiagramItemSchema).min(2).max(8),
+})
+
+const ComparisonColumnSchema = z.object({
+  heading: z.string().min(1),
+  items: z.array(z.string().min(1)).min(1),
+})
+
+const ComparisonDiagramSchema = z.object({
+  type: z.literal('comparison'),
+  label: z.string().optional(),
+  columns: z.array(ComparisonColumnSchema).min(2).max(5),
+})
+
+export const DiagramSchema = z.discriminatedUnion('type', [
+  HierarchyDiagramSchema,
+  FlowDiagramSchema,
+  CycleDiagramSchema,
+  ComparisonDiagramSchema,
+])
+
+export type DiagramData = z.infer<typeof DiagramSchema>
+
+// ============================================================
+// Quiz Item Schema
+// ============================================================
+
 export const QuizItemSchema = z.object({
   id: z.string().min(1, 'Quiz ID is required'),
   question: z.string().min(1, 'Question is required'),
@@ -94,6 +146,7 @@ export const QuizItemSchema = z.object({
   tags: z.array(z.string()).optional(),
   type: QuestionTypeSchema,
   correctIndices: z.array(z.number().int().min(0)).optional(),
+  diagram: DiagramSchema.optional(),
 }).refine(
   (data) => {
     if (data.type === 'multi') {

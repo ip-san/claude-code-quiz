@@ -402,4 +402,47 @@ describe('Quiz Content Quality', () => {
       }
     })
   })
+
+  describe('ダイアグラムの品質', () => {
+    const diagramQuizzes = quizzes.filter(
+      (q): q is typeof q & { diagram: NonNullable<typeof q.diagram> } =>
+        q.diagram != null
+    )
+
+    it('diagramフィールドが有効なtypeを持つこと', () => {
+      const validTypes = ['hierarchy', 'flow', 'cycle', 'comparison']
+      const violations = diagramQuizzes.filter(
+        q => !validTypes.includes(q.diagram.type)
+      )
+      expect(violations.map(q => q.id)).toEqual([])
+    })
+
+    it('hierarchyダイアグラムが2個以上のアイテムを持つこと', () => {
+      const violations = diagramQuizzes
+        .filter(q => q.diagram.type === 'hierarchy')
+        .filter(q => (q.diagram.items?.length ?? 0) < 2)
+      expect(violations.map(q => q.id)).toEqual([])
+    })
+
+    it('flowダイアグラムが2個以上のステップを持つこと', () => {
+      const violations = diagramQuizzes
+        .filter(q => q.diagram.type === 'flow')
+        .filter(q => (q.diagram.steps?.length ?? 0) < 2)
+      expect(violations.map(q => q.id)).toEqual([])
+    })
+
+    it('cycleダイアグラムが2個以上の状態を持つこと', () => {
+      const violations = diagramQuizzes
+        .filter(q => q.diagram.type === 'cycle')
+        .filter(q => (q.diagram.states?.length ?? 0) < 2)
+      expect(violations.map(q => q.id)).toEqual([])
+    })
+
+    it('comparisonダイアグラムが2個以上のカラムを持つこと', () => {
+      const violations = diagramQuizzes
+        .filter(q => q.diagram.type === 'comparison')
+        .filter(q => (q.diagram.columns?.length ?? 0) < 2)
+      expect(violations.map(q => q.id)).toEqual([])
+    })
+  })
 })

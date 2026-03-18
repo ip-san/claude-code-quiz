@@ -17,6 +17,9 @@ export default {
       animation: {
         'shake': 'shake 0.5s ease-in-out',
         'pulse-success': 'pulse-success 0.5s ease-in-out',
+        'diagram-fade-up': 'diagram-fade-up 0.4s ease-out forwards',
+        'diagram-slide-right': 'diagram-slide-right 0.4s ease-out forwards',
+        'diagram-scale-in': 'diagram-scale-in 0.3s ease-out forwards',
       },
       keyframes: {
         shake: {
@@ -27,6 +30,18 @@ export default {
         'pulse-success': {
           '0%, 100%': { transform: 'scale(1)' },
           '50%': { transform: 'scale(1.02)' },
+        },
+        'diagram-fade-up': {
+          '0%': { opacity: '0', transform: 'translateY(8px)' },
+          '100%': { opacity: '1', transform: 'translateY(0)' },
+        },
+        'diagram-slide-right': {
+          '0%': { opacity: '0', transform: 'translateX(-12px)' },
+          '100%': { opacity: '1', transform: 'translateX(0)' },
+        },
+        'diagram-scale-in': {
+          '0%': { opacity: '0', transform: 'scale(0.85)' },
+          '100%': { opacity: '1', transform: 'scale(1)' },
         },
       },
     },

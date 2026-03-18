@@ -11,6 +11,7 @@ import {
   FileText,
 } from 'lucide-react'
 import { QuizText } from './QuizText'
+import { DiagramRenderer } from './diagrams/DiagramRenderer'
 
 interface FeedbackProps {
   quiz: Question
@@ -190,10 +191,15 @@ export function Feedback({ quiz, isCorrect }: FeedbackProps) {
       {/* Explanation - with scroll support for long content */}
       <div className="mb-4">
         <p className="mb-1 text-sm font-medium text-claude-dark">解説</p>
-        <div className="max-h-48 overflow-y-auto">
+        <div className={quiz.diagram ? 'max-h-96 overflow-y-auto' : 'max-h-48 overflow-y-auto'}>
           <p className="text-sm leading-relaxed text-stone-600">
             <QuizText text={quiz.explanation} />
           </p>
+          {quiz.diagram && (
+            <div className="mt-3 border-t border-stone-200 pt-3">
+              <DiagramRenderer diagram={quiz.diagram} />
+            </div>
+          )}
         </div>
       </div>
 

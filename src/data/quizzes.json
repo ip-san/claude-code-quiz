@@ -115,7 +115,29 @@
       ],
       "correctIndex": 1,
       "explanation": "マネージドポリシーは組織全体の設定として最高優先度を持ちます。IT/DevOps管理者がMDMやGroup Policyを通じて全開発者の環境に配布できる唯一のメモリ種別で、ユーザーやプロジェクトの設定では上書きできません。",
-      "referenceUrl": "https://code.claude.com/docs/en/memory#choose-where-to-put-claudemd-files"
+      "referenceUrl": "https://code.claude.com/docs/en/memory#choose-where-to-put-claudemd-files",
+      "diagram": {
+        "type": "hierarchy",
+        "label": "CLAUDE.md スコープ優先順位（高→低）",
+        "items": [
+          {
+            "text": "Managed",
+            "sub": "組織全体（システムディレクトリ）"
+          },
+          {
+            "text": "Local",
+            "sub": "CLAUDE.local.md（個人・gitignore対象）"
+          },
+          {
+            "text": "Project",
+            "sub": "CLAUDE.md（チーム共有）"
+          },
+          {
+            "text": "User",
+            "sub": "~/.claude/CLAUDE.md（個人全体）"
+          }
+        ]
+      }
     },
     {
       "id": "mem-005",
@@ -324,7 +346,25 @@
       ],
       "correctIndex": 1,
       "explanation": "プロジェクトルール（`.claude/rules/`）はユーザールール（`~/.claude/rules/`）より優先度が高いです。これはメモリ階層の「より具体的なスコープが広いスコープに優先する」原則に従っています。プロジェクトルールは特定プロジェクト固有の要件を反映するため、全プロジェクト共通の個人設定（ユーザールール）より具体的とみなされます。",
-      "referenceUrl": "https://code.claude.com/docs/en/memory#user-level-rules"
+      "referenceUrl": "https://code.claude.com/docs/en/memory#user-level-rules",
+      "diagram": {
+        "type": "hierarchy",
+        "label": "ルール優先順位",
+        "items": [
+          {
+            "text": "Managed",
+            "sub": "組織ポリシー"
+          },
+          {
+            "text": "Project",
+            "sub": ".claude/rules/"
+          },
+          {
+            "text": "User",
+            "sub": "~/.claude/rules/"
+          }
+        ]
+      }
     },
     {
       "id": "mem-014",
@@ -351,7 +391,37 @@
       "correctIndex": 2,
       "explanation": "`CLAUDE.md`は「常に知っておくべきルール」（規約・コマンド・構造）、`.claude/skills/`は「必要時に呼び出す再利用可能なワークフロー」、`CLAUDE.local.md`は「個人的な設定（`.gitignore`対象）」という役割分担があります。情報の性質に応じて適切なファイルに配置することが重要です。",
       "referenceUrl": "https://code.claude.com/docs/en/memory",
-      "hint": "各ファイルの特徴を考えましょう：`CLAUDE.md`=チーム共有ルール、Skills=ワークフローテンプレート、`CLAUDE.local.md`=個人設定"
+      "hint": "各ファイルの特徴を考えましょう：`CLAUDE.md`=チーム共有ルール、Skills=ワークフローテンプレート、`CLAUDE.local.md`=個人設定",
+      "diagram": {
+        "type": "comparison",
+        "label": "ファイルの役割分担",
+        "columns": [
+          {
+            "heading": "CLAUDE.md",
+            "items": [
+              "チーム共有ルール",
+              "常時読み込み",
+              "規約・構造"
+            ]
+          },
+          {
+            "heading": "Skills",
+            "items": [
+              "ワークフローテンプレ",
+              "必要時に呼出",
+              "PRレビュー等"
+            ]
+          },
+          {
+            "heading": "CLAUDE.local.md",
+            "items": [
+              "個人設定",
+              ".gitignore対象",
+              "デバッグ用等"
+            ]
+          }
+        ]
+      }
     },
     {
       "id": "skill-001",
@@ -706,7 +776,37 @@
       ],
       "correctIndex": 1,
       "explanation": "Skill定義の`agent`フィールドで指定できる組み込みエージェントタイプは`Explore`、`Plan`、`general-purpose`の3つです。省略時は`general-purpose`が使用されます。`.claude/agents/`配下に定義したカスタムサブエージェントも指定可能です。",
-      "referenceUrl": "https://code.claude.com/docs/en/skills#run-skills-in-a-subagent"
+      "referenceUrl": "https://code.claude.com/docs/en/skills#run-skills-in-a-subagent",
+      "diagram": {
+        "type": "comparison",
+        "label": "組み込みエージェントタイプ",
+        "columns": [
+          {
+            "heading": "Explore",
+            "items": [
+              "コードベース探索",
+              "読み取り専用",
+              "高速検索"
+            ]
+          },
+          {
+            "heading": "Plan",
+            "items": [
+              "設計・計画",
+              "読み取り専用",
+              "アーキテクチャ検討"
+            ]
+          },
+          {
+            "heading": "general-purpose",
+            "items": [
+              "汎用（デフォルト）",
+              "全ツール使用可",
+              "実装・修正"
+            ]
+          }
+        ]
+      }
     },
     {
       "id": "skill-014",
@@ -789,7 +889,27 @@
         "overview",
         "overview-120",
         "overview-ch-3"
-      ]
+      ],
+      "diagram": {
+        "type": "comparison",
+        "label": "Grep vs Glob",
+        "columns": [
+          {
+            "heading": "Grep",
+            "items": [
+              "ファイル内容を検索",
+              "正規表現パターン"
+            ]
+          },
+          {
+            "heading": "Glob",
+            "items": [
+              "ファイル名で検索",
+              "パス/拡張子パターン"
+            ]
+          }
+        ]
+      }
     },
     {
       "id": "tool-002",
@@ -841,7 +961,29 @@
       ],
       "correctIndex": 2,
       "explanation": "`Edit`ツールは`old_string`→`new_string`の文字列置換で部分変更を行い、差分が明確です。`Write`はファイル全体を上書きするため、部分変更には`Edit`が推奨されます。`Edit`の`old_string`が一意でない場合はエラーになりますが、これは意図しない箇所を変更しないための安全機能です。",
-      "referenceUrl": "https://code.claude.com/docs/en/how-claude-code-works#tools"
+      "referenceUrl": "https://code.claude.com/docs/en/how-claude-code-works#tools",
+      "diagram": {
+        "type": "comparison",
+        "label": "Edit vs Write",
+        "columns": [
+          {
+            "heading": "Edit",
+            "items": [
+              "部分的な文字列置換",
+              "差分が明確",
+              "一意性チェックあり"
+            ]
+          },
+          {
+            "heading": "Write",
+            "items": [
+              "ファイル全体を上書き",
+              "新規作成向き",
+              "大幅な変更向き"
+            ]
+          }
+        ]
+      }
     },
     {
       "id": "tool-004",
@@ -872,7 +1014,34 @@
         "overview",
         "overview-140",
         "overview-ch-3"
-      ]
+      ],
+      "diagram": {
+        "type": "comparison",
+        "label": "ツール使い分け",
+        "columns": [
+          {
+            "heading": "Bash",
+            "items": [
+              "シェルコマンド",
+              "システム操作"
+            ]
+          },
+          {
+            "heading": "Read/Edit/Write",
+            "items": [
+              "ファイル操作",
+              "直接読書編集"
+            ]
+          },
+          {
+            "heading": "Grep/Glob",
+            "items": [
+              "検索特化",
+              "コード探索"
+            ]
+          }
+        ]
+      }
     },
     {
       "id": "tool-005",
@@ -1285,7 +1454,37 @@
       ],
       "correctIndex": 1,
       "explanation": "`/todos`はClaudeが複雑なタスクを分解して管理するTODOアイテムの一覧を表示します。一方、`/tasks`は`Bash`コマンドなどをバックグラウンドで実行中のプロセスの一覧管理を行います。なお、`Ctrl+T`はClaudeが複雑な作業を行う際に作成する新しいTask Listの表示/非表示を切り替えるショートカットで、旧来の`/todos`とは別の機能です（`CLAUDE_CODE_ENABLE_TASKS=false`で旧TODO listに戻せます）。",
-      "referenceUrl": "https://code.claude.com/docs/en/interactive-mode"
+      "referenceUrl": "https://code.claude.com/docs/en/interactive-mode",
+      "diagram": {
+        "type": "comparison",
+        "label": "Ctrl+T vs /todos vs /tasks",
+        "columns": [
+          {
+            "heading": "Ctrl+T",
+            "items": [
+              "Task List表示切替",
+              "新しいUI",
+              "複雑タスクの進捗"
+            ]
+          },
+          {
+            "heading": "/todos",
+            "items": [
+              "旧TODOリスト",
+              "テキストベース",
+              "ENABLE_TASKS=false"
+            ]
+          },
+          {
+            "heading": "/tasks",
+            "items": [
+              "バックグラウンドタスク",
+              "プロセス管理",
+              "Bash実行一覧"
+            ]
+          }
+        ]
+      }
     },
     {
       "id": "cmd-008",
@@ -1316,7 +1515,29 @@
         "overview",
         "overview-370",
         "overview-ch-6"
-      ]
+      ],
+      "diagram": {
+        "type": "comparison",
+        "label": "Plan Mode のツールアクセス",
+        "columns": [
+          {
+            "heading": "使用可能",
+            "items": [
+              "Read",
+              "Glob",
+              "Grep"
+            ]
+          },
+          {
+            "heading": "使用不可",
+            "items": [
+              "Edit",
+              "Write",
+              "Bash"
+            ]
+          }
+        ]
+      }
     },
     {
       "id": "cmd-009",
@@ -1498,7 +1719,37 @@
       ],
       "correctIndex": 0,
       "explanation": "`/stats`は日別の使用統計、セッション履歴、連続使用日数（ストリーク）、モデル使用傾向を視覚化するダッシュボードです。`/cost`は現在のセッションと累計のトークン使用量を詳細に表示します。`/usage`はサブスクリプションプラン利用者向けにプランの使用制限やレート制限の状態を確認するコマンドです。",
-      "referenceUrl": "https://code.claude.com/docs/en/interactive-mode"
+      "referenceUrl": "https://code.claude.com/docs/en/interactive-mode",
+      "diagram": {
+        "type": "comparison",
+        "label": "使用状況コマンドの違い",
+        "columns": [
+          {
+            "heading": "/stats",
+            "items": [
+              "日別使用量",
+              "セッション履歴",
+              "連続使用日数"
+            ]
+          },
+          {
+            "heading": "/cost",
+            "items": [
+              "トークン使用量",
+              "セッション/累計",
+              "コスト詳細"
+            ]
+          },
+          {
+            "heading": "/usage",
+            "items": [
+              "プラン制限",
+              "レート制限",
+              "サブスクリプション情報"
+            ]
+          }
+        ]
+      }
     },
     {
       "id": "ext-001",
@@ -1726,7 +1977,37 @@
       "explanation": "`stdio`トランスポートはローカルプロセスとしてマシン上で直接実行されるため、ファイルシステムやローカルツールへの直接アクセスが必要な場合に最適です。リモートサーバーにはHTTPトランスポートが推奨されており、`SSE`もリモート向けです。",
       "category": "extensions",
       "difficulty": "intermediate",
-      "referenceUrl": "https://code.claude.com/docs/en/mcp"
+      "referenceUrl": "https://code.claude.com/docs/en/mcp",
+      "diagram": {
+        "type": "comparison",
+        "label": "MCPトランスポート方式",
+        "columns": [
+          {
+            "heading": "stdio",
+            "items": [
+              "ローカルプロセス",
+              "直接システムアクセス",
+              "子プロセスとして起動"
+            ]
+          },
+          {
+            "heading": "HTTP",
+            "items": [
+              "リモートサーバー",
+              "REST API接続",
+              "推奨（リモート用）"
+            ]
+          },
+          {
+            "heading": "SSE",
+            "items": [
+              "リモートサーバー",
+              "Server-Sent Events",
+              "ストリーミング通信"
+            ]
+          }
+        ]
+      }
     },
     {
       "id": "ext-010",
@@ -1752,7 +2033,25 @@
       "explanation": "`PreToolUse`はツール実行前に発火するため、`hookSpecificOutput`内の`permissionDecision`でallow/deny/askの3段階制御が可能です。一方`PostToolUse`はツール実行成功後に発火するため、ツール自体のブロッキングはできず、Claudeへのフィードバック提供（decisionで\"block\"を返してClaudeに再考を促す）が主な用途です。",
       "category": "extensions",
       "difficulty": "intermediate",
-      "referenceUrl": "https://code.claude.com/docs/en/hooks"
+      "referenceUrl": "https://code.claude.com/docs/en/hooks",
+      "diagram": {
+        "type": "flow",
+        "label": "Hookイベントとツール実行の流れ",
+        "steps": [
+          {
+            "text": "PreToolUse",
+            "sub": "allow/deny/askで制御"
+          },
+          {
+            "text": "ツール実行",
+            "sub": "Bash, Edit等"
+          },
+          {
+            "text": "PostToolUse",
+            "sub": "Claudeへフィードバック"
+          }
+        ]
+      }
     },
     {
       "id": "ext-011",
@@ -1939,7 +2238,29 @@
       "explanation": "`/clear`は会話履歴を完全に消去しますが、Claude Code自体は起動したままで、同じプロジェクトで新しい会話をすぐに始められます。一方、`/exit`はClaude Code自体を終了します。ファイルへの変更はどちらのコマンドでも元に戻りません。",
       "category": "session",
       "difficulty": "beginner",
-      "referenceUrl": "https://code.claude.com/docs/en/interactive-mode"
+      "referenceUrl": "https://code.claude.com/docs/en/interactive-mode",
+      "diagram": {
+        "type": "comparison",
+        "label": "/clear vs /exit",
+        "columns": [
+          {
+            "heading": "/clear",
+            "items": [
+              "会話履歴のみ消去",
+              "セッション継続",
+              "同じプロジェクトで再開"
+            ]
+          },
+          {
+            "heading": "/exit",
+            "items": [
+              "Claude Code終了",
+              "セッション終了",
+              "再起動が必要"
+            ]
+          }
+        ]
+      }
     },
     {
       "id": "skill-038",
@@ -1965,7 +2286,27 @@
       "explanation": "`context: fork`ではSkillの内容がサブエージェントのタスク（プロンプト）となり、agentフィールドで指定したサブエージェントタイプが実行環境を提供します。一方、サブエージェントのskillsフィールドではサブエージェント自身のシステムプロンプトが主体で、指定されたSkillのフルコンテンツが参考資料としてコンテキストに注入されます。",
       "category": "skills",
       "difficulty": "intermediate",
-      "referenceUrl": "https://code.claude.com/docs/en/skills#run-skills-in-a-subagent"
+      "referenceUrl": "https://code.claude.com/docs/en/skills#run-skills-in-a-subagent",
+      "diagram": {
+        "type": "comparison",
+        "label": "Skill連携方式の違い",
+        "columns": [
+          {
+            "heading": "context: fork",
+            "items": [
+              "独立コンテキストで実行",
+              "メイン会話から分離"
+            ]
+          },
+          {
+            "heading": "subagent skills",
+            "items": [
+              "サブエージェント内",
+              "親に結果返却"
+            ]
+          }
+        ]
+      }
     },
     {
       "id": "ses-005",
@@ -2174,7 +2515,25 @@
       "explanation": "`Esc+Esc`（Escキーを2回押す）と`/rewind`コマンドはどちらも同じrewindメニューを開き、機能的な違いはありません。メニューではセッション内の各プロンプトが一覧表示され、選択した時点について「コードと会話を復元」「会話のみ復元」「コードのみ復元」「ここから要約」「Never mind（変更なしで戻る）」の5つのアクションから選べます。",
       "category": "keyboard",
       "difficulty": "intermediate",
-      "referenceUrl": "https://code.claude.com/docs/en/checkpointing"
+      "referenceUrl": "https://code.claude.com/docs/en/checkpointing",
+      "diagram": {
+        "type": "flow",
+        "label": "Rewindメニューの選択肢",
+        "steps": [
+          {
+            "text": "Esc+Esc / /rewind",
+            "sub": "メニューを開く"
+          },
+          {
+            "text": "チェックポイント選択",
+            "sub": "プロンプト時点"
+          },
+          {
+            "text": "アクション選択",
+            "sub": "コード/会話/両方/要約"
+          }
+        ]
+      }
     },
     {
       "id": "key-003",
@@ -2200,7 +2559,37 @@
       "explanation": "`Ctrl+C`は標準的な割り込みシグナルで、入力中や生成中の操作をキャンセルします（ドキュメントで「Cancel current input or generation」として定義）。`Esc`は入力のキャンセルに使え、`Esc+Esc`はrewindメニュー（`/rewind`相当）を開く追加機能があります。1回と2回で動作が異なる点に注意が必要です。",
       "category": "keyboard",
       "difficulty": "beginner",
-      "referenceUrl": "https://code.claude.com/docs/en/interactive-mode"
+      "referenceUrl": "https://code.claude.com/docs/en/interactive-mode",
+      "diagram": {
+        "type": "comparison",
+        "label": "キーボード操作の違い",
+        "columns": [
+          {
+            "heading": "Ctrl+C",
+            "items": [
+              "生成キャンセル",
+              "入力キャンセル",
+              "セッション継続"
+            ]
+          },
+          {
+            "heading": "Esc",
+            "items": [
+              "入力クリア",
+              "1回: 入力のみ",
+              "2回: rewindメニュー"
+            ]
+          },
+          {
+            "heading": "Ctrl+D",
+            "items": [
+              "セッション終了",
+              "/exitと同等",
+              "プロセス終了"
+            ]
+          }
+        ]
+      }
     },
     {
       "id": "key-004",
@@ -2341,7 +2730,26 @@
         "overview",
         "overview-210",
         "overview-ch-4"
-      ]
+      ],
+      "diagram": {
+        "type": "cycle",
+        "label": "パーミッションモード",
+        "trigger": "Shift+Tab",
+        "states": [
+          {
+            "text": "Normal",
+            "sub": "全操作に確認要"
+          },
+          {
+            "text": "Auto-Accept",
+            "sub": "編集は自動承認"
+          },
+          {
+            "text": "Plan",
+            "sub": "読み取り専用"
+          }
+        ]
+      }
     },
     {
       "id": "key-010",
@@ -2706,7 +3114,29 @@
       ],
       "correctIndex": 2,
       "explanation": "マネージドポリシーはIT/DevOps管理者がMDMやGroup Policy等を通じて組織全体に統一ルールを配布する仕組みで、設定スコープの優先順位で最高レベルに位置します。例えば「本番DBへの直接アクセス禁止」「特定のコーディング規約の遵守」などの組織ポリシーを全開発者に強制できます。`CLAUDE.md`のスコープ優先順位は Managed > Local > Project > User の順で、マネージドポリシーはユーザーやプロジェクトの設定では上書きできません。より具体的なスコープ（Local = 個人×プロジェクト）がより広いスコープ（Project = チーム全体、User = 全プロジェクト）に優先します。",
-      "referenceUrl": "https://code.claude.com/docs/en/memory"
+      "referenceUrl": "https://code.claude.com/docs/en/memory",
+      "diagram": {
+        "type": "hierarchy",
+        "label": "CLAUDE.mdスコープ（高→低）",
+        "items": [
+          {
+            "text": "Managed",
+            "sub": "組織全体の指示"
+          },
+          {
+            "text": "Local",
+            "sub": "CLAUDE.local.md（gitignore対象）"
+          },
+          {
+            "text": "Project",
+            "sub": "CLAUDE.md（プロジェクトルート）"
+          },
+          {
+            "text": "User",
+            "sub": "~/.claude/CLAUDE.md"
+          }
+        ]
+      }
     },
     {
       "id": "skill-016",
@@ -3205,7 +3635,25 @@
       "explanation": "CI/CDパイプラインでClaude Codeを使う場合、パイプでデータを渡し（cat file | `claude -p`）、-pフラグで非対話モードを使用します。`--output-format stream-json`はリアルタイムでJSONオブジェクトをストリーミング出力するため、各ターンの結果を即座に処理できます。jsonは全完了後の配列出力、textはプレーンテキスト出力です。",
       "category": "commands",
       "difficulty": "advanced",
-      "referenceUrl": "https://code.claude.com/docs/en/common-workflows"
+      "referenceUrl": "https://code.claude.com/docs/en/common-workflows",
+      "diagram": {
+        "type": "flow",
+        "label": "パイプラインデータフロー",
+        "steps": [
+          {
+            "text": "stdin",
+            "sub": "diff/コード入力"
+          },
+          {
+            "text": "claude -p",
+            "sub": "処理"
+          },
+          {
+            "text": "stdout",
+            "sub": "構造化出力"
+          }
+        ]
+      }
     },
     {
       "id": "cmd-026",
@@ -3361,7 +3809,45 @@
       "explanation": "Hooksには4つのハンドラタイプがあります。`command`タイプはシェルコマンドを実行し、`stdin`/`stdout`/exitコードで制御します。`http`タイプはHTTP POSTリクエストを送信し、環境変数の補間が可能です。`prompt`タイプはLLMに単一ターンの判定を依頼し、`{ok: true/false}`のJSONレスポンスを返します。`agent`タイプは`Read`、`Grep`、`Glob`などのツールを使えるサブエージェントを起動し、複数ターンにわたる多角的な検証を行えます。",
       "category": "extensions",
       "difficulty": "intermediate",
-      "referenceUrl": "https://code.claude.com/docs/en/hooks"
+      "referenceUrl": "https://code.claude.com/docs/en/hooks",
+      "diagram": {
+        "type": "comparison",
+        "label": "Hookハンドラタイプ",
+        "columns": [
+          {
+            "heading": "command",
+            "items": [
+              "シェルコマンド実行",
+              "stdin/stdout制御",
+              "exit codeで判定"
+            ]
+          },
+          {
+            "heading": "http",
+            "items": [
+              "HTTP POST送信",
+              "環境変数補間",
+              "外部サービス通知"
+            ]
+          },
+          {
+            "heading": "prompt",
+            "items": [
+              "LLM単発判定",
+              "ok: true/false応答",
+              "シンプルな検証"
+            ]
+          },
+          {
+            "heading": "agent",
+            "items": [
+              "サブエージェント",
+              "Read/Grep等使用可",
+              "複数ターン検証"
+            ]
+          }
+        ]
+      }
     },
     {
       "id": "ext-017",
@@ -3387,7 +3873,25 @@
       ],
       "correctIndex": 3,
       "explanation": "終了コード0は成功、2はブロッキングエラー（`stderr`の送信先はイベントによって異なり、`PreToolUse`等ではClaudeへのフィードバック、`Notification`等ではユーザーへの表示）、その他は非ブロッキングエラーです。",
-      "referenceUrl": "https://code.claude.com/docs/en/hooks"
+      "referenceUrl": "https://code.claude.com/docs/en/hooks",
+      "diagram": {
+        "type": "comparison",
+        "label": "Hook終了コードの意味",
+        "columns": [
+          {
+            "heading": "exit 0",
+            "items": ["成功（許可）", "処理を続行"]
+          },
+          {
+            "heading": "exit 2",
+            "items": ["ブロック", "stderrがフィードバック"]
+          },
+          {
+            "heading": "その他",
+            "items": ["非ブロッキングエラー", "stderrをClaude表示"]
+          }
+        ]
+      }
     },
     {
       "id": "ext-018",
@@ -3413,7 +3917,27 @@
       "explanation": "`exit code 2`はブロッキングエラーとして、イベント固有の制御を行います（例：`PreToolUse`ではツール呼び出しをブロック、`UserPromptSubmit`ではプロンプト処理を拒否）。`stderr`がフィードバックとして使われます。一方、JSON出力の`{continue: false}`は`exit 0`で返し、イベント種別に関わらずClaude Code全体の処理を停止させ、`stopReason`がユーザーに表示されます。使い分けの目安：特定のアクションだけ阻止したい場合は`exit 2`、セッション全体を安全に停止したい場合は`{continue: false}`を使います。",
       "category": "extensions",
       "difficulty": "intermediate",
-      "referenceUrl": "https://code.claude.com/docs/en/hooks"
+      "referenceUrl": "https://code.claude.com/docs/en/hooks",
+      "diagram": {
+        "type": "comparison",
+        "label": "Hook制御方法の違い",
+        "columns": [
+          {
+            "heading": "exit code 2",
+            "items": [
+              "イベント別制御",
+              "stderrがフィードバック"
+            ]
+          },
+          {
+            "heading": "{continue: false}",
+            "items": [
+              "汎用停止",
+              "reasonをClaudeに送信"
+            ]
+          }
+        ]
+      }
     },
     {
       "id": "ext-019",
@@ -3673,7 +4197,27 @@
       "explanation": "`managed-mcp.json`は排他的制御を提供し、ファイルに定義されたサーバーのみが利用可能で、ユーザーは`claude mcp add`でサーバーを追加できません。一方、`allowedMcpServers`/`deniedMcpServers`はポリシーベースの制御で、ユーザーは許可リスト内のサーバーを自由に追加・設定できます。",
       "category": "extensions",
       "difficulty": "advanced",
-      "referenceUrl": "https://code.claude.com/docs/en/mcp"
+      "referenceUrl": "https://code.claude.com/docs/en/mcp",
+      "diagram": {
+        "type": "comparison",
+        "label": "MCP設定方式の違い",
+        "columns": [
+          {
+            "heading": "managed-mcp.json",
+            "items": [
+              "管理者が直接配布",
+              "サーバー定義を含む"
+            ]
+          },
+          {
+            "heading": "allowedMcpServers",
+            "items": [
+              "許可リスト方式",
+              "ユーザー定義を制限"
+            ]
+          }
+        ]
+      }
     },
     {
       "id": "ext-029",
@@ -3751,7 +4295,27 @@
       ],
       "correctIndex": 1,
       "explanation": "復元（Restore）はコードや会話を実際に巻き戻します。要約（Summarize）は選択ポイント以降の会話を圧縮しますが、ファイルは変更せず、元のメッセージはトランスクリプトに保存されます。",
-      "referenceUrl": "https://code.claude.com/docs/en/checkpointing"
+      "referenceUrl": "https://code.claude.com/docs/en/checkpointing",
+      "diagram": {
+        "type": "comparison",
+        "label": "チェックポイント操作の違い",
+        "columns": [
+          {
+            "heading": "復元",
+            "items": [
+              "コード+会話を巻戻し",
+              "過去の状態に戻る"
+            ]
+          },
+          {
+            "heading": "要約",
+            "items": [
+              "会話のみ圧縮",
+              "ファイルは維持"
+            ]
+          }
+        ]
+      }
     },
     {
       "id": "ses-013",
@@ -4141,7 +4705,34 @@
       ],
       "correctIndex": 3,
       "explanation": "`Ctrl+D`はEOF（End of File）を送信してセッションを終了します。`Ctrl+C`は現在のClaudeの応答を中断しますがセッションは継続します。`/exit`はスラッシュコマンドによるセッション終了です。",
-      "referenceUrl": "https://code.claude.com/docs/en/interactive-mode"
+      "referenceUrl": "https://code.claude.com/docs/en/interactive-mode",
+      "diagram": {
+        "type": "comparison",
+        "label": "セッション終了方法の違い",
+        "columns": [
+          {
+            "heading": "Ctrl+D",
+            "items": [
+              "EOF送信",
+              "セッション終了"
+            ]
+          },
+          {
+            "heading": "Ctrl+C",
+            "items": [
+              "生成中断のみ",
+              "セッション継続"
+            ]
+          },
+          {
+            "heading": "/exit",
+            "items": [
+              "コマンド終了",
+              "セッション終了"
+            ]
+          }
+        ]
+      }
     },
     {
       "id": "key-019",
@@ -4224,7 +4815,29 @@
       ],
       "correctIndex": 0,
       "explanation": "Claude Codeでは「Explore（探索）→ Plan（計画）→ Implement（実装）→ Commit（コミット）」の4フェーズワークフローが推奨されます。探索フェーズでコードベースを理解してからPlanモードで計画を立てることで、実装前に方向性を固め手戻りを防げます。コミットで区切りをつけることでチェックポイントが生まれ、問題発生時の復元が容易になります。",
-      "referenceUrl": "https://code.claude.com/docs/en/best-practices"
+      "referenceUrl": "https://code.claude.com/docs/en/best-practices",
+      "diagram": {
+        "type": "flow",
+        "label": "推奨4フェーズワークフロー",
+        "steps": [
+          {
+            "text": "Explore",
+            "sub": "コードベース理解"
+          },
+          {
+            "text": "Plan",
+            "sub": "方向性を計画"
+          },
+          {
+            "text": "Implement",
+            "sub": "コード実装"
+          },
+          {
+            "text": "Commit",
+            "sub": "チェックポイント"
+          }
+        ]
+      }
     },
     {
       "id": "bp-007",
@@ -4697,7 +5310,30 @@
       "explanation": "Code Intelligenceプラグインの主な利点は、Claudeが行ったファイル編集の直後に言語サーバーが自動的に分析を行い、型エラー、importの不足、構文エラーなどを報告することです。Claudeはこれらの問題を同じターン内で認識して修正できるため、コード品質が向上します。",
       "category": "extensions",
       "difficulty": "beginner",
-      "referenceUrl": "https://code.claude.com/docs/en/discover-plugins"
+      "referenceUrl": "https://code.claude.com/docs/en/discover-plugins",
+      "diagram": {
+        "type": "cycle",
+        "label": "Code Intelligence連携",
+        "trigger": "ファイル変更検出",
+        "states": [
+          {
+            "text": "ファイル編集",
+            "sub": "Claudeが変更"
+          },
+          {
+            "text": "自動解析",
+            "sub": "言語サーバー"
+          },
+          {
+            "text": "エラー報告",
+            "sub": "型/import"
+          },
+          {
+            "text": "自動修正",
+            "sub": "同ターン内"
+          }
+        ]
+      }
     },
     {
       "id": "ext-035",
@@ -5373,7 +6009,27 @@
       "explanation": "`tools`フィールドは許可リスト方式で、指定したツールのみサブエージェントが使えます。`disallowedTools`フィールドは拒否リスト方式で、メイン会話から継承した全ツールから特定のものを除外します。リサーチ専用なら`tools`: `Read`, `Grep`, `Glob`と許可リストで指定するか、`disallowedTools`: `Write`, `Edit`と拒否リストで除外する両方のアプローチが可能です。",
       "category": "skills",
       "difficulty": "intermediate",
-      "referenceUrl": "https://code.claude.com/docs/en/sub-agents"
+      "referenceUrl": "https://code.claude.com/docs/en/sub-agents",
+      "diagram": {
+        "type": "comparison",
+        "label": "ツール制御方式の違い",
+        "columns": [
+          {
+            "heading": "tools（許可リスト）",
+            "items": [
+              "指定ツールのみ利用可",
+              "他は通常設定に従う"
+            ]
+          },
+          {
+            "heading": "disallowedTools",
+            "items": [
+              "指定ツールを除外",
+              "他は全て利用可"
+            ]
+          }
+        ]
+      }
     },
     {
       "id": "skill-024",
@@ -5789,7 +6445,48 @@
       ],
       "correctIndex": 3,
       "explanation": "`defaultMode`に設定可能な値は`default`、`acceptEdits`、`plan`、`dontAsk`、`bypassPermissions`の5つです。`admin`というモードは存在しません。`default`は初回使用時に確認を求める標準動作、`plan`は読み取り専用モード、`dontAsk`は事前許可されていない操作を自動拒否するモードです。",
-      "referenceUrl": "https://code.claude.com/docs/en/settings"
+      "referenceUrl": "https://code.claude.com/docs/en/settings",
+      "diagram": {
+        "type": "comparison",
+        "label": "defaultMode の有効値",
+        "columns": [
+          {
+            "heading": "default",
+            "items": [
+              "標準モード",
+              "都度確認"
+            ]
+          },
+          {
+            "heading": "acceptEdits",
+            "items": [
+              "編集自動承認",
+              "Bash要確認"
+            ]
+          },
+          {
+            "heading": "plan",
+            "items": [
+              "読取専用",
+              "変更不可"
+            ]
+          },
+          {
+            "heading": "dontAsk",
+            "items": [
+              "全自動承認",
+              "CLI限定"
+            ]
+          },
+          {
+            "heading": "bypassPermissions",
+            "items": [
+              "全権限バイパス",
+              "CLI限定"
+            ]
+          }
+        ]
+      }
     },
     {
       "id": "ses-028",
@@ -6049,7 +6746,25 @@
       ],
       "correctIndex": 0,
       "explanation": "User設定は`~/.claude/settings.json`（個人）、Project設定は`.claude/settings.json`（チーム共有）、Local設定は`.claude/settings.local.json`（個人のプロジェクト設定）に保存されます。",
-      "referenceUrl": "https://code.claude.com/docs/en/settings"
+      "referenceUrl": "https://code.claude.com/docs/en/settings",
+      "diagram": {
+        "type": "hierarchy",
+        "label": "設定ファイルパス（高→低）",
+        "items": [
+          {
+            "text": ".claude/settings.local.json",
+            "sub": "Local（最優先）"
+          },
+          {
+            "text": ".claude/settings.json",
+            "sub": "Project"
+          },
+          {
+            "text": "~/.claude/settings.json",
+            "sub": "User"
+          }
+        ]
+      }
     },
     {
       "id": "ses-030",
@@ -6335,7 +7050,27 @@
       ],
       "correctIndex": 0,
       "explanation": "「委任する（delegate）」アプローチは目標と制約を伝えてClaudeに実装方法を任せ、「指示する（dictate）」アプローチは具体的な手順まで細かく指定します。公式ドキュメントは、Claudeの能力を活かすために委任型アプローチを推奨しており、複雑なタスクほどClaudeに裁量を与えた方が良い結果が得られることが多いです。",
-      "referenceUrl": "https://code.claude.com/docs/en/how-claude-code-works"
+      "referenceUrl": "https://code.claude.com/docs/en/how-claude-code-works",
+      "diagram": {
+        "type": "comparison",
+        "label": "委任 vs 指示アプローチ",
+        "columns": [
+          {
+            "heading": "委任",
+            "items": [
+              "ゴール提示",
+              "Claudeが判断"
+            ]
+          },
+          {
+            "heading": "指示",
+            "items": [
+              "手順を指定",
+              "段階的に依頼"
+            ]
+          }
+        ]
+      }
     },
     {
       "id": "ext-056",
@@ -6491,7 +7226,33 @@
       ],
       "correctIndex": 3,
       "explanation": "設定の優先順位は Managed（IT管理者配布）> CLI引数 > Local（`.claude/`*.local.*）> Project（`.claude/`）> User（`~/.claude/`）の順です。上位のスコープが下位を上書きします。",
-      "referenceUrl": "https://code.claude.com/docs/en/settings"
+      "referenceUrl": "https://code.claude.com/docs/en/settings",
+      "diagram": {
+        "type": "hierarchy",
+        "label": "設定スコープ優先順位（高→低）",
+        "items": [
+          {
+            "text": "Managed",
+            "sub": "IT管理者配布（システムディレクトリ）"
+          },
+          {
+            "text": "CLI",
+            "sub": "コマンドライン引数"
+          },
+          {
+            "text": "Local",
+            "sub": ".claude/*.local.*"
+          },
+          {
+            "text": "Project",
+            "sub": ".claude/"
+          },
+          {
+            "text": "User",
+            "sub": "~/.claude/"
+          }
+        ]
+      }
     },
     {
       "id": "ses-034",
@@ -7224,7 +7985,27 @@
         "overview",
         "overview-260",
         "overview-ch-4"
-      ]
+      ],
+      "diagram": {
+        "type": "comparison",
+        "label": "Summarize vs Fork",
+        "columns": [
+          {
+            "heading": "Summarize",
+            "items": [
+              "同セッション内",
+              "コンテキスト圧縮"
+            ]
+          },
+          {
+            "heading": "Fork",
+            "items": [
+              "新セッション分岐",
+              "元セッション保持"
+            ]
+          }
+        ]
+      }
     },
     {
       "id": "ses-061",
@@ -7328,7 +8109,25 @@
       "explanation": "`claude --teleport` フラグにより、claude.aiのWebで開始したリモートセッションをローカルのターミナルに引き継げます。ブラウザで始めた作業をClaude Codeのターミナルで継続するワークフローに最適です。",
       "category": "commands",
       "difficulty": "intermediate",
-      "referenceUrl": "https://code.claude.com/docs/en/cli-reference"
+      "referenceUrl": "https://code.claude.com/docs/en/cli-reference",
+      "diagram": {
+        "type": "flow",
+        "label": "セッション転送フロー",
+        "steps": [
+          {
+            "text": "Web開始",
+            "sub": "claude.ai"
+          },
+          {
+            "text": "--teleport",
+            "sub": "CLI転送"
+          },
+          {
+            "text": "ローカル継続",
+            "sub": "ターミナル"
+          }
+        ]
+      }
     },
     {
       "id": "cmd-044",
@@ -7380,7 +8179,25 @@
       "explanation": "`claude -p`はパイプからの標準入力を受け付け、結果を標準出力に返して自動終了します。そのためUNIXのパイプラインに自然に組み込むことができ、git diff | `claude -p` \"コードレビューして\" > review.txtのようにシェルのリダイレクトと組み合わせて使用できます。",
       "category": "commands",
       "difficulty": "beginner",
-      "referenceUrl": "https://code.claude.com/docs/en/common-workflows"
+      "referenceUrl": "https://code.claude.com/docs/en/common-workflows",
+      "diagram": {
+        "type": "flow",
+        "label": "Unixパイプ連携",
+        "steps": [
+          {
+            "text": "git diff",
+            "sub": "パイプ入力"
+          },
+          {
+            "text": "claude -p",
+            "sub": "レビュー"
+          },
+          {
+            "text": "output.txt",
+            "sub": "リダイレクト"
+          }
+        ]
+      }
     },
     {
       "id": "ext-058",
@@ -7432,7 +8249,27 @@
       ],
       "correctIndex": 0,
       "explanation": "両者ともメイン会話のモデルを継承しますが、General-purposeは全ツール（コード変更含む）にアクセスでき、Planは読み取り専用ツールのみです。Planはプランモード中のリサーチに使用されます。",
-      "referenceUrl": "https://code.claude.com/docs/en/sub-agents"
+      "referenceUrl": "https://code.claude.com/docs/en/sub-agents",
+      "diagram": {
+        "type": "comparison",
+        "label": "サブエージェント比較",
+        "columns": [
+          {
+            "heading": "General-purpose",
+            "items": [
+              "全ツール利用可",
+              "コード変更可能"
+            ]
+          },
+          {
+            "heading": "Plan",
+            "items": [
+              "読取専用ツール",
+              "リサーチ特化"
+            ]
+          }
+        ]
+      }
     },
     {
       "id": "ext-060",
@@ -7983,7 +8820,29 @@
       ],
       "correctIndex": 2,
       "explanation": "Claude CodeはUnix哲学に従い、パイプラインで他のツールと連携できます。例：tail -f app.log | `claude -p` \"異常通知\"、git diff main `--name-only` | `claude -p` \"セキュリティレビュー\"、`claude -p` \"新しい文字列をフランス語に翻訳してPR作成\" 等。",
-      "referenceUrl": "https://code.claude.com/docs/en/common-workflows"
+      "referenceUrl": "https://code.claude.com/docs/en/common-workflows",
+      "diagram": {
+        "type": "flow",
+        "label": "Unix哲学のCLI活用",
+        "steps": [
+          {
+            "text": "コマンド出力",
+            "sub": "git/curl等"
+          },
+          {
+            "text": "パイプ",
+            "sub": "| claude -p"
+          },
+          {
+            "text": "変換・分析",
+            "sub": "AI処理"
+          },
+          {
+            "text": "次のコマンド",
+            "sub": "結果活用"
+          }
+        ]
+      }
     },
     {
       "id": "tool-037",
@@ -8373,7 +9232,27 @@
       ],
       "correctIndex": 2,
       "explanation": "`DISABLE_TELEMETRY`はStatsigテレメトリ（使用統計）をオプトアウトし、`DISABLE_ERROR_REPORTING`はSentryエラーレポート（クラッシュ情報）をオプトアウトします。`CLAUDE_CODE_ENABLE_TELEMETRY`でOpenTelemetryデータ収集も個別に制御可能です。",
-      "referenceUrl": "https://code.claude.com/docs/en/settings"
+      "referenceUrl": "https://code.claude.com/docs/en/settings",
+      "diagram": {
+        "type": "comparison",
+        "label": "テレメトリ無効化の違い",
+        "columns": [
+          {
+            "heading": "DISABLE_TELEMETRY",
+            "items": [
+              "使用統計を停止",
+              "Statsig"
+            ]
+          },
+          {
+            "heading": "DISABLE_ERROR_REPORTING",
+            "items": [
+              "クラッシュ報告を停止",
+              "Sentry"
+            ]
+          }
+        ]
+      }
     },
     {
       "id": "bp-030",
@@ -8425,7 +9304,30 @@
       ],
       "correctIndex": 0,
       "explanation": "Claude Codeの基本サイクルは「指示→実行→確認→フィードバック」です。このイテレーティブなアプローチにより、各ステップで結果を確認し、必要に応じて軌道修正できます。",
-      "referenceUrl": "https://code.claude.com/docs/en/quickstart"
+      "referenceUrl": "https://code.claude.com/docs/en/quickstart",
+      "diagram": {
+        "type": "cycle",
+        "label": "作業サイクル",
+        "trigger": "新しいタスク",
+        "states": [
+          {
+            "text": "指示",
+            "sub": "タスク説明"
+          },
+          {
+            "text": "実行",
+            "sub": "Claude作業"
+          },
+          {
+            "text": "確認",
+            "sub": "結果レビュー"
+          },
+          {
+            "text": "フィードバック",
+            "sub": "追加指示"
+          }
+        ]
+      }
     },
     {
       "id": "bp-032",
@@ -8503,7 +9405,26 @@
       "explanation": "`Shift+Tab`（または一部の環境では`Alt+M`）を押すと、パーミッションモードを Normal → Auto-Accept Edits → Plan Mode の順にサイクルで切り替えることができます。Normalモードではファイル編集やシェルコマンドの前に確認を求め、Auto-Accept Editsモードではファイル編集は自動で実行されますがコマンドは確認が必要です。Plan Modeでは読み取り専用のツールのみ使用可能で、実装計画を立てるのに適しています。",
       "category": "session",
       "difficulty": "beginner",
-      "referenceUrl": "https://code.claude.com/docs/en/interactive-mode"
+      "referenceUrl": "https://code.claude.com/docs/en/interactive-mode",
+      "diagram": {
+        "type": "cycle",
+        "label": "パーミッションモード切替",
+        "trigger": "Shift+Tab",
+        "states": [
+          {
+            "text": "Normal",
+            "sub": "全操作に確認"
+          },
+          {
+            "text": "Auto-Accept",
+            "sub": "編集自動承認"
+          },
+          {
+            "text": "Plan",
+            "sub": "読取専用"
+          }
+        ]
+      }
     },
     {
       "id": "ses-082",
@@ -8737,7 +9658,29 @@
       ],
       "correctIndex": 0,
       "explanation": "`PreToolUse`イベントは全てのツール実行前に発火し、`matcher`で`Bash`ツールを指定して`git commit`コマンドを検出できます。フックスクリプト内でlintを実行し、問題があれば`exit code 2`を返してcommitをブロックする流れです。`PostToolUse`（実行後）や`Stop`（応答完了時）ではcommit前の制御ができません。",
-      "referenceUrl": "https://code.claude.com/docs/en/hooks"
+      "referenceUrl": "https://code.claude.com/docs/en/hooks",
+      "diagram": {
+        "type": "flow",
+        "label": "PreToolUse Hookフロー",
+        "steps": [
+          {
+            "text": "Bash(git commit)",
+            "sub": "Claude発動"
+          },
+          {
+            "text": "PreToolUse",
+            "sub": "Hook起動"
+          },
+          {
+            "text": "lint実行",
+            "sub": "スクリプト"
+          },
+          {
+            "text": "exit 0/2",
+            "sub": "許可/ブロック"
+          }
+        ]
+      }
     },
     {
       "id": "ext-078",
@@ -9423,7 +10366,25 @@
       ],
       "correctIndex": 3,
       "explanation": "チェックポイントはセッションローカルのスナップショットであり、gitとは独立して動作します。ユーザーの各プロンプトごとに自動作成され、「Restore code and conversation」「Restore conversation」「Restore code」「Summarize from here」「Never mind」の5つの復元オプションがあります。gitはコードの永続的な履歴管理、チェックポイントはセッション内の作業undoと、それぞれ異なる目的で補完的に使用します。",
-      "referenceUrl": "https://code.claude.com/docs/en/checkpointing"
+      "referenceUrl": "https://code.claude.com/docs/en/checkpointing",
+      "diagram": {
+        "type": "flow",
+        "label": "チェックポイントの仕組み",
+        "steps": [
+          {
+            "text": "プロンプト送信",
+            "sub": "自動スナップショット"
+          },
+          {
+            "text": "/rewind",
+            "sub": "ピッカー表示"
+          },
+          {
+            "text": "復元オプション",
+            "sub": "5つの選択肢"
+          }
+        ]
+      }
     },
     {
       "id": "bp-044",
@@ -9802,7 +10763,29 @@
         3
       ],
       "explanation": "`CLAUDE.md` は複数の場所から自動的に読み込まれます：(1) 現在の作業ディレクトリ、(2) 親ディレクトリ（ルートまで再帰的に）、(3) ホームディレクトリ（`~/.claude/CLAUDE.md`）。これにより、プロジェクト固有の設定とグローバルな設定の両方を管理できます。",
-      "referenceUrl": "https://code.claude.com/docs/en/memory"
+      "referenceUrl": "https://code.claude.com/docs/en/memory",
+      "diagram": {
+        "type": "flow",
+        "label": "CLAUDE.md 読み込み順序",
+        "steps": [
+          {
+            "text": "cwd",
+            "sub": "作業ディレクトリ"
+          },
+          {
+            "text": "親ディレクトリ",
+            "sub": "再帰的に探索"
+          },
+          {
+            "text": "ルート",
+            "sub": "gitルートまで"
+          },
+          {
+            "text": "~/.claude/",
+            "sub": "ユーザーレベル"
+          }
+        ]
+      }
     },
     {
       "id": "tool-054",
@@ -10125,7 +11108,29 @@
       ],
       "correctIndex": 2,
       "explanation": "Claude Codeの基本的な作業サイクルは：(1) 自然言語で何をしたいか伝える、(2) Claudeが関連ファイルを見つけて変更を提案する、(3) ユーザーが変更内容を確認して承認する、(4) 変更が適用される、という流れです。Claude Codeは必ずファイル変更前に許可を求めます。",
-      "referenceUrl": "https://code.claude.com/docs/en/quickstart"
+      "referenceUrl": "https://code.claude.com/docs/en/quickstart",
+      "diagram": {
+        "type": "flow",
+        "label": "コード変更の基本フロー",
+        "steps": [
+          {
+            "text": "指示",
+            "sub": "ユーザーが依頼"
+          },
+          {
+            "text": "ファイル探索",
+            "sub": "Claudeが特定"
+          },
+          {
+            "text": "変更提案",
+            "sub": "diff表示"
+          },
+          {
+            "text": "承認",
+            "sub": "ユーザーが確認"
+          }
+        ]
+      }
     },
     {
       "id": "gs-009",
@@ -10244,7 +11249,37 @@
       ],
       "correctIndex": 0,
       "explanation": "情報の性質に応じた格納場所の使い分けが重要です。`CLAUDE.md`はClaudeへの指示（規約・構造・コマンド）、`settings.json`は技術的な動作設定（ツール権限・モデル設定）、環境変数は機密情報（APIキー・パスワード）を格納します。この3つの境界を理解することがセキュリティと効率の両立につながります。",
-      "referenceUrl": "https://code.claude.com/docs/en/memory"
+      "referenceUrl": "https://code.claude.com/docs/en/memory",
+      "diagram": {
+        "type": "comparison",
+        "label": "設定の格納場所",
+        "columns": [
+          {
+            "heading": "CLAUDE.md",
+            "items": [
+              "Claudeへの指示",
+              "規約・構造",
+              "プロンプトに読込"
+            ]
+          },
+          {
+            "heading": "settings.json",
+            "items": [
+              "技術的な動作設定",
+              "ツール権限",
+              "モデル設定"
+            ]
+          },
+          {
+            "heading": "環境変数",
+            "items": [
+              "機密情報",
+              "APIキー",
+              "パスワード"
+            ]
+          }
+        ]
+      }
     },
     {
       "id": "bp-049",
@@ -10296,7 +11331,37 @@
       ],
       "correctIndex": 1,
       "explanation": "Skills・Hooks・MCPは目的が明確に異なります。Skills=再利用可能なプロンプトテンプレート（スラッシュコマンドで呼出）、Hooks=イベント駆動の自動シェルコマンド実行（`PreToolUse`/`PostToolUse`等で発火）、MCP=外部サービス・API・DBへのツール接続。この3つの境界を理解することで、適切な拡張メカニズムを選択できます。",
-      "referenceUrl": "https://code.claude.com/docs/en/skills"
+      "referenceUrl": "https://code.claude.com/docs/en/skills",
+      "diagram": {
+        "type": "comparison",
+        "label": "3つの拡張メカニズム",
+        "columns": [
+          {
+            "heading": "Skills",
+            "items": [
+              "プロンプトテンプレート",
+              "/コマンドで呼出",
+              "再利用可能なワークフロー"
+            ]
+          },
+          {
+            "heading": "Hooks",
+            "items": [
+              "シェルコマンド自動実行",
+              "イベント駆動",
+              "lint/テスト等の自動化"
+            ]
+          },
+          {
+            "heading": "MCP",
+            "items": [
+              "外部サービス接続",
+              "ツール・リソース提供",
+              "API/DB連携"
+            ]
+          }
+        ]
+      }
     },
     {
       "id": "ext-091",
@@ -10348,7 +11413,45 @@
       ],
       "correctIndex": 3,
       "explanation": "4つの拡張メカニズムの使い分け：Skills=再利用可能なプロンプトテンプレート（定型ワークフロー）、Agent SDK=完全なプログラム制御（CI/CDパイプライン）、MCP=外部サービス・API接続、Sub-agents=隔離コンテキストでの自律的並列処理。複雑さの段階として Skills → Sub-agents → MCP → Agent SDK の順に検討するのがベストプラクティスです。",
-      "referenceUrl": "https://code.claude.com/docs/en/sub-agents"
+      "referenceUrl": "https://code.claude.com/docs/en/sub-agents",
+      "diagram": {
+        "type": "comparison",
+        "label": "4つの拡張メカニズム",
+        "columns": [
+          {
+            "heading": "Skills",
+            "items": [
+              "プロンプトテンプレ",
+              "定型ワークフロー",
+              "/コマンドで呼出"
+            ]
+          },
+          {
+            "heading": "Sub-agents",
+            "items": [
+              "隔離コンテキスト",
+              "並列自律処理",
+              "大規模分析"
+            ]
+          },
+          {
+            "heading": "MCP",
+            "items": [
+              "外部サービス接続",
+              "API/DB連携",
+              "ツール提供"
+            ]
+          },
+          {
+            "heading": "Agent SDK",
+            "items": [
+              "完全プログラム制御",
+              "CI/CDパイプライン",
+              "パーミッション管理"
+            ]
+          }
+        ]
+      }
     },
     {
       "id": "ext-093",
@@ -10374,7 +11477,29 @@
       ],
       "correctIndex": 0,
       "explanation": "`CLAUDE.md`は「助言」、Hooksは「強制」という根本的な違いがあります。`CLAUDE.md`の指示はClaudeのプロンプトに読み込まれますが、従うかはClaudeの判断に依存します。一方、`PreToolUse` Hookはツール実行前にシェルスクリプトを実行し、`exit code 2`を返すことでツール実行そのものをブロックできます。テスト未実行のcommit防止のような「確実に守らせたいルール」にはHooksが必須です。`CLAUDE.md`との併用は有効ですが、防止力の主体はHooksにあります。",
-      "referenceUrl": "https://code.claude.com/docs/en/hooks"
+      "referenceUrl": "https://code.claude.com/docs/en/hooks",
+      "diagram": {
+        "type": "comparison",
+        "label": "CLAUDE.md vs Hooks",
+        "columns": [
+          {
+            "heading": "CLAUDE.md",
+            "items": [
+              "助言（プロンプト）",
+              "Claudeの判断に依存",
+              "柔軟だが強制力なし"
+            ]
+          },
+          {
+            "heading": "Hooks",
+            "items": [
+              "強制（システム制御）",
+              "exit code 2でブロック",
+              "確実な防止が可能"
+            ]
+          }
+        ]
+      }
     },
     {
       "id": "mem-037",
@@ -10426,7 +11551,34 @@
       ],
       "correctIndex": 1,
       "explanation": "4つのコマンドはそれぞれ異なる目的を持ちます：`/compact`=会話を要約・圧縮してコンテキスト回復（フォーカス指示で選択的圧縮も可能）、`/rewind`=チェックポイントに基づくundo（会話+ファイル変更の復元）、`/clear`=全履歴削除（完全リセット）。これらの境界を理解して状況に応じた選択ができることが重要です。",
-      "referenceUrl": "https://code.claude.com/docs/en/interactive-mode"
+      "referenceUrl": "https://code.claude.com/docs/en/interactive-mode",
+      "diagram": {
+        "type": "comparison",
+        "label": "コンテキスト管理コマンド",
+        "columns": [
+          {
+            "heading": "/compact",
+            "items": [
+              "コンテキスト圧縮",
+              "会話を要約保持"
+            ]
+          },
+          {
+            "heading": "/rewind",
+            "items": [
+              "特定時点に巻戻し",
+              "コード+会話復元"
+            ]
+          },
+          {
+            "heading": "/clear",
+            "items": [
+              "完全リセット",
+              "全コンテキスト消去"
+            ]
+          }
+        ]
+      }
     },
     {
       "id": "ses-099",
@@ -10504,7 +11656,27 @@
       ],
       "correctIndex": 0,
       "explanation": "Sub-agentsとMCPの根本的な違いは「AI推論の有無」です。Sub-agentsは独立したClaudeインスタンスが隔離コンテキストでツールを使い、結果を分析・判断できます。MCPサーバーは外部サービス（API・DB等）へのツール接続を提供しますが、結果の解釈はメインのClaudeが行います。AI推論を伴う処理→Sub-agents、外部サービス接続→MCPと覚えましょう。",
-      "referenceUrl": "https://code.claude.com/docs/en/sub-agents"
+      "referenceUrl": "https://code.claude.com/docs/en/sub-agents",
+      "diagram": {
+        "type": "comparison",
+        "label": "Sub-agents vs MCP",
+        "columns": [
+          {
+            "heading": "Sub-agents",
+            "items": [
+              "AI推論+コンテキスト分離",
+              "複雑タスク向け"
+            ]
+          },
+          {
+            "heading": "MCP",
+            "items": [
+              "ツール提供のみ",
+              "外部サービス接続"
+            ]
+          }
+        ]
+      }
     },
     {
       "id": "ext-095",
@@ -10561,7 +11733,21 @@
       ],
       "correctIndex": 3,
       "explanation": "`opusplan` モデルエイリアスは、Planモード中は `opus` を使用して複雑な推論やアーキテクチャ決定を行い、実行モードでは自動的に `sonnet` に切り替えてコード生成や実装を行います。Opusの優れた推論力とSonnetの効率性を組み合わせたハイブリッドアプローチです。",
-      "referenceUrl": "https://code.claude.com/docs/en/model-config"
+      "referenceUrl": "https://code.claude.com/docs/en/model-config",
+      "diagram": {
+        "type": "flow",
+        "label": "opusplanモデルエイリアス",
+        "steps": [
+          {
+            "text": "Plan",
+            "sub": "Opus 使用"
+          },
+          {
+            "text": "Execute",
+            "sub": "Sonnet 使用"
+          }
+        ]
+      }
     },
     {
       "id": "ses-102",
@@ -10613,7 +11799,29 @@
       ],
       "correctIndex": 1,
       "explanation": "モデル設定の優先順位は、高い順に：(1) セッション中の `/model` コマンド、(2) 起動時の `claude --model` フラグ、(3) モデル指定の環境変数（`ANTHROPIC_MODEL` 等）、(4) 設定ファイルの `model` フィールドです。セッション中はいつでも `/model` で切り替えられ、即座に反映されます。",
-      "referenceUrl": "https://code.claude.com/docs/en/model-config"
+      "referenceUrl": "https://code.claude.com/docs/en/model-config",
+      "diagram": {
+        "type": "hierarchy",
+        "label": "モデル設定の優先順位",
+        "items": [
+          {
+            "text": "/model コマンド",
+            "sub": "セッション中の切替"
+          },
+          {
+            "text": "--model フラグ",
+            "sub": "CLI起動時指定"
+          },
+          {
+            "text": "環境変数",
+            "sub": "ANTHROPIC_MODEL"
+          },
+          {
+            "text": "settings.json",
+            "sub": "永続設定"
+          }
+        ]
+      }
     },
     {
       "id": "ext-096",
@@ -10795,7 +12003,33 @@
       ],
       "correctIndex": 3,
       "explanation": "Claude Codeの設定スコープの優先順位は、最も高い順に：(1) マネージド設定（管理者が設定、上書き不可）、(2) コマンドライン引数、(3) ローカルプロジェクト設定（`.claude/settings.local.json`）、(4) 共有プロジェクト設定（`.claude/settings.json`）、(5) ユーザー設定（`~/.claude/settings.json`）です。",
-      "referenceUrl": "https://code.claude.com/docs/en/settings"
+      "referenceUrl": "https://code.claude.com/docs/en/settings",
+      "diagram": {
+        "type": "hierarchy",
+        "label": "設定スコープ優先順位",
+        "items": [
+          {
+            "text": "Managed",
+            "sub": "IT管理者配布"
+          },
+          {
+            "text": "CLI",
+            "sub": "コマンドライン引数"
+          },
+          {
+            "text": "Local",
+            "sub": ".claude/*.local.*"
+          },
+          {
+            "text": "Project",
+            "sub": ".claude/"
+          },
+          {
+            "text": "User",
+            "sub": "~/.claude/"
+          }
+        ]
+      }
     },
     {
       "id": "ext-100",
@@ -11107,7 +12341,27 @@
       ],
       "correctIndex": 2,
       "explanation": "promptフック（`type: \"prompt\"`）はシングルターンのLLM呼び出しで、フックの入力データのみを評価して判断します。一方、agentフック（`type: \"agent\"`）は`Read`、`Grep`、`Glob`などのツールを使って最大50ターンまでファイルを実際に調査した上で判断を返せます。デフォルトタイムアウトはpromptが30秒、agentが60秒です。",
-      "referenceUrl": "https://code.claude.com/docs/en/hooks"
+      "referenceUrl": "https://code.claude.com/docs/en/hooks",
+      "diagram": {
+        "type": "comparison",
+        "label": "Hook タイプの違い",
+        "columns": [
+          {
+            "heading": "prompt",
+            "items": [
+              "単一LLM呼出",
+              "入力データのみ"
+            ]
+          },
+          {
+            "heading": "agent",
+            "items": [
+              "マルチターン",
+              "ファイル調査可能"
+            ]
+          }
+        ]
+      }
     },
     {
       "id": "ext-112",
@@ -11185,7 +12439,27 @@
       ],
       "correctIndex": 0,
       "explanation": "2つの設定は呼び出しの方向を制御します。`disable-model-invocation: true` はClaudeの自動呼び出しを防止し、ユーザーの `/skill-name` 呼び出しのみ可能にします（デプロイ等の副作用のある操作向け）。`user-invocable: false` は `/` メニューから非表示にし、Claudeのみが自動で読み込めるようにします（バックグラウンド知識向け）。",
-      "referenceUrl": "https://code.claude.com/docs/en/skills"
+      "referenceUrl": "https://code.claude.com/docs/en/skills",
+      "diagram": {
+        "type": "comparison",
+        "label": "スキル呼出制御の違い",
+        "columns": [
+          {
+            "heading": "disable-model-invocation",
+            "items": [
+              "Claudeからの自動呼出を禁止",
+              "ユーザーは/コマンドで利用可"
+            ]
+          },
+          {
+            "heading": "user-invocable: false",
+            "items": [
+              "ユーザーの直接呼出を禁止",
+              "Claudeが自動選択で利用"
+            ]
+          }
+        ]
+      }
     },
     {
       "id": "skill-035",
@@ -11315,7 +12589,25 @@
       ],
       "correctIndex": 1,
       "explanation": "Claude Codeはコンテキストウィンドウが一杯になると自動コンパクションを実行します。まず古いツール出力をクリアし、それでも不足する場合は会話を要約します。`CLAUDE.md`に「Compact Instructions」セクションを追加するか、`/compact` にフォーカス指示を付けることで、保持する情報を制御できます。閾値は `CLAUDE_AUTOCOMPACT_PCT_OVERRIDE` で調整可能です。",
-      "referenceUrl": "https://code.claude.com/docs/en/how-claude-code-works"
+      "referenceUrl": "https://code.claude.com/docs/en/how-claude-code-works",
+      "diagram": {
+        "type": "flow",
+        "label": "自動コンパクションの流れ",
+        "steps": [
+          {
+            "text": "コンテキスト満杯",
+            "sub": "閾値到達"
+          },
+          {
+            "text": "ツール出力クリア",
+            "sub": "古い出力を削除"
+          },
+          {
+            "text": "会話を要約",
+            "sub": "不足時のみ実行"
+          }
+        ]
+      }
     },
     {
       "id": "bp-050",
@@ -11445,7 +12737,27 @@
       ],
       "correctIndex": 3,
       "explanation": "Anthropic Client SDKでは、ツールの実行ループを開発者自身が実装する必要があります（レスポンスの stop_reason が tool_use の間、ツール結果を送り返すループ）。一方Agent SDKは、Claude Codeと同じツール、エージェントループ、コンテキスト管理を提供し、Claudeがファイル読み取り、コマンド実行、コード編集などを自律的に行います。",
-      "referenceUrl": "https://platform.claude.com/docs/en/agent-sdk/overview"
+      "referenceUrl": "https://platform.claude.com/docs/en/agent-sdk/overview",
+      "diagram": {
+        "type": "comparison",
+        "label": "SDK アーキテクチャ比較",
+        "columns": [
+          {
+            "heading": "Client SDK",
+            "items": [
+              "API呼出のみ",
+              "手動ループ"
+            ]
+          },
+          {
+            "heading": "Agent SDK",
+            "items": [
+              "エージェントループ",
+              "自動ツール実行"
+            ]
+          }
+        ]
+      }
     },
     {
       "id": "ext-114",
@@ -11783,7 +13095,29 @@
       ],
       "correctIndex": 1,
       "explanation": "`ConfigChange` イベントは、セッション中に外部プロセスやエディタが設定ファイルを変更したときに発火します。マッチャーで `user_settings`、`project_settings`、`local_settings`、`policy_settings`、`skills` のいずれかにフィルタできます。exit code 2 で終了するか `{\"decision\": \"block\"}` を返すことで変更をブロックすることも可能です。コンプライアンスのための監査ログ記録や、不正な設定変更の防止に活用できます。",
-      "referenceUrl": "https://code.claude.com/docs/en/hooks-guide"
+      "referenceUrl": "https://code.claude.com/docs/en/hooks-guide",
+      "diagram": {
+        "type": "flow",
+        "label": "ConfigChangeイベントフロー",
+        "steps": [
+          {
+            "text": "設定ファイル変更",
+            "sub": "外部プロセス"
+          },
+          {
+            "text": "ConfigChange",
+            "sub": "Hook起動"
+          },
+          {
+            "text": "差分読取",
+            "sub": "スクリプト処理"
+          },
+          {
+            "text": "反応",
+            "sub": "MCP再読込等"
+          }
+        ]
+      }
     },
     {
       "id": "ext-127",
@@ -11965,7 +13299,29 @@
       ],
       "correctIndex": 1,
       "explanation": "Anthropic は公式の GitHub Action（`anthropics/claude-code-action`）を提供しており、PR のオープンや更新時に自動でレビューコメントを投稿するワークフローを簡単に設定できます。カスタムインフラの構築は不要で、ワークフロー YAML ファイルを追加するだけで利用できます。",
-      "referenceUrl": "https://code.claude.com/docs/en/github-actions"
+      "referenceUrl": "https://code.claude.com/docs/en/github-actions",
+      "diagram": {
+        "type": "flow",
+        "label": "GitHub Actions レビューフロー",
+        "steps": [
+          {
+            "text": "PR作成/更新",
+            "sub": "イベント発火"
+          },
+          {
+            "text": "Action起動",
+            "sub": "ワークフロー"
+          },
+          {
+            "text": "claude -p",
+            "sub": "diff分析"
+          },
+          {
+            "text": "コメント",
+            "sub": "PRに投稿"
+          }
+        ]
+      }
     },
     {
       "id": "cmd-075",
@@ -12277,7 +13633,27 @@
       ],
       "correctIndex": 3,
       "explanation": "Fast モードは同じ Claude Opus 4.6 モデルを使用しながら、より高速な出力で応答する機能です。モデルの切り替えは行われません。`/fast` コマンドでトグルできます。",
-      "referenceUrl": "https://code.claude.com/docs/en/fast-mode"
+      "referenceUrl": "https://code.claude.com/docs/en/fast-mode",
+      "diagram": {
+        "type": "comparison",
+        "label": "Fast モード",
+        "columns": [
+          {
+            "heading": "通常モード",
+            "items": [
+              "標準出力速度",
+              "デフォルト"
+            ]
+          },
+          {
+            "heading": "Fast モード",
+            "items": [
+              "高速出力",
+              "同一モデル(Opus 4.6)"
+            ]
+          }
+        ]
+      }
     },
     {
       "id": "ses-109",
@@ -12745,7 +14121,27 @@
       ],
       "correctIndex": 2,
       "explanation": "サブエージェント（`sub-agents`）は個別のタスクを委任するための仕組みで、カスタムサブエージェントの作成や設定に焦点を当てています。エージェントチーム（`agent-teams`）は、リードエージェントが複数のサブエージェントを生成・管理し、タスクの分割、並行実行、結果のマージを行うオーケストレーション機能です。",
-      "referenceUrl": "https://code.claude.com/docs/en/agent-teams"
+      "referenceUrl": "https://code.claude.com/docs/en/agent-teams",
+      "diagram": {
+        "type": "comparison",
+        "label": "エージェントチーム vs Sub-agents",
+        "columns": [
+          {
+            "heading": "Agent Teams",
+            "items": [
+              "複数エージェント協調",
+              "対話チャンネル"
+            ]
+          },
+          {
+            "heading": "Sub-agents",
+            "items": [
+              "親が子に委任",
+              "結果を返却"
+            ]
+          }
+        ]
+      }
     },
     {
       "id": "skill-042",
@@ -12823,7 +14219,21 @@
       ],
       "correctIndex": 2,
       "explanation": "サーバー管理設定とエンドポイント管理設定は両方とも設定階層の最上位に位置しますが、両方が存在する場合はサーバー管理設定が優先され、エンドポイント管理設定は使用されません。MDM 等のエンドポイント管理ソリューションがある組織は、OS レベルの保護が可能なエンドポイント管理設定の方がセキュリティが強固です。",
-      "referenceUrl": "https://code.claude.com/docs/en/server-managed-settings"
+      "referenceUrl": "https://code.claude.com/docs/en/server-managed-settings",
+      "diagram": {
+        "type": "hierarchy",
+        "label": "Managed設定の優先順位",
+        "items": [
+          {
+            "text": "Server-managed",
+            "sub": "API応答で配布"
+          },
+          {
+            "text": "Endpoint-managed",
+            "sub": "管理用エンドポイント"
+          }
+        ]
+      }
     },
     {
       "id": "mem-040",
@@ -13057,7 +14467,26 @@
       ],
       "correctIndex": 3,
       "explanation": "`Stop` フックはClaude が応答を完了するたびに発火します。フックが `exit 2` や `ok: false` を返すと Claude は作業を続行し、再び停止時にフックが発火します。無限ループを防ぐため、スクリプト内で入力 JSON の `stop_hook_active` フィールドを確認し、`true` の場合は早期に `exit 0` して Claude を停止させる必要があります。",
-      "referenceUrl": "https://code.claude.com/docs/en/hooks-guide"
+      "referenceUrl": "https://code.claude.com/docs/en/hooks-guide",
+      "diagram": {
+        "type": "cycle",
+        "label": "Stop Hook無限ループ",
+        "trigger": "タスク完了",
+        "states": [
+          {
+            "text": "タスク完了",
+            "sub": "Stopイベント"
+          },
+          {
+            "text": "Hook実行",
+            "sub": "exit 2返却"
+          },
+          {
+            "text": "Claude継続",
+            "sub": "ブロック受信"
+          }
+        ]
+      }
     },
     {
       "id": "ext-136",
@@ -13785,7 +15214,29 @@
       ],
       "correctIndex": 3,
       "explanation": "Auto-fix は失敗した CI チェックの出力を読み取り、自動的に修正を試みて反復します。Auto-merge はすべてのチェックが通過した後に squash マージを行います。どちらも CI ステータスバーのトグルで有効化します。Auto-merge を使うには GitHub リポジトリの設定で auto-merge が有効になっている必要があり、PR モニタリングには `gh` CLI のインストールと認証が必要です。",
-      "referenceUrl": "https://code.claude.com/docs/en/desktop"
+      "referenceUrl": "https://code.claude.com/docs/en/desktop",
+      "diagram": {
+        "type": "flow",
+        "label": "CIステータスバー自動化",
+        "steps": [
+          {
+            "text": "PR作成",
+            "sub": "デスクトップ"
+          },
+          {
+            "text": "CI実行",
+            "sub": "ステータス表示"
+          },
+          {
+            "text": "Auto-fix",
+            "sub": "失敗時自動修正"
+          },
+          {
+            "text": "Auto-merge",
+            "sub": "成功時マージ"
+          }
+        ]
+      }
     },
     {
       "id": "ses-122",
@@ -13889,7 +15340,34 @@
       ],
       "correctIndex": 2,
       "explanation": "出力スタイルは Claude Code のデフォルトシステムプロンプトのソフトウェアエンジニアリング関連部分（簡潔な応答、テスト検証など）を直接無効化し、カスタム指示をシステムプロンプト末尾に追加します。一方、`CLAUDE.md` はデフォルトプロンプトを変更せずユーザーメッセージとして追加され、`--append-system-prompt` はシステムプロンプトの末尾に追記します。",
-      "referenceUrl": "https://code.claude.com/docs/en/output-styles"
+      "referenceUrl": "https://code.claude.com/docs/en/output-styles",
+      "diagram": {
+        "type": "comparison",
+        "label": "指示注入方法の違い",
+        "columns": [
+          {
+            "heading": "出力スタイル",
+            "items": [
+              "UI切替",
+              "トーン/形式変更"
+            ]
+          },
+          {
+            "heading": "CLAUDE.md",
+            "items": [
+              "ファイル配置",
+              "永続的ルール"
+            ]
+          },
+          {
+            "heading": "--append-system-prompt",
+            "items": [
+              "CLI引数",
+              "一時的指示"
+            ]
+          }
+        ]
+      }
     },
     {
       "id": "mem-041",
@@ -13993,7 +15471,27 @@
       ],
       "correctIndex": 3,
       "explanation": "`Bash` ルールのワイルドカードでは、`*` の前のスペースが単語境界として機能します。`Bash(ls *)` は `ls` を独立した単語として扱うため `ls -la` にマッチしますが `lsof` にはマッチしません。一方 `Bash(ls*)` はスペースがないため `ls` で始まるすべての文字列にマッチし、`ls -la` と `lsof` の両方が対象になります。",
-      "referenceUrl": "https://code.claude.com/docs/en/permissions"
+      "referenceUrl": "https://code.claude.com/docs/en/permissions",
+      "diagram": {
+        "type": "comparison",
+        "label": "ワイルドカードの違い",
+        "columns": [
+          {
+            "heading": "Bash(ls *)",
+            "items": [
+              "スペースあり",
+              "ls で始まるコマンド"
+            ]
+          },
+          {
+            "heading": "Bash(ls*)",
+            "items": [
+              "スペースなし",
+              "ls始まり全て(lsof等)"
+            ]
+          }
+        ]
+      }
     },
     {
       "id": "ses-125",
@@ -14175,7 +15673,29 @@
       ],
       "correctIndex": 1,
       "explanation": "`CLAUDE.md` は毎セッション自動的にコンテキストに読み込まれ、プロジェクトのルールや指示を常に提供します。一方、Skills はオンデマンドで読み込まれ、コンテキストウィンドウを効率的に使用できます。",
-      "referenceUrl": "https://code.claude.com/docs/en/features-overview"
+      "referenceUrl": "https://code.claude.com/docs/en/features-overview",
+      "diagram": {
+        "type": "comparison",
+        "label": "読み込みタイミング",
+        "columns": [
+          {
+            "heading": "CLAUDE.md",
+            "items": [
+              "セッション開始時",
+              "自動読み込み",
+              "常にコンテキスト内"
+            ]
+          },
+          {
+            "heading": "Skills",
+            "items": [
+              "必要時のみ",
+              "オンデマンド",
+              "コンテキスト効率的"
+            ]
+          }
+        ]
+      }
     },
     {
       "id": "skill-044",
@@ -15137,7 +16657,29 @@
       ],
       "correctIndex": 2,
       "explanation": "GitLab CI/CD で Claude Code が変更を提案する場合、MR（マージリクエスト）を作成します。GitLab のブランチ保護ルールと承認ルールは Claude が生成したコードにも適用されるため、レビュアーの承認を経てからマージされます。",
-      "referenceUrl": "https://code.claude.com/docs/en/gitlab-ci-cd"
+      "referenceUrl": "https://code.claude.com/docs/en/gitlab-ci-cd",
+      "diagram": {
+        "type": "flow",
+        "label": "GitLab CI/CDフロー",
+        "steps": [
+          {
+            "text": "@claude メンション",
+            "sub": "トリガー"
+          },
+          {
+            "text": "CI Job起動",
+            "sub": "パイプライン"
+          },
+          {
+            "text": "Claude分析",
+            "sub": "コード変更"
+          },
+          {
+            "text": "MR作成",
+            "sub": "レビュー依頼"
+          }
+        ]
+      }
     },
     {
       "id": "ses-144",
@@ -15501,7 +17043,27 @@
       ],
       "correctIndex": 1,
       "explanation": "`awsAuthRefresh`は`.aws`ディレクトリを変更するコマンド（例: `aws sso login`）向けで、出力がユーザーに表示されます。`awsCredentialExport`は`.aws`を変更できない環境で認証情報JSONを直接返すコマンド向けで、出力はサイレントにキャプチャされます。",
-      "referenceUrl": "https://code.claude.com/docs/en/amazon-bedrock"
+      "referenceUrl": "https://code.claude.com/docs/en/amazon-bedrock",
+      "diagram": {
+        "type": "comparison",
+        "label": "AWS認証フック比較",
+        "columns": [
+          {
+            "heading": "awsAuthRefresh",
+            "items": [
+              ".awsディレクトリ更新",
+              "出力をユーザーに表示"
+            ]
+          },
+          {
+            "heading": "awsCredentialExport",
+            "items": [
+              "JSON認証情報返却",
+              ".aws書込不可時用"
+            ]
+          }
+        ]
+      }
     },
     {
       "id": "ses-151",
@@ -16593,7 +18155,27 @@
       ],
       "correctIndex": 0,
       "explanation": "Remote Controlではコード実行とファイルアクセスがすべてローカルマシン上で行われ、Web UIは接続するだけでクラウドVMは関与しません。一方、Claude Code on the webのクラウドセッションは分離されたAnthropicマネージドVM上で実行されます。Remote Controlは短命でスコープ限定の複数認証情報を使用し、単一の認証情報が侵害された場合の影響範囲を限定しています。",
-      "referenceUrl": "https://code.claude.com/docs/en/security"
+      "referenceUrl": "https://code.claude.com/docs/en/security",
+      "diagram": {
+        "type": "comparison",
+        "label": "Remote Control vs Cloud Session",
+        "columns": [
+          {
+            "heading": "Remote Control",
+            "items": [
+              "UIはブラウザ",
+              "実行はローカル"
+            ]
+          },
+          {
+            "heading": "Cloud Session",
+            "items": [
+              "実行もクラウドVM",
+              "Anthropic管理"
+            ]
+          }
+        ]
+      }
     }
   ]
 }

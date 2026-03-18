@@ -358,6 +358,15 @@ node scripts/quiz-utils.mjs merge-proposals
 - 技術的に全く関係のない選択肢がないか
 - **severity: info**（機械チェック `quiz:lint distractor` と併用）
 
+### I. ダイアグラムの品質（diagram フィールド）
+- `diagram` がある場合、タイプが問題の概念に合っているか（hierarchy=階層/優先順位, flow=手順/時系列, cycle=循環状態, comparison=比較対照）
+- diagram の `items`/`steps`/`states`/`columns` の内容が explanation と一致しているか
+- diagram の `label` が概念を正確に表現しているか
+- diagram の `sub` テキストが正確な情報か
+- cycle の `trigger` が正しいキー/コマンドか
+- **severity:** major=内容がドキュメントと不一致, info=label改善提案
+- **diagram の追加提案は行わない**（既存 diagram の検証のみ）
+
 ---
 
 ## 既知パターン（known-issues 要約）
