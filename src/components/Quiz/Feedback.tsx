@@ -1,6 +1,7 @@
 import { useState, useEffect, useMemo } from 'react'
 import { useQuizStore } from '@/stores/quizStore'
 import type { Question } from '@/domain/entities/Question'
+import { platformAPI } from '@/lib/platformAPI'
 import {
   CheckCircle2,
   XCircle,
@@ -78,7 +79,7 @@ export function Feedback({ quiz, isCorrect }: FeedbackProps) {
     if (!quiz.referenceUrl) return
 
     try {
-      const success = await window.electronAPI.openExternal(quiz.referenceUrl)
+      const success = await platformAPI.openExternal(quiz.referenceUrl)
       if (!success) {
         console.warn('Failed to open reference URL')
       }
@@ -91,7 +92,7 @@ export function Feedback({ quiz, isCorrect }: FeedbackProps) {
     try {
       const prompt = quiz.generateAIPrompt()
 
-      const success = await window.electronAPI.copyToClipboard(prompt)
+      const success = await platformAPI.copyToClipboard(prompt)
       if (success) {
         setCopied(true)
         setTimeout(() => setCopied(false), 2000)
@@ -107,7 +108,7 @@ export function Feedback({ quiz, isCorrect }: FeedbackProps) {
     try {
       const markdown = quiz.toMarkdown()
 
-      const success = await window.electronAPI.copyToClipboard(markdown)
+      const success = await platformAPI.copyToClipboard(markdown)
       if (success) {
         setMarkdownCopied(true)
         setTimeout(() => setMarkdownCopied(false), 2000)

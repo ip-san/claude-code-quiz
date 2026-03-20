@@ -1,5 +1,6 @@
 import { useEffect, useState, useMemo } from 'react'
 import { useQuizStore } from '@/stores/quizStore'
+import { isElectron } from '@/lib/platformAPI'
 import { ModeSelection } from '@/components/Menu/ModeSelection'
 import { QuizCard } from '@/components/Quiz/QuizCard'
 import { QuizResult } from '@/components/Quiz/QuizResult'
@@ -32,8 +33,8 @@ export default function App() {
   if (viewState === 'menu') {
     return (
       <div className="min-h-screen bg-claude-cream">
-        {/* macOS titlebar drag region */}
-        <div className="h-8 titlebar-drag bg-transparent" />
+        {/* macOS titlebar drag region (Electron only) */}
+        {isElectron && <div className="h-8 titlebar-drag bg-transparent" />}
         <ModeSelection />
       </div>
     )
@@ -42,8 +43,8 @@ export default function App() {
   if (viewState === 'progress') {
     return (
       <div className="min-h-screen bg-claude-cream">
-        {/* macOS titlebar drag region */}
-        <div className="h-8 titlebar-drag bg-transparent" />
+        {/* macOS titlebar drag region (Electron only) */}
+        {isElectron && <div className="h-8 titlebar-drag bg-transparent" />}
         <ProgressDashboard />
       </div>
     )
@@ -52,8 +53,8 @@ export default function App() {
   if (viewState === 'result') {
     return (
       <div className="min-h-screen bg-claude-cream">
-        {/* macOS titlebar drag region */}
-        <div className="h-8 titlebar-drag bg-transparent" />
+        {/* macOS titlebar drag region (Electron only) */}
+        {isElectron && <div className="h-8 titlebar-drag bg-transparent" />}
         <QuizResult />
       </div>
     )
@@ -130,8 +131,8 @@ function QuizView({
 
   return (
     <div className="min-h-screen bg-claude-cream">
-      {/* macOS titlebar drag region */}
-      <div className="h-8 titlebar-drag bg-transparent" />
+      {/* macOS titlebar drag region (Electron only) */}
+      {isElectron && <div className="h-8 titlebar-drag bg-transparent" />}
 
       <div className="mx-auto max-w-3xl px-4 py-6">
         {/* Quiz Header */}

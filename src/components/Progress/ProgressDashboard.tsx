@@ -1,5 +1,6 @@
 import { useState, useRef, useEffect, useCallback } from 'react'
 import { useQuizStore } from '@/stores/quizStore'
+import { platformAPI } from '@/lib/platformAPI'
 import { PREDEFINED_CATEGORIES, type Category } from '@/domain/valueObjects/Category'
 import { getProgressRepository } from '@/infrastructure/persistence/LocalStorageProgressRepository'
 
@@ -81,11 +82,11 @@ export function ProgressDashboard() {
     try {
       const progressRepo = getProgressRepository()
       const jsonData = await progressRepo.export()
-      const result = await window.electronAPI.exportProgress(jsonData)
+      const result = await platformAPI.exportProgress(jsonData)
 
       if (result.success) {
         showStatus('エクスポートしました')
-      } else if (result.error !== 'cancelled') {
+      } else if ('error' in result && result.error !== 'cancelled') {
         showStatus(`エラー: ${result.error}`, 5000)
       }
     } catch {
@@ -104,7 +105,7 @@ export function ProgressDashboard() {
 
   const handleImport = async () => {
     try {
-      const result = await window.electronAPI.importProgress()
+      const result = await platformAPI.importProgress()
 
       if (result.success && result.data) {
         if (

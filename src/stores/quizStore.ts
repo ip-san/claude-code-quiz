@@ -55,6 +55,7 @@ import {
   getQuizRepository,
   getProgressRepository,
 } from '@/infrastructure'
+import { platformAPI } from '@/lib/platformAPI'
 import {
   getSessionRepository,
   type SavedSessionData,
@@ -660,7 +661,7 @@ export const useQuizStore = create<QuizStore>((set, get) => ({
       state.userProgress
     )
     const combinedCsv = `${questionCsv}\r\n\r\n--- カテゴリ別サマリー ---\r\n${categoryCsv}`
-    await window.electronAPI.exportCsv(combinedCsv, `quiz-progress-${dateStr}.csv`)
+    await platformAPI.exportCsv(combinedCsv, `quiz-progress-${dateStr}.csv`)
   },
 
   // Progress actions

@@ -7,8 +7,11 @@
   "main": "dist-electron/main.cjs",
   "scripts": {
     "dev": "vite",
+    "dev:web": "vite --config vite.config.web.ts",
     "build": "tsc && vite build && electron-builder",
+    "build:web": "tsc && vite build --config vite.config.web.ts",
     "preview": "vite preview",
+    "preview:web": "vite preview --config vite.config.web.ts",
     "typecheck": "tsc --noEmit",
     "lint": "eslint src electron",
     "test": "vitest run",
@@ -79,6 +82,7 @@
     "typescript": "^5.5.2",
     "typescript-eslint": "^8.53.1",
     "vite": "^5.3.3",
+    "vite-plugin-pwa": "^1.2.0",
     "vitest": "^4.0.18"
   },
   "build": {
