@@ -23,7 +23,7 @@ export function DailyGoalIndicator() {
   const goalOptions = [5, 10, 15, 20, 30, 50]
 
   return (
-    <div className="rounded-lg border border-stone-200 bg-white px-4 py-3">
+    <div className="animate-card-enter rounded-lg border border-stone-200 bg-white px-4 py-3">
       <div className="mb-2 flex items-center justify-between">
         <div className="flex items-center gap-2">
           <span className="text-base">{isAchieved ? '🎉' : '🎯'}</span>
@@ -42,10 +42,10 @@ export function DailyGoalIndicator() {
       {/* Progress bar */}
       <div className="mb-1.5 h-2.5 overflow-hidden rounded-full bg-stone-200">
         <div
-          className={`h-full rounded-full transition-all duration-500 ${
+          className={`h-full animate-progress-fill rounded-full ${
             isAchieved ? 'bg-green-500' : 'bg-claude-orange'
           }`}
-          style={{ width: `${progressPercent}%` }}
+          style={{ '--tw-progress-width': `${progressPercent}%`, width: `${progressPercent}%` } as React.CSSProperties}
         />
       </div>
 

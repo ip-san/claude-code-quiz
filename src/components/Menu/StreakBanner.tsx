@@ -47,7 +47,7 @@ export function StreakBanner() {
   }
 
   return (
-    <div className={`rounded-lg border px-4 py-3 text-center ${getBgClass(streak)}`}>
+    <div className={`animate-bounce-in rounded-lg border px-4 py-3 text-center ${getBgClass(streak)}`}>
       <div className="flex items-center justify-center gap-2">
         <span className="text-xl">{getStreakEmoji(streak)}</span>
         <span className="text-lg font-bold text-claude-dark">{streak}日連続</span>

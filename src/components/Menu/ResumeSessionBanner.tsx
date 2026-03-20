@@ -19,7 +19,7 @@ export function ResumeSessionBanner() {
     : ''
 
   return (
-    <div className="mb-6 rounded-xl border border-claude-orange/30 bg-gradient-to-r from-claude-orange/10 to-claude-orange/5 p-4">
+    <div className="mb-6 animate-slide-down rounded-xl border border-claude-orange/30 bg-gradient-to-r from-claude-orange/10 to-claude-orange/5 p-4">
       <div className="mb-3 flex items-center gap-2">
         <span className="text-lg">{modeIcon}</span>
         <span className="text-sm font-semibold text-claude-dark">

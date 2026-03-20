@@ -226,7 +226,7 @@ export function ProgressDashboard() {
                   </div>
                   <div className="mb-1 h-2 overflow-hidden rounded-full bg-stone-200">
                     <div
-                      className="h-full rounded-full transition-all"
+                      className="h-full animate-progress-fill rounded-full"
                       style={{
                         width: `${(attempted / Math.max(total, 1)) * 100}%`,
                         backgroundColor: getColorHex(category.color ?? 'gray'),
@@ -321,7 +321,7 @@ interface StatCardProps {
 
 function StatCard({ label, value, icon }: StatCardProps) {
   return (
-    <div className="rounded-lg border border-stone-200 bg-white p-4 shadow-sm">
+    <div className="animate-card-enter rounded-lg border border-stone-200 bg-white p-4 shadow-sm">
       <div className="mb-1 text-2xl">{icon}</div>
       <div className="text-2xl font-bold text-claude-dark">{value}</div>
       <div className="text-sm text-stone-500">{label}</div>

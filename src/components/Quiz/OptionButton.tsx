@@ -38,6 +38,16 @@ export function OptionButton({
     return 'border-stone-200 opacity-50'
   }
 
+  // Animation class based on answer state
+  const getAnimClass = () => {
+    if (!isAnswered) {
+      return isSelected ? 'animate-option-pop' : ''
+    }
+    if (isCorrect) return 'animate-option-correct'
+    if (isSelected && !isCorrect) return 'animate-option-wrong'
+    return ''
+  }
+
   const getIcon = () => {
     if (!isAnswered) return null
 
@@ -119,7 +129,7 @@ export function OptionButton({
       aria-pressed={isSelected}
       aria-checked={isMultiSelect ? isSelected : undefined}
       role={isMultiSelect ? 'checkbox' : 'option'}
-      className={`no-select w-full rounded-xl border-2 p-4 text-left transition-all ${getStyles()} ${
+      className={`no-select w-full rounded-xl border-2 p-4 text-left transition-all ${getStyles()} ${getAnimClass()} ${
         isAnswered ? 'cursor-default' : 'cursor-pointer'
       }`}
     >

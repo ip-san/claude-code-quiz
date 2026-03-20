@@ -1,4 +1,4 @@
-import { useMemo } from 'react'
+import { useMemo, useState, useEffect } from 'react'
 import { useQuizStore, APP_CONFIG } from '@/stores/quizStore'
 import { getCategoryById } from '@/domain/valueObjects/Category'
 import { Trophy, RotateCcw, Star, Home, BookOpen, Lightbulb, ArrowRight, Target } from 'lucide-react'
@@ -25,11 +25,60 @@ export function QuizResult() {
   const hasWrongAnswers = sessionWrongAnswers.length > 0
   const isOverviewMode = sessionConfig.mode === 'overview'
 
+  // Animated count-up
+  const [displayScore, setDisplayScore] = useState(0)
+  const [displayPercent, setDisplayPercent] = useState(0)
+  const [showStars, setShowStars] = useState(false)
+  const [showContent, setShowContent] = useState(false)
+
   // Prevent NaN when no questions answered (edge case: timer expired immediately)
   const percentage = answeredCount > 0
     ? Math.round((score / answeredCount) * 100)
     : 0
   const isPassing = percentage >= APP_CONFIG.passingScore
+
+  const noMotion = useMemo(
+    () => window.matchMedia('(prefers-reduced-motion: reduce)').matches,
+    []
+  )
+
+  // Count-up animation
+  useEffect(() => {
+    if (noMotion) {
+      setDisplayScore(score)
+      setDisplayPercent(percentage)
+      setShowStars(true)
+      setShowContent(true)
+      return
+    }
+
+    // Animate score counting up
+    const duration = 600
+    const steps = 20
+    const interval = duration / steps
+    let step = 0
+
+    const timer = setInterval(() => {
+      step++
+      const progress = step / steps
+      // Ease-out
+      const eased = 1 - Math.pow(1 - progress, 3)
+      setDisplayScore(Math.round(score * eased))
+      setDisplayPercent(Math.round(percentage * eased))
+
+      if (step >= steps) {
+        clearInterval(timer)
+        setDisplayScore(score)
+        setDisplayPercent(percentage)
+        // Show stars after count-up
+        setTimeout(() => setShowStars(true), 100)
+        // Show remaining content
+        setTimeout(() => setShowContent(true), 400)
+      }
+    }, interval)
+
+    return () => clearInterval(timer)
+  }, [score, percentage, noMotion])
 
   // Recommendation for overview mode: find weakest category from wrong answers
   const recommendation = useMemo(() => {
@@ -143,10 +192,14 @@ export function QuizResult() {
     startSession({ mode: 'full' })
   }
 
+  const filledStars = Math.ceil(percentage / STAR_PERCENTAGE_DIVISOR)
+
   return (
     <div className="flex min-h-screen items-center justify-center px-4">
       <div
-        className={`w-full max-w-md rounded-2xl border ${result.borderColor} ${result.bgColor} p-8 text-center shadow-lg`}
+        className={`w-full max-w-md rounded-2xl border ${result.borderColor} ${result.bgColor} p-8 text-center shadow-lg ${
+          noMotion ? '' : 'animate-result-enter'
+        }`}
       >
         {/* Trophy icon */}
         <div
@@ -154,7 +207,7 @@ export function QuizResult() {
             isPassing
               ? 'bg-yellow-100'
               : 'bg-stone-100'
-          }`}
+          } ${noMotion ? '' : 'animate-bounce-in'}`}
         >
           <Trophy className={`h-10 w-10 ${result.color}`} />
         </div>
@@ -164,16 +217,18 @@ export function QuizResult() {
           {result.title}
         </h2>
 
-        {/* Score display */}
+        {/* Score display - animated count-up */}
         <div className="mb-4">
-          <span className="text-5xl font-bold text-claude-dark">{score}</span>
+          <span className={`text-5xl font-bold text-claude-dark ${noMotion ? '' : 'animate-count-up'}`}>
+            {displayScore}
+          </span>
           <span className="text-2xl text-stone-400"> / {answeredCount}</span>
         </div>
 
         {/* Percentage */}
         <div className="mb-4 inline-flex items-center gap-1 rounded-full bg-white px-3 py-1 shadow-sm">
           <span className={`text-lg font-semibold ${result.color}`}>
-            {percentage}%
+            {displayPercent}%
           </span>
         </div>
 
@@ -207,82 +262,86 @@ export function QuizResult() {
           <p className="mb-4 text-sm text-stone-400">復習モードのため、スコアには反映されません</p>
         )}
 
-        {/* Stars visualization */}
-        <div className="mb-6 flex justify-center gap-1" role="img" aria-label={`${Math.ceil(percentage / STAR_PERCENTAGE_DIVISOR)}つ星の評価`}>
+        {/* Stars visualization - staggered pop-in */}
+        <div className="mb-6 flex justify-center gap-1" role="img" aria-label={`${filledStars}つ星の評価`}>
           {[...Array(STAR_COUNT)].map((_, i) => (
             <Star
               key={i}
               className={`h-8 w-8 ${
-                i < Math.ceil(percentage / STAR_PERCENTAGE_DIVISOR)
+                showStars && i < filledStars
                   ? 'fill-yellow-500 text-yellow-500'
                   : 'text-stone-300'
-              }`}
+              } ${showStars && !noMotion && i < filledStars ? 'animate-star-pop' : ''}`}
+              style={showStars && !noMotion && i < filledStars ? { animationDelay: `${i * 100}ms` } : undefined}
               aria-hidden="true"
             />
           ))}
         </div>
 
-        {/* Recommendation for overview mode */}
-        {recommendation && (
-          <div className="mb-6 rounded-xl border border-indigo-200 bg-indigo-50 p-4 text-left">
-            <p className="mb-2 text-xs font-semibold text-indigo-500">次のおすすめ</p>
-            {recommendation.type === 'perfect' ? (
-              <>
-                <p className="mb-3 text-sm text-stone-600">
-                  全体像を把握できました！実力テストで総合力を試してみましょう。
-                </p>
-                <button
-                  onClick={handleStartFullTest}
-                  className="inline-flex items-center gap-1.5 rounded-lg bg-indigo-500 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-indigo-600"
-                >
-                  <Target className="h-4 w-4" />
-                  実力テストに挑戦
-                  <ArrowRight className="h-4 w-4" />
-                </button>
-              </>
-            ) : (
-              <>
-                <p className="mb-3 text-sm text-stone-600">
-                  <span className="font-medium">{recommendation.categoryIcon} {recommendation.categoryName}</span>
-                  で{recommendation.wrongCount}問間違えました。カテゴリ別学習で深掘りしてみましょう。
-                </p>
-                <button
-                  onClick={() => handleStartCategorySession(recommendation.categoryId)}
-                  className="inline-flex items-center gap-1.5 rounded-lg bg-indigo-500 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-indigo-600"
-                >
-                  {recommendation.categoryIcon} {recommendation.categoryName}を深掘り
-                  <ArrowRight className="h-4 w-4" />
-                </button>
-              </>
-            )}
-          </div>
-        )}
-
-        {/* Action buttons */}
-        <div className="flex flex-col gap-3">
-          {hasWrongAnswers && !isReviewMode && (
-            <button
-              onClick={startReviewSession}
-              className="inline-flex w-full items-center justify-center gap-2 rounded-lg bg-amber-500 px-6 py-3 font-medium text-white transition-colors hover:bg-amber-600"
-            >
-              <BookOpen className="h-5 w-5" />
-              間違えた問題を復習（{sessionWrongAnswers.length}問）
-            </button>
+        {/* Content below stars fades in after stars */}
+        <div className={noMotion || showContent ? 'opacity-100' : 'opacity-0'} style={{ transition: noMotion ? 'none' : 'opacity 0.3s ease-out' }}>
+          {/* Recommendation for overview mode */}
+          {recommendation && (
+            <div className="mb-6 rounded-xl border border-indigo-200 bg-indigo-50 p-4 text-left">
+              <p className="mb-2 text-xs font-semibold text-indigo-500">次のおすすめ</p>
+              {recommendation.type === 'perfect' ? (
+                <>
+                  <p className="mb-3 text-sm text-stone-600">
+                    全体像を把握できました！実力テストで総合力を試してみましょう。
+                  </p>
+                  <button
+                    onClick={handleStartFullTest}
+                    className="inline-flex items-center gap-1.5 rounded-lg bg-indigo-500 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-indigo-600"
+                  >
+                    <Target className="h-4 w-4" />
+                    実力テストに挑戦
+                    <ArrowRight className="h-4 w-4" />
+                  </button>
+                </>
+              ) : (
+                <>
+                  <p className="mb-3 text-sm text-stone-600">
+                    <span className="font-medium">{recommendation.categoryIcon} {recommendation.categoryName}</span>
+                    で{recommendation.wrongCount}問間違えました。カテゴリ別学習で深掘りしてみましょう。
+                  </p>
+                  <button
+                    onClick={() => handleStartCategorySession(recommendation.categoryId)}
+                    className="inline-flex items-center gap-1.5 rounded-lg bg-indigo-500 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-indigo-600"
+                  >
+                    {recommendation.categoryIcon} {recommendation.categoryName}を深掘り
+                    <ArrowRight className="h-4 w-4" />
+                  </button>
+                </>
+              )}
+            </div>
           )}
-          <button
-            onClick={handleRetry}
-            className="inline-flex w-full items-center justify-center gap-2 rounded-lg bg-claude-orange px-6 py-3 font-medium text-white transition-colors hover:bg-claude-orange/90"
-          >
-            <RotateCcw className="h-5 w-5" />
-            もう一度挑戦する
-          </button>
-          <button
-            onClick={handleBackToMenu}
-            className="inline-flex w-full items-center justify-center gap-2 rounded-lg border border-stone-300 px-6 py-3 font-medium text-stone-600 transition-colors hover:bg-stone-50"
-          >
-            <Home className="h-5 w-5" />
-            メニューに戻る
-          </button>
+
+          {/* Action buttons */}
+          <div className="flex flex-col gap-3">
+            {hasWrongAnswers && !isReviewMode && (
+              <button
+                onClick={startReviewSession}
+                className="inline-flex w-full items-center justify-center gap-2 rounded-lg bg-amber-500 px-6 py-3 font-medium text-white transition-colors hover:bg-amber-600"
+              >
+                <BookOpen className="h-5 w-5" />
+                間違えた問題を復習（{sessionWrongAnswers.length}問）
+              </button>
+            )}
+            <button
+              onClick={handleRetry}
+              className="inline-flex w-full items-center justify-center gap-2 rounded-lg bg-claude-orange px-6 py-3 font-medium text-white transition-colors hover:bg-claude-orange/90"
+            >
+              <RotateCcw className="h-5 w-5" />
+              もう一度挑戦する
+            </button>
+            <button
+              onClick={handleBackToMenu}
+              className="inline-flex w-full items-center justify-center gap-2 rounded-lg border border-stone-300 px-6 py-3 font-medium text-stone-600 transition-colors hover:bg-stone-50"
+            >
+              <Home className="h-5 w-5" />
+              メニューに戻る
+            </button>
+          </div>
         </div>
       </div>
     </div>

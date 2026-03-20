@@ -126,7 +126,7 @@ export function ModeSelection() {
           <div className="grid grid-cols-2 gap-2 sm:grid-cols-3 lg:grid-cols-7">
             {PREDEFINED_QUIZ_MODES
               .filter((m) => m.id !== 'review')
-              .map((modeConfig) => {
+              .map((modeConfig, idx) => {
               const isDisabled =
                 (modeConfig.id === 'bookmark' && bookmarkedCount === 0) ||
                 (modeConfig.id === 'unanswered' && unansweredCount === 0)
@@ -135,13 +135,14 @@ export function ModeSelection() {
                   key={modeConfig.id}
                   onClick={() => !isDisabled && setSelectedMode(modeConfig.id)}
                   disabled={isDisabled}
-                  className={`rounded-lg border p-3 text-left transition-all ${
+                  className={`animate-card-enter rounded-lg border p-3 text-left transition-all ${
                     isDisabled
                       ? 'cursor-not-allowed border-stone-200 bg-stone-50 opacity-50'
                       : selectedMode === modeConfig.id
                         ? 'border-claude-orange bg-claude-orange/5 shadow-sm'
                         : 'border-stone-200 bg-white hover:border-stone-300 hover:shadow-sm'
                   }`}
+                  style={{ animationDelay: `${idx * 50}ms` }}
                 >
                   <div className="mb-1 flex items-center gap-1.5">
                     <span className="text-lg">{modeConfig.icon}</span>
@@ -183,7 +184,7 @@ export function ModeSelection() {
               カテゴリ選択
             </h2>
             <div className="grid grid-cols-4 gap-2 sm:grid-cols-8">
-              {PREDEFINED_CATEGORIES.map((category: Category) => (
+              {PREDEFINED_CATEGORIES.map((category: Category, catIdx) => (
                 <button
                   key={category.id}
                   onClick={() =>
@@ -191,19 +192,20 @@ export function ModeSelection() {
                       selectedCategory === category.id ? null : category.id
                     )
                   }
-                  className={`rounded-lg border p-2 text-center transition-all ${
+                  className={`animate-card-enter rounded-lg border p-2 text-center transition-all ${
                     selectedCategory === category.id
                       ? 'shadow-sm'
                       : 'border-stone-200 bg-white hover:border-stone-300'
                   }`}
-                  style={
-                    selectedCategory === category.id
+                  style={{
+                    animationDelay: `${catIdx * 40}ms`,
+                    ...(selectedCategory === category.id
                       ? {
                           borderColor: getColorHex(category.color ?? 'gray'),
                           backgroundColor: `${getColorHex(category.color ?? 'gray')}10`,
                         }
-                      : {}
-                  }
+                      : {}),
+                  }}
                 >
                   <div className="flex flex-col items-center gap-0.5">
                     <span className="text-lg">{category.icon}</span>
