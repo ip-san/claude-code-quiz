@@ -248,7 +248,7 @@ export function ModeSelection() {
           {/* Category mastery overview */}
           {userProgress.totalAttempts > 0 && (
             <div className="mb-4">
-              <h2 className="mb-2 text-sm font-semibold text-stone-500">マスタリー</h2>
+              <h2 className="mb-2 text-sm font-semibold text-stone-500">理解度</h2>
               <div className="grid grid-cols-4 gap-1.5 sm:grid-cols-8">
                 {PREDEFINED_CATEGORIES.map((category: Category) => {
                   const stats = useQuizStore.getState().getCategoryStats()[category.id]
