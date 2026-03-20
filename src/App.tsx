@@ -134,9 +134,9 @@ function QuizView({
       {/* macOS titlebar drag region (Electron only) */}
       {isElectron && <div className="h-8 titlebar-drag bg-transparent" />}
 
-      <div className="mx-auto max-w-3xl px-3 py-4 sm:px-4 sm:py-6">
+      <div className="mx-auto max-w-3xl px-3 py-2 sm:px-4 sm:py-6">
         {/* Quiz Header */}
-        <div className="mb-4 flex items-center justify-between gap-2 sm:mb-6">
+        <div className="mb-2 flex items-center justify-between gap-2 sm:mb-6">
           <div className="flex min-w-0 flex-1 flex-wrap items-center gap-2 sm:gap-4">
             {isReviewMode && (
               <span className="rounded bg-amber-100 px-2 py-0.5 text-xs font-medium text-amber-700">

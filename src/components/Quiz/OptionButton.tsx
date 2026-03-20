@@ -110,7 +110,7 @@ export function OptionButton({
 
     return (
       <span
-        className={`flex h-7 w-7 flex-shrink-0 items-center justify-center rounded-full text-sm font-medium ${
+        className={`flex h-6 w-6 flex-shrink-0 items-center justify-center rounded-full text-xs font-medium sm:h-7 sm:w-7 sm:text-sm ${
           isSelected && !isAnswered
             ? 'bg-claude-orange text-white'
             : 'bg-stone-100 text-stone-600'
@@ -129,13 +129,13 @@ export function OptionButton({
       aria-pressed={isSelected}
       aria-checked={isMultiSelect ? isSelected : undefined}
       role={isMultiSelect ? 'checkbox' : 'option'}
-      className={`no-select w-full rounded-xl border-2 p-3 text-left transition-all sm:p-4 ${getStyles()} ${getAnimClass()} ${
+      className={`no-select w-full rounded-lg border-2 px-3 py-2.5 text-left transition-all sm:rounded-xl sm:p-4 ${getStyles()} ${getAnimClass()} ${
         isAnswered ? 'cursor-default' : 'cursor-pointer'
       }`}
     >
       <div className="flex items-start gap-3">
         {renderBadge()}
-        <span className="flex-1 leading-relaxed text-claude-dark"><QuizText text={text} /></span>
+        <span className="flex-1 text-sm leading-relaxed text-claude-dark sm:text-base"><QuizText text={text} /></span>
         {getIcon()}
       </div>
     </button>

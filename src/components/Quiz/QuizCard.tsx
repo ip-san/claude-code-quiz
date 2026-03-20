@@ -214,7 +214,7 @@ export function QuizCard() {
         } ${isAnswered && isCorrect ? 'animate-pulse-success' : ''}`}
       >
         {/* Category & Difficulty badges + Bookmark */}
-      <div className="mb-4 flex items-center justify-between">
+      <div className="mb-2 flex items-center justify-between sm:mb-4">
         <div className="flex gap-2">
           {category && (
             <span
@@ -267,17 +267,17 @@ export function QuizCard() {
       </div>
 
       {/* Question */}
-      <h2 className="mb-4 text-base font-semibold leading-relaxed text-claude-dark sm:mb-6 sm:text-lg">
+      <h2 className="mb-3 text-sm font-semibold leading-relaxed text-claude-dark sm:mb-6 sm:text-lg">
         <QuizText text={quiz.question} />
       </h2>
 
       {/* Hint */}
       {!isAnswered && (
-        <div className="mb-4">
+        <div className="mb-2 sm:mb-4">
           {!hintUsed ? (
             <button
               onClick={useHint}
-              className="flex items-center gap-1.5 rounded-lg border border-amber-300 bg-amber-50 px-3 py-2 text-sm text-amber-700 transition-colors hover:bg-amber-100"
+              className="flex items-center gap-1.5 rounded-lg border border-amber-300 bg-amber-50 px-2.5 py-1.5 text-xs text-amber-700 transition-colors hover:bg-amber-100 sm:px-3 sm:py-2 sm:text-sm"
             >
               <Lightbulb className="h-4 w-4" />
               ヒントを表示
@@ -318,7 +318,7 @@ export function QuizCard() {
 
       {/* Options */}
       <div
-        className="space-y-3"
+        className="space-y-2 sm:space-y-3"
         role={isMultiSelect ? 'group' : 'listbox'}
         aria-label={isMultiSelect ? '複数選択回答' : '回答選択肢'}
         aria-activedescendant={!isMultiSelect && selectedAnswer !== null ? `option-${selectedAnswer}` : undefined}
@@ -338,7 +338,7 @@ export function QuizCard() {
       </div>
 
       {/* Submit / Next button */}
-      <div className="mt-6">
+      <div className="mt-3 sm:mt-6">
         {!isAnswered ? (
           <button
             onClick={submitAnswer}
