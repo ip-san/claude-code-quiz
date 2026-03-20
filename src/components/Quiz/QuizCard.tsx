@@ -7,6 +7,7 @@ import { getCategoryById } from '@/domain/valueObjects/Category'
 import { getChapterFromTags, OVERVIEW_CHAPTERS } from '@/domain/valueObjects/OverviewChapter'
 import { Bookmark, Lightbulb, RotateCcw } from 'lucide-react'
 import { QuizText } from './QuizText'
+import { haptics } from '@/lib/haptics'
 
 // Color mapping for categories
 const COLOR_MAP: Record<string, string> = {
@@ -154,7 +155,7 @@ export function QuizCard() {
         }
       }
     },
-    [quiz, selectedAnswer, selectedAnswers, isAnswered, isCorrect, isReviewMode, isMultiSelect, selectAnswer, toggleAnswer, submitAnswer, nextQuestion, retryQuestion]
+    [quiz, selectedAnswer, selectedAnswers, isAnswered, isCorrect, isMultiSelect, selectAnswer, toggleAnswer, submitAnswer, nextQuestion, retryQuestion]
   )
 
   // Register keyboard listener
@@ -162,6 +163,13 @@ export function QuizCard() {
     window.addEventListener('keydown', handleKeyDown)
     return () => window.removeEventListener('keydown', handleKeyDown)
   }, [handleKeyDown])
+
+  // Haptic feedback on answer result
+  useEffect(() => {
+    if (isAnswered && isCorrect !== null) {
+      if (isCorrect) { haptics.success() } else { haptics.error() }
+    }
+  }, [isAnswered, isCorrect])
 
   // Empty state when no quiz data
   if (!quiz) {
@@ -332,56 +340,63 @@ export function QuizCard() {
             isCorrect={quiz.isCorrectIndex(index)}
             isAnswered={isAnswered}
             isMultiSelect={isMultiSelect}
-            onClick={() => isMultiSelect ? toggleAnswer(index) : selectAnswer(index)}
+            onClick={() => { haptics.light(); if (isMultiSelect) { toggleAnswer(index) } else { selectAnswer(index) } }}
           />
         ))}
       </div>
 
-      {/* Submit / Next button */}
-      <div className="mt-3 sm:mt-6">
-        {!isAnswered ? (
+      {/* Feedback (shown inline after answering) */}
+      {isAnswered && (
+        <div className="mt-3 sm:mt-6">
+          <Feedback quiz={quiz} isCorrect={isCorrect!} />
+        </div>
+      )}
+
+      {/* Spacer for fixed bottom button on mobile */}
+      <div className="h-20 sm:hidden" />
+    </div>
+
+    {/* Fixed bottom action bar (mobile) / inline (desktop) */}
+    <div className="fixed bottom-0 left-0 right-0 z-20 border-t border-stone-200 bg-white px-4 pb-[calc(env(safe-area-inset-bottom,0px)+8px)] pt-2 sm:relative sm:mt-3 sm:border-0 sm:bg-transparent sm:p-0 sm:pb-0 sm:pt-0 sm:mt-6">
+      {!isAnswered ? (
+        <button
+          onClick={() => { haptics.medium(); submitAnswer() }}
+          disabled={isMultiSelect ? selectedAnswers.length === 0 : selectedAnswer === null}
+          aria-disabled={isMultiSelect ? selectedAnswers.length === 0 : selectedAnswer === null}
+          aria-label={
+            (isMultiSelect ? selectedAnswers.length === 0 : selectedAnswer === null)
+              ? '選択肢を選んでください'
+              : '回答を確定する'
+          }
+          className={`w-full rounded-2xl py-3.5 text-base font-semibold transition-all sm:py-3 ${
+            (isMultiSelect ? selectedAnswers.length > 0 : selectedAnswer !== null)
+              ? 'tap-highlight bg-claude-orange text-white'
+              : 'cursor-not-allowed bg-stone-200 text-stone-400'
+          }`}
+        >
+          回答する
+        </button>
+      ) : (
+        <div className="flex flex-col gap-2">
+          {isCorrect === false && (
+            <button
+              onClick={() => { haptics.light(); retryQuestion() }}
+              aria-label="この問題をもう一度挑戦する (R)"
+              className="tap-highlight inline-flex w-full items-center justify-center gap-2 rounded-2xl border-2 border-claude-orange py-3.5 text-base font-semibold text-claude-orange sm:py-3"
+            >
+              <RotateCcw className="h-4 w-4" />
+              もう一度挑戦 <span className="text-xs opacity-60">(R)</span>
+            </button>
+          )}
           <button
-            onClick={submitAnswer}
-            disabled={isMultiSelect ? selectedAnswers.length === 0 : selectedAnswer === null}
-            aria-disabled={isMultiSelect ? selectedAnswers.length === 0 : selectedAnswer === null}
-            aria-label={
-              (isMultiSelect ? selectedAnswers.length === 0 : selectedAnswer === null)
-                ? '選択肢を選んでください'
-                : '回答を確定する'
-            }
-            className={`w-full rounded-2xl py-3.5 text-base font-semibold transition-all sm:py-3 ${
-              (isMultiSelect ? selectedAnswers.length > 0 : selectedAnswer !== null)
-                ? 'tap-highlight bg-claude-orange text-white'
-                : 'cursor-not-allowed bg-stone-200 text-stone-400'
-            }`}
+            onClick={() => { haptics.light(); nextQuestion() }}
+            aria-label={isReviewMode ? '次の問題を確認する' : '次の問題へ進む'}
+            className="tap-highlight w-full rounded-2xl bg-claude-orange py-3.5 text-base font-semibold text-white sm:py-3"
           >
-            回答する
+            {isReviewMode ? '次の問題を確認' : '次の問題へ'}
           </button>
-        ) : (
-          <>
-            <Feedback quiz={quiz} isCorrect={isCorrect!} />
-            <div className="mt-4 flex flex-col gap-2">
-              {isCorrect === false && (
-                <button
-                  onClick={retryQuestion}
-                  aria-label="この問題をもう一度挑戦する (R)"
-                  className="tap-highlight inline-flex w-full items-center justify-center gap-2 rounded-2xl border-2 border-claude-orange py-3.5 text-base font-semibold text-claude-orange sm:py-3"
-                >
-                  <RotateCcw className="h-4 w-4" />
-                  もう一度挑戦 <span className="text-xs opacity-60">(R)</span>
-                </button>
-              )}
-              <button
-                onClick={nextQuestion}
-                aria-label={isReviewMode ? '次の問題を確認する' : '次の問題へ進む'}
-                className="tap-highlight w-full rounded-2xl bg-claude-orange py-3.5 text-base font-semibold text-white sm:py-3"
-              >
-                {isReviewMode ? '次の問題を確認' : '次の問題へ'}
-              </button>
-            </div>
-          </>
-        )}
-      </div>
+        </div>
+      )}
     </div>
     </>
   )

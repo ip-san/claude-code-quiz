@@ -1,7 +1,7 @@
 import { useMemo, useState, useEffect } from 'react'
 import { useQuizStore, APP_CONFIG } from '@/stores/quizStore'
 import { getCategoryById } from '@/domain/valueObjects/Category'
-import { Trophy, RotateCcw, Star, Home, BookOpen, Lightbulb, ArrowRight, Target } from 'lucide-react'
+import { Trophy, RotateCcw, Star, Home, BookOpen, Lightbulb, ArrowRight, Target, Share2 } from 'lucide-react'
 
 // Score thresholds for result messages
 const SCORE_THRESHOLDS = {
@@ -334,6 +334,21 @@ export function QuizResult() {
               <RotateCcw className="h-5 w-5" />
               もう一度挑戦する
             </button>
+            {'share' in navigator && (
+              <button
+                onClick={() => {
+                  navigator.share({
+                    title: 'Claude Code Quiz',
+                    text: `Claude Code Quiz: ${score}/${answeredCount}問正解 (${percentage}%)`,
+                    url: window.location.href,
+                  }).catch(() => {})
+                }}
+                className="tap-highlight inline-flex w-full items-center justify-center gap-2 rounded-2xl border border-stone-300 px-6 py-3.5 text-base font-semibold text-stone-600"
+              >
+                <Share2 className="h-5 w-5" />
+                結果をシェア
+              </button>
+            )}
             <button
               onClick={handleBackToMenu}
               className="tap-highlight inline-flex w-full items-center justify-center gap-2 rounded-2xl border border-stone-300 px-6 py-3.5 text-base font-semibold text-stone-600"

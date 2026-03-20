@@ -9,6 +9,8 @@ import { ProgressDashboard } from '@/components/Progress/ProgressDashboard'
 import { getChapterFromTags } from '@/domain/valueObjects/OverviewChapter'
 import { Loader2, XCircle } from 'lucide-react'
 import { lazy, Suspense } from 'react'
+import { OfflineIndicator } from '@/components/Layout/OfflineIndicator'
+import { InstallPrompt } from '@/components/Layout/InstallPrompt'
 
 // Lazy-load PWA update prompt only in web builds (avoids virtual:pwa-register error in Electron)
 const PWAUpdatePrompt = !isElectron
@@ -35,8 +37,14 @@ export default function App() {
     )
   }
 
-  // PWA update prompt (web only, lazy-loaded)
-  const pwaPrompt = PWAUpdatePrompt ? <Suspense fallback={null}><PWAUpdatePrompt /></Suspense> : null
+  // PWA overlays (web only)
+  const pwaOverlays = !isElectron ? (
+    <>
+      <OfflineIndicator />
+      <InstallPrompt />
+      {PWAUpdatePrompt && <Suspense fallback={null}><PWAUpdatePrompt /></Suspense>}
+    </>
+  ) : null
 
   // Render based on view state
   if (viewState === 'menu') {
@@ -44,7 +52,7 @@ export default function App() {
       <div className="min-h-screen bg-claude-cream">
         {isElectron && <div className="h-8 titlebar-drag bg-transparent" />}
         <ModeSelection />
-        {pwaPrompt}
+        {pwaOverlays}
       </div>
     )
   }
@@ -54,7 +62,7 @@ export default function App() {
       <div className="min-h-screen bg-claude-cream">
         {isElectron && <div className="h-8 titlebar-drag bg-transparent" />}
         <ProgressDashboard />
-        {pwaPrompt}
+        {pwaOverlays}
       </div>
     )
   }
@@ -64,7 +72,7 @@ export default function App() {
       <div className="min-h-screen bg-claude-cream">
         {isElectron && <div className="h-8 titlebar-drag bg-transparent" />}
         <QuizResult />
-        {pwaPrompt}
+        {pwaOverlays}
       </div>
     )
   }

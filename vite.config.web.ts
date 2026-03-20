@@ -35,6 +35,9 @@ export default defineConfig({
           { src: 'icons/icon-512.png', sizes: '512x512', type: 'image/png' },
           { src: 'icons/icon-512.png', sizes: '512x512', type: 'image/png', purpose: 'maskable' },
         ],
+        shortcuts: [
+          { name: 'クイックスタート', url: '/claude-code-quiz/', description: 'クイズをすぐ開始' },
+        ],
       },
     }),
   ],
