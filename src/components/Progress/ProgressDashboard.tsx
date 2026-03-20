@@ -132,8 +132,8 @@ export function ProgressDashboard() {
   }
 
   return (
-    <div className="min-h-screen bg-claude-cream px-3 py-4 sm:px-4 sm:py-8">
-      <div className="mx-auto max-w-4xl">
+    <div className="min-h-screen bg-claude-cream px-4 py-4 sm:px-6 sm:py-8">
+      <div className="mx-auto sm:max-w-2xl lg:max-w-4xl">
         {/* Header */}
         <div className="mb-6 flex items-center justify-between sm:mb-8">
           <div>

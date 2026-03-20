@@ -195,9 +195,9 @@ export function QuizResult() {
   const filledStars = Math.ceil(percentage / STAR_PERCENTAGE_DIVISOR)
 
   return (
-    <div className="flex min-h-screen items-center justify-center px-3 sm:px-4">
+    <div className="flex min-h-screen items-center justify-center px-4">
       <div
-        className={`w-full max-w-md rounded-2xl border ${result.borderColor} ${result.bgColor} p-5 text-center shadow-lg sm:p-8 ${
+        className={`w-full rounded-2xl border sm:max-w-md ${result.borderColor} ${result.bgColor} p-5 text-center shadow-lg sm:p-8 ${
           noMotion ? '' : 'animate-result-enter'
         }`}
       >

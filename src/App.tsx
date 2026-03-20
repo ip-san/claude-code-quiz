@@ -190,7 +190,7 @@ function QuizView({
 
       {/* Scrollable content */}
       <div className="flex-1">
-        <div className="mx-auto max-w-3xl px-3 py-3 sm:px-4 sm:py-6">
+        <div className="mx-auto px-3 py-3 sm:max-w-3xl sm:px-4 sm:py-6">
           <QuizCard />
         </div>
       </div>
