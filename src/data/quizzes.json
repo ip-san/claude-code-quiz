@@ -1193,21 +1193,18 @@
       "referenceUrl": "https://code.claude.com/docs/en/how-claude-code-works#tools",
       "diagram": {
         "type": "comparison",
-        "label": "5カテゴリの組み込みツール",
+        "label": "組み込みツール5カテゴリ",
         "columns": [
           {
             "heading": "ファイル操作",
             "items": [
-              "Read",
-              "Write",
-              "Edit"
+              "Read/Write/Edit"
             ]
           },
           {
             "heading": "検索",
             "items": [
-              "Glob",
-              "Grep"
+              "Glob/Grep"
             ]
           },
           {
@@ -1217,17 +1214,10 @@
             ]
           },
           {
-            "heading": "Web",
+            "heading": "Web+CI",
             "items": [
-              "WebFetch",
-              "WebSearch"
-            ]
-          },
-          {
-            "heading": "コードインテリジェンス",
-            "items": [
-              "型エラー検出",
-              "定義ジャンプ"
+              "WebFetch/Search",
+              "型エラー検出等"
             ]
           }
         ]
@@ -6142,27 +6132,7 @@
       ],
       "correctIndex": 2,
       "explanation": "Writer/Reviewerパターン（一方が書き他方がレビュー）やファンアウト（`claude -p`をループ実行）で効果的な並列作業が可能です。",
-      "referenceUrl": "https://code.claude.com/docs/en/best-practices",
-      "diagram": {
-        "type": "comparison",
-        "label": "並列作業パターン",
-        "columns": [
-          {
-            "heading": "Writer/Reviewer",
-            "items": [
-              "一方が書く",
-              "他方がレビュー"
-            ]
-          },
-          {
-            "heading": "ファンアウト",
-            "items": [
-              "claude -p ループ",
-              "各ファイル並列処理"
-            ]
-          }
-        ]
-      }
+      "referenceUrl": "https://code.claude.com/docs/en/best-practices"
     },
     {
       "id": "bp-012",
@@ -8011,38 +7981,24 @@
         "label": "defaultMode の有効値",
         "columns": [
           {
-            "heading": "default",
+            "heading": "標準系",
             "items": [
-              "標準モード",
-              "都度確認"
+              "default (都度確認)",
+              "acceptEdits (編集自動)"
             ]
           },
           {
-            "heading": "acceptEdits",
+            "heading": "制限系",
             "items": [
-              "編集自動承認",
-              "Bash要確認"
+              "plan (読取専用)",
+              "dontAsk (未許可は拒否)"
             ]
           },
           {
-            "heading": "plan",
+            "heading": "全開放",
             "items": [
-              "読取専用",
-              "変更不可"
-            ]
-          },
-          {
-            "heading": "dontAsk",
-            "items": [
-              "全自動承認",
-              "CLI限定"
-            ]
-          },
-          {
-            "heading": "bypassPermissions",
-            "items": [
-              "全権限バイパス",
-              "CLI限定"
+              "bypassPermissions",
+              "全パーミッション省略"
             ]
           }
         ]
