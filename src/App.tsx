@@ -7,7 +7,7 @@ import { QuizResult } from '@/components/Quiz/QuizResult'
 import { Timer } from '@/components/Quiz/Timer'
 import { ProgressDashboard } from '@/components/Progress/ProgressDashboard'
 import { getChapterFromTags } from '@/domain/valueObjects/OverviewChapter'
-import { Loader2 } from 'lucide-react'
+import { Loader2, XCircle } from 'lucide-react'
 
 export default function App() {
   const { viewState, getProgress, sessionState, isLoading, initialize } = useQuizStore()
@@ -147,10 +147,10 @@ function QuizView({
             </div>
             <button
               onClick={handleQuitClick}
-              className="tap-highlight rounded-full bg-stone-100 px-4 py-1.5 text-sm font-medium text-stone-600"
+              className="tap-highlight flex h-9 w-9 items-center justify-center rounded-full"
               aria-label={isReviewMode ? '復習を終了する' : 'クイズを中止する'}
             >
-              {isReviewMode ? '終了' : '中止'}
+              <XCircle className="h-6 w-6 text-stone-400" />
             </button>
           </div>
           {/* Progress bar */}
