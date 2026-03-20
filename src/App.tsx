@@ -136,40 +136,42 @@ function QuizView({
 
       <div className="mx-auto max-w-3xl px-3 py-2 sm:px-4 sm:py-6">
         {/* Quiz Header */}
-        <div className="mb-2 flex items-center justify-between gap-2 sm:mb-6">
-          <div className="flex min-w-0 flex-1 flex-wrap items-center gap-2 sm:gap-4">
-            {isReviewMode && (
-              <span className="rounded bg-amber-100 px-2 py-0.5 text-xs font-medium text-amber-700">
-                復習
+        <div className="mb-2 sm:mb-6">
+          {/* Row 1: progress + quit */}
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-2">
+              {isReviewMode && (
+                <span className="rounded bg-amber-100 px-2 py-0.5 text-xs font-medium text-amber-700">
+                  復習
+                </span>
+              )}
+              {isOverviewMode && currentChapter && (
+                <span className="rounded bg-claude-orange/10 px-2 py-0.5 text-xs font-medium text-claude-orange">
+                  {currentChapter.icon} Ch.{currentChapter.id}
+                </span>
+              )}
+              <span className="text-xs text-claude-gray sm:text-sm">
+                {progress.current} / {progress.total}
               </span>
-            )}
-            {isOverviewMode && currentChapter && (
-              <span className="rounded bg-claude-orange/10 px-2 py-0.5 text-xs font-medium text-claude-orange">
-                {currentChapter.icon} Ch.{currentChapter.id}
-              </span>
-            )}
-            <span className="text-xs text-claude-gray sm:text-sm">
-              {progress.current} / {progress.total}
-            </span>
-            <div className="h-2 w-16 overflow-hidden rounded-full bg-stone-200 sm:w-32">
-              <div
-                className="h-full bg-claude-orange transition-all"
-                style={{
-                  width: `${progress.total > 0 ? (progress.current / progress.total) * 100 : 0}%`,
-                }}
-              />
+              {timeRemaining !== null && <Timer />}
+              <button
+                onClick={handleQuitClick}
+                className="flex items-center gap-1 rounded-lg border border-stone-300 px-2 py-1 text-xs text-stone-600 transition-colors hover:bg-stone-100 sm:px-3 sm:py-1.5 sm:text-sm"
+                aria-label={isReviewMode ? '復習を終了する' : 'クイズを中止する'}
+              >
+                <X className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
+                {isReviewMode ? '終了' : '中止'}
+              </button>
             </div>
           </div>
-          <div className="flex flex-shrink-0 items-center gap-2 sm:gap-4">
-            {timeRemaining !== null && <Timer />}
-            <button
-              onClick={handleQuitClick}
-              className="flex items-center gap-1 rounded-lg border border-stone-300 px-2 py-1.5 text-xs text-stone-600 transition-colors hover:bg-stone-100 sm:px-3 sm:text-sm"
-              aria-label={isReviewMode ? '復習を終了する' : 'クイズを中止する'}
-            >
-              <X className="h-4 w-4" />
-              <span className="hidden sm:inline">{isReviewMode ? '復習を終了' : '中止'}</span>
-            </button>
+          {/* Row 2: progress bar (full width) */}
+          <div className="mt-1.5 h-1.5 overflow-hidden rounded-full bg-stone-200 sm:mt-2 sm:h-2">
+            <div
+              className="h-full bg-claude-orange transition-all"
+              style={{
+                width: `${progress.total > 0 ? (progress.current / progress.total) * 100 : 0}%`,
+              }}
+            />
           </div>
         </div>
 
