@@ -1,5 +1,6 @@
 import { useState, useEffect, useCallback } from 'react'
 import { RefreshCw } from 'lucide-react'
+import { isElectron } from '@/lib/platformAPI'
 
 /**
  * PWA更新通知バナー
@@ -11,19 +12,21 @@ export function PWAUpdatePrompt() {
   const [updateFn, setUpdateFn] = useState<((reload: boolean) => Promise<void>) | null>(null)
 
   useEffect(() => {
-    // Only register in browser environments with service worker support
-    if (!('serviceWorker' in navigator)) return
+    // Skip entirely in Electron or non-SW environments
+    if (isElectron || !('serviceWorker' in navigator)) return
 
-    // Dynamic import to avoid bundling in Electron
-    import('virtual:pwa-register').then(({ registerSW }) => {
-      const updateSW = registerSW({
+    // Dynamic import — only resolves in web builds where vite-plugin-pwa is active
+    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+    // @ts-ignore: virtual module only exists in web build
+    import('virtual:pwa-register').then((mod: { registerSW: (opts: { onNeedRefresh: () => void }) => (reload: boolean) => Promise<void> }) => {
+      const updateSW = mod.registerSW({
         onNeedRefresh() {
           setNeedRefresh(true)
           setUpdateFn(() => updateSW)
         },
       })
     }).catch(() => {
-      // Not a PWA build (e.g., Electron) — silently ignore
+      // Not a PWA build — silently ignore
     })
   }, [])
 

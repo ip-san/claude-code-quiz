@@ -8,7 +8,12 @@ import { Timer } from '@/components/Quiz/Timer'
 import { ProgressDashboard } from '@/components/Progress/ProgressDashboard'
 import { getChapterFromTags } from '@/domain/valueObjects/OverviewChapter'
 import { Loader2, XCircle } from 'lucide-react'
-import { PWAUpdatePrompt } from '@/components/Layout/PWAUpdatePrompt'
+import { lazy, Suspense } from 'react'
+
+// Lazy-load PWA update prompt only in web builds (avoids virtual:pwa-register error in Electron)
+const PWAUpdatePrompt = !isElectron
+  ? lazy(() => import('@/components/Layout/PWAUpdatePrompt').then(m => ({ default: m.PWAUpdatePrompt })))
+  : null
 
 export default function App() {
   const { viewState, getProgress, sessionState, isLoading, initialize } = useQuizStore()
@@ -30,8 +35,8 @@ export default function App() {
     )
   }
 
-  // PWA update prompt (web only)
-  const pwaPrompt = !isElectron ? <PWAUpdatePrompt /> : null
+  // PWA update prompt (web only, lazy-loaded)
+  const pwaPrompt = PWAUpdatePrompt ? <Suspense fallback={null}><PWAUpdatePrompt /></Suspense> : null
 
   // Render based on view state
   if (viewState === 'menu') {
