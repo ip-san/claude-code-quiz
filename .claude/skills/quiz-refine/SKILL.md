@@ -362,10 +362,24 @@ node scripts/quiz-utils.mjs merge-proposals
 - `diagram` がある場合、タイプが問題の概念に合っているか（hierarchy=階層/優先順位, flow=手順/時系列, cycle=循環状態, comparison=比較対照）
 - diagram の `items`/`steps`/`states`/`columns` の内容が explanation と一致しているか
 - diagram の `label` が概念を正確に表現しているか
-- diagram の `sub` テキストが正確な情報か
+- diagram の `sub` テキストが正確な情報か（25文字以内推奨）
 - cycle の `trigger` が正しいキー/コマンドか
-- **severity:** major=内容がドキュメントと不一致, info=label改善提案
-- **diagram の追加提案は行わない**（既存 diagram の検証のみ）
+- **冗長性チェック**: 解説が80字未満で図が解説の単なる繰り返しになっていないか → 該当する場合は diagram 削除を提案
+- **過密チェック**: comparison列が5個以上、flow/hierarchyの要素が6個以上は情報過多 → グループ化や列統合を提案
+- **severity:** major=内容がドキュメントと不一致, info=label改善・冗長性・過密の指摘
+
+### J. ダイアグラム追加の検討（diagram なしの問題）
+- explanation が以下のパターンを含む場合、diagram 追加を提案する:
+  - **flow**: 手順・プロセス・ワークフロー（「まず→次に→最後に」「ステップ」「フロー」）
+  - **hierarchy**: 優先順位・スコープ階層・レイヤー（「優先」「上位→下位」「override」）
+  - **comparison**: 2つ以上の対比（「一方…他方」「X vs Y」「違い」「に対して」）
+  - **cycle**: 繰り返しプロセス（「サイクル」「ループ」「繰り返し」）
+- 以下の場合は追加しない:
+  - 解説が80字未満（情報が少なすぎて図が冗長になる）
+  - 概念が抽象的で視覚化しても理解促進効果が薄い
+  - 解説が単純な事実の記述のみ
+- **severity:** info（提案のみ、自動追加しない）
+- 提案フォーマット: `[diagram-proposal] {id}: {type} - {label} ({理由})`
 
 ---
 
