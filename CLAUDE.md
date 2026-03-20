@@ -1,15 +1,18 @@
-# Claude Code Quiz Desktop
+# Claude Code Quiz
 
-Claude Code の機能と使い方を学習するためのデスクトップクイズアプリケーション。
+Claude Code の機能と使い方を学習するためのクイズアプリケーション。
+デスクトップ（Electron）とスマホ（PWA）の両方で利用可能。
+
+**PWA（スマホ・ブラウザ）:** https://ip-san.github.io/claude-code-quiz-desktop/
 
 ## プロジェクト概要
 
 - **アーキテクチャ:** ドメイン駆動設計（DDD）レイヤードアーキテクチャ
 - **技術スタック:** Electron + Vite + React + TypeScript + Tailwind CSS + Zustand
+- **デプロイ:** Electron（デスクトップ）+ PWA / GitHub Pages（スマホ・ブラウザ）
 - **テスト:** Vitest（347テスト）
 - **クイズデータ:** 630問（57ドキュメントページをカバー）
 - **ダイアグラム:** 247問にアニメーション付き解説図（flow/comparison/hierarchy/cycle）
-- **PWA:** GitHub Pages デプロイ、オフライン対応、ホーム画面追加可能
 
 ## ディレクトリ構造
 
@@ -44,11 +47,18 @@ npm run preview:web    # Web版プレビュー
 
 ## PWA / GitHub Pages
 
-- **URL:** https://ip-san.github.io/claude-code-quiz-desktop/
-- **デプロイ:** `main` ブランチへの push で GitHub Actions が自動デプロイ
-- **オフライン:** Service Worker でアセット＋クイズデータをプリキャッシュ
-- **更新通知:** 新バージョン検出時に画面下部にバナー表示→「更新」ボタンで即反映
-- **プラットフォーム抽象化:** `src/lib/platformAPI.ts` で Electron/Web を自動切替
+**URL: https://ip-san.github.io/claude-code-quiz-desktop/**
+
+スマホのブラウザからアクセスし、「ホーム画面に追加」でネイティブアプリのように使える。
+
+| 項目 | 詳細 |
+|------|------|
+| デプロイ | `main` への push で GitHub Actions が自動デプロイ |
+| オフライン | Service Worker でアセット＋クイズデータをプリキャッシュ |
+| 更新通知 | 新バージョン検出時に画面下部にバナー→「更新」で即反映 |
+| レスポンシブ | モバイルファースト設計、Safe Area対応、ネイティブ風タップフィードバック |
+| プラットフォーム抽象化 | `src/lib/platformAPI.ts` で Electron/Web を自動切替 |
+| ビルド設定 | `vite.config.web.ts`（Electron用 `vite.config.ts` と分離） |
 
 ## カスタムスキル
 
