@@ -3,6 +3,7 @@ import { useQuizStore } from '@/stores/quizStore'
 import { platformAPI } from '@/lib/platformAPI'
 import { PREDEFINED_CATEGORIES, type Category } from '@/domain/valueObjects/Category'
 import { getProgressRepository } from '@/infrastructure/persistence/LocalStorageProgressRepository'
+import { SessionHistoryChart } from './SessionHistoryChart'
 
 // Color mapping for categories
 const COLOR_MAP: Record<string, string> = {
@@ -195,6 +196,18 @@ export function ProgressDashboard() {
           />
         </div>
 
+        {/* Session History Chart */}
+        {!hasNoProgress && (
+          <div className="mb-6">
+            <h2 className="mb-4 text-lg font-semibold text-claude-dark">
+              正答率の推移
+            </h2>
+            <div className="rounded-2xl border border-stone-200 bg-white p-4 shadow-sm">
+              <SessionHistoryChart sessions={userProgress.sessionHistory} />
+            </div>
+          </div>
+        )}
+
         {/* Category Progress */}
         <div className="mb-6">
           <h2 className="mb-4 text-lg font-semibold text-claude-dark">
@@ -220,10 +233,17 @@ export function ProgressDashboard() {
                       <span className="font-medium text-claude-dark">
                         {category.name}
                       </span>
+                      {progress >= 90 && <span className="text-xs">🏆</span>}
+                      {progress >= 70 && progress < 90 && <span className="text-xs">⭐</span>}
                     </div>
-                    <span className="text-sm text-stone-500">
-                      {attempted}/{total}問回答済み
-                    </span>
+                    <div className="flex items-center gap-2">
+                      <span className={`text-sm font-semibold ${progress >= 70 ? 'text-green-600' : progress >= 50 ? 'text-amber-600' : 'text-stone-500'}`}>
+                        {progress}%
+                      </span>
+                      <span className="text-xs text-stone-400">
+                        {attempted}/{total}
+                      </span>
+                    </div>
                   </div>
                   <div className="mb-1 h-2 overflow-hidden rounded-full bg-stone-200">
                     <div

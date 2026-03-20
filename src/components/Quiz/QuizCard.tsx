@@ -234,8 +234,8 @@ export function QuizCard() {
       <div
         key={questionKey}
         className={`animate-slide-in-right rounded-2xl bg-white p-4 shadow-[0_2px_20px_rgba(0,0,0,0.06)] sm:border sm:border-stone-200 sm:p-8 ${
-          isAnswered && !isCorrect ? 'animate-shake' : ''
-        } ${isAnswered && isCorrect ? 'animate-pulse-success' : ''}`}
+          isAnswered && !isCorrect ? 'animate-shake flash-wrong' : ''
+        } ${isAnswered && isCorrect ? 'glow-correct' : ''}`}
       >
         {/* Category & Difficulty badges + Bookmark */}
       <div className="mb-2 flex items-center justify-between sm:mb-4">

@@ -13,6 +13,8 @@ import {
   type DifficultyLevel,
 } from '@/domain/valueObjects/Difficulty'
 import { ResumeSessionBanner } from './ResumeSessionBanner'
+import { StreakBanner } from './StreakBanner'
+import { DailyGoalIndicator } from './DailyGoalIndicator'
 
 // Color mapping for categories
 const COLOR_MAP: Record<string, string> = {
@@ -104,13 +106,19 @@ export function ModeSelection() {
           <ResumeSessionBanner />
 
           {/* Header */}
-          <div className="mb-6 text-center">
+          <div className="mb-5 text-center">
             <h1 className="mb-1 text-2xl font-bold text-claude-dark">
               Claude Code Quiz
             </h1>
             <p className="text-sm text-claude-gray">
               {allQuestions.length}問 | 8カテゴリ
             </p>
+          </div>
+
+          {/* Engagement — streak + daily goal */}
+          <div className="mb-5 flex flex-col gap-2">
+            <StreakBanner />
+            <DailyGoalIndicator />
           </div>
 
           {/* Mode Selection — horizontal scroll on mobile */}
@@ -233,6 +241,31 @@ export function ModeSelection() {
                     {diff.name}
                   </button>
                 ))}
+              </div>
+            </div>
+          )}
+
+          {/* Category mastery overview */}
+          {userProgress.totalAttempts > 0 && (
+            <div className="mb-4">
+              <h2 className="mb-2 text-sm font-semibold text-stone-500">マスタリー</h2>
+              <div className="grid grid-cols-4 gap-1.5 sm:grid-cols-8">
+                {PREDEFINED_CATEGORIES.map((category: Category) => {
+                  const stats = useQuizStore.getState().getCategoryStats()[category.id]
+                  const accuracy = stats
+                    ? Math.round((stats.correctAnswers / Math.max(stats.attemptedQuestions, 1)) * 100)
+                    : 0
+                  const mastery = accuracy >= 90 ? '🏆' : accuracy >= 70 ? '⭐' : accuracy > 0 ? '📖' : '—'
+                  return (
+                    <div key={category.id} className="flex flex-col items-center gap-0.5 rounded-xl bg-white p-2">
+                      <span className="text-sm">{mastery}</span>
+                      <span className="text-[10px] text-stone-500">{category.name}</span>
+                      <span className={`text-xs font-bold ${accuracy >= 70 ? 'text-green-600' : accuracy > 0 ? 'text-stone-600' : 'text-stone-300'}`}>
+                        {accuracy > 0 ? `${accuracy}%` : '—'}
+                      </span>
+                    </div>
+                  )
+                })}
               </div>
             </div>
           )}
