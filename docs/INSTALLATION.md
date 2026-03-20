@@ -1,6 +1,6 @@
 # インストールガイド
 
-Claude Code Quiz Desktop のインストール方法を説明します。
+Claude Code Quiz のインストール方法を説明します。
 
 ## 目次
 
@@ -39,8 +39,8 @@ npm --version   # 9.0.0 以上
 ### 1. リポジトリのクローン
 
 ```bash
-git clone git@github.com:ip-san/claude-code-quiz-desktop.git
-cd claude-code-quiz-desktop
+git clone git@github.com:ip-san/claude-code-quiz.git
+cd claude-code-quiz
 ```
 
 ### 2. 依存パッケージのインストール
@@ -135,7 +135,7 @@ npm run build
 1. Applications フォルダから「Claude Code Quiz」をゴミ箱にドラッグ
 2. （任意）設定データを削除：
    ```bash
-   rm -rf ~/Library/Application\ Support/claude-code-quiz-desktop
+   rm -rf ~/Library/Application\ Support/claude-code-quiz
    ```
 
 ### Windows
@@ -187,4 +187,4 @@ npm run build
 
 ---
 
-問題が解決しない場合は、[Issue](https://github.com/ip-san/claude-code-quiz-desktop/issues) を作成してください。
+問題が解決しない場合は、[Issue](https://github.com/ip-san/claude-code-quiz/issues) を作成してください。

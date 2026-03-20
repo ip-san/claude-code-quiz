@@ -3,7 +3,7 @@
 Claude Code の機能と使い方を学習するためのクイズアプリケーション。
 デスクトップ（Electron）とスマホ（PWA）の両方で利用可能。
 
-**PWA（スマホ・ブラウザ）:** https://ip-san.github.io/claude-code-quiz-desktop/
+**PWA（スマホ・ブラウザ）:** https://ip-san.github.io/claude-code-quiz/
 
 ## プロジェクト概要
 
@@ -47,7 +47,7 @@ npm run preview:web    # Web版プレビュー
 
 ## PWA / GitHub Pages
 
-**URL: https://ip-san.github.io/claude-code-quiz-desktop/**
+**URL: https://ip-san.github.io/claude-code-quiz/**
 
 ### スマホへのインストール手順
 

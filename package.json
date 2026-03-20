@@ -1,5 +1,5 @@
 {
-  "name": "claude-code-quiz-desktop",
+  "name": "claude-code-quiz",
   "version": "1.0.0",
   "description": "Production-ready Electron quiz app for Claude Code learning",
   "author": "Claude Code Quiz Contributors",

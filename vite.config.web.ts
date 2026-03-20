@@ -11,7 +11,7 @@ import { VitePWA } from 'vite-plugin-pwa'
 import { resolve } from 'path'
 
 export default defineConfig({
-  base: '/claude-code-quiz-desktop/',
+  base: '/claude-code-quiz/',
 
   plugins: [
     react(),
@@ -28,8 +28,8 @@ export default defineConfig({
         theme_color: '#D97757',
         background_color: '#FAF9F5',
         display: 'standalone',
-        scope: '/claude-code-quiz-desktop/',
-        start_url: '/claude-code-quiz-desktop/',
+        scope: '/claude-code-quiz/',
+        start_url: '/claude-code-quiz/',
         icons: [
           { src: 'icons/icon-192.png', sizes: '192x192', type: 'image/png' },
           { src: 'icons/icon-512.png', sizes: '512x512', type: 'image/png' },

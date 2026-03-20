@@ -1,6 +1,9 @@
-# Claude Code Quiz Desktop
+# Claude Code Quiz
 
-Claude Code の機能と使い方を効率的に学習するためのデスクトップクイズアプリケーションです。
+Claude Code の機能と使い方を効率的に学習するためのクイズアプリケーションです。
+デスクトップ（Electron）とスマホ（PWA）の両方で利用できます。
+
+**PWA:** https://ip-san.github.io/claude-code-quiz/
 
 <img src="build/icon.svg" alt="Claude Code Quiz" width="64" height="64">
 
@@ -52,8 +55,8 @@ Claude Code を勉強しています。
 ### インストール
 
 ```bash
-git clone git@github.com:ip-san/claude-code-quiz-desktop.git
-cd claude-code-quiz-desktop
+git clone git@github.com:ip-san/claude-code-quiz.git
+cd claude-code-quiz
 npm install
 ```
 
