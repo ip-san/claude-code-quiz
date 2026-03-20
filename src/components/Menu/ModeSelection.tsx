@@ -118,7 +118,7 @@ export function ModeSelection() {
             <h2 className="mb-2 text-sm font-semibold text-stone-500">
               モード
             </h2>
-            <div className="-mx-4 flex gap-2 overflow-x-auto px-4 pb-2 sm:mx-0 sm:flex-wrap sm:px-0">
+            <div className="flex flex-wrap gap-2">
               {PREDEFINED_QUIZ_MODES
                 .filter((m) => m.id !== 'review')
                 .map((modeConfig) => {
@@ -130,7 +130,7 @@ export function ModeSelection() {
                     key={modeConfig.id}
                     onClick={() => !isDisabled && setSelectedMode(modeConfig.id)}
                     disabled={isDisabled}
-                    className={`tap-highlight flex flex-shrink-0 items-center gap-2 rounded-full border px-4 py-2.5 text-sm font-medium transition-all ${
+                    className={`tap-highlight flex items-center gap-1.5 rounded-full border px-3.5 py-2 text-sm font-medium transition-all ${
                       isDisabled
                         ? 'cursor-not-allowed border-stone-200 bg-stone-50 opacity-40'
                         : selectedMode === modeConfig.id
@@ -140,12 +140,17 @@ export function ModeSelection() {
                   >
                     <span>{modeConfig.icon}</span>
                     <span>{modeConfig.name}</span>
-                    <span className={`text-xs ${selectedMode === modeConfig.id ? 'text-white/70' : 'text-stone-400'}`}>
-                      {modeConfig.id === 'overview' ? overviewCount
+                    {(() => {
+                      const count = modeConfig.id === 'overview' ? overviewCount
                         : modeConfig.id === 'bookmark' ? bookmarkedCount
                         : modeConfig.id === 'unanswered' ? unansweredCount
-                        : modeConfig.questionCount ?? ''}
-                    </span>
+                        : modeConfig.questionCount
+                      return count ? (
+                        <span className={`text-xs ${selectedMode === modeConfig.id ? 'text-white/70' : 'text-stone-400'}`}>
+                          {count}
+                        </span>
+                      ) : null
+                    })()}
                   </button>
                 )
               })}
