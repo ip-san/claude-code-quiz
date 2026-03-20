@@ -267,7 +267,7 @@ export function QuizCard() {
       </div>
 
       {/* Question */}
-      <h2 className="mb-3 text-sm font-semibold leading-relaxed text-claude-dark sm:mb-6 sm:text-lg">
+      <h2 className="mb-3 text-base font-semibold leading-snug text-claude-dark sm:mb-6 sm:text-lg sm:leading-relaxed">
         <QuizText text={quiz.question} />
       </h2>
 
@@ -349,7 +349,7 @@ export function QuizCard() {
                 ? '選択肢を選んでください'
                 : '回答を確定する'
             }
-            className={`w-full rounded-lg py-3 font-medium transition-all ${
+            className={`w-full rounded-xl py-3.5 text-base font-medium transition-all sm:py-3 ${
               (isMultiSelect ? selectedAnswers.length > 0 : selectedAnswer !== null)
                 ? 'bg-claude-orange text-white hover:bg-claude-orange/90'
                 : 'cursor-not-allowed bg-stone-200 text-stone-400'
@@ -365,7 +365,7 @@ export function QuizCard() {
                 <button
                   onClick={retryQuestion}
                   aria-label="この問題をもう一度挑戦する (R)"
-                  className="inline-flex w-full items-center justify-center gap-2 rounded-lg border-2 border-claude-orange py-3 font-medium text-claude-orange hover:bg-claude-orange/5"
+                  className="inline-flex w-full items-center justify-center gap-2 rounded-xl border-2 border-claude-orange py-3.5 text-base font-medium text-claude-orange hover:bg-claude-orange/5 sm:py-3"
                 >
                   <RotateCcw className="h-4 w-4" />
                   もう一度挑戦 <span className="text-xs opacity-60">(R)</span>
@@ -374,7 +374,7 @@ export function QuizCard() {
               <button
                 onClick={nextQuestion}
                 aria-label={isReviewMode ? '次の問題を確認する' : '次の問題へ進む'}
-                className="w-full rounded-lg bg-claude-orange py-3 font-medium text-white hover:bg-claude-orange/90"
+                className="w-full rounded-xl bg-claude-orange py-3.5 text-base font-medium text-white hover:bg-claude-orange/90 sm:py-3"
               >
                 {isReviewMode ? '次の問題を確認' : '次の問題へ'}
               </button>

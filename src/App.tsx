@@ -156,10 +156,10 @@ function QuizView({
               {timeRemaining !== null && <Timer />}
               <button
                 onClick={handleQuitClick}
-                className="flex items-center gap-1 rounded-lg border border-stone-300 px-2 py-1 text-xs text-stone-600 transition-colors hover:bg-stone-100 sm:px-3 sm:py-1.5 sm:text-sm"
+                className="flex items-center gap-1.5 rounded-lg border border-stone-300 px-3 py-2 text-sm text-stone-600 transition-colors hover:bg-stone-100"
                 aria-label={isReviewMode ? '復習を終了する' : 'クイズを中止する'}
               >
-                <X className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
+                <X className="h-4 w-4" />
                 {isReviewMode ? '終了' : '中止'}
               </button>
             </div>
@@ -194,13 +194,13 @@ function QuizView({
             <div className="flex gap-3">
               <button
                 onClick={handleCancelQuit}
-                className="flex-1 rounded-lg border border-stone-300 py-2 text-stone-600 transition-colors hover:bg-stone-50"
+                className="flex-1 rounded-lg border border-stone-300 py-3 text-base font-medium text-stone-600 transition-colors hover:bg-stone-50"
               >
                 続ける
               </button>
               <button
                 onClick={handleConfirmQuit}
-                className="flex-1 rounded-lg bg-red-500 py-2 text-white transition-colors hover:bg-red-600"
+                className="flex-1 rounded-lg bg-red-500 py-3 text-base font-medium text-white transition-colors hover:bg-red-600"
               >
                 中止する
               </button>

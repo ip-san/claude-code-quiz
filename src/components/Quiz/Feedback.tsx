@@ -262,7 +262,7 @@ export function Feedback({ quiz, isCorrect }: FeedbackProps) {
           <button
             onClick={handleOpenReference}
             aria-label="公式ドキュメントを開く"
-            className="flex items-center gap-1.5 rounded-lg border border-stone-300 bg-white px-3 py-1.5 text-sm text-stone-600 hover:bg-stone-50"
+            className="flex items-center gap-1.5 rounded-lg border border-stone-300 bg-white px-4 py-2.5 text-sm text-stone-600 hover:bg-stone-50"
           >
             <ExternalLink className="h-4 w-4" aria-hidden="true" />
             公式ドキュメント
@@ -272,7 +272,7 @@ export function Feedback({ quiz, isCorrect }: FeedbackProps) {
         <button
           onClick={handleCopyMarkdown}
           aria-label={markdownCopied ? 'Markdownをコピーしました' : 'Markdown形式でコピー'}
-          className="flex items-center gap-1.5 rounded-lg border border-purple-500/30 bg-purple-500/10 px-3 py-1.5 text-sm text-purple-400 hover:bg-purple-500/20"
+          className="flex items-center gap-1.5 rounded-lg border border-purple-500/30 bg-purple-500/10 px-4 py-2.5 text-sm text-purple-400 hover:bg-purple-500/20"
         >
           {markdownCopied ? (
             <>
@@ -291,7 +291,7 @@ export function Feedback({ quiz, isCorrect }: FeedbackProps) {
           <button
             onClick={handleCopyAIPrompt}
             aria-label={copied ? 'プロンプトをコピーしました' : 'AIに深掘りするためのプロンプトをコピー'}
-            className="flex items-center gap-1.5 rounded-lg border border-blue-500/30 bg-blue-500/10 px-3 py-1.5 text-sm text-blue-400 hover:bg-blue-500/20"
+            className="flex items-center gap-1.5 rounded-lg border border-blue-500/30 bg-blue-500/10 px-4 py-2.5 text-sm text-blue-400 hover:bg-blue-500/20"
           >
             {copied ? (
               <>
