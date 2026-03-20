@@ -2127,7 +2127,33 @@
         "overview",
         "overview-320",
         "overview-ch-5"
-      ]
+      ],
+      "diagram": {
+        "type": "hierarchy",
+        "label": "Hooks設定ファイルの優先度",
+        "items": [
+          {
+            "text": "Managed設定",
+            "sub": "エンタープライズ管理"
+          },
+          {
+            "text": "プラグインのhooks",
+            "sub": "プラグイン内定義"
+          },
+          {
+            "text": "ローカル設定",
+            "sub": ".claude/settings.local.json"
+          },
+          {
+            "text": "プロジェクト設定",
+            "sub": ".claude/settings.json"
+          },
+          {
+            "text": "ユーザー設定",
+            "sub": "~/.claude/settings.json"
+          }
+        ]
+      }
     },
     {
       "id": "ext-005",
@@ -3891,7 +3917,31 @@
       ],
       "correctIndex": 3,
       "explanation": "`NotebookEdit`ツールはreplace（セル内容の置換）、insert（新しいセルの挿入）、delete（セルの削除）の3つの`edit_mode`を持ちます。`cell_type`でcodeまたはmarkdownを指定でき、0-indexedのセル番号で対象セルを特定します。ただしセルの実行はできず、ソースの編集のみ可能です。",
-      "referenceUrl": "https://code.claude.com/docs/en/how-claude-code-works#tools"
+      "referenceUrl": "https://code.claude.com/docs/en/how-claude-code-works#tools",
+      "diagram": {
+        "type": "comparison",
+        "label": "NotebookEdit の edit_mode",
+        "columns": [
+          {
+            "heading": "replace",
+            "items": [
+              "セル内容の置換"
+            ]
+          },
+          {
+            "heading": "insert",
+            "items": [
+              "新しいセルの挿入"
+            ]
+          },
+          {
+            "heading": "delete",
+            "items": [
+              "セルの削除"
+            ]
+          }
+        ]
+      }
     },
     {
       "id": "tool-017",
@@ -4702,7 +4752,29 @@
       "explanation": "`PreToolUse`フックでは、`hookSpecificOutput`内の`permissionDecision`を\"allow\"に設定し、`updatedInput`に変更後のパラメータを指定することで、ツールの入力を修正してから実行を許可できます。\"ask\"と組み合わせれば、修正後の入力をユーザーに確認させることも可能です。",
       "category": "extensions",
       "difficulty": "advanced",
-      "referenceUrl": "https://code.claude.com/docs/en/hooks"
+      "referenceUrl": "https://code.claude.com/docs/en/hooks",
+      "diagram": {
+        "type": "flow",
+        "label": "PreToolUse入力修正フロー",
+        "steps": [
+          {
+            "text": "ツール実行前に発火",
+            "sub": "PreToolUse"
+          },
+          {
+            "text": "updatedInput設定",
+            "sub": "パラメータ変更"
+          },
+          {
+            "text": "permissionDecision",
+            "sub": "allow or ask"
+          },
+          {
+            "text": "修正済みで実行",
+            "sub": ""
+          }
+        ]
+      }
     },
     {
       "id": "ext-020",
@@ -4728,7 +4800,29 @@
       "explanation": "`SessionStart`フックでは、標準出力に出力した内容がClaudeのコンテキストとして追加されます。JSON形式で返す場合は`hookSpecificOutput`内の`additionalContext`フィールドを使用します。`CLAUDE_ENV_FILE`は環境変数の永続化用であり、Claudeの会話コンテキストとは異なります。",
       "category": "extensions",
       "difficulty": "beginner",
-      "referenceUrl": "https://code.claude.com/docs/en/hooks"
+      "referenceUrl": "https://code.claude.com/docs/en/hooks",
+      "diagram": {
+        "type": "flow",
+        "label": "SessionStartコンテキスト注入",
+        "steps": [
+          {
+            "text": "セッション開始",
+            "sub": "SessionStart発火"
+          },
+          {
+            "text": "stdoutに出力",
+            "sub": "Git情報/Issue等"
+          },
+          {
+            "text": "Claudeのコンテキストに追加",
+            "sub": ""
+          },
+          {
+            "text": "会話開始",
+            "sub": "情報を活用"
+          }
+        ]
+      }
     },
     {
       "id": "ext-021",
@@ -4754,7 +4848,29 @@
       "explanation": "`async: true`を設定するとフックがバックグラウンドで実行され、Claudeは待たずに作業を続行します。実行完了後、JSON出力の`systemMessage`または`additionalContext`フィールドの内容が次の会話ターンでClaudeに伝達されます。ただし非同期フックではブロッキング制御はできません。",
       "category": "extensions",
       "difficulty": "intermediate",
-      "referenceUrl": "https://code.claude.com/docs/en/hooks"
+      "referenceUrl": "https://code.claude.com/docs/en/hooks",
+      "diagram": {
+        "type": "flow",
+        "label": "非同期フックの動作",
+        "steps": [
+          {
+            "text": "フック発火",
+            "sub": "async: true"
+          },
+          {
+            "text": "バックグラウンド実行",
+            "sub": "Claudeは待たない"
+          },
+          {
+            "text": "完了後",
+            "sub": "systemMessage送信"
+          },
+          {
+            "text": "次ターンで伝達",
+            "sub": ""
+          }
+        ]
+      }
     },
     {
       "id": "ext-022",
@@ -4854,7 +4970,29 @@
       ],
       "correctIndex": 3,
       "explanation": "MCPツールの説明文がコンテキストウィンドウの10%を超えると自動的にTool Searchが有効化されます。`ENABLE_TOOL_SEARCH`環境変数で制御も可能です。",
-      "referenceUrl": "https://code.claude.com/docs/en/mcp"
+      "referenceUrl": "https://code.claude.com/docs/en/mcp",
+      "diagram": {
+        "type": "flow",
+        "label": "Tool Search自動有効化",
+        "steps": [
+          {
+            "text": "MCPツール定義が増加",
+            "sub": ""
+          },
+          {
+            "text": "コンテキストの10%超",
+            "sub": ""
+          },
+          {
+            "text": "Tool Search有効化",
+            "sub": ""
+          },
+          {
+            "text": "オンデマンド検索",
+            "sub": "圧迫を防止"
+          }
+        ]
+      }
     },
     {
       "id": "ext-025",
@@ -5175,7 +5313,29 @@
       ],
       "correctIndex": 3,
       "explanation": "`CLAUDE_AUTOCOMPACT_PCT_OVERRIDE`で自動圧縮の閾値（1〜100）を変更でき、例えば80に設定すれば早めに圧縮されます（デフォルトの約95%より低い値のみ有効で、デフォルト閾値を超える値は効果がありません）。頻繁な圧縮による情報損失と、コンテキスト枯渇のリスクのバランスを調整できます。",
-      "referenceUrl": "https://code.claude.com/docs/en/settings"
+      "referenceUrl": "https://code.claude.com/docs/en/settings",
+      "diagram": {
+        "type": "flow",
+        "label": "AUTOCOMPACT閾値調整",
+        "steps": [
+          {
+            "text": "閾値を設定",
+            "sub": "1〜100の値"
+          },
+          {
+            "text": "コンテキスト使用率が到達",
+            "sub": "例: 80%"
+          },
+          {
+            "text": "自動圧縮が発動",
+            "sub": "デフォルト約95%"
+          },
+          {
+            "text": "バランス調整",
+            "sub": "情報損失 vs 枯渇"
+          }
+        ]
+      }
     },
     {
       "id": "ses-016",
@@ -9656,7 +9816,29 @@
       ],
       "correctIndex": 2,
       "explanation": "Exploreサブエージェントは高速・低コストのHaikuモデルを使用し、読み取り専用ツール（`Write`/`Edit`拒否）で動作します。コードベース探索に最適化され、thoroughnessレベル（quick/medium/very thorough）を指定できます。",
-      "referenceUrl": "https://code.claude.com/docs/en/sub-agents"
+      "referenceUrl": "https://code.claude.com/docs/en/sub-agents",
+      "diagram": {
+        "type": "comparison",
+        "label": "Exploreサブエージェント",
+        "columns": [
+          {
+            "heading": "特徴",
+            "items": [
+              "Haikuモデル",
+              "読み取り専用",
+              "高速・低コスト"
+            ]
+          },
+          {
+            "heading": "thoroughness",
+            "items": [
+              "quick",
+              "medium",
+              "very thorough"
+            ]
+          }
+        ]
+      }
     },
     {
       "id": "ext-059",
@@ -10062,7 +10244,34 @@
       ],
       "correctIndex": 0,
       "explanation": "プラグインマーケットプレイスは6つのソースタイプをサポートします：相対パス（文字列）、`github`（GitHubリポジトリ）、`url`（クローン可能なURL）、`git-subdir`（Gitリポジトリ内のサブディレクトリ）、`npm`（npmパッケージ）、`pip`（Pythonパッケージ）。Dockerソースタイプは存在しません。",
-      "referenceUrl": "https://code.claude.com/docs/en/discover-plugins"
+      "referenceUrl": "https://code.claude.com/docs/en/discover-plugins",
+      "diagram": {
+        "type": "comparison",
+        "label": "プラグイン6つのソースタイプ",
+        "columns": [
+          {
+            "heading": "ローカル",
+            "items": [
+              "相対パス",
+              "git-subdir"
+            ]
+          },
+          {
+            "heading": "リモート",
+            "items": [
+              "github",
+              "url"
+            ]
+          },
+          {
+            "heading": "パッケージ",
+            "items": [
+              "npm",
+              "pip"
+            ]
+          }
+        ]
+      }
     },
     {
       "id": "ses-066",
@@ -12050,7 +12259,29 @@
       "explanation": "MCPツールの定義がコンテキストウィンドウの10%を超えると、Tool Search機能が自動的に有効になります。全ツールを事前読み込みする代わりに、Claudeが必要に応じてツールを検索して読み込むため、コンテキストの効率的な利用が可能になります。`ENABLE_TOOL_SEARCH`環境変数でしきい値のカスタマイズも可能です。",
       "category": "extensions",
       "difficulty": "beginner",
-      "referenceUrl": "https://code.claude.com/docs/en/mcp"
+      "referenceUrl": "https://code.claude.com/docs/en/mcp",
+      "diagram": {
+        "type": "flow",
+        "label": "MCPツール最適化",
+        "steps": [
+          {
+            "text": "ツール定義が10%超",
+            "sub": "コンテキスト占有"
+          },
+          {
+            "text": "Tool Search有効化",
+            "sub": "自動"
+          },
+          {
+            "text": "オンデマンド検索",
+            "sub": "必要時のみ読込"
+          },
+          {
+            "text": "コンテキスト効率化",
+            "sub": ""
+          }
+        ]
+      }
     },
     {
       "id": "tool-051",
@@ -12388,7 +12619,25 @@
       ],
       "correctIndex": 1,
       "explanation": "`settings.json`の`permissions`設定で、ツールごとの許可レベルをカスタマイズできます。`permissions.allow`（自動許可）、`permissions.deny`（拒否）、`permissions.ask`（都度確認）の3段階で制御します。例：「`Edit`」をallowに追加するとファイル編集時の確認をスキップできます。",
-      "referenceUrl": "https://code.claude.com/docs/en/settings"
+      "referenceUrl": "https://code.claude.com/docs/en/settings",
+      "diagram": {
+        "type": "hierarchy",
+        "label": "パーミッション3段階",
+        "items": [
+          {
+            "text": "allow",
+            "sub": "自動許可"
+          },
+          {
+            "text": "ask",
+            "sub": "都度確認（デフォルト）"
+          },
+          {
+            "text": "deny",
+            "sub": "拒否"
+          }
+        ]
+      }
     },
     {
       "id": "bp-046",
@@ -13778,7 +14027,29 @@
       ],
       "correctIndex": 0,
       "explanation": "サードパーティプロバイダー経由でClaude Codeをデプロイする場合、モデルエイリアス（`sonnet`等）は常に最新バージョンに解決されます。Anthropicが新モデルをリリースした際、プロバイダー側で新バージョンが有効化されていないアカウントでは、サイレントにリクエストが失敗します。`ANTHROPIC_DEFAULT_OPUS_MODEL`、`ANTHROPIC_DEFAULT_SONNET_MODEL`、`ANTHROPIC_DEFAULT_HAIKU_MODEL` の3つの環境変数でバージョンを固定することが推奨されています。",
-      "referenceUrl": "https://code.claude.com/docs/en/model-config"
+      "referenceUrl": "https://code.claude.com/docs/en/model-config",
+      "diagram": {
+        "type": "flow",
+        "label": "モデルバージョン固定の重要性",
+        "steps": [
+          {
+            "text": "エイリアス使用",
+            "sub": "sonnet等"
+          },
+          {
+            "text": "新モデルリリース",
+            "sub": "Anthropic側"
+          },
+          {
+            "text": "プロバイダー未有効化",
+            "sub": ""
+          },
+          {
+            "text": "サイレント失敗",
+            "sub": "→明示的バージョン指定"
+          }
+        ]
+      }
     },
     {
       "id": "ses-104",
@@ -14160,7 +14431,33 @@
       ],
       "correctIndex": 1,
       "explanation": "すべてのフックイベントは、stdin経由のJSON入力で5つの共通フィールドを受け取ります：`session_id`（セッション識別子）、`transcript_path`（会話JSONのパス）、`cwd`（現在の作業ディレクトリ）、`permission_mode`（現在のパーミッションモード）、`hook_event_name`（発火したイベント名）。これらに加えて、各イベント固有のフィールドが追加されます。",
-      "referenceUrl": "https://code.claude.com/docs/en/hooks"
+      "referenceUrl": "https://code.claude.com/docs/en/hooks",
+      "diagram": {
+        "type": "comparison",
+        "label": "Hook共通入力フィールド",
+        "columns": [
+          {
+            "heading": "識別",
+            "items": [
+              "session_id",
+              "hook_event_name"
+            ]
+          },
+          {
+            "heading": "環境",
+            "items": [
+              "cwd",
+              "permission_mode"
+            ]
+          },
+          {
+            "heading": "記録",
+            "items": [
+              "transcript_path"
+            ]
+          }
+        ]
+      }
     },
     {
       "id": "ext-109",
@@ -14234,7 +14531,32 @@
       ],
       "correctIndex": 0,
       "explanation": "`PreToolUse`フックの`permissionDecision`は3つの値をサポートします：`\"allow\"`（パーミッションシステムをバイパスして実行許可）、`\"deny\"`（ツールコールを阻止）、`\"ask\"`（ユーザーに確認を要求）。`\"escalate\"`は有効な値ではありません。",
-      "referenceUrl": "https://code.claude.com/docs/en/hooks"
+      "referenceUrl": "https://code.claude.com/docs/en/hooks",
+      "diagram": {
+        "type": "comparison",
+        "label": "permissionDecision の値",
+        "columns": [
+          {
+            "heading": "allow",
+            "items": [
+              "パーミッション不要",
+              "実行許可"
+            ]
+          },
+          {
+            "heading": "deny",
+            "items": [
+              "ツールコール阻止"
+            ]
+          },
+          {
+            "heading": "ask",
+            "items": [
+              "ユーザーに確認"
+            ]
+          }
+        ]
+      }
     },
     {
       "id": "ext-111",
@@ -15186,7 +15508,34 @@
       ],
       "correctIndex": 3,
       "explanation": "VS Code でプラグインをインストールする際、3つのスコープから選択できます。「Install for you」（ユーザースコープ：全プロジェクトで利用可能）、「Install for this project」（プロジェクトスコープ：チームメンバーと共有）、「Install locally」（ローカルスコープ：自分だけ、このリポジトリのみ）です。",
-      "referenceUrl": "https://code.claude.com/docs/en/vs-code"
+      "referenceUrl": "https://code.claude.com/docs/en/vs-code",
+      "diagram": {
+        "type": "comparison",
+        "label": "VSCodeプラグインスコープ",
+        "columns": [
+          {
+            "heading": "ユーザー",
+            "items": [
+              "全プロジェクト",
+              "Install for you"
+            ]
+          },
+          {
+            "heading": "プロジェクト",
+            "items": [
+              "チーム共有",
+              "Install for project"
+            ]
+          },
+          {
+            "heading": "ローカル",
+            "items": [
+              "自分だけ",
+              "Install locally"
+            ]
+          }
+        ]
+      }
     },
     {
       "id": "ext-128",
@@ -15839,7 +16188,29 @@
       ],
       "correctIndex": 0,
       "explanation": "デスクトップアプリでは、セッション開始時に4つの項目を設定します。環境（Local/Remote/SSH）、プロジェクトフォルダ、モデル（セッション開始後はロック）、パーミッションモード（セッション中に変更可能）です。",
-      "referenceUrl": "https://code.claude.com/docs/en/desktop"
+      "referenceUrl": "https://code.claude.com/docs/en/desktop",
+      "diagram": {
+        "type": "flow",
+        "label": "Desktop セッション開始",
+        "steps": [
+          {
+            "text": "環境選択",
+            "sub": "Local/Remote/SSH"
+          },
+          {
+            "text": "プロジェクトフォルダ",
+            "sub": ""
+          },
+          {
+            "text": "モデル選択",
+            "sub": "開始後ロック"
+          },
+          {
+            "text": "パーミッションモード",
+            "sub": "変更可能"
+          }
+        ]
+      }
     },
     {
       "id": "ses-111",
@@ -16563,7 +16934,25 @@
       ],
       "correctIndex": 1,
       "explanation": "フックスクリプトの exit code には3つの意味があります。exit 0 はアクション続行、exit 2 はアクションブロック（stderr の内容が Claude へフィードバックされ調整に使われる）、それ以外の exit code はアクション続行（stderr はログに記録されるが Claude には表示されない）です。",
-      "referenceUrl": "https://code.claude.com/docs/en/hooks-guide"
+      "referenceUrl": "https://code.claude.com/docs/en/hooks-guide",
+      "diagram": {
+        "type": "hierarchy",
+        "label": "Hook exit codeの意味",
+        "items": [
+          {
+            "text": "exit 0",
+            "sub": "アクション続行"
+          },
+          {
+            "text": "exit 2",
+            "sub": "ブロック+stderr→Claude"
+          },
+          {
+            "text": "その他",
+            "sub": "続行・stderrはログのみ"
+          }
+        ]
+      }
     },
     {
       "id": "ext-132",
@@ -16589,7 +16978,32 @@
       ],
       "correctIndex": 2,
       "explanation": "`PreToolUse` フックの構造化 JSON 出力では、`hookSpecificOutput.permissionDecision` に3つの値を設定できます。`\"allow\"` はパーミッションプロンプトなしで続行、`\"deny\"` はツールコールをキャンセルして `permissionDecisionReason` を Claude にフィードバック、`\"ask\"` は通常のパーミッションプロンプトをユーザーに表示します。",
-      "referenceUrl": "https://code.claude.com/docs/en/hooks-guide"
+      "referenceUrl": "https://code.claude.com/docs/en/hooks-guide",
+      "diagram": {
+        "type": "comparison",
+        "label": "permissionDecision値",
+        "columns": [
+          {
+            "heading": "allow",
+            "items": [
+              "確認なしで続行"
+            ]
+          },
+          {
+            "heading": "deny",
+            "items": [
+              "キャンセル",
+              "理由をフィードバック"
+            ]
+          },
+          {
+            "heading": "ask",
+            "items": [
+              "ユーザー確認を要求"
+            ]
+          }
+        ]
+      }
     },
     {
       "id": "ext-133",
@@ -16712,7 +17126,29 @@
       ],
       "correctIndex": 3,
       "explanation": "Plugins ページでは「Common mistake」として、`commands/`、`agents/`、`skills/`、`hooks/` を `.claude-plugin/` ディレクトリ内に配置してしまうケースを明示的に指摘しています。`.claude-plugin/` には `plugin.json` のみを置き、他のすべてのディレクトリはプラグインルートレベルに配置する必要があります。",
-      "referenceUrl": "https://code.claude.com/docs/en/plugins"
+      "referenceUrl": "https://code.claude.com/docs/en/plugins",
+      "diagram": {
+        "type": "flow",
+        "label": "正しいプラグイン構造",
+        "steps": [
+          {
+            "text": ".claude-plugin/",
+            "sub": "plugin.jsonのみ"
+          },
+          {
+            "text": "skills/",
+            "sub": "ルート直下に配置"
+          },
+          {
+            "text": "agents/",
+            "sub": "ルート直下に配置"
+          },
+          {
+            "text": "hooks/",
+            "sub": "ルート直下に配置"
+          }
+        ]
+      }
     },
     {
       "id": "ext-137",
@@ -17142,7 +17578,33 @@
       ],
       "correctIndex": 3,
       "explanation": "GitLab CI/CD での Claude Code は3つのプロバイダーオプションをサポートしています。データレジデンシー要件がある場合は、AWS Bedrock（IAM ベースアクセス、クロスリージョンオプション）や Google Vertex AI（GCP ネイティブ、Workload Identity Federation）のリージョナルエンドポイントを使用することで、データ処理の場所を制御しつつ既存のクラウド契約を活用できます。",
-      "referenceUrl": "https://code.claude.com/docs/en/gitlab-ci-cd"
+      "referenceUrl": "https://code.claude.com/docs/en/gitlab-ci-cd",
+      "diagram": {
+        "type": "comparison",
+        "label": "GitLab CI/CD プロバイダー",
+        "columns": [
+          {
+            "heading": "Anthropic API",
+            "items": [
+              "直接接続"
+            ]
+          },
+          {
+            "heading": "AWS Bedrock",
+            "items": [
+              "IAMベース",
+              "リージョン指定"
+            ]
+          },
+          {
+            "heading": "Google Vertex",
+            "items": [
+              "GCPネイティブ",
+              "Workload Identity"
+            ]
+          }
+        ]
+      }
     },
     {
       "id": "cmd-085",
@@ -17408,7 +17870,29 @@
       ],
       "correctIndex": 3,
       "explanation": "Fast モードを途中で有効にすると、会話全体のコンテキストに対して Fast モードの未キャッシュ入力トークン価格が適用されます。Fast モードページでは「This costs more than if you had enabled fast mode from the start」と明記されており、セッション開始時に有効にすることが推奨されています。",
-      "referenceUrl": "https://code.claude.com/docs/en/fast-mode"
+      "referenceUrl": "https://code.claude.com/docs/en/fast-mode",
+      "diagram": {
+        "type": "flow",
+        "label": "Fastモード途中有効化のコスト",
+        "steps": [
+          {
+            "text": "通常モードで開始",
+            "sub": ""
+          },
+          {
+            "text": "途中でFast有効化",
+            "sub": "/fast"
+          },
+          {
+            "text": "全コンテキストに高価格適用",
+            "sub": "未キャッシュ価格"
+          },
+          {
+            "text": "開始時有効が推奨",
+            "sub": ""
+          }
+        ]
+      }
     },
     {
       "id": "ses-117",
@@ -18985,7 +19469,34 @@
       ],
       "correctIndex": 1,
       "explanation": "devcontainer の参照実装は `devcontainer.json`（VS Code Dev Containers の環境定義）、`Dockerfile`（コンテナイメージの構築、Node.js 20・git・ZSH・fzf を含む）、`init-firewall.sh`（デフォルト拒否のファイアウォールポリシー）の3つで構成されます。",
-      "referenceUrl": "https://code.claude.com/docs/en/devcontainer"
+      "referenceUrl": "https://code.claude.com/docs/en/devcontainer",
+      "diagram": {
+        "type": "comparison",
+        "label": "devcontainer構成",
+        "columns": [
+          {
+            "heading": "devcontainer.json",
+            "items": [
+              "環境定義",
+              "VS Code設定"
+            ]
+          },
+          {
+            "heading": "Dockerfile",
+            "items": [
+              "コンテナイメージ",
+              "Node.js/git/ZSH"
+            ]
+          },
+          {
+            "heading": "init-firewall.sh",
+            "items": [
+              "デフォルト拒否",
+              "ファイアウォール"
+            ]
+          }
+        ]
+      }
     },
     {
       "id": "ext-147",
@@ -19392,7 +19903,29 @@
       ],
       "correctIndex": 0,
       "explanation": "テレポートの要件は、クリーンなgit状態、同一リポジトリ（フォーク不可）、ブランチの利用可能性、同一アカウント認証の4つです。ローカルのNode.jsバージョンの一致は要件に含まれていません。",
-      "referenceUrl": "https://code.claude.com/docs/en/claude-code-on-the-web"
+      "referenceUrl": "https://code.claude.com/docs/en/claude-code-on-the-web",
+      "diagram": {
+        "type": "flow",
+        "label": "テレポートの要件",
+        "steps": [
+          {
+            "text": "クリーンなgit状態",
+            "sub": ""
+          },
+          {
+            "text": "同一リポジトリ",
+            "sub": "フォーク不可"
+          },
+          {
+            "text": "ブランチ利用可能",
+            "sub": ""
+          },
+          {
+            "text": "同一アカウント認証",
+            "sub": ""
+          }
+        ]
+      }
     },
     {
       "id": "ses-147",
@@ -19522,7 +20055,31 @@
       ],
       "correctIndex": 1,
       "explanation": "Code Reviewの重大度レベルは3つです：🔴 Normal（マージ前に修正すべきバグ）、🟡 Nit（軽微な問題）、🟣 Pre-existing（PR以前から存在するバグ）。Securityという独立した重大度レベルは定義されていません。",
-      "referenceUrl": "https://code.claude.com/docs/en/code-review"
+      "referenceUrl": "https://code.claude.com/docs/en/code-review",
+      "diagram": {
+        "type": "comparison",
+        "label": "Code Review重大度レベル",
+        "columns": [
+          {
+            "heading": "🔴 Normal",
+            "items": [
+              "マージ前に修正"
+            ]
+          },
+          {
+            "heading": "🟡 Nit",
+            "items": [
+              "軽微な問題"
+            ]
+          },
+          {
+            "heading": "🟣 Pre-existing",
+            "items": [
+              "PR以前から存在"
+            ]
+          }
+        ]
+      }
     },
     {
       "id": "ext-156",
