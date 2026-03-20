@@ -129,8 +129,8 @@ export function OptionButton({
       aria-pressed={isSelected}
       aria-checked={isMultiSelect ? isSelected : undefined}
       role={isMultiSelect ? 'checkbox' : 'option'}
-      className={`no-select w-full rounded-xl border-2 px-3.5 py-3 text-left transition-all sm:px-4 sm:py-4 ${getStyles()} ${getAnimClass()} ${
-        isAnswered ? 'cursor-default' : 'cursor-pointer'
+      className={`no-select w-full rounded-2xl border-2 px-3.5 py-3 text-left transition-all sm:px-4 sm:py-4 ${getStyles()} ${getAnimClass()} ${
+        isAnswered ? 'cursor-default' : 'cursor-pointer active:scale-[0.98]'
       }`}
     >
       <div className="flex items-start gap-3">

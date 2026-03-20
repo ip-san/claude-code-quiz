@@ -321,7 +321,7 @@ export function QuizResult() {
             {hasWrongAnswers && !isReviewMode && (
               <button
                 onClick={startReviewSession}
-                className="inline-flex w-full items-center justify-center gap-2 rounded-xl bg-amber-500 px-6 py-3.5 text-base font-medium text-white transition-colors hover:bg-amber-600"
+                className="tap-highlight inline-flex w-full items-center justify-center gap-2 rounded-2xl bg-amber-500 px-6 py-3.5 text-base font-semibold text-white"
               >
                 <BookOpen className="h-5 w-5" />
                 間違えた問題を復習（{sessionWrongAnswers.length}問）
@@ -329,14 +329,14 @@ export function QuizResult() {
             )}
             <button
               onClick={handleRetry}
-              className="inline-flex w-full items-center justify-center gap-2 rounded-xl bg-claude-orange px-6 py-3.5 text-base font-medium text-white transition-colors hover:bg-claude-orange/90"
+              className="tap-highlight inline-flex w-full items-center justify-center gap-2 rounded-2xl bg-claude-orange px-6 py-3.5 text-base font-semibold text-white"
             >
               <RotateCcw className="h-5 w-5" />
               もう一度挑戦する
             </button>
             <button
               onClick={handleBackToMenu}
-              className="inline-flex w-full items-center justify-center gap-2 rounded-xl border border-stone-300 px-6 py-3.5 text-base font-medium text-stone-600 transition-colors hover:bg-stone-50"
+              className="tap-highlight inline-flex w-full items-center justify-center gap-2 rounded-2xl border border-stone-300 px-6 py-3.5 text-base font-semibold text-stone-600"
             >
               <Home className="h-5 w-5" />
               メニューに戻る

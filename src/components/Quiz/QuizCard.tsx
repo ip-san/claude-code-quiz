@@ -209,7 +209,7 @@ export function QuizCard() {
       )}
 
       <div
-        className={`rounded-2xl border border-stone-200 bg-white p-4 shadow-sm sm:p-8 ${
+        className={`rounded-2xl bg-white p-4 shadow-sm sm:border sm:border-stone-200 sm:p-8 ${
           isAnswered && !isCorrect ? 'animate-shake' : ''
         } ${isAnswered && isCorrect ? 'animate-pulse-success' : ''}`}
       >
@@ -349,9 +349,9 @@ export function QuizCard() {
                 ? '選択肢を選んでください'
                 : '回答を確定する'
             }
-            className={`w-full rounded-xl py-3.5 text-base font-medium transition-all sm:py-3 ${
+            className={`w-full rounded-2xl py-3.5 text-base font-semibold transition-all sm:py-3 ${
               (isMultiSelect ? selectedAnswers.length > 0 : selectedAnswer !== null)
-                ? 'bg-claude-orange text-white hover:bg-claude-orange/90'
+                ? 'tap-highlight bg-claude-orange text-white'
                 : 'cursor-not-allowed bg-stone-200 text-stone-400'
             }`}
           >
@@ -365,7 +365,7 @@ export function QuizCard() {
                 <button
                   onClick={retryQuestion}
                   aria-label="この問題をもう一度挑戦する (R)"
-                  className="inline-flex w-full items-center justify-center gap-2 rounded-xl border-2 border-claude-orange py-3.5 text-base font-medium text-claude-orange hover:bg-claude-orange/5 sm:py-3"
+                  className="tap-highlight inline-flex w-full items-center justify-center gap-2 rounded-2xl border-2 border-claude-orange py-3.5 text-base font-semibold text-claude-orange sm:py-3"
                 >
                   <RotateCcw className="h-4 w-4" />
                   もう一度挑戦 <span className="text-xs opacity-60">(R)</span>
@@ -374,7 +374,7 @@ export function QuizCard() {
               <button
                 onClick={nextQuestion}
                 aria-label={isReviewMode ? '次の問題を確認する' : '次の問題へ進む'}
-                className="w-full rounded-xl bg-claude-orange py-3.5 text-base font-medium text-white hover:bg-claude-orange/90 sm:py-3"
+                className="tap-highlight w-full rounded-2xl bg-claude-orange py-3.5 text-base font-semibold text-white sm:py-3"
               >
                 {isReviewMode ? '次の問題を確認' : '次の問題へ'}
               </button>

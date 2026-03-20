@@ -7,7 +7,7 @@ import { QuizResult } from '@/components/Quiz/QuizResult'
 import { Timer } from '@/components/Quiz/Timer'
 import { ProgressDashboard } from '@/components/Progress/ProgressDashboard'
 import { getChapterFromTags } from '@/domain/valueObjects/OverviewChapter'
-import { Loader2, X } from 'lucide-react'
+import { Loader2 } from 'lucide-react'
 
 export default function App() {
   const { viewState, getProgress, sessionState, isLoading, initialize } = useQuizStore()
@@ -33,7 +33,6 @@ export default function App() {
   if (viewState === 'menu') {
     return (
       <div className="min-h-screen bg-claude-cream">
-        {/* macOS titlebar drag region (Electron only) */}
         {isElectron && <div className="h-8 titlebar-drag bg-transparent" />}
         <ModeSelection />
       </div>
@@ -43,7 +42,6 @@ export default function App() {
   if (viewState === 'progress') {
     return (
       <div className="min-h-screen bg-claude-cream">
-        {/* macOS titlebar drag region (Electron only) */}
         {isElectron && <div className="h-8 titlebar-drag bg-transparent" />}
         <ProgressDashboard />
       </div>
@@ -53,7 +51,6 @@ export default function App() {
   if (viewState === 'result') {
     return (
       <div className="min-h-screen bg-claude-cream">
-        {/* macOS titlebar drag region (Electron only) */}
         {isElectron && <div className="h-8 titlebar-drag bg-transparent" />}
         <QuizResult />
       </div>
@@ -73,8 +70,8 @@ export default function App() {
 }
 
 /**
- * Quiz View Component
- * Separated to manage local state for quit confirmation dialog
+ * Quiz View Component — native app-like layout
+ * Sticky header + scrollable content + bottom sheet dialog
  */
 function QuizView({
   progress,
@@ -88,7 +85,6 @@ function QuizView({
   const isOverviewMode = sessionState?.config.mode === 'overview'
   const [showQuitDialog, setShowQuitDialog] = useState(false)
 
-  // Current chapter info for overview mode
   const currentChapter = useMemo(() => {
     if (!isOverviewMode || !sessionState) return null
     const currentQuestion = sessionState.questions[sessionState.currentIndex]
@@ -112,10 +108,8 @@ function QuizView({
     setShowQuitDialog(false)
   }
 
-  // Keyboard handler for quit dialog
   useEffect(() => {
     if (!showQuitDialog) return
-
     const handleKeyDown = (e: KeyboardEvent) => {
       if (e.key === 'Escape') {
         e.preventDefault()
@@ -123,86 +117,91 @@ function QuizView({
         setShowQuitDialog(false)
       }
     }
-
-    // Use capture phase to intercept before QuizCard's handler
     window.addEventListener('keydown', handleKeyDown, true)
     return () => window.removeEventListener('keydown', handleKeyDown, true)
   }, [showQuitDialog])
 
   return (
-    <div className="min-h-screen bg-claude-cream">
-      {/* macOS titlebar drag region (Electron only) */}
+    <div className="flex min-h-screen flex-col bg-stone-100 sm:bg-claude-cream">
       {isElectron && <div className="h-8 titlebar-drag bg-transparent" />}
 
-      <div className="mx-auto max-w-3xl px-3 py-2 sm:px-4 sm:py-6">
-        {/* Quiz Header */}
-        <div className="mb-2 sm:mb-6">
-          {/* Row 1: progress + quit */}
+      {/* Sticky header — native navigation bar feel */}
+      <div className="sticky top-0 z-10 border-b border-stone-200 bg-claude-cream/95 backdrop-blur-sm">
+        <div className="mx-auto max-w-3xl px-4 pb-2 pt-3 sm:py-3">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2">
               {isReviewMode && (
-                <span className="rounded bg-amber-100 px-2 py-0.5 text-xs font-medium text-amber-700">
+                <span className="rounded-full bg-amber-100 px-2.5 py-0.5 text-xs font-medium text-amber-700">
                   復習
                 </span>
               )}
               {isOverviewMode && currentChapter && (
-                <span className="rounded bg-claude-orange/10 px-2 py-0.5 text-xs font-medium text-claude-orange">
+                <span className="rounded-full bg-claude-orange/10 px-2.5 py-0.5 text-xs font-medium text-claude-orange">
                   {currentChapter.icon} Ch.{currentChapter.id}
                 </span>
               )}
-              <span className="text-xs text-claude-gray sm:text-sm">
+              <span className="text-sm font-medium text-claude-dark">
                 {progress.current} / {progress.total}
               </span>
               {timeRemaining !== null && <Timer />}
-              <button
-                onClick={handleQuitClick}
-                className="flex items-center gap-1.5 rounded-lg border border-stone-300 px-3 py-2 text-sm text-stone-600 transition-colors hover:bg-stone-100"
-                aria-label={isReviewMode ? '復習を終了する' : 'クイズを中止する'}
-              >
-                <X className="h-4 w-4" />
-                {isReviewMode ? '終了' : '中止'}
-              </button>
             </div>
+            <button
+              onClick={handleQuitClick}
+              className="tap-highlight rounded-full bg-stone-100 px-4 py-1.5 text-sm font-medium text-stone-600"
+              aria-label={isReviewMode ? '復習を終了する' : 'クイズを中止する'}
+            >
+              {isReviewMode ? '終了' : '中止'}
+            </button>
           </div>
-          {/* Row 2: progress bar (full width) */}
-          <div className="mt-1.5 h-1.5 overflow-hidden rounded-full bg-stone-200 sm:mt-2 sm:h-2">
+          {/* Progress bar */}
+          <div className="mt-2 h-1 overflow-hidden rounded-full bg-stone-200">
             <div
-              className="h-full bg-claude-orange transition-all"
+              className="h-full rounded-full bg-claude-orange transition-all"
               style={{
                 width: `${progress.total > 0 ? (progress.current / progress.total) * 100 : 0}%`,
               }}
             />
           </div>
         </div>
-
-        {/* Quiz Card */}
-        <QuizCard />
       </div>
 
-      {/* Quit Confirmation Dialog */}
+      {/* Scrollable content */}
+      <div className="flex-1">
+        <div className="mx-auto max-w-3xl px-3 py-3 sm:px-4 sm:py-6">
+          <QuizCard />
+        </div>
+      </div>
+
+      {/* iOS-style bottom sheet dialog */}
       {showQuitDialog && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
-          <div className="mx-4 w-full max-w-sm rounded-lg bg-white p-6 shadow-xl">
-            <h3 className="mb-2 text-lg font-semibold text-claude-dark">
+        <div className="fixed inset-0 z-50 flex items-end justify-center sm:items-center" onClick={handleCancelQuit}>
+          {/* Backdrop */}
+          <div className="absolute inset-0 bg-black/40" />
+          {/* Sheet */}
+          <div
+            className="relative mx-2 mb-2 w-full max-w-sm animate-slide-down rounded-2xl bg-white p-6 shadow-2xl sm:mx-4 sm:mb-0 sm:animate-none"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <h3 className="mb-2 text-center text-lg font-semibold text-claude-dark">
               {isReviewMode ? '復習を中止しますか？' : 'クイズを中止しますか？'}
             </h3>
-            <p className="mb-6 text-sm text-stone-500">
+            <p className="mb-6 text-center text-sm text-stone-500">
               {isReviewMode
                 ? 'メニューに戻ります。'
                 : '進捗は保存されます。あとで続きから再開できます。'}
             </p>
-            <div className="flex gap-3">
-              <button
-                onClick={handleCancelQuit}
-                className="flex-1 rounded-lg border border-stone-300 py-3 text-base font-medium text-stone-600 transition-colors hover:bg-stone-50"
-              >
-                続ける
-              </button>
+            <div className="flex flex-col gap-2">
               <button
                 onClick={handleConfirmQuit}
-                className="flex-1 rounded-lg bg-red-500 py-3 text-base font-medium text-white transition-colors hover:bg-red-600"
+                className="tap-highlight w-full rounded-xl bg-red-500 py-3.5 text-base font-semibold text-white"
               >
                 中止する
+              </button>
+              <button
+                onClick={handleCancelQuit}
+                className="tap-highlight w-full rounded-xl py-3.5 text-base font-semibold text-claude-orange"
+              >
+                続ける
               </button>
             </div>
           </div>

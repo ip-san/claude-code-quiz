@@ -291,13 +291,13 @@ export function ModeSelection() {
             <button
               onClick={handleStart}
               disabled={availableQuizzes.length === 0}
-              className="flex-1 rounded-xl bg-claude-orange px-6 py-3.5 text-base font-medium text-white transition-colors hover:bg-claude-orange/90 disabled:cursor-not-allowed disabled:opacity-50"
+              className="tap-highlight flex-1 rounded-2xl bg-claude-orange px-6 py-3.5 text-base font-semibold text-white disabled:cursor-not-allowed disabled:opacity-50"
             >
               クイズを開始
             </button>
             <button
               onClick={() => setViewState('progress')}
-              className="rounded-xl border border-stone-300 px-6 py-3.5 text-base text-stone-600 transition-colors hover:bg-stone-50"
+              className="tap-highlight rounded-2xl border border-stone-300 px-6 py-3.5 text-base font-semibold text-stone-600"
             >
               学習履歴
             </button>

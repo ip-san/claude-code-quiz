@@ -2,35 +2,67 @@
 @tailwind components;
 @tailwind utilities;
 
-/* Custom scrollbar */
-::-webkit-scrollbar {
-  width: 8px;
+/* System font stack (iOS/Android native feel) */
+html {
+  font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'Helvetica Neue', 'Hiragino Sans', 'Noto Sans JP', sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  /* Prevent iOS zoom on input focus */
+  -webkit-text-size-adjust: 100%;
 }
 
-::-webkit-scrollbar-track {
-  background: transparent;
+/* Safe area support for notch/home indicator */
+body {
+  padding-top: env(safe-area-inset-top);
+  padding-bottom: env(safe-area-inset-bottom);
+  padding-left: env(safe-area-inset-left);
+  padding-right: env(safe-area-inset-right);
 }
 
-::-webkit-scrollbar-thumb {
-  background: #d1d5db;
-  border-radius: 4px;
+/* Prevent overscroll bounce (native feel) */
+html, body {
+  overscroll-behavior: none;
 }
 
-::-webkit-scrollbar-thumb:hover {
-  background: #9ca3af;
+/* Native-like tap highlight */
+* {
+  -webkit-tap-highlight-color: transparent;
+}
+
+/* Custom scrollbar (desktop only) */
+@media (pointer: fine) {
+  ::-webkit-scrollbar {
+    width: 8px;
+  }
+
+  ::-webkit-scrollbar-track {
+    background: transparent;
+  }
+
+  ::-webkit-scrollbar-thumb {
+    background: #d1d5db;
+    border-radius: 4px;
+  }
+
+  ::-webkit-scrollbar-thumb:hover {
+    background: #9ca3af;
+  }
+}
+
+/* Hide scrollbar on mobile for cleaner look */
+@media (pointer: coarse) {
+  ::-webkit-scrollbar {
+    display: none;
+  }
+  * {
+    scrollbar-width: none;
+  }
 }
 
 /* Prevent text selection during quiz */
 .no-select {
   user-select: none;
   -webkit-user-select: none;
-}
-
-/* Smooth transitions */
-* {
-  transition-property: background-color, border-color, color, fill, stroke, opacity, box-shadow, transform;
-  transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
-  transition-duration: 150ms;
 }
 
 /* macOS titlebar drag region */
@@ -40,4 +72,11 @@
 
 .titlebar-no-drag {
   -webkit-app-region: no-drag;
+}
+
+/* Native button press feedback */
+@layer utilities {
+  .tap-highlight {
+    @apply active:scale-[0.97] active:opacity-80 transition-transform duration-100;
+  }
 }
