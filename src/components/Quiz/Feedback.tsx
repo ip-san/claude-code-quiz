@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useEffect, useMemo } from 'react'
 import { useQuizStore } from '@/stores/quizStore'
 import type { Question } from '@/domain/entities/Question'
 import {
@@ -18,10 +18,39 @@ interface FeedbackProps {
   isCorrect: boolean
 }
 
+/**
+ * Animated section wrapper — renders children with a staggered fade-up.
+ * `order` determines the animation delay (0-based).
+ */
+function AnimatedSection({
+  order,
+  animate,
+  noMotion,
+  className = '',
+  children,
+}: {
+  order: number
+  animate: boolean
+  noMotion: boolean
+  className?: string
+  children: React.ReactNode
+}) {
+  const style = noMotion
+    ? undefined
+    : { opacity: animate ? undefined : 0, animationDelay: `${150 + order * 120}ms` }
+  const animClass = noMotion || !animate ? '' : 'animate-feedback-section'
+  return (
+    <div className={`${className} ${animClass}`} style={style}>
+      {children}
+    </div>
+  )
+}
+
 export function Feedback({ quiz, isCorrect }: FeedbackProps) {
   const { sessionState } = useQuizStore()
   const [copied, setCopied] = useState(false)
   const [markdownCopied, setMarkdownCopied] = useState(false)
+  const [animate, setAnimate] = useState(false)
 
   const selectedAnswer = sessionState?.selectedAnswer ?? null
   const selectedAnswers = sessionState?.selectedAnswers ?? []
@@ -29,6 +58,21 @@ export function Feedback({ quiz, isCorrect }: FeedbackProps) {
     selectedAnswer !== null ? quiz.options[selectedAnswer] : null
   const isReviewMode = sessionState?.isReviewMode ?? false
   const isMultiSelect = quiz.isMultiSelect
+
+  const noMotion = useMemo(
+    () => window.matchMedia('(prefers-reduced-motion: reduce)').matches,
+    []
+  )
+
+  // Trigger animations after mount
+  useEffect(() => {
+    if (noMotion) {
+      setAnimate(true)
+      return
+    }
+    const id = requestAnimationFrame(() => setAnimate(true))
+    return () => cancelAnimationFrame(id)
+  }, [noMotion])
 
   const handleOpenReference = async () => {
     if (!quiz.referenceUrl) return
@@ -75,135 +119,143 @@ export function Feedback({ quiz, isCorrect }: FeedbackProps) {
     }
   }
 
-  return (
-    <div
-      className={`mt-6 rounded-xl border p-5 ${
-        isCorrect
-          ? 'border-green-500/30 bg-green-500/10'
-          : 'border-red-500/30 bg-red-500/10'
-      }`}
-    >
-      {/* Header */}
-      <div className="mb-3 flex items-center gap-2">
-        {isCorrect ? (
-          <>
-            <CheckCircle2 className="h-5 w-5 text-green-400" />
-            <span className="font-semibold text-green-400">正解！</span>
-          </>
-        ) : (
-          <>
-            <XCircle className="h-5 w-5 text-red-400" />
-            <span className="font-semibold text-red-400">不正解</span>
-          </>
-        )}
-      </div>
+  // Build ordered sections for staggered animation
+  const sections: React.ReactNode[] = []
 
-      {/* Review mode: show user's current answer vs correct answer */}
-      {isReviewMode && !isCorrect && isMultiSelect && selectedAnswers.length > 0 && (
-        <div className="mb-4 rounded-lg border border-amber-200 bg-amber-50 p-3">
-          <p className="text-sm text-amber-800">
-            <span className="font-medium">あなたの回答:</span>
-          </p>
-          <ul className="ml-4 mt-1 list-disc text-sm text-amber-800">
-            {selectedAnswers.map(i => (
-              <li key={i}><QuizText text={quiz.options[i]?.text ?? ''} /></li>
-            ))}
-          </ul>
-          <p className="mt-2 text-sm text-green-700">
-            <span className="font-medium">正解:</span>
-          </p>
-          <ul className="ml-4 mt-1 list-disc text-sm text-green-700">
-            {quiz.getCorrectOptions().map((opt, i) => (
-              <li key={i}><QuizText text={opt.text} /></li>
-            ))}
-          </ul>
-        </div>
+  // 0: Header
+  sections.push(
+    <AnimatedSection key="header" order={0} animate={animate} noMotion={noMotion} className="mb-3 flex items-center gap-2">
+      {isCorrect ? (
+        <>
+          <CheckCircle2 className="h-5 w-5 text-green-400" />
+          <span className="font-semibold text-green-400">正解！</span>
+        </>
+      ) : (
+        <>
+          <XCircle className="h-5 w-5 text-red-400" />
+          <span className="font-semibold text-red-400">不正解</span>
+        </>
       )}
-      {isReviewMode && !isCorrect && !isMultiSelect && selectedAnswer !== null && selectedAnswer !== quiz.correctIndex && (
-        <div className="mb-4 rounded-lg border border-amber-200 bg-amber-50 p-3">
-          <p className="text-sm text-amber-800">
-            <span className="font-medium">あなたの回答:</span>{' '}
-            <QuizText text={quiz.options[selectedAnswer]?.text ?? ''} />
-          </p>
-          <p className="mt-1 text-sm text-green-700">
-            <span className="font-medium">正解:</span>{' '}
-            <QuizText text={quiz.options[quiz.correctIndex]?.text ?? ''} />
-          </p>
-        </div>
-      )}
+    </AnimatedSection>
+  )
 
-      {/* Wrong feedback - emphasized for incorrect answers */}
-      {!isCorrect && isMultiSelect && (
-        (() => {
-          // Collect wrongFeedback from incorrectly selected options
-          const wrongSelected = selectedAnswers
-            .filter(i => !quiz.isCorrectIndex(i))
-            .map(i => quiz.options[i])
-            .filter(opt => opt?.wrongFeedback)
-          if (wrongSelected.length === 0) return null
-          return (
-            <div className="mb-4 rounded-lg border border-red-200 bg-red-50 p-4">
-              <div className="flex items-start gap-2">
-                <AlertTriangle className="mt-0.5 h-5 w-5 flex-shrink-0 text-amber-500" />
-                <div>
-                  <p className="mb-1 font-medium text-claude-dark">
-                    なぜこの回答が誤りなのか
-                  </p>
-                  {wrongSelected.map((opt, i) => (
-                    <p key={i} className="text-sm leading-relaxed text-stone-600">
-                      <QuizText text={opt.wrongFeedback!} />
-                    </p>
-                  ))}
-                </div>
-              </div>
-            </div>
-          )
-        })()
-      )}
-      {!isCorrect && !isMultiSelect && selectedOption?.wrongFeedback && (
-        <div className="mb-4 rounded-lg border border-red-200 bg-red-50 p-4">
+  // 1: Review mode - user answer vs correct
+  if (isReviewMode && !isCorrect && isMultiSelect && selectedAnswers.length > 0) {
+    sections.push(
+      <AnimatedSection key="review-multi" order={sections.length} animate={animate} noMotion={noMotion} className="mb-4 rounded-lg border border-amber-200 bg-amber-50 p-3">
+        <p className="text-sm text-amber-800">
+          <span className="font-medium">あなたの回答:</span>
+        </p>
+        <ul className="ml-4 mt-1 list-disc text-sm text-amber-800">
+          {selectedAnswers.map(i => (
+            <li key={i}><QuizText text={quiz.options[i]?.text ?? ''} /></li>
+          ))}
+        </ul>
+        <p className="mt-2 text-sm text-green-700">
+          <span className="font-medium">正解:</span>
+        </p>
+        <ul className="ml-4 mt-1 list-disc text-sm text-green-700">
+          {quiz.getCorrectOptions().map((opt, i) => (
+            <li key={i}><QuizText text={opt.text} /></li>
+          ))}
+        </ul>
+      </AnimatedSection>
+    )
+  }
+  if (isReviewMode && !isCorrect && !isMultiSelect && selectedAnswer !== null && selectedAnswer !== quiz.correctIndex) {
+    sections.push(
+      <AnimatedSection key="review-single" order={sections.length} animate={animate} noMotion={noMotion} className="mb-4 rounded-lg border border-amber-200 bg-amber-50 p-3">
+        <p className="text-sm text-amber-800">
+          <span className="font-medium">あなたの回答:</span>{' '}
+          <QuizText text={quiz.options[selectedAnswer]?.text ?? ''} />
+        </p>
+        <p className="mt-1 text-sm text-green-700">
+          <span className="font-medium">正解:</span>{' '}
+          <QuizText text={quiz.options[quiz.correctIndex]?.text ?? ''} />
+        </p>
+      </AnimatedSection>
+    )
+  }
+
+  // 2: Wrong feedback
+  if (!isCorrect && isMultiSelect) {
+    const wrongSelected = selectedAnswers
+      .filter(i => !quiz.isCorrectIndex(i))
+      .map(i => quiz.options[i])
+      .filter(opt => opt?.wrongFeedback)
+    if (wrongSelected.length > 0) {
+      sections.push(
+        <AnimatedSection key="wrong-multi" order={sections.length} animate={animate} noMotion={noMotion} className="mb-4 rounded-lg border border-red-200 bg-red-50 p-4">
           <div className="flex items-start gap-2">
             <AlertTriangle className="mt-0.5 h-5 w-5 flex-shrink-0 text-amber-500" />
             <div>
               <p className="mb-1 font-medium text-claude-dark">
                 なぜこの回答が誤りなのか
               </p>
-              <p className="text-sm leading-relaxed text-stone-600">
-                <QuizText text={selectedOption.wrongFeedback!} />
-              </p>
+              {wrongSelected.map((opt, i) => (
+                <p key={i} className="text-sm leading-relaxed text-stone-600">
+                  <QuizText text={opt.wrongFeedback!} />
+                </p>
+              ))}
             </div>
           </div>
+        </AnimatedSection>
+      )
+    }
+  }
+  if (!isCorrect && !isMultiSelect && selectedOption?.wrongFeedback) {
+    sections.push(
+      <AnimatedSection key="wrong-single" order={sections.length} animate={animate} noMotion={noMotion} className="mb-4 rounded-lg border border-red-200 bg-red-50 p-4">
+        <div className="flex items-start gap-2">
+          <AlertTriangle className="mt-0.5 h-5 w-5 flex-shrink-0 text-amber-500" />
+          <div>
+            <p className="mb-1 font-medium text-claude-dark">
+              なぜこの回答が誤りなのか
+            </p>
+            <p className="text-sm leading-relaxed text-stone-600">
+              <QuizText text={selectedOption.wrongFeedback!} />
+            </p>
+          </div>
         </div>
-      )}
+      </AnimatedSection>
+    )
+  }
 
-      {/* Multi-select: show correct answers when wrong (non-review mode) */}
-      {!isCorrect && isMultiSelect && !isReviewMode && (
-        <div className="mb-4 rounded-lg border border-green-200 bg-green-50 p-3">
-          <p className="text-sm font-medium text-green-700">正解:</p>
-          <ul className="ml-4 mt-1 list-disc text-sm text-green-700">
-            {quiz.getCorrectOptions().map((opt, i) => (
-              <li key={i}><QuizText text={opt.text} /></li>
-            ))}
-          </ul>
-        </div>
-      )}
+  // 3: Multi-select correct answers (non-review)
+  if (!isCorrect && isMultiSelect && !isReviewMode) {
+    sections.push(
+      <AnimatedSection key="correct-multi" order={sections.length} animate={animate} noMotion={noMotion} className="mb-4 rounded-lg border border-green-200 bg-green-50 p-3">
+        <p className="text-sm font-medium text-green-700">正解:</p>
+        <ul className="ml-4 mt-1 list-disc text-sm text-green-700">
+          {quiz.getCorrectOptions().map((opt, i) => (
+            <li key={i}><QuizText text={opt.text} /></li>
+          ))}
+        </ul>
+      </AnimatedSection>
+    )
+  }
 
-      {/* Explanation - with scroll support for long content */}
-      <div className="mb-4">
-        <p className="mb-1 text-sm font-medium text-claude-dark">解説</p>
-        <div className={quiz.diagram ? 'max-h-96 overflow-y-auto' : 'max-h-48 overflow-y-auto'}>
-          <p className="text-sm leading-relaxed text-stone-600">
-            <QuizText text={quiz.explanation} />
-          </p>
-          {quiz.diagram && (
-            <div className="mt-3 border-t border-stone-200 pt-3">
-              <DiagramRenderer diagram={quiz.diagram} />
-            </div>
-          )}
-        </div>
+  // 4: Explanation
+  const explanationOrder = sections.length
+  sections.push(
+    <AnimatedSection key="explanation" order={explanationOrder} animate={animate} noMotion={noMotion} className="mb-4">
+      <p className="mb-1 text-sm font-medium text-claude-dark">解説</p>
+      <div className={quiz.diagram ? 'max-h-96 overflow-y-auto' : 'max-h-48 overflow-y-auto'}>
+        <p className="text-sm leading-relaxed text-stone-600">
+          <QuizText text={quiz.explanation} animated={animate && !noMotion} animationDelay={300 + explanationOrder * 120} />
+        </p>
+        {quiz.diagram && (
+          <div className="mt-3 border-t border-stone-200 pt-3">
+            <DiagramRenderer diagram={quiz.diagram} />
+          </div>
+        )}
       </div>
+    </AnimatedSection>
+  )
 
-      {/* Action buttons */}
+  // 5: Action buttons
+  sections.push(
+    <AnimatedSection key="actions" order={sections.length} animate={animate} noMotion={noMotion}>
       <div className="flex flex-wrap gap-2" role="group" aria-label="アクションボタン">
         {quiz.referenceUrl && (
           <button
@@ -216,7 +268,6 @@ export function Feedback({ quiz, isCorrect }: FeedbackProps) {
           </button>
         )}
 
-        {/* Markdown copy button - always visible */}
         <button
           onClick={handleCopyMarkdown}
           aria-label={markdownCopied ? 'Markdownをコピーしました' : 'Markdown形式でコピー'}
@@ -255,6 +306,18 @@ export function Feedback({ quiz, isCorrect }: FeedbackProps) {
           </button>
         )}
       </div>
+    </AnimatedSection>
+  )
+
+  return (
+    <div
+      className={`mt-6 rounded-xl border p-5 ${
+        isCorrect
+          ? 'border-green-500/30 bg-green-500/10'
+          : 'border-red-500/30 bg-red-500/10'
+      } ${noMotion ? '' : animate ? 'animate-feedback-enter' : 'opacity-0'}`}
+    >
+      {sections}
     </div>
   )
 }

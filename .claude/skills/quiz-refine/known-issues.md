@@ -211,7 +211,7 @@ v4.43.0 以前の known-issues では「exit code 2 の一般ルールで UserPr
 
 ## Hook イベント総数
 
-- Hook event types は全 21 種（`InstructionsLoaded`、`PostCompact`、`Elicitation`、`ElicitationResult` を含む）。v4.44.0 時点では 18 種だったが、`PostCompact`、`Elicitation`、`ElicitationResult` が追加された
+- Hook event types は全 22 種（`InstructionsLoaded`、`PostCompact`、`PostToolUseFailure`、`StopFailure`、`Elicitation`、`ElicitationResult` を含む）。v4.44.0 時点では 18 種だったが、`PostCompact`、`Elicitation`、`ElicitationResult`、`PostToolUseFailure`、`StopFailure` が追加された
 
 ## 環境変数（追加）
 

@@ -1,49 +1,75 @@
 import { Fragment, type ReactNode } from 'react'
 
+interface QuizTextProps {
+  text: string
+  className?: string
+  /** Enable code highlight animation in explanation */
+  animated?: boolean
+  /** Base delay in ms for code highlight stagger */
+  animationDelay?: number
+}
+
 /**
  * Renders quiz text with:
  * - \n → line breaks
- * - `code` → <code> inline code elements
+ * - `code` → <code> inline code elements (optionally animated)
  */
-export function QuizText({ text, className }: { text: string; className?: string }) {
-  return <span className={className}>{parseQuizText(text)}</span>
+export function QuizText({ text, className, animated, animationDelay = 0 }: QuizTextProps) {
+  return <span className={className}>{parseQuizText(text, animated, animationDelay)}</span>
 }
 
-function parseQuizText(text: string): ReactNode[] {
-  // Split by newlines first, then parse inline code within each line
+function parseQuizText(text: string, animated?: boolean, baseDelay?: number): ReactNode[] {
   const lines = text.split('\n')
   const result: ReactNode[] = []
+  let codeIndex = 0
 
   for (let i = 0; i < lines.length; i++) {
     if (i > 0) {
       result.push(<br key={`br-${i}`} />)
     }
-    result.push(<Fragment key={`line-${i}`}>{parseInlineCode(lines[i])}</Fragment>)
+    const { nodes, codeCount } = parseInlineCode(lines[i], animated, baseDelay, codeIndex)
+    result.push(<Fragment key={`line-${i}`}>{nodes}</Fragment>)
+    codeIndex += codeCount
   }
 
   return result
 }
 
-function parseInlineCode(text: string): ReactNode[] {
+function parseInlineCode(
+  text: string,
+  animated?: boolean,
+  baseDelay?: number,
+  startCodeIndex?: number
+): { nodes: ReactNode[]; codeCount: number } {
   const parts: ReactNode[] = []
   const regex = /`([^`]+)`/g
   let lastIndex = 0
   let match: RegExpExecArray | null
+  let codeCount = 0
 
   while ((match = regex.exec(text)) !== null) {
     // Text before the match
     if (match.index > lastIndex) {
       parts.push(text.slice(lastIndex, match.index))
     }
-    // Code element
+    // Code element with optional highlight animation
+    // Cap stagger at 100ms to keep total animation under 1.5s even with many codes
+    const idx = (startCodeIndex ?? 0) + codeCount
+    const delay = (baseDelay ?? 0) + idx * 100
     parts.push(
       <code
         key={match.index}
-        className="rounded bg-stone-100 px-1 py-0.5 font-mono text-[0.9em] text-stone-800"
+        className={`rounded px-1 py-0.5 font-mono text-[0.9em] text-stone-800 ${
+          animated
+            ? 'animate-code-highlight bg-gradient-to-r from-amber-200/70 to-amber-100/50 bg-no-repeat bg-left'
+            : 'bg-stone-100'
+        }`}
+        style={animated ? { animationDelay: `${delay}ms` } : undefined}
       >
         {match[1]}
       </code>
     )
+    codeCount++
     lastIndex = regex.lastIndex
   }
 
@@ -52,5 +78,5 @@ function parseInlineCode(text: string): ReactNode[] {
     parts.push(text.slice(lastIndex))
   }
 
-  return parts
+  return { nodes: parts, codeCount }
 }
