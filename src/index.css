@@ -80,3 +80,11 @@ html, body {
     @apply active:scale-[0.97] active:opacity-80 transition-transform duration-100;
   }
 }
+
+/* Premium card shadow */
+.card-premium {
+  box-shadow:
+    0 1px 3px rgba(0, 0, 0, 0.04),
+    0 4px 12px rgba(0, 0, 0, 0.03),
+    0 12px 32px rgba(0, 0, 0, 0.02);
+}

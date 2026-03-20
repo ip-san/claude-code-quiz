@@ -1,7 +1,9 @@
 import { useMemo, useState, useEffect } from 'react'
 import { useQuizStore, APP_CONFIG } from '@/stores/quizStore'
 import { getCategoryById } from '@/domain/valueObjects/Category'
-import { Trophy, RotateCcw, Star, Home, BookOpen, Lightbulb, ArrowRight, Target, Share2 } from 'lucide-react'
+import { RotateCcw, Star, Home, BookOpen, Lightbulb, ArrowRight, Target, Share2 } from 'lucide-react'
+import { ScoreRing } from './ScoreRing'
+import { ConfettiEffect } from './ConfettiEffect'
 
 // Score thresholds for result messages
 const SCORE_THRESHOLDS = {
@@ -26,7 +28,6 @@ export function QuizResult() {
   const isOverviewMode = sessionConfig.mode === 'overview'
 
   // Animated count-up
-  const [displayScore, setDisplayScore] = useState(0)
   const [displayPercent, setDisplayPercent] = useState(0)
   const [showStars, setShowStars] = useState(false)
   const [showContent, setShowContent] = useState(false)
@@ -45,34 +46,28 @@ export function QuizResult() {
   // Count-up animation
   useEffect(() => {
     if (noMotion) {
-      setDisplayScore(score)
       setDisplayPercent(percentage)
       setShowStars(true)
       setShowContent(true)
       return
     }
 
-    // Animate score counting up
-    const duration = 600
-    const steps = 20
+    // Animate percentage counter (score ring handles its own animation)
+    const duration = 800
+    const steps = 25
     const interval = duration / steps
     let step = 0
 
     const timer = setInterval(() => {
       step++
       const progress = step / steps
-      // Ease-out
       const eased = 1 - Math.pow(1 - progress, 3)
-      setDisplayScore(Math.round(score * eased))
       setDisplayPercent(Math.round(percentage * eased))
 
       if (step >= steps) {
         clearInterval(timer)
-        setDisplayScore(score)
         setDisplayPercent(percentage)
-        // Show stars after count-up
         setTimeout(() => setShowStars(true), 100)
-        // Show remaining content
         setTimeout(() => setShowContent(true), 400)
       }
     }, interval)
@@ -201,33 +196,28 @@ export function QuizResult() {
           noMotion ? '' : 'animate-result-enter'
         }`}
       >
-        {/* Trophy icon */}
-        <div
-          className={`mx-auto mb-6 inline-flex h-20 w-20 items-center justify-center rounded-full ${
-            isPassing
-              ? 'bg-yellow-100'
-              : 'bg-stone-100'
-          } ${noMotion ? '' : 'animate-bounce-in'}`}
-        >
-          <Trophy className={`h-10 w-10 ${result.color}`} />
+        {/* Confetti on perfect/excellent score */}
+        {percentage >= 80 && !noMotion && <ConfettiEffect />}
+
+        {/* Score Ring */}
+        <div className={`mb-4 ${noMotion ? '' : 'animate-bounce-in'}`}>
+          <ScoreRing
+            percentage={percentage}
+            score={score}
+            total={answeredCount}
+            color={result.color}
+            noMotion={noMotion}
+          />
         </div>
 
         {/* Title */}
-        <h2 className={`mb-2 text-xl font-bold sm:text-2xl ${result.color}`}>
+        <h2 className={`mb-1 text-xl font-bold sm:text-2xl ${result.color}`}>
           {result.title}
         </h2>
 
-        {/* Score display - animated count-up */}
-        <div className="mb-4">
-          <span className={`text-4xl font-bold text-claude-dark sm:text-5xl ${noMotion ? '' : 'animate-count-up'}`}>
-            {displayScore}
-          </span>
-          <span className="text-xl text-stone-400 sm:text-2xl"> / {answeredCount}</span>
-        </div>
-
-        {/* Percentage */}
-        <div className="mb-4 inline-flex items-center gap-1 rounded-full bg-white px-3 py-1 shadow-sm">
-          <span className={`text-lg font-semibold ${result.color}`}>
+        {/* Percentage badge */}
+        <div className="mb-4 inline-flex items-center gap-1 rounded-full bg-white px-4 py-1.5 shadow-sm">
+          <span className={`text-lg font-bold ${result.color}`}>
             {displayPercent}%
           </span>
         </div>

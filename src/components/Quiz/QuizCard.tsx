@@ -1,7 +1,8 @@
-import { useEffect, useCallback, useMemo } from 'react'
+import { useEffect, useCallback, useMemo, useState } from 'react'
 import { useQuizStore } from '@/stores/quizStore'
 import { OptionButton } from './OptionButton'
 import { Feedback } from './Feedback'
+import { ConfettiEffect } from './ConfettiEffect'
 import { ChapterIndicator } from './ChapterIndicator'
 import { getCategoryById } from '@/domain/valueObjects/Category'
 import { getChapterFromTags, OVERVIEW_CHAPTERS } from '@/domain/valueObjects/OverviewChapter'
@@ -164,12 +165,23 @@ export function QuizCard() {
     return () => window.removeEventListener('keydown', handleKeyDown)
   }, [handleKeyDown])
 
-  // Haptic feedback on answer result
+  // Haptic feedback + confetti on answer result
+  const [showConfetti, setShowConfetti] = useState(false)
   useEffect(() => {
     if (isAnswered && isCorrect !== null) {
-      if (isCorrect) { haptics.success() } else { haptics.error() }
+      if (isCorrect) {
+        haptics.success()
+        setShowConfetti(true)
+      } else {
+        haptics.error()
+      }
+    } else {
+      setShowConfetti(false)
     }
   }, [isAnswered, isCorrect])
+
+  // Slide-in animation key (changes on each question)
+  const questionKey = quiz?.id ?? 'empty'
 
   // Empty state when no quiz data
   if (!quiz) {
@@ -216,8 +228,12 @@ export function QuizCard() {
         />
       )}
 
+      {/* Confetti on correct answer */}
+      {showConfetti && <ConfettiEffect />}
+
       <div
-        className={`rounded-2xl bg-white p-4 shadow-sm sm:border sm:border-stone-200 sm:p-8 ${
+        key={questionKey}
+        className={`animate-slide-in-right rounded-2xl bg-white p-4 shadow-[0_2px_20px_rgba(0,0,0,0.06)] sm:border sm:border-stone-200 sm:p-8 ${
           isAnswered && !isCorrect ? 'animate-shake' : ''
         } ${isAnswered && isCorrect ? 'animate-pulse-success' : ''}`}
       >

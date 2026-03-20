@@ -46,32 +46,27 @@ export default function App() {
     </>
   ) : null
 
-  // Render based on view state
-  if (viewState === 'menu') {
-    return (
-      <div className="min-h-screen bg-claude-cream">
-        {isElectron && <div className="h-8 titlebar-drag bg-transparent" />}
-        <ModeSelection />
-        {pwaOverlays}
-      </div>
-    )
-  }
+  // Render based on view state with entrance animation
+  const viewContent = (() => {
+    switch (viewState) {
+      case 'menu':
+        return <ModeSelection />
+      case 'progress':
+        return <ProgressDashboard />
+      case 'result':
+        return <QuizResult />
+      default:
+        return null
+    }
+  })()
 
-  if (viewState === 'progress') {
+  if (viewContent) {
     return (
-      <div className="min-h-screen bg-claude-cream">
+      <div className="min-h-screen bg-claude-cream" key={viewState}>
         {isElectron && <div className="h-8 titlebar-drag bg-transparent" />}
-        <ProgressDashboard />
-        {pwaOverlays}
-      </div>
-    )
-  }
-
-  if (viewState === 'result') {
-    return (
-      <div className="min-h-screen bg-claude-cream">
-        {isElectron && <div className="h-8 titlebar-drag bg-transparent" />}
-        <QuizResult />
+        <div className="animate-view-enter">
+          {viewContent}
+        </div>
         {pwaOverlays}
       </div>
     )
