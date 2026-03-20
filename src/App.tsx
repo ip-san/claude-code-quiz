@@ -8,6 +8,7 @@ import { Timer } from '@/components/Quiz/Timer'
 import { ProgressDashboard } from '@/components/Progress/ProgressDashboard'
 import { getChapterFromTags } from '@/domain/valueObjects/OverviewChapter'
 import { Loader2, XCircle } from 'lucide-react'
+import { PWAUpdatePrompt } from '@/components/Layout/PWAUpdatePrompt'
 
 export default function App() {
   const { viewState, getProgress, sessionState, isLoading, initialize } = useQuizStore()
@@ -29,12 +30,16 @@ export default function App() {
     )
   }
 
+  // PWA update prompt (web only)
+  const pwaPrompt = !isElectron ? <PWAUpdatePrompt /> : null
+
   // Render based on view state
   if (viewState === 'menu') {
     return (
       <div className="min-h-screen bg-claude-cream">
         {isElectron && <div className="h-8 titlebar-drag bg-transparent" />}
         <ModeSelection />
+        {pwaPrompt}
       </div>
     )
   }
@@ -44,6 +49,7 @@ export default function App() {
       <div className="min-h-screen bg-claude-cream">
         {isElectron && <div className="h-8 titlebar-drag bg-transparent" />}
         <ProgressDashboard />
+        {pwaPrompt}
       </div>
     )
   }
@@ -53,6 +59,7 @@ export default function App() {
       <div className="min-h-screen bg-claude-cream">
         {isElectron && <div className="h-8 titlebar-drag bg-transparent" />}
         <QuizResult />
+        {pwaPrompt}
       </div>
     )
   }
