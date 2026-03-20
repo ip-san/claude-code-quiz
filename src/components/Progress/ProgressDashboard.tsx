@@ -132,12 +132,12 @@ export function ProgressDashboard() {
   }
 
   return (
-    <div className="min-h-screen bg-claude-cream px-4 py-8">
+    <div className="min-h-screen bg-claude-cream px-3 py-4 sm:px-4 sm:py-8">
       <div className="mx-auto max-w-4xl">
         {/* Header */}
-        <div className="mb-8 flex items-center justify-between">
+        <div className="mb-6 flex items-center justify-between sm:mb-8">
           <div>
-            <h1 className="text-2xl font-bold text-claude-dark">学習進捗</h1>
+            <h1 className="text-xl font-bold text-claude-dark sm:text-2xl">学習進捗</h1>
             <p className="text-stone-500">
               あなたの学習状況を確認できます
             </p>

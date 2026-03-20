@@ -195,9 +195,9 @@ export function QuizResult() {
   const filledStars = Math.ceil(percentage / STAR_PERCENTAGE_DIVISOR)
 
   return (
-    <div className="flex min-h-screen items-center justify-center px-4">
+    <div className="flex min-h-screen items-center justify-center px-3 sm:px-4">
       <div
-        className={`w-full max-w-md rounded-2xl border ${result.borderColor} ${result.bgColor} p-8 text-center shadow-lg ${
+        className={`w-full max-w-md rounded-2xl border ${result.borderColor} ${result.bgColor} p-5 text-center shadow-lg sm:p-8 ${
           noMotion ? '' : 'animate-result-enter'
         }`}
       >
@@ -213,16 +213,16 @@ export function QuizResult() {
         </div>
 
         {/* Title */}
-        <h2 className={`mb-2 text-2xl font-bold ${result.color}`}>
+        <h2 className={`mb-2 text-xl font-bold sm:text-2xl ${result.color}`}>
           {result.title}
         </h2>
 
         {/* Score display - animated count-up */}
         <div className="mb-4">
-          <span className={`text-5xl font-bold text-claude-dark ${noMotion ? '' : 'animate-count-up'}`}>
+          <span className={`text-4xl font-bold text-claude-dark sm:text-5xl ${noMotion ? '' : 'animate-count-up'}`}>
             {displayScore}
           </span>
-          <span className="text-2xl text-stone-400"> / {answeredCount}</span>
+          <span className="text-xl text-stone-400 sm:text-2xl"> / {answeredCount}</span>
         </div>
 
         {/* Percentage */}

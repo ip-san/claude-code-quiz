@@ -312,7 +312,7 @@ export function Feedback({ quiz, isCorrect }: FeedbackProps) {
 
   return (
     <div
-      className={`mt-6 rounded-xl border p-5 ${
+      className={`mt-4 rounded-xl border p-4 sm:mt-6 sm:p-5 ${
         isCorrect
           ? 'border-green-500/30 bg-green-500/10'
           : 'border-red-500/30 bg-red-500/10'

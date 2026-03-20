@@ -209,7 +209,7 @@ export function QuizCard() {
       )}
 
       <div
-        className={`rounded-2xl border border-stone-200 bg-white p-8 shadow-sm ${
+        className={`rounded-2xl border border-stone-200 bg-white p-4 shadow-sm sm:p-8 ${
           isAnswered && !isCorrect ? 'animate-shake' : ''
         } ${isAnswered && isCorrect ? 'animate-pulse-success' : ''}`}
       >
@@ -267,7 +267,7 @@ export function QuizCard() {
       </div>
 
       {/* Question */}
-      <h2 className="mb-6 text-lg font-semibold leading-relaxed text-claude-dark">
+      <h2 className="mb-4 text-base font-semibold leading-relaxed text-claude-dark sm:mb-6 sm:text-lg">
         <QuizText text={quiz.question} />
       </h2>
 

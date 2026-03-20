@@ -99,14 +99,14 @@ export function ModeSelection() {
   }
 
   return (
-    <div className="flex min-h-screen flex-col justify-center bg-claude-cream px-4 pb-8 pt-4">
+    <div className="flex min-h-screen flex-col justify-center bg-claude-cream px-3 pb-6 pt-2 sm:px-4 sm:pb-8 sm:pt-4">
       <div className="mx-auto w-full max-w-4xl">
         {/* Resume session banner */}
         <ResumeSessionBanner />
 
         {/* Header */}
         <div className="mb-4 text-center">
-          <h1 className="mb-1 text-2xl font-bold text-claude-dark">
+          <h1 className="mb-1 text-xl font-bold text-claude-dark sm:text-2xl">
             Claude Code マスタークイズ
           </h1>
           <p className="text-sm text-claude-gray">
@@ -183,7 +183,7 @@ export function ModeSelection() {
             <h2 className="mb-2 text-base font-semibold text-claude-dark">
               カテゴリ選択
             </h2>
-            <div className="grid grid-cols-4 gap-2 sm:grid-cols-8">
+            <div className="grid grid-cols-2 gap-2 sm:grid-cols-4 lg:grid-cols-8">
               {PREDEFINED_CATEGORIES.map((category: Category, catIdx) => (
                 <button
                   key={category.id}

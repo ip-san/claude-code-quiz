@@ -129,7 +129,7 @@ export function OptionButton({
       aria-pressed={isSelected}
       aria-checked={isMultiSelect ? isSelected : undefined}
       role={isMultiSelect ? 'checkbox' : 'option'}
-      className={`no-select w-full rounded-xl border-2 p-4 text-left transition-all ${getStyles()} ${getAnimClass()} ${
+      className={`no-select w-full rounded-xl border-2 p-3 text-left transition-all sm:p-4 ${getStyles()} ${getAnimClass()} ${
         isAnswered ? 'cursor-default' : 'cursor-pointer'
       }`}
     >
