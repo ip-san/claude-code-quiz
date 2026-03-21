@@ -91,6 +91,14 @@ html, body {
   -webkit-transform: translateZ(0);
 }
 
+/* Gradient progress bar */
+.progress-gradient {
+  background: linear-gradient(90deg, #D97757, #e8956e);
+}
+.progress-gradient-green {
+  background: linear-gradient(90deg, #22c55e, #4ade80);
+}
+
 /* Premium card shadow */
 .card-premium {
   box-shadow:

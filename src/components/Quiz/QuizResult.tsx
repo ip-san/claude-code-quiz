@@ -225,21 +225,23 @@ export function QuizResult() {
         </div>
 
         {/* Pass/Fail indicator */}
+        {/* Message + pass/fail */}
+        <p className="mb-2 text-sm text-stone-500">{result.message}</p>
         <div className="mb-4">
           <span
-            className={`rounded-full px-4 py-1 text-sm font-medium ${
+            className={`inline-flex items-center gap-1.5 rounded-full px-4 py-1.5 text-sm font-semibold ${
               isPassing
-                ? 'bg-green-100 text-green-600'
-                : 'bg-red-100 text-red-600'
+                ? 'bg-green-500/10 text-green-600'
+                : 'bg-red-500/10 text-red-500'
             }`}
           >
-            {isPassing ? '✓ 合格' : '✗ 不合格'} (合格ライン:{' '}
-            {APP_CONFIG.passingScore}%)
+            {isPassing ? '✓' : '✗'}
+            {isPassing ? '合格' : '不合格'}
+            <span className="text-xs font-normal opacity-60">
+              {APP_CONFIG.passingScore}%以上
+            </span>
           </span>
         </div>
-
-        {/* Message */}
-        <p className="mb-4 text-stone-500">{result.message}</p>
 
         {/* Hints used indicator */}
         {hintsUsedCount > 0 && (

@@ -15,7 +15,7 @@ import {
 import { ResumeSessionBanner } from './ResumeSessionBanner'
 import { StreakBanner } from './StreakBanner'
 import { DailyGoalIndicator } from './DailyGoalIndicator'
-import { RefreshCw, Check } from 'lucide-react'
+import { RefreshCw, Check, Play } from 'lucide-react'
 import { isElectron } from '@/lib/platformAPI'
 
 // Color mapping for categories
@@ -318,8 +318,9 @@ export function ModeSelection() {
           <button
             onClick={handleStart}
             disabled={availableQuizzes.length === 0}
-            className="tap-highlight rounded-2xl bg-claude-orange px-8 py-3.5 text-base font-semibold text-white disabled:cursor-not-allowed disabled:opacity-50"
+            className="tap-highlight inline-flex items-center gap-2 rounded-2xl bg-claude-orange px-8 py-3.5 text-base font-semibold text-white disabled:cursor-not-allowed disabled:opacity-50"
           >
+            <Play className="h-4 w-4 fill-white" />
             開始
           </button>
         </div>

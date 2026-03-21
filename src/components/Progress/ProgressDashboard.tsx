@@ -257,7 +257,7 @@ export function ProgressDashboard() {
                   </div>
                   <div className="mb-1 h-2 overflow-hidden rounded-full bg-stone-200">
                     <div
-                      className="h-full animate-progress-fill rounded-full"
+                      className="h-full animate-progress-fill rounded-full progress-gradient"
                       style={{
                         width: `${(attempted / Math.max(total, 1)) * 100}%`,
                         backgroundColor: getColorHex(category.color ?? 'gray'),

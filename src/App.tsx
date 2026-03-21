@@ -214,8 +214,10 @@ function QuizView({
                   {currentChapter.icon} Ch.{currentChapter.id}
                 </span>
               )}
-              <span className="text-sm font-medium text-claude-dark">
-                {progress.current} / {progress.total}
+              <span className="text-sm text-stone-500">
+                <span className="font-bold text-claude-dark">{progress.current}</span>
+                <span className="mx-0.5">/</span>
+                <span>{progress.total}</span>
               </span>
               {timeRemaining !== null && sessionState?.deferFeedback && <Timer />}
             </div>
@@ -233,7 +235,7 @@ function QuizView({
           {/* Progress bar */}
           <div className="mt-2 h-1 overflow-hidden rounded-full bg-stone-200">
             <div
-              className="h-full rounded-full bg-claude-orange transition-all"
+              className="h-full rounded-full progress-gradient transition-all"
               style={{
                 width: `${progress.total > 0 ? (progress.current / progress.total) * 100 : 0}%`,
               }}

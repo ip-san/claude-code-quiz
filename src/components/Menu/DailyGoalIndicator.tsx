@@ -43,7 +43,7 @@ export function DailyGoalIndicator() {
       <div className="mb-1.5 h-2.5 overflow-hidden rounded-full bg-stone-200">
         <div
           className={`h-full animate-progress-fill rounded-full ${
-            isAchieved ? 'bg-green-500' : 'bg-claude-orange'
+            isAchieved ? 'progress-gradient-green' : 'progress-gradient'
           }`}
           style={{ '--tw-progress-width': `${progressPercent}%`, width: `${progressPercent}%` } as React.CSSProperties}
         />
