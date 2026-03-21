@@ -4,6 +4,8 @@ import { getCategoryById } from '@/domain/valueObjects/Category'
 import { RotateCcw, Star, Home, BookOpen, Lightbulb, ArrowRight, Target, Share2 } from 'lucide-react'
 import { ScoreRing } from './ScoreRing'
 import { ConfettiEffect } from './ConfettiEffect'
+import { StreakMilestoneBadge, DailyGoalBadge } from './StreakMilestoneBadge'
+import { DailyGoalService } from '@/domain/services/DailyGoalService'
 
 // Score thresholds for result messages
 const SCORE_THRESHOLDS = {
@@ -267,6 +269,21 @@ export function QuizResult() {
             />
           ))}
         </div>
+
+        {/* Achievement badges */}
+        {showStars && !isReviewMode && (
+          <div className="mb-4 flex flex-col gap-2">
+            <StreakMilestoneBadge
+              currentStreak={useQuizStore.getState().userProgress.streakDays}
+              previousStreak={Math.max(0, useQuizStore.getState().userProgress.streakDays - 1)}
+            />
+            <DailyGoalBadge
+              previousTodayCount={Math.max(0, useQuizStore.getState().userProgress.getDailyCount(DailyGoalService.getTodayString()) - answeredCount)}
+              currentTodayCount={useQuizStore.getState().userProgress.getDailyCount(DailyGoalService.getTodayString())}
+              dailyGoal={useQuizStore.getState().userProgress.dailyGoal}
+            />
+          </div>
+        )}
 
         {/* Content below stars fades in after stars */}
         <div className={noMotion || showContent ? 'opacity-100' : 'opacity-0'} style={{ transition: noMotion ? 'none' : 'opacity 0.3s ease-out' }}>
