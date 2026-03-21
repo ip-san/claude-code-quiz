@@ -9,6 +9,7 @@ import { getChapterFromTags, OVERVIEW_CHAPTERS } from '@/domain/valueObjects/Ove
 import { Bookmark, Lightbulb, RotateCcw } from 'lucide-react'
 import { QuizText } from './QuizText'
 import { haptics } from '@/lib/haptics'
+import { useSwipe } from '@/lib/useSwipe'
 
 // Color mapping for categories
 const COLOR_MAP: Record<string, string> = {
@@ -183,6 +184,17 @@ export function QuizCard() {
   // Slide-in animation key (changes on each question)
   const questionKey = quiz?.id ?? 'empty'
 
+  // Swipe to next question (only after answering)
+  const swipeHandlers = useSwipe({
+    onSwipeLeft: () => {
+      if (isAnswered) {
+        haptics.light()
+        nextQuestion()
+      }
+    },
+    disabled: !isAnswered,
+  })
+
   // Empty state when no quiz data
   if (!quiz) {
     return (
@@ -233,6 +245,7 @@ export function QuizCard() {
 
       <div
         key={questionKey}
+        {...swipeHandlers}
         className={`animate-slide-in-right rounded-2xl bg-white p-4 shadow-[0_2px_20px_rgba(0,0,0,0.06)] sm:border sm:border-stone-200 sm:p-8 ${
           isAnswered && !isCorrect ? 'animate-shake flash-wrong' : ''
         } ${isAnswered && isCorrect ? 'glow-correct' : ''}`}
@@ -382,6 +395,7 @@ export function QuizCard() {
               className="tap-highlight w-full rounded-2xl bg-claude-orange py-3.5 text-base font-semibold text-white sm:py-3"
             >
               {isReviewMode ? '次の問題を確認' : '次の問題へ'}
+              <span className="text-xs opacity-50 sm:hidden"> ← スワイプ</span>
             </button>
           </div>
         </div>
