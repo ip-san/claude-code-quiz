@@ -425,7 +425,7 @@ export function QuizCard() {
       )}
 
       {/* Spacer for fixed bottom bar on mobile */}
-      {(!isAnswered || deferFeedback) && <div className="h-20 sm:hidden" />}
+      <div className="h-20 sm:hidden" />
     </div>
 
     {/* Fixed bottom bar */}
@@ -491,32 +491,47 @@ export function QuizCard() {
           </button>
         </div>
       </div>
-    ) : !isAnswered ? (
-      /* 通常モード: back + submit button */
+    ) : (
+      /* 通常モード: ◀ submit/next ▶ */
       <div className="fixed bottom-0 left-0 right-0 z-20 border-t border-stone-200 bg-white px-4 pb-[calc(env(safe-area-inset-bottom,0px)+8px)] pt-2 sm:relative sm:mt-6 sm:border-0 sm:bg-transparent sm:p-0 sm:pb-0 sm:pt-0">
         <div className="flex gap-2">
-          {canGoBack && (
+          <button
+            onClick={() => { haptics.light(); previousQuestion() }}
+            disabled={!canGoBack}
+            className="tap-highlight flex items-center justify-center rounded-2xl border-2 border-stone-300 px-3 py-3 text-stone-500 disabled:opacity-30"
+          >
+            <ChevronLeft className="h-5 w-5" />
+          </button>
+          {!isAnswered ? (
             <button
-              onClick={() => { haptics.light(); previousQuestion() }}
-              className="tap-highlight flex items-center justify-center rounded-2xl border-2 border-stone-300 px-3 py-3 text-stone-500"
+              onClick={() => { haptics.medium(); submitAnswer() }}
+              disabled={isMultiSelect ? selectedAnswers.length === 0 : selectedAnswer === null}
+              className={`flex-1 rounded-2xl py-3.5 text-base font-semibold transition-all sm:py-3 ${
+                (isMultiSelect ? selectedAnswers.length > 0 : selectedAnswer !== null)
+                  ? 'tap-highlight bg-claude-orange text-white'
+                  : 'cursor-not-allowed bg-stone-200 text-stone-400'
+              }`}
             >
-              <ChevronLeft className="h-5 w-5" />
+              回答する
+            </button>
+          ) : (
+            <button
+              onClick={() => { haptics.light(); nextQuestion() }}
+              className="tap-highlight flex-1 rounded-2xl bg-claude-orange py-3.5 text-base font-semibold text-white sm:py-3"
+            >
+              次の問題へ
             </button>
           )}
           <button
-            onClick={() => { haptics.medium(); submitAnswer() }}
-            disabled={isMultiSelect ? selectedAnswers.length === 0 : selectedAnswer === null}
-            className={`flex-1 rounded-2xl py-3.5 text-base font-semibold transition-all sm:py-3 ${
-              (isMultiSelect ? selectedAnswers.length > 0 : selectedAnswer !== null)
-                ? 'tap-highlight bg-claude-orange text-white'
-                : 'cursor-not-allowed bg-stone-200 text-stone-400'
-            }`}
+            onClick={() => { haptics.light(); nextQuestion() }}
+            disabled={!isAnswered}
+            className="tap-highlight flex items-center justify-center rounded-2xl border-2 border-stone-300 px-3 py-3 text-stone-500 disabled:opacity-30"
           >
-            回答する
+            <ChevronRight className="h-5 w-5" />
           </button>
         </div>
       </div>
-    ) : null}
+    )}
     </>
   )
 }
