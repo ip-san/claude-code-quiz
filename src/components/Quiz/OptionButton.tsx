@@ -1,4 +1,4 @@
-import { Check, X, Square, CheckSquare } from 'lucide-react'
+import { X, Square, CheckSquare } from 'lucide-react'
 import { QuizText } from './QuizText'
 
 interface OptionButtonProps {
@@ -53,15 +53,17 @@ export function OptionButton({
 
     if (isCorrect) {
       return (
-        <div className="flex h-6 w-6 flex-shrink-0 items-center justify-center rounded-full bg-green-500" aria-hidden="true">
-          <Check className="h-4 w-4 text-white" />
+        <div className="check-icon-enter flex h-7 w-7 flex-shrink-0 items-center justify-center rounded-full bg-green-500" aria-hidden="true">
+          <svg width="16" height="16" viewBox="0 0 16 16" fill="none" className="check-stroke-draw">
+            <path d="M3 8.5L6.5 12L13 4" stroke="white" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" />
+          </svg>
         </div>
       )
     }
 
     if (isSelected && !isCorrect) {
       return (
-        <div className="flex h-6 w-6 flex-shrink-0 items-center justify-center rounded-full bg-red-500" aria-hidden="true">
+        <div className="wrong-icon-enter flex h-7 w-7 flex-shrink-0 items-center justify-center rounded-full bg-red-500" aria-hidden="true">
           <X className="h-4 w-4 text-white" />
         </div>
       )
