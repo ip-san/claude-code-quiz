@@ -145,8 +145,8 @@ html, body {
   animation: correct-overlay-fade 0.4s ease-out forwards;
 }
 .correct-overlay-stroke path {
-  stroke-dasharray: 60;
-  stroke-dashoffset: 60;
+  stroke-dasharray: 80;
+  stroke-dashoffset: 80;
   animation: correct-overlay-draw 0.35s ease-out 0.15s forwards;
 }
 @keyframes correct-overlay-draw {
@@ -166,8 +166,8 @@ html, body {
 
 /* Check stroke draws itself */
 .check-stroke-draw path {
-  stroke-dasharray: 24;
-  stroke-dashoffset: 24;
+  stroke-dasharray: 30;
+  stroke-dashoffset: 30;
   animation: draw-check 0.3s ease-out 0.15s forwards;
 }
 @keyframes draw-check {

@@ -53,9 +53,9 @@ export function OptionButton({
 
     if (isCorrect) {
       return (
-        <div className="check-icon-enter flex h-7 w-7 flex-shrink-0 items-center justify-center rounded-full bg-green-500" aria-hidden="true">
-          <svg width="16" height="16" viewBox="0 0 16 16" fill="none" className="check-stroke-draw">
-            <path d="M3 8.5L6.5 12L13 4" stroke="white" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" />
+        <div key="correct" className="check-icon-enter flex h-7 w-7 flex-shrink-0 items-center justify-center rounded-full bg-green-500" aria-hidden="true">
+          <svg width="18" height="18" viewBox="0 0 18 18" fill="none" className="check-stroke-draw">
+            <path d="M3 9.5L7 13.5L15 4.5" stroke="white" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" />
           </svg>
         </div>
       )
@@ -63,7 +63,7 @@ export function OptionButton({
 
     if (isSelected && !isCorrect) {
       return (
-        <div className="wrong-icon-enter flex h-7 w-7 flex-shrink-0 items-center justify-center rounded-full bg-red-500" aria-hidden="true">
+        <div key="wrong" className="wrong-icon-enter flex h-7 w-7 flex-shrink-0 items-center justify-center rounded-full bg-red-500" aria-hidden="true">
           <X className="h-4 w-4 text-white" />
         </div>
       )
