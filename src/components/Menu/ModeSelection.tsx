@@ -15,6 +15,8 @@ import {
 import { ResumeSessionBanner } from './ResumeSessionBanner'
 import { StreakBanner } from './StreakBanner'
 import { DailyGoalIndicator } from './DailyGoalIndicator'
+import { RefreshCw } from 'lucide-react'
+import { isElectron } from '@/lib/platformAPI'
 
 // Color mapping for categories
 const COLOR_MAP: Record<string, string> = {
@@ -270,13 +272,32 @@ export function ModeSelection() {
             </div>
           )}
 
-          {/* Learning history link */}
-          <button
-            onClick={() => setViewState('progress')}
-            className="tap-highlight w-full rounded-2xl border border-stone-200 bg-white px-4 py-3.5 text-center text-sm font-medium text-stone-600"
-          >
-            学習履歴を見る
-          </button>
+          {/* Learning history + update check */}
+          <div className="flex gap-2">
+            <button
+              onClick={() => setViewState('progress')}
+              className="tap-highlight flex-1 rounded-2xl border border-stone-200 bg-white px-4 py-3.5 text-center text-sm font-medium text-stone-600"
+            >
+              学習履歴を見る
+            </button>
+            {!isElectron && (
+              <button
+                onClick={async () => {
+                  const reg = await navigator.serviceWorker?.getRegistration()
+                  if (reg) {
+                    await reg.update()
+                    if (!reg.waiting) {
+                      alert('最新版です')
+                    }
+                  }
+                }}
+                className="tap-highlight flex items-center gap-1.5 rounded-2xl border border-stone-200 bg-white px-4 py-3.5 text-sm font-medium text-stone-600"
+                aria-label="更新を確認"
+              >
+                <RefreshCw className="h-4 w-4" />
+              </button>
+            )}
+          </div>
         </div>
       </div>
 
