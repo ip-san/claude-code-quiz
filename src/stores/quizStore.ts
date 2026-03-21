@@ -518,7 +518,14 @@ export const useQuizStore = create<QuizStore>((set, get) => ({
       return
     }
 
-    const newSessionState = QuizSessionService.nextQuestion(state.sessionState)
+    const session = state.sessionState
+
+    // If at last question and not answered, don't go to results
+    if (session.currentIndex >= session.questions.length - 1 && !session.isAnswered) {
+      return
+    }
+
+    const newSessionState = QuizSessionService.nextQuestion(session)
 
     if (newSessionState.isCompleted) {
       getSessionRepository().clear()

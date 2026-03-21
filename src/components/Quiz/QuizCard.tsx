@@ -190,21 +190,18 @@ export function QuizCard() {
   // Slide-in animation key (changes on each question)
   const questionKey = quiz?.id ?? 'empty'
 
-  // Swipe to navigate questions (only after answering)
+  // Swipe to navigate questions
   const swipeHandlers = useSwipe({
     onSwipeLeft: () => {
-      if (isAnswered) {
-        haptics.light()
-        nextQuestion()
-      }
+      haptics.light()
+      nextQuestion()
     },
     onSwipeRight: () => {
-      if (isAnswered && canGoBack) {
+      if (canGoBack) {
         haptics.light()
         previousQuestion()
       }
     },
-    disabled: !isAnswered,
   })
 
   // Empty state when no quiz data
