@@ -163,7 +163,7 @@ export function QuizCard() {
         }
       }
     },
-    [quiz, selectedAnswer, selectedAnswers, isAnswered, isCorrect, isMultiSelect, selectAnswer, toggleAnswer, submitAnswer, nextQuestion, retryQuestion]
+    [quiz, selectedAnswer, selectedAnswers, isAnswered, isCorrect, isReviewMode, isMultiSelect, selectAnswer, toggleAnswer, submitAnswer, nextQuestion, retryQuestion]
   )
 
   // Register keyboard listener

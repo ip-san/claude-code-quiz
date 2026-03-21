@@ -178,8 +178,8 @@ export function Feedback({ quiz, isCorrect }: FeedbackProps) {
     )
   }
 
-  // 2: Wrong feedback
-  if (!isCorrect && isMultiSelect) {
+  // 2: Wrong feedback (skip in review mode — review sections already show the comparison)
+  if (!isCorrect && !isReviewMode && isMultiSelect) {
     const wrongSelected = selectedAnswers
       .filter(i => !quiz.isCorrectIndex(i))
       .map(i => quiz.options[i])
@@ -204,7 +204,7 @@ export function Feedback({ quiz, isCorrect }: FeedbackProps) {
       )
     }
   }
-  if (!isCorrect && !isMultiSelect && selectedOption?.wrongFeedback) {
+  if (!isCorrect && !isReviewMode && !isMultiSelect && selectedOption?.wrongFeedback) {
     sections.push(
       <AnimatedSection key="wrong-single" order={sections.length} animate={animate} noMotion={noMotion} className="mb-4 rounded-2xl border border-red-200 bg-red-50 p-4">
         <div className="flex items-start gap-2">
