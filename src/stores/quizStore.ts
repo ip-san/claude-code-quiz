@@ -122,6 +122,8 @@ interface QuizStore {
   submitAnswer: () => void
   nextQuestion: () => void
   previousQuestion: () => void
+  goToQuestion: (index: number) => void
+  finishTest: () => void
   endSession: () => void
 
   // Timer actions
@@ -460,11 +462,27 @@ export const useQuizStore = create<QuizStore>((set, get) => ({
       // Save session snapshot so resume picks up the updated score/answeredCount
       saveSessionSnapshot(newState, newWrongAnswers)
 
-      // In defer feedback mode (実力テスト), auto-advance to next question
+      // In defer feedback mode (実力テスト), auto-advance to next unanswered question
       if (newState.deferFeedback) {
-        const nextState = QuizSessionService.nextQuestion(newState)
-        set({ sessionState: nextState })
-        saveSessionSnapshot(nextState, newWrongAnswers)
+        // Find next unanswered question
+        let nextIdx = newState.currentIndex + 1
+        while (nextIdx < newState.questions.length && newState.answerHistory.has(nextIdx)) {
+          nextIdx++
+        }
+        if (nextIdx < newState.questions.length) {
+          const advancedState: typeof newState = {
+            ...newState,
+            currentIndex: nextIdx,
+            selectedAnswer: null,
+            selectedAnswers: Object.freeze([]),
+            isAnswered: false,
+            isCorrect: null,
+            hintUsed: false,
+          }
+          set({ sessionState: advancedState })
+          saveSessionSnapshot(advancedState, newWrongAnswers)
+        }
+        // If all answered, stay on current (user can submit test)
       }
     } else {
       set({ sessionState: newState })
@@ -474,6 +492,27 @@ export const useQuizStore = create<QuizStore>((set, get) => ({
   nextQuestion: () => {
     const state = get()
     if (!state.sessionState) return
+
+    // In deferFeedback mode, don't auto-complete — user must use finishTest
+    if (state.sessionState.deferFeedback) {
+      const session = state.sessionState
+      if (session.currentIndex < session.questions.length - 1) {
+        const nextIdx = session.currentIndex + 1
+        const record = session.answerHistory.get(nextIdx)
+        set({
+          sessionState: {
+            ...session,
+            currentIndex: nextIdx,
+            selectedAnswer: record?.selectedAnswer ?? null,
+            selectedAnswers: record?.selectedAnswers ?? Object.freeze([]),
+            isAnswered: !!record,
+            isCorrect: record?.isCorrect ?? null,
+            hintUsed: false,
+          },
+        })
+      }
+      return
+    }
 
     const newSessionState = QuizSessionService.nextQuestion(state.sessionState)
 
@@ -495,10 +534,62 @@ export const useQuizStore = create<QuizStore>((set, get) => ({
   previousQuestion: () => {
     const state = get()
     if (!state.sessionState) return
+
+    // In deferFeedback mode, navigate freely
+    if (state.sessionState.deferFeedback) {
+      const session = state.sessionState
+      if (session.currentIndex > 0) {
+        const prevIdx = session.currentIndex - 1
+        const record = session.answerHistory.get(prevIdx)
+        set({
+          sessionState: {
+            ...session,
+            currentIndex: prevIdx,
+            selectedAnswer: record?.selectedAnswer ?? null,
+            selectedAnswers: record?.selectedAnswers ?? Object.freeze([]),
+            isAnswered: !!record,
+            isCorrect: record?.isCorrect ?? null,
+            hintUsed: false,
+          },
+        })
+      }
+      return
+    }
+
     const prev = QuizSessionService.previousQuestion(state.sessionState)
     if (prev) {
       set({ sessionState: prev })
     }
+  },
+
+  goToQuestion: (index: number) => {
+    const state = get()
+    if (!state.sessionState) return
+    const session = state.sessionState
+    if (index < 0 || index >= session.questions.length) return
+
+    const record = session.answerHistory.get(index)
+    set({
+      sessionState: {
+        ...session,
+        currentIndex: index,
+        selectedAnswer: record?.selectedAnswer ?? null,
+        selectedAnswers: record?.selectedAnswers ?? Object.freeze([]),
+        isAnswered: !!record,
+        isCorrect: record?.isCorrect ?? null,
+        hintUsed: false,
+      },
+    })
+  },
+
+  finishTest: () => {
+    const state = get()
+    if (!state.sessionState) return
+    getSessionRepository().clear()
+    set({
+      sessionState: { ...state.sessionState, isCompleted: true },
+      viewState: 'result',
+    })
   },
 
   endSession: () => {

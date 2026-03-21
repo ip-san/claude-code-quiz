@@ -5,7 +5,7 @@ import { Feedback } from './Feedback'
 import { ChapterIndicator } from './ChapterIndicator'
 import { getCategoryById } from '@/domain/valueObjects/Category'
 import { getChapterFromTags, OVERVIEW_CHAPTERS } from '@/domain/valueObjects/OverviewChapter'
-import { Bookmark, Lightbulb, RotateCcw, ChevronLeft } from 'lucide-react'
+import { Bookmark, Lightbulb, RotateCcw, ChevronLeft, ChevronRight, Send } from 'lucide-react'
 import { QuizText } from './QuizText'
 import { haptics } from '@/lib/haptics'
 import { useSwipe } from '@/lib/useSwipe'
@@ -37,6 +37,8 @@ export function QuizCard() {
     submitAnswer,
     nextQuestion,
     previousQuestion,
+    goToQuestion,
+    finishTest,
     retryQuestion,
     endSession,
     toggleBookmark,
@@ -423,12 +425,75 @@ export function QuizCard() {
         </div>
       )}
 
-      {/* Spacer for fixed bottom button on mobile (before answering only) */}
-      {!isAnswered && <div className="h-20 sm:hidden" />}
+      {/* Spacer for fixed bottom bar on mobile */}
+      {(!isAnswered || deferFeedback) && <div className="h-20 sm:hidden" />}
     </div>
 
-    {/* Fixed bottom submit bar (mobile, before answering only) / inline (desktop) */}
-    {!isAnswered && (
+    {/* Fixed bottom bar */}
+    {deferFeedback ? (
+      /* 実力テスト: navigation + finish */
+      <div className="fixed bottom-0 left-0 right-0 z-20 border-t border-stone-200 bg-white px-4 pb-[calc(env(safe-area-inset-bottom,0px)+8px)] pt-2 sm:relative sm:mt-6 sm:border-0 sm:bg-transparent sm:p-0 sm:pb-0 sm:pt-0">
+        {/* Question dots indicator */}
+        <div className="mb-2 flex flex-wrap justify-center gap-1 sm:mb-3">
+          {(sessionState?.questions ?? []).map((_, i) => {
+            const answered = sessionState?.answerHistory?.has(i)
+            const isCurrent = i === currentIndex
+            return (
+              <button
+                key={i}
+                onClick={() => goToQuestion(i)}
+                className={`h-2.5 w-2.5 rounded-full transition-all ${
+                  isCurrent
+                    ? 'scale-125 bg-claude-orange'
+                    : answered
+                      ? 'bg-green-400'
+                      : 'bg-stone-300'
+                }`}
+                aria-label={`問題${i + 1}${answered ? '（回答済み）' : ''}`}
+              />
+            )
+          })}
+        </div>
+        <div className="flex gap-2">
+          <button
+            onClick={() => { haptics.light(); previousQuestion() }}
+            disabled={currentIndex <= 0}
+            className="tap-highlight rounded-2xl border-2 border-stone-300 px-3 py-3 text-stone-500 disabled:opacity-30"
+          >
+            <ChevronLeft className="h-5 w-5" />
+          </button>
+          {!isAnswered ? (
+            <button
+              onClick={() => { haptics.medium(); submitAnswer() }}
+              disabled={isMultiSelect ? selectedAnswers.length === 0 : selectedAnswer === null}
+              className={`flex-1 rounded-2xl py-3 text-base font-semibold ${
+                (isMultiSelect ? selectedAnswers.length > 0 : selectedAnswer !== null)
+                  ? 'tap-highlight bg-claude-orange text-white'
+                  : 'bg-stone-200 text-stone-400'
+              }`}
+            >
+              回答する
+            </button>
+          ) : (
+            <button
+              onClick={() => finishTest()}
+              className="tap-highlight flex flex-1 items-center justify-center gap-2 rounded-2xl bg-green-600 py-3 text-base font-semibold text-white"
+            >
+              <Send className="h-4 w-4" />
+              テスト終了（{sessionState?.answerHistory?.size ?? 0}/{sessionState?.questions.length ?? 0}）
+            </button>
+          )}
+          <button
+            onClick={() => { haptics.light(); nextQuestion() }}
+            disabled={currentIndex >= (sessionState?.questions.length ?? 0) - 1}
+            className="tap-highlight rounded-2xl border-2 border-stone-300 px-3 py-3 text-stone-500 disabled:opacity-30"
+          >
+            <ChevronRight className="h-5 w-5" />
+          </button>
+        </div>
+      </div>
+    ) : !isAnswered ? (
+      /* 通常モード: submit button */
       <div className="fixed bottom-0 left-0 right-0 z-20 border-t border-stone-200 bg-white px-4 pb-[calc(env(safe-area-inset-bottom,0px)+8px)] pt-2 sm:relative sm:mt-6 sm:border-0 sm:bg-transparent sm:p-0 sm:pb-0 sm:pt-0">
         <button
           onClick={() => { haptics.medium(); submitAnswer() }}
@@ -448,7 +513,7 @@ export function QuizCard() {
           回答する
         </button>
       </div>
-    )}
+    ) : null}
     </>
   )
 }
