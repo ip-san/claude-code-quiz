@@ -458,6 +458,13 @@ export const useQuizStore = create<QuizStore>((set, get) => ({
 
       // Save session snapshot so resume picks up the updated score/answeredCount
       saveSessionSnapshot(newState, newWrongAnswers)
+
+      // In defer feedback mode (実力テスト), auto-advance to next question
+      if (newState.deferFeedback) {
+        const nextState = QuizSessionService.nextQuestion(newState)
+        set({ sessionState: nextState })
+        saveSessionSnapshot(nextState, newWrongAnswers)
+      }
     } else {
       set({ sessionState: newState })
     }

@@ -48,6 +48,7 @@ export function QuizCard() {
   const isAnswered = sessionState?.isAnswered ?? false
   const isCorrect = sessionState?.isCorrect ?? null
   const isReviewMode = sessionState?.isReviewMode ?? false
+  const deferFeedback = sessionState?.deferFeedback ?? false
   const hintUsed = sessionState?.hintUsed ?? false
   const isBookmarked = quiz ? useQuizStore.getState().userProgress.isBookmarked(quiz.id) : false
   const isMultiSelect = quiz?.isMultiSelect ?? false
@@ -240,8 +241,8 @@ export function QuizCard() {
         />
       )}
 
-      {/* Confetti on correct answer */}
-      {showConfetti && <ConfettiEffect />}
+      {/* Confetti on correct answer (skip in defer mode) */}
+      {showConfetti && !deferFeedback && <ConfettiEffect />}
 
       <div
         key={questionKey}
@@ -308,8 +309,8 @@ export function QuizCard() {
         <QuizText text={quiz.question} />
       </h2>
 
-      {/* Hint */}
-      {!isAnswered && (
+      {/* Hint (hidden in 実力テスト defer mode) */}
+      {!isAnswered && !deferFeedback && (
         <div className="mb-2 sm:mb-4">
           {!hintUsed ? (
             <button
@@ -374,8 +375,8 @@ export function QuizCard() {
         ))}
       </div>
 
-      {/* Feedback + action buttons (shown inline after answering) */}
-      {isAnswered && (
+      {/* Feedback + action buttons (shown inline after answering, skip in defer mode) */}
+      {isAnswered && !deferFeedback && (
         <div className="mt-3 sm:mt-6">
           <Feedback quiz={quiz} isCorrect={isCorrect!} />
           <div className="mt-4 flex flex-col gap-2 pb-4">

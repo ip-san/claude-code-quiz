@@ -72,6 +72,8 @@ export interface QuizSessionState {
   readonly reviewUserMultiAnswers: readonly (readonly number[])[]  // 複数選択の復習用
   readonly hintUsed: boolean
   readonly hintsUsedCount: number
+  /** 実力テストモード: 回答後にフィードバックを表示せず即次の問題へ */
+  readonly deferFeedback: boolean
 }
 
 /**
@@ -248,6 +250,7 @@ export class QuizSessionService {
       reviewUserMultiAnswers: Object.freeze(reviewUserMultiAnswers.map(a => Object.freeze([...a]))),
       hintUsed: false,
       hintsUsedCount: 0,
+      deferFeedback: config.mode === 'full',
     }
   }
 
