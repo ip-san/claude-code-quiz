@@ -13,6 +13,7 @@ export function ComparisonDiagram({ label, columns }: ComparisonDiagramProps) {
 
   return (
     <div ref={containerRef} aria-label={label ?? '比較図'}>
+      {columns.length === 0 ? null : (<>
       {label && (
         <p className="mb-2 text-xs font-medium text-stone-500">{label}</p>
       )}
@@ -45,6 +46,7 @@ export function ComparisonDiagram({ label, columns }: ComparisonDiagramProps) {
           </div>
         ))}
       </div>
+      </>)}
     </div>
   )
 }

@@ -54,8 +54,12 @@ export class LocalStorageProgressRepository implements IProgressRepository {
    * Reset all progress
    */
   async reset(): Promise<void> {
-    const emptyProgress = UserProgress.empty()
-    await this.save(emptyProgress)
+    try {
+      const emptyProgress = UserProgress.empty()
+      await this.save(emptyProgress)
+    } catch (error) {
+      console.error('Failed to reset progress:', error)
+    }
   }
 
   /**

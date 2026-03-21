@@ -375,12 +375,14 @@ export class QuizSessionService {
     if (isReAnswer && previousRecord.isCorrect) {
       scoreDelta -= 1 // remove previous correct point
     }
+    // Prevent negative score
+    const newScore = Math.max(0, state.score + scoreDelta)
 
     const newState: QuizSessionState = {
       ...state,
       isAnswered: true,
       isCorrect,
-      score: state.score + scoreDelta,
+      score: newScore,
       answeredCount: isReAnswer ? state.answeredCount : state.answeredCount + 1,
       answerHistory: newHistory,
     }

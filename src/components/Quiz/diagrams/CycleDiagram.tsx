@@ -13,6 +13,7 @@ export function CycleDiagram({ label, trigger, states }: CycleDiagramProps) {
 
   return (
     <div ref={containerRef} aria-label={label ?? '循環図'}>
+      {states.length === 0 ? null : (<>
       {label && (
         <p className="mb-2 text-xs font-medium text-stone-500">{label}</p>
       )}
@@ -82,6 +83,7 @@ export function CycleDiagram({ label, trigger, states }: CycleDiagramProps) {
           {' '}で切り替え
         </p>
       )}
+      </>)}
     </div>
   )
 }

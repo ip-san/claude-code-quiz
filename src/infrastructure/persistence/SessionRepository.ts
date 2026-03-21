@@ -44,8 +44,18 @@ export class SessionRepository {
       if (!stored) return null
 
       const data = JSON.parse(stored) as SavedSessionData
-      // Basic validation
-      if (!data.sessionConfig || !Array.isArray(data.questionIds) || data.questionIds.length === 0) {
+      // Validate required fields and types
+      if (
+        !data.sessionConfig ||
+        !Array.isArray(data.questionIds) ||
+        data.questionIds.length === 0 ||
+        typeof data.currentIndex !== 'number' ||
+        data.currentIndex < 0 ||
+        data.currentIndex >= data.questionIds.length ||
+        typeof data.score !== 'number' ||
+        typeof data.answeredCount !== 'number' ||
+        typeof data.startedAt !== 'number'
+      ) {
         this.clear()
         return null
       }
