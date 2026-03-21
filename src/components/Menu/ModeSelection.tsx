@@ -15,7 +15,7 @@ import {
 import { ResumeSessionBanner } from './ResumeSessionBanner'
 import { StreakBanner } from './StreakBanner'
 import { DailyGoalIndicator } from './DailyGoalIndicator'
-import { RefreshCw } from 'lucide-react'
+import { RefreshCw, Check } from 'lucide-react'
 import { isElectron } from '@/lib/platformAPI'
 
 // Color mapping for categories
@@ -46,6 +46,7 @@ export function ModeSelection() {
   } = useQuizStore()
 
   const [selectedMode, setSelectedMode] = useState<QuizModeId>('random')
+  const [updateStatus, setUpdateStatus] = useState<string | null>(null)
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null)
   const [selectedDifficulty, setSelectedDifficulty] = useState<DifficultyLevel | null>(null)
 
@@ -283,18 +284,20 @@ export function ModeSelection() {
             {!isElectron && (
               <button
                 onClick={async () => {
+                  setUpdateStatus(null)
                   const reg = await navigator.serviceWorker?.getRegistration()
                   if (reg) {
                     await reg.update()
                     if (!reg.waiting) {
-                      alert('最新版です')
+                      setUpdateStatus('最新版です')
+                      setTimeout(() => setUpdateStatus(null), 2000)
                     }
                   }
                 }}
                 className="tap-highlight flex items-center gap-1.5 rounded-2xl border border-stone-200 bg-white px-4 py-3.5 text-sm font-medium text-stone-600"
                 aria-label="更新を確認"
               >
-                <RefreshCw className="h-4 w-4" />
+                {updateStatus ? <Check className="h-4 w-4 text-green-500" /> : <RefreshCw className="h-4 w-4" />}
               </button>
             )}
           </div>

@@ -434,10 +434,14 @@ export const useQuizStore = create<QuizStore>((set, get) => ({
       )
 
       // Track wrong answers for review feature
+      // Remove previous entry for this question (re-answer case)
+      const filteredWrongAnswers = state.sessionWrongAnswers.filter(
+        w => w.questionId !== currentQuestion.id
+      )
       const newWrongAnswers = isCorrect
-        ? state.sessionWrongAnswers
+        ? filteredWrongAnswers
         : [
-            ...state.sessionWrongAnswers,
+            ...filteredWrongAnswers,
             {
               questionId: currentQuestion.id,
               selectedAnswer: state.sessionState.selectedAnswer ?? -1,

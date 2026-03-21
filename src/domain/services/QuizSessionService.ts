@@ -358,6 +358,10 @@ export class QuizSessionService {
       isCorrect = currentQuestion.isCorrectAnswer(state.selectedAnswer)
     }
 
+    // Check if this question was previously answered (re-answer scenario)
+    const previousRecord = state.answerHistory.get(state.currentIndex)
+    const isReAnswer = !!previousRecord
+
     // Save answer to history
     const newHistory = new Map(state.answerHistory)
     newHistory.set(state.currentIndex, {
@@ -366,12 +370,18 @@ export class QuizSessionService {
       isCorrect,
     })
 
+    // Adjust score: subtract previous answer's contribution, add new one
+    let scoreDelta = isCorrect ? 1 : 0
+    if (isReAnswer && previousRecord.isCorrect) {
+      scoreDelta -= 1 // remove previous correct point
+    }
+
     const newState: QuizSessionState = {
       ...state,
       isAnswered: true,
       isCorrect,
-      score: isCorrect ? state.score + 1 : state.score,
-      answeredCount: state.answeredCount + 1,
+      score: state.score + scoreDelta,
+      answeredCount: isReAnswer ? state.answeredCount : state.answeredCount + 1,
       answerHistory: newHistory,
     }
 
