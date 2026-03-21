@@ -129,19 +129,19 @@ html, body {
 
 /* Brush stroke check mark — drawn like a pen on screen */
 .brush-check-stroke {
-  stroke-dasharray: 150;
-  stroke-dashoffset: 150;
-  animation: brush-draw 0.45s cubic-bezier(0.4, 0, 0.2, 1) 0.05s forwards;
+  stroke-dasharray: 200;
+  stroke-dashoffset: 200;
+  animation: brush-draw 0.6s cubic-bezier(0.25, 0.1, 0.25, 1) 0.05s forwards;
 }
 .brush-check-glow {
-  stroke-dasharray: 150;
-  stroke-dashoffset: 150;
-  animation: brush-draw 0.45s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+  stroke-dasharray: 200;
+  stroke-dashoffset: 200;
+  animation: brush-draw 0.6s cubic-bezier(0.25, 0.1, 0.25, 1) forwards;
 }
 .brush-check-highlight {
-  stroke-dasharray: 150;
-  stroke-dashoffset: 150;
-  animation: brush-draw 0.45s cubic-bezier(0.4, 0, 0.2, 1) 0.1s forwards;
+  stroke-dasharray: 200;
+  stroke-dashoffset: 200;
+  animation: brush-draw 0.6s cubic-bezier(0.25, 0.1, 0.25, 1) 0.1s forwards;
 }
 @keyframes brush-draw {
   to { stroke-dashoffset: 0; }

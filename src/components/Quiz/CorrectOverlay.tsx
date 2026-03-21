@@ -8,9 +8,9 @@ export function CorrectOverlay() {
   const [phase, setPhase] = useState<'draw' | 'hold' | 'exit' | 'done'>('draw')
 
   useEffect(() => {
-    const holdTimer = setTimeout(() => setPhase('hold'), 500)
-    const exitTimer = setTimeout(() => setPhase('exit'), 800)
-    const doneTimer = setTimeout(() => setPhase('done'), 1200)
+    const holdTimer = setTimeout(() => setPhase('hold'), 700)
+    const exitTimer = setTimeout(() => setPhase('exit'), 1200)
+    const doneTimer = setTimeout(() => setPhase('done'), 1600)
     return () => {
       clearTimeout(holdTimer)
       clearTimeout(exitTimer)
@@ -34,35 +34,35 @@ export function CorrectOverlay() {
 
       {/* Brush stroke check mark */}
       <svg
-        width="120"
-        height="120"
-        viewBox="0 0 120 120"
+        width="160"
+        height="160"
+        viewBox="0 0 160 160"
         fill="none"
-        className={`relative ${phase === 'exit' ? 'scale-110' : 'scale-100'} transition-transform duration-300`}
+        className={`relative ${phase === 'exit' ? 'scale-125' : 'scale-100'} transition-transform duration-500`}
       >
-        {/* Shadow/glow layer */}
+        {/* Outer glow */}
         <path
-          d="M25 62 L48 85 L95 35"
-          stroke="rgba(34, 197, 94, 0.2)"
-          strokeWidth="14"
+          d="M30 82 L62 114 L130 42"
+          stroke="rgba(34, 197, 94, 0.15)"
+          strokeWidth="24"
           strokeLinecap="round"
           strokeLinejoin="round"
           className="brush-check-glow"
         />
-        {/* Main brush stroke */}
+        {/* Main brush stroke — thick green */}
         <path
-          d="M25 62 L48 85 L95 35"
+          d="M30 82 L62 114 L130 42"
           stroke="#22c55e"
-          strokeWidth="8"
+          strokeWidth="12"
           strokeLinecap="round"
           strokeLinejoin="round"
           className="brush-check-stroke"
         />
-        {/* Thin highlight overlay for brush texture */}
+        {/* Highlight — white shine for brush texture */}
         <path
-          d="M27 60 L48 83 L93 37"
-          stroke="rgba(255, 255, 255, 0.4)"
-          strokeWidth="2"
+          d="M33 80 L62 110 L127 45"
+          stroke="rgba(255, 255, 255, 0.5)"
+          strokeWidth="3"
           strokeLinecap="round"
           strokeLinejoin="round"
           className="brush-check-highlight"
