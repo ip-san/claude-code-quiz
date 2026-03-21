@@ -27,33 +27,34 @@ export default function App() {
     initialize()
   }, [initialize])
 
-  // Browser back button support — push history state on view changes, pop to go back
+  // Browser back button — always returns to menu
   useEffect(() => {
-    if (isLoading) return
+    if (isLoading || isElectron) return
 
     const handlePopState = () => {
       const currentView = useQuizStore.getState().viewState
-      if (currentView === 'progress') {
-        useQuizStore.getState().setViewState('menu')
-      } else if (currentView === 'quiz') {
-        // Suspend session (saves progress) instead of losing it
+      if (currentView === 'menu') return
+
+      if (currentView === 'quiz') {
         const session = useQuizStore.getState().sessionState
         if (session?.isReviewMode) {
           endSession()
         } else {
           suspendSession()
         }
-      } else if (currentView === 'result') {
+      } else {
         endSession()
       }
     }
 
-    // Push a state entry so back button doesn't leave the app
+    window.addEventListener('popstate', handlePopState)
+
+    // Push one state entry when leaving menu (so back goes to menu, not out of app)
     if (viewState !== 'menu') {
+      window.history.replaceState({ view: 'menu' }, '')
       window.history.pushState({ view: viewState }, '')
     }
 
-    window.addEventListener('popstate', handlePopState)
     return () => window.removeEventListener('popstate', handlePopState)
   }, [viewState, isLoading, endSession, suspendSession])
 
