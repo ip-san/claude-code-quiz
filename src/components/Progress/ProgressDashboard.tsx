@@ -4,6 +4,7 @@ import { platformAPI } from '@/lib/platformAPI'
 import { PREDEFINED_CATEGORIES, type Category } from '@/domain/valueObjects/Category'
 import { getProgressRepository } from '@/infrastructure/persistence/LocalStorageProgressRepository'
 import { SessionHistoryChart } from './SessionHistoryChart'
+import { SessionHistoryList } from './SessionHistoryList'
 
 // Color mapping for categories
 const COLOR_MAP: Record<string, string> = {
@@ -152,7 +153,7 @@ export function ProgressDashboard() {
 
         {/* Empty State */}
         {hasNoProgress && (
-          <div className="mb-8 rounded-lg border border-stone-200 bg-white p-8 text-center shadow-sm">
+          <div className="mb-8 rounded-2xl border border-stone-200 bg-white p-8 text-center shadow-sm">
             <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-stone-100">
               <span className="text-3xl">📊</span>
             </div>
@@ -164,7 +165,7 @@ export function ProgressDashboard() {
             </p>
             <button
               onClick={() => setViewState('menu')}
-              className="rounded-lg bg-claude-orange px-6 py-2 text-white hover:bg-claude-orange/90"
+              className="rounded-2xl bg-claude-orange px-6 py-2 text-white hover:bg-claude-orange/90"
             >
               クイズを始める
             </button>
@@ -207,6 +208,16 @@ export function ProgressDashboard() {
           </div>
         )}
 
+        {/* Session History List */}
+        {!hasNoProgress && userProgress.sessionHistory.length > 0 && (
+          <div className="mb-6">
+            <h2 className="mb-4 text-lg font-semibold text-claude-dark">
+              最近のセッション
+            </h2>
+            <SessionHistoryList sessions={userProgress.sessionHistory} limit={5} />
+          </div>
+        )}
+
         {/* Category Progress */}
         <div className="mb-6">
           <h2 className="mb-4 text-lg font-semibold text-claude-dark">
@@ -224,7 +235,7 @@ export function ProgressDashboard() {
               return (
                 <div
                   key={category.id}
-                  className="rounded-lg border border-stone-200 bg-white p-4 shadow-sm"
+                  className="rounded-2xl border border-stone-200 bg-white p-4 shadow-sm"
                 >
                   <div className="mb-2 flex items-center justify-between">
                     <div className="flex items-center gap-2">
@@ -271,7 +282,7 @@ export function ProgressDashboard() {
             <button
               onClick={handleWeakMode}
               aria-label="苦手問題に挑戦する"
-              className="flex-1 rounded-lg bg-claude-orange px-6 py-3 font-medium text-white transition-colors hover:bg-claude-orange/90"
+              className="flex-1 rounded-2xl bg-claude-orange px-6 py-3 font-medium text-white transition-colors hover:bg-claude-orange/90"
             >
               🎯 苦手問題に挑戦
             </button>
@@ -282,14 +293,14 @@ export function ProgressDashboard() {
             <button
               onClick={handleExport}
               aria-label="学習履歴をエクスポートする"
-              className="flex-1 rounded-lg border border-stone-300 px-6 py-3 text-stone-600 transition-colors hover:bg-stone-50"
+              className="flex-1 rounded-2xl border border-stone-300 px-6 py-3 text-stone-600 transition-colors hover:bg-stone-50"
             >
               📥 履歴をエクスポート
             </button>
             <button
               onClick={handleImport}
               aria-label="学習履歴をインポートする"
-              className="flex-1 rounded-lg border border-stone-300 px-6 py-3 text-stone-600 transition-colors hover:bg-stone-50"
+              className="flex-1 rounded-2xl border border-stone-300 px-6 py-3 text-stone-600 transition-colors hover:bg-stone-50"
             >
               📤 履歴をインポート
             </button>
@@ -299,7 +310,7 @@ export function ProgressDashboard() {
           <button
             onClick={handleCsvExport}
             aria-label="CSVで進捗をエクスポートする"
-            className="w-full rounded-lg border border-stone-300 px-6 py-3 text-stone-600 transition-colors hover:bg-stone-50"
+            className="w-full rounded-2xl border border-stone-300 px-6 py-3 text-stone-600 transition-colors hover:bg-stone-50"
           >
             📊 CSVでエクスポート（管理者向け）
           </button>
@@ -307,7 +318,7 @@ export function ProgressDashboard() {
           {/* Status message */}
           {exportStatus && (
             <div
-              className={`rounded-lg px-4 py-2 text-center text-sm ${
+              className={`rounded-2xl px-4 py-2 text-center text-sm ${
                 exportStatus.startsWith('エラー') || exportStatus.includes('失敗')
                   ? 'bg-red-500/20 text-red-400'
                   : 'bg-green-500/20 text-green-400'
@@ -323,7 +334,7 @@ export function ProgressDashboard() {
           <button
             onClick={handleResetProgress}
             aria-label="学習履歴をリセットする"
-            className="w-full rounded-lg border border-red-600/50 px-6 py-3 text-red-400 transition-colors hover:bg-red-600/20"
+            className="w-full rounded-2xl border border-red-600/50 px-6 py-3 text-red-400 transition-colors hover:bg-red-600/20"
           >
             履歴をリセット
           </button>
@@ -342,7 +353,7 @@ interface StatCardProps {
 
 function StatCard({ label, value, icon }: StatCardProps) {
   return (
-    <div className="animate-card-enter rounded-lg border border-stone-200 bg-white p-4 shadow-sm">
+    <div className="animate-card-enter rounded-2xl border border-stone-200 bg-white p-4 shadow-sm">
       <div className="mb-1 text-2xl">{icon}</div>
       <div className="text-2xl font-bold text-claude-dark">{value}</div>
       <div className="text-sm text-stone-500">{label}</div>

@@ -74,10 +74,10 @@ export function DailyGoalIndicator() {
                   setDailyGoal(goal)
                   setShowGoalPicker(false)
                 }}
-                className={`rounded-md px-3 py-1 text-xs transition-colors ${
+                className={`tap-highlight rounded-full px-3.5 py-1.5 text-sm font-medium transition-colors ${
                   dailyGoal === goal
                     ? 'bg-claude-orange text-white'
-                    : 'border border-stone-200 bg-stone-50 text-stone-600 hover:bg-stone-100'
+                    : 'border border-stone-200 bg-stone-50 text-stone-600'
                 }`}
               >
                 {goal}問
