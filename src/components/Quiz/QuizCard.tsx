@@ -1,8 +1,7 @@
-import { useEffect, useCallback, useMemo, useState } from 'react'
+import { useEffect, useCallback, useMemo } from 'react'
 import { useQuizStore } from '@/stores/quizStore'
 import { OptionButton } from './OptionButton'
 import { Feedback } from './Feedback'
-import { ConfettiEffect } from './ConfettiEffect'
 import { ChapterIndicator } from './ChapterIndicator'
 import { getCategoryById } from '@/domain/valueObjects/Category'
 import { getChapterFromTags, OVERVIEW_CHAPTERS } from '@/domain/valueObjects/OverviewChapter'
@@ -167,18 +166,10 @@ export function QuizCard() {
     return () => window.removeEventListener('keydown', handleKeyDown)
   }, [handleKeyDown])
 
-  // Haptic feedback + confetti on answer result
-  const [showConfetti, setShowConfetti] = useState(false)
+  // Haptic feedback on answer result
   useEffect(() => {
     if (isAnswered && isCorrect !== null) {
-      if (isCorrect) {
-        haptics.success()
-        setShowConfetti(true)
-      } else {
-        haptics.error()
-      }
-    } else {
-      setShowConfetti(false)
+      if (isCorrect) { haptics.success() } else { haptics.error() }
     }
   }, [isAnswered, isCorrect])
 
@@ -241,8 +232,6 @@ export function QuizCard() {
         />
       )}
 
-      {/* Confetti on correct answer (skip in defer mode) */}
-      {showConfetti && !deferFeedback && <ConfettiEffect />}
 
       <div
         key={questionKey}
