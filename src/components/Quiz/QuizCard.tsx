@@ -418,7 +418,6 @@ export function QuizCard() {
                 className="tap-highlight flex-1 rounded-2xl bg-claude-orange py-3.5 text-base font-semibold text-white sm:py-3"
               >
                 {isReviewMode ? '次の問題を確認' : '次の問題へ'}
-                <span className="text-xs opacity-50 sm:hidden"> ← スワイプ</span>
               </button>
             </div>
           </div>
