@@ -43,6 +43,7 @@ export function ModeSelection() {
     setViewState,
     getBookmarkedCount,
     userProgress,
+    getCategoryStats,
   } = useQuizStore()
 
   const [selectedMode, setSelectedMode] = useState<QuizModeId>('random')
@@ -254,7 +255,7 @@ export function ModeSelection() {
               <h2 className="mb-2 text-sm font-semibold text-stone-500">理解度</h2>
               <div className="grid grid-cols-4 gap-1.5 sm:grid-cols-8">
                 {PREDEFINED_CATEGORIES.map((category: Category) => {
-                  const stats = useQuizStore.getState().getCategoryStats()[category.id]
+                  const stats = getCategoryStats()[category.id]
                   const accuracy = stats
                     ? Math.round((stats.correctAnswers / Math.max(stats.attemptedQuestions, 1)) * 100)
                     : 0

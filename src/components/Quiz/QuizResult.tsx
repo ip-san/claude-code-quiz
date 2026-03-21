@@ -20,7 +20,7 @@ const STAR_COUNT = 5
 const STAR_PERCENTAGE_DIVISOR = 20
 
 export function QuizResult() {
-  const { sessionState, endSession, startSession, retrySession, startReviewSession, sessionConfig, sessionWrongAnswers } = useQuizStore()
+  const { sessionState, endSession, startSession, retrySession, startReviewSession, sessionConfig, sessionWrongAnswers, userProgress } = useQuizStore()
 
   const score = sessionState?.score ?? 0
   const answeredCount = sessionState?.answeredCount ?? 0
@@ -276,13 +276,13 @@ export function QuizResult() {
         {showStars && !isReviewMode && (
           <div className="mb-4 flex flex-col gap-2">
             <StreakMilestoneBadge
-              currentStreak={useQuizStore.getState().userProgress.streakDays}
-              previousStreak={Math.max(0, useQuizStore.getState().userProgress.streakDays - 1)}
+              currentStreak={userProgress.streakDays}
+              previousStreak={Math.max(0, userProgress.streakDays - 1)}
             />
             <DailyGoalBadge
-              previousTodayCount={Math.max(0, useQuizStore.getState().userProgress.getDailyCount(DailyGoalService.getTodayString()) - answeredCount)}
-              currentTodayCount={useQuizStore.getState().userProgress.getDailyCount(DailyGoalService.getTodayString())}
-              dailyGoal={useQuizStore.getState().userProgress.dailyGoal}
+              previousTodayCount={Math.max(0, userProgress.getDailyCount(DailyGoalService.getTodayString()) - answeredCount)}
+              currentTodayCount={userProgress.getDailyCount(DailyGoalService.getTodayString())}
+              dailyGoal={userProgress.dailyGoal}
             />
           </div>
         )}

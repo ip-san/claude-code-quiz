@@ -55,7 +55,7 @@ export function ScoreRing({ percentage, score, total, color, noMotion }: ScoreRi
   }, [score, percentage, noMotion])
 
   const offset = useMemo(
-    () => circumference - (animatedPercent / 100) * circumference,
+    () => circumference - (Math.min(100, Math.max(0, animatedPercent)) / 100) * circumference,
     [circumference, animatedPercent]
   )
 

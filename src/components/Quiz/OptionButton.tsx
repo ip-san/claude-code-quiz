@@ -92,10 +92,14 @@ export function OptionButton({
   // Multi-select: checkbox-style badge / Single-select: circle badge
   const renderBadge = () => {
     if (isMultiSelect) {
-      if (isSelected && !isAnswered) {
+      if (isSelected) {
         return (
           <CheckSquare
-            className="h-6 w-6 flex-shrink-0 text-claude-orange"
+            className={`h-6 w-6 flex-shrink-0 ${
+              isAnswered
+                ? isCorrect ? 'text-green-500' : 'text-red-500'
+                : 'text-claude-orange'
+            }`}
             aria-hidden="true"
           />
         )
