@@ -440,27 +440,33 @@ export function QuizCard() {
           >
             <ChevronLeft className="h-5 w-5" />
           </button>
-          {!isAnswered ? (
-            <button
-              onClick={() => { haptics.medium(); submitAnswer() }}
-              disabled={isMultiSelect ? selectedAnswers.length === 0 : selectedAnswer === null}
-              className={`flex-1 rounded-2xl py-3 text-base font-semibold ${
-                (isMultiSelect ? selectedAnswers.length > 0 : selectedAnswer !== null)
-                  ? 'tap-highlight bg-claude-orange text-white'
-                  : 'bg-stone-200 text-stone-400'
-              }`}
-            >
-              回答する
-            </button>
-          ) : (
-            <button
-              onClick={() => finishTest()}
-              className="tap-highlight flex flex-1 items-center justify-center gap-2 rounded-2xl bg-green-600 py-3 text-base font-semibold text-white"
-            >
-              <Send className="h-4 w-4" />
-              テスト終了（{sessionState?.answerHistory?.size ?? 0}/{sessionState?.questions.length ?? 0}）
-            </button>
-          )}
+          {(() => {
+            const alreadyAnswered = sessionState?.answerHistory?.has(currentIndex)
+            if (!isAnswered && !alreadyAnswered) {
+              return (
+                <button
+                  onClick={() => { haptics.medium(); submitAnswer() }}
+                  disabled={isMultiSelect ? selectedAnswers.length === 0 : selectedAnswer === null}
+                  className={`flex-1 rounded-2xl py-3 text-base font-semibold ${
+                    (isMultiSelect ? selectedAnswers.length > 0 : selectedAnswer !== null)
+                      ? 'tap-highlight bg-claude-orange text-white'
+                      : 'bg-stone-200 text-stone-400'
+                  }`}
+                >
+                  回答する
+                </button>
+              )
+            }
+            return (
+              <button
+                onClick={() => finishTest()}
+                className="tap-highlight flex flex-1 items-center justify-center gap-2 rounded-2xl bg-green-600 py-3 text-base font-semibold text-white"
+              >
+                <Send className="h-4 w-4" />
+                テスト終了（{sessionState?.answerHistory?.size ?? 0}/{sessionState?.questions.length ?? 0}）
+              </button>
+            )
+          })()}
           <button
             onClick={() => { haptics.light(); nextQuestion() }}
             disabled={currentIndex >= (sessionState?.questions.length ?? 0) - 1}

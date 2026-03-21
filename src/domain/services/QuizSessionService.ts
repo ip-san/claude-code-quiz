@@ -506,11 +506,9 @@ export class QuizSessionService {
       return state
     }
 
-    // Remove the wrong answer from history so re-submit is treated as first answer
-    const newHistory = new Map(state.answerHistory)
-    const oldRecord = newHistory.get(state.currentIndex)
-    newHistory.delete(state.currentIndex)
-
+    // Keep answerHistory entry (so navigation knows this was answered)
+    // but reset UI state to allow re-answering.
+    // submitAnswer will treat this as isReAnswer and adjust score accordingly.
     return {
       ...state,
       selectedAnswer: null,
@@ -518,10 +516,6 @@ export class QuizSessionService {
       isAnswered: false,
       isCorrect: null,
       hintUsed: false,
-      answerHistory: newHistory,
-      // Revert score/count since the answer is being undone
-      score: Math.max(0, oldRecord?.isCorrect ? state.score - 1 : state.score),
-      answeredCount: Math.max(0, state.answeredCount - 1),
     }
   }
 

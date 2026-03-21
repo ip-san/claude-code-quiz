@@ -515,18 +515,17 @@ export const useQuizStore = create<QuizStore>((set, get) => ({
       if (session.currentIndex < session.questions.length - 1) {
         const nextIdx = session.currentIndex + 1
         const record = session.answerHistory.get(nextIdx)
-        // Always show as unanswered (consistent with goToQuestion/previousQuestion)
-        set({
-          sessionState: {
-            ...session,
-            currentIndex: nextIdx,
-            selectedAnswer: record?.selectedAnswer ?? null,
-            selectedAnswers: record?.selectedAnswers ?? Object.freeze([]),
-            isAnswered: false,
-            isCorrect: null,
-            hintUsed: false,
-          },
-        })
+        const newState = {
+          ...session,
+          currentIndex: nextIdx,
+          selectedAnswer: record?.selectedAnswer ?? null,
+          selectedAnswers: record?.selectedAnswers ?? Object.freeze([]),
+          isAnswered: false,
+          isCorrect: null,
+          hintUsed: false,
+        }
+        set({ sessionState: newState })
+        saveSessionSnapshot(newState, state.sessionWrongAnswers)
       }
       return
     }
