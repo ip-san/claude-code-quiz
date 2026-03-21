@@ -23,8 +23,8 @@ export function OptionButton({
   const getStyles = () => {
     if (!isAnswered) {
       return isSelected
-        ? 'border-claude-orange bg-claude-orange/5'
-        : 'border-stone-200 hover:border-stone-300 hover:bg-stone-50'
+        ? 'border-claude-orange bg-claude-orange/5 shadow-sm'
+        : 'border-stone-200'
     }
 
     if (isCorrect) {

@@ -282,7 +282,7 @@ export function ProgressDashboard() {
             <button
               onClick={handleWeakMode}
               aria-label="苦手問題に挑戦する"
-              className="flex-1 rounded-2xl bg-claude-orange px-6 py-3 font-medium text-white transition-colors hover:bg-claude-orange/90"
+              className="tap-highlight flex-1 rounded-2xl bg-claude-orange px-6 py-3 font-semibold text-white"
             >
               🎯 苦手問題に挑戦
             </button>
@@ -293,14 +293,14 @@ export function ProgressDashboard() {
             <button
               onClick={handleExport}
               aria-label="学習履歴をエクスポートする"
-              className="flex-1 rounded-2xl border border-stone-300 px-6 py-3 text-stone-600 transition-colors hover:bg-stone-50"
+              className="tap-highlight flex-1 rounded-2xl border border-stone-300 px-6 py-3 font-semibold text-stone-600"
             >
               📥 履歴をエクスポート
             </button>
             <button
               onClick={handleImport}
               aria-label="学習履歴をインポートする"
-              className="flex-1 rounded-2xl border border-stone-300 px-6 py-3 text-stone-600 transition-colors hover:bg-stone-50"
+              className="tap-highlight flex-1 rounded-2xl border border-stone-300 px-6 py-3 font-semibold text-stone-600"
             >
               📤 履歴をインポート
             </button>
@@ -310,7 +310,7 @@ export function ProgressDashboard() {
           <button
             onClick={handleCsvExport}
             aria-label="CSVで進捗をエクスポートする"
-            className="w-full rounded-2xl border border-stone-300 px-6 py-3 text-stone-600 transition-colors hover:bg-stone-50"
+            className="tap-highlight w-full rounded-2xl border border-stone-300 px-6 py-3 font-semibold text-stone-600"
           >
             📊 CSVでエクスポート（管理者向け）
           </button>
@@ -334,7 +334,7 @@ export function ProgressDashboard() {
           <button
             onClick={handleResetProgress}
             aria-label="学習履歴をリセットする"
-            className="w-full rounded-2xl border border-red-600/50 px-6 py-3 text-red-400 transition-colors hover:bg-red-600/20"
+            className="tap-highlight w-full rounded-2xl border border-red-600/50 px-6 py-3 font-semibold text-red-400"
           >
             履歴をリセット
           </button>

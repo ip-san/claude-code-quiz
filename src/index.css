@@ -81,6 +81,16 @@ html, body {
   }
 }
 
+/* Smooth view transitions */
+.animate-view-enter {
+  animation: view-enter 0.25s ease-out;
+}
+
+/* Prevent rubber-banding on fixed bottom bars */
+.fixed {
+  -webkit-transform: translateZ(0);
+}
+
 /* Premium card shadow */
 .card-premium {
   box-shadow:

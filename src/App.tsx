@@ -8,6 +8,12 @@ import { Timer } from '@/components/Quiz/Timer'
 import { ProgressDashboard } from '@/components/Progress/ProgressDashboard'
 import { getChapterFromTags } from '@/domain/valueObjects/OverviewChapter'
 import { XCircle } from 'lucide-react'
+
+/** Update theme-color meta tag for status bar coloring */
+function setThemeColor(color: string) {
+  const meta = document.querySelector('meta[name="theme-color"]')
+  if (meta) meta.setAttribute('content', color)
+}
 import { lazy, Suspense } from 'react'
 import { OfflineIndicator } from '@/components/Layout/OfflineIndicator'
 import { InstallPrompt } from '@/components/Layout/InstallPrompt'
@@ -101,6 +107,14 @@ export default function App() {
   })()
 
   if (viewContent) {
+    // Status bar color per screen
+    const themeColors: Record<string, string> = {
+      menu: '#FAF9F5',
+      progress: '#FAF9F5',
+      result: '#FAF9F5',
+    }
+    setThemeColor(themeColors[viewState] ?? '#FAF9F5')
+
     return (
       <div className="min-h-screen bg-claude-cream" key={viewState}>
         {isElectron && <div className="h-8 titlebar-drag bg-transparent" />}
@@ -175,6 +189,11 @@ function QuizView({
     window.addEventListener('keydown', handleKeyDown, true)
     return () => window.removeEventListener('keydown', handleKeyDown, true)
   }, [showQuitDialog])
+
+  // Quiz screen uses lighter status bar
+  useEffect(() => {
+    setThemeColor('#FAF9F5')
+  }, [])
 
   return (
     <div className="flex min-h-screen flex-col bg-stone-100 sm:bg-claude-cream">
