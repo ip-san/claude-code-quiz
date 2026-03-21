@@ -758,6 +758,10 @@ export const useQuizStore = create<QuizStore>((set, get) => ({
     }
 
     const sessionState = QuizSessionService.createInitialState(questions, saved.sessionConfig)
+
+    // Restore current question's selection from answerHistory
+    const currentRecord = answerHistory.get(saved.currentIndex)
+
     const resumedState: QuizSessionState = {
       ...sessionState,
       currentIndex: saved.currentIndex,
@@ -766,6 +770,8 @@ export const useQuizStore = create<QuizStore>((set, get) => ({
       startedAt: saved.startedAt,
       hintsUsedCount: saved.hintsUsedCount,
       answerHistory,
+      selectedAnswer: currentRecord?.selectedAnswer ?? null,
+      selectedAnswers: currentRecord?.selectedAnswers ?? Object.freeze([]),
     }
 
     set({

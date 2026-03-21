@@ -219,7 +219,7 @@ function QuizView({
                 <span className="mx-0.5">/</span>
                 <span>{progress.total}</span>
               </span>
-              {timeRemaining !== null && sessionState?.deferFeedback && <Timer />}
+              {timeRemaining !== null && <Timer />}
             </div>
             <button
               onClick={handleQuitClick}

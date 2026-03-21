@@ -53,7 +53,7 @@ export function QuizCard() {
   const isReviewMode = sessionState?.isReviewMode ?? false
   const deferFeedback = sessionState?.deferFeedback ?? false
   const hintUsed = sessionState?.hintUsed ?? false
-  const isBookmarked = quiz ? useQuizStore.getState().userProgress.isBookmarked(quiz.id) : false
+  const isBookmarked = useQuizStore(state => quiz ? state.userProgress.isBookmarked(quiz.id) : false)
   const isMultiSelect = quiz?.isMultiSelect ?? false
   const currentIndex = sessionState?.currentIndex ?? 0
   const canGoBack = currentIndex > 0
@@ -78,8 +78,8 @@ export function QuizCard() {
 
       const optionCount = quiz.options.length
 
-      // Retry shortcut (r key) - works in both single and multi-select
-      if (e.key === 'r' && isAnswered && isCorrect === false) {
+      // Retry shortcut (r key) - not available in review mode
+      if (e.key === 'r' && isAnswered && isCorrect === false && !isReviewMode) {
         e.preventDefault()
         retryQuestion()
         return
