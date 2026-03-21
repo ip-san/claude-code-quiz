@@ -58,7 +58,7 @@ export function Timer() {
 
   return (
     <div
-      className={`flex items-center gap-2 rounded-lg px-4 py-2 font-mono text-lg font-bold ${
+      className={`flex items-center gap-2 rounded-2xl px-4 py-2 font-mono text-lg font-bold ${
         isCriticalTime
           ? 'animate-pulse bg-red-100 text-red-600'
           : isLowTime

@@ -143,7 +143,7 @@ export function Feedback({ quiz, isCorrect }: FeedbackProps) {
   // 1: Review mode - user answer vs correct
   if (isReviewMode && !isCorrect && isMultiSelect && selectedAnswers.length > 0) {
     sections.push(
-      <AnimatedSection key="review-multi" order={sections.length} animate={animate} noMotion={noMotion} className="mb-4 rounded-lg border border-amber-200 bg-amber-50 p-3">
+      <AnimatedSection key="review-multi" order={sections.length} animate={animate} noMotion={noMotion} className="mb-4 rounded-2xl border border-amber-200 bg-amber-50 p-3">
         <p className="text-sm text-amber-800">
           <span className="font-medium">あなたの回答:</span>
         </p>
@@ -165,7 +165,7 @@ export function Feedback({ quiz, isCorrect }: FeedbackProps) {
   }
   if (isReviewMode && !isCorrect && !isMultiSelect && selectedAnswer !== null && selectedAnswer !== quiz.correctIndex) {
     sections.push(
-      <AnimatedSection key="review-single" order={sections.length} animate={animate} noMotion={noMotion} className="mb-4 rounded-lg border border-amber-200 bg-amber-50 p-3">
+      <AnimatedSection key="review-single" order={sections.length} animate={animate} noMotion={noMotion} className="mb-4 rounded-2xl border border-amber-200 bg-amber-50 p-3">
         <p className="text-sm text-amber-800">
           <span className="font-medium">あなたの回答:</span>{' '}
           <QuizText text={quiz.options[selectedAnswer]?.text ?? ''} />
@@ -186,7 +186,7 @@ export function Feedback({ quiz, isCorrect }: FeedbackProps) {
       .filter(opt => opt?.wrongFeedback)
     if (wrongSelected.length > 0) {
       sections.push(
-        <AnimatedSection key="wrong-multi" order={sections.length} animate={animate} noMotion={noMotion} className="mb-4 rounded-lg border border-red-200 bg-red-50 p-4">
+        <AnimatedSection key="wrong-multi" order={sections.length} animate={animate} noMotion={noMotion} className="mb-4 rounded-2xl border border-red-200 bg-red-50 p-4">
           <div className="flex items-start gap-2">
             <AlertTriangle className="mt-0.5 h-5 w-5 flex-shrink-0 text-amber-500" />
             <div>
@@ -206,7 +206,7 @@ export function Feedback({ quiz, isCorrect }: FeedbackProps) {
   }
   if (!isCorrect && !isMultiSelect && selectedOption?.wrongFeedback) {
     sections.push(
-      <AnimatedSection key="wrong-single" order={sections.length} animate={animate} noMotion={noMotion} className="mb-4 rounded-lg border border-red-200 bg-red-50 p-4">
+      <AnimatedSection key="wrong-single" order={sections.length} animate={animate} noMotion={noMotion} className="mb-4 rounded-2xl border border-red-200 bg-red-50 p-4">
         <div className="flex items-start gap-2">
           <AlertTriangle className="mt-0.5 h-5 w-5 flex-shrink-0 text-amber-500" />
           <div>
@@ -225,7 +225,7 @@ export function Feedback({ quiz, isCorrect }: FeedbackProps) {
   // 3: Multi-select correct answers (non-review)
   if (!isCorrect && isMultiSelect && !isReviewMode) {
     sections.push(
-      <AnimatedSection key="correct-multi" order={sections.length} animate={animate} noMotion={noMotion} className="mb-4 rounded-lg border border-green-200 bg-green-50 p-3">
+      <AnimatedSection key="correct-multi" order={sections.length} animate={animate} noMotion={noMotion} className="mb-4 rounded-2xl border border-green-200 bg-green-50 p-3">
         <p className="text-sm font-medium text-green-700">正解:</p>
         <ul className="ml-4 mt-1 list-disc text-sm text-green-700">
           {quiz.getCorrectOptions().map((opt, i) => (

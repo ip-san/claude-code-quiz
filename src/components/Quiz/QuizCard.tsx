@@ -327,7 +327,7 @@ export function QuizCard() {
           {!hintUsed ? (
             <button
               onClick={useHint}
-              className="flex items-center gap-1.5 rounded-lg border border-amber-300 bg-amber-50 px-2.5 py-1.5 text-xs text-amber-700 transition-colors hover:bg-amber-100 sm:px-3 sm:py-2 sm:text-sm"
+              className="tap-highlight flex items-center gap-1.5 rounded-2xl border border-amber-300 bg-amber-50 px-3 py-2 text-sm text-amber-700"
             >
               <Lightbulb className="h-4 w-4" />
               ヒントを表示

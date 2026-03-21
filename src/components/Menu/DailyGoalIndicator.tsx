@@ -23,7 +23,7 @@ export function DailyGoalIndicator() {
   const goalOptions = [5, 10, 15, 20, 30, 50]
 
   return (
-    <div className="animate-card-enter rounded-lg border border-stone-200 bg-white px-4 py-3">
+    <div className="animate-card-enter rounded-2xl border border-stone-200 bg-white px-4 py-3">
       <div className="mb-2 flex items-center justify-between">
         <div className="flex items-center gap-2">
           <span className="text-base">{isAchieved ? '🎉' : '🎯'}</span>

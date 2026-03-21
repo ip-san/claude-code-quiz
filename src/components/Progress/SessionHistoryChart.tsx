@@ -20,7 +20,7 @@ const INNER_HEIGHT = CHART_HEIGHT - PADDING.top - PADDING.bottom
 export function SessionHistoryChart({ sessions }: SessionHistoryChartProps) {
   if (sessions.length < 2) {
     return (
-      <div className="rounded-lg border border-stone-200 bg-white p-6 text-center">
+      <div className="rounded-2xl border border-stone-200 bg-white p-6 text-center">
         <p className="text-sm text-stone-400">
           グラフを表示するには2回以上のセッションが必要です
         </p>
@@ -49,7 +49,7 @@ export function SessionHistoryChart({ sessions }: SessionHistoryChartProps) {
   const yLabels = [0, 25, 50, 75, 100]
 
   return (
-    <div className="rounded-lg border border-stone-200 bg-white p-4">
+    <div className="rounded-2xl border border-stone-200 bg-white p-4">
       <h3 className="mb-3 text-sm font-semibold text-claude-dark">学習推移</h3>
       <svg
         viewBox={`0 0 ${CHART_WIDTH} ${CHART_HEIGHT}`}

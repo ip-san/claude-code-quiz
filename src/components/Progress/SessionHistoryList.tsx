@@ -42,7 +42,7 @@ export function SessionHistoryList({ sessions, limit = 10 }: SessionHistoryListP
 
   if (recent.length === 0) {
     return (
-      <div className="rounded-lg border border-stone-200 bg-white p-6 text-center">
+      <div className="rounded-2xl border border-stone-200 bg-white p-6 text-center">
         <p className="text-sm text-stone-400">
           まだセッション履歴がありません
         </p>
@@ -51,7 +51,7 @@ export function SessionHistoryList({ sessions, limit = 10 }: SessionHistoryListP
   }
 
   return (
-    <div className="rounded-lg border border-stone-200 bg-white">
+    <div className="rounded-2xl border border-stone-200 bg-white">
       <h3 className="border-b border-stone-100 px-4 py-3 text-sm font-semibold text-claude-dark">
         セッション履歴（直近{Math.min(limit, recent.length)}件）
       </h3>

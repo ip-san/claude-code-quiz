@@ -16,7 +16,7 @@ export function Header({ title }: HeaderProps) {
     <header className="titlebar-no-drag">
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-3">
-          <div className="p-2 bg-claude-orange/10 rounded-lg">
+          <div className="p-2 bg-claude-orange/10 rounded-2xl">
             <BookOpen className="w-6 h-6 text-claude-orange" />
           </div>
           <div>
