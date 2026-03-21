@@ -7,7 +7,7 @@ import { QuizResult } from '@/components/Quiz/QuizResult'
 import { Timer } from '@/components/Quiz/Timer'
 import { ProgressDashboard } from '@/components/Progress/ProgressDashboard'
 import { getChapterFromTags } from '@/domain/valueObjects/OverviewChapter'
-import { Loader2, XCircle } from 'lucide-react'
+import { XCircle } from 'lucide-react'
 import { lazy, Suspense } from 'react'
 import { OfflineIndicator } from '@/components/Layout/OfflineIndicator'
 import { InstallPrompt } from '@/components/Layout/InstallPrompt'
@@ -20,18 +20,57 @@ const PWAUpdatePrompt = !isElectron
 export default function App() {
   const { viewState, getProgress, sessionState, isLoading, initialize } = useQuizStore()
 
+  const { endSession, suspendSession } = useQuizStore()
+
   // Initialize store on mount
   useEffect(() => {
     initialize()
   }, [initialize])
 
-  // Show loading state
+  // Browser back button support — push history state on view changes, pop to go back
+  useEffect(() => {
+    if (isLoading) return
+
+    const handlePopState = () => {
+      const currentView = useQuizStore.getState().viewState
+      if (currentView === 'progress') {
+        useQuizStore.getState().setViewState('menu')
+      } else if (currentView === 'quiz') {
+        // Suspend session (saves progress) instead of losing it
+        const session = useQuizStore.getState().sessionState
+        if (session?.isReviewMode) {
+          endSession()
+        } else {
+          suspendSession()
+        }
+      } else if (currentView === 'result') {
+        endSession()
+      }
+    }
+
+    // Push a state entry so back button doesn't leave the app
+    if (viewState !== 'menu') {
+      window.history.pushState({ view: viewState }, '')
+    }
+
+    window.addEventListener('popstate', handlePopState)
+    return () => window.removeEventListener('popstate', handlePopState)
+  }, [viewState, isLoading, endSession, suspendSession])
+
+  // Show loading skeleton
   if (isLoading) {
     return (
-      <div className="flex min-h-screen items-center justify-center bg-claude-cream">
-        <div className="flex flex-col items-center gap-4">
-          <Loader2 className="h-8 w-8 animate-spin text-claude-orange" />
-          <p className="text-claude-gray">読み込み中...</p>
+      <div className="min-h-screen bg-claude-cream px-4 pt-12">
+        <div className="mx-auto w-full sm:max-w-2xl">
+          <div className="mb-6 text-center">
+            <div className="mx-auto mb-3 h-8 w-48 animate-pulse rounded-lg bg-stone-200" />
+            <div className="mx-auto h-4 w-32 animate-pulse rounded bg-stone-200" />
+          </div>
+          <div className="space-y-3">
+            {[...Array(4)].map((_, i) => (
+              <div key={i} className="h-16 animate-pulse rounded-2xl bg-stone-200" style={{ animationDelay: `${i * 100}ms` }} />
+            ))}
+          </div>
         </div>
       </div>
     )
