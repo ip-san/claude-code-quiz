@@ -212,6 +212,17 @@ function saveSessionSnapshot(
   sessionState: QuizSessionState,
   wrongAnswers: { questionId: string; selectedAnswer: number; selectedAnswers?: number[] }[]
 ): void {
+  // Serialize answerHistory Map to array
+  const answerRecords: import('@/infrastructure/persistence/SessionRepository').SavedAnswerRecord[] = []
+  sessionState.answerHistory.forEach((record, index) => {
+    answerRecords.push({
+      questionIndex: index,
+      selectedAnswer: record.selectedAnswer,
+      selectedAnswers: [...record.selectedAnswers],
+      isCorrect: record.isCorrect,
+    })
+  })
+
   const data: SavedSessionData = {
     sessionConfig: sessionState.config,
     questionIds: sessionState.questions.map(q => q.id),
@@ -222,6 +233,7 @@ function saveSessionSnapshot(
     wrongAnswers: [...wrongAnswers],
     hintsUsedCount: sessionState.hintsUsedCount,
     savedAt: Date.now(),
+    answerRecords,
   }
   getSessionRepository().save(data)
 }
@@ -549,14 +561,15 @@ export const useQuizStore = create<QuizStore>((set, get) => ({
     if (session.currentIndex <= 0) return
 
     const prevIdx = session.currentIndex - 1
+    const record = session.answerHistory.get(prevIdx)
 
-    // Show as unanswered (clean view) — user can see their previous selection but no feedback
+    // Restore selection but hide feedback (isCorrect: null hides overlay/glow)
     set({
       sessionState: {
         ...session,
         currentIndex: prevIdx,
-        selectedAnswer: null,
-        selectedAnswers: Object.freeze([]),
+        selectedAnswer: record?.selectedAnswer ?? null,
+        selectedAnswers: record?.selectedAnswers ?? Object.freeze([]),
         isAnswered: false,
         isCorrect: null,
         hintUsed: false,
@@ -587,9 +600,21 @@ export const useQuizStore = create<QuizStore>((set, get) => ({
   finishTest: () => {
     const state = get()
     if (!state.sessionState) return
+
+    // Recalculate score from answerHistory (source of truth)
+    let correctCount = 0
+    state.sessionState.answerHistory.forEach(record => {
+      if (record.isCorrect) correctCount++
+    })
+
     getSessionRepository().clear()
     set({
-      sessionState: { ...state.sessionState, isCompleted: true },
+      sessionState: {
+        ...state.sessionState,
+        score: correctCount,
+        answeredCount: state.sessionState.answerHistory.size,
+        isCompleted: true,
+      },
       viewState: 'result',
     })
   },
@@ -672,6 +697,18 @@ export const useQuizStore = create<QuizStore>((set, get) => ({
 
     // Reconstruct session state starting from the saved currentIndex
     // The question at currentIndex has not been answered yet
+    // Reconstruct answerHistory from saved records
+    const answerHistory = new Map<number, import('@/domain/services/QuizSessionService').AnswerRecord>()
+    if (saved.answerRecords) {
+      for (const r of saved.answerRecords) {
+        answerHistory.set(r.questionIndex, {
+          selectedAnswer: r.selectedAnswer,
+          selectedAnswers: Object.freeze([...r.selectedAnswers]),
+          isCorrect: r.isCorrect,
+        })
+      }
+    }
+
     const sessionState = QuizSessionService.createInitialState(questions, saved.sessionConfig)
     const resumedState: QuizSessionState = {
       ...sessionState,
@@ -680,6 +717,7 @@ export const useQuizStore = create<QuizStore>((set, get) => ({
       answeredCount: saved.answeredCount,
       startedAt: saved.startedAt,
       hintsUsedCount: saved.hintsUsedCount,
+      answerHistory,
     }
 
     set({

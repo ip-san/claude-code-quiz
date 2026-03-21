@@ -9,6 +9,13 @@ import type { QuizSessionConfig } from '../../domain/services/QuizSessionService
 
 const STORAGE_KEY = 'claude-code-quiz-session'
 
+export interface SavedAnswerRecord {
+  readonly questionIndex: number
+  readonly selectedAnswer: number | null
+  readonly selectedAnswers: readonly number[]
+  readonly isCorrect: boolean
+}
+
 export interface SavedSessionData {
   readonly sessionConfig: QuizSessionConfig
   readonly questionIds: string[]
@@ -19,6 +26,7 @@ export interface SavedSessionData {
   readonly wrongAnswers: { questionId: string; selectedAnswer: number; selectedAnswers?: number[] }[]
   readonly hintsUsedCount: number
   readonly savedAt: number
+  readonly answerRecords?: SavedAnswerRecord[]
 }
 
 export class SessionRepository {
