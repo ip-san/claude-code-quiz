@@ -239,6 +239,17 @@ export const UserProgressSchema = z.object({
   streakDays: z.number().int().min(0),
   lastSessionAt: z.number(),
   bookmarkedQuestionIds: z.array(z.string()).optional(),
+  dailyGoal: z.number().int().min(1).optional(),
+  dailyAnswerCounts: z.record(z.string(), z.number().int().min(0)).optional(),
+  sessionHistory: z.array(z.object({
+    id: z.string(),
+    completedAt: z.number(),
+    mode: z.string(),
+    categoryFilter: z.string().nullable(),
+    score: z.number().int().min(0),
+    totalQuestions: z.number().int().min(0),
+    percentage: z.number().min(0).max(100),
+  })).optional(),
 })
 
 // ============================================================

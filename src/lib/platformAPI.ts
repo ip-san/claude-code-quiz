@@ -16,8 +16,11 @@ function downloadFile(content: string, filename: string, mimeType: string) {
   a.download = filename
   document.body.appendChild(a)
   a.click()
-  document.body.removeChild(a)
-  URL.revokeObjectURL(url)
+  // Delay cleanup to allow download to start
+  setTimeout(() => {
+    document.body.removeChild(a)
+    URL.revokeObjectURL(url)
+  }, 100)
 }
 
 function pickAndReadFile(
@@ -42,10 +45,20 @@ function pickAndReadFile(
       }
       reader.readAsText(file)
     }
-    // Handle cancel (no file selected)
+    // Handle cancel — oncancel not supported in all browsers, use focus fallback
     input.oncancel = () => {
       resolve({ success: false, error: 'cancelled' })
     }
+    // Fallback: if no file selected after focus returns to window
+    const handleFocus = () => {
+      setTimeout(() => {
+        if (!input.files?.length) {
+          resolve({ success: false, error: 'cancelled' })
+        }
+        window.removeEventListener('focus', handleFocus)
+      }, 500)
+    }
+    window.addEventListener('focus', handleFocus)
     input.click()
   })
 }

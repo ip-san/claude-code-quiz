@@ -15,10 +15,13 @@ export function InstallPrompt() {
   const [dismissed, setDismissed] = useState(false)
 
   useEffect(() => {
-    // Check if already dismissed in this session
-    if (sessionStorage.getItem('pwa-install-dismissed')) {
-      setDismissed(true)
-      return
+    try {
+      if (sessionStorage.getItem('pwa-install-dismissed')) {
+        setDismissed(true)
+        return
+      }
+    } catch {
+      // sessionStorage unavailable (private browsing)
     }
 
     const handler = (e: Event) => {
@@ -32,15 +35,18 @@ export function InstallPrompt() {
 
   const handleInstall = async () => {
     if (!deferredPrompt) return
-    await deferredPrompt.prompt()
-    await deferredPrompt.userChoice
-    // Clear prompt regardless of outcome (can't re-prompt same event)
+    try {
+      await deferredPrompt.prompt()
+      await deferredPrompt.userChoice
+    } catch {
+      // prompt failed
+    }
     setDeferredPrompt(null)
   }
 
   const handleDismiss = () => {
     setDismissed(true)
-    sessionStorage.setItem('pwa-install-dismissed', '1')
+    try { sessionStorage.setItem('pwa-install-dismissed', '1') } catch { /* private browsing */ }
   }
 
   // Don't show if: no prompt available, already dismissed, or running as installed PWA

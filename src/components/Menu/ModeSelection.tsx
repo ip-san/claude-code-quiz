@@ -140,7 +140,15 @@ export function ModeSelection() {
                 return (
                   <button
                     key={modeConfig.id}
-                    onClick={() => !isDisabled && setSelectedMode(modeConfig.id)}
+                    onClick={() => {
+                      if (isDisabled) return
+                      setSelectedMode(modeConfig.id)
+                      // Reset filters when switching away from category/custom mode
+                      if (modeConfig.id !== 'category' && modeConfig.id !== 'custom') {
+                        setSelectedCategory(null)
+                        setSelectedDifficulty(null)
+                      }
+                    }}
                     disabled={isDisabled}
                     className={`tap-highlight flex items-center gap-1.5 rounded-full border px-3.5 py-2 text-sm font-medium transition-all ${
                       isDisabled

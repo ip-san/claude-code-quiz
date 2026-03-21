@@ -12,7 +12,9 @@ const MODE_LABELS: Record<string, string> = {
   weak: '苦手克服',
   custom: 'カスタム',
   bookmark: 'ブックマーク',
-  spaced: '間隔反復',
+  overview: '全体像',
+  unanswered: '未回答',
+  review: '復習',
 }
 
 function formatDate(timestamp: number): string {
