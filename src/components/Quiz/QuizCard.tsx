@@ -56,7 +56,7 @@ export function QuizCard() {
   const isBookmarked = quiz ? useQuizStore.getState().userProgress.isBookmarked(quiz.id) : false
   const isMultiSelect = quiz?.isMultiSelect ?? false
   const currentIndex = sessionState?.currentIndex ?? 0
-  const canGoBack = currentIndex > 0 && (sessionState?.answerHistory?.size ?? 0) > 0
+  const canGoBack = currentIndex > 0
 
   // Chapter indicator for overview mode
   const isOverviewMode = sessionState?.config.mode === 'overview'
@@ -492,25 +492,29 @@ export function QuizCard() {
         </div>
       </div>
     ) : !isAnswered ? (
-      /* 通常モード: submit button */
+      /* 通常モード: back + submit button */
       <div className="fixed bottom-0 left-0 right-0 z-20 border-t border-stone-200 bg-white px-4 pb-[calc(env(safe-area-inset-bottom,0px)+8px)] pt-2 sm:relative sm:mt-6 sm:border-0 sm:bg-transparent sm:p-0 sm:pb-0 sm:pt-0">
-        <button
-          onClick={() => { haptics.medium(); submitAnswer() }}
-          disabled={isMultiSelect ? selectedAnswers.length === 0 : selectedAnswer === null}
-          aria-disabled={isMultiSelect ? selectedAnswers.length === 0 : selectedAnswer === null}
-          aria-label={
-            (isMultiSelect ? selectedAnswers.length === 0 : selectedAnswer === null)
-              ? '選択肢を選んでください'
-              : '回答を確定する'
-          }
-          className={`w-full rounded-2xl py-3.5 text-base font-semibold transition-all sm:py-3 ${
-            (isMultiSelect ? selectedAnswers.length > 0 : selectedAnswer !== null)
-              ? 'tap-highlight bg-claude-orange text-white'
-              : 'cursor-not-allowed bg-stone-200 text-stone-400'
-          }`}
-        >
-          回答する
-        </button>
+        <div className="flex gap-2">
+          {canGoBack && (
+            <button
+              onClick={() => { haptics.light(); previousQuestion() }}
+              className="tap-highlight flex items-center justify-center rounded-2xl border-2 border-stone-300 px-3 py-3 text-stone-500"
+            >
+              <ChevronLeft className="h-5 w-5" />
+            </button>
+          )}
+          <button
+            onClick={() => { haptics.medium(); submitAnswer() }}
+            disabled={isMultiSelect ? selectedAnswers.length === 0 : selectedAnswer === null}
+            className={`flex-1 rounded-2xl py-3.5 text-base font-semibold transition-all sm:py-3 ${
+              (isMultiSelect ? selectedAnswers.length > 0 : selectedAnswer !== null)
+                ? 'tap-highlight bg-claude-orange text-white'
+                : 'cursor-not-allowed bg-stone-200 text-stone-400'
+            }`}
+          >
+            回答する
+          </button>
+        </div>
       </div>
     ) : null}
     </>

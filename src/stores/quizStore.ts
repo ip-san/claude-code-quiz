@@ -534,32 +534,23 @@ export const useQuizStore = create<QuizStore>((set, get) => ({
   previousQuestion: () => {
     const state = get()
     if (!state.sessionState) return
+    const session = state.sessionState
+    if (session.currentIndex <= 0) return
 
-    // In deferFeedback mode, navigate freely
-    if (state.sessionState.deferFeedback) {
-      const session = state.sessionState
-      if (session.currentIndex > 0) {
-        const prevIdx = session.currentIndex - 1
-        const record = session.answerHistory.get(prevIdx)
-        set({
-          sessionState: {
-            ...session,
-            currentIndex: prevIdx,
-            selectedAnswer: record?.selectedAnswer ?? null,
-            selectedAnswers: record?.selectedAnswers ?? Object.freeze([]),
-            isAnswered: !!record,
-            isCorrect: record?.isCorrect ?? null,
-            hintUsed: false,
-          },
-        })
-      }
-      return
-    }
+    const prevIdx = session.currentIndex - 1
+    const record = session.answerHistory.get(prevIdx)
 
-    const prev = QuizSessionService.previousQuestion(state.sessionState)
-    if (prev) {
-      set({ sessionState: prev })
-    }
+    set({
+      sessionState: {
+        ...session,
+        currentIndex: prevIdx,
+        selectedAnswer: record?.selectedAnswer ?? null,
+        selectedAnswers: record?.selectedAnswers ?? Object.freeze([]),
+        isAnswered: !!record,
+        isCorrect: record?.isCorrect ?? null,
+        hintUsed: false,
+      },
+    })
   },
 
   goToQuestion: (index: number) => {

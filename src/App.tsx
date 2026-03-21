@@ -198,7 +198,7 @@ function QuizView({
               <span className="text-sm font-medium text-claude-dark">
                 {progress.current} / {progress.total}
               </span>
-              {timeRemaining !== null && <Timer />}
+              {timeRemaining !== null && sessionState?.deferFeedback && <Timer />}
             </div>
             <button
               onClick={handleQuitClick}
