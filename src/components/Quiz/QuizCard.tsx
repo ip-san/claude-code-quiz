@@ -481,33 +481,37 @@ export function QuizCard() {
           >
             <ChevronLeft className="h-5 w-5" />
           </button>
-          {!isAnswered ? (
-            <button
-              onClick={() => { haptics.medium(); submitAnswer() }}
-              disabled={isMultiSelect ? selectedAnswers.length === 0 : selectedAnswer === null}
-              className={`flex-1 rounded-2xl py-3.5 text-base font-semibold transition-all sm:py-3 ${
-                (isMultiSelect ? selectedAnswers.length > 0 : selectedAnswer !== null)
-                  ? 'tap-highlight bg-claude-orange text-white'
-                  : 'cursor-not-allowed bg-stone-200 text-stone-400'
-              }`}
-            >
-              回答する
-            </button>
-          ) : (
+          {isAnswered ? (
+            /* 回答済み: 次へボタンのみ（全幅） */
             <button
               onClick={() => { haptics.light(); nextQuestion() }}
               className="tap-highlight flex-1 rounded-2xl bg-claude-orange py-3.5 text-base font-semibold text-white sm:py-3"
             >
               次の問題へ
             </button>
+          ) : (
+            /* 未回答: 回答ボタン + ▶スキップ */
+            <>
+              <button
+                onClick={() => { haptics.medium(); submitAnswer() }}
+                disabled={isMultiSelect ? selectedAnswers.length === 0 : selectedAnswer === null}
+                className={`flex-1 rounded-2xl py-3.5 text-base font-semibold transition-all sm:py-3 ${
+                  (isMultiSelect ? selectedAnswers.length > 0 : selectedAnswer !== null)
+                    ? 'tap-highlight bg-claude-orange text-white'
+                    : 'cursor-not-allowed bg-stone-200 text-stone-400'
+                }`}
+              >
+                回答する
+              </button>
+              <button
+                onClick={() => { haptics.light(); nextQuestion() }}
+                disabled={currentIndex >= (sessionState?.questions.length ?? 0) - 1}
+                className="tap-highlight flex items-center justify-center rounded-2xl border-2 border-stone-300 px-3 py-3 text-stone-500 disabled:opacity-30"
+              >
+                <ChevronRight className="h-5 w-5" />
+              </button>
+            </>
           )}
-          <button
-            onClick={() => { haptics.light(); nextQuestion() }}
-            disabled={currentIndex >= (sessionState?.questions.length ?? 0) - 1}
-            className="tap-highlight flex items-center justify-center rounded-2xl border-2 border-stone-300 px-3 py-3 text-stone-500 disabled:opacity-30"
-          >
-            <ChevronRight className="h-5 w-5" />
-          </button>
         </div>
       </div>
     )}

@@ -618,14 +618,16 @@ export const useQuizStore = create<QuizStore>((set, get) => ({
     if (index < 0 || index >= session.questions.length) return
 
     const record = session.answerHistory.get(index)
+
+    // Restore selection but allow re-answering (isAnswered: false)
     set({
       sessionState: {
         ...session,
         currentIndex: index,
         selectedAnswer: record?.selectedAnswer ?? null,
         selectedAnswers: record?.selectedAnswers ?? Object.freeze([]),
-        isAnswered: !!record,
-        isCorrect: record?.isCorrect ?? null,
+        isAnswered: false,
+        isCorrect: null,
         hintUsed: false,
       },
     })
@@ -635,18 +637,30 @@ export const useQuizStore = create<QuizStore>((set, get) => ({
     const state = get()
     if (!state.sessionState) return
 
-    // Recalculate score from answerHistory (source of truth)
-    let correctCount = 0
-    state.sessionState.answerHistory.forEach(record => {
-      if (record.isCorrect) correctCount++
-    })
+    const historySize = state.sessionState.answerHistory.size
+
+    // Recalculate score from answerHistory if available, otherwise use session state
+    let finalScore: number
+    let finalCount: number
+    if (historySize > 0) {
+      let correctCount = 0
+      state.sessionState.answerHistory.forEach(record => {
+        if (record.isCorrect) correctCount++
+      })
+      finalScore = correctCount
+      finalCount = historySize
+    } else {
+      // Fallback for old saved sessions without answerRecords
+      finalScore = state.sessionState.score
+      finalCount = state.sessionState.answeredCount
+    }
 
     getSessionRepository().clear()
     set({
       sessionState: {
         ...state.sessionState,
-        score: correctCount,
-        answeredCount: state.sessionState.answerHistory.size,
+        score: finalScore,
+        answeredCount: finalCount,
         isCompleted: true,
       },
       viewState: 'result',
