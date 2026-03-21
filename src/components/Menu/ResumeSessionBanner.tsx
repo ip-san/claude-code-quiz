@@ -19,31 +19,33 @@ export function ResumeSessionBanner() {
     : ''
 
   return (
-    <div className="mb-6 animate-slide-down rounded-xl border border-claude-orange/30 bg-gradient-to-r from-claude-orange/10 to-claude-orange/5 p-4">
-      <div className="mb-3 flex items-center gap-2">
-        <span className="text-lg">{modeIcon}</span>
-        <span className="text-sm font-semibold text-claude-dark">
-          前回の続きがあります
-        </span>
+    <div className="mb-5 animate-slide-down rounded-2xl border border-claude-orange/30 bg-gradient-to-r from-claude-orange/10 to-claude-orange/5 p-4">
+      <div className="mb-2 flex items-center gap-2">
+        <span className="text-xl">{modeIcon}</span>
+        <div className="flex-1">
+          <span className="text-sm font-semibold text-claude-dark">
+            前回の続きがあります
+          </span>
+          <p className="text-xs text-stone-500">
+            {modeName} - 問題 {progress}
+            {scoreText && ` (${scoreText})`}
+          </p>
+        </div>
       </div>
-      <p className="mb-3 text-xs text-stone-500">
-        {modeName} - 問題 {progress}
-        {scoreText && ` (${scoreText})`}
-      </p>
       <div className="flex gap-2">
         <button
           onClick={resumeSession}
-          className="inline-flex flex-1 items-center justify-center gap-1.5 rounded-lg bg-claude-orange px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-claude-orange/90"
+          className="tap-highlight inline-flex flex-1 items-center justify-center gap-2 rounded-2xl bg-claude-orange px-4 py-3 text-base font-semibold text-white"
         >
-          <PlayCircle className="h-4 w-4" />
+          <PlayCircle className="h-5 w-5" />
           続きから再開
         </button>
         <button
           onClick={discardSavedSession}
-          className="inline-flex items-center justify-center gap-1.5 rounded-lg border border-stone-300 px-3 py-2 text-sm text-stone-500 transition-colors hover:bg-stone-50"
+          className="tap-highlight inline-flex items-center justify-center rounded-2xl border border-stone-300 px-4 py-3 text-stone-500"
           aria-label="保存されたセッションを破棄"
         >
-          <Trash2 className="h-4 w-4" />
+          <Trash2 className="h-5 w-5" />
         </button>
       </div>
     </div>

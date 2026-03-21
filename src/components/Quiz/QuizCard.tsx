@@ -278,7 +278,7 @@ export function QuizCard() {
         <button
           onClick={() => toggleBookmark(quiz.id)}
           aria-label={isBookmarked ? 'ブックマークを解除' : 'ブックマークに追加'}
-          className="rounded-lg p-1.5 transition-colors hover:bg-stone-100"
+          className="tap-highlight rounded-full p-2.5 transition-colors hover:bg-stone-100"
         >
           <Bookmark
             className={`h-5 w-5 ${
