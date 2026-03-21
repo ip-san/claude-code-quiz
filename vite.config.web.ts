@@ -20,6 +20,9 @@ export default defineConfig({
       workbox: {
         globPatterns: ['**/*.{js,css,html,json,png,svg,ico}'],
         maximumFileSizeToCacheInBytes: 5 * 1024 * 1024,
+        // Skip waiting — new service worker takes over immediately
+        skipWaiting: true,
+        clientsClaim: true,
       },
       manifest: {
         name: 'Claude Code Quiz',
