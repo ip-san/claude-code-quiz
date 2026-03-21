@@ -10,15 +10,7 @@ export function StreakBanner() {
   const { userProgress } = useQuizStore()
   const streak = userProgress.streakDays
 
-  if (streak === 0) {
-    return (
-      <div className="rounded-lg border border-stone-200 bg-white px-4 py-3 text-center">
-        <p className="text-sm text-stone-500">
-          今日クイズに挑戦して連続学習を始めましょう！
-        </p>
-      </div>
-    )
-  }
+  if (streak === 0) return null
 
   const getStreakEmoji = (days: number) => {
     if (days >= 100) return '👑'

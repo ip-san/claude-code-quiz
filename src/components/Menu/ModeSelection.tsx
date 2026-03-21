@@ -199,7 +199,7 @@ export function ModeSelection() {
                       <span className="text-xs font-medium text-claude-dark">
                         {category.name}
                       </span>
-                      <span className="text-[10px] text-stone-400">
+                      <span className="text-xs text-stone-400">
                         {getCategoryQuestionCount(category.id)}問
                       </span>
                     </div>
@@ -259,7 +259,7 @@ export function ModeSelection() {
                   return (
                     <div key={category.id} className="flex flex-col items-center gap-0.5 rounded-xl bg-white p-2">
                       <span className="text-sm">{mastery}</span>
-                      <span className="text-[10px] text-stone-500">{category.name}</span>
+                      <span className="text-xs text-stone-500">{category.name}</span>
                       <span className={`text-xs font-bold ${accuracy >= 70 ? 'text-green-600' : accuracy > 0 ? 'text-stone-600' : 'text-stone-300'}`}>
                         {accuracy > 0 ? `${accuracy}%` : '—'}
                       </span>

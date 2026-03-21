@@ -133,23 +133,22 @@ export function ProgressDashboard() {
   }
 
   return (
-    <div className="min-h-screen bg-claude-cream px-4 py-4 sm:px-6 sm:py-8">
-      <div className="mx-auto sm:max-w-2xl lg:max-w-4xl">
-        {/* Header */}
-        <div className="mb-6 flex items-center justify-between sm:mb-8">
-          <div>
-            <h1 className="text-xl font-bold text-claude-dark sm:text-2xl">学習進捗</h1>
-            <p className="text-stone-500">
-              あなたの学習状況を確認できます
-            </p>
-          </div>
+    <div className="min-h-screen bg-claude-cream">
+      {/* Sticky header */}
+      <div className="sticky top-0 z-10 border-b border-stone-200 bg-claude-cream/95 px-4 py-3 backdrop-blur-sm sm:px-6">
+        <div className="mx-auto flex items-center justify-between sm:max-w-2xl lg:max-w-4xl">
+          <h1 className="text-lg font-bold text-claude-dark">学習進捗</h1>
           <button
             onClick={() => setViewState('menu')}
-            className="rounded-lg border border-stone-300 px-4 py-2 text-stone-600 transition-colors hover:bg-stone-50"
+            className="tap-highlight rounded-full bg-stone-100 px-4 py-1.5 text-sm font-medium text-stone-600"
           >
-            戻る
+            閉じる
           </button>
         </div>
+      </div>
+
+      <div className="px-4 pb-8 pt-4 sm:px-6">
+        <div className="mx-auto sm:max-w-2xl lg:max-w-4xl">
 
         {/* Empty State */}
         {hasNoProgress && (
@@ -329,6 +328,7 @@ export function ProgressDashboard() {
             履歴をリセット
           </button>
         </div>
+      </div>
       </div>
     </div>
   )

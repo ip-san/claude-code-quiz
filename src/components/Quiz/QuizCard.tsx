@@ -361,20 +361,39 @@ export function QuizCard() {
         ))}
       </div>
 
-      {/* Feedback (shown inline after answering) */}
+      {/* Feedback + action buttons (shown inline after answering) */}
       {isAnswered && (
         <div className="mt-3 sm:mt-6">
           <Feedback quiz={quiz} isCorrect={isCorrect!} />
+          <div className="mt-4 flex flex-col gap-2 pb-4">
+            {isCorrect === false && (
+              <button
+                onClick={() => { haptics.light(); retryQuestion() }}
+                aria-label="この問題をもう一度挑戦する (R)"
+                className="tap-highlight inline-flex w-full items-center justify-center gap-2 rounded-2xl border-2 border-claude-orange py-3.5 text-base font-semibold text-claude-orange sm:py-3"
+              >
+                <RotateCcw className="h-4 w-4" />
+                もう一度挑戦 <span className="text-xs opacity-60">(R)</span>
+              </button>
+            )}
+            <button
+              onClick={() => { haptics.light(); nextQuestion() }}
+              aria-label={isReviewMode ? '次の問題を確認する' : '次の問題へ進む'}
+              className="tap-highlight w-full rounded-2xl bg-claude-orange py-3.5 text-base font-semibold text-white sm:py-3"
+            >
+              {isReviewMode ? '次の問題を確認' : '次の問題へ'}
+            </button>
+          </div>
         </div>
       )}
 
-      {/* Spacer for fixed bottom button on mobile */}
-      <div className="h-20 sm:hidden" />
+      {/* Spacer for fixed bottom button on mobile (before answering only) */}
+      {!isAnswered && <div className="h-20 sm:hidden" />}
     </div>
 
-    {/* Fixed bottom action bar (mobile) / inline (desktop) */}
-    <div className="fixed bottom-0 left-0 right-0 z-20 border-t border-stone-200 bg-white px-4 pb-[calc(env(safe-area-inset-bottom,0px)+8px)] pt-2 sm:relative sm:mt-3 sm:border-0 sm:bg-transparent sm:p-0 sm:pb-0 sm:pt-0 sm:mt-6">
-      {!isAnswered ? (
+    {/* Fixed bottom submit bar (mobile, before answering only) / inline (desktop) */}
+    {!isAnswered && (
+      <div className="fixed bottom-0 left-0 right-0 z-20 border-t border-stone-200 bg-white px-4 pb-[calc(env(safe-area-inset-bottom,0px)+8px)] pt-2 sm:relative sm:mt-6 sm:border-0 sm:bg-transparent sm:p-0 sm:pb-0 sm:pt-0">
         <button
           onClick={() => { haptics.medium(); submitAnswer() }}
           disabled={isMultiSelect ? selectedAnswers.length === 0 : selectedAnswer === null}
@@ -392,28 +411,8 @@ export function QuizCard() {
         >
           回答する
         </button>
-      ) : (
-        <div className="flex flex-col gap-2">
-          {isCorrect === false && (
-            <button
-              onClick={() => { haptics.light(); retryQuestion() }}
-              aria-label="この問題をもう一度挑戦する (R)"
-              className="tap-highlight inline-flex w-full items-center justify-center gap-2 rounded-2xl border-2 border-claude-orange py-3.5 text-base font-semibold text-claude-orange sm:py-3"
-            >
-              <RotateCcw className="h-4 w-4" />
-              もう一度挑戦 <span className="text-xs opacity-60">(R)</span>
-            </button>
-          )}
-          <button
-            onClick={() => { haptics.light(); nextQuestion() }}
-            aria-label={isReviewMode ? '次の問題を確認する' : '次の問題へ進む'}
-            className="tap-highlight w-full rounded-2xl bg-claude-orange py-3.5 text-base font-semibold text-white sm:py-3"
-          >
-            {isReviewMode ? '次の問題を確認' : '次の問題へ'}
-          </button>
-        </div>
-      )}
-    </div>
+      </div>
+    )}
     </>
   )
 }
