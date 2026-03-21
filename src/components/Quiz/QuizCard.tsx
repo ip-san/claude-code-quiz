@@ -503,7 +503,7 @@ export function QuizCard() {
           )}
           <button
             onClick={() => { haptics.light(); nextQuestion() }}
-            disabled={!isAnswered}
+            disabled={currentIndex >= (sessionState?.questions.length ?? 0) - 1}
             className="tap-highlight flex items-center justify-center rounded-2xl border-2 border-stone-300 px-3 py-3 text-stone-500 disabled:opacity-30"
           >
             <ChevronRight className="h-5 w-5" />
