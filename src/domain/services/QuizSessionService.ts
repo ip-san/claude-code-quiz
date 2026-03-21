@@ -520,8 +520,8 @@ export class QuizSessionService {
       hintUsed: false,
       answerHistory: newHistory,
       // Revert score/count since the answer is being undone
-      score: oldRecord?.isCorrect ? state.score - 1 : state.score,
-      answeredCount: state.answeredCount - 1,
+      score: Math.max(0, oldRecord?.isCorrect ? state.score - 1 : state.score),
+      answeredCount: Math.max(0, state.answeredCount - 1),
     }
   }
 
