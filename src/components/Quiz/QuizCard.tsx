@@ -1,4 +1,4 @@
-import { useEffect, useCallback, useMemo } from 'react'
+import { useEffect, useCallback, useMemo, useState } from 'react'
 import { useQuizStore } from '@/stores/quizStore'
 import { OptionButton } from './OptionButton'
 import { Feedback } from './Feedback'
@@ -9,6 +9,7 @@ import { Bookmark, Lightbulb, RotateCcw } from 'lucide-react'
 import { QuizText } from './QuizText'
 import { haptics } from '@/lib/haptics'
 import { useSwipe } from '@/lib/useSwipe'
+import { CorrectOverlay } from './CorrectOverlay'
 
 // Color mapping for categories
 const COLOR_MAP: Record<string, string> = {
@@ -166,12 +167,20 @@ export function QuizCard() {
     return () => window.removeEventListener('keydown', handleKeyDown)
   }, [handleKeyDown])
 
-  // Haptic feedback on answer result
+  // Haptic feedback + overlay on answer result
+  const [showCorrectOverlay, setShowCorrectOverlay] = useState(false)
   useEffect(() => {
     if (isAnswered && isCorrect !== null) {
-      if (isCorrect) { haptics.success() } else { haptics.error() }
+      if (isCorrect) {
+        haptics.success()
+        if (!deferFeedback) setShowCorrectOverlay(true)
+      } else {
+        haptics.error()
+      }
+    } else {
+      setShowCorrectOverlay(false)
     }
-  }, [isAnswered, isCorrect])
+  }, [isAnswered, isCorrect, deferFeedback])
 
   // Slide-in animation key (changes on each question)
   const questionKey = quiz?.id ?? 'empty'
@@ -224,6 +233,9 @@ export function QuizCard() {
 
   return (
     <>
+      {/* Correct answer overlay — big center check */}
+      {showCorrectOverlay && <CorrectOverlay />}
+
       {/* Chapter indicator for overview mode */}
       {showChapterIndicator && currentChapter && (
         <ChapterIndicator
