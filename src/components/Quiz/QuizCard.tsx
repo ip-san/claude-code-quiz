@@ -384,12 +384,12 @@ export function QuizCard() {
         ))}
       </div>
 
-      {/* Feedback + action buttons (shown inline after answering, skip in defer mode) */}
+      {/* Feedback (shown inline after answering, skip in defer mode) */}
       {isAnswered && !deferFeedback && (
         <div className="mt-3 sm:mt-6">
           <Feedback quiz={quiz} isCorrect={isCorrect!} />
-          <div className="mt-4 flex flex-col gap-2 pb-4">
-            {isCorrect === false && (
+          {isCorrect === false && (
+            <div className="mt-4">
               <button
                 onClick={() => { haptics.light(); retryQuestion() }}
                 aria-label="この問題をもう一度挑戦する (R)"
@@ -398,26 +398,8 @@ export function QuizCard() {
                 <RotateCcw className="h-4 w-4" />
                 もう一度挑戦 <span className="text-xs opacity-60">(R)</span>
               </button>
-            )}
-            <div className="flex gap-2">
-              {canGoBack && (
-                <button
-                  onClick={() => { haptics.light(); previousQuestion() }}
-                  aria-label="前の問題に戻る"
-                  className="tap-highlight flex items-center justify-center rounded-2xl border-2 border-stone-300 px-4 py-3.5 text-stone-500 sm:py-3"
-                >
-                  <ChevronLeft className="h-5 w-5" />
-                </button>
-              )}
-              <button
-                onClick={() => { haptics.light(); nextQuestion() }}
-                aria-label={isReviewMode ? '次の問題を確認する' : '次の問題へ進む'}
-                className="tap-highlight flex-1 rounded-2xl bg-claude-orange py-3.5 text-base font-semibold text-white sm:py-3"
-              >
-                {isReviewMode ? '次の問題を確認' : '次の問題へ'}
-              </button>
             </div>
-          </div>
+          )}
         </div>
       )}
 
