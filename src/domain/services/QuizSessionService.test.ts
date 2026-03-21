@@ -895,3 +895,47 @@ describe('QuizSessionService', () => {
     })
   })
 })
+
+describe('Re-answer score handling', () => {
+  const questions = [
+    Question.create({ id: 'q1', category: 'tools', difficulty: 'beginner', question: 'Q1', options: [{ text: 'A' }, { text: 'B', wrongFeedback: 'wrong' }], correctIndex: 0, explanation: 'E1' }),
+    Question.create({ id: 'q2', category: 'tools', difficulty: 'beginner', question: 'Q2', options: [{ text: 'A' }, { text: 'B', wrongFeedback: 'wrong' }], correctIndex: 0, explanation: 'E2' }),
+  ]
+
+  const config: QuizSessionConfig = { mode: 'random', questionCount: 2, timeLimit: null, shuffleQuestions: false, shuffleOptions: false, categoryFilter: null, difficultyFilter: null }
+
+  it('should not double-count score on re-answer', () => {
+    let state = QuizSessionService.createInitialState(questions, config)
+
+    // Answer Q1 correctly
+    state = { ...state, selectedAnswer: 0 }
+    const r1 = QuizSessionService.submitAnswer(state)!
+    expect(r1.newState.score).toBe(1)
+    expect(r1.newState.answeredCount).toBe(1)
+
+    // Go to Q2 and back to Q1 (simulate re-visit)
+    const q2State = QuizSessionService.nextQuestion(r1.newState)
+    const backState: typeof q2State = { ...q2State, currentIndex: 0, selectedAnswer: 1, isAnswered: false, isCorrect: null }
+
+    // Re-answer Q1 wrongly
+    const r2 = QuizSessionService.submitAnswer(backState)!
+    expect(r2.newState.score).toBe(0) // was 1, now wrong = 0
+    expect(r2.newState.answeredCount).toBe(1) // not incremented
+  })
+
+  it('should correctly track answerHistory on re-answer', () => {
+    let state = QuizSessionService.createInitialState(questions, config)
+
+    // Answer Q1 wrongly
+    state = { ...state, selectedAnswer: 1 }
+    const r1 = QuizSessionService.submitAnswer(state)!
+    expect(r1.newState.answerHistory.get(0)?.isCorrect).toBe(false)
+
+    // Re-answer Q1 correctly
+    const retry: typeof r1.newState = { ...r1.newState, selectedAnswer: 0, isAnswered: false, isCorrect: null }
+    const r2 = QuizSessionService.submitAnswer(retry)!
+    expect(r2.newState.answerHistory.get(0)?.isCorrect).toBe(true)
+    expect(r2.newState.score).toBe(1)
+    expect(r2.newState.answeredCount).toBe(1)
+  })
+})

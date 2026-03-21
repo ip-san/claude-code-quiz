@@ -474,6 +474,11 @@ export class QuizSessionService {
       return state
     }
 
+    // Pause timer when reviewing a previously answered question
+    if (state.answerHistory.has(state.currentIndex) && !state.isAnswered) {
+      return state
+    }
+
     const newTime = state.timeRemaining - 1
 
     if (newTime <= 0) {

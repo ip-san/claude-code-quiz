@@ -561,9 +561,43 @@ export const useQuizStore = create<QuizStore>((set, get) => ({
     if (session.currentIndex <= 0) return
 
     const prevIdx = session.currentIndex - 1
+
+    // Review mode: restore full answered state (with feedback)
+    if (session.isReviewMode) {
+      const question = session.questions[prevIdx]
+      if (question?.isMultiSelect) {
+        const userMultiAnswer = session.reviewUserMultiAnswers[prevIdx] ?? []
+        set({
+          sessionState: {
+            ...session,
+            currentIndex: prevIdx,
+            selectedAnswer: null,
+            selectedAnswers: Object.freeze([...userMultiAnswer]),
+            isAnswered: true,
+            isCorrect: question.isCorrectMultiAnswer([...userMultiAnswer]),
+            hintUsed: false,
+          },
+        })
+      } else {
+        const userAnswer = session.reviewUserAnswers[prevIdx] ?? null
+        set({
+          sessionState: {
+            ...session,
+            currentIndex: prevIdx,
+            selectedAnswer: userAnswer,
+            selectedAnswers: Object.freeze([]),
+            isAnswered: true,
+            isCorrect: question && userAnswer !== null ? question.isCorrectAnswer(userAnswer) : null,
+            hintUsed: false,
+          },
+        })
+      }
+      return
+    }
+
     const record = session.answerHistory.get(prevIdx)
 
-    // Restore selection but hide feedback (isCorrect: null hides overlay/glow)
+    // Normal mode: restore selection but hide feedback
     set({
       sessionState: {
         ...session,
