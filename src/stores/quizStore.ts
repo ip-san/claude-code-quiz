@@ -538,16 +538,16 @@ export const useQuizStore = create<QuizStore>((set, get) => ({
     if (session.currentIndex <= 0) return
 
     const prevIdx = session.currentIndex - 1
-    const record = session.answerHistory.get(prevIdx)
 
+    // Show as unanswered (clean view) — user can see their previous selection but no feedback
     set({
       sessionState: {
         ...session,
         currentIndex: prevIdx,
-        selectedAnswer: record?.selectedAnswer ?? null,
-        selectedAnswers: record?.selectedAnswers ?? Object.freeze([]),
-        isAnswered: !!record,
-        isCorrect: record?.isCorrect ?? null,
+        selectedAnswer: null,
+        selectedAnswers: Object.freeze([]),
+        isAnswered: false,
+        isCorrect: null,
         hintUsed: false,
       },
     })
