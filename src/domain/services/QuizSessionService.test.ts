@@ -617,8 +617,10 @@ describe('QuizSessionService', () => {
       state = submitted.newState
 
       const retried = QuizSessionService.retryQuestion(state)
-      expect(retried.score).toBe(state.score)
-      expect(retried.answeredCount).toBe(state.answeredCount)
+      // retryQuestion reverts the wrong answer: score stays 0, answeredCount decrements
+      expect(retried.score).toBe(0)
+      expect(retried.answeredCount).toBe(state.answeredCount - 1)
+      expect(retried.answerHistory.has(0)).toBe(false)
       expect(retried.currentIndex).toBe(state.currentIndex)
     })
   })
