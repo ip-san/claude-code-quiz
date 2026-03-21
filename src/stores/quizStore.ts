@@ -121,6 +121,7 @@ interface QuizStore {
   toggleAnswer: (index: number) => void
   submitAnswer: () => void
   nextQuestion: () => void
+  previousQuestion: () => void
   endSession: () => void
 
   // Timer actions
@@ -488,6 +489,15 @@ export const useQuizStore = create<QuizStore>((set, get) => ({
       if (!newSessionState.isReviewMode) {
         saveSessionSnapshot(newSessionState, get().sessionWrongAnswers)
       }
+    }
+  },
+
+  previousQuestion: () => {
+    const state = get()
+    if (!state.sessionState) return
+    const prev = QuizSessionService.previousQuestion(state.sessionState)
+    if (prev) {
+      set({ sessionState: prev })
     }
   },
 

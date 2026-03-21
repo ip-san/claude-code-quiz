@@ -241,7 +241,7 @@ export function Feedback({ quiz, isCorrect }: FeedbackProps) {
   sections.push(
     <AnimatedSection key="explanation" order={explanationOrder} animate={animate} noMotion={noMotion} className="mb-4">
       <p className="mb-1 text-sm font-medium text-claude-dark">解説</p>
-      <div className={quiz.diagram ? 'max-h-96 overflow-y-auto' : 'max-h-48 overflow-y-auto'}>
+      <div>
         <p className="text-sm leading-relaxed text-stone-600">
           <QuizText text={quiz.explanation} animated={animate && !noMotion} animationDelay={300 + explanationOrder * 120} />
         </p>

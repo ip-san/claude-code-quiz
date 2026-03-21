@@ -74,6 +74,14 @@ export interface QuizSessionState {
   readonly hintsUsedCount: number
   /** 実力テストモード: 回答後にフィードバックを表示せず即次の問題へ */
   readonly deferFeedback: boolean
+  /** 各問題の回答履歴 (index → {selectedAnswer, selectedAnswers, isCorrect}) */
+  readonly answerHistory: ReadonlyMap<number, AnswerRecord>
+}
+
+export interface AnswerRecord {
+  readonly selectedAnswer: number | null
+  readonly selectedAnswers: readonly number[]
+  readonly isCorrect: boolean
 }
 
 /**
@@ -251,6 +259,7 @@ export class QuizSessionService {
       hintUsed: false,
       hintsUsedCount: 0,
       deferFeedback: config.mode === 'full',
+      answerHistory: new Map(),
     }
   }
 
@@ -349,15 +358,46 @@ export class QuizSessionService {
       isCorrect = currentQuestion.isCorrectAnswer(state.selectedAnswer)
     }
 
+    // Save answer to history
+    const newHistory = new Map(state.answerHistory)
+    newHistory.set(state.currentIndex, {
+      selectedAnswer: state.selectedAnswer,
+      selectedAnswers: state.selectedAnswers,
+      isCorrect,
+    })
+
     const newState: QuizSessionState = {
       ...state,
       isAnswered: true,
       isCorrect,
       score: isCorrect ? state.score + 1 : state.score,
       answeredCount: state.answeredCount + 1,
+      answerHistory: newHistory,
     }
 
     return { newState, isCorrect }
+  }
+
+  /**
+   * 前の問題に戻る（回答済みの問題を振り返る）
+   */
+  static previousQuestion(state: QuizSessionState): QuizSessionState | null {
+    if (state.currentIndex <= 0) return null
+
+    const prevIndex = state.currentIndex - 1
+    const record = state.answerHistory.get(prevIndex)
+
+    if (!record) return null // 未回答の問題には戻れない
+
+    return {
+      ...state,
+      currentIndex: prevIndex,
+      selectedAnswer: record.selectedAnswer,
+      selectedAnswers: record.selectedAnswers,
+      isAnswered: true,
+      isCorrect: record.isCorrect,
+      hintUsed: false,
+    }
   }
 
   /**

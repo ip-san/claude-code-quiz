@@ -5,7 +5,7 @@ import { Feedback } from './Feedback'
 import { ChapterIndicator } from './ChapterIndicator'
 import { getCategoryById } from '@/domain/valueObjects/Category'
 import { getChapterFromTags, OVERVIEW_CHAPTERS } from '@/domain/valueObjects/OverviewChapter'
-import { Bookmark, Lightbulb, RotateCcw } from 'lucide-react'
+import { Bookmark, Lightbulb, RotateCcw, ChevronLeft } from 'lucide-react'
 import { QuizText } from './QuizText'
 import { haptics } from '@/lib/haptics'
 import { useSwipe } from '@/lib/useSwipe'
@@ -36,6 +36,7 @@ export function QuizCard() {
     toggleAnswer,
     submitAnswer,
     nextQuestion,
+    previousQuestion,
     retryQuestion,
     endSession,
     toggleBookmark,
@@ -52,6 +53,8 @@ export function QuizCard() {
   const hintUsed = sessionState?.hintUsed ?? false
   const isBookmarked = quiz ? useQuizStore.getState().userProgress.isBookmarked(quiz.id) : false
   const isMultiSelect = quiz?.isMultiSelect ?? false
+  const currentIndex = sessionState?.currentIndex ?? 0
+  const canGoBack = currentIndex > 0 && (sessionState?.answerHistory?.size ?? 0) > 0
 
   // Chapter indicator for overview mode
   const isOverviewMode = sessionState?.config.mode === 'overview'
@@ -185,12 +188,18 @@ export function QuizCard() {
   // Slide-in animation key (changes on each question)
   const questionKey = quiz?.id ?? 'empty'
 
-  // Swipe to next question (only after answering)
+  // Swipe to navigate questions (only after answering)
   const swipeHandlers = useSwipe({
     onSwipeLeft: () => {
       if (isAnswered) {
         haptics.light()
         nextQuestion()
+      }
+    },
+    onSwipeRight: () => {
+      if (isAnswered && canGoBack) {
+        haptics.light()
+        previousQuestion()
       }
     },
     disabled: !isAnswered,
@@ -391,14 +400,25 @@ export function QuizCard() {
                 もう一度挑戦 <span className="text-xs opacity-60">(R)</span>
               </button>
             )}
-            <button
-              onClick={() => { haptics.light(); nextQuestion() }}
-              aria-label={isReviewMode ? '次の問題を確認する' : '次の問題へ進む'}
-              className="tap-highlight w-full rounded-2xl bg-claude-orange py-3.5 text-base font-semibold text-white sm:py-3"
-            >
-              {isReviewMode ? '次の問題を確認' : '次の問題へ'}
-              <span className="text-xs opacity-50 sm:hidden"> ← スワイプ</span>
-            </button>
+            <div className="flex gap-2">
+              {canGoBack && (
+                <button
+                  onClick={() => { haptics.light(); previousQuestion() }}
+                  aria-label="前の問題に戻る"
+                  className="tap-highlight flex items-center justify-center rounded-2xl border-2 border-stone-300 px-4 py-3.5 text-stone-500 sm:py-3"
+                >
+                  <ChevronLeft className="h-5 w-5" />
+                </button>
+              )}
+              <button
+                onClick={() => { haptics.light(); nextQuestion() }}
+                aria-label={isReviewMode ? '次の問題を確認する' : '次の問題へ進む'}
+                className="tap-highlight flex-1 rounded-2xl bg-claude-orange py-3.5 text-base font-semibold text-white sm:py-3"
+              >
+                {isReviewMode ? '次の問題を確認' : '次の問題へ'}
+                <span className="text-xs opacity-50 sm:hidden"> ← スワイプ</span>
+              </button>
+            </div>
           </div>
         </div>
       )}
