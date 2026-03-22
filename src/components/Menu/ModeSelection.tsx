@@ -147,7 +147,16 @@ export function ModeSelection() {
               </span>
             </h1>
             <p className="text-sm text-claude-gray">
-              <AnimatedCounter target={allQuestions.length} suffix="問" /> | 8カテゴリ
+              {userProgress.totalAttempts > 0 ? (
+                <>
+                  <AnimatedCounter target={allQuestions.length} suffix="問" /> |{' '}
+                  {allQuestions.length - unansweredCount}問 解答済み
+                </>
+              ) : (
+                <>
+                  <AnimatedCounter target={allQuestions.length} suffix="問" /> | 8カテゴリ
+                </>
+              )}
             </p>
           </div>
 

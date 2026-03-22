@@ -158,8 +158,8 @@ export function QuizResult() {
       }
     }
     return {
-      title: '頑張りましょう！',
-      message: '間違えた問題を見直して、再チャレンジしてみてください。',
+      title: '伸びしろあり！',
+      message: '復習すれば確実に伸びます。苦手分野から攻略しましょう。',
       color: 'text-red-600',
       bgColor: 'bg-red-50',
       borderColor: 'border-red-200',
@@ -380,6 +380,25 @@ export function QuizResult() {
               メニューに戻る
             </button>
           </div>
+
+          {/* Next step CTA — encourage real adoption */}
+          {!isReviewMode && (
+            <div className="mt-6 rounded-2xl border border-claude-orange/20 bg-claude-orange/5 p-4 text-center">
+              <p className="mb-1 text-xs font-semibold text-claude-orange">Next Step</p>
+              <p className="mb-3 text-sm text-claude-dark">
+                学んだ知識を実践してみましょう
+              </p>
+              <a
+                href="https://docs.anthropic.com/en/docs/claude-code/overview"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="tap-highlight inline-flex items-center gap-1.5 rounded-xl bg-claude-orange/10 px-4 py-2 text-sm font-medium text-claude-orange"
+              >
+                Claude Code を始める
+                <ArrowRight className="h-4 w-4" />
+              </a>
+            </div>
+          )}
         </div>
       </div>
     </div>

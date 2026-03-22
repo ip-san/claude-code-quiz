@@ -1,4 +1,4 @@
-import { BookOpen, Target, BarChart3, ArrowRight } from 'lucide-react'
+import { Zap, Brain, Rocket, ArrowRight } from 'lucide-react'
 
 const WELCOME_KEY = 'claude-quiz-welcomed'
 
@@ -8,19 +8,19 @@ interface WelcomeScreenProps {
 
 const FEATURES = [
   {
-    icon: <BookOpen className="h-6 w-6 text-claude-orange" />,
-    title: '630問のクイズ',
-    desc: 'Claude Code の全機能を網羅した問題集',
+    icon: <Zap className="h-6 w-6 text-claude-orange" />,
+    title: 'AIで開発を加速',
+    desc: 'Claude Code はコードを書き、デバッグし、テストまで実行する AI アシスタント',
   },
   {
-    icon: <Target className="h-6 w-6 text-blue-500" />,
-    title: '学習モード',
-    desc: 'カテゴリ別・難易度別に効率よく学習',
+    icon: <Brain className="h-6 w-6 text-blue-500" />,
+    title: 'クイズで即戦力に',
+    desc: '630問で全機能をマスター。知識ゼロからでも始められます',
   },
   {
-    icon: <BarChart3 className="h-6 w-6 text-green-500" />,
-    title: '学習履歴',
-    desc: '進捗を記録し、苦手分野を把握',
+    icon: <Rocket className="h-6 w-6 text-green-500" />,
+    title: '今日から使える',
+    desc: '学んだ知識をすぐに実践。あなたのチームの AI 推進者になろう',
   },
 ] as const
 
@@ -48,10 +48,13 @@ export function WelcomeScreen({ onComplete }: WelcomeScreenProps) {
         </div>
 
         <h1 className="mb-2 text-2xl font-bold text-claude-dark">
-          Claude Code Quiz へようこそ
+          Claude Code Quiz
         </h1>
-        <p className="mb-8 text-sm text-claude-gray">
-          Claude Code の機能と使い方をクイズで学びましょう
+        <p className="mb-1 text-sm text-claude-gray">
+          AI コーディングアシスタントの全てを学ぶ
+        </p>
+        <p className="mb-8 text-xs text-stone-400">
+          630問 | 8カテゴリ | スマホでいつでも学習
         </p>
 
         {/* Features */}
