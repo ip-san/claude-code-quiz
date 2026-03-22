@@ -166,6 +166,25 @@ export function ModeSelection() {
             <DailyGoalIndicator />
           </div>
 
+          {/* First-time user: recommend overview mode */}
+          {userProgress.totalAttempts === 0 && (
+            <div className="mb-5 rounded-2xl border-2 border-claude-orange/30 bg-gradient-to-r from-claude-orange/5 to-transparent p-4">
+              <p className="mb-1 text-xs font-semibold text-claude-orange">はじめての方へ</p>
+              <p className="mb-3 text-sm text-claude-dark">
+                まずは「全体像モード」で Claude Code の全体像をつかみましょう。順番に学べるガイド付きコースです。
+              </p>
+              <button
+                onClick={() => {
+                  haptics.light()
+                  startSession({ mode: 'overview' })
+                }}
+                className="tap-highlight inline-flex items-center gap-2 rounded-xl bg-claude-orange px-5 py-2.5 text-sm font-semibold text-white shadow-sm"
+              >
+                🗺️ 全体像モードで始める
+              </button>
+            </div>
+          )}
+
           {/* Mode Selection — horizontal scroll on mobile */}
           <div className="mb-5">
             <h2 className="mb-2 text-sm font-semibold text-stone-500">
