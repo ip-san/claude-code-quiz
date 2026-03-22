@@ -33,7 +33,7 @@ export function KeyboardShortcutHelp({ isOpen, onClose }: KeyboardShortcutHelpPr
         onClose()
         return
       }
-      // Focus trap
+      // Focus trap: Shift+Tab from first → last, Tab from last → first
       if (e.key === 'Tab' && dialogRef.current) {
         const focusable = dialogRef.current.querySelectorAll<HTMLElement>('button, [tabindex]')
         if (focusable.length === 0) return

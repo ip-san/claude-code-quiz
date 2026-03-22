@@ -22,6 +22,7 @@ export function EncouragementToast({ wrongStreak }: EncouragementToastProps) {
   const [message, setMessage] = useState('')
 
   useEffect(() => {
+    // 2問連続不正解ごとに励ましを表示（2, 4, 6, ...）
     if (wrongStreak >= 2 && wrongStreak % 2 === 0) {
       const msg = MESSAGES[Math.floor(Math.random() * MESSAGES.length)]
       setMessage(msg)
