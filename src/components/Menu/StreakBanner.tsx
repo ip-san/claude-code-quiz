@@ -5,12 +5,28 @@ import { useQuizStore } from '@/stores/quizStore'
  *
  * メニュー画面のヘッダー下に配置。
  * 継続学習を視覚的にフィードバックしてモチベーションを維持する。
+ *
+ * ストリーク0（離脱後の復帰）でも、過去に学習歴がある人には
+ * 「おかえりなさい」メッセージを表示して再開を後押しする。
  */
 export function StreakBanner() {
   const { userProgress } = useQuizStore()
   const streak = userProgress.streakDays
 
-  if (streak === 0) return null
+  // ストリーク0 + 過去に学習歴あり → 復帰ユーザーへのメッセージ
+  if (streak === 0) {
+    if (userProgress.totalAttempts === 0) return null // 完全新規は表示しない
+    return (
+      <div className="animate-bounce-in rounded-2xl border border-blue-200 bg-blue-50 px-4 py-3 text-center dark:border-blue-500/30 dark:bg-blue-500/10">
+        <p className="text-sm font-medium text-blue-700 dark:text-blue-300">
+          おかえりなさい。あなたの学びは消えていません。
+        </p>
+        <p className="mt-0.5 text-xs text-blue-500 dark:text-blue-400">
+          これまで{userProgress.totalAttempts}問に挑戦し、{userProgress.totalCorrect}問正解しています。今日からまた始めましょう。
+        </p>
+      </div>
+    )
+  }
 
   const getStreakEmoji = (days: number) => {
     if (days >= 100) return '👑'

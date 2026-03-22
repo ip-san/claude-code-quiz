@@ -456,6 +456,13 @@ export function QuizResult() {
           {!isReviewMode && (
             <TeamShareGuide percentage={percentage} mode={sessionConfig.mode} />
           )}
+
+          {/* Resilience message — skills are permanent */}
+          {!isReviewMode && (
+            <p className="mt-6 text-center text-xs text-stone-400">
+              今日の学びは、誰にも奪えません。
+            </p>
+          )}
         </div>
       </div>
     </div>
