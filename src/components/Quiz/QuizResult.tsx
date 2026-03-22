@@ -10,6 +10,7 @@ import { DailyGoalService } from '@/domain/services/DailyGoalService'
 import { CertificateGenerator } from './CertificateGenerator'
 import { PersonalBest } from './PersonalBest'
 import { SkillsAcquired } from './SkillsAcquired'
+import { TeamShareGuide } from './TeamShareGuide'
 
 // Score thresholds for result messages
 const SCORE_THRESHOLDS = {
@@ -440,6 +441,11 @@ export function QuizResult() {
               </div>
             )
           })()}
+
+          {/* Team sharing guide — individual learning → team transformation */}
+          {!isReviewMode && (
+            <TeamShareGuide percentage={percentage} mode={sessionConfig.mode} />
+          )}
         </div>
       </div>
     </div>
