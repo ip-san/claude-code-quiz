@@ -84,7 +84,9 @@ export function ModeSelection() {
     ? overviewCount
     : selectedMode === 'unanswered'
       ? unansweredCount
-      : (mode?.questionCount ?? availableQuizzes.length)
+      : selectedMode === 'bookmark'
+        ? bookmarkedCount
+        : (mode?.questionCount ?? availableQuizzes.length)
 
   return (
     <div className="flex min-h-screen flex-col bg-claude-cream">
