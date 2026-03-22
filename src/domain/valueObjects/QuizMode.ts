@@ -2,7 +2,7 @@
  * QuizMode Value Object
  * Represents different quiz session modes
  */
-export type QuizModeId = 'full' | 'category' | 'random' | 'weak' | 'unanswered' | 'custom' | 'bookmark' | 'review' | 'overview'
+export type QuizModeId = 'full' | 'category' | 'random' | 'quick' | 'weak' | 'unanswered' | 'custom' | 'bookmark' | 'review' | 'overview'
 
 export interface QuizModeProps {
   readonly id: QuizModeId
@@ -37,7 +37,7 @@ export class QuizMode {
   }
 
   static create(props: QuizModeProps): QuizMode {
-    const validModes: QuizModeId[] = ['full', 'category', 'random', 'weak', 'unanswered', 'custom', 'bookmark', 'review', 'overview']
+    const validModes: QuizModeId[] = ['full', 'category', 'random', 'quick', 'weak', 'unanswered', 'custom', 'bookmark', 'review', 'overview']
     if (!validModes.includes(props.id)) {
       throw new Error(`Invalid quiz mode: ${props.id}`)
     }
@@ -118,6 +118,16 @@ export const PREDEFINED_QUIZ_MODES: QuizMode[] = [
     questionCount: 20,
     timeLimit: null,
     shuffleQuestions: true,
+    shuffleOptions: false,
+  }),
+  QuizMode.create({
+    id: 'quick',
+    name: '60秒チェック',
+    description: '復習期限の問題を3問だけ。忙しい日でも60秒で学習維持',
+    icon: '⚡',
+    questionCount: 3,
+    timeLimit: null,
+    shuffleQuestions: false,
     shuffleOptions: false,
   }),
   QuizMode.create({

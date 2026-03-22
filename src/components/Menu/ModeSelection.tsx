@@ -26,6 +26,7 @@ import { KeyboardShortcutHelp } from '@/components/Layout/KeyboardShortcutHelp'
 import { haptics } from '@/lib/haptics'
 import { MasteryRoadmap } from './MasteryRoadmap'
 import { SpacedRepetitionService } from '@/domain/services/SpacedRepetitionService'
+import { DailySnapshot, hasSeenSnapshotToday } from './DailySnapshot'
 
 export function ModeSelection() {
   const {
@@ -43,6 +44,7 @@ export function ModeSelection() {
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null)
   const [selectedDifficulty, setSelectedDifficulty] = useState<DifficultyLevel | null>(null)
   const [showShortcuts, setShowShortcuts] = useState(false)
+  const [snapshotDismissed, setSnapshotDismissed] = useState(() => hasSeenSnapshotToday())
 
   const bookmarkedCount = getBookmarkedCount()
 
@@ -180,6 +182,11 @@ export function ModeSelection() {
             <StreakBanner />
             {userProgress.totalAttempts > 0 && <DailyGoalIndicator />}
           </div>
+
+          {/* Daily Snapshot — removes decision paralysis on app open */}
+          {userProgress.totalAttempts > 0 && !snapshotDismissed && (
+            <DailySnapshot onDismiss={() => setSnapshotDismissed(true)} />
+          )}
 
           {/* SRS Review Banner — skill retention through spaced repetition */}
           {dueForReviewCount > 0 && (

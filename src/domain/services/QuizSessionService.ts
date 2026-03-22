@@ -194,6 +194,19 @@ export class QuizSessionService {
       }
     }
 
+    // For quick mode, pick SRS-due questions (most overdue first, 3 questions)
+    if (config.mode === 'quick') {
+      const now = Date.now()
+      const dueQuestions = questions.filter(q => {
+        const qp = userProgress.questionProgress[q.id]
+        return qp && qp.attempts > 0 && SpacedRepetitionService.isDue(qp, now)
+      })
+      if (dueQuestions.length > 0) {
+        questions = SpacedRepetitionService.sortByPriority(dueQuestions, userProgress, now)
+      }
+      // If no due questions, fall back to weak questions or random
+    }
+
     // For unanswered mode, filter to unanswered questions
     if (config.mode === 'unanswered') {
       const unanswered = questions.filter(q => !userProgress.hasAttempted(q.id))
@@ -202,8 +215,8 @@ export class QuizSessionService {
       }
     }
 
-    // Shuffle if needed (skip for weak mode where SRS priority ordering is applied)
-    if (config.shuffleQuestions && config.mode !== 'weak') {
+    // Shuffle if needed (skip for weak/quick mode where SRS priority ordering is applied)
+    if (config.shuffleQuestions && config.mode !== 'weak' && config.mode !== 'quick') {
       questions = this.shuffleArray(questions)
     }
 
