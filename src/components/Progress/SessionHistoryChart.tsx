@@ -1,4 +1,3 @@
-import { useMemo } from 'react'
 import type { SessionRecord } from '@/domain/entities/UserProgress'
 
 interface SessionHistoryChartProps {
@@ -19,7 +18,8 @@ const INNER_HEIGHT = CHART_HEIGHT - PADDING.top - PADDING.bottom
  * npm依存なし、SVG直書きで軽量。
  */
 export function SessionHistoryChart({ sessions }: SessionHistoryChartProps) {
-  const isDark = useMemo(() => document.documentElement.classList.contains('dark'), [])
+  // Recalculate on each render to react to theme changes (no stale cache)
+  const isDark = document.documentElement.classList.contains('dark')
   const gridColor = isDark ? '#444' : '#e7e5e4'
   const dotStroke = isDark ? '#2a2a2a' : 'white'
 
