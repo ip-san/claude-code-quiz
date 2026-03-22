@@ -76,7 +76,7 @@ export function QuizCard() {
     (e: KeyboardEvent) => {
       if (!quiz) return
       // Don't handle keys when a dialog/modal is open
-      if (document.querySelector('[role="dialog"], [class*="fixed inset-0"]')) return
+      if (document.querySelector('[role="dialog"]')) return
 
       const optionCount = quiz.options.length
 

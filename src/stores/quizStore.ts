@@ -707,6 +707,17 @@ export const useQuizStore = create<QuizStore>((set, get) => ({
 
     if (newSessionState.isCompleted && !state.sessionState.isCompleted) {
       getSessionRepository().clear()
+      // Record session in history on timer expiry
+      if (!newSessionState.isReviewMode) {
+        const updatedProgress = state.userProgress.recordSession(
+          newSessionState.config.mode,
+          newSessionState.config.categoryFilter ?? null,
+          newSessionState.score,
+          newSessionState.answeredCount
+        )
+        set({ userProgress: updatedProgress })
+        getProgressRepository().save(updatedProgress).catch(console.error)
+      }
       set({
         sessionState: newSessionState,
         viewState: 'result',

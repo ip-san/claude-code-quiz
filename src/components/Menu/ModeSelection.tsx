@@ -258,12 +258,14 @@ export function ModeSelection() {
           )}
 
           {/* Category mastery overview */}
-          {userProgress.totalAttempts > 0 && (
+          {userProgress.totalAttempts > 0 && (() => {
+            const allCategoryStats = getCategoryStats()
+            return (
             <div className="mb-4">
               <h2 className="mb-2 text-sm font-semibold text-stone-500">理解度</h2>
               <div className="grid grid-cols-4 gap-1.5 sm:grid-cols-8">
                 {PREDEFINED_CATEGORIES.map((category: Category) => {
-                  const stats = getCategoryStats()[category.id]
+                  const stats = allCategoryStats[category.id]
                   const accuracy = stats
                     ? Math.round((stats.correctAnswers / Math.max(stats.attemptedQuestions, 1)) * 100)
                     : 0
@@ -280,7 +282,8 @@ export function ModeSelection() {
                 })}
               </div>
             </div>
-          )}
+            )
+          })()}
 
           {/* Learning history + update check */}
           <div className="flex gap-2">

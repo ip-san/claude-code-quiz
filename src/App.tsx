@@ -260,7 +260,7 @@ function QuizView({
           <div
             className="relative mx-2 mb-2 w-full max-w-sm animate-slide-down rounded-2xl bg-white p-6 shadow-2xl sm:mx-4 sm:mb-0 sm:animate-none"
             onClick={(e) => e.stopPropagation()}
-            ref={(el) => { if (el) { const btn = el.querySelector('button'); btn?.focus() } }}
+            ref={(el) => { if (el) { const btns = el.querySelectorAll('button'); btns[btns.length - 1]?.focus() } }}
           >
             <h3 className="mb-2 text-center text-lg font-semibold text-claude-dark">
               {isReviewMode ? '復習を中止しますか？' : 'クイズを中止しますか？'}
