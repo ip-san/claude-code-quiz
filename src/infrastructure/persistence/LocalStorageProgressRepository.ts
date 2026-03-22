@@ -21,7 +21,8 @@ export class LocalStorageProgressRepository implements IProgressRepository {
 
       const result = validateUserProgress(stored)
       if (!result.success || !result.data) {
-        console.warn('Invalid progress data, resetting:', result.errors)
+        console.warn('Invalid progress data, clearing corrupted data:', result.errors)
+        localStorage.removeItem(STORAGE_KEY)
         return UserProgress.empty()
       }
 

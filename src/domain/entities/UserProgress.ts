@@ -276,9 +276,10 @@ export class UserProgress {
       return this.streakDays
     }
 
-    // Calculate yesterday correctly (handles month/year boundaries)
-    const yesterdayTimestamp = now - 86400000
-    const yesterday = getLocalDateNumber(yesterdayTimestamp)
+    // Calculate yesterday correctly (handles month/year boundaries + DST)
+    const todayDate = new Date(now)
+    todayDate.setDate(todayDate.getDate() - 1)
+    const yesterday = getLocalDateNumber(todayDate.getTime())
 
     // Consecutive day - increment streak
     if (lastDate === yesterday) {

@@ -1,3 +1,4 @@
+import { useMemo } from 'react'
 import type { SessionRecord } from '@/domain/entities/UserProgress'
 
 interface SessionHistoryChartProps {
@@ -18,6 +19,10 @@ const INNER_HEIGHT = CHART_HEIGHT - PADDING.top - PADDING.bottom
  * npm依存なし、SVG直書きで軽量。
  */
 export function SessionHistoryChart({ sessions }: SessionHistoryChartProps) {
+  const isDark = useMemo(() => document.documentElement.classList.contains('dark'), [])
+  const gridColor = isDark ? '#444' : '#e7e5e4'
+  const dotStroke = isDark ? '#2a2a2a' : 'white'
+
   if (sessions.length < 2) {
     return (
       <div className="rounded-2xl border border-stone-200 bg-white p-6 text-center">
@@ -67,7 +72,7 @@ export function SessionHistoryChart({ sessions }: SessionHistoryChartProps) {
                 y1={y}
                 x2={PADDING.left + INNER_WIDTH}
                 y2={y}
-                stroke="#e7e5e4"
+                stroke={gridColor}
                 strokeDasharray={v === 0 ? undefined : '4,4'}
               />
               <text
@@ -108,7 +113,7 @@ export function SessionHistoryChart({ sessions }: SessionHistoryChartProps) {
             cy={p.y}
             r={3}
             fill="#D97757"
-            stroke="white"
+            stroke={dotStroke}
             strokeWidth={1.5}
           >
             <title>{`セッション${i + 1}: ${p.percentage}%`}</title>

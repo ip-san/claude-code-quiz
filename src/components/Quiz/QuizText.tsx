@@ -59,10 +59,10 @@ function parseInlineCode(
     parts.push(
       <code
         key={match.index}
-        className={`rounded px-1 py-0.5 font-mono text-[0.9em] text-stone-800 ${
+        className={`rounded px-1 py-0.5 font-mono text-[0.9em] text-stone-800 dark:text-stone-200 ${
           animated
-            ? 'animate-code-highlight bg-gradient-to-r from-amber-200/70 to-amber-100/50 bg-no-repeat bg-left'
-            : 'bg-stone-100'
+            ? 'animate-code-highlight bg-gradient-to-r from-amber-200/70 to-amber-100/50 bg-no-repeat bg-left dark:from-amber-700/40 dark:to-amber-600/30'
+            : 'bg-stone-100 dark:bg-stone-700'
         }`}
         style={animated ? { animationDelay: `${delay}ms` } : undefined}
       >

@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react'
+import { useEffect, useMemo, useState, useRef } from 'react'
 import { useQuizStore } from '@/stores/quizStore'
 import { OptionButton } from './OptionButton'
 import { Feedback } from './Feedback'
@@ -10,6 +10,7 @@ import { QuizText } from './QuizText'
 import { haptics } from '@/lib/haptics'
 import { useSwipe } from '@/lib/useSwipe'
 import { CorrectOverlay } from './CorrectOverlay'
+import { StreakToast } from './StreakToast'
 
 import { getColorHex } from '@/lib/colors'
 import { useQuizKeyboard } from './useQuizKeyboard'
@@ -65,17 +66,36 @@ export function QuizCard({ isModalOpen = false }: { isModalOpen?: boolean }) {
     selectAnswer, toggleAnswer, submitAnswer, nextQuestion, retryQuestion,
   })
 
+  // Track consecutive correct answers for streak toast
+  const [consecutiveCorrect, setConsecutiveCorrect] = useState(0)
+  const prevIsAnsweredRef = useRef(false)
+
+  // Reset streak on new session (questions array identity changes)
+  const questionsRef = useRef(sessionState?.questions)
+  useEffect(() => {
+    if (sessionState?.questions !== questionsRef.current) {
+      questionsRef.current = sessionState?.questions
+      setConsecutiveCorrect(0)
+    }
+  }, [sessionState?.questions])
+
   // Haptic feedback + overlay on answer result
   const [showCorrectOverlay, setShowCorrectOverlay] = useState(false)
   useEffect(() => {
-    if (isAnswered && isCorrect !== null) {
+    // Only trigger on fresh answer submission (isAnswered: false → true)
+    const isNewSubmission = isAnswered && !prevIsAnsweredRef.current
+    prevIsAnsweredRef.current = isAnswered
+
+    if (isNewSubmission && isCorrect !== null) {
       if (isCorrect) {
         haptics.success()
         if (!deferFeedback) setShowCorrectOverlay(true)
+        setConsecutiveCorrect(prev => prev + 1)
       } else {
         haptics.error()
+        setConsecutiveCorrect(0)
       }
-    } else {
+    } else if (!isAnswered) {
       setShowCorrectOverlay(false)
     }
   }, [isAnswered, isCorrect, deferFeedback])
@@ -122,7 +142,7 @@ export function QuizCard({ isModalOpen = false }: { isModalOpen?: boolean }) {
         </p>
         <button
           onClick={endSession}
-          className="rounded-lg bg-claude-orange px-4 py-2 text-white hover:bg-claude-orange/90"
+          className="tap-highlight rounded-lg bg-claude-orange px-4 py-2 text-white"
         >
           メニューに戻る
         </button>
@@ -136,6 +156,9 @@ export function QuizCard({ isModalOpen = false }: { isModalOpen?: boolean }) {
     <>
       {/* Correct answer overlay — big center check */}
       {showCorrectOverlay && <CorrectOverlay />}
+
+      {/* Consecutive correct streak toast */}
+      {!deferFeedback && <StreakToast streak={consecutiveCorrect} />}
 
       {/* Chapter indicator for overview mode */}
       {showChapterIndicator && currentChapter && (

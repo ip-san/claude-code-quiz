@@ -355,6 +355,9 @@ export const useQuizStore = create<QuizStore>((set, get) => ({
       APP_CONFIG.minAttemptsForWeak
     )
 
+    // Guard: no questions available for this config
+    if (sessionQuestions.length === 0) return
+
     const sessionState = {
       ...QuizSessionService.createInitialState(sessionQuestions, config),
       initialStreakDays: state.userProgress.streakDays,
@@ -682,6 +685,13 @@ export const useQuizStore = create<QuizStore>((set, get) => ({
       finalCount = state.sessionState.answeredCount
     }
 
+    // Guard: no answers recorded
+    if (finalCount === 0) {
+      getSessionRepository().clear()
+      set({ viewState: 'menu', sessionState: null, savedSession: null, sessionWrongAnswers: [] })
+      return
+    }
+
     getSessionRepository().clear()
 
     // Record session in history
@@ -792,12 +802,15 @@ export const useQuizStore = create<QuizStore>((set, get) => ({
 
     const sessionState = QuizSessionService.createInitialState(questions, saved.sessionConfig)
 
+    // Clamp currentIndex to valid bounds (questions may have been removed)
+    const safeCurrentIndex = Math.min(saved.currentIndex, questions.length - 1)
+
     // Restore current question's selection from answerHistory
-    const currentRecord = answerHistory.get(saved.currentIndex)
+    const currentRecord = answerHistory.get(safeCurrentIndex)
 
     const resumedState: QuizSessionState = {
       ...sessionState,
-      currentIndex: saved.currentIndex,
+      currentIndex: safeCurrentIndex,
       score: saved.score,
       answeredCount: saved.answeredCount,
       startedAt: saved.startedAt,

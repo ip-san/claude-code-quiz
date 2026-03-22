@@ -17,6 +17,7 @@ function setThemeColor(color: string) {
 import { lazy, Suspense, useRef } from 'react'
 import { OfflineIndicator } from '@/components/Layout/OfflineIndicator'
 import { InstallPrompt } from '@/components/Layout/InstallPrompt'
+import { WelcomeScreen, hasSeenWelcome } from '@/components/Layout/WelcomeScreen'
 
 // Lazy-load PWA update prompt only in web builds (avoids virtual:pwa-register error in Electron)
 const PWAUpdatePrompt = !isElectron
@@ -25,6 +26,7 @@ const PWAUpdatePrompt = !isElectron
 
 export default function App() {
   const { viewState, getProgress, sessionState, isLoading, initialize, endSession, suspendSession } = useQuizStore()
+  const [showWelcome, setShowWelcome] = useState(() => !hasSeenWelcome())
 
   // Initialize store on mount
   useEffect(() => {
@@ -63,20 +65,21 @@ export default function App() {
     return () => window.removeEventListener('popstate', handlePopState)
   }, [viewState, isLoading, endSession, suspendSession])
 
-  // Show loading skeleton
+  // Show welcome screen for first-time users
+  if (showWelcome && !isLoading) {
+    return <WelcomeScreen onComplete={() => setShowWelcome(false)} />
+  }
+
+  // Show branded loading screen
   if (isLoading) {
     return (
-      <div className="min-h-screen bg-claude-cream px-4 pt-12">
-        <div className="mx-auto w-full sm:max-w-2xl">
-          <div className="mb-6 text-center">
-            <div className="mx-auto mb-3 h-8 w-48 animate-pulse rounded-lg bg-stone-200" />
-            <div className="mx-auto h-4 w-32 animate-pulse rounded bg-stone-200" />
+      <div className="flex min-h-screen flex-col items-center justify-center bg-claude-cream">
+        <div className="animate-bounce-in text-center">
+          <div className="mx-auto mb-4 flex h-20 w-20 items-center justify-center rounded-3xl bg-claude-orange shadow-lg">
+            <span className="text-3xl font-bold text-white">CC</span>
           </div>
-          <div className="space-y-3">
-            {[...Array(4)].map((_, i) => (
-              <div key={i} className="h-16 animate-pulse rounded-2xl bg-stone-200" style={{ animationDelay: `${i * 100}ms` }} />
-            ))}
-          </div>
+          <h1 className="mb-1 text-xl font-bold text-claude-dark">Claude Code Quiz</h1>
+          <p className="text-sm text-claude-gray">読み込み中...</p>
         </div>
       </div>
     )
@@ -153,6 +156,7 @@ function QuizView({
   const isOverviewMode = sessionState?.config.mode === 'overview'
   const [showQuitDialog, setShowQuitDialog] = useState(false)
   const dialogRef = useRef<HTMLDivElement | null>(null)
+  const triggerRef = useRef<HTMLButtonElement | null>(null)
 
   const currentChapter = useMemo(() => {
     if (!isOverviewMode || !sessionState) return null
@@ -175,6 +179,8 @@ function QuizView({
 
   const handleCancelQuit = () => {
     setShowQuitDialog(false)
+    // Restore focus to the trigger button
+    requestAnimationFrame(() => triggerRef.current?.focus())
   }
 
   useEffect(() => {
@@ -237,6 +243,7 @@ function QuizView({
               {timeRemaining !== null && <Timer />}
             </div>
             <button
+              ref={triggerRef}
               onClick={handleQuitClick}
               className="tap-highlight flex items-center gap-1.5 rounded-full px-1 py-1 sm:border sm:border-stone-300 sm:px-3.5 sm:py-1.5"
               aria-label={isReviewMode ? '復習を終了する' : 'クイズを中止する'}

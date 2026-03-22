@@ -1,4 +1,4 @@
-import { useState, useMemo } from 'react'
+import { useState, useMemo, useEffect } from 'react'
 import { useQuizStore } from '@/stores/quizStore'
 import {
   PREDEFINED_QUIZ_MODES,
@@ -16,11 +16,14 @@ import { ResumeSessionBanner } from './ResumeSessionBanner'
 import { CustomQuizBanner } from './CustomQuizBanner'
 import { StreakBanner } from './StreakBanner'
 import { DailyGoalIndicator } from './DailyGoalIndicator'
-import { RefreshCw, Check, Play, Moon, Sun } from 'lucide-react'
+import { RefreshCw, Check, Play, Moon, Sun, HelpCircle } from 'lucide-react'
 import { isElectron } from '@/lib/platformAPI'
 import { getStoredTheme, setStoredTheme, applyTheme, type Theme } from '@/lib/theme'
 
 import { getColorHex } from '@/lib/colors'
+import { AnimatedCounter } from './AnimatedCounter'
+import { KeyboardShortcutHelp } from '@/components/Layout/KeyboardShortcutHelp'
+import { haptics } from '@/lib/haptics'
 
 export function ModeSelection() {
   const {
@@ -37,8 +40,22 @@ export function ModeSelection() {
   const [updateStatus, setUpdateStatus] = useState<string | null>(null)
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null)
   const [selectedDifficulty, setSelectedDifficulty] = useState<DifficultyLevel | null>(null)
+  const [showShortcuts, setShowShortcuts] = useState(false)
 
   const bookmarkedCount = getBookmarkedCount()
+
+  // ? key opens keyboard shortcut help (skip when typing in input)
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === '?' && !e.ctrlKey && !e.metaKey) {
+        const target = e.target as HTMLElement
+        if (target.matches('input, textarea, [contenteditable]')) return
+        setShowShortcuts(prev => !prev)
+      }
+    }
+    window.addEventListener('keydown', handleKeyDown)
+    return () => window.removeEventListener('keydown', handleKeyDown)
+  }, [])
 
   // Memoize category stats for mastery display
   const masteryStats = useMemo(() => getCategoryStats(), [getCategoryStats])
@@ -103,7 +120,14 @@ export function ModeSelection() {
 
           {/* Header */}
           <div className="mb-5 text-center">
-            <div className="mb-2 flex justify-end">
+            <div className="mb-2 flex justify-end gap-1">
+              <button
+                onClick={() => setShowShortcuts(true)}
+                className="tap-highlight hidden rounded-full p-2 text-stone-500 sm:block"
+                aria-label="キーボードショートカット"
+              >
+                <HelpCircle className="h-5 w-5" />
+              </button>
               <button
                 onClick={() => {
                   const current = getStoredTheme()
@@ -117,11 +141,13 @@ export function ModeSelection() {
                 {getStoredTheme() === 'dark' ? <Sun className="h-5 w-5" /> : <Moon className="h-5 w-5" />}
               </button>
             </div>
-            <h1 className="mb-1 text-2xl font-bold text-claude-dark">
-              Claude Code Quiz
+            <h1 className="mb-1 text-2xl font-bold">
+              <span className="bg-gradient-to-r from-claude-orange to-orange-400 bg-clip-text text-transparent">
+                Claude Code Quiz
+              </span>
             </h1>
             <p className="text-sm text-claude-gray">
-              {allQuestions.length}問 | 8カテゴリ
+              <AnimatedCounter target={allQuestions.length} suffix="問" /> | 8カテゴリ
             </p>
           </div>
 
@@ -148,6 +174,7 @@ export function ModeSelection() {
                     key={modeConfig.id}
                     onClick={() => {
                       if (isDisabled) return
+                      haptics.light()
                       setSelectedMode(modeConfig.id)
                       // Reset filters when switching away from category/custom mode
                       if (modeConfig.id !== 'category' && modeConfig.id !== 'custom') {
@@ -193,11 +220,12 @@ export function ModeSelection() {
                 {PREDEFINED_CATEGORIES.map((category: Category) => (
                   <button
                     key={category.id}
-                    onClick={() =>
+                    onClick={() => {
+                      haptics.light()
                       setSelectedCategory(
                         selectedCategory === category.id ? null : category.id
                       )
-                    }
+                    }}
                     className={`tap-highlight rounded-2xl border p-2.5 text-center transition-all ${
                       selectedCategory === category.id
                         ? 'shadow-sm'
@@ -321,6 +349,9 @@ export function ModeSelection() {
           </div>
         </div>
       </div>
+
+      {/* Keyboard shortcut help (desktop) */}
+      <KeyboardShortcutHelp isOpen={showShortcuts} onClose={() => setShowShortcuts(false)} />
 
       {/* Fixed bottom bar — start button */}
       <div className="fixed bottom-0 left-0 right-0 z-20 border-t border-stone-200 bg-white/95 px-4 pb-[calc(env(safe-area-inset-bottom,0px)+8px)] pt-3 backdrop-blur-sm">

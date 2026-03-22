@@ -41,7 +41,7 @@ src/
 # Electron（デスクトップ）
 npm run dev           # 開発サーバー起動
 npm run build         # プロダクションビルド
-npm test              # テスト実行（349テスト）
+npm test              # テスト実行（350テスト）
 
 # PWA（Web版）
 npm run dev:web        # Web版開発サーバー起動

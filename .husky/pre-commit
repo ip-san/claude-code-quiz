@@ -1,3 +1,2 @@
 npx lint-staged
-npm run typecheck
-npx vitest run --changed
+npx vitest run --changed --reporter=dot
