@@ -1,3 +1,5 @@
+import { SpacedRepetitionService } from '../services/SpacedRepetitionService'
+
 /**
  * UserProgress Entity - ユーザーの学習進捗を表すエンティティ
  *
@@ -175,12 +177,8 @@ export class UserProgress {
 
     // Update question progress
     // Calculate next review time for spaced repetition
-    // Use true consecutive correct streak counter
     const correctStreak = isCorrect ? (existing?.correctStreak ?? 0) + 1 : 0
-    // Simple SRS intervals: 1h, 4h, 1d, 3d, 7d, 14d, 30d
-    const SRS_INTERVALS = [3600000, 14400000, 86400000, 259200000, 604800000, 1209600000, 2592000000]
-    const intervalIdx = Math.min(correctStreak, SRS_INTERVALS.length - 1)
-    const nextReviewAt = now + SRS_INTERVALS[intervalIdx]
+    const nextReviewAt = SpacedRepetitionService.calculateNextReview(correctStreak, now)
 
     const newQuestionProgress: QuestionProgress = {
       questionId,

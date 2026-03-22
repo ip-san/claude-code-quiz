@@ -35,28 +35,28 @@ describe('SpacedRepetitionService', () => {
   const now = 1700000000000
 
   describe('calculateNextReview', () => {
-    it('should return now + 1 day for streak 0', () => {
-      expect(SpacedRepetitionService.calculateNextReview(0, now)).toBe(now + DAY_MS)
+    it('should return now + 1 hour for streak 0', () => {
+      expect(SpacedRepetitionService.calculateNextReview(0, now)).toBe(now + 3600000)
     })
 
-    it('should return now + 1 day for streak 1', () => {
-      expect(SpacedRepetitionService.calculateNextReview(1, now)).toBe(now + DAY_MS)
+    it('should return now + 4 hours for streak 1', () => {
+      expect(SpacedRepetitionService.calculateNextReview(1, now)).toBe(now + 14400000)
     })
 
-    it('should return now + 3 days for streak 2', () => {
-      expect(SpacedRepetitionService.calculateNextReview(2, now)).toBe(now + 3 * DAY_MS)
+    it('should return now + 1 day for streak 2', () => {
+      expect(SpacedRepetitionService.calculateNextReview(2, now)).toBe(now + DAY_MS)
     })
 
-    it('should return now + 7 days for streak 3', () => {
-      expect(SpacedRepetitionService.calculateNextReview(3, now)).toBe(now + 7 * DAY_MS)
+    it('should return now + 3 days for streak 3', () => {
+      expect(SpacedRepetitionService.calculateNextReview(3, now)).toBe(now + 3 * DAY_MS)
     })
 
-    it('should return now + 14 days for streak 4', () => {
-      expect(SpacedRepetitionService.calculateNextReview(4, now)).toBe(now + 14 * DAY_MS)
+    it('should return now + 7 days for streak 4', () => {
+      expect(SpacedRepetitionService.calculateNextReview(4, now)).toBe(now + 7 * DAY_MS)
     })
 
-    it('should return now + 30 days for streak 5+', () => {
-      expect(SpacedRepetitionService.calculateNextReview(5, now)).toBe(now + 30 * DAY_MS)
+    it('should return now + 30 days for streak 6+', () => {
+      expect(SpacedRepetitionService.calculateNextReview(6, now)).toBe(now + 30 * DAY_MS)
       expect(SpacedRepetitionService.calculateNextReview(10, now)).toBe(now + 30 * DAY_MS)
     })
   })

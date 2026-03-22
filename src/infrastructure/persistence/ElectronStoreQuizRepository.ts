@@ -1,6 +1,5 @@
 import type { IQuizRepository } from '../../domain/repositories/IQuizRepository'
 import { QuizSet } from '../../domain/entities/QuizSet'
-import { Question } from '../../domain/entities/Question'
 import { type QuizFileData } from '../validation/QuizValidator'
 
 // Import default quiz data
@@ -56,30 +55,6 @@ export class ElectronStoreQuizRepository implements IQuizRepository {
    */
   async getActiveSet(): Promise<QuizSet> {
     return this.getDefaultSet()
-  }
-
-  /**
-   * Get all questions from the active set
-   */
-  async getAllQuestions(): Promise<Question[]> {
-    const activeSet = await this.getActiveSet()
-    return [...activeSet.questions]
-  }
-
-  /**
-   * Get questions filtered by category
-   */
-  async getQuestionsByCategory(categoryId: string): Promise<Question[]> {
-    const activeSet = await this.getActiveSet()
-    return activeSet.getQuestionsByCategory(categoryId)
-  }
-
-  /**
-   * Get questions filtered by difficulty
-   */
-  async getQuestionsByDifficulty(difficulty: string): Promise<Question[]> {
-    const activeSet = await this.getActiveSet()
-    return activeSet.getQuestionsByDifficulty(difficulty)
   }
 
 }

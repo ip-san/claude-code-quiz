@@ -84,29 +84,6 @@ export class QuizSet {
   }
 
   /**
-   * Create user quiz set from imported JSON
-   */
-  static createFromImport(data: {
-    title?: string
-    description?: string
-    version?: string
-    quizzes: QuestionProps[]
-  }, id?: string): QuizSet {
-    const questions = data.quizzes
-      .map(q => Question.fromData(q))
-      .filter((q): q is Question => q !== null)
-
-    return QuizSet.create({
-      id: id ?? `user-${Date.now()}`,
-      title: data.title ?? 'インポートされたクイズ',
-      description: data.description,
-      version: data.version,
-      type: 'user',
-      questions,
-    })
-  }
-
-  /**
    * Check if this is a read-only set
    */
   isReadOnly(): boolean {

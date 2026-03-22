@@ -11,13 +11,14 @@ import type { Question } from '../entities/Question'
 import type { UserProgress } from '../entities/UserProgress'
 
 /** 間隔反復の復習間隔テーブル（ミリ秒） */
-const SRS_INTERVALS_MS: readonly number[] = [
-  1 * 86400000,   // 0: 1日
-  1 * 86400000,   // 1: 1日
-  3 * 86400000,   // 2: 3日
-  7 * 86400000,   // 3: 7日
-  14 * 86400000,  // 4: 14日
-  30 * 86400000,  // 5+: 30日
+export const SRS_INTERVALS_MS: readonly number[] = [
+  3600000,        // 0: 1時間
+  14400000,       // 1: 4時間
+  86400000,       // 2: 1日
+  259200000,      // 3: 3日
+  604800000,      // 4: 7日
+  1209600000,     // 5: 14日
+  2592000000,     // 6+: 30日
 ]
 
 export class SpacedRepetitionService {
