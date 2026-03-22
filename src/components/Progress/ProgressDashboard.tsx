@@ -7,6 +7,7 @@ import { SessionHistoryChart } from './SessionHistoryChart'
 import { SessionHistoryList } from './SessionHistoryList'
 import { SessionInsightService } from '@/domain/services/SessionInsightService'
 import { LearningRecommendation } from './LearningRecommendation'
+import { WeakPointInsight } from './WeakPointInsight'
 
 import { getColorHex } from '@/lib/colors'
 
@@ -233,6 +234,14 @@ export function ProgressDashboard() {
           <LearningRecommendation
             categoryStats={categoryStats}
             totalAttempts={userProgress.totalAttempts}
+            onStartSession={startSession}
+          />
+        )}
+
+        {/* Weak Point Insight — show specific areas to improve */}
+        {!hasNoProgress && (
+          <WeakPointInsight
+            categoryStats={categoryStats}
             onStartSession={startSession}
           />
         )}

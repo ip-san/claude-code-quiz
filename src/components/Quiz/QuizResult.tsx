@@ -11,6 +11,7 @@ import { CertificateGenerator } from './CertificateGenerator'
 import { PersonalBest } from './PersonalBest'
 import { SkillsAcquired } from './SkillsAcquired'
 import { TeamShareGuide } from './TeamShareGuide'
+import { CategoryBreakthroughBadge } from './CategoryBreakthroughBadge'
 
 // Score thresholds for result messages
 const SCORE_THRESHOLDS = {
@@ -232,6 +233,15 @@ export function QuizResult() {
         {/* Pass/Fail indicator */}
         {/* Personal best */}
         <PersonalBest sessionHistory={userProgress.sessionHistory} currentPercentage={percentage} />
+
+        {/* Category breakthrough badges — celebrate invisible progress */}
+        {showStars && !isReviewMode && sessionState && (
+          <CategoryBreakthroughBadge
+            questions={sessionState.questions}
+            answerHistory={sessionState.answerHistory}
+            userProgress={userProgress}
+          />
+        )}
 
         {/* Message + pass/fail */}
         <p className="mb-2 text-sm text-stone-500">{result.message}</p>
