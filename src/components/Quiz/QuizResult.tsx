@@ -274,7 +274,7 @@ export function QuizResult() {
 
         {/* Achievement badges */}
         {showStars && !isReviewMode && (
-          <div className="mb-4 flex flex-col gap-2">
+          <>
             <StreakMilestoneBadge
               currentStreak={userProgress.streakDays}
               previousStreak={sessionState?.initialStreakDays ?? 0}
@@ -284,7 +284,7 @@ export function QuizResult() {
               currentTodayCount={userProgress.getDailyCount(DailyGoalService.getTodayString())}
               dailyGoal={userProgress.dailyGoal}
             />
-          </div>
+          </>
         )}
 
         {/* Content below stars fades in after stars */}

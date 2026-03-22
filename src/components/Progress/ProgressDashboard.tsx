@@ -188,9 +188,7 @@ export function ProgressDashboard() {
             <h2 className="mb-4 text-lg font-semibold text-claude-dark">
               正答率の推移
             </h2>
-            <div className="rounded-2xl border border-stone-200 bg-white p-4 shadow-sm">
-              <SessionHistoryChart sessions={userProgress.sessionHistory} />
-            </div>
+            <SessionHistoryChart sessions={userProgress.sessionHistory} />
           </div>
         )}
 

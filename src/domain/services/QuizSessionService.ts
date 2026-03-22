@@ -394,28 +394,6 @@ export class QuizSessionService {
   }
 
   /**
-   * 前の問題に戻る（回答済みの問題を振り返る）
-   */
-  static previousQuestion(state: QuizSessionState): QuizSessionState | null {
-    if (state.currentIndex <= 0) return null
-
-    const prevIndex = state.currentIndex - 1
-    const record = state.answerHistory.get(prevIndex)
-
-    if (!record) return null // 未回答の問題には戻れない
-
-    return {
-      ...state,
-      currentIndex: prevIndex,
-      selectedAnswer: record.selectedAnswer,
-      selectedAnswers: record.selectedAnswers,
-      isAnswered: true,
-      isCorrect: record.isCorrect,
-      hintUsed: false,
-    }
-  }
-
-  /**
    * 次の問題へ進む
    *
    * 最後の問題だった場合は isCompleted: true を設定。

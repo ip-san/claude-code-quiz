@@ -99,14 +99,6 @@ html, body {
   background: linear-gradient(90deg, #22c55e, #4ade80);
 }
 
-/* Premium card shadow */
-.card-premium {
-  box-shadow:
-    0 1px 3px rgba(0, 0, 0, 0.04),
-    0 4px 12px rgba(0, 0, 0, 0.03),
-    0 12px 32px rgba(0, 0, 0, 0.02);
-}
-
 /* Correct answer — green border pulse + subtle bg flash */
 @keyframes correct-celebrate {
   0% {
