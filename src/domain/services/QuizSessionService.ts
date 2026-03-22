@@ -171,7 +171,7 @@ export class QuizSessionService {
       }
     }
 
-    // For weak mode, prioritize weak questions sorted by SRS urgency
+    // For weak mode, prioritize weak questions sorted by SRS urgency (skip shuffle)
     if (config.mode === 'weak') {
       const weakQuestions = questions.filter(q =>
         userProgress.isWeakQuestion(q.id, weakThreshold, minAttemptsForWeak)
@@ -179,6 +179,8 @@ export class QuizSessionService {
 
       if (weakQuestions.length > 0) {
         // Sort by SRS priority: most overdue questions first
+        // NOTE: shuffleQuestions is intentionally skipped for weak mode
+        // to preserve SRS ordering (handled below)
         questions = SpacedRepetitionService.sortByPriority(weakQuestions, userProgress, Date.now())
       } else {
         // Fallback: try unanswered questions
@@ -200,8 +202,8 @@ export class QuizSessionService {
       }
     }
 
-    // Shuffle if needed
-    if (config.shuffleQuestions) {
+    // Shuffle if needed (skip for weak mode where SRS priority ordering is applied)
+    if (config.shuffleQuestions && config.mode !== 'weak') {
       questions = this.shuffleArray(questions)
     }
 

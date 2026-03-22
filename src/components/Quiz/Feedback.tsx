@@ -276,12 +276,12 @@ export function Feedback({ quiz, isCorrect }: FeedbackProps) {
     )
   }
 
-  // 4.7: 正解時の実践促進メッセージ（知識→行動の橋渡し）
+  // 4.7: 正解時に実践を促すワンライン（控えめに表示）
   if (isCorrect && !isReviewMode) {
     sections.push(
-      <AnimatedSection key="practice-nudge" order={sections.length} animate={animate} noMotion={noMotion} className="mb-4">
-        <p className="text-xs text-emerald-600 dark:text-emerald-400">
-          💡 この知識を次の Claude Code セッションで試してみましょう
+      <AnimatedSection key="practice-nudge" order={sections.length} animate={animate} noMotion={noMotion} className="mb-2">
+        <p className="text-xs text-stone-400">
+          💡 次のセッションで試してみましょう
         </p>
       </AnimatedSection>
     )
