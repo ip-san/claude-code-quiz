@@ -74,6 +74,8 @@ export interface QuizSessionState {
   readonly hintsUsedCount: number
   /** 実力テストモード: 回答後にフィードバックを表示せず即次の問題へ */
   readonly deferFeedback: boolean
+  /** セッション開始時のストリーク日数（マイルストーン判定用） */
+  readonly initialStreakDays: number
   /** 各問題の回答履歴 (index → {selectedAnswer, selectedAnswers, isCorrect}) */
   readonly answerHistory: ReadonlyMap<number, AnswerRecord>
 }
@@ -259,6 +261,7 @@ export class QuizSessionService {
       hintUsed: false,
       hintsUsedCount: 0,
       deferFeedback: config.mode === 'full',
+      initialStreakDays: 0,
       answerHistory: new Map(),
     }
   }

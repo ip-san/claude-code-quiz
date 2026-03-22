@@ -277,7 +277,7 @@ export function QuizResult() {
           <div className="mb-4 flex flex-col gap-2">
             <StreakMilestoneBadge
               currentStreak={userProgress.streakDays}
-              previousStreak={Math.max(0, userProgress.streakDays - 1)}
+              previousStreak={sessionState?.initialStreakDays ?? 0}
             />
             <DailyGoalBadge
               previousTodayCount={Math.max(0, userProgress.getDailyCount(DailyGoalService.getTodayString()) - answeredCount)}

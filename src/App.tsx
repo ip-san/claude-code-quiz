@@ -14,7 +14,7 @@ function setThemeColor(color: string) {
   const meta = document.querySelector('meta[name="theme-color"]')
   if (meta) meta.setAttribute('content', color)
 }
-import { lazy, Suspense } from 'react'
+import { lazy, Suspense, useRef } from 'react'
 import { OfflineIndicator } from '@/components/Layout/OfflineIndicator'
 import { InstallPrompt } from '@/components/Layout/InstallPrompt'
 
@@ -153,6 +153,7 @@ function QuizView({
   const isReviewMode = sessionState?.isReviewMode ?? false
   const isOverviewMode = sessionState?.config.mode === 'overview'
   const [showQuitDialog, setShowQuitDialog] = useState(false)
+  const dialogRef = useRef<HTMLDivElement | null>(null)
 
   const currentChapter = useMemo(() => {
     if (!isOverviewMode || !sessionState) return null
@@ -186,11 +187,9 @@ function QuizView({
         setShowQuitDialog(false)
         return
       }
-      // Focus trap within dialog
-      if (e.key === 'Tab') {
-        const dialog = document.querySelector('[role="dialog"]')
-        if (!dialog) return
-        const focusable = dialog.querySelectorAll<HTMLElement>('button, [tabindex]')
+      // Focus trap within dialog via ref
+      if (e.key === 'Tab' && dialogRef.current) {
+        const focusable = dialogRef.current.querySelectorAll<HTMLElement>('button')
         if (focusable.length === 0) return
         const first = focusable[0]
         const last = focusable[focusable.length - 1]
@@ -277,7 +276,13 @@ function QuizView({
           <div
             className="relative mx-2 mb-2 w-full max-w-sm animate-slide-down rounded-2xl bg-white p-6 shadow-2xl sm:mx-4 sm:mb-0 sm:animate-none"
             onClick={(e) => e.stopPropagation()}
-            ref={(el) => { if (el) { const btns = el.querySelectorAll('button'); btns[btns.length - 1]?.focus() } }}
+            ref={(el) => {
+              dialogRef.current = el
+              if (el) {
+                const btns = el.querySelectorAll('button')
+                btns[btns.length - 1]?.focus()
+              }
+            }}
           >
             <h3 className="mb-2 text-center text-lg font-semibold text-claude-dark">
               {isReviewMode ? '復習を中止しますか？' : 'クイズを中止しますか？'}

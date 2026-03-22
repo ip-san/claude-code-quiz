@@ -17,14 +17,6 @@ export function StreakMilestoneBadge({ currentStreak, previousStreak }: StreakMi
 
   if (!milestone) return null
 
-  // Prevent re-showing the same milestone badge on the same day
-  const storageKey = `streak-milestone-${currentStreak}`
-  const today = new Date().toDateString()
-  try {
-    if (localStorage.getItem(storageKey) === today) return null
-    localStorage.setItem(storageKey, today)
-  } catch { /* ignore storage errors */ }
-
   return (
     <div className="animate-pulse-success rounded-xl border border-amber-200 bg-gradient-to-r from-amber-50 to-yellow-50 px-5 py-4 text-center shadow-sm">
       <div className="mb-1 text-3xl">{milestone.emoji}</div>

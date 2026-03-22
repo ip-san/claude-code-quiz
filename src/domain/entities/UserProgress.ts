@@ -45,6 +45,7 @@ export interface QuestionProgress {
   readonly lastAttemptAt: number
   readonly lastCorrect: boolean
   readonly nextReviewAt?: number
+  readonly correctStreak?: number
 }
 
 /**
@@ -174,9 +175,8 @@ export class UserProgress {
 
     // Update question progress
     // Calculate next review time for spaced repetition
-    // Use consecutive correct streak (resets on wrong), not cumulative correctCount
-    const prevStreak = existing?.lastCorrect ? (existing?.correctCount ?? 0) : 0
-    const correctStreak = isCorrect ? prevStreak + 1 : 0
+    // Use true consecutive correct streak counter
+    const correctStreak = isCorrect ? (existing?.correctStreak ?? 0) + 1 : 0
     // Simple SRS intervals: 1h, 4h, 1d, 3d, 7d, 14d, 30d
     const SRS_INTERVALS = [3600000, 14400000, 86400000, 259200000, 604800000, 1209600000, 2592000000]
     const intervalIdx = Math.min(correctStreak, SRS_INTERVALS.length - 1)
@@ -189,6 +189,7 @@ export class UserProgress {
       lastAttemptAt: now,
       lastCorrect: isCorrect,
       nextReviewAt,
+      correctStreak,
     }
 
     // Update category progress

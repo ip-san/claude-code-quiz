@@ -239,6 +239,25 @@ function saveSessionSnapshot(
   getSessionRepository().save(data)
 }
 
+/**
+ * Record completed session in history and save progress
+ */
+function recordCompletedSession(
+  sessionState: QuizSessionState,
+  getCurrentProgress: () => UserProgress,
+  updateStore: (progress: UserProgress) => void
+): void {
+  if (sessionState.isReviewMode) return
+  const updatedProgress = getCurrentProgress().recordSession(
+    sessionState.config.mode,
+    sessionState.config.categoryFilter ?? null,
+    sessionState.score,
+    sessionState.answeredCount
+  )
+  updateStore(updatedProgress)
+  getProgressRepository().save(updatedProgress).catch(console.error)
+}
+
 export const useQuizStore = create<QuizStore>((set, get) => ({
   // Initial state
   viewState: 'menu',
@@ -335,10 +354,10 @@ export const useQuizStore = create<QuizStore>((set, get) => ({
       APP_CONFIG.minAttemptsForWeak
     )
 
-    const sessionState = QuizSessionService.createInitialState(
-      sessionQuestions,
-      config
-    )
+    const sessionState = {
+      ...QuizSessionService.createInitialState(sessionQuestions, config),
+      initialStreakDays: state.userProgress.streakDays,
+    }
 
     set({
       sessionConfig: config,
@@ -542,17 +561,7 @@ export const useQuizStore = create<QuizStore>((set, get) => ({
 
     if (newSessionState.isCompleted) {
       getSessionRepository().clear()
-      // Record session in history (skip review mode)
-      if (!newSessionState.isReviewMode) {
-        const updatedProgress = get().userProgress.recordSession(
-          newSessionState.config.mode,
-          newSessionState.config.categoryFilter ?? null,
-          newSessionState.score,
-          newSessionState.answeredCount
-        )
-        set({ userProgress: updatedProgress })
-        getProgressRepository().save(updatedProgress).catch(console.error)
-      }
+      recordCompletedSession(newSessionState, () => get().userProgress, (p) => set({ userProgress: p }))
       set({
         sessionState: newSessionState,
         viewState: 'result',
@@ -670,22 +679,15 @@ export const useQuizStore = create<QuizStore>((set, get) => ({
     getSessionRepository().clear()
 
     // Record session in history
-    const updatedProgress = state.userProgress.recordSession(
-      state.sessionState.config.mode,
-      state.sessionState.config.categoryFilter ?? null,
-      finalScore,
-      finalCount
-    )
-    set({ userProgress: updatedProgress })
-    getProgressRepository().save(updatedProgress).catch(console.error)
-
+    const completedState = {
+      ...state.sessionState,
+      score: finalScore,
+      answeredCount: finalCount,
+      isCompleted: true,
+    }
+    recordCompletedSession(completedState, () => state.userProgress, (p) => set({ userProgress: p }))
     set({
-      sessionState: {
-        ...state.sessionState,
-        score: finalScore,
-        answeredCount: finalCount,
-        isCompleted: true,
-      },
+      sessionState: completedState,
       viewState: 'result',
     })
   },
@@ -707,17 +709,7 @@ export const useQuizStore = create<QuizStore>((set, get) => ({
 
     if (newSessionState.isCompleted && !state.sessionState.isCompleted) {
       getSessionRepository().clear()
-      // Record session in history on timer expiry
-      if (!newSessionState.isReviewMode) {
-        const updatedProgress = state.userProgress.recordSession(
-          newSessionState.config.mode,
-          newSessionState.config.categoryFilter ?? null,
-          newSessionState.score,
-          newSessionState.answeredCount
-        )
-        set({ userProgress: updatedProgress })
-        getProgressRepository().save(updatedProgress).catch(console.error)
-      }
+      recordCompletedSession(newSessionState, () => state.userProgress, (p) => set({ userProgress: p }))
       set({
         sessionState: newSessionState,
         viewState: 'result',
