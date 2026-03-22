@@ -1,4 +1,4 @@
-import { useEffect, useCallback, useMemo, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { useQuizStore } from '@/stores/quizStore'
 import { OptionButton } from './OptionButton'
 import { Feedback } from './Feedback'
@@ -12,6 +12,7 @@ import { useSwipe } from '@/lib/useSwipe'
 import { CorrectOverlay } from './CorrectOverlay'
 
 import { getColorHex } from '@/lib/colors'
+import { useQuizKeyboard } from './useQuizKeyboard'
 
 export function QuizCard({ isModalOpen = false }: { isModalOpen?: boolean }) {
   const {
@@ -56,110 +57,12 @@ export function QuizCard({ isModalOpen = false }: { isModalOpen?: boolean }) {
   }, [isOverviewMode, sessionState])
   const showChapterIndicator = isOverviewMode && currentChapter && currentChapter.id !== previousChapter?.id
 
-  // Keyboard navigation handler
-  const handleKeyDown = useCallback(
-    (e: KeyboardEvent) => {
-      if (!quiz) return
-      // Don't handle keys when a dialog/modal is open
-      if (isModalOpen) return
-
-      const optionCount = quiz.options.length
-
-      // Retry shortcut (r key) - not available in review mode
-      if (e.key === 'r' && isAnswered && isCorrect === false && !isReviewMode) {
-        e.preventDefault()
-        retryQuestion()
-        return
-      }
-
-      if (isMultiSelect) {
-        // Multi-select keyboard handling
-        switch (e.key) {
-          case '1':
-          case '2':
-          case '3':
-          case '4':
-          case '5':
-          case '6':
-            if (!isAnswered) {
-              const index = parseInt(e.key) - 1
-              if (index < optionCount) {
-                toggleAnswer(index)
-              }
-            }
-            break
-          case 'Enter':
-            e.preventDefault()
-            if (!isAnswered && selectedAnswers.length > 0) {
-              submitAnswer()
-            } else if (isAnswered) {
-              nextQuestion()
-            }
-            break
-          case ' ':
-            // Space alone does not submit in multi-select (used for toggle via number keys)
-            e.preventDefault()
-            if (isAnswered) {
-              nextQuestion()
-            }
-            break
-        }
-      } else {
-        // Single-select keyboard handling
-        switch (e.key) {
-          case 'ArrowUp':
-          case 'ArrowLeft':
-            e.preventDefault()
-            if (!isAnswered) {
-              const prevIndex = selectedAnswer === null
-                ? optionCount - 1
-                : (selectedAnswer - 1 + optionCount) % optionCount
-              selectAnswer(prevIndex)
-            }
-            break
-          case 'ArrowDown':
-          case 'ArrowRight':
-            e.preventDefault()
-            if (!isAnswered) {
-              const nextIdx = selectedAnswer === null
-                ? 0
-                : (selectedAnswer + 1) % optionCount
-              selectAnswer(nextIdx)
-            }
-            break
-          case 'Enter':
-          case ' ':
-            e.preventDefault()
-            if (!isAnswered && selectedAnswer !== null) {
-              submitAnswer()
-            } else if (isAnswered) {
-              nextQuestion()
-            }
-            break
-          case '1':
-          case '2':
-          case '3':
-          case '4':
-          case '5':
-          case '6':
-            if (!isAnswered) {
-              const index = parseInt(e.key) - 1
-              if (index < optionCount) {
-                selectAnswer(index)
-              }
-            }
-            break
-        }
-      }
-    },
-    [quiz, selectedAnswer, selectedAnswers, isAnswered, isCorrect, isReviewMode, isMultiSelect, isModalOpen, selectAnswer, toggleAnswer, submitAnswer, nextQuestion, retryQuestion]
-  )
-
-  // Register keyboard listener
-  useEffect(() => {
-    window.addEventListener('keydown', handleKeyDown)
-    return () => window.removeEventListener('keydown', handleKeyDown)
-  }, [handleKeyDown])
+  // Keyboard navigation (extracted to custom hook)
+  useQuizKeyboard({
+    quiz, selectedAnswer, selectedAnswers, isAnswered, isCorrect,
+    isReviewMode, isMultiSelect, isModalOpen,
+    selectAnswer, toggleAnswer, submitAnswer, nextQuestion, retryQuestion,
+  })
 
   // Haptic feedback + overlay on answer result
   const [showCorrectOverlay, setShowCorrectOverlay] = useState(false)
