@@ -86,7 +86,19 @@ export function LearningRecommendation({ categoryStats, totalAttempts, onStartSe
       }
     }
 
-    // Priority 4: General reinforcement
+    // Priority 4: Advanced mastery push (70-90% range → push to 90%+)
+    if (weakestCat && weakestCat.accuracy >= 70 && weakestCat.accuracy < 90) {
+      return {
+        type: 'mastery-push' as const,
+        icon: <TrendingUp className="h-5 w-5 text-purple-500" />,
+        title: 'エキスパートを目指す',
+        message: `${weakestCat.icon} ${weakestCat.name}（正答率 ${weakestCat.accuracy}%）を90%以上にすると🏆マスター認定です。`,
+        action: `${weakestCat.name} を極める`,
+        onAction: () => onStartSession({ mode: 'category', categoryFilter: weakestCat!.id }),
+      }
+    }
+
+    // Priority 5: General reinforcement
     return {
       type: 'reinforce' as const,
       icon: <RefreshCw className="h-5 w-5 text-green-500" />,
