@@ -24,6 +24,7 @@
 
 import { Question } from '../entities/Question'
 import { UserProgress } from '../entities/UserProgress'
+import { SpacedRepetitionService } from './SpacedRepetitionService'
 import type { QuizModeId } from '../valueObjects/QuizMode'
 import type { DifficultyLevel } from '../valueObjects/Difficulty'
 
@@ -170,14 +171,15 @@ export class QuizSessionService {
       }
     }
 
-    // For weak mode, prioritize weak questions
+    // For weak mode, prioritize weak questions sorted by SRS urgency
     if (config.mode === 'weak') {
       const weakQuestions = questions.filter(q =>
         userProgress.isWeakQuestion(q.id, weakThreshold, minAttemptsForWeak)
       )
 
       if (weakQuestions.length > 0) {
-        questions = weakQuestions
+        // Sort by SRS priority: most overdue questions first
+        questions = SpacedRepetitionService.sortByPriority(weakQuestions, userProgress, Date.now())
       } else {
         // Fallback: try unanswered questions
         const unansweredQuestions = questions.filter(q =>

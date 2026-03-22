@@ -25,6 +25,7 @@ import { AnimatedCounter } from './AnimatedCounter'
 import { KeyboardShortcutHelp } from '@/components/Layout/KeyboardShortcutHelp'
 import { haptics } from '@/lib/haptics'
 import { MasteryRoadmap } from './MasteryRoadmap'
+import { SpacedRepetitionService } from '@/domain/services/SpacedRepetitionService'
 
 export function ModeSelection() {
   const {
@@ -70,6 +71,16 @@ export function ModeSelection() {
     () => allQuestions.filter(q => !userProgress.hasAttempted(q.id)).length,
     [allQuestions, userProgress]
   )
+
+  // SRS: 復習期限が到来した問題の数（実際のスキル定着に直結）
+  const dueForReviewCount = useMemo(() => {
+    if (userProgress.totalAttempts === 0) return 0
+    const now = Date.now()
+    return allQuestions.filter(q => {
+      const qp = userProgress.questionProgress[q.id]
+      return qp && qp.attempts > 0 && SpacedRepetitionService.isDue(qp, now)
+    }).length
+  }, [allQuestions, userProgress])
 
   const mode = useMemo(
     () => PREDEFINED_QUIZ_MODES.find((m) => m.id === selectedMode),
@@ -169,6 +180,31 @@ export function ModeSelection() {
             <StreakBanner />
             <DailyGoalIndicator />
           </div>
+
+          {/* SRS Review Banner — skill retention through spaced repetition */}
+          {dueForReviewCount > 0 && (
+            <div className="mb-5 rounded-2xl border border-amber-200 bg-amber-50 p-4 dark:border-amber-500/30 dark:bg-amber-500/10">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-sm font-semibold text-amber-800 dark:text-amber-200">
+                    🧠 復習すると定着する問題があります
+                  </p>
+                  <p className="mt-0.5 text-xs text-amber-600 dark:text-amber-400">
+                    {dueForReviewCount}問が復習のタイミングです
+                  </p>
+                </div>
+                <button
+                  onClick={() => {
+                    haptics.light()
+                    startSession({ mode: 'weak' })
+                  }}
+                  className="tap-highlight rounded-xl bg-amber-500 px-4 py-2 text-sm font-medium text-white"
+                >
+                  復習する
+                </button>
+              </div>
+            </div>
+          )}
 
           {/* First-time user: recommend overview mode */}
           {userProgress.totalAttempts === 0 && (
