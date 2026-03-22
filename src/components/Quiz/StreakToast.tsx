@@ -37,7 +37,7 @@ export function StreakToast({ streak }: StreakToastProps) {
   }
 
   return (
-    <div className="pointer-events-none fixed left-0 right-0 z-40 flex justify-center" style={{ top: 'calc(5rem + env(safe-area-inset-top, 0px))' }}>
+    <div className="pointer-events-none fixed left-0 right-0 z-40 flex justify-center" role="status" aria-live="polite" style={{ top: 'calc(5rem + env(safe-area-inset-top, 0px))' }}>
       <div className="animate-bounce-in rounded-full bg-gradient-to-r from-orange-500 to-red-500 px-5 py-2.5 shadow-lg">
         <div className="flex items-center gap-2 text-white">
           <Flame className="h-5 w-5" />

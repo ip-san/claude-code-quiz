@@ -35,7 +35,7 @@ export function EncouragementToast({ wrongStreak }: EncouragementToastProps) {
   if (!visible) return null
 
   return (
-    <div className="pointer-events-none fixed left-0 right-0 z-40 flex justify-center" style={{ top: 'calc(5rem + env(safe-area-inset-top, 0px))' }}>
+    <div className="pointer-events-none fixed left-0 right-0 z-40 flex justify-center" role="status" aria-live="polite" style={{ top: 'calc(5rem + env(safe-area-inset-top, 0px))' }}>
       <div className="animate-bounce-in rounded-full bg-gradient-to-r from-blue-500 to-indigo-500 px-5 py-2.5 shadow-lg">
         <div className="flex items-center gap-2 text-white">
           <Heart className="h-4 w-4" />

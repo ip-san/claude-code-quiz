@@ -66,8 +66,8 @@ export function MasteryRoadmap({
 }: MasteryRoadmapProps) {
   const { current, next, nextProgress, stats } = useMemo(() => {
     const answered = totalQuestions - unansweredCount
-    const answeredRatio = answered / totalQuestions
-    const overallAccuracy = Math.round((totalCorrect / totalAttempts) * 100)
+    const answeredRatio = totalQuestions > 0 ? answered / totalQuestions : 0
+    const overallAccuracy = totalAttempts > 0 ? Math.round((totalCorrect / totalAttempts) * 100) : 0
 
     // 正答率70%以上のカテゴリ数
     const masteredCategories = PREDEFINED_CATEGORIES.filter(cat => {
@@ -97,7 +97,7 @@ export function MasteryRoadmap({
         <span className="text-3xl">{current.icon}</span>
         <div className="flex-1">
           <p className={`text-sm font-bold ${current.color}`}>{current.name}</p>
-          <p className="text-xs text-stone-500">
+          <p className="text-xs text-stone-500 dark:text-stone-400">
             正答率 {stats.overallAccuracy}% · {stats.answered}/{totalQuestions}問 · {stats.masteredCategories}/8カテゴリ習得
           </p>
         </div>
@@ -105,10 +105,10 @@ export function MasteryRoadmap({
       {next && (
         <div className="mt-3">
           <div className="mb-1 flex items-center justify-between text-xs">
-            <span className="text-stone-500">次: {next.icon} {next.name}</span>
-            <span className="text-stone-400">{next.req}</span>
+            <span className="text-stone-500 dark:text-stone-400">次: {next.icon} {next.name}</span>
+            <span className="text-stone-400 dark:text-stone-300">{next.req}</span>
           </div>
-          <div className="h-2 overflow-hidden rounded-full bg-stone-200">
+          <div className="h-2 overflow-hidden rounded-full bg-stone-200" role="progressbar" aria-valuenow={nextProgress} aria-valuemin={0} aria-valuemax={100} aria-label="次のレベルへの進捗">
             <div
               className="h-full rounded-full progress-gradient transition-all"
               style={{ width: `${nextProgress}%` }}
@@ -117,7 +117,7 @@ export function MasteryRoadmap({
         </div>
       )}
       {!next && (
-        <p className="mt-2 text-center text-xs font-medium text-yellow-700">
+        <p className="mt-2 text-center text-xs font-medium text-yellow-700 dark:text-yellow-300">
           最高レベル到達。あなたはチームのAI駆動開発を牽引できます。
         </p>
       )}
