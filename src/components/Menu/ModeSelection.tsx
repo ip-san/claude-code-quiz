@@ -320,23 +320,72 @@ export function ModeSelection() {
             </div>
           )}
 
-          {/* AI Readiness Level */}
+          {/* AI Mastery Roadmap */}
           {userProgress.totalAttempts > 0 && (() => {
-            const answeredRatio = (allQuestions.length - unansweredCount) / allQuestions.length
-            const overallAccuracy = userProgress.totalAttempts > 0
-              ? Math.round((userProgress.totalCorrect / userProgress.totalAttempts) * 100)
+            const answered = allQuestions.length - unansweredCount
+            const answeredRatio = answered / allQuestions.length
+            const overallAccuracy = Math.round((userProgress.totalCorrect / userProgress.totalAttempts) * 100)
+
+            // Count categories with 70%+ accuracy
+            const masteredCategories = PREDEFINED_CATEGORIES.filter(cat => {
+              const s = masteryStats[cat.id]
+              return s && Math.round((s.correctAnswers / Math.max(s.attemptedQuestions, 1)) * 100) >= 70
+            }).length
+
+            const levels = [
+              { name: 'AI入門者', icon: '🌱', color: 'text-claude-orange', bg: 'bg-claude-orange/10', req: null },
+              { name: 'AI学習者', icon: '📚', color: 'text-blue-600', bg: 'bg-blue-500/10', req: '正答率50%以上' },
+              { name: 'AI実践者', icon: '🚀', color: 'text-green-600', bg: 'bg-green-500/10', req: '正答率70%以上' },
+              { name: 'AI推進者', icon: '⚡', color: 'text-purple-600', bg: 'bg-purple-500/10', req: '正答率80% + 半数以上学習' },
+              { name: 'AI牽引役', icon: '👑', color: 'text-yellow-600', bg: 'bg-yellow-500/10', req: '正答率85% + 全カテゴリ習得' },
+            ]
+
+            const currentIdx = overallAccuracy >= 85 && masteredCategories >= 7 ? 4
+              : overallAccuracy >= 80 && answeredRatio >= 0.5 ? 3
+              : overallAccuracy >= 70 ? 2
+              : overallAccuracy >= 50 ? 1
               : 0
-            const level = overallAccuracy >= 80 && answeredRatio >= 0.5 ? { name: 'AI推進リーダー', icon: '👑', color: 'text-yellow-600' }
-              : overallAccuracy >= 70 ? { name: 'AI実践者', icon: '🚀', color: 'text-green-600' }
-              : overallAccuracy >= 50 ? { name: 'AI学習者', icon: '📚', color: 'text-blue-600' }
-              : { name: 'AI入門者', icon: '🌱', color: 'text-claude-orange' }
+            const current = levels[currentIdx]
+            const next = currentIdx < levels.length - 1 ? levels[currentIdx + 1] : null
+
+            // Progress toward next level
+            const nextProgress = next
+              ? currentIdx === 0 ? Math.min(overallAccuracy / 50 * 100, 100)
+              : currentIdx === 1 ? Math.min(overallAccuracy / 70 * 100, 100)
+              : currentIdx === 2 ? Math.min((overallAccuracy / 80 * 50) + (answeredRatio * 50), 100)
+              : Math.min((overallAccuracy / 85 * 50) + (masteredCategories / 7 * 50), 100)
+              : 100
+
             return (
-              <div className="mb-4 rounded-2xl bg-white p-4 text-center shadow-sm">
-                <span className="text-3xl">{level.icon}</span>
-                <p className={`mt-1 text-sm font-bold ${level.color}`}>{level.name}</p>
-                <p className="text-xs text-stone-400">
-                  正答率 {overallAccuracy}% · {allQuestions.length - unansweredCount}/{allQuestions.length}問 学習済み
-                </p>
+              <div className={`mb-4 rounded-2xl ${current.bg} p-4 shadow-sm`}>
+                <div className="flex items-center gap-3">
+                  <span className="text-3xl">{current.icon}</span>
+                  <div className="flex-1">
+                    <p className={`text-sm font-bold ${current.color}`}>{current.name}</p>
+                    <p className="text-xs text-stone-500">
+                      正答率 {overallAccuracy}% · {answered}/{allQuestions.length}問 · {masteredCategories}/8カテゴリ習得
+                    </p>
+                  </div>
+                </div>
+                {next && (
+                  <div className="mt-3">
+                    <div className="mb-1 flex items-center justify-between text-xs">
+                      <span className="text-stone-500">次: {next.icon} {next.name}</span>
+                      <span className="text-stone-400">{next.req}</span>
+                    </div>
+                    <div className="h-2 overflow-hidden rounded-full bg-stone-200">
+                      <div
+                        className="h-full rounded-full progress-gradient transition-all"
+                        style={{ width: `${Math.round(nextProgress)}%` }}
+                      />
+                    </div>
+                  </div>
+                )}
+                {!next && (
+                  <p className="mt-2 text-center text-xs font-medium text-yellow-700">
+                    最高レベル到達。あなたはチームのAI駆動開発を牽引できます。
+                  </p>
+                )}
               </div>
             )
           })()}
