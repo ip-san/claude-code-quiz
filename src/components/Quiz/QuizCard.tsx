@@ -11,6 +11,7 @@ import { haptics } from '@/lib/haptics'
 import { useSwipe } from '@/lib/useSwipe'
 import { CorrectOverlay } from './CorrectOverlay'
 import { StreakToast } from './StreakToast'
+import { EncouragementToast } from './EncouragementToast'
 
 import { getColorHex } from '@/lib/colors'
 import { useQuizKeyboard } from './useQuizKeyboard'
@@ -66,8 +67,9 @@ export function QuizCard({ isModalOpen = false }: { isModalOpen?: boolean }) {
     selectAnswer, toggleAnswer, submitAnswer, nextQuestion, retryQuestion,
   })
 
-  // Track consecutive correct answers for streak toast
+  // Track consecutive correct/wrong answers for toasts
   const [consecutiveCorrect, setConsecutiveCorrect] = useState(0)
+  const [consecutiveWrong, setConsecutiveWrong] = useState(0)
   const prevIsAnsweredRef = useRef(false)
 
   // Reset streak on new session (questions array identity changes)
@@ -91,9 +93,11 @@ export function QuizCard({ isModalOpen = false }: { isModalOpen?: boolean }) {
         haptics.success()
         if (!deferFeedback) setShowCorrectOverlay(true)
         setConsecutiveCorrect(prev => prev + 1)
+        setConsecutiveWrong(0)
       } else {
         haptics.error()
         setConsecutiveCorrect(0)
+        setConsecutiveWrong(prev => prev + 1)
       }
     } else if (!isAnswered) {
       setShowCorrectOverlay(false)
@@ -159,6 +163,9 @@ export function QuizCard({ isModalOpen = false }: { isModalOpen?: boolean }) {
 
       {/* Consecutive correct streak toast */}
       {!deferFeedback && <StreakToast streak={consecutiveCorrect} />}
+
+      {/* Encouragement toast on consecutive wrong answers */}
+      {!deferFeedback && <EncouragementToast wrongStreak={consecutiveWrong} />}
 
       {/* Chapter indicator for overview mode */}
       {showChapterIndicator && currentChapter && (

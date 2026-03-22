@@ -135,6 +135,7 @@ export function Feedback({ quiz, isCorrect }: FeedbackProps) {
         <>
           <XCircle className="h-5 w-5 text-red-400" />
           <span className="font-semibold text-red-400">不正解</span>
+          <span className="ml-auto text-xs text-stone-400">間違いは学びのチャンスです</span>
         </>
       )}
     </AnimatedSection>

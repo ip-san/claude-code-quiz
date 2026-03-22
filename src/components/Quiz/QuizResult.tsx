@@ -278,6 +278,16 @@ export function QuizResult() {
           ))}
         </div>
 
+        {/* First session completion — special encouragement */}
+        {showStars && !isReviewMode && userProgress.sessionHistory.length <= 1 && (
+          <div className="mb-4 rounded-2xl bg-gradient-to-r from-claude-orange/10 to-blue-500/10 p-4 text-center">
+            <p className="text-lg font-bold text-claude-dark">🎉 はじめの一歩、おめでとうございます</p>
+            <p className="mt-1 text-sm text-claude-gray">
+              今日あなたは AI を学ぶ決断をしました。それだけで、多くの人より前に進んでいます。
+            </p>
+          </div>
+        )}
+
         {/* Achievement badges */}
         {showStars && !isReviewMode && (
           <>
