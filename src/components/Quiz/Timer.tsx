@@ -66,7 +66,7 @@ export function Timer() {
             : 'bg-stone-100 text-claude-dark'
       }`}
       role="timer"
-      aria-live="polite"
+      aria-live={isCriticalTime ? 'assertive' : 'off'}
       aria-label={`残り時間 ${minutes}分${seconds}秒`}
     >
       <svg

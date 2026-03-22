@@ -132,7 +132,7 @@ export function OptionButton({
       onClick={onClick}
       disabled={isAnswered}
       aria-label={getAriaLabel()}
-      aria-pressed={isSelected}
+      aria-pressed={isMultiSelect ? undefined : isSelected}
       aria-checked={isMultiSelect ? isSelected : undefined}
       role={isMultiSelect ? 'checkbox' : 'option'}
       className={`no-select w-full rounded-2xl border-2 px-3.5 py-3 text-left transition-all sm:px-4 sm:py-4 ${getStyles()} ${getAnimClass()} ${

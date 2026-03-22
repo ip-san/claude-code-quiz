@@ -212,6 +212,7 @@ export const QuestionProgressSchema = z.object({
   correctCount: z.number().int().min(0),
   lastAttemptAt: z.number(),
   lastCorrect: z.boolean(),
+  nextReviewAt: z.number().optional(),
 })
 
 /**

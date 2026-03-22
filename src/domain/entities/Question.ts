@@ -160,9 +160,12 @@ export class Question {
     }
     if (props.referenceUrl) {
       try {
-        new URL(props.referenceUrl)
+        const url = new URL(props.referenceUrl)
+        if (!['http:', 'https:'].includes(url.protocol)) {
+          throw new Error('Reference URL must use http or https protocol')
+        }
       } catch {
-        throw new Error('Reference URL must be a valid URL')
+        throw new Error('Reference URL must be a valid HTTP/HTTPS URL')
       }
     }
 

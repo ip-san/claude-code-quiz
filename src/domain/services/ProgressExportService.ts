@@ -80,9 +80,14 @@ export class ProgressExportService {
    * CSVの値をエスケープ（カンマ、引用符、改行対応）
    */
   private static escapeCsvValue(value: string): string {
-    if (value.includes(',') || value.includes('"') || value.includes('\n')) {
-      return `"${value.replace(/"/g, '""')}"`
+    // Prevent CSV formula injection (=, +, -, @ are interpreted as formulas by spreadsheets)
+    let safe = value
+    if (/^[=+\-@]/.test(safe)) {
+      safe = `'${safe}`
     }
-    return value
+    if (safe.includes(',') || safe.includes('"') || safe.includes('\n')) {
+      return `"${safe.replace(/"/g, '""')}"`
+    }
+    return safe
   }
 }

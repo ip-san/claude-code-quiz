@@ -66,7 +66,7 @@ describe('Question Entity', () => {
     })
 
     it('should throw error for invalid referenceUrl', () => {
-      expect(() => createTestQuestion({ referenceUrl: 'not-a-url' })).toThrow('Reference URL must be a valid URL')
+      expect(() => createTestQuestion({ referenceUrl: 'not-a-url' })).toThrow('Reference URL must be a valid HTTP/HTTPS URL')
     })
 
     it('should accept valid referenceUrl', () => {

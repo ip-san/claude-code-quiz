@@ -155,6 +155,8 @@ export function QuizCard() {
           case '2':
           case '3':
           case '4':
+          case '5':
+          case '6':
             if (!isAnswered) {
               const index = parseInt(e.key) - 1
               if (index < optionCount) {
