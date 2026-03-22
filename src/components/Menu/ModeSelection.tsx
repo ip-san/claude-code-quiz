@@ -203,11 +203,11 @@ export function ModeSelection() {
                 <button
                   onClick={() => {
                     haptics.light()
-                    startSession({ mode: 'weak' })
+                    startSession({ mode: 'quick', questionCount: dueForReviewCount })
                   }}
                   className="tap-highlight rounded-xl bg-amber-500 px-4 py-2 text-sm font-medium text-white"
                 >
-                  復習する
+                  {dueForReviewCount}問を復習
                 </button>
               </div>
             </div>
