@@ -30,7 +30,17 @@ function pickAndReadFile(
     const input = document.createElement('input')
     input.type = 'file'
     input.accept = accept
+    // Fallback: if no file selected after focus returns to window
+    const handleFocus = () => {
+      setTimeout(() => {
+        if (!input.files?.length) {
+          resolve({ success: false, error: 'cancelled' })
+        }
+        window.removeEventListener('focus', handleFocus)
+      }, 500)
+    }
     input.onchange = () => {
+      window.removeEventListener('focus', handleFocus) // Clean up listener on file selection
       const file = input.files?.[0]
       if (!file) {
         resolve({ success: false, error: 'cancelled' })
@@ -47,16 +57,8 @@ function pickAndReadFile(
     }
     // Handle cancel — oncancel not supported in all browsers, use focus fallback
     input.oncancel = () => {
+      window.removeEventListener('focus', handleFocus)
       resolve({ success: false, error: 'cancelled' })
-    }
-    // Fallback: if no file selected after focus returns to window
-    const handleFocus = () => {
-      setTimeout(() => {
-        if (!input.files?.length) {
-          resolve({ success: false, error: 'cancelled' })
-        }
-        window.removeEventListener('focus', handleFocus)
-      }, 500)
     }
     window.addEventListener('focus', handleFocus)
     input.click()

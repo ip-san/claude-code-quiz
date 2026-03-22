@@ -235,6 +235,7 @@ export function ModeSelection() {
                         selectedCategory === category.id ? null : category.id
                       )
                     }}
+                    aria-pressed={selectedCategory === category.id}
                     className={`tap-highlight rounded-2xl border p-2.5 text-center transition-all ${
                       selectedCategory === category.id
                         ? 'shadow-sm'

@@ -31,6 +31,21 @@ export function KeyboardShortcutHelp({ isOpen, onClose }: KeyboardShortcutHelpPr
       if (e.key === 'Escape' || e.key === '?') {
         e.preventDefault()
         onClose()
+        return
+      }
+      // Focus trap
+      if (e.key === 'Tab' && dialogRef.current) {
+        const focusable = dialogRef.current.querySelectorAll<HTMLElement>('button, [tabindex]')
+        if (focusable.length === 0) return
+        const first = focusable[0]
+        const last = focusable[focusable.length - 1]
+        if (e.shiftKey && document.activeElement === first) {
+          e.preventDefault()
+          last.focus()
+        } else if (!e.shiftKey && document.activeElement === last) {
+          e.preventDefault()
+          first.focus()
+        }
       }
     }
 

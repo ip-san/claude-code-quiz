@@ -161,7 +161,7 @@ npm run quiz:randomize # correctIndex ランダム化
 
 - `answerHistory` を `answerRecords` 配列として localStorage に保存
 - セッション復帰時に完全復元（選択状態、スコア、回答済み問題ドット）
-- `retryQuestion` は answerHistory エントリを削除し、スコアを巻き戻す
+- `retryQuestion` は UI 状態をリセットし、再回答時に差分スコアで計算
 - `finishTest` は answerHistory からスコアを再計算（整合性保証）
 
 ## カスタムスキル

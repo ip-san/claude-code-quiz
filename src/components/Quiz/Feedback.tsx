@@ -272,7 +272,7 @@ export function Feedback({ quiz, isCorrect }: FeedbackProps) {
         <button
           onClick={handleCopyMarkdown}
           aria-label={markdownCopied ? 'Markdownをコピーしました' : 'Markdown形式でコピー'}
-          className="tap-highlight flex items-center justify-center gap-1.5 rounded-2xl border border-purple-500/30 bg-purple-500/10 px-4 py-3 text-sm font-medium text-purple-400"
+          className="tap-highlight flex items-center justify-center gap-1.5 rounded-2xl border border-purple-500/30 bg-purple-500/10 px-4 py-3 text-sm font-medium text-purple-400 dark:border-purple-400/30 dark:bg-purple-400/15 dark:text-purple-300"
         >
           {markdownCopied ? (
             <>
@@ -291,7 +291,7 @@ export function Feedback({ quiz, isCorrect }: FeedbackProps) {
           <button
             onClick={handleCopyAIPrompt}
             aria-label={copied ? 'プロンプトをコピーしました' : 'AIに深掘りするためのプロンプトをコピー'}
-            className="tap-highlight flex items-center justify-center gap-1.5 rounded-2xl border border-blue-500/30 bg-blue-500/10 px-4 py-3 text-sm font-medium text-blue-400"
+            className="tap-highlight flex items-center justify-center gap-1.5 rounded-2xl border border-blue-500/30 bg-blue-500/10 px-4 py-3 text-sm font-medium text-blue-400 dark:border-blue-400/30 dark:bg-blue-400/15 dark:text-blue-300"
           >
             {copied ? (
               <>

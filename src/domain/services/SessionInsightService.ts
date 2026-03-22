@@ -10,10 +10,10 @@ import type { SessionRecord } from '../entities/UserProgress'
 export class SessionInsightService {
   /**
    * 直近5セッション vs 前5セッションの正答率差を返す
-   * データが6件未満の場合は null
+   * データが10件未満の場合は null（5 vs 5 の比較に必要）
    */
   static getImprovementTrend(history: readonly SessionRecord[]): number | null {
-    if (history.length < 6) return null
+    if (history.length < 10) return null
 
     const recent = history.slice(-5)
     const previous = history.slice(-10, -5)

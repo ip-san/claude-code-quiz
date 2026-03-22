@@ -383,7 +383,7 @@ export function QuizResult() {
 
           {/* Next step CTA — encourage real adoption */}
           {!isReviewMode && (
-            <div className="mt-6 rounded-2xl border border-claude-orange/20 bg-claude-orange/5 p-4 text-center">
+            <div className="mt-6 rounded-2xl border border-claude-orange/20 bg-claude-orange/5 p-4 text-center dark:border-claude-orange/30 dark:bg-claude-orange/10">
               <p className="mb-1 text-xs font-semibold text-claude-orange">Next Step</p>
               <p className="mb-3 text-sm text-claude-dark">
                 学んだ知識を実践してみましょう
@@ -392,7 +392,7 @@ export function QuizResult() {
                 href="https://docs.anthropic.com/en/docs/claude-code/overview"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="tap-highlight inline-flex items-center gap-1.5 rounded-xl bg-claude-orange/10 px-4 py-2 text-sm font-medium text-claude-orange"
+                className="tap-highlight inline-flex items-center gap-1.5 rounded-xl bg-claude-orange/10 px-4 py-2 text-sm font-medium text-claude-orange dark:bg-claude-orange/20"
               >
                 Claude Code を始める
                 <ArrowRight className="h-4 w-4" />
