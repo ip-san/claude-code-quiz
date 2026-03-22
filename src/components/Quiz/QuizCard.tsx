@@ -11,22 +11,7 @@ import { haptics } from '@/lib/haptics'
 import { useSwipe } from '@/lib/useSwipe'
 import { CorrectOverlay } from './CorrectOverlay'
 
-// Color mapping for categories
-const COLOR_MAP: Record<string, string> = {
-  purple: '#a855f7',
-  blue: '#3b82f6',
-  green: '#22c55e',
-  orange: '#f97316',
-  pink: '#ec4899',
-  cyan: '#06b6d4',
-  yellow: '#eab308',
-  emerald: '#10b981',
-  gray: '#6b7280',
-}
-
-function getColorHex(colorName: string): string {
-  return COLOR_MAP[colorName] ?? COLOR_MAP.gray
-}
+import { getColorHex } from '@/lib/colors'
 
 export function QuizCard() {
   const {

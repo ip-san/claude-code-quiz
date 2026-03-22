@@ -17,7 +17,7 @@ export function ComparisonDiagram({ label, columns }: ComparisonDiagramProps) {
       {label && (
         <p className="mb-2 text-xs font-medium text-stone-500">{label}</p>
       )}
-      <div className="grid gap-2" style={{ gridTemplateColumns: `repeat(${columns.length}, 1fr)` }}>
+      <div className="grid gap-2 overflow-x-auto" style={{ gridTemplateColumns: `repeat(${columns.length}, minmax(80px, 1fr))` }}>
         {columns.map((col, i) => (
           <div
             key={i}

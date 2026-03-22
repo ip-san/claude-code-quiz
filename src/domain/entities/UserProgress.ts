@@ -173,12 +173,20 @@ export class UserProgress {
     const existing = this.questionProgress[questionId]
 
     // Update question progress
+    // Calculate next review time for spaced repetition
+    const correctStreak = isCorrect ? (existing?.correctCount ?? 0) + 1 : 0
+    // Simple SRS intervals: 1h, 4h, 1d, 3d, 7d, 14d, 30d
+    const SRS_INTERVALS = [3600000, 14400000, 86400000, 259200000, 604800000, 1209600000, 2592000000]
+    const intervalIdx = Math.min(correctStreak, SRS_INTERVALS.length - 1)
+    const nextReviewAt = now + SRS_INTERVALS[intervalIdx]
+
     const newQuestionProgress: QuestionProgress = {
       questionId,
       attempts: (existing?.attempts ?? 0) + 1,
       correctCount: (existing?.correctCount ?? 0) + (isCorrect ? 1 : 0),
       lastAttemptAt: now,
       lastCorrect: isCorrect,
+      nextReviewAt,
     }
 
     // Update category progress

@@ -6,22 +6,7 @@ import { getProgressRepository } from '@/infrastructure/persistence/LocalStorage
 import { SessionHistoryChart } from './SessionHistoryChart'
 import { SessionHistoryList } from './SessionHistoryList'
 
-// Color mapping for categories
-const COLOR_MAP: Record<string, string> = {
-  purple: '#a855f7',
-  blue: '#3b82f6',
-  green: '#22c55e',
-  orange: '#f97316',
-  pink: '#ec4899',
-  cyan: '#06b6d4',
-  yellow: '#eab308',
-  emerald: '#10b981',
-  gray: '#6b7280',
-}
-
-function getColorHex(colorName: string): string {
-  return COLOR_MAP[colorName] ?? COLOR_MAP.gray
-}
+import { getColorHex } from '@/lib/colors'
 
 /**
  * Progress Dashboard component
