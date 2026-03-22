@@ -6,6 +6,7 @@ import { getProgressRepository } from '@/infrastructure/persistence/LocalStorage
 import { SessionHistoryChart } from './SessionHistoryChart'
 import { SessionHistoryList } from './SessionHistoryList'
 import { SessionInsightService } from '@/domain/services/SessionInsightService'
+import { LearningRecommendation } from './LearningRecommendation'
 
 import { getColorHex } from '@/lib/colors'
 
@@ -225,6 +226,15 @@ export function ProgressDashboard() {
             </h2>
             <SessionHistoryList sessions={userProgress.sessionHistory} limit={5} />
           </div>
+        )}
+
+        {/* Learning Recommendation */}
+        {!hasNoProgress && (
+          <LearningRecommendation
+            categoryStats={categoryStats}
+            totalAttempts={userProgress.totalAttempts}
+            onStartSession={startSession}
+          />
         )}
 
         {/* Category Progress */}

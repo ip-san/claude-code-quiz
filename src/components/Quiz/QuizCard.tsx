@@ -78,6 +78,7 @@ export function QuizCard({ isModalOpen = false }: { isModalOpen?: boolean }) {
     if (sessionState?.questions !== questionsRef.current) {
       questionsRef.current = sessionState?.questions
       setConsecutiveCorrect(0)
+      setConsecutiveWrong(0)
     }
   }, [sessionState?.questions])
 
