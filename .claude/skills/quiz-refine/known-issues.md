@@ -27,6 +27,7 @@
 ## settings ページとリンク先の乖離
 
 - `defaultMode` 有効値は `default`/`acceptEdits`/`plan`/`dontAsk`/`bypassPermissions` の5つ。settings ページの例 `acceptEdits` だけを見て「4つ」と誤判定するパターンは v4.22.0 で実際に発生。完全なリストは permissions ページ（`/en/permissions#permission-modes`）にある
+- ses-102 がエフォートレベルの設定方法を「5つ」と記述していたが、docs はスキル/サブエージェントのフロントマターを含む6つを列挙 → known-issues.md にエフォートレベル設定方法6種（/effort, /model slider, --effort, env var, settings, frontmatter）を明記
 
 ## VALID_DOC_PAGES の更新
 
@@ -287,3 +288,7 @@ v4.43.0 以前の known-issues では「exit code 2 の一般ルールで UserPr
 ## allowManagedHooksOnly wrongFeedback precision
 
 - ses-052 の wrongFeedback.2 が「マネージド以外のHooks」と曖昧に記述しており、SDK hooks が許可される点が不明確 → wrongFeedback で allowManagedHooksOnly の範囲を記述する場合は「User/Project/Plugin のフックが無効化される。Managed と SDK のフックは許可される」と正確に記述するガイドラインを追加
+
+## Non-blocking event list completeness
+
+- ext-029 の非ブロッキングイベント一覧から `PostToolUseFailure` と `StopFailure` が欠落していた → チェックリスト A に「ブロッキング/非ブロッキングイベント一覧を列挙する場合は22種全てが網羅されているか確認」を注記
