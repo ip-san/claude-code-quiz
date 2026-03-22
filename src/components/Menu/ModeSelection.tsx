@@ -13,10 +13,12 @@ import {
   type DifficultyLevel,
 } from '@/domain/valueObjects/Difficulty'
 import { ResumeSessionBanner } from './ResumeSessionBanner'
+import { CustomQuizBanner } from './CustomQuizBanner'
 import { StreakBanner } from './StreakBanner'
 import { DailyGoalIndicator } from './DailyGoalIndicator'
-import { RefreshCw, Check, Play } from 'lucide-react'
+import { RefreshCw, Check, Play, Moon, Sun } from 'lucide-react'
 import { isElectron } from '@/lib/platformAPI'
+import { getStoredTheme, setStoredTheme, applyTheme, type Theme } from '@/lib/theme'
 
 import { getColorHex } from '@/lib/colors'
 
@@ -101,6 +103,20 @@ export function ModeSelection() {
 
           {/* Header */}
           <div className="mb-5 text-center">
+            <div className="mb-2 flex justify-end">
+              <button
+                onClick={() => {
+                  const current = getStoredTheme()
+                  const next: Theme = current === 'dark' ? 'light' : 'dark'
+                  setStoredTheme(next)
+                  applyTheme(next)
+                }}
+                className="tap-highlight rounded-full p-2 text-stone-500"
+                aria-label="テーマ切替"
+              >
+                {getStoredTheme() === 'dark' ? <Sun className="h-5 w-5" /> : <Moon className="h-5 w-5" />}
+              </button>
+            </div>
             <h1 className="mb-1 text-2xl font-bold text-claude-dark">
               Claude Code Quiz
             </h1>
@@ -271,6 +287,9 @@ export function ModeSelection() {
               </div>
             </div>
           )}
+
+          {/* Custom quiz CTA */}
+          <CustomQuizBanner />
 
           {/* Learning history + update check */}
           <div className="flex gap-2">

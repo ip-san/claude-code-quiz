@@ -6,6 +6,8 @@ import { ScoreRing } from './ScoreRing'
 import { ConfettiEffect } from './ConfettiEffect'
 import { StreakMilestoneBadge, DailyGoalBadge } from './StreakMilestoneBadge'
 import { DailyGoalService } from '@/domain/services/DailyGoalService'
+import { CertificateGenerator } from './CertificateGenerator'
+import { PersonalBest } from './PersonalBest'
 
 // Score thresholds for result messages
 const SCORE_THRESHOLDS = {
@@ -225,6 +227,9 @@ export function QuizResult() {
         </div>
 
         {/* Pass/Fail indicator */}
+        {/* Personal best */}
+        <PersonalBest sessionHistory={userProgress.sessionHistory} currentPercentage={percentage} />
+
         {/* Message + pass/fail */}
         <p className="mb-2 text-sm text-stone-500">{result.message}</p>
         <div className="mb-4">
@@ -325,6 +330,14 @@ export function QuizResult() {
             </div>
           )}
 
+          {/* Certificate */}
+          <CertificateGenerator
+            score={score}
+            total={answeredCount}
+            percentage={percentage}
+            mode={sessionConfig.mode}
+          />
+
           {/* Action buttons */}
           <div className="flex flex-col gap-3">
             {hasWrongAnswers && !isReviewMode && (
@@ -346,9 +359,10 @@ export function QuizResult() {
             {'share' in navigator && (
               <button
                 onClick={() => {
+                  const stars = '⭐'.repeat(Math.ceil(percentage / 20))
                   navigator.share({
                     title: 'Claude Code Quiz',
-                    text: `Claude Code Quiz: ${score}/${answeredCount}問正解 (${percentage}%)`,
+                    text: `${stars}\nClaude Code Quiz: ${score}/${answeredCount}問正解 (${percentage}%)\n${isPassing ? '✅ 合格！' : '📚 もう少し！'}\n#ClaudeCodeQuiz`,
                     url: window.location.href,
                   }).catch(() => {})
                 }}

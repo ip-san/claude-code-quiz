@@ -2,6 +2,47 @@
 @tailwind components;
 @tailwind utilities;
 
+/* Dark mode overrides */
+.dark {
+  color-scheme: dark;
+}
+.dark body {
+  background-color: #1a1a1a;
+}
+.dark .bg-claude-cream {
+  background-color: #1a1a1a;
+}
+.dark .bg-white {
+  background-color: #2a2a2a;
+}
+.dark .bg-stone-100 {
+  background-color: #222222;
+}
+.dark .text-claude-dark {
+  color: #e5e5e5;
+}
+.dark .text-stone-500 {
+  color: #999;
+}
+.dark .text-stone-400 {
+  color: #888;
+}
+.dark .text-stone-600 {
+  color: #bbb;
+}
+.dark .border-stone-200 {
+  border-color: #3a3a3a;
+}
+.dark .border-stone-300 {
+  border-color: #444;
+}
+.dark .bg-stone-200 {
+  background-color: #333;
+}
+.dark .bg-stone-50 {
+  background-color: #2a2a2a;
+}
+
 /* System font stack (iOS/Android native feel) */
 html {
   font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'Helvetica Neue', 'Hiragino Sans', 'Noto Sans JP', sans-serif;
