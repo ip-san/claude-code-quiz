@@ -91,12 +91,29 @@ export function DailySnapshot({ onDismiss }: DailySnapshotProps) {
         )}
       </div>
 
-      <button
-        onClick={handleQuickStart}
-        className="tap-highlight w-full rounded-xl bg-blue-500 py-2.5 text-sm font-semibold text-white"
-      >
-        {snapshot.dueCount > 0 ? '⚡ 60秒チェック（3問）' : '🎲 サクッと10問'}
-      </button>
+      {snapshot.dueCount > 0 ? (
+        <div className="flex gap-2">
+          <button
+            onClick={() => { haptics.light(); startSession({ mode: 'quick', questionCount: snapshot.dueCount }) }}
+            className="tap-highlight flex-1 rounded-xl bg-blue-500 py-2.5 text-sm font-semibold text-white"
+          >
+            🧠 {snapshot.dueCount}問を復習
+          </button>
+          <button
+            onClick={handleQuickStart}
+            className="tap-highlight rounded-xl border border-blue-300 px-4 py-2.5 text-sm font-medium text-blue-600 dark:border-blue-500/30 dark:text-blue-400"
+          >
+            ⚡ 3問だけ
+          </button>
+        </div>
+      ) : (
+        <button
+          onClick={handleQuickStart}
+          className="tap-highlight w-full rounded-xl bg-blue-500 py-2.5 text-sm font-semibold text-white"
+        >
+          🎲 サクッと10問
+        </button>
+      )}
     </div>
   )
 }
