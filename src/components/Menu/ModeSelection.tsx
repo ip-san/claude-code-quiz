@@ -171,7 +171,7 @@ export function ModeSelection() {
             <div className="mb-5 rounded-2xl border-2 border-claude-orange/30 bg-gradient-to-r from-claude-orange/5 to-transparent p-4">
               <p className="mb-1 text-xs font-semibold text-claude-orange">はじめての方へ</p>
               <p className="mb-3 text-sm text-claude-dark">
-                まずは「全体像モード」で Claude Code の全体像をつかみましょう。順番に学べるガイド付きコースです。
+                AI の知識は問いません。全体像モードで基礎から順番にガイドします。完了すると修了証が発行されます。
               </p>
               <button
                 onClick={() => {

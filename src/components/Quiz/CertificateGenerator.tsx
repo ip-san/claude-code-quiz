@@ -16,7 +16,9 @@ export function CertificateGenerator({ score, total, percentage, mode }: Certifi
   const [name, setName] = useState('')
   const [generating, setGenerating] = useState(false)
 
-  if (percentage < 80 || mode !== 'full') return null
+  // Show certificate for: 実力テスト 80%+ or 全体像モード 70%+
+  const isEligible = (mode === 'full' && percentage >= 80) || (mode === 'overview' && percentage >= 70)
+  if (!isEligible) return null
 
   const handleGenerate = () => {
     setGenerating(true)
@@ -66,7 +68,10 @@ export function CertificateGenerator({ score, total, percentage, mode }: Certifi
     // Description
     ctx.fillStyle = '#1A1A1A'
     ctx.font = '16px -apple-system, sans-serif'
-    ctx.fillText('Claude Code の機能と使い方に関する実力テストに合格しました', 400, 370)
+    const certDesc = mode === 'overview'
+      ? 'Claude Code の全体像を習得したことを証明します'
+      : 'Claude Code の機能と使い方に関する実力テストに合格しました'
+    ctx.fillText(certDesc, 400, 370)
 
     // Date
     ctx.fillStyle = '#6B6B6B'

@@ -124,7 +124,7 @@ export function QuizResult() {
     if (percentage === SCORE_THRESHOLDS.PERFECT) {
       return {
         title: 'パーフェクト！',
-        message: '全問正解です。素晴らしい理解度です！',
+        message: '全問正解。あなたは Claude Code を完全に理解しています。',
         color: 'text-yellow-600',
         bgColor: 'bg-yellow-50',
         borderColor: 'border-yellow-200',
@@ -132,8 +132,8 @@ export function QuizResult() {
     }
     if (percentage >= SCORE_THRESHOLDS.EXCELLENT) {
       return {
-        title: '合格！優秀です',
-        message: '高い正答率です。あと少しで完璧！',
+        title: '素晴らしい！',
+        message: 'ここまで来たあなたなら、実務でも活躍できます。',
         color: 'text-green-600',
         bgColor: 'bg-green-50',
         borderColor: 'border-green-200',
@@ -141,8 +141,8 @@ export function QuizResult() {
     }
     if (percentage >= SCORE_THRESHOLDS.PASSING) {
       return {
-        title: '合格！',
-        message: '合格ラインをクリアしました。復習で更に伸ばしましょう。',
+        title: '着実に成長しています',
+        message: '基礎は身についています。復習で更に自信をつけましょう。',
         color: 'text-blue-600',
         bgColor: 'bg-blue-50',
         borderColor: 'border-blue-200',
@@ -150,16 +150,16 @@ export function QuizResult() {
     }
     if (percentage >= SCORE_THRESHOLDS.ALMOST) {
       return {
-        title: 'もう少し！',
-        message: '合格まであと少しです。苦手な分野を復習しましょう。',
+        title: 'いい線いってます',
+        message: 'あと少しです。間違えた問題を見直すだけで、大きく伸びます。',
         color: 'text-orange-600',
         bgColor: 'bg-orange-50',
         borderColor: 'border-orange-200',
       }
     }
     return {
-      title: '伸びしろあり！',
-      message: '復習すれば確実に伸びます。苦手分野から攻略しましょう。',
+      title: '最初の一歩を踏み出しました',
+      message: 'ここから始まります。繰り返すほど必ず伸びます。',
       color: 'text-red-600',
       bgColor: 'bg-red-50',
       borderColor: 'border-red-200',

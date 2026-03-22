@@ -1,4 +1,4 @@
-import { Zap, Brain, Rocket, ArrowRight } from 'lucide-react'
+import { Sparkles, GraduationCap, TrendingUp, ArrowRight } from 'lucide-react'
 
 const WELCOME_KEY = 'claude-quiz-welcomed'
 
@@ -8,19 +8,19 @@ interface WelcomeScreenProps {
 
 const FEATURES = [
   {
-    icon: <Zap className="h-6 w-6 text-claude-orange" />,
-    title: 'AIで開発を加速',
-    desc: 'Claude Code はコードを書き、デバッグし、テストまで実行する AI アシスタント',
+    icon: <Sparkles className="h-6 w-6 text-claude-orange" />,
+    title: '知識ゼロから始められる',
+    desc: 'AI を使ったことがなくても大丈夫。基礎から順番にガイドします',
   },
   {
-    icon: <Brain className="h-6 w-6 text-blue-500" />,
-    title: 'クイズで即戦力に',
-    desc: '630問で全機能をマスター。知識ゼロからでも始められます',
+    icon: <GraduationCap className="h-6 w-6 text-blue-500" />,
+    title: '1問ずつ、確実に身につく',
+    desc: '解説付きのクイズで「わかった」を積み重ねていきましょう',
   },
   {
-    icon: <Rocket className="h-6 w-6 text-green-500" />,
-    title: '今日から使える',
-    desc: '学んだ知識をすぐに実践。あなたのチームの AI 推進者になろう',
+    icon: <TrendingUp className="h-6 w-6 text-green-500" />,
+    title: 'あなたのペースで成長',
+    desc: 'スマホでいつでも学習。毎日少しずつで、着実にスキルアップ',
   },
 ] as const
 
@@ -51,10 +51,10 @@ export function WelcomeScreen({ onComplete }: WelcomeScreenProps) {
           Claude Code Quiz
         </h1>
         <p className="mb-1 text-sm text-claude-gray">
-          AI コーディングアシスタントの全てを学ぶ
+          AI 時代のスキルを、今日から身につける
         </p>
         <p className="mb-8 text-xs text-stone-400">
-          630問 | 8カテゴリ | スマホでいつでも学習
+          経験不問 | 630問 | スマホでいつでも
         </p>
 
         {/* Features */}
