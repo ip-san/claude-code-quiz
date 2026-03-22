@@ -56,7 +56,8 @@ export default function App() {
     window.addEventListener('popstate', handlePopState)
 
     // Push one state entry when leaving menu (so back goes to menu, not out of app)
-    if (viewState !== 'menu') {
+    // Only push if not already at this view (prevent duplicate entries)
+    if (viewState !== 'menu' && window.history.state?.view !== viewState) {
       window.history.replaceState({ view: 'menu' }, '')
       window.history.pushState({ view: viewState }, '')
     }
@@ -269,7 +270,7 @@ function QuizView({
 
       {/* iOS-style bottom sheet dialog */}
       {showQuitDialog && (
-        <div className="fixed inset-0 z-50 flex items-end justify-center sm:items-center" role="dialog" aria-modal="true" onClick={handleCancelQuit}>
+        <div className="fixed inset-0 z-50 flex items-end justify-center sm:items-center" role="dialog" aria-modal="true" aria-labelledby="quit-dialog-title" onClick={handleCancelQuit}>
           {/* Backdrop */}
           <div className="absolute inset-0 bg-black/40" />
           {/* Sheet */}
@@ -284,7 +285,7 @@ function QuizView({
               }
             }}
           >
-            <h3 className="mb-2 text-center text-lg font-semibold text-claude-dark">
+            <h3 id="quit-dialog-title" className="mb-2 text-center text-lg font-semibold text-claude-dark">
               {isReviewMode ? '復習を中止しますか？' : 'クイズを中止しますか？'}
             </h3>
             <p className="mb-6 text-center text-sm text-stone-500">

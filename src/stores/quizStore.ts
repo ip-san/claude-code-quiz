@@ -391,7 +391,10 @@ export const useQuizStore = create<QuizStore>((set, get) => ({
       questions = QuizSessionService.shuffleArray(questions)
     }
 
-    const sessionState = QuizSessionService.createInitialState(questions, config)
+    const sessionState = {
+      ...QuizSessionService.createInitialState(questions, config),
+      initialStreakDays: state.userProgress.streakDays,
+    }
 
     set({
       sessionConfig: config,

@@ -33,6 +33,7 @@ export function DailyGoalIndicator() {
         </div>
         <button
           onClick={() => setShowGoalPicker(!showGoalPicker)}
+          aria-expanded={showGoalPicker}
           className="text-xs text-stone-400 hover:text-stone-600"
         >
           {showGoalPicker ? '閉じる' : '目標変更'}

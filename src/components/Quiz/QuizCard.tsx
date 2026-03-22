@@ -376,7 +376,7 @@ export function QuizCard() {
       {/* Feedback (shown inline after answering, skip in defer mode) */}
       {isAnswered && !deferFeedback && (
         <div className="mt-3 sm:mt-6">
-          <Feedback quiz={quiz} isCorrect={isCorrect!} />
+          <Feedback quiz={quiz} isCorrect={isCorrect ?? false} />
           {isCorrect === false && (
             <div className="mt-4">
               <button
