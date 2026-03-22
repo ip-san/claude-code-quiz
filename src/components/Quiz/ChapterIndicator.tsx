@@ -21,6 +21,9 @@ export function ChapterIndicator({ chapter, totalChapters }: ChapterIndicatorPro
           <p className="text-sm font-semibold text-claude-dark">
             {chapter.name}
           </p>
+          <p className="text-xs text-claude-gray">
+            {chapter.subtitle}
+          </p>
         </div>
       </div>
     </div>

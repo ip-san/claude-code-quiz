@@ -320,6 +320,27 @@ export function ModeSelection() {
             </div>
           )}
 
+          {/* AI Readiness Level */}
+          {userProgress.totalAttempts > 0 && (() => {
+            const answeredRatio = (allQuestions.length - unansweredCount) / allQuestions.length
+            const overallAccuracy = userProgress.totalAttempts > 0
+              ? Math.round((userProgress.totalCorrect / userProgress.totalAttempts) * 100)
+              : 0
+            const level = overallAccuracy >= 80 && answeredRatio >= 0.5 ? { name: 'AI推進リーダー', icon: '👑', color: 'text-yellow-600' }
+              : overallAccuracy >= 70 ? { name: 'AI実践者', icon: '🚀', color: 'text-green-600' }
+              : overallAccuracy >= 50 ? { name: 'AI学習者', icon: '📚', color: 'text-blue-600' }
+              : { name: 'AI入門者', icon: '🌱', color: 'text-claude-orange' }
+            return (
+              <div className="mb-4 rounded-2xl bg-white p-4 text-center shadow-sm">
+                <span className="text-3xl">{level.icon}</span>
+                <p className={`mt-1 text-sm font-bold ${level.color}`}>{level.name}</p>
+                <p className="text-xs text-stone-400">
+                  正答率 {overallAccuracy}% · {allQuestions.length - unansweredCount}/{allQuestions.length}問 学習済み
+                </p>
+              </div>
+            )
+          })()}
+
           {/* Category mastery overview */}
           {userProgress.totalAttempts > 0 && (
             <div className="mb-4">

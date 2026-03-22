@@ -8,6 +8,7 @@ import { StreakMilestoneBadge, DailyGoalBadge } from './StreakMilestoneBadge'
 import { DailyGoalService } from '@/domain/services/DailyGoalService'
 import { CertificateGenerator } from './CertificateGenerator'
 import { PersonalBest } from './PersonalBest'
+import { SkillsAcquired } from './SkillsAcquired'
 
 // Score thresholds for result messages
 const SCORE_THRESHOLDS = {
@@ -328,6 +329,14 @@ export function QuizResult() {
                 </>
               )}
             </div>
+          )}
+
+          {/* Skills acquired — show what they can now do */}
+          {!isReviewMode && sessionState && (
+            <SkillsAcquired
+              questions={sessionState.questions}
+              answerHistory={sessionState.answerHistory}
+            />
           )}
 
           {/* Certificate */}
