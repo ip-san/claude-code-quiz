@@ -233,7 +233,7 @@ function QuizView({
             </button>
           </div>
           {/* Progress bar */}
-          <div className="mt-2 h-1 overflow-hidden rounded-full bg-stone-200">
+          <div className="mt-2 h-1 overflow-hidden rounded-full bg-stone-200" role="progressbar" aria-valuenow={progress.current} aria-valuemin={1} aria-valuemax={progress.total} aria-label="問題の進捗">
             <div
               className="h-full rounded-full progress-gradient transition-all"
               style={{
@@ -253,13 +253,14 @@ function QuizView({
 
       {/* iOS-style bottom sheet dialog */}
       {showQuitDialog && (
-        <div className="fixed inset-0 z-50 flex items-end justify-center sm:items-center" onClick={handleCancelQuit}>
+        <div className="fixed inset-0 z-50 flex items-end justify-center sm:items-center" role="dialog" aria-modal="true" onClick={handleCancelQuit}>
           {/* Backdrop */}
           <div className="absolute inset-0 bg-black/40" />
           {/* Sheet */}
           <div
             className="relative mx-2 mb-2 w-full max-w-sm animate-slide-down rounded-2xl bg-white p-6 shadow-2xl sm:mx-4 sm:mb-0 sm:animate-none"
             onClick={(e) => e.stopPropagation()}
+            ref={(el) => { if (el) { const btn = el.querySelector('button'); btn?.focus() } }}
           >
             <h3 className="mb-2 text-center text-lg font-semibold text-claude-dark">
               {isReviewMode ? '復習を中止しますか？' : 'クイズを中止しますか？'}

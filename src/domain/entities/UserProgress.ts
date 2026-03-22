@@ -360,6 +360,29 @@ export class UserProgress {
   }
 
   /**
+   * セッション完了を記録
+   */
+  recordSession(mode: string, categoryFilter: string | null, score: number, totalQuestions: number): UserProgress {
+    const percentage = totalQuestions > 0 ? Math.round((score / totalQuestions) * 100) : 0
+    const record: SessionRecord = {
+      id: `${Date.now()}-${Math.random().toString(36).slice(2, 8)}`,
+      completedAt: Date.now(),
+      mode,
+      categoryFilter,
+      score,
+      totalQuestions,
+      percentage,
+    }
+    // Keep last 100 sessions
+    const newHistory = [...this.sessionHistory, record].slice(-100)
+    return UserProgress.create({
+      ...this.toJSON(),
+      sessionHistory: newHistory,
+      modifiedAt: Date.now(),
+    })
+  }
+
+  /**
    * ブックマークされているかを判定
    */
   isBookmarked(questionId: string): boolean {

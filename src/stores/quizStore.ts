@@ -232,6 +232,7 @@ function saveSessionSnapshot(
     startedAt: sessionState.startedAt ?? Date.now(),
     wrongAnswers: [...wrongAnswers],
     hintsUsedCount: sessionState.hintsUsedCount,
+    hintUsedOnCurrent: sessionState.hintUsed,
     savedAt: Date.now(),
     answerRecords,
   }
@@ -541,6 +542,17 @@ export const useQuizStore = create<QuizStore>((set, get) => ({
 
     if (newSessionState.isCompleted) {
       getSessionRepository().clear()
+      // Record session in history (skip review mode)
+      if (!newSessionState.isReviewMode) {
+        const updatedProgress = get().userProgress.recordSession(
+          newSessionState.config.mode,
+          newSessionState.config.categoryFilter ?? null,
+          newSessionState.score,
+          newSessionState.answeredCount
+        )
+        set({ userProgress: updatedProgress })
+        getProgressRepository().save(updatedProgress).catch(console.error)
+      }
       set({
         sessionState: newSessionState,
         viewState: 'result',
@@ -656,6 +668,17 @@ export const useQuizStore = create<QuizStore>((set, get) => ({
     }
 
     getSessionRepository().clear()
+
+    // Record session in history
+    const updatedProgress = state.userProgress.recordSession(
+      state.sessionState.config.mode,
+      state.sessionState.config.categoryFilter ?? null,
+      finalScore,
+      finalCount
+    )
+    set({ userProgress: updatedProgress })
+    getProgressRepository().save(updatedProgress).catch(console.error)
+
     set({
       sessionState: {
         ...state.sessionState,
@@ -769,6 +792,7 @@ export const useQuizStore = create<QuizStore>((set, get) => ({
       answeredCount: saved.answeredCount,
       startedAt: saved.startedAt,
       hintsUsedCount: saved.hintsUsedCount,
+      hintUsed: saved.hintUsedOnCurrent ?? false,
       answerHistory,
       selectedAnswer: currentRecord?.selectedAnswer ?? null,
       selectedAnswers: currentRecord?.selectedAnswers ?? Object.freeze([]),

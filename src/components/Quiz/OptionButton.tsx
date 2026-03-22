@@ -129,6 +129,7 @@ export function OptionButton({
 
   return (
     <button
+      id={`option-${index}`}
       onClick={onClick}
       disabled={isAnswered}
       aria-label={getAriaLabel()}

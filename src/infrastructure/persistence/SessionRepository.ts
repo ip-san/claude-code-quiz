@@ -25,6 +25,7 @@ export interface SavedSessionData {
   readonly startedAt: number
   readonly wrongAnswers: { questionId: string; selectedAnswer: number; selectedAnswers?: number[] }[]
   readonly hintsUsedCount: number
+  readonly hintUsedOnCurrent: boolean
   readonly savedAt: number
   readonly answerRecords?: SavedAnswerRecord[]
 }
