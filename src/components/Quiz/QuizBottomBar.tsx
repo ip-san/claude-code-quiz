@@ -166,7 +166,7 @@ function SubmitButton({
           : 'bg-stone-200 text-stone-400'
       }`}
     >
-      回答する
+      {hasSelection ? '回答する' : '選択肢をタップ'}
     </button>
   )
 }

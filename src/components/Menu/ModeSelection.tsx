@@ -175,10 +175,10 @@ export function ModeSelection() {
             </p>
           </div>
 
-          {/* Engagement — streak + daily goal */}
+          {/* Engagement — streak + daily goal (hide daily goal for brand new users) */}
           <div className="mb-5 flex flex-col gap-2">
             <StreakBanner />
-            <DailyGoalIndicator />
+            {userProgress.totalAttempts > 0 && <DailyGoalIndicator />}
           </div>
 
           {/* SRS Review Banner — skill retention through spaced repetition */}
@@ -206,27 +206,38 @@ export function ModeSelection() {
             </div>
           )}
 
-          {/* First-time user: recommend overview mode */}
+          {/* First-time user: simplified entry point */}
           {userProgress.totalAttempts === 0 && (
-            <div className="mb-5 rounded-2xl border-2 border-claude-orange/30 bg-gradient-to-r from-claude-orange/5 to-transparent p-4">
-              <p className="mb-1 text-xs font-semibold text-claude-orange">はじめての方へ</p>
-              <p className="mb-3 text-sm text-claude-dark">
-                AI の知識は問いません。全体像モードで基礎から順番にガイドします。完了すると修了証が発行されます。
-              </p>
+            <div className="mb-5 space-y-3">
+              <div className="rounded-2xl border-2 border-claude-orange/30 bg-gradient-to-r from-claude-orange/5 to-transparent p-4">
+                <p className="mb-1 text-xs font-semibold text-claude-orange">はじめての方へ</p>
+                <p className="mb-3 text-sm text-claude-dark">
+                  AI の知識は問いません。全体像モードで基礎から順番にガイドします。完了すると修了証が発行されます。
+                </p>
+                <button
+                  onClick={() => {
+                    haptics.light()
+                    startSession({ mode: 'overview' })
+                  }}
+                  className="tap-highlight inline-flex items-center gap-2 rounded-xl bg-claude-orange px-5 py-2.5 text-sm font-semibold text-white shadow-sm"
+                >
+                  🗺️ 全体像モードで始める
+                </button>
+              </div>
               <button
                 onClick={() => {
                   haptics.light()
-                  startSession({ mode: 'overview' })
+                  startSession({ mode: 'random' })
                 }}
-                className="tap-highlight inline-flex items-center gap-2 rounded-xl bg-claude-orange px-5 py-2.5 text-sm font-semibold text-white shadow-sm"
+                className="tap-highlight w-full rounded-2xl border border-stone-200 bg-white px-4 py-3 text-center text-sm font-medium text-stone-600"
               >
-                🗺️ 全体像モードで始める
+                🎲 まずは気軽に10問チャレンジ
               </button>
             </div>
           )}
 
-          {/* Mode Selection — horizontal scroll on mobile */}
-          <div className="mb-5">
+          {/* Mode Selection — show for returning users only */}
+          <div className={`mb-5 ${userProgress.totalAttempts === 0 ? 'hidden' : ''}`}>
             <h2 className="mb-2 text-sm font-semibold text-stone-500">
               モード
             </h2>
@@ -396,8 +407,8 @@ export function ModeSelection() {
             </div>
           )}
 
-          {/* Custom quiz CTA */}
-          <CustomQuizBanner />
+          {/* Custom quiz CTA — hide for first-time users */}
+          {userProgress.totalAttempts > 0 && <CustomQuizBanner />}
 
           {/* Learning history + update check */}
           <div className="flex gap-2">
