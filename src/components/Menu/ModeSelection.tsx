@@ -414,8 +414,8 @@ export function ModeSelection() {
             </div>
           )}
 
-          {/* Custom quiz CTA — hide for first-time users */}
-          {userProgress.totalAttempts > 0 && <CustomQuizBanner />}
+          {/* Custom quiz CTA — only show for power users (Electron/developer context) */}
+          {isElectron && <CustomQuizBanner />}
 
           {/* Learning history + update check */}
           <div className="flex gap-2">
