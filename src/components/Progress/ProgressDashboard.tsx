@@ -5,6 +5,7 @@ import { PREDEFINED_CATEGORIES, type Category } from '@/domain/valueObjects/Cate
 import { getProgressRepository } from '@/infrastructure/persistence/LocalStorageProgressRepository'
 import { SessionHistoryChart } from './SessionHistoryChart'
 import { SessionHistoryList } from './SessionHistoryList'
+import { SessionInsightService } from '@/domain/services/SessionInsightService'
 
 import { getColorHex } from '@/lib/colors'
 
@@ -192,6 +193,31 @@ export function ProgressDashboard() {
             </div>
           </div>
         )}
+
+        {/* Learning Insights */}
+        {!hasNoProgress && (() => {
+          const trend = SessionInsightService.getImprovementTrend(userProgress.sessionHistory)
+          const best = SessionInsightService.getBestScore(userProgress.sessionHistory)
+          if (trend === null && best === null) return null
+          return (
+            <div className="mb-6 flex flex-wrap gap-3">
+              {best !== null && (
+                <div className="flex-1 rounded-2xl border border-stone-200 bg-white p-4 shadow-sm">
+                  <div className="mb-1 text-xs text-stone-500">最高正答率</div>
+                  <div className="text-2xl font-bold text-claude-orange">{best}%</div>
+                </div>
+              )}
+              {trend !== null && (
+                <div className="flex-1 rounded-2xl border border-stone-200 bg-white p-4 shadow-sm">
+                  <div className="mb-1 text-xs text-stone-500">成長トレンド</div>
+                  <div className={`text-2xl font-bold ${trend >= 0 ? 'text-green-600' : 'text-red-500'}`}>
+                    {trend >= 0 ? '+' : ''}{trend}%
+                  </div>
+                </div>
+              )}
+            </div>
+          )
+        })()}
 
         {/* Session History List */}
         {!hasNoProgress && userProgress.sessionHistory.length > 0 && (

@@ -184,6 +184,23 @@ function QuizView({
         e.preventDefault()
         e.stopPropagation()
         setShowQuitDialog(false)
+        return
+      }
+      // Focus trap within dialog
+      if (e.key === 'Tab') {
+        const dialog = document.querySelector('[role="dialog"]')
+        if (!dialog) return
+        const focusable = dialog.querySelectorAll<HTMLElement>('button, [tabindex]')
+        if (focusable.length === 0) return
+        const first = focusable[0]
+        const last = focusable[focusable.length - 1]
+        if (e.shiftKey && document.activeElement === first) {
+          e.preventDefault()
+          last.focus()
+        } else if (!e.shiftKey && document.activeElement === last) {
+          e.preventDefault()
+          first.focus()
+        }
       }
     }
     window.addEventListener('keydown', handleKeyDown, true)

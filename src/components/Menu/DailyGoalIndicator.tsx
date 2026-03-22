@@ -40,7 +40,7 @@ export function DailyGoalIndicator() {
       </div>
 
       {/* Progress bar */}
-      <div className="mb-1.5 h-2.5 overflow-hidden rounded-full bg-stone-200">
+      <div className="mb-1.5 h-2.5 overflow-hidden rounded-full bg-stone-200" role="progressbar" aria-valuenow={todayCount} aria-valuemin={0} aria-valuemax={dailyGoal} aria-label="今日の目標進捗">
         <div
           className={`h-full animate-progress-fill rounded-full ${
             isAchieved ? 'progress-gradient-green' : 'progress-gradient'

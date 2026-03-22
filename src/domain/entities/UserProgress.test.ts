@@ -416,3 +416,63 @@ describe('UserProgress Entity', () => {
     })
   })
 })
+
+describe('recordSession', () => {
+  it('should add a session record to sessionHistory', () => {
+    const progress = UserProgress.empty()
+    const updated = progress.recordSession('random', null, 8, 10)
+    expect(updated.sessionHistory.length).toBe(1)
+    expect(updated.sessionHistory[0].mode).toBe('random')
+    expect(updated.sessionHistory[0].score).toBe(8)
+    expect(updated.sessionHistory[0].totalQuestions).toBe(10)
+    expect(updated.sessionHistory[0].percentage).toBe(80)
+  })
+
+  it('should keep max 100 sessions', () => {
+    let progress = UserProgress.empty()
+    for (let i = 0; i < 105; i++) {
+      progress = progress.recordSession('random', null, 5, 10)
+    }
+    expect(progress.sessionHistory.length).toBe(100)
+  })
+})
+
+describe('recordAnswer nextReviewAt', () => {
+  it('should set nextReviewAt on recordAnswer', () => {
+    const progress = UserProgress.empty()
+    const updated = progress.recordAnswer('q1', 'tools', true)
+    expect(updated.questionProgress['q1'].nextReviewAt).toBeDefined()
+    expect(updated.questionProgress['q1'].nextReviewAt).toBeGreaterThan(Date.now())
+  })
+
+  it('should reset SRS streak on wrong answer', () => {
+    let progress = UserProgress.empty()
+    // Answer correctly 3 times
+    for (let i = 0; i < 3; i++) {
+      progress = progress.recordAnswer('q1', 'tools', true)
+    }
+    const longInterval = progress.questionProgress['q1'].nextReviewAt! - Date.now()
+    // Answer incorrectly
+    progress = progress.recordAnswer('q1', 'tools', false)
+    const shortInterval = progress.questionProgress['q1'].nextReviewAt! - Date.now()
+    // After wrong answer, interval should be shorter (reset to 1h)
+    expect(shortInterval).toBeLessThan(longInterval)
+    expect(shortInterval).toBeLessThan(4000000) // < ~1.1 hours
+  })
+})
+
+describe('dailyAnswerCounts retry handling', () => {
+  it('should not increment daily count on retry (non-first attempt)', () => {
+    let progress = UserProgress.empty()
+    // First attempt
+    progress = progress.recordAnswer('q1', 'tools', false)
+    const today = new Date()
+    const todayStr = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, '0')}-${String(today.getDate()).padStart(2, '0')}`
+    const countAfterFirst = progress.dailyAnswerCounts[todayStr] ?? 0
+    // Second attempt (retry)
+    progress = progress.recordAnswer('q1', 'tools', true)
+    const countAfterRetry = progress.dailyAnswerCounts[todayStr] ?? 0
+    // Daily count should NOT increment on retry
+    expect(countAfterRetry).toBe(countAfterFirst)
+  })
+})

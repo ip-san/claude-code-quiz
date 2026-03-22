@@ -211,11 +211,11 @@ export class UserProgress {
     // Calculate new streak
     const newStreakDays = this.calculateNewStreak(now)
 
-    // Update daily answer count
+    // Update daily answer count (only for first attempts, not retries)
     const todayStr = this.getDateString(now)
     const newDailyCounts = {
       ...this.dailyAnswerCounts,
-      [todayStr]: (this.dailyAnswerCounts[todayStr] ?? 0) + 1,
+      [todayStr]: (this.dailyAnswerCounts[todayStr] ?? 0) + (isFirstAttempt ? 1 : 0),
     }
 
     return new UserProgress({
