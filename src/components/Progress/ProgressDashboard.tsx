@@ -255,6 +255,29 @@ export function ProgressDashboard() {
           />
         )}
 
+        {/* Teaching Readiness — categories the user can teach */}
+        {!hasNoProgress && (() => {
+          const teachable = PREDEFINED_CATEGORIES.filter(cat => {
+            const stats = categoryStats[cat.id]
+            if (!stats || stats.attemptedQuestions < 5) return false
+            return Math.round((stats.correctAnswers / stats.attemptedQuestions) * 100) >= 90
+          })
+          if (teachable.length === 0) return null
+          return (
+            <div className="mb-6 rounded-2xl border border-purple-200 bg-purple-50/50 p-4 dark:border-purple-500/30 dark:bg-purple-500/10">
+              <p className="mb-2 text-sm font-bold text-purple-700 dark:text-purple-300">🎓 教えられるカテゴリ</p>
+              <p className="mb-3 text-xs text-stone-500">正答率90%以上 — このカテゴリはチームに教えられるレベルです</p>
+              <div className="flex flex-wrap gap-2">
+                {teachable.map(cat => (
+                  <span key={cat.id} className="inline-flex items-center gap-1 rounded-full bg-purple-100 px-3 py-1 text-sm font-medium text-purple-700 dark:bg-purple-500/20 dark:text-purple-300">
+                    {cat.icon} {cat.name}
+                  </span>
+                ))}
+              </div>
+            </div>
+          )
+        })()}
+
         {/* Category Progress */}
         <div className="mb-6">
           <h2 className="mb-4 text-lg font-semibold text-claude-dark">

@@ -276,6 +276,17 @@ export function Feedback({ quiz, isCorrect }: FeedbackProps) {
     )
   }
 
+  // 4.7: 正解時の実践促進メッセージ（知識→行動の橋渡し）
+  if (isCorrect && !isReviewMode) {
+    sections.push(
+      <AnimatedSection key="practice-nudge" order={sections.length} animate={animate} noMotion={noMotion} className="mb-4">
+        <p className="text-xs text-emerald-600 dark:text-emerald-400">
+          💡 この知識を次の Claude Code セッションで試してみましょう
+        </p>
+      </AnimatedSection>
+    )
+  }
+
   // 5: Action buttons
   sections.push(
     <AnimatedSection key="actions" order={sections.length} animate={animate} noMotion={noMotion}>

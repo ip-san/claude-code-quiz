@@ -39,13 +39,13 @@ export function StreakBanner() {
   }
 
   const getStreakMessage = (days: number) => {
-    if (days >= 100) return '驚異的！100日を超える学習の積み重ね'
-    if (days >= 60) return '素晴らしい！2ヶ月以上の継続学習'
-    if (days >= 30) return 'すごい！1ヶ月の連続学習達成'
+    if (days >= 100) return 'あなたはチームのAI推進を牽引できる存在です'
+    if (days >= 60) return '2ヶ月の積み重ね。チームメンバーに学びを共有してみましょう'
+    if (days >= 30) return '1ヶ月達成！後輩にAI活用を教えてみませんか'
     if (days >= 14) return '2週間連続！習慣が定着してきました'
     if (days >= 7) return '1週間連続！良い調子です'
     if (days >= 3) return '3日連続！この調子で続けましょう'
-    return '連続学習中！今日も頑張りましょう'
+    return '連続学習中！今日も一歩前へ'
   }
 
   const getBgClass = (days: number) => {
