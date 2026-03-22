@@ -96,12 +96,14 @@ export function DailySnapshot({ onDismiss }: DailySnapshotProps) {
           <button
             onClick={() => { haptics.light(); startSession({ mode: 'quick', questionCount: snapshot.dueCount }) }}
             className="tap-highlight flex-1 rounded-xl bg-blue-500 py-2.5 text-sm font-semibold text-white"
+            aria-label={`復習期限の${snapshot.dueCount}問を全て復習する`}
           >
             🧠 {snapshot.dueCount}問を復習
           </button>
           <button
             onClick={handleQuickStart}
             className="tap-highlight rounded-xl border border-blue-300 px-4 py-2.5 text-sm font-medium text-blue-600 dark:border-blue-500/30 dark:text-blue-400"
+            aria-label="3問だけ素早くチェックする"
           >
             ⚡ 3問だけ
           </button>
@@ -110,6 +112,7 @@ export function DailySnapshot({ onDismiss }: DailySnapshotProps) {
         <button
           onClick={handleQuickStart}
           className="tap-highlight w-full rounded-xl bg-blue-500 py-2.5 text-sm font-semibold text-white"
+          aria-label="ランダムに10問チャレンジする"
         >
           🎲 サクッと10問
         </button>

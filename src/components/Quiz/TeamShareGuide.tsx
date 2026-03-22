@@ -60,7 +60,7 @@ export function TeamShareGuide({ percentage, mode }: TeamShareGuideProps) {
           'プロジェクトに CLAUDE.md を作成してルールを統一する',
           '週1回「AIで何を自動化できたか」共有会を設ける',
         ].map((step, i) => (
-          <div key={i} className="flex items-start gap-2">
+          <div key={step} className="flex items-start gap-2">
             <span className="flex h-5 w-5 flex-shrink-0 items-center justify-center rounded-full bg-purple-500 text-xs font-bold text-white">
               {i + 1}
             </span>

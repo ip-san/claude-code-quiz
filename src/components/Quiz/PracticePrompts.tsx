@@ -49,7 +49,7 @@ interface PracticePromptsProps {
 
 export function PracticePrompts({ correctCategories }: PracticePromptsProps) {
   const [expanded, setExpanded] = useState(false)
-  const [copiedIdx, setCopiedIdx] = useState<number | null>(null)
+  const [copiedPrompt, setCopiedPrompt] = useState<string | null>(null)
 
   // 正解したカテゴリから実践プロンプトを収集
   const prompts = correctCategories
@@ -61,11 +61,11 @@ export function PracticePrompts({ correctCategories }: PracticePromptsProps) {
   const totalAvailable = correctCategories
     .reduce((sum, catId) => sum + (PRACTICE_PROMPTS[catId]?.length ?? 0), 0)
 
-  const handleCopy = async (text: string, idx: number) => {
+  const handleCopy = async (text: string) => {
     try {
       await navigator.clipboard.writeText(text)
-      setCopiedIdx(idx)
-      setTimeout(() => setCopiedIdx(null), 2000)
+      setCopiedPrompt(text)
+      setTimeout(() => setCopiedPrompt(null), 2000)
     } catch { /* ignore */ }
   }
 
@@ -76,17 +76,17 @@ export function PracticePrompts({ correctCategories }: PracticePromptsProps) {
         <p className="text-xs font-semibold text-emerald-700 dark:text-emerald-300">今すぐ試せるプロンプト</p>
       </div>
       <div className="space-y-2">
-        {prompts.map((p, i) => (
-          <div key={i} className="rounded-xl bg-white p-3 dark:bg-stone-800">
+        {prompts.map((p) => (
+          <div key={`${p.catId}-${p.prompt}`} className="rounded-xl bg-white p-3 dark:bg-stone-800">
             <p className="mb-1 text-xs text-stone-400">{p.desc}</p>
             <div className="flex items-start gap-2">
               <code className="flex-1 text-sm text-claude-dark dark:text-stone-200">{p.prompt}</code>
               <button
-                onClick={() => handleCopy(p.prompt, i)}
+                onClick={() => handleCopy(p.prompt)}
                 className="tap-highlight flex-shrink-0 rounded-lg p-1.5 text-stone-400 hover:text-stone-600"
                 aria-label="コピー"
               >
-                {copiedIdx === i ? <Check className="h-4 w-4 text-green-500" /> : <Copy className="h-4 w-4" />}
+                {copiedPrompt === p.prompt ? <Check className="h-4 w-4 text-green-500" /> : <Copy className="h-4 w-4" />}
               </button>
             </div>
           </div>
