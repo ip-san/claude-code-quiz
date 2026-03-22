@@ -12,6 +12,8 @@ import { PersonalBest } from './PersonalBest'
 import { SkillsAcquired } from './SkillsAcquired'
 import { TeamShareGuide } from './TeamShareGuide'
 import { CategoryBreakthroughBadge } from './CategoryBreakthroughBadge'
+import { PracticePrompts } from './PracticePrompts'
+import { TeachingTip } from './TeachingTip'
 
 // Score thresholds for result messages
 const SCORE_THRESHOLDS = {
@@ -360,6 +362,38 @@ export function QuizResult() {
               answerHistory={sessionState.answerHistory}
             />
           )}
+
+          {/* Practice prompts — bridge knowledge to action */}
+          {!isReviewMode && sessionState && (() => {
+            const correctCats = new Set<string>()
+            sessionState.answerHistory.forEach((record, idx) => {
+              if (record.isCorrect && sessionState.questions[idx]) {
+                correctCats.add(sessionState.questions[idx].category)
+              }
+            })
+            if (correctCats.size === 0) return null
+
+            // Find strongest category for teaching tip
+            const catCounts = new Map<string, number>()
+            sessionState.answerHistory.forEach((record, idx) => {
+              if (record.isCorrect && sessionState.questions[idx]) {
+                const cat = sessionState.questions[idx].category
+                catCounts.set(cat, (catCounts.get(cat) ?? 0) + 1)
+              }
+            })
+            let strongest: string | null = null
+            let maxCount = 0
+            catCounts.forEach((count, cat) => {
+              if (count > maxCount) { maxCount = count; strongest = cat }
+            })
+
+            return (
+              <>
+                <PracticePrompts correctCategories={[...correctCats]} />
+                <TeachingTip strongestCategory={strongest} />
+              </>
+            )
+          })()}
 
           {/* Certificate */}
           <CertificateGenerator
