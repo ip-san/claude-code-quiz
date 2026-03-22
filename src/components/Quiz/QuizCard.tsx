@@ -13,7 +13,7 @@ import { CorrectOverlay } from './CorrectOverlay'
 
 import { getColorHex } from '@/lib/colors'
 
-export function QuizCard() {
+export function QuizCard({ isModalOpen = false }: { isModalOpen?: boolean }) {
   const {
     getCurrentQuestion,
     sessionState,
@@ -61,7 +61,7 @@ export function QuizCard() {
     (e: KeyboardEvent) => {
       if (!quiz) return
       // Don't handle keys when a dialog/modal is open
-      if (document.querySelector('[role="dialog"]')) return
+      if (isModalOpen) return
 
       const optionCount = quiz.options.length
 
@@ -152,7 +152,7 @@ export function QuizCard() {
         }
       }
     },
-    [quiz, selectedAnswer, selectedAnswers, isAnswered, isCorrect, isReviewMode, isMultiSelect, selectAnswer, toggleAnswer, submitAnswer, nextQuestion, retryQuestion]
+    [quiz, selectedAnswer, selectedAnswers, isAnswered, isCorrect, isReviewMode, isMultiSelect, isModalOpen, selectAnswer, toggleAnswer, submitAnswer, nextQuestion, retryQuestion]
   )
 
   // Register keyboard listener

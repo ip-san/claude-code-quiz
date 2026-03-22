@@ -274,15 +274,15 @@ describe('UserProgress Entity', () => {
     })
 
     it('should handle month boundary correctly', () => {
-      // Set to Jan 31, 2024 23:00 UTC
-      mockNow = Date.UTC(2024, 0, 31, 23, 0, 0) // Month is 0-indexed
+      // Set to Jan 31, 2024 20:00 local time
+      mockNow = new Date(2024, 0, 31, 20, 0, 0).getTime()
       vi.spyOn(Date, 'now').mockImplementation(() => mockNow)
 
       let progress = UserProgress.empty()
       progress = progress.recordAnswer('q1', 'tools', true)
 
-      // Move to Feb 1, 2024 01:00 UTC (next day, crossing month boundary)
-      mockNow = Date.UTC(2024, 1, 1, 1, 0, 0)
+      // Move to Feb 1, 2024 08:00 local time (next day, crossing month boundary)
+      mockNow = new Date(2024, 1, 1, 8, 0, 0).getTime()
       vi.spyOn(Date, 'now').mockImplementation(() => mockNow)
       progress = progress.recordAnswer('q2', 'tools', true)
 
@@ -290,15 +290,15 @@ describe('UserProgress Entity', () => {
     })
 
     it('should handle year boundary correctly', () => {
-      // Set to Dec 31, 2024 23:00 UTC
-      mockNow = Date.UTC(2024, 11, 31, 23, 0, 0)
+      // Set to Dec 31, 2024 20:00 local time
+      mockNow = new Date(2024, 11, 31, 20, 0, 0).getTime()
       vi.spyOn(Date, 'now').mockImplementation(() => mockNow)
 
       let progress = UserProgress.empty()
       progress = progress.recordAnswer('q1', 'tools', true)
 
-      // Move to Jan 1, 2025 01:00 UTC (next day, crossing year boundary)
-      mockNow = Date.UTC(2025, 0, 1, 1, 0, 0)
+      // Move to Jan 1, 2025 08:00 local time (next day, crossing year boundary)
+      mockNow = new Date(2025, 0, 1, 8, 0, 0).getTime()
       vi.spyOn(Date, 'now').mockImplementation(() => mockNow)
       progress = progress.recordAnswer('q2', 'tools', true)
 

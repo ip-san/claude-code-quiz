@@ -56,6 +56,7 @@ import {
   getProgressRepository,
 } from '@/infrastructure'
 import { platformAPI } from '@/lib/platformAPI'
+import { DailyGoalService } from '@/domain/services/DailyGoalService'
 import {
   getSessionRepository,
   type SavedSessionData,
@@ -357,6 +358,7 @@ export const useQuizStore = create<QuizStore>((set, get) => ({
     const sessionState = {
       ...QuizSessionService.createInitialState(sessionQuestions, config),
       initialStreakDays: state.userProgress.streakDays,
+      initialTodayCount: state.userProgress.getDailyCount(DailyGoalService.getTodayString()),
     }
 
     set({
@@ -394,6 +396,7 @@ export const useQuizStore = create<QuizStore>((set, get) => ({
     const sessionState = {
       ...QuizSessionService.createInitialState(questions, config),
       initialStreakDays: state.userProgress.streakDays,
+      initialTodayCount: state.userProgress.getDailyCount(DailyGoalService.getTodayString()),
     }
 
     set({
@@ -700,6 +703,7 @@ export const useQuizStore = create<QuizStore>((set, get) => ({
     set({
       viewState: 'menu',
       sessionState: null,
+      sessionWrongAnswers: [],
     })
   },
 

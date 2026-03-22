@@ -24,9 +24,7 @@ const PWAUpdatePrompt = !isElectron
   : null
 
 export default function App() {
-  const { viewState, getProgress, sessionState, isLoading, initialize } = useQuizStore()
-
-  const { endSession, suspendSession } = useQuizStore()
+  const { viewState, getProgress, sessionState, isLoading, initialize, endSession, suspendSession } = useQuizStore()
 
   // Initialize store on mount
   useEffect(() => {
@@ -264,7 +262,7 @@ function QuizView({
       {/* Scrollable content */}
       <div className="flex-1">
         <div className="mx-auto px-3 py-3 sm:max-w-3xl sm:px-4 sm:py-6">
-          <QuizCard />
+          <QuizCard isModalOpen={showQuitDialog} />
         </div>
       </div>
 

@@ -280,7 +280,7 @@ export function QuizResult() {
               previousStreak={sessionState?.initialStreakDays ?? 0}
             />
             <DailyGoalBadge
-              previousTodayCount={Math.max(0, userProgress.getDailyCount(DailyGoalService.getTodayString()) - answeredCount)}
+              previousTodayCount={sessionState?.initialTodayCount ?? 0}
               currentTodayCount={userProgress.getDailyCount(DailyGoalService.getTodayString())}
               dailyGoal={userProgress.dailyGoal}
             />

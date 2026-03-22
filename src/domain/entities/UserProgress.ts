@@ -252,13 +252,14 @@ export class UserProgress {
    * これにより、タイムゾーンの違いによる不整合を防ぐ。
    */
   private calculateNewStreak(now: number): number {
-    // Convert timestamp to UTC date number (YYYYMMDD format for reliable comparison)
-    const getUTCDateNumber = (timestamp: number): number => {
+    // Convert timestamp to local date number (YYYYMMDD format for reliable comparison)
+    // Uses local timezone to match dailyAnswerCounts and user's perception of "today"
+    const getLocalDateNumber = (timestamp: number): number => {
       const date = new Date(timestamp)
       return (
-        date.getUTCFullYear() * 10000 +
-        (date.getUTCMonth() + 1) * 100 + // Month is 0-indexed, add 1
-        date.getUTCDate()
+        date.getFullYear() * 10000 +
+        (date.getMonth() + 1) * 100 +
+        date.getDate()
       )
     }
 
@@ -267,8 +268,8 @@ export class UserProgress {
       return 1
     }
 
-    const lastDate = getUTCDateNumber(this.lastSessionAt)
-    const today = getUTCDateNumber(now)
+    const lastDate = getLocalDateNumber(this.lastSessionAt)
+    const today = getLocalDateNumber(now)
 
     // Same day - no change to streak
     if (lastDate === today) {
@@ -277,7 +278,7 @@ export class UserProgress {
 
     // Calculate yesterday correctly (handles month/year boundaries)
     const yesterdayTimestamp = now - 86400000
-    const yesterday = getUTCDateNumber(yesterdayTimestamp)
+    const yesterday = getLocalDateNumber(yesterdayTimestamp)
 
     // Consecutive day - increment streak
     if (lastDate === yesterday) {
