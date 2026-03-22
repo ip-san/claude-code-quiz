@@ -1,6 +1,7 @@
 import { useMemo, useState, useEffect } from 'react'
 import { useQuizStore, APP_CONFIG } from '@/stores/quizStore'
 import { getCategoryById } from '@/domain/valueObjects/Category'
+import { getChapterFromTags } from '@/domain/valueObjects/OverviewChapter'
 import { RotateCcw, Star, Home, BookOpen, Lightbulb, ArrowRight, Target, Share2 } from 'lucide-react'
 import { ScoreRing } from './ScoreRing'
 import { ConfettiEffect } from './ConfettiEffect'
@@ -400,24 +401,45 @@ export function QuizResult() {
             </button>
           </div>
 
-          {/* Next step CTA — encourage real adoption */}
-          {!isReviewMode && (
-            <div className="mt-6 rounded-2xl border border-claude-orange/20 bg-claude-orange/5 p-4 text-center dark:border-claude-orange/30 dark:bg-claude-orange/10">
-              <p className="mb-1 text-xs font-semibold text-claude-orange">Next Step</p>
-              <p className="mb-3 text-sm text-claude-dark">
-                学んだ知識を実践してみましょう
-              </p>
-              <a
-                href="https://docs.anthropic.com/en/docs/claude-code/overview"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="tap-highlight inline-flex items-center gap-1.5 rounded-xl bg-claude-orange/10 px-4 py-2 text-sm font-medium text-claude-orange dark:bg-claude-orange/20"
-              >
-                Claude Code を始める
-                <ArrowRight className="h-4 w-4" />
-              </a>
-            </div>
-          )}
+          {/* Next step — connect learning to action */}
+          {!isReviewMode && (() => {
+            // For overview mode: show action item from the last completed chapter
+            if (isOverviewMode && sessionState) {
+              const lastQuestion = sessionState.questions[sessionState.questions.length - 1]
+              const lastChapter = lastQuestion ? getChapterFromTags(lastQuestion.tags) : null
+              const actionItem = lastChapter?.actionItem
+              if (actionItem) {
+                return (
+                  <div className="mt-6 rounded-2xl border border-green-300 bg-green-50 p-4 text-left dark:border-green-500/30 dark:bg-green-500/10">
+                    <p className="mb-1 text-xs font-semibold text-green-600 dark:text-green-400">明日やること</p>
+                    <p className="mb-3 text-sm text-claude-dark">{actionItem}</p>
+                    <p className="text-xs text-stone-400">
+                      知識を行動に変えるのは、今です。小さな一歩が未来を変えます。
+                    </p>
+                  </div>
+                )
+              }
+            }
+
+            // For other modes: general CTA
+            return (
+              <div className="mt-6 rounded-2xl border border-claude-orange/20 bg-claude-orange/5 p-4 text-center dark:border-claude-orange/30 dark:bg-claude-orange/10">
+                <p className="mb-1 text-xs font-semibold text-claude-orange">Next Step</p>
+                <p className="mb-3 text-sm text-claude-dark">
+                  学んだ知識を実践してみましょう
+                </p>
+                <a
+                  href="https://docs.anthropic.com/en/docs/claude-code/overview"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="tap-highlight inline-flex items-center gap-1.5 rounded-xl bg-claude-orange/10 px-4 py-2 text-sm font-medium text-claude-orange dark:bg-claude-orange/20"
+                >
+                  Claude Code を始める
+                  <ArrowRight className="h-4 w-4" />
+                </a>
+              </div>
+            )
+          })()}
         </div>
       </div>
     </div>
