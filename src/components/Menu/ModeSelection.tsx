@@ -44,6 +44,7 @@ export function ModeSelection() {
   const [selectedDifficulty, setSelectedDifficulty] = useState<DifficultyLevel | null>(null)
   const [showShortcuts, setShowShortcuts] = useState(false)
   const [snapshotDismissed, setSnapshotDismissed] = useState(() => hasSeenSnapshotToday())
+  const [modesExpanded, setModesExpanded] = useState(false)
 
   const bookmarkedCount = getBookmarkedCount()
 
@@ -207,12 +208,20 @@ export function ModeSelection() {
             </div>
           )}
 
-          {/* Mode Selection */}
+          {/* Mode Selection — collapsible for first-time users */}
           <div className="mb-5">
-            <h2 className="mb-2 text-sm font-semibold text-stone-500">
-              モード
-            </h2>
-            <div className="flex flex-wrap gap-2">
+            {userProgress.totalAttempts === 0 ? (
+              <button
+                onClick={() => setModesExpanded(!modesExpanded)}
+                className="mb-2 flex w-full items-center justify-between text-sm font-semibold text-stone-500"
+              >
+                <span>モード</span>
+                <span className="text-xs text-stone-400">{modesExpanded ? '▲ 閉じる' : '▼ すべて表示'}</span>
+              </button>
+            ) : (
+              <h2 className="mb-2 text-sm font-semibold text-stone-500">モード</h2>
+            )}
+            <div className={`flex flex-wrap gap-2 ${userProgress.totalAttempts === 0 && !modesExpanded ? 'hidden' : ''}`}>
               {PREDEFINED_QUIZ_MODES
                 .filter((m) => m.id !== 'review')
                 .map((modeConfig) => {
