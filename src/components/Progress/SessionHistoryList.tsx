@@ -58,8 +58,10 @@ export function SessionHistoryList({ sessions, limit = 10 }: SessionHistoryListP
         セッション履歴（直近{Math.min(limit, recent.length)}件）
       </h3>
       <div className="divide-y divide-stone-100">
-        {recent.map((session) => (
-          <div key={session.id} className="flex items-center justify-between px-4 py-2.5">
+        {recent.map((session) => {
+          const isToday = new Date(session.completedAt).toDateString() === new Date().toDateString()
+          return (
+          <div key={session.id} className={`flex items-center justify-between px-4 py-2.5 ${isToday ? 'border-l-2 border-green-400 bg-green-50/30' : ''}`}>
             <div className="flex items-center gap-3">
               <span className="text-xs text-stone-400">
                 {formatDate(session.completedAt)}
@@ -82,7 +84,8 @@ export function SessionHistoryList({ sessions, limit = 10 }: SessionHistoryListP
               </span>
             </div>
           </div>
-        ))}
+          )
+        })}
       </div>
     </div>
   )

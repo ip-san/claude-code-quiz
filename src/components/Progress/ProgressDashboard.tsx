@@ -146,16 +146,16 @@ export function ProgressDashboard() {
               <span className="text-3xl">📊</span>
             </div>
             <h3 className="mb-2 text-lg font-medium text-claude-dark">
-              まだ学習履歴がありません
+              ここに学習の記録が残ります
             </h3>
             <p className="mb-4 text-sm text-stone-500">
-              クイズに挑戦して学習を始めましょう
+              最初の1問を解くと、あなたの成長が見えるようになります
             </p>
             <button
               onClick={() => setViewState('menu')}
-              className="rounded-2xl bg-claude-orange px-6 py-2 text-white hover:bg-claude-orange/90"
+              className="tap-highlight rounded-2xl bg-claude-orange px-6 py-3 text-sm font-semibold text-white"
             >
-              クイズを始める
+              最初の1問を解く
             </button>
           </div>
         )}

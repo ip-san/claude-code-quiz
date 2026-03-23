@@ -1,5 +1,6 @@
 import { useEffect, useRef, useCallback } from 'react'
 import { useQuizStore } from '@/stores/quizStore'
+import { haptics } from '@/lib/haptics'
 
 // Time thresholds (in seconds) - extracted as constants for maintainability
 const LOW_TIME_THRESHOLD = 300 // 5 minutes warning
@@ -48,6 +49,9 @@ export function Timer() {
     }
   }, [isTimerStopped, tick])
 
+  // Haptic warning ref must be before any early return (React hooks rules)
+  const criticalNotified = useRef(false)
+
   if (timeRemaining === null) return null
 
   const minutes = Math.floor(timeRemaining / 60)
@@ -55,6 +59,12 @@ export function Timer() {
 
   const isLowTime = timeRemaining <= LOW_TIME_THRESHOLD
   const isCriticalTime = timeRemaining <= CRITICAL_TIME_THRESHOLD
+
+  // Haptic warning at critical threshold crossing (60 seconds)
+  if (isCriticalTime && !criticalNotified.current) {
+    criticalNotified.current = true
+    haptics.medium()
+  }
 
   return (
     <div
