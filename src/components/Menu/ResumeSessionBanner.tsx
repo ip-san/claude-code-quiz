@@ -42,10 +42,11 @@ export function ResumeSessionBanner() {
         </button>
         <button
           onClick={discardSavedSession}
-          className="tap-highlight inline-flex items-center justify-center rounded-2xl border border-stone-300 px-4 py-3 text-stone-500"
+          className="tap-highlight inline-flex items-center justify-center gap-1.5 rounded-2xl border border-stone-300 px-4 py-3 text-stone-500"
           aria-label="保存されたセッションを破棄"
         >
-          <Trash2 className="h-5 w-5" />
+          <Trash2 className="h-4 w-4" />
+          <span className="text-sm">破棄</span>
         </button>
       </div>
     </div>

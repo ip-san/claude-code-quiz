@@ -42,7 +42,7 @@ export function ConfettiEffect() {
       speed: 80 + Math.random() * 120,
       size: 4 + Math.random() * 6,
       color: COLORS[Math.floor(Math.random() * COLORS.length)],
-      delay: Math.random() * 200,
+      delay: 800 + Math.random() * 200, // Stagger after ScoreRing animation (800ms)
       shape: (['circle', 'square', 'diamond'] as const)[Math.floor(Math.random() * 3)],
     })),
   [])
