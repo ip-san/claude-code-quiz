@@ -116,6 +116,7 @@ interface QuizStore {
 
   // Session actions
   startSession: (config: Partial<QuizSessionConfig>) => void
+  startSessionWithIds: (questionIds: string[]) => void
   retrySession: () => void
   retryQuestion: () => void
   selectAnswer: (index: number) => void
@@ -376,6 +377,42 @@ export const useQuizStore = create<QuizStore>((set, get) => ({
     if (config.mode !== 'review') {
       saveSessionSnapshot(sessionState, [])
     }
+  },
+
+  /**
+   * 指定した問題IDのみでセッションを開始（検索結果からの起動用）
+   */
+  startSessionWithIds: (questionIds: string[]) => {
+    const state = get()
+    const questionMap = new Map(state.allQuestions.map(q => [q.id, q]))
+    const questions = questionIds.map(id => questionMap.get(id)).filter((q): q is Question => q !== undefined)
+
+    if (questions.length === 0) return
+
+    const config: QuizSessionConfig = {
+      mode: 'random',
+      categoryFilter: null,
+      difficultyFilter: null,
+      questionCount: null,
+      timeLimit: null,
+      shuffleQuestions: false,
+      shuffleOptions: false,
+    }
+
+    const sessionState = {
+      ...QuizSessionService.createInitialState(questions, config),
+      initialStreakDays: state.userProgress.streakDays,
+      initialTodayCount: state.userProgress.getDailyCount(DailyGoalService.getTodayString()),
+    }
+
+    set({
+      sessionConfig: config,
+      sessionState,
+      sessionWrongAnswers: [],
+      savedSession: null,
+      viewState: 'quiz',
+    })
+    saveSessionSnapshot(sessionState, [])
   },
 
   /**
