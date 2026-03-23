@@ -233,9 +233,10 @@ export function ModeSelection() {
                       }
                     }}
                     disabled={isDisabled}
+                    aria-disabled={isDisabled || undefined}
                     className={`tap-highlight flex items-center gap-1.5 rounded-full border px-3.5 py-2 text-sm font-medium transition-all ${
                       isDisabled
-                        ? 'cursor-not-allowed border-stone-200 bg-stone-50 opacity-40'
+                        ? 'cursor-not-allowed border-stone-200 bg-stone-100 opacity-50'
                         : selectedMode === modeConfig.id
                           ? 'border-claude-orange bg-claude-orange text-white shadow-sm'
                           : 'border-stone-200 bg-white text-claude-dark'

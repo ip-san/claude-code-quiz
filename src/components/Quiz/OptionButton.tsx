@@ -137,7 +137,7 @@ export function OptionButton({
       aria-checked={isMultiSelect ? isSelected : undefined}
       role={isMultiSelect ? 'checkbox' : 'option'}
       className={`no-select w-full rounded-2xl border-2 px-3.5 py-3 text-left transition-all sm:px-4 sm:py-4 ${getStyles()} ${getAnimClass()} ${
-        isAnswered ? 'cursor-default' : 'cursor-pointer active:scale-[0.98]'
+        isAnswered ? 'cursor-default' : 'cursor-pointer hover:bg-stone-50 active:scale-[0.98] dark:hover:bg-stone-800'
       }`}
     >
       <div className="flex items-start gap-3">
