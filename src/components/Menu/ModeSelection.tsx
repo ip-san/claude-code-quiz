@@ -26,6 +26,7 @@ import { KeyboardShortcutHelp } from '@/components/Layout/KeyboardShortcutHelp'
 import { haptics } from '@/lib/haptics'
 import { MasteryRoadmap } from './MasteryRoadmap'
 import { DailySnapshot, hasSeenSnapshotToday } from './DailySnapshot'
+import { QuizSearch } from './QuizSearch'
 
 export function ModeSelection() {
   const {
@@ -216,6 +217,9 @@ export function ModeSelection() {
               </button>
             </div>
           )}
+
+          {/* Search */}
+          <QuizSearch />
 
           {/* Mode Selection — primary modes always visible, rest collapsible */}
           <div className="mb-5">
