@@ -119,7 +119,7 @@ export function ModeSelection() {
   return (
     <div className="flex min-h-screen flex-col bg-claude-cream">
       {/* Scrollable content */}
-      <div className={`flex-1 overflow-y-auto px-4 pt-6 sm:px-6 sm:pt-8 ${userProgress.totalAttempts === 0 ? 'pb-8' : 'pb-32'}`}>
+      <div className="flex-1 overflow-y-auto px-4 pb-32 pt-6 sm:px-6 sm:pt-8">
         <div className="mx-auto w-full sm:max-w-2xl lg:max-w-4xl">
           {/* Resume session banner */}
           <ResumeSessionBanner />
@@ -207,8 +207,8 @@ export function ModeSelection() {
             </div>
           )}
 
-          {/* Mode Selection — show for returning users only */}
-          <div className={`mb-5 ${userProgress.totalAttempts === 0 ? 'hidden' : ''}`}>
+          {/* Mode Selection */}
+          <div className="mb-5">
             <h2 className="mb-2 text-sm font-semibold text-stone-500">
               モード
             </h2>
@@ -394,7 +394,7 @@ export function ModeSelection() {
       <KeyboardShortcutHelp isOpen={showShortcuts} onClose={() => setShowShortcuts(false)} />
 
       {/* Fixed bottom bar — start button (hidden for first-time users who use inline CTAs) */}
-      <div className={`fixed bottom-0 left-0 right-0 z-20 border-t border-stone-200 bg-white/95 px-4 pb-[calc(env(safe-area-inset-bottom,0px)+8px)] pt-3 backdrop-blur-sm dark:bg-stone-900/95 ${userProgress.totalAttempts === 0 ? 'hidden' : ''}`}>
+      <div className="fixed bottom-0 left-0 right-0 z-20 border-t border-stone-200 bg-white/95 px-4 pb-[calc(env(safe-area-inset-bottom,0px)+8px)] pt-3 backdrop-blur-sm dark:bg-stone-900/95">
         <div className="mx-auto flex items-center gap-4 sm:max-w-2xl lg:max-w-4xl">
           <div className="flex-1">
             <p className="text-xs text-stone-500">
