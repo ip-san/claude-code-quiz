@@ -262,7 +262,7 @@ export function Feedback({ quiz, isCorrect }: FeedbackProps) {
           <button
             onClick={handleOpenReference}
             aria-label="公式ドキュメントを開く"
-            className="tap-highlight flex items-center justify-center gap-1.5 rounded-2xl border border-stone-300 bg-white px-4 py-3 text-sm font-medium text-stone-600"
+            className="tap-highlight flex items-center justify-center gap-1.5 rounded-2xl border border-stone-300 bg-white px-4 py-3 text-sm font-medium text-stone-600 dark:bg-stone-700 dark:border-stone-600 dark:text-stone-300"
           >
             <ExternalLink className="h-4 w-4" aria-hidden="true" />
             公式ドキュメント

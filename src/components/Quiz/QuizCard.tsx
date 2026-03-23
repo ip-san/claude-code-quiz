@@ -125,8 +125,8 @@ export function QuizCard({ isModalOpen = false }: { isModalOpen?: boolean }) {
   // Empty state when no quiz data
   if (!quiz) {
     return (
-      <div className="rounded-2xl border border-stone-200 bg-white p-8 text-center shadow-sm">
-        <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-stone-100">
+      <div className="rounded-2xl border border-stone-200 bg-white p-8 text-center shadow-sm dark:bg-stone-800">
+        <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-stone-100 dark:bg-stone-700">
           <svg
             className="h-8 w-8 text-stone-400"
             fill="none"

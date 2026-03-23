@@ -78,7 +78,7 @@ export function DailyGoalIndicator() {
                 className={`tap-highlight rounded-full px-3.5 py-1.5 text-sm font-medium transition-colors ${
                   dailyGoal === goal
                     ? 'bg-claude-orange text-white'
-                    : 'border border-stone-200 bg-stone-50 text-stone-600'
+                    : 'border border-stone-200 bg-stone-50 text-stone-600 dark:border-stone-700 dark:bg-stone-800 dark:text-stone-300'
                 }`}
               >
                 {goal}問

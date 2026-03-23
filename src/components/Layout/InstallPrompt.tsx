@@ -56,7 +56,7 @@ export function InstallPrompt() {
 
   return (
     <div className="fixed bottom-4 left-3 right-3 z-40 mx-auto max-w-sm animate-slide-down">
-      <div className="flex items-center gap-3 rounded-2xl bg-white p-4 shadow-2xl ring-1 ring-stone-200">
+      <div className="flex items-center gap-3 rounded-2xl bg-white p-4 shadow-2xl ring-1 ring-stone-200 dark:bg-stone-800 dark:ring-stone-700">
         <div className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-xl bg-claude-orange/10">
           <Download className="h-5 w-5 text-claude-orange" />
         </div>

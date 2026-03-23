@@ -62,7 +62,7 @@ export function WelcomeScreen({ onComplete }: WelcomeScreenProps) {
           {FEATURES.map((feature, i) => (
             <div
               key={i}
-              className="flex items-start gap-3 rounded-2xl bg-white p-4 shadow-sm animate-feedback-section"
+              className="flex items-start gap-3 rounded-2xl bg-white p-4 shadow-sm animate-feedback-section dark:bg-stone-800"
               style={{ animationDelay: `${(i + 1) * 150}ms` }}
             >
               <div className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-xl bg-stone-50">

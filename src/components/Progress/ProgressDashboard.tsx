@@ -129,7 +129,7 @@ export function ProgressDashboard() {
           <h1 className="text-lg font-bold text-claude-dark">学習進捗</h1>
           <button
             onClick={() => setViewState('menu')}
-            className="tap-highlight rounded-full bg-stone-100 px-4 py-1.5 text-sm font-medium text-stone-600"
+            className="tap-highlight rounded-full bg-stone-100 px-4 py-1.5 text-sm font-medium text-stone-600 dark:bg-stone-700 dark:text-stone-300"
           >
             閉じる
           </button>
@@ -141,7 +141,7 @@ export function ProgressDashboard() {
 
         {/* Empty State */}
         {hasNoProgress && (
-          <div className="mb-8 rounded-2xl border border-stone-200 bg-white p-8 text-center shadow-sm">
+          <div className="mb-8 rounded-2xl border border-stone-200 bg-white p-8 text-center shadow-sm dark:bg-stone-800">
             <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-stone-100">
               <span className="text-3xl">📊</span>
             </div>
@@ -211,13 +211,13 @@ export function ProgressDashboard() {
           return (
             <div className="mb-6 flex flex-wrap gap-3">
               {best !== null && (
-                <div className="flex-1 rounded-2xl border border-stone-200 bg-white p-4 shadow-sm">
+                <div className="flex-1 rounded-2xl border border-stone-200 bg-white p-4 shadow-sm dark:bg-stone-800">
                   <div className="mb-1 text-xs text-stone-500">最高正答率</div>
                   <div className="text-2xl font-bold text-claude-orange">{best}%</div>
                 </div>
               )}
               {trend !== null && (
-                <div className="flex-1 rounded-2xl border border-stone-200 bg-white p-4 shadow-sm">
+                <div className="flex-1 rounded-2xl border border-stone-200 bg-white p-4 shadow-sm dark:bg-stone-800">
                   <div className="mb-1 text-xs text-stone-500">成長トレンド</div>
                   <div className={`text-2xl font-bold ${trend >= 0 ? 'text-green-600' : 'text-red-500'}`}>
                     {trend >= 0 ? '+' : ''}{trend}%
@@ -295,7 +295,7 @@ export function ProgressDashboard() {
               return (
                 <div
                   key={category.id}
-                  className="rounded-2xl border border-stone-200 bg-white p-4 shadow-sm"
+                  className="rounded-2xl border border-stone-200 bg-white p-4 shadow-sm dark:bg-stone-800"
                 >
                   <div className="mb-2 flex items-center justify-between">
                     <div className="flex items-center gap-2">
@@ -413,7 +413,7 @@ interface StatCardProps {
 
 function StatCard({ label, value, icon }: StatCardProps) {
   return (
-    <div className="animate-card-enter rounded-2xl border border-stone-200 bg-white p-4 shadow-sm">
+    <div className="animate-card-enter rounded-2xl border border-stone-200 bg-white p-4 shadow-sm dark:bg-stone-800">
       <div className="mb-1 text-2xl">{icon}</div>
       <div className="text-2xl font-bold text-claude-dark">{value}</div>
       <div className="text-sm text-stone-500">{label}</div>

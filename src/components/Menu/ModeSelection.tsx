@@ -210,7 +210,7 @@ export function ModeSelection() {
                   haptics.light()
                   startSession({ mode: 'random' })
                 }}
-                className="tap-highlight w-full rounded-2xl border border-stone-200 bg-white px-4 py-3 text-center text-sm font-medium text-stone-600"
+                className="tap-highlight w-full rounded-2xl border border-stone-200 bg-white px-4 py-3 text-center text-sm font-medium text-stone-600 dark:border-stone-700 dark:bg-stone-800 dark:text-stone-300"
               >
                 🎲 まずは気軽にチャレンジ
               </button>
@@ -249,10 +249,10 @@ export function ModeSelection() {
                     aria-disabled={isDisabled || undefined}
                     className={`tap-highlight flex items-center gap-1.5 rounded-full border px-3.5 py-2 text-sm font-medium transition-all ${
                       isDisabled
-                        ? 'cursor-not-allowed border-stone-200 bg-stone-100 opacity-50'
+                        ? 'cursor-not-allowed border-stone-200 bg-stone-100 opacity-50 dark:border-stone-700 dark:bg-stone-800'
                         : selectedMode === modeConfig.id
                           ? 'border-claude-orange bg-claude-orange text-white shadow-sm'
-                          : 'border-stone-200 bg-white text-claude-dark'
+                          : 'border-stone-200 bg-white text-claude-dark dark:border-stone-700 dark:bg-stone-800'
                     }`}
                   >
                     <span>{modeConfig.icon}</span>
