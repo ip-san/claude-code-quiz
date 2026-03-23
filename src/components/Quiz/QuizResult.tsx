@@ -354,7 +354,7 @@ export function QuizResult() {
             {!isReviewMode && (
               <button
                 onClick={() => startSession({ mode: 'quick' })}
-                className="tap-highlight inline-flex w-full items-center justify-center gap-2 rounded-2xl border-2 border-green-500 px-6 py-3 text-sm font-semibold text-green-600"
+                className="tap-highlight inline-flex w-full items-center justify-center gap-2 rounded-2xl border-2 border-green-500 px-6 py-3 text-sm font-semibold text-green-600 dark:border-green-400 dark:text-green-400"
               >
                 ⚡ もう3問だけ
               </button>

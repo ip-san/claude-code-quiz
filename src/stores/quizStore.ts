@@ -390,7 +390,7 @@ export const useQuizStore = create<QuizStore>((set, get) => ({
     if (questions.length === 0) return
 
     const config: QuizSessionConfig = {
-      mode: 'random',
+      mode: 'custom',
       categoryFilter: null,
       difficultyFilter: null,
       questionCount: null,
