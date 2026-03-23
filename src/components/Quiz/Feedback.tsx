@@ -194,7 +194,7 @@ export function Feedback({ quiz, isCorrect }: FeedbackProps) {
                 なぜこの回答が誤りなのか
               </p>
               {wrongSelected.map((opt, i) => (
-                <p key={i} className="text-sm leading-relaxed text-stone-600">
+                <p key={i} className="text-sm leading-relaxed text-stone-600 dark:text-stone-300">
                   <QuizText text={opt.wrongFeedback!} />
                 </p>
               ))}
@@ -213,7 +213,7 @@ export function Feedback({ quiz, isCorrect }: FeedbackProps) {
             <p className="mb-1 font-medium text-claude-dark">
               なぜこの回答が誤りなのか
             </p>
-            <p className="text-sm leading-relaxed text-stone-600">
+            <p className="text-sm leading-relaxed text-stone-600 dark:text-stone-300">
               <QuizText text={selectedOption.wrongFeedback!} />
             </p>
           </div>
@@ -242,7 +242,7 @@ export function Feedback({ quiz, isCorrect }: FeedbackProps) {
     <AnimatedSection key="explanation" order={explanationOrder} animate={animate} noMotion={noMotion} className="mb-4">
       <p className="mb-1 text-sm font-medium text-claude-dark">解説</p>
       <div>
-        <p className="text-sm leading-relaxed text-stone-600">
+        <p className="text-sm leading-relaxed text-stone-600 dark:text-stone-300">
           <QuizText text={quiz.explanation} animated={animate && !noMotion} animationDelay={300 + explanationOrder * 120} />
         </p>
         {quiz.diagram && (

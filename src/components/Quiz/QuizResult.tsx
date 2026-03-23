@@ -301,7 +301,7 @@ export function QuizResult() {
               <p className="mb-2 text-xs font-semibold text-indigo-500">次のおすすめ</p>
               {recommendation.type === 'perfect' ? (
                 <>
-                  <p className="mb-3 text-sm text-stone-600">
+                  <p className="mb-3 text-sm text-stone-600 dark:text-stone-300">
                     全体像を把握できました！実力テストで総合力を試してみましょう。
                   </p>
                   <button
@@ -315,7 +315,7 @@ export function QuizResult() {
                 </>
               ) : (
                 <>
-                  <p className="mb-3 text-sm text-stone-600">
+                  <p className="mb-3 text-sm text-stone-600 dark:text-stone-300">
                     <span className="font-medium">{recommendation.categoryIcon} {recommendation.categoryName}</span>
                     で{recommendation.wrongCount}問間違えました。カテゴリ別学習で深掘りしてみましょう。
                   </p>
@@ -385,7 +385,7 @@ export function QuizResult() {
                     url: window.location.href,
                   }).catch(() => {})
                 }}
-                className="tap-highlight inline-flex w-full items-center justify-center gap-2 rounded-2xl border border-stone-300 px-6 py-3.5 text-base font-semibold text-stone-600"
+                className="tap-highlight inline-flex w-full items-center justify-center gap-2 rounded-2xl border border-stone-300 px-6 py-3.5 text-base font-semibold text-stone-600 dark:border-stone-600 dark:text-stone-300"
               >
                 <Share2 className="h-5 w-5" />
                 結果をシェア
@@ -393,7 +393,7 @@ export function QuizResult() {
             )}
             <button
               onClick={handleBackToMenu}
-              className="tap-highlight inline-flex w-full items-center justify-center gap-2 rounded-2xl border border-stone-300 px-6 py-3.5 text-base font-semibold text-stone-600"
+              className="tap-highlight inline-flex w-full items-center justify-center gap-2 rounded-2xl border border-stone-300 px-6 py-3.5 text-base font-semibold text-stone-600 dark:border-stone-600 dark:text-stone-300"
             >
               <Home className="h-5 w-5" />
               メニューに戻る

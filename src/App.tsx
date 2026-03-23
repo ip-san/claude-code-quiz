@@ -221,7 +221,7 @@ function QuizView({
       {isElectron && <div className="h-8 titlebar-drag bg-transparent" />}
 
       {/* Sticky header — native navigation bar feel */}
-      <div className="sticky top-0 z-10 border-b border-stone-200 bg-claude-cream/95 backdrop-blur-sm dark:bg-stone-900/95">
+      <div className="sticky top-0 z-10 border-b border-stone-200 bg-claude-cream/95 backdrop-blur-sm dark:border-stone-700 dark:bg-stone-900/95">
         <div className="mx-auto max-w-3xl px-4 pb-2 pt-3 sm:py-3">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2">
@@ -255,7 +255,7 @@ function QuizView({
             </button>
           </div>
           {/* Progress bar */}
-          <div className="mt-2 h-1.5 overflow-hidden rounded-full bg-stone-200 sm:h-1" role="progressbar" aria-valuenow={progress.current} aria-valuemin={1} aria-valuemax={progress.total} aria-label="問題の進捗">
+          <div className="mt-2 h-1.5 overflow-hidden rounded-full bg-stone-200 dark:bg-stone-700 sm:h-1" role="progressbar" aria-valuenow={progress.current} aria-valuemin={1} aria-valuemax={progress.total} aria-label="問題の進捗">
             <div
               className="h-full rounded-full progress-gradient transition-all"
               style={{

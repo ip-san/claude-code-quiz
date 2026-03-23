@@ -142,7 +142,7 @@ export function ProgressDashboard() {
         {/* Empty State */}
         {hasNoProgress && (
           <div className="mb-8 rounded-2xl border border-stone-200 bg-white p-8 text-center shadow-sm dark:bg-stone-800">
-            <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-stone-100">
+            <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-stone-100 dark:bg-stone-700">
               <span className="text-3xl">📊</span>
             </div>
             <h3 className="mb-2 text-lg font-medium text-claude-dark">
@@ -353,14 +353,14 @@ export function ProgressDashboard() {
             <button
               onClick={handleExport}
               aria-label="学習履歴をエクスポートする"
-              className="tap-highlight flex-1 rounded-2xl border border-stone-300 px-6 py-3 font-semibold text-stone-600"
+              className="tap-highlight flex-1 rounded-2xl border border-stone-300 px-6 py-3 font-semibold text-stone-600 dark:border-stone-600 dark:text-stone-300"
             >
               📥 履歴をエクスポート
             </button>
             <button
               onClick={handleImport}
               aria-label="学習履歴をインポートする"
-              className="tap-highlight flex-1 rounded-2xl border border-stone-300 px-6 py-3 font-semibold text-stone-600"
+              className="tap-highlight flex-1 rounded-2xl border border-stone-300 px-6 py-3 font-semibold text-stone-600 dark:border-stone-600 dark:text-stone-300"
             >
               📤 履歴をインポート
             </button>
@@ -370,7 +370,7 @@ export function ProgressDashboard() {
           <button
             onClick={handleCsvExport}
             aria-label="CSVで進捗をエクスポートする"
-            className="tap-highlight w-full rounded-2xl border border-stone-300 px-6 py-3 font-semibold text-stone-600"
+            className="tap-highlight w-full rounded-2xl border border-stone-300 px-6 py-3 font-semibold text-stone-600 dark:border-stone-600 dark:text-stone-300"
           >
             📊 CSVでエクスポート（管理者向け）
           </button>
