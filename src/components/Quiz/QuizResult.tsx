@@ -207,6 +207,16 @@ export function QuizResult() {
         {/* Confetti on perfect/excellent score */}
         {percentage >= 80 && !noMotion && <ConfettiEffect />}
 
+        {/* First session completion — show BEFORE score to lead with encouragement */}
+        {!isReviewMode && userProgress.sessionHistory.length <= 1 && (
+          <div className="mb-4 rounded-2xl bg-gradient-to-r from-claude-orange/10 to-blue-500/10 p-4 text-center">
+            <p className="text-lg font-bold text-claude-dark">🎉 はじめの一歩、おめでとうございます</p>
+            <p className="mt-1 text-sm text-claude-gray">
+              AI を学ぶ決断をしました。ここから毎日少しずつ伸びていきます。
+            </p>
+          </div>
+        )}
+
         {/* Score Ring */}
         <div className={`mb-4 ${noMotion ? '' : 'animate-bounce-in'}`}>
           <ScoreRing
@@ -267,16 +277,6 @@ export function QuizResult() {
             />
           ))}
         </div>
-
-        {/* First session completion — special encouragement */}
-        {showStars && !isReviewMode && userProgress.sessionHistory.length <= 1 && (
-          <div className="mb-4 rounded-2xl bg-gradient-to-r from-claude-orange/10 to-blue-500/10 p-4 text-center">
-            <p className="text-lg font-bold text-claude-dark">🎉 はじめの一歩、おめでとうございます</p>
-            <p className="mt-1 text-sm text-claude-gray">
-              今日あなたは AI を学ぶ決断をしました。それだけで、多くの人より前に進んでいます。
-            </p>
-          </div>
-        )}
 
         {/* Achievement badges */}
         {showStars && !isReviewMode && (
@@ -351,6 +351,14 @@ export function QuizResult() {
 
           {/* Action buttons */}
           <div className="flex flex-col gap-3">
+            {!isReviewMode && (
+              <button
+                onClick={() => startSession({ mode: 'quick' })}
+                className="tap-highlight inline-flex w-full items-center justify-center gap-2 rounded-2xl border-2 border-green-500 px-6 py-3 text-sm font-semibold text-green-600"
+              >
+                ⚡ もう3問だけ
+              </button>
+            )}
             {hasWrongAnswers && !isReviewMode && (
               <button
                 onClick={startReviewSession}
