@@ -49,9 +49,9 @@ export function StreakBanner() {
   }
 
   const getBgClass = (days: number) => {
-    if (days >= 30) return 'border-amber-300 bg-amber-50'
-    if (days >= 7) return 'border-orange-200 bg-orange-50'
-    return 'border-stone-200 bg-white'
+    if (days >= 30) return 'border-amber-300 bg-amber-50 dark:border-amber-500/30 dark:bg-amber-500/10'
+    if (days >= 7) return 'border-orange-200 bg-orange-50 dark:border-orange-500/30 dark:bg-orange-500/10'
+    return 'border-stone-200 bg-white dark:border-stone-700 dark:bg-stone-800'
   }
 
   return (

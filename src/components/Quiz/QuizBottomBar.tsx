@@ -68,7 +68,7 @@ export function QuizBottomBar({
           <button
             onClick={() => { haptics.light(); previousQuestion() }}
             disabled={currentIndex <= 0}
-            className="tap-highlight rounded-2xl border-2 border-stone-300 px-3 py-3 text-stone-500 disabled:opacity-40"
+            className="tap-highlight rounded-2xl border-2 border-stone-300 px-3 py-3 text-stone-500 disabled:opacity-40 dark:border-stone-600 dark:text-stone-400"
           >
             <ChevronLeft className="h-5 w-5" />
           </button>
@@ -97,7 +97,7 @@ export function QuizBottomBar({
           <button
             onClick={() => { haptics.light(); nextQuestion() }}
             disabled={isLastQuestion}
-            className="tap-highlight rounded-2xl border-2 border-stone-300 px-3 py-3 text-stone-500 disabled:opacity-40"
+            className="tap-highlight rounded-2xl border-2 border-stone-300 px-3 py-3 text-stone-500 disabled:opacity-40 dark:border-stone-600 dark:text-stone-400"
           >
             <ChevronRight className="h-5 w-5" />
           </button>
@@ -113,7 +113,7 @@ export function QuizBottomBar({
         <button
           onClick={() => { haptics.light(); previousQuestion() }}
           disabled={!canGoBack}
-          className="tap-highlight flex items-center justify-center rounded-2xl border-2 border-stone-300 px-3 py-3 text-stone-500 disabled:opacity-40"
+          className="tap-highlight flex items-center justify-center rounded-2xl border-2 border-stone-300 px-3 py-3 text-stone-500 disabled:opacity-40 dark:border-stone-600 dark:text-stone-400"
         >
           <ChevronLeft className="h-5 w-5" />
         </button>
@@ -135,7 +135,7 @@ export function QuizBottomBar({
             <button
               onClick={() => { haptics.light(); nextQuestion() }}
               disabled={isLastQuestion}
-              className="tap-highlight flex items-center justify-center rounded-2xl border-2 border-stone-300 px-3 py-3 text-stone-500 disabled:opacity-40"
+              className="tap-highlight flex items-center justify-center rounded-2xl border-2 border-stone-300 px-3 py-3 text-stone-500 disabled:opacity-40 dark:border-stone-600 dark:text-stone-400"
             >
               <ChevronRight className="h-5 w-5" />
             </button>

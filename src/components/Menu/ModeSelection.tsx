@@ -311,7 +311,7 @@ export function ModeSelection() {
                     className={`tap-highlight rounded-2xl border p-2.5 text-center transition-all ${
                       selectedCategory === category.id
                         ? 'shadow-sm'
-                        : 'border-stone-200 bg-white'
+                        : 'border-stone-200 bg-white dark:border-stone-700 dark:bg-stone-800'
                     }`}
                     style={
                       selectedCategory === category.id
@@ -347,7 +347,7 @@ export function ModeSelection() {
                   className={`tap-highlight rounded-full border px-4 py-2.5 text-sm font-medium transition-all ${
                     selectedDifficulty === null
                       ? 'border-claude-orange bg-claude-orange text-white'
-                      : 'border-stone-200 bg-white text-stone-500'
+                      : 'border-stone-200 bg-white text-stone-500 dark:border-stone-700 dark:bg-stone-800 dark:text-stone-400'
                   }`}
                 >
                   すべて

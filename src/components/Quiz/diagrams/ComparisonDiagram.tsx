@@ -30,14 +30,14 @@ export function ComparisonDiagram({ label, columns }: ComparisonDiagramProps) {
             <div className={`rounded-t-lg px-2 py-1.5 text-center text-xs font-medium ${
               i === 0
                 ? 'bg-claude-orange/10 text-claude-dark'
-                : 'bg-stone-100 text-claude-dark'
+                : 'bg-stone-100 text-claude-dark dark:bg-stone-700'
             }`}>
               {col.heading}
             </div>
             {/* Column items */}
             <ul className="px-2 py-1.5">
               {col.items.map((item, j) => (
-                <li key={j} className="flex items-start gap-1 text-[10px] leading-relaxed text-stone-600">
+                <li key={j} className="flex items-start gap-1 text-[10px] leading-relaxed text-stone-600 dark:text-stone-400">
                   <span className="mt-0.5 text-stone-400" aria-hidden="true">-</span>
                   <span>{item}</span>
                 </li>
