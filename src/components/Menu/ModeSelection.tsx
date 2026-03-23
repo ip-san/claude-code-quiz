@@ -202,7 +202,7 @@ export function ModeSelection() {
                 }}
                 className="tap-highlight w-full rounded-2xl border border-stone-200 bg-white px-4 py-3 text-center text-sm font-medium text-stone-600"
               >
-                🎲 まずは気軽に10問チャレンジ
+                🎲 まずは気軽にチャレンジ
               </button>
             </div>
           )}

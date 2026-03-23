@@ -2,7 +2,7 @@ import { useMemo, useState, useEffect } from 'react'
 import { useQuizStore, APP_CONFIG } from '@/stores/quizStore'
 import { getCategoryById } from '@/domain/valueObjects/Category'
 import { getChapterFromTags } from '@/domain/valueObjects/OverviewChapter'
-import { RotateCcw, Star, Home, BookOpen, Lightbulb, ArrowRight, Target, Share2 } from 'lucide-react'
+import { RotateCcw, Star, Home, BookOpen, ArrowRight, Target, Share2 } from 'lucide-react'
 import { ScoreRing } from './ScoreRing'
 import { ConfettiEffect } from './ConfettiEffect'
 import { StreakMilestoneBadge, DailyGoalBadge } from './StreakMilestoneBadge'
@@ -218,60 +218,38 @@ export function QuizResult() {
           />
         </div>
 
-        {/* Title */}
+        {/* Title + percentage + pass/fail — compact header */}
         <h2 className={`mb-1 text-xl font-bold sm:text-2xl ${result.color}`}>
           {result.title}
         </h2>
-
-        {/* Percentage badge */}
-        <div className="mb-4 inline-flex items-center gap-1 rounded-full bg-white px-4 py-1.5 shadow-sm">
-          <span className={`text-lg font-bold ${result.color}`}>
-            {displayPercent}%
+        <p className="mb-1 text-sm text-stone-500">{result.message}</p>
+        <div className="mb-4 inline-flex items-center gap-2">
+          <span className={`text-lg font-bold ${result.color}`}>{displayPercent}%</span>
+          <span className={`rounded-full px-2.5 py-0.5 text-xs font-medium ${
+            isPassing ? 'bg-green-500/10 text-green-600' : 'bg-red-500/10 text-red-500'
+          }`}>
+            {isPassing ? '✓ 合格' : '✗ 不合格'}
           </span>
+          {hintsUsedCount > 0 && (
+            <span className="rounded-full bg-amber-100 px-2 py-0.5 text-xs text-amber-700">
+              💡{hintsUsedCount}
+            </span>
+          )}
         </div>
 
-        {/* Pass/Fail indicator */}
-        {/* Personal best */}
+        {/* Personal best + review mode note */}
         <PersonalBest sessionHistory={userProgress.sessionHistory} currentPercentage={percentage} />
+        {isReviewMode && (
+          <p className="mb-4 text-xs text-stone-400">復習モード — スコア非反映</p>
+        )}
 
-        {/* Category breakthrough badges — celebrate invisible progress */}
+        {/* Category breakthrough badges */}
         {showStars && !isReviewMode && sessionState && (
           <CategoryBreakthroughBadge
             questions={sessionState.questions}
             answerHistory={sessionState.answerHistory}
             userProgress={userProgress}
           />
-        )}
-
-        {/* Message + pass/fail */}
-        <p className="mb-2 text-sm text-stone-500">{result.message}</p>
-        <div className="mb-4">
-          <span
-            className={`inline-flex items-center gap-1.5 rounded-full px-4 py-1.5 text-sm font-semibold ${
-              isPassing
-                ? 'bg-green-500/10 text-green-600'
-                : 'bg-red-500/10 text-red-500'
-            }`}
-          >
-            {isPassing ? '✓' : '✗'}
-            {isPassing ? '合格' : '不合格'}
-            <span className="text-xs font-normal opacity-60">
-              {APP_CONFIG.passingScore}%以上
-            </span>
-          </span>
-        </div>
-
-        {/* Hints used indicator */}
-        {hintsUsedCount > 0 && (
-          <div className="mb-4 inline-flex items-center gap-1.5 rounded-full bg-amber-100 px-3 py-1 text-sm text-amber-700">
-            <Lightbulb className="h-4 w-4" />
-            ヒント使用: {hintsUsedCount}回
-          </div>
-        )}
-
-        {/* Review mode indicator */}
-        {isReviewMode && (
-          <p className="mb-4 text-sm text-stone-400">復習モードのため、スコアには反映されません</p>
         )}
 
         {/* Stars visualization - staggered pop-in */}
