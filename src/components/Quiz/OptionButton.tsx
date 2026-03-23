@@ -119,7 +119,7 @@ export function OptionButton({
         className={`flex h-7 w-7 flex-shrink-0 items-center justify-center rounded-full text-sm font-medium ${
           isSelected && !isAnswered
             ? 'bg-claude-orange text-white'
-            : 'bg-stone-100 text-stone-600 dark:bg-stone-700 dark:text-stone-300'
+            : 'bg-stone-200 text-stone-700 dark:bg-stone-600 dark:text-stone-200'
         }`}
       >
         {optionLabel}

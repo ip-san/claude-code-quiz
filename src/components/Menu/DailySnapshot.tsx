@@ -84,10 +84,10 @@ export function DailySnapshot({ onDismiss }: DailySnapshotProps) {
           </div>
         )}
         {snapshot.dueCount > 0 && (
-          <p>🧠 復習すべき問題が <strong>{snapshot.dueCount}問</strong> あります</p>
+          <p><strong>🧠 復習: {snapshot.dueCount}問</strong></p>
         )}
         {snapshot.remaining > 0 && (
-          <p>🎯 今日の目標まであと <strong>{snapshot.remaining}問</strong></p>
+          <p><strong>🎯 目標: あと{snapshot.remaining}問</strong></p>
         )}
       </div>
 

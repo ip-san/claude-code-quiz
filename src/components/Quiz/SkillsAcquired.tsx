@@ -5,14 +5,14 @@ import { CheckCircle } from 'lucide-react'
 
 /** カテゴリIDから「できるようになったこと」のマッピング */
 const SKILL_DESCRIPTIONS: Record<string, string> = {
-  memory: 'AI にプロジェクトの文脈を記憶させられる',
-  skills: 'チーム専用の AI ワークフローを作れる',
-  tools: 'AI にファイル操作やコード検索を任せられる',
-  commands: 'AI との対話を効率的にコントロールできる',
-  extensions: 'MCP やプラグインで AI の能力を拡張できる',
-  session: 'AI との作業セッションを安全に管理できる',
-  keyboard: 'ショートカットで AI を素早く操作できる',
-  bestpractices: 'AI を活用して実務で成果を出せる',
+  memory: 'プロジェクト文脈を記憶させられる',
+  skills: 'AI ワークフローを作れる',
+  tools: 'ファイル操作・検索を自動化できる',
+  commands: '対話を効率的にコントロールできる',
+  extensions: 'MCP・プラグインで拡張できる',
+  session: 'セッション管理を安全に行える',
+  keyboard: 'ショートカットで素早く操作',
+  bestpractices: '実務で成果を出せる',
 }
 
 interface SkillsAcquiredProps {
