@@ -255,38 +255,6 @@ export function Feedback({ quiz, isCorrect }: FeedbackProps) {
     </AnimatedSection>
   )
 
-  // 4.5: 不正解時にドキュメントへの強調リンク（学びの導線）
-  if (!isCorrect && quiz.referenceUrl) {
-    sections.push(
-      <AnimatedSection key="learn-more" order={sections.length} animate={animate} noMotion={noMotion} className="mb-4">
-        <div className="rounded-xl border border-blue-200 bg-blue-50 p-3 dark:border-blue-500/30 dark:bg-blue-500/10">
-          <p className="mb-1 text-xs font-semibold text-blue-600 dark:text-blue-400">この分野を深く理解するには</p>
-          <p className="text-sm text-stone-600 dark:text-stone-400">
-            公式ドキュメントで詳しい解説を読むと、次回は自信を持って回答できます。
-          </p>
-          <button
-            onClick={handleOpenReference}
-            className="tap-highlight mt-2 inline-flex items-center gap-1.5 rounded-lg bg-blue-500 px-3 py-1.5 text-sm font-medium text-white"
-          >
-            <ExternalLink className="h-3.5 w-3.5" />
-            ドキュメントで学ぶ
-          </button>
-        </div>
-      </AnimatedSection>
-    )
-  }
-
-  // 4.7: 正解時に実践を促すワンライン（控えめに表示）
-  if (isCorrect && !isReviewMode) {
-    sections.push(
-      <AnimatedSection key="practice-nudge" order={sections.length} animate={animate} noMotion={noMotion} className="mb-2">
-        <p className="text-xs text-stone-400">
-          💡 次のセッションで試してみましょう
-        </p>
-      </AnimatedSection>
-    )
-  }
-
   // 5: Action buttons
   sections.push(
     <AnimatedSection key="actions" order={sections.length} animate={animate} noMotion={noMotion}>

@@ -25,7 +25,6 @@ import { AnimatedCounter } from './AnimatedCounter'
 import { KeyboardShortcutHelp } from '@/components/Layout/KeyboardShortcutHelp'
 import { haptics } from '@/lib/haptics'
 import { MasteryRoadmap } from './MasteryRoadmap'
-import { SpacedRepetitionService } from '@/domain/services/SpacedRepetitionService'
 import { DailySnapshot, hasSeenSnapshotToday } from './DailySnapshot'
 
 export function ModeSelection() {
@@ -73,16 +72,6 @@ export function ModeSelection() {
     () => allQuestions.filter(q => !userProgress.hasAttempted(q.id)).length,
     [allQuestions, userProgress]
   )
-
-  // SRS: 復習期限が到来した問題の数（実際のスキル定着に直結）
-  const dueForReviewCount = useMemo(() => {
-    if (userProgress.totalAttempts === 0) return 0
-    const now = Date.now()
-    return allQuestions.filter(q => {
-      const qp = userProgress.questionProgress[q.id]
-      return qp && qp.attempts > 0 && SpacedRepetitionService.isDue(qp, now)
-    }).length
-  }, [allQuestions, userProgress])
 
   const mode = useMemo(
     () => PREDEFINED_QUIZ_MODES.find((m) => m.id === selectedMode),
@@ -177,40 +166,15 @@ export function ModeSelection() {
             </p>
           </div>
 
-          {/* Engagement — streak + daily goal (hide daily goal for brand new users) */}
+          {/* Engagement — compact single section */}
           <div className="mb-5 flex flex-col gap-2">
             <StreakBanner />
             {userProgress.totalAttempts > 0 && <DailyGoalIndicator />}
           </div>
 
-          {/* Daily Snapshot — removes decision paralysis on app open */}
+          {/* Daily Snapshot — removes decision paralysis (includes SRS info) */}
           {userProgress.totalAttempts > 0 && !snapshotDismissed && (
             <DailySnapshot onDismiss={() => setSnapshotDismissed(true)} />
-          )}
-
-          {/* SRS Review Banner — skill retention through spaced repetition */}
-          {dueForReviewCount > 0 && (
-            <div className="mb-5 rounded-2xl border border-amber-200 bg-amber-50 p-4 dark:border-amber-500/30 dark:bg-amber-500/10">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-sm font-semibold text-amber-800 dark:text-amber-200">
-                    🧠 復習すると定着する問題があります
-                  </p>
-                  <p className="mt-0.5 text-xs text-amber-600 dark:text-amber-400">
-                    {dueForReviewCount}問が復習のタイミングです
-                  </p>
-                </div>
-                <button
-                  onClick={() => {
-                    haptics.light()
-                    startSession({ mode: 'quick', questionCount: dueForReviewCount })
-                  }}
-                  className="tap-highlight rounded-xl bg-amber-500 px-4 py-2 text-sm font-medium text-white"
-                >
-                  {dueForReviewCount}問を復習
-                </button>
-              </div>
-            </div>
           )}
 
           {/* First-time user: simplified entry point */}
@@ -389,30 +353,7 @@ export function ModeSelection() {
             />
           )}
 
-          {/* Category mastery overview */}
-          {userProgress.totalAttempts > 0 && (
-            <div className="mb-4">
-              <h2 className="mb-2 text-sm font-semibold text-stone-500">理解度</h2>
-              <div className="grid grid-cols-4 gap-1.5 sm:grid-cols-8">
-                {PREDEFINED_CATEGORIES.map((category: Category) => {
-                  const stats = masteryStats[category.id]
-                  const accuracy = stats
-                    ? Math.round((stats.correctAnswers / Math.max(stats.attemptedQuestions, 1)) * 100)
-                    : 0
-                  const mastery = accuracy >= 90 ? '🏆' : accuracy >= 70 ? '⭐' : accuracy > 0 ? '📖' : '—'
-                  return (
-                    <div key={category.id} className="flex flex-col items-center gap-0.5 rounded-xl bg-white p-2">
-                      <span className="text-sm">{mastery}</span>
-                      <span className="text-xs text-stone-500">{category.name}</span>
-                      <span className={`text-xs font-bold ${accuracy >= 70 ? 'text-green-600' : accuracy > 0 ? 'text-stone-600' : 'text-stone-300'}`}>
-                        {accuracy > 0 ? `${accuracy}%` : '—'}
-                      </span>
-                    </div>
-                  )
-                })}
-              </div>
-            </div>
-          )}
+          {/* Category mastery overview — moved to ProgressDashboard for cleaner menu */}
 
           {/* Custom quiz CTA — only show for power users (Electron/developer context) */}
           {isElectron && <CustomQuizBanner />}
