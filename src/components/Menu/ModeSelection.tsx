@@ -16,7 +16,7 @@ import { ResumeSessionBanner } from './ResumeSessionBanner'
 import { CustomQuizBanner } from './CustomQuizBanner'
 import { StreakBanner } from './StreakBanner'
 import { DailyGoalIndicator } from './DailyGoalIndicator'
-import { RefreshCw, Check, Play, Moon, Sun, HelpCircle } from 'lucide-react'
+import { RefreshCw, Check, Play, Moon, Sun, HelpCircle, BarChart3 } from 'lucide-react'
 import { isElectron } from '@/lib/platformAPI'
 import { getStoredTheme, setStoredTheme, applyTheme, type Theme } from '@/lib/theme'
 
@@ -126,7 +126,16 @@ export function ModeSelection() {
 
           {/* Header */}
           <div className="mb-5 text-center">
-            <div className="mb-2 flex justify-end gap-1">
+            <div className="mb-2 flex items-center justify-end gap-1">
+              {userProgress.totalAttempts > 0 && (
+                <button
+                  onClick={() => setViewState('progress')}
+                  className="tap-highlight rounded-full p-2 text-stone-500"
+                  aria-label="学習履歴"
+                >
+                  <BarChart3 className="h-5 w-5" />
+                </button>
+              )}
               <button
                 onClick={() => setShowShortcuts(true)}
                 className="tap-highlight hidden rounded-full p-2 text-stone-500 sm:block"
@@ -357,15 +366,9 @@ export function ModeSelection() {
           {/* Custom quiz CTA — only show for power users (Electron/developer context) */}
           {isElectron && <CustomQuizBanner />}
 
-          {/* Learning history + update check */}
-          <div className="flex gap-2">
-            <button
-              onClick={() => setViewState('progress')}
-              className="tap-highlight flex-1 rounded-2xl border border-stone-200 bg-white px-4 py-3.5 text-center text-sm font-medium text-stone-600"
-            >
-              学習履歴を見る
-            </button>
-            {!isElectron && (
+          {/* Update check (PWA only) */}
+          {!isElectron && (
+            <div className="text-center">
               <button
                 onClick={async () => {
                   setUpdateStatus(null)
@@ -378,13 +381,14 @@ export function ModeSelection() {
                     }
                   }
                 }}
-                className="tap-highlight flex items-center gap-1.5 rounded-2xl border border-stone-200 bg-white px-4 py-3.5 text-sm font-medium text-stone-600"
+                className="tap-highlight inline-flex items-center gap-1.5 text-xs text-stone-400"
                 aria-label="更新を確認"
               >
-                {updateStatus ? <Check className="h-4 w-4 text-green-500" /> : <RefreshCw className="h-4 w-4" />}
+                {updateStatus ? <Check className="h-3.5 w-3.5 text-green-500" /> : <RefreshCw className="h-3.5 w-3.5" />}
+                {updateStatus ?? '更新を確認'}
               </button>
-            )}
-          </div>
+            </div>
+          )}
         </div>
       </div>
 
