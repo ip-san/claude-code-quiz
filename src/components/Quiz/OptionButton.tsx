@@ -24,18 +24,18 @@ export function OptionButton({
     if (!isAnswered) {
       return isSelected
         ? 'border-claude-orange bg-claude-orange/5 shadow-sm'
-        : 'border-stone-200'
+        : 'border-stone-200 dark:border-stone-700'
     }
 
     if (isCorrect) {
-      return 'border-green-500 bg-green-50'
+      return 'border-green-500 bg-green-50 dark:bg-green-500/15'
     }
 
     if (isSelected && !isCorrect) {
-      return 'border-red-500 bg-red-50'
+      return 'border-red-500 bg-red-50 dark:bg-red-500/15'
     }
 
-    return 'border-stone-200 opacity-50'
+    return 'border-stone-200 opacity-50 dark:border-stone-700'
   }
 
   // Animation class based on answer state

@@ -217,11 +217,11 @@ function QuizView({
   }, [])
 
   return (
-    <div className="flex min-h-screen flex-col bg-stone-100 sm:bg-claude-cream">
+    <div className="flex min-h-screen flex-col bg-stone-100 dark:bg-stone-900 sm:bg-claude-cream">
       {isElectron && <div className="h-8 titlebar-drag bg-transparent" />}
 
       {/* Sticky header — native navigation bar feel */}
-      <div className="sticky top-0 z-10 border-b border-stone-200 bg-claude-cream/95 backdrop-blur-sm">
+      <div className="sticky top-0 z-10 border-b border-stone-200 bg-claude-cream/95 backdrop-blur-sm dark:bg-stone-900/95">
         <div className="mx-auto max-w-3xl px-4 pb-2 pt-3 sm:py-3">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2">
@@ -280,7 +280,7 @@ function QuizView({
           <div className="absolute inset-0 bg-black/40" />
           {/* Sheet */}
           <div
-            className="relative mx-2 mb-2 w-full max-w-sm animate-slide-down rounded-2xl bg-white p-6 shadow-2xl sm:mx-4 sm:mb-0 sm:animate-none"
+            className="relative mx-2 mb-2 w-full max-w-sm animate-slide-down rounded-2xl bg-white p-6 shadow-2xl dark:bg-stone-800 sm:mx-4 sm:mb-0 sm:animate-none"
             onClick={(e) => e.stopPropagation()}
             ref={(el) => {
               dialogRef.current = el

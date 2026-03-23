@@ -314,8 +314,8 @@ export function Feedback({ quiz, isCorrect }: FeedbackProps) {
     <div
       className={`mt-4 rounded-xl border p-4 sm:mt-6 sm:p-5 ${
         isCorrect
-          ? 'border-green-500/30 bg-green-500/10'
-          : 'border-red-500/30 bg-red-500/10'
+          ? 'border-green-500/30 bg-green-500/10 dark:bg-green-500/15'
+          : 'border-red-500/30 bg-red-500/10 dark:bg-red-500/15'
       } ${noMotion ? '' : animate ? 'animate-feedback-enter' : 'opacity-0'}`}
     >
       {sections}

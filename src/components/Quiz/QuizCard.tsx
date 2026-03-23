@@ -180,7 +180,7 @@ export function QuizCard({ isModalOpen = false }: { isModalOpen?: boolean }) {
       <div
         key={questionKey}
         {...swipeHandlers}
-        className={`animate-slide-in-right rounded-2xl bg-white p-4 shadow-[0_2px_20px_rgba(0,0,0,0.06)] sm:border sm:border-stone-200 sm:p-8 ${
+        className={`animate-slide-in-right rounded-2xl bg-white p-4 shadow-[0_2px_20px_rgba(0,0,0,0.06)] dark:bg-stone-800 dark:shadow-[0_2px_20px_rgba(0,0,0,0.3)] sm:border sm:border-stone-200 sm:p-8 ${
           isAnswered && isCorrect === false ? 'animate-shake flash-wrong' : ''
         } ${isAnswered && isCorrect === true ? 'glow-correct' : ''}`}
       >
@@ -248,18 +248,18 @@ export function QuizCard({ isModalOpen = false }: { isModalOpen?: boolean }) {
           {!hintUsed ? (
             <button
               onClick={useHint}
-              className="tap-highlight flex items-center gap-1.5 rounded-2xl border border-amber-300 bg-amber-50 px-3 py-2 text-sm text-amber-700"
+              className="tap-highlight flex items-center gap-1.5 rounded-2xl border border-amber-300 bg-amber-50 px-3 py-2 text-sm text-amber-700 dark:text-amber-300"
             >
               <Lightbulb className="h-4 w-4" />
               ヒントを表示
             </button>
           ) : (
-            <div className="rounded-lg border border-amber-300 bg-amber-50 p-3">
+            <div className="rounded-lg border border-amber-300 bg-amber-50 p-3 dark:bg-amber-500/10">
               <div className="mb-1 flex items-center gap-1.5">
-                <Lightbulb className="h-4 w-4 text-amber-600" />
-                <span className="text-sm font-medium text-amber-700">ヒント</span>
+                <Lightbulb className="h-4 w-4 text-amber-600 dark:text-amber-400" />
+                <span className="text-sm font-medium text-amber-700 dark:text-amber-300">ヒント</span>
               </div>
-              <p className="text-sm text-amber-800">
+              <p className="text-sm text-amber-800 dark:text-amber-200">
                 {quiz.hint
                   ? <QuizText text={quiz.hint} />
                   : '公式ドキュメントを確認してみましょう。回答後に参照リンクが表示されます。'}
