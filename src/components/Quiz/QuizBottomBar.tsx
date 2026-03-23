@@ -44,7 +44,7 @@ export function QuizBottomBar({
     return (
       <div className="fixed bottom-0 left-0 right-0 z-20 border-t border-stone-200 bg-white px-4 pb-[calc(env(safe-area-inset-bottom,0px)+8px)] pt-2 dark:border-stone-700 dark:bg-stone-900 sm:relative sm:mt-6 sm:border-0 sm:bg-transparent sm:p-0 sm:pb-0 sm:pt-0 sm:dark:bg-transparent">
         {/* Question dots indicator */}
-        <div className="mb-2 flex flex-wrap justify-center gap-1 sm:mb-3">
+        <div className="mb-2 flex max-h-14 flex-wrap justify-center gap-1 overflow-hidden sm:mb-3 sm:max-h-none">
           {(sessionState?.questions ?? []).map((_, i) => {
             const answered = sessionState?.answerHistory?.has(i)
             const isCurrent = i === currentIndex

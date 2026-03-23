@@ -233,7 +233,7 @@ export function QuizResult() {
           {result.title}
         </h2>
         <p className="mb-1 text-sm text-stone-500">{result.message}</p>
-        <div className="mb-4 inline-flex items-center gap-2">
+        <div className="mb-4 inline-flex flex-wrap items-center justify-center gap-2">
           <span className={`text-lg font-bold ${result.color}`}>{displayPercent}%</span>
           <span className={`rounded-full px-2.5 py-0.5 text-xs font-medium ${
             isPassing ? 'bg-green-500/10 text-green-600' : 'bg-red-500/10 text-red-500'

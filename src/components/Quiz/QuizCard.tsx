@@ -328,7 +328,7 @@ export function QuizCard({ isModalOpen = false }: { isModalOpen?: boolean }) {
       )}
 
       {/* Spacer for fixed bottom bar on mobile */}
-      <div className="h-20 sm:hidden" />
+      <div className="h-16 sm:hidden" />
     </div>
 
     <QuizBottomBar

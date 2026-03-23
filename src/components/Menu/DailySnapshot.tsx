@@ -67,7 +67,7 @@ export function DailySnapshot({ onDismiss }: DailySnapshotProps) {
           <Zap className="h-4 w-4 text-blue-500" />
           <span className="text-sm font-bold text-blue-700 dark:text-blue-300">今日のプラン</span>
         </div>
-        <button onClick={handleDismiss} className="tap-highlight rounded-full p-1 text-stone-400" aria-label="閉じる">
+        <button onClick={handleDismiss} className="tap-highlight rounded-full p-2 text-stone-400" aria-label="閉じる">
           <X className="h-4 w-4" />
         </button>
       </div>
