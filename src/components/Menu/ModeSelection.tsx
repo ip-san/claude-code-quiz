@@ -44,6 +44,7 @@ export function ModeSelection() {
   const [selectedDifficulty, setSelectedDifficulty] = useState<DifficultyLevel | null>(null)
   const [showShortcuts, setShowShortcuts] = useState(false)
   const [snapshotDismissed, setSnapshotDismissed] = useState(() => hasSeenSnapshotToday())
+  const [showAllModes, setShowAllModes] = useState(false)
 
   const bookmarkedCount = getBookmarkedCount()
 
@@ -216,12 +217,17 @@ export function ModeSelection() {
             </div>
           )}
 
-          {/* Mode Selection */}
+          {/* Mode Selection — primary modes always visible, rest collapsible */}
           <div className="mb-5">
             <h2 className="mb-2 text-sm font-semibold text-stone-500">モード</h2>
             <div className="flex flex-wrap gap-2">
               {PREDEFINED_QUIZ_MODES
                 .filter((m) => m.id !== 'review')
+                .filter((m) => {
+                  // Primary modes always shown; others visible when expanded or selected
+                  const primaryModes = ['overview', 'random', 'category', 'quick']
+                  return showAllModes || primaryModes.includes(m.id) || m.id === selectedMode
+                })
                 .map((modeConfig) => {
                 const isDisabled =
                   (modeConfig.id === 'bookmark' && bookmarkedCount === 0) ||
@@ -265,6 +271,23 @@ export function ModeSelection() {
                   </button>
                 )
               })}
+              {!showAllModes && (
+                <button
+                  onClick={() => setShowAllModes(true)}
+                  className="tap-highlight flex items-center gap-1 rounded-full border border-dashed border-stone-300 px-3.5 py-2 text-sm text-stone-400"
+                >
+                  <span>その他</span>
+                  <span className="text-xs">+5</span>
+                </button>
+              )}
+              {showAllModes && (
+                <button
+                  onClick={() => setShowAllModes(false)}
+                  className="tap-highlight flex items-center gap-1 rounded-full border border-dashed border-stone-300 px-3.5 py-2 text-sm text-stone-400"
+                >
+                  閉じる
+                </button>
+              )}
             </div>
           </div>
 
