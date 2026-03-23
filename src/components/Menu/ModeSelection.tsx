@@ -266,7 +266,7 @@ export function ModeSelection() {
               <h2 className="mb-2 text-sm font-semibold text-stone-500">
                 カテゴリ
               </h2>
-              <div className="grid grid-cols-4 gap-2 sm:grid-cols-4 lg:grid-cols-8">
+              <div className="grid grid-cols-3 gap-2 sm:grid-cols-4 lg:grid-cols-8">
                 {PREDEFINED_CATEGORIES.map((category: Category) => (
                   <button
                     key={category.id}

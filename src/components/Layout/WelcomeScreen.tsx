@@ -47,7 +47,7 @@ export function WelcomeScreen({ onComplete }: WelcomeScreenProps) {
           <span className="text-4xl font-bold text-white">CC</span>
         </div>
 
-        <h1 className="mb-2 text-2xl font-bold text-claude-dark">
+        <h1 className="mb-2 text-3xl font-bold text-claude-dark sm:text-2xl">
           Claude Code Quiz
         </h1>
         <p className="mb-1 text-sm text-claude-gray">

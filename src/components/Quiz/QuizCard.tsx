@@ -238,7 +238,7 @@ export function QuizCard({ isModalOpen = false }: { isModalOpen?: boolean }) {
       </div>
 
       {/* Question */}
-      <h2 className="mb-3 text-base font-semibold leading-snug text-claude-dark sm:mb-6 sm:text-lg sm:leading-relaxed">
+      <h2 className="mb-3 text-lg font-semibold leading-snug text-claude-dark sm:mb-6 sm:text-xl sm:leading-relaxed">
         <QuizText text={quiz.question} />
       </h2>
 

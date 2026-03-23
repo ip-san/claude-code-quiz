@@ -255,7 +255,7 @@ function QuizView({
             </button>
           </div>
           {/* Progress bar */}
-          <div className="mt-2 h-1 overflow-hidden rounded-full bg-stone-200" role="progressbar" aria-valuenow={progress.current} aria-valuemin={1} aria-valuemax={progress.total} aria-label="問題の進捗">
+          <div className="mt-2 h-1.5 overflow-hidden rounded-full bg-stone-200 sm:h-1" role="progressbar" aria-valuenow={progress.current} aria-valuemin={1} aria-valuemax={progress.total} aria-label="問題の進捗">
             <div
               className="h-full rounded-full progress-gradient transition-all"
               style={{
@@ -286,7 +286,7 @@ function QuizView({
               dialogRef.current = el
               if (el) {
                 const btns = el.querySelectorAll('button')
-                btns[btns.length - 1]?.focus()
+                btns[0]?.focus()
               }
             }}
           >
@@ -300,16 +300,16 @@ function QuizView({
             </p>
             <div className="flex flex-col gap-2">
               <button
-                onClick={handleConfirmQuit}
-                className="tap-highlight w-full rounded-xl bg-red-500 py-3.5 text-base font-semibold text-white"
-              >
-                中止する
-              </button>
-              <button
                 onClick={handleCancelQuit}
-                className="tap-highlight w-full rounded-xl py-3.5 text-base font-semibold text-claude-orange"
+                className="tap-highlight w-full rounded-xl bg-claude-orange py-3.5 text-base font-semibold text-white"
               >
                 続ける
+              </button>
+              <button
+                onClick={handleConfirmQuit}
+                className="tap-highlight w-full rounded-xl py-3.5 text-base font-semibold text-red-500"
+              >
+                中止する
               </button>
             </div>
           </div>
