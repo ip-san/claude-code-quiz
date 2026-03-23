@@ -79,7 +79,7 @@ export function WelcomeScreen({ onComplete }: WelcomeScreenProps) {
         {/* CTA */}
         <button
           onClick={handleStart}
-          className="tap-highlight inline-flex w-full items-center justify-center gap-2 rounded-2xl bg-claude-orange px-8 py-4 text-lg font-semibold text-white shadow-lg"
+          className="tap-highlight inline-flex w-full items-center justify-center gap-2 rounded-2xl bg-claude-orange px-8 py-3.5 text-lg font-semibold text-white shadow-lg"
         >
           <span>はじめる</span>
           <span className="text-xs opacity-75">約5分</span>

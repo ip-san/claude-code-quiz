@@ -301,13 +301,13 @@ function QuizView({
             <div className="flex flex-col gap-2">
               <button
                 onClick={handleCancelQuit}
-                className="tap-highlight w-full rounded-xl bg-claude-orange py-3.5 text-base font-semibold text-white"
+                className="tap-highlight w-full rounded-2xl bg-claude-orange py-3.5 text-base font-semibold text-white"
               >
                 続ける
               </button>
               <button
                 onClick={handleConfirmQuit}
-                className="tap-highlight w-full rounded-xl py-3.5 text-base font-semibold text-red-500"
+                className="tap-highlight w-full rounded-2xl py-3.5 text-base font-semibold text-red-500"
               >
                 中止する
               </button>
