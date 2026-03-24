@@ -39,7 +39,7 @@ export function QuizSearch() {
         {/* Header */}
         <div className="flex items-center justify-between border-b border-stone-200 px-4 py-3 dark:border-stone-700">
           <div>
-            <h2 className="text-sm font-bold text-claude-dark">「{query}」の検索結果</h2>
+            <h2 className="text-sm font-bold text-claude-dark dark:text-stone-200">「{query}」の検索結果</h2>
             <p className="text-xs text-stone-400">{allResults.length}件</p>
           </div>
           <div className="flex items-center gap-2">
@@ -57,7 +57,7 @@ export function QuizSearch() {
               {allResults.length}問に挑戦
             </button>
             <button
-              onClick={() => setShowAll(false)}
+              onClick={() => { setShowAll(false); setExpandedId(null) }}
               className="tap-highlight rounded-full p-2 text-stone-400"
               aria-label="戻る"
             >
@@ -77,7 +77,7 @@ export function QuizSearch() {
                   className="tap-highlight flex w-full items-start gap-2 px-4 py-3 text-left"
                 >
                   <span className="mt-0.5 flex-shrink-0 text-sm">{cat?.icon}</span>
-                  <span className="flex-1 text-sm leading-snug text-claude-dark">
+                  <span className="flex-1 text-sm leading-snug text-claude-dark dark:text-stone-200">
                     {r.question}
                   </span>
                   {isExpanded
@@ -179,7 +179,7 @@ export function QuizSearch() {
                         className="tap-highlight flex w-full items-start gap-2 px-4 py-2.5 text-left"
                       >
                         <span className="mt-0.5 flex-shrink-0 text-sm">{cat?.icon}</span>
-                        <span className="flex-1 text-sm leading-snug text-claude-dark">
+                        <span className="flex-1 text-sm leading-snug text-claude-dark dark:text-stone-200">
                           {r.question.length > 80 ? r.question.slice(0, 80) + '...' : r.question}
                         </span>
                         {isExpanded

@@ -413,7 +413,7 @@ interface StatCardProps {
 
 function StatCard({ label, value, icon }: StatCardProps) {
   return (
-    <div className="animate-card-enter rounded-2xl border border-stone-200 bg-white p-4 shadow-sm dark:bg-stone-800">
+    <div className="animate-card-enter rounded-2xl border border-stone-200 bg-white p-4 shadow-sm dark:border-stone-700 dark:bg-stone-800">
       <div className="mb-1 text-2xl">{icon}</div>
       <div className="text-2xl font-bold text-claude-dark">{value}</div>
       <div className="text-sm text-stone-500">{label}</div>

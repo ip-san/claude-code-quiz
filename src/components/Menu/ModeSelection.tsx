@@ -192,7 +192,7 @@ export function ModeSelection() {
           {/* First-time user: simplified entry point */}
           {userProgress.totalAttempts === 0 && (
             <div className="mb-5 space-y-3">
-              <div className="rounded-2xl border-2 border-claude-orange/30 bg-gradient-to-r from-claude-orange/5 to-transparent p-4">
+              <div className="rounded-2xl border-2 border-claude-orange/30 bg-gradient-to-r from-claude-orange/5 to-transparent p-4 dark:border-claude-orange/40 dark:from-claude-orange/10">
                 <p className="mb-1 text-xs font-semibold text-claude-orange">はじめての方へ</p>
                 <p className="mb-3 text-sm text-claude-dark">
                   AI の知識は問いません。全体像モードで基礎から順番にガイドします。完了すると修了証が発行されます。
@@ -279,7 +279,7 @@ export function ModeSelection() {
               {!showAllModes && (
                 <button
                   onClick={() => setShowAllModes(true)}
-                  className="tap-highlight flex items-center gap-1 rounded-full border border-dashed border-stone-300 px-3.5 py-2 text-sm text-stone-400"
+                  className="tap-highlight flex items-center gap-1 rounded-full border border-dashed border-stone-300 px-3.5 py-2 text-sm text-stone-400 dark:border-stone-600 dark:text-stone-500"
                 >
                   <span>その他</span>
                   <span className="text-xs">+5</span>
@@ -288,7 +288,7 @@ export function ModeSelection() {
               {showAllModes && (
                 <button
                   onClick={() => setShowAllModes(false)}
-                  className="tap-highlight flex items-center gap-1 rounded-full border border-dashed border-stone-300 px-3.5 py-2 text-sm text-stone-400"
+                  className="tap-highlight flex items-center gap-1 rounded-full border border-dashed border-stone-300 px-3.5 py-2 text-sm text-stone-400 dark:border-stone-600 dark:text-stone-500"
                 >
                   閉じる
                 </button>
