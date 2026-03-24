@@ -18,17 +18,18 @@ export function QuizSearch() {
   const [isOpen, setIsOpen] = useState(false)
   const [expandedId, setExpandedId] = useState<string | null>(null)
 
-  const results = useMemo(() => {
+  const allResults = useMemo(() => {
     if (query.length < 2) return []
     const q = query.toLowerCase()
-    return allQuestions
-      .filter(quiz =>
-        quiz.question.toLowerCase().includes(q) ||
-        quiz.explanation.toLowerCase().includes(q) ||
-        quiz.options.some(opt => opt.text.toLowerCase().includes(q))
-      )
-      .slice(0, 10)
+    return allQuestions.filter(quiz =>
+      quiz.question.toLowerCase().includes(q) ||
+      quiz.explanation.toLowerCase().includes(q) ||
+      quiz.options.some(opt => opt.text.toLowerCase().includes(q))
+    )
   }, [allQuestions, query])
+
+  // Display limit for the list, but quiz launch uses ALL results
+  const displayResults = allResults.slice(0, 10)
 
   if (!isOpen) {
     return (
@@ -66,30 +67,30 @@ export function QuizSearch() {
 
       {query.length >= 2 && (
         <div className="mt-2 rounded-2xl border border-stone-200 bg-white dark:border-stone-700 dark:bg-stone-800">
-          {results.length === 0 ? (
+          {allResults.length === 0 ? (
             <p className="p-4 text-center text-sm text-stone-400">該当する問題が見つかりません</p>
           ) : (
             <>
               {/* Header */}
               <div className="flex items-center justify-between border-b border-stone-100 px-4 py-2.5 dark:border-stone-700">
-                <span className="text-xs text-stone-400">{results.length}件</span>
+                <span className="text-xs text-stone-400">{allResults.length}件</span>
                 <button
                   onClick={() => {
                     haptics.light()
-                    startSessionWithIds(results.map(r => r.id))
+                    startSessionWithIds(allResults.map(r => r.id))
                     setIsOpen(false)
                     setQuery('')
                   }}
                   className="tap-highlight inline-flex items-center gap-1.5 rounded-lg bg-claude-orange px-3 py-1.5 text-xs font-medium text-white"
                 >
                   <Play className="h-3 w-3 fill-white" />
-                  {results.length}問に挑戦
+                  {allResults.length}問に挑戦
                 </button>
               </div>
 
               {/* Results — tap to expand explanation */}
               <div className="max-h-80 overflow-y-auto">
-                {results.map(r => {
+                {displayResults.map(r => {
                   const cat = getCategoryById(r.category)
                   const isExpanded = expandedId === r.id
                   return (
@@ -132,6 +133,11 @@ export function QuizSearch() {
                     </div>
                   )
                 })}
+                {allResults.length > 10 && (
+                  <p className="px-4 py-2 text-center text-xs text-stone-400">
+                    他 {allResults.length - 10}件（「{allResults.length}問に挑戦」で全て出題）
+                  </p>
+                )}
               </div>
             </>
           )}
