@@ -50,10 +50,10 @@ export function WelcomeScreen({ onComplete }: WelcomeScreenProps) {
         <h1 className="mb-2 text-3xl font-bold text-claude-dark sm:text-2xl">
           Claude Code Quiz
         </h1>
-        <p className="mb-1 text-sm text-claude-gray">
+        <p className="mb-2 text-sm text-claude-gray">
           AI 時代のスキルを、今日から身につける
         </p>
-        <p className="mb-8 text-xs text-stone-400">
+        <p className="mb-6 text-xs text-stone-400">
           経験不問 | 630問 | スマホでいつでも
         </p>
 

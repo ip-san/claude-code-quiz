@@ -125,29 +125,17 @@ export function QuizCard({ isModalOpen = false }: { isModalOpen?: boolean }) {
   // Empty state when no quiz data
   if (!quiz) {
     return (
-      <div className="rounded-2xl border border-stone-200 bg-white p-8 text-center shadow-sm dark:bg-stone-800">
-        <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-stone-100 dark:bg-stone-700">
-          <svg
-            className="h-8 w-8 text-stone-400"
-            fill="none"
-            viewBox="0 0 24 24"
-            stroke="currentColor"
-          >
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              strokeWidth={2}
-              d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
-            />
-          </svg>
+      <div className="rounded-2xl bg-gradient-to-br from-stone-50 to-stone-100 p-8 text-center dark:from-stone-800 dark:to-stone-900">
+        <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-2xl bg-claude-orange/10">
+          <span className="text-3xl">🔍</span>
         </div>
-        <h3 className="mb-2 text-lg font-medium text-claude-dark">クイズがありません</h3>
-        <p className="mb-4 text-sm text-stone-500">
-          選択した条件に一致する問題が見つかりませんでした
+        <h3 className="mb-2 text-lg font-semibold text-claude-dark">該当する問題がありません</h3>
+        <p className="mb-6 text-sm text-stone-500 dark:text-stone-400">
+          別のカテゴリや難易度を試してみてください
         </p>
         <button
           onClick={endSession}
-          className="tap-highlight rounded-lg bg-claude-orange px-4 py-2 text-white"
+          className="tap-highlight rounded-2xl bg-claude-orange px-6 py-3 text-sm font-semibold text-white"
         >
           メニューに戻る
         </button>

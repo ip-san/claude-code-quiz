@@ -201,7 +201,7 @@ export function ModeSelection() {
                     haptics.light()
                     startSession({ mode: 'overview' })
                   }}
-                  className="tap-highlight inline-flex items-center gap-2 rounded-xl bg-claude-orange px-5 py-2.5 text-sm font-semibold text-white shadow-sm"
+                  className="tap-highlight inline-flex items-center gap-2 rounded-2xl bg-claude-orange px-5 py-2.5 text-sm font-semibold text-white shadow-sm"
                 >
                   🗺️ 全体像モードで始める
                 </button>
