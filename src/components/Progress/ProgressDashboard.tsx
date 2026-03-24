@@ -122,9 +122,9 @@ export function ProgressDashboard() {
   }
 
   return (
-    <div className="min-h-screen bg-claude-cream">
+    <div className="min-h-screen bg-claude-cream dark:bg-stone-900">
       {/* Sticky header */}
-      <div className="sticky top-0 z-10 border-b border-stone-200 bg-claude-cream/95 px-4 py-3 backdrop-blur-sm sm:px-6">
+      <div className="sticky top-0 z-10 border-b border-stone-200 bg-claude-cream/95 px-4 py-3 backdrop-blur-sm dark:border-stone-700 dark:bg-stone-900/95 sm:px-6">
         <div className="mx-auto flex items-center justify-between sm:max-w-2xl lg:max-w-4xl">
           <h1 className="text-lg font-bold text-claude-dark">学習進捗</h1>
           <button
