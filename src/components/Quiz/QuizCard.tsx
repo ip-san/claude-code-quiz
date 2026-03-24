@@ -202,7 +202,7 @@ export function QuizCard({ isModalOpen = false }: { isModalOpen?: boolean }) {
         <button
           onClick={() => toggleBookmark(quiz.id)}
           aria-label={isBookmarked ? 'ブックマークを解除' : 'ブックマークに追加'}
-          className="tap-highlight rounded-full p-2.5 transition-colors hover:bg-stone-100 dark:hover:bg-stone-700"
+          className="tap-highlight rounded-full p-3 transition-colors hover:bg-stone-100 dark:hover:bg-stone-700"
         >
           <Bookmark
             className={`h-5 w-5 ${
@@ -215,7 +215,7 @@ export function QuizCard({ isModalOpen = false }: { isModalOpen?: boolean }) {
       </div>
 
       {/* Question */}
-      <h2 className="mb-3 text-lg font-semibold leading-snug text-claude-dark sm:mb-6 sm:text-xl sm:leading-relaxed">
+      <h2 className="mb-3 max-w-prose text-lg font-semibold leading-snug text-claude-dark sm:mb-6 sm:text-xl sm:leading-relaxed">
         <QuizText text={quiz.question} />
       </h2>
 

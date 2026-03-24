@@ -254,7 +254,7 @@ function QuizView({
               )}
               <span className="text-sm text-stone-500">
                 <span className="font-bold text-claude-dark">{progress.current}</span>
-                <span className="mx-0.5">/</span>
+                <span className="mx-0.5 text-stone-400">/</span>
                 <span>{progress.total}</span>
               </span>
               {timeRemaining !== null && <Timer />}
@@ -292,7 +292,7 @@ function QuizView({
 
       {/* iOS-style bottom sheet dialog */}
       {showQuitDialog && (
-        <div className="fixed inset-0 z-50 flex items-end justify-center sm:items-center" role="dialog" aria-modal="true" aria-labelledby="quit-dialog-title" onClick={handleCancelQuit}>
+        <div className="fixed inset-0 z-50 flex items-end justify-center sm:items-center" role="dialog" aria-modal="true" aria-labelledby="quit-dialog-title" onClick={(e) => { if (e.target === e.currentTarget) handleCancelQuit() }}>
           {/* Backdrop */}
           <div className="absolute inset-0 bg-black/40" />
           {/* Sheet */}
