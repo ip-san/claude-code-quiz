@@ -171,7 +171,7 @@ export class QuizSessionService {
       }
     }
 
-    // For weak mode, prioritize weak questions sorted by SRS urgency
+    // For weak mode: find weak questions + their prerequisite fundamentals
     let weakUsedSRS = false
     if (config.mode === 'weak') {
       const weakQuestions = questions.filter(q =>
@@ -179,9 +179,33 @@ export class QuizSessionService {
       )
 
       if (weakQuestions.length > 0) {
-        // Sort by SRS priority: most overdue questions first
-        questions = SpacedRepetitionService.sortByPriority(weakQuestions, userProgress, Date.now())
-        weakUsedSRS = true // Mark that SRS ordering was applied (skip shuffle)
+        // Find categories where user is weak
+        const weakCategories = new Set(weakQuestions.map(q => q.category))
+
+        // Find unmastered fundamentals in those categories
+        // (beginner questions user hasn't answered or got wrong)
+        const prerequisites = questions.filter(q =>
+          weakCategories.has(q.category) &&
+          q.difficulty === 'beginner' &&
+          !weakQuestions.some(w => w.id === q.id) &&
+          (userProgress.getQuestionAccuracy(q.id) ?? 0) < 100
+        )
+
+        // Build sequence: fundamentals first, then weak questions
+        // This helps user build understanding before re-attempting hard questions
+        const combined = [
+          ...SpacedRepetitionService.sortByPriority(prerequisites, userProgress, Date.now()),
+          ...SpacedRepetitionService.sortByPriority(weakQuestions, userProgress, Date.now()),
+        ]
+
+        // Deduplicate (a question could be both prerequisite and weak)
+        const seen = new Set<string>()
+        questions = combined.filter(q => {
+          if (seen.has(q.id)) return false
+          seen.add(q.id)
+          return true
+        })
+        weakUsedSRS = true
       } else {
         // Fallback: try unanswered questions (these should be shuffled normally)
         const unansweredQuestions = questions.filter(q =>
@@ -190,7 +214,6 @@ export class QuizSessionService {
         if (unansweredQuestions.length > 0) {
           questions = unansweredQuestions
         }
-        // Otherwise use all questions
       }
     }
 
