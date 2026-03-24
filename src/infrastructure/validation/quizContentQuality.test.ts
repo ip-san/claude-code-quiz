@@ -72,6 +72,7 @@ const VALID_DOC_PAGES = [
   'desktop-quickstart', 'authentication',
   // platform.claude.com pages
   'agent-sdk/overview',
+  'agents-and-tools/agent-skills/best-practices',
 ]
 
 /** 有効なタグパターン */
