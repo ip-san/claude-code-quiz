@@ -60,6 +60,10 @@ npm run quiz:coverage # ドキュメントページ別カバレッジ
 npm run quiz:check    # クイズ品質チェック（ID重複、偏り、構造）
 npm run quiz:randomize # correctIndex ランダム化
 npm run quiz:post-add  # 問題追加後の一括処理（randomize → check → test → stats）
+
+# ドキュメント検証
+npm run docs:validate  # CLAUDE.md の統計値が実装と一致しているか自動検証
+npm run check:all      # check + docs:validate（CI用フルチェック）
 ```
 
 ## PWA / GitHub Pages

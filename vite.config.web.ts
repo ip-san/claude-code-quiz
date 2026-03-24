@@ -73,5 +73,6 @@ export default defineConfig({
 
   server: {
     port: 5174,
+    host: true, // LAN公開: 同じWiFiのスマホから http://PCのIP:5174 でアクセス可能
   },
 })
