@@ -284,8 +284,8 @@ describe('Quiz Content Quality', () => {
 
     it('referenceUrl が公式ドキュメントURLであること', () => {
       const validPrefixes = [
-        'https://code.claude.com/docs/en/',
-        'https://platform.claude.com/docs/en/',
+        'https://code.claude.com/docs/ja/',
+        'https://platform.claude.com/docs/ja/',
       ]
       const invalid = quizzes.filter(q =>
         q.referenceUrl && !validPrefixes.some(p => q.referenceUrl.startsWith(p))
@@ -296,8 +296,8 @@ describe('Quiz Content Quality', () => {
 
     it('referenceUrl のパスが既知のドキュメントページであること', () => {
       const prefixes = [
-        'https://code.claude.com/docs/en/',
-        'https://platform.claude.com/docs/en/',
+        'https://code.claude.com/docs/ja/',
+        'https://platform.claude.com/docs/ja/',
       ]
       const violations: string[] = []
       quizzes.forEach(q => {
