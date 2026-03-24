@@ -14,6 +14,7 @@ import { StreakToast } from './StreakToast'
 import { EncouragementToast } from './EncouragementToast'
 
 import { getColorHex } from '@/lib/colors'
+import { getDifficultyStyle, getDifficultyLabel } from '@/lib/badgeStyles'
 import { useQuizKeyboard } from './useQuizKeyboard'
 import { QuizBottomBar } from './QuizBottomBar'
 
@@ -188,20 +189,8 @@ export function QuizCard({ isModalOpen = false }: { isModalOpen?: boolean }) {
             </span>
           )}
           {quiz.difficulty && (
-            <span
-              className={`rounded px-2 py-1 text-xs font-medium ${
-                quiz.difficulty === 'beginner'
-                  ? 'bg-green-100 text-green-700 dark:bg-green-500/20 dark:text-green-300'
-                  : quiz.difficulty === 'intermediate'
-                    ? 'bg-yellow-100 text-yellow-700 dark:bg-yellow-500/20 dark:text-yellow-300'
-                    : 'bg-red-100 text-red-700 dark:bg-red-500/20 dark:text-red-300'
-              }`}
-            >
-              {quiz.difficulty === 'beginner'
-                ? '初級'
-                : quiz.difficulty === 'intermediate'
-                  ? '中級'
-                  : '上級'}
+            <span className={`rounded px-2 py-1 text-xs font-medium ${getDifficultyStyle(quiz.difficulty)}`}>
+              {getDifficultyLabel(quiz.difficulty)}
             </span>
           )}
           {isReviewMode && (

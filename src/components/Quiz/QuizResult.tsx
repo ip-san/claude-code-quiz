@@ -1,6 +1,7 @@
 import { useMemo, useState, useEffect } from 'react'
 import { useQuizStore, APP_CONFIG } from '@/stores/quizStore'
-import { getCategoryById } from '@/domain/valueObjects/Category'
+import { getScoreMessage } from '@/domain/services/ScoreMessageService'
+import { getOverviewRecommendation } from '@/domain/services/RecommendationService'
 import { getChapterFromTags } from '@/domain/valueObjects/OverviewChapter'
 import { RotateCcw, Star, Home, BookOpen, ArrowRight, Target, Share2 } from 'lucide-react'
 import { ScoreRing } from './ScoreRing'
@@ -12,14 +13,6 @@ import { PersonalBest } from './PersonalBest'
 import { SkillsAcquired } from './SkillsAcquired'
 import { TeamShareGuide } from './TeamShareGuide'
 import { CategoryBreakthroughBadge } from './CategoryBreakthroughBadge'
-
-// Score thresholds for result messages
-const SCORE_THRESHOLDS = {
-  PERFECT: 100,
-  EXCELLENT: 80,
-  PASSING: 70,
-  ALMOST: 50,
-} as const
 
 // Star visualization constants
 const STAR_COUNT = 5
@@ -86,91 +79,10 @@ export function QuizResult() {
   // Recommendation for overview mode: find weakest category from wrong answers
   const recommendation = useMemo(() => {
     if (!isOverviewMode || isReviewMode) return null
+    return getOverviewRecommendation(sessionWrongAnswers, sessionState?.questions ?? [])
+  }, [isOverviewMode, isReviewMode, sessionWrongAnswers, sessionState?.questions])
 
-    if (!hasWrongAnswers) {
-      return { type: 'perfect' as const }
-    }
-
-    // Count wrong answers per category
-    const categoryCounts: Record<string, number> = {}
-    for (const wrong of sessionWrongAnswers) {
-      const question = sessionState?.questions.find(q => q.id === wrong.questionId)
-      if (question) {
-        categoryCounts[question.category] = (categoryCounts[question.category] ?? 0) + 1
-      }
-    }
-
-    // Find the category with most wrong answers
-    let weakestCategory = ''
-    let maxWrong = 0
-    for (const [cat, count] of Object.entries(categoryCounts)) {
-      if (count > maxWrong) {
-        maxWrong = count
-        weakestCategory = cat
-      }
-    }
-
-    if (!weakestCategory) return null
-
-    const category = getCategoryById(weakestCategory)
-    if (!category) return null
-
-    return {
-      type: 'category' as const,
-      categoryId: weakestCategory,
-      categoryName: category.name,
-      categoryIcon: category.icon,
-      wrongCount: maxWrong,
-    }
-  }, [isOverviewMode, isReviewMode, hasWrongAnswers, sessionWrongAnswers, sessionState?.questions])
-
-  const getMessage = () => {
-    if (percentage === SCORE_THRESHOLDS.PERFECT) {
-      return {
-        title: 'パーフェクト！',
-        message: '全問正解。あなたは Claude Code を完全に理解しています。',
-        color: 'text-yellow-600',
-        bgColor: 'bg-yellow-50',
-        borderColor: 'border-yellow-200',
-      }
-    }
-    if (percentage >= SCORE_THRESHOLDS.EXCELLENT) {
-      return {
-        title: '素晴らしい！',
-        message: 'ここまで来たあなたなら、実務でも活躍できます。',
-        color: 'text-green-600',
-        bgColor: 'bg-green-50',
-        borderColor: 'border-green-200',
-      }
-    }
-    if (percentage >= SCORE_THRESHOLDS.PASSING) {
-      return {
-        title: '着実に成長しています',
-        message: '基礎は身についています。復習で更に自信をつけましょう。',
-        color: 'text-blue-600',
-        bgColor: 'bg-blue-50',
-        borderColor: 'border-blue-200',
-      }
-    }
-    if (percentage >= SCORE_THRESHOLDS.ALMOST) {
-      return {
-        title: 'いい線いってます',
-        message: 'あと少しです。間違えた問題を見直すだけで、大きく伸びます。',
-        color: 'text-orange-600',
-        bgColor: 'bg-orange-50',
-        borderColor: 'border-orange-200',
-      }
-    }
-    return {
-      title: '最初の一歩を踏み出しました',
-      message: 'ここから始まります。繰り返すほど必ず伸びます。',
-      color: 'text-red-600',
-      bgColor: 'bg-red-50',
-      borderColor: 'border-red-200',
-    }
-  }
-
-  const result = getMessage()
+  const result = getScoreMessage(percentage)
 
   const handleRetry = () => {
     retrySession()
@@ -320,7 +232,7 @@ export function QuizResult() {
                     で{recommendation.wrongCount}問間違えました。カテゴリ別学習で深掘りしてみましょう。
                   </p>
                   <button
-                    onClick={() => handleStartCategorySession(recommendation.categoryId)}
+                    onClick={() => handleStartCategorySession(recommendation.categoryId!)}
                     className="inline-flex items-center gap-1.5 rounded-lg bg-indigo-500 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-indigo-600"
                   >
                     {recommendation.categoryIcon} {recommendation.categoryName}を深掘り
