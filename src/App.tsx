@@ -11,6 +11,15 @@ const ProgressDashboard = lazy(() => import('@/components/Progress/ProgressDashb
 import { getChapterFromTags } from '@/domain/valueObjects/OverviewChapter'
 import { XCircle } from 'lucide-react'
 
+/** Compact loading indicator for lazy-loaded screens */
+function LoadingSpinner() {
+  return (
+    <div className="flex min-h-screen items-center justify-center bg-claude-cream dark:bg-stone-900">
+      <div className="h-8 w-8 animate-spin rounded-full border-4 border-stone-200 border-t-claude-orange dark:border-stone-700" />
+    </div>
+  )
+}
+
 /** Update theme-color meta tag for status bar coloring */
 function setThemeColor(color: string) {
   const meta = document.querySelector('meta[name="theme-color"]')
@@ -102,9 +111,9 @@ export default function App() {
       case 'menu':
         return <ModeSelection />
       case 'progress':
-        return <Suspense fallback={null}><ProgressDashboard /></Suspense>
+        return <Suspense fallback={<LoadingSpinner />}><ProgressDashboard /></Suspense>
       case 'result':
-        return <Suspense fallback={null}><QuizResult /></Suspense>
+        return <Suspense fallback={<LoadingSpinner />}><QuizResult /></Suspense>
       default:
         return null
     }
