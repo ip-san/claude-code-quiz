@@ -30,11 +30,12 @@ export default defineConfig({
         short_name: 'CC Quiz',
         description: 'Claude Code の機能と使い方を学習するクイズアプリ',
         theme_color: '#D97757',
-        background_color: '#FAF9F5',
+        background_color: '#D97757',
         display: 'standalone',
         scope: '/claude-code-quiz/',
         start_url: '/claude-code-quiz/',
         icons: [
+          { src: 'icons/apple-touch-icon.png', sizes: '180x180', type: 'image/png' },
           { src: 'icons/icon-192.png', sizes: '192x192', type: 'image/png' },
           { src: 'icons/icon-512.png', sizes: '512x512', type: 'image/png' },
           { src: 'icons/icon-192-maskable.png', sizes: '192x192', type: 'image/png', purpose: 'maskable' },
