@@ -238,9 +238,19 @@ export class QuizSessionService {
       }
     }
 
-    // Shuffle if needed (skip when SRS priority ordering was applied)
+    // Adaptive difficulty: for random/category modes, prioritize questions
+    // the user hasn't mastered yet (unmastered first, then mastered)
+    if ((config.mode === 'random' || config.mode === 'category') && userProgress.totalAttempts > 0) {
+      const unmastered = questions.filter(q => (userProgress.getQuestionAccuracy(q.id) ?? 0) < 100)
+      const mastered = questions.filter(q => (userProgress.getQuestionAccuracy(q.id) ?? 0) >= 100)
+      // Mix: unmastered shuffled first, mastered shuffled after
+      questions = [...this.shuffleArray(unmastered), ...this.shuffleArray(mastered)]
+    }
+
+    // Shuffle if needed (skip when SRS priority or adaptive ordering was applied)
     const srsApplied = weakUsedSRS || config.mode === 'quick'
-    if (config.shuffleQuestions && !srsApplied) {
+    const adaptiveApplied = (config.mode === 'random' || config.mode === 'category') && userProgress.totalAttempts > 0
+    if (config.shuffleQuestions && !srsApplied && !adaptiveApplied) {
       questions = this.shuffleArray(questions)
     }
 
