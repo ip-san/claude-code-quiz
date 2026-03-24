@@ -16,13 +16,14 @@ export default defineConfig({
   plugins: [
     react(),
     VitePWA({
-      registerType: 'prompt',
+      registerType: 'autoUpdate',
       workbox: {
         globPatterns: ['**/*.{js,css,html,json,png,svg,ico}'],
         maximumFileSizeToCacheInBytes: 5 * 1024 * 1024,
-        // Skip waiting — new service worker takes over immediately
         skipWaiting: true,
         clientsClaim: true,
+        // Clean old caches on activate
+        cleanupOutdatedCaches: true,
       },
       manifest: {
         name: 'Claude Code Quiz',

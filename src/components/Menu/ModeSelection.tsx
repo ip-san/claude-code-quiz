@@ -402,7 +402,12 @@ export function ModeSelection() {
                   const reg = await navigator.serviceWorker?.getRegistration()
                   if (reg) {
                     await reg.update()
-                    if (!reg.waiting) {
+                    // Wait briefly for new SW to install
+                    await new Promise(r => setTimeout(r, 1000))
+                    if (reg.waiting) {
+                      // New version found — reload to apply
+                      window.location.reload()
+                    } else {
                       setUpdateStatus('最新版です')
                       setTimeout(() => setUpdateStatus(null), 2000)
                     }
