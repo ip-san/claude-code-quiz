@@ -45,6 +45,7 @@ export function ModeSelection() {
   const [selectedDifficulty, setSelectedDifficulty] = useState<DifficultyLevel | null>(null)
   const [showShortcuts, setShowShortcuts] = useState(false)
   const [snapshotDismissed, setSnapshotDismissed] = useState(() => hasSeenSnapshotToday())
+  const [currentTheme, setCurrentTheme] = useState(() => getStoredTheme())
   const [showAllModes, setShowAllModes] = useState(false)
 
   const bookmarkedCount = getBookmarkedCount()
@@ -147,15 +148,15 @@ export function ModeSelection() {
               </button>
               <button
                 onClick={() => {
-                  const current = getStoredTheme()
-                  const next: Theme = current === 'dark' ? 'light' : 'dark'
+                  const next: Theme = currentTheme === 'dark' ? 'light' : 'dark'
                   setStoredTheme(next)
                   applyTheme(next)
+                  setCurrentTheme(next)
                 }}
                 className="tap-highlight rounded-full p-2 text-stone-500"
                 aria-label="テーマ切替"
               >
-                {getStoredTheme() === 'dark' ? <Sun className="h-5 w-5" /> : <Moon className="h-5 w-5" />}
+                {currentTheme === 'dark' ? <Sun className="h-5 w-5" /> : <Moon className="h-5 w-5" />}
               </button>
             </div>
             <h1 className="mb-1 text-2xl font-bold">
