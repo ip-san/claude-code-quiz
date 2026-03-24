@@ -1,5 +1,5 @@
-import { useState } from 'react'
 import { Users, Copy, Check } from 'lucide-react'
+import { useCopyToClipboard } from '@/lib/useCopyToClipboard'
 
 interface TeamShareGuideProps {
   percentage: number
@@ -14,7 +14,7 @@ interface TeamShareGuideProps {
  * 個人の学び → チームの変革 への橋渡し。
  */
 export function TeamShareGuide({ percentage, mode }: TeamShareGuideProps) {
-  const [copied, setCopied] = useState(false)
+  const { copied, copy } = useCopyToClipboard()
 
   // 全体像モード完了時のみ表示
   if (mode !== 'overview' || percentage < 50) return null
@@ -31,15 +31,7 @@ export function TeamShareGuide({ percentage, mode }: TeamShareGuideProps) {
 
 #ClaudeCode #AI駆動開発 #DX推進`
 
-  const handleCopy = async () => {
-    try {
-      await navigator.clipboard.writeText(shareMessage)
-      setCopied(true)
-      setTimeout(() => setCopied(false), 2000)
-    } catch {
-      // Fallback: select and copy
-    }
-  }
+  const handleCopy = () => copy(shareMessage)
 
   return (
     <div className="mt-6 rounded-2xl border border-purple-200 bg-gradient-to-b from-purple-50 to-indigo-50 p-5 text-left dark:border-purple-500/30 dark:from-purple-500/10 dark:to-indigo-500/10">
