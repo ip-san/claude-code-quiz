@@ -76,9 +76,23 @@ export default function App() {
     return () => window.removeEventListener('popstate', handlePopState)
   }, [viewState, isLoading, endSession, suspendSession])
 
-  // Show welcome screen for first-time users
+  // PWA overlays (web only) — declared before early returns so all screens can use it
+  const pwaOverlays = !isElectron ? (
+    <>
+      <OfflineIndicator />
+      <InstallPrompt />
+      {PWAUpdatePrompt && <Suspense fallback={null}><PWAUpdatePrompt /></Suspense>}
+    </>
+  ) : null
+
+  // Show welcome screen for first-time users (with PWA install prompt)
   if (showWelcome && !isLoading) {
-    return <WelcomeScreen onComplete={() => setShowWelcome(false)} />
+    return (
+      <>
+        <WelcomeScreen onComplete={() => setShowWelcome(false)} />
+        {pwaOverlays}
+      </>
+    )
   }
 
   // Show branded loading screen
@@ -95,15 +109,6 @@ export default function App() {
       </div>
     )
   }
-
-  // PWA overlays (web only)
-  const pwaOverlays = !isElectron ? (
-    <>
-      <OfflineIndicator />
-      <InstallPrompt />
-      {PWAUpdatePrompt && <Suspense fallback={null}><PWAUpdatePrompt /></Suspense>}
-    </>
-  ) : null
 
   // Render based on view state with entrance animation
   const viewContent = (() => {

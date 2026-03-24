@@ -81,7 +81,7 @@ export function InstallPrompt() {
           <div className="space-y-2 text-xs text-stone-600 dark:text-stone-400">
             <div className="flex items-center gap-2">
               <span className="flex h-5 w-5 flex-shrink-0 items-center justify-center rounded-full bg-claude-orange text-xs font-bold text-white">1</span>
-              <span>画面下の <strong>共有ボタン</strong>（□↑）をタップ</span>
+              <span>Safari 画面下の <strong>共有ボタン</strong>（□↑）をタップ</span>
             </div>
             <div className="flex items-center gap-2">
               <span className="flex h-5 w-5 flex-shrink-0 items-center justify-center rounded-full bg-claude-orange text-xs font-bold text-white">2</span>
