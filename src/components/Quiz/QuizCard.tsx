@@ -12,6 +12,7 @@ import { useSwipe } from '@/lib/useSwipe'
 import { CorrectOverlay } from './CorrectOverlay'
 import { StreakToast } from './StreakToast'
 import { EncouragementToast } from './EncouragementToast'
+import { RelatedQuestions } from './RelatedQuestions'
 
 import { getColorHex } from '@/lib/colors'
 import { getDifficultyStyle, getDifficultyLabel } from '@/lib/badgeStyles'
@@ -304,6 +305,10 @@ export function QuizCard({ isModalOpen = false }: { isModalOpen?: boolean }) {
       {isAnswered && !deferFeedback && (
         <div className="mt-3 sm:mt-6">
           <Feedback quiz={quiz} isCorrect={isCorrect ?? false} />
+          {/* Related questions for deeper learning (correct answers only) */}
+          {isCorrect === true && !isReviewMode && (
+            <RelatedQuestions currentQuestion={quiz} allQuestions={useQuizStore.getState().allQuestions} />
+          )}
           {isCorrect === false && (
             <div className="mt-4">
               <button
