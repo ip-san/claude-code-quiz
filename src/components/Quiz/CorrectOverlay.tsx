@@ -8,9 +8,9 @@ export function CorrectOverlay() {
   const [phase, setPhase] = useState<'draw' | 'hold' | 'exit' | 'done'>('draw')
 
   useEffect(() => {
-    const holdTimer = setTimeout(() => setPhase('hold'), 700)
-    const exitTimer = setTimeout(() => setPhase('exit'), 1200)
-    const doneTimer = setTimeout(() => setPhase('done'), 1600)
+    const holdTimer = setTimeout(() => setPhase('hold'), 400)
+    const exitTimer = setTimeout(() => setPhase('exit'), 700)
+    const doneTimer = setTimeout(() => setPhase('done'), 1000)
     return () => {
       clearTimeout(holdTimer)
       clearTimeout(exitTimer)
