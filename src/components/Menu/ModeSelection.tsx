@@ -367,7 +367,7 @@ export function ModeSelection() {
                     className={`tap-highlight rounded-full border px-4 py-2.5 text-sm font-medium transition-all ${
                       selectedDifficulty === diff.id
                         ? 'border-claude-orange bg-claude-orange text-white'
-                        : 'border-stone-200 bg-white text-stone-500'
+                        : 'border-stone-200 bg-white text-stone-500 dark:border-stone-700 dark:bg-stone-800 dark:text-stone-400'
                     }`}
                   >
                     {diff.name}

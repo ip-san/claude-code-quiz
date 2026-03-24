@@ -14,10 +14,9 @@ export function PWAUpdatePrompt() {
   useEffect(() => {
     if (isElectron || !('serviceWorker' in navigator)) return
 
-    // Listen for SW controller change (new version activated)
-    navigator.serviceWorker.addEventListener('controllerchange', () => {
-      setUpdated(true)
-    })
+    const handleControllerChange = () => setUpdated(true)
+    navigator.serviceWorker.addEventListener('controllerchange', handleControllerChange)
+    return () => navigator.serviceWorker.removeEventListener('controllerchange', handleControllerChange)
   }, [])
 
   if (!updated) return null

@@ -70,10 +70,10 @@ export function Timer() {
     <div
       className={`flex items-center gap-2 rounded-2xl px-4 py-2 font-mono text-lg font-bold ${
         isCriticalTime
-          ? 'animate-pulse bg-red-100 text-red-600'
+          ? 'animate-pulse bg-red-100 text-red-600 dark:bg-red-500/20 dark:text-red-400'
           : isLowTime
-            ? 'bg-yellow-100 text-yellow-700'
-            : 'bg-stone-100 text-claude-dark'
+            ? 'bg-yellow-100 text-yellow-700 dark:bg-yellow-500/20 dark:text-yellow-300'
+            : 'bg-stone-100 text-claude-dark dark:bg-stone-800'
       }`}
       role="timer"
       aria-live={timeRemaining <= 10 ? 'assertive' : 'off'}
