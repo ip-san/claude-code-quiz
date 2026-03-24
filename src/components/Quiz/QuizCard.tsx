@@ -5,7 +5,7 @@ import { Feedback } from './Feedback'
 import { ChapterIndicator } from './ChapterIndicator'
 import { getCategoryById } from '@/domain/valueObjects/Category'
 import { getChapterFromTags, OVERVIEW_CHAPTERS } from '@/domain/valueObjects/OverviewChapter'
-import { Bookmark, Lightbulb, RotateCcw } from 'lucide-react'
+import { Bookmark, Lightbulb, RotateCcw, ExternalLink } from 'lucide-react'
 import { QuizText } from './QuizText'
 import { haptics } from '@/lib/haptics'
 import { useSwipe } from '@/lib/useSwipe'
@@ -252,6 +252,21 @@ export function QuizCard({ isModalOpen = false }: { isModalOpen?: boolean }) {
             <span className="text-xs font-medium text-amber-600">使用したヒント</span>
           </div>
           <p className="text-xs text-amber-700"><QuizText text={quiz.hint} /></p>
+        </div>
+      )}
+
+      {/* Reference link — shown only after using hint (not a freebie) */}
+      {!isAnswered && !deferFeedback && hintUsed && quiz.referenceUrl && (
+        <div className="mb-3">
+          <a
+            href={quiz.referenceUrl}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="inline-flex items-center gap-1 text-xs text-stone-400 hover:text-claude-orange"
+          >
+            <ExternalLink className="h-3 w-3" />
+            公式ドキュメントで詳しく調べる
+          </a>
         </div>
       )}
 
