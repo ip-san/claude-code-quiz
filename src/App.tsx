@@ -256,11 +256,11 @@ function QuizView({
             <button
               ref={triggerRef}
               onClick={handleQuitClick}
-              className="tap-highlight flex items-center gap-1.5 rounded-full px-1 py-1 sm:border sm:border-stone-300 sm:px-3.5 sm:py-1.5"
+              className="tap-highlight flex items-center gap-1.5 rounded-full px-1 py-1 sm:border sm:border-stone-300 sm:px-3.5 sm:py-1.5 sm:dark:border-stone-600"
               aria-label={isReviewMode ? '復習を終了する' : 'クイズを中止する'}
             >
               <XCircle className="h-6 w-6 text-stone-400 sm:h-4 sm:w-4" />
-              <span className="hidden text-sm font-medium text-stone-600 sm:inline">
+              <span className="hidden text-sm font-medium text-stone-600 dark:text-stone-300 sm:inline">
                 {isReviewMode ? '終了' : '中止'}
               </span>
             </button>
