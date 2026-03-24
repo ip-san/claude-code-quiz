@@ -3,9 +3,11 @@ import { useQuizStore } from '@/stores/quizStore'
 import { isElectron } from '@/lib/platformAPI'
 import { ModeSelection } from '@/components/Menu/ModeSelection'
 import { QuizCard } from '@/components/Quiz/QuizCard'
-import { QuizResult } from '@/components/Quiz/QuizResult'
 import { Timer } from '@/components/Quiz/Timer'
-import { ProgressDashboard } from '@/components/Progress/ProgressDashboard'
+
+// Lazy-load screens not needed on initial render
+const QuizResult = lazy(() => import('@/components/Quiz/QuizResult').then(m => ({ default: m.QuizResult })))
+const ProgressDashboard = lazy(() => import('@/components/Progress/ProgressDashboard').then(m => ({ default: m.ProgressDashboard })))
 import { getChapterFromTags } from '@/domain/valueObjects/OverviewChapter'
 import { XCircle } from 'lucide-react'
 
@@ -100,9 +102,9 @@ export default function App() {
       case 'menu':
         return <ModeSelection />
       case 'progress':
-        return <ProgressDashboard />
+        return <Suspense fallback={null}><ProgressDashboard /></Suspense>
       case 'result':
-        return <QuizResult />
+        return <Suspense fallback={null}><QuizResult /></Suspense>
       default:
         return null
     }
