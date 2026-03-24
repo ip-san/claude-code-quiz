@@ -355,7 +355,7 @@ function lintUrls(quizzes) {
     if (isPlatformDocs) continue
 
     // Extract page and anchor
-    const urlMatch = quiz.referenceUrl.match(/\/docs\/en\/([^#?]+)(?:#(.+))?/)
+    const urlMatch = quiz.referenceUrl.match(/\/docs\/(?:en|ja)\/([^#?]+)(?:#(.+))?/)
     if (!urlMatch) {
       issues.push({ id: quiz.id, type: 'malformed-url', message: `Cannot parse: ${quiz.referenceUrl}` })
       continue
