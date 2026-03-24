@@ -31,54 +31,44 @@ export function CycleDiagram({ label, trigger, states }: CycleDiagramProps) {
         <p className="mb-2 text-xs font-medium text-stone-500 dark:text-stone-400">{label}</p>
       )}
 
-      {/* Circular layout using SVG for arrows + positioned divs */}
-      <div className="relative mx-auto" style={{ width: 220, height: 180 }}>
-        {/* Center cycle arrow SVG */}
-        <svg
-          className="absolute inset-0"
-          width="220" height="180" viewBox="0 0 220 180"
-          aria-hidden="true"
-          style={{ opacity: isVisible ? 0.4 : 0, transition: 'opacity 0.5s' }}
-        >
-          {/* Circular arrow path */}
-          <path
-            d="M 110 30 A 70 60 0 1 1 105 30"
-            fill="none"
-            stroke="#D97757"
-            strokeWidth="1.5"
-            strokeDasharray="4,4"
-          />
-          <polygon points="110,25 115,33 105,33" fill="#D97757" />
-        </svg>
-
-        {/* State nodes positioned around the circle */}
-        {states.map((state, i) => {
-          const total = states.length
-          const angle = (i / total) * Math.PI * 2 - Math.PI / 2
-          const cx = 110 + Math.cos(angle) * 75
-          const cy = 90 + Math.sin(angle) * 60
-
-          return (
+      {/* Circular layout — flex-wrap fallback for narrow screens */}
+      <div className="flex flex-wrap items-center justify-center gap-1.5">
+        {states.map((state, i) => (
+          <div key={i} className="flex items-center gap-1.5">
+            {/* Arrow between states */}
+            {i > 0 && (
+              <svg
+                width="16" height="12" viewBox="0 0 16 12"
+                className="flex-shrink-0 text-claude-orange/50"
+                aria-hidden="true"
+                style={{ opacity: isVisible ? 1 : 0, animationDelay: getItemDelay(i) }}
+              >
+                <path d="M0 6 L10 6 M8 3 L11 6 L8 9" stroke="currentColor" strokeWidth="2" fill="none" strokeLinecap="round" strokeLinejoin="round" />
+              </svg>
+            )}
+            {/* State node */}
             <div
-              key={i}
-              className={`absolute rounded-xl border px-2.5 py-1.5 text-center transition-none ${colors[i % colors.length]} ${
+              className={`rounded-xl border px-3 py-1.5 text-center transition-none ${colors[i % colors.length]} ${
                 isVisible ? 'animate-diagram-scale-in' : 'opacity-0'
               }`}
-              style={{
-                left: cx,
-                top: cy,
-                transform: 'translate(-50%, -50%)',
-                animationDelay: getItemDelay(i),
-                minWidth: 60,
-              }}
+              style={{ animationDelay: getItemDelay(i) }}
             >
               <div className="text-[11px] font-semibold text-claude-dark">{state.text}</div>
               {state.sub && (
-                <div className="text-[9px] text-stone-400 dark:text-stone-500">{state.sub}</div>
+                <div className="max-w-[80px] text-[9px] text-stone-400 dark:text-stone-500">{state.sub}</div>
               )}
             </div>
-          )
-        })}
+          </div>
+        ))}
+        {/* Return arrow — cycle indicator */}
+        <svg
+          width="20" height="14" viewBox="0 0 20 14"
+          className="flex-shrink-0 text-claude-orange/40"
+          aria-hidden="true"
+          style={{ opacity: isVisible ? 1 : 0, animationDelay: getItemDelay(states.length) }}
+        >
+          <path d="M2 7 C2 2 18 2 18 7 M16 5 L18 7 L16 9" stroke="currentColor" strokeWidth="1.5" fill="none" strokeLinecap="round" />
+        </svg>
       </div>
 
       {trigger && (
