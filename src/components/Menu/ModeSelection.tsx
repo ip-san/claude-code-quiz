@@ -1,4 +1,4 @@
-import { useState, useMemo, useEffect } from 'react'
+import { useState, useMemo } from 'react'
 import { useQuizStore } from '@/stores/quizStore'
 import {
   PREDEFINED_QUIZ_MODES,
@@ -16,15 +16,14 @@ import { ResumeSessionBanner } from './ResumeSessionBanner'
 import { CustomQuizBanner } from './CustomQuizBanner'
 import { StreakBanner } from './StreakBanner'
 import { DailyGoalIndicator } from './DailyGoalIndicator'
-import { RefreshCw, Check, Play, Moon, Sun, HelpCircle, BarChart3 } from 'lucide-react'
+import { RefreshCw, Check, Play } from 'lucide-react'
 import { isElectron } from '@/lib/platformAPI'
-import { getStoredTheme, setStoredTheme, applyTheme, type Theme } from '@/lib/theme'
 
 import { getColorHex } from '@/lib/colors'
-import { AnimatedCounter } from './AnimatedCounter'
-import { KeyboardShortcutHelp } from '@/components/Layout/KeyboardShortcutHelp'
 import { haptics } from '@/lib/haptics'
 import { MasteryRoadmap } from './MasteryRoadmap'
+import { MenuHeader } from './MenuHeader'
+import { FirstTimeGuide } from './FirstTimeGuide'
 import { DailySnapshot, hasSeenSnapshotToday } from './DailySnapshot'
 import { QuizSearch } from './QuizSearch'
 
@@ -33,7 +32,6 @@ export function ModeSelection() {
     allQuestions,
     getFilteredQuestions,
     startSession,
-    setViewState,
     getBookmarkedCount,
     userProgress,
     getCategoryStats,
@@ -43,25 +41,11 @@ export function ModeSelection() {
   const [updateStatus, setUpdateStatus] = useState<string | null>(null)
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null)
   const [selectedDifficulty, setSelectedDifficulty] = useState<DifficultyLevel | null>(null)
-  const [showShortcuts, setShowShortcuts] = useState(false)
   const [snapshotDismissed, setSnapshotDismissed] = useState(() => hasSeenSnapshotToday())
-  const [currentTheme, setCurrentTheme] = useState(() => getStoredTheme())
   const [showAllModes, setShowAllModes] = useState(false)
 
   const bookmarkedCount = getBookmarkedCount()
 
-  // ? key opens keyboard shortcut help (skip when typing in input)
-  useEffect(() => {
-    const handleKeyDown = (e: KeyboardEvent) => {
-      if (e.key === '?' && !e.ctrlKey && !e.metaKey) {
-        const target = e.target as HTMLElement
-        if (target.matches('input, textarea, [contenteditable]')) return
-        setShowShortcuts(prev => !prev)
-      }
-    }
-    window.addEventListener('keydown', handleKeyDown)
-    return () => window.removeEventListener('keydown', handleKeyDown)
-  }, [])
 
   // Memoize category stats for mastery display
   const masteryStats = useMemo(() => getCategoryStats(), [getCategoryStats])
@@ -128,55 +112,11 @@ export function ModeSelection() {
           <ResumeSessionBanner />
 
           {/* Header */}
-          <div className="mb-5 text-center">
-            <div className="mb-2 flex items-center justify-end gap-1">
-              {userProgress.totalAttempts > 0 && (
-                <button
-                  onClick={() => setViewState('progress')}
-                  className="tap-highlight rounded-full p-2 text-stone-500"
-                  aria-label="学習履歴"
-                >
-                  <BarChart3 className="h-5 w-5" />
-                </button>
-              )}
-              <button
-                onClick={() => setShowShortcuts(true)}
-                className="tap-highlight hidden rounded-full p-2 text-stone-500 sm:block"
-                aria-label="キーボードショートカット"
-              >
-                <HelpCircle className="h-5 w-5" />
-              </button>
-              <button
-                onClick={() => {
-                  const next: Theme = currentTheme === 'dark' ? 'light' : 'dark'
-                  setStoredTheme(next)
-                  applyTheme(next)
-                  setCurrentTheme(next)
-                }}
-                className="tap-highlight rounded-full p-2 text-stone-500"
-                aria-label="テーマ切替"
-              >
-                {currentTheme === 'dark' ? <Sun className="h-5 w-5" /> : <Moon className="h-5 w-5" />}
-              </button>
-            </div>
-            <h1 className="mb-1 text-2xl font-bold">
-              <span className="bg-gradient-to-r from-claude-orange to-orange-400 bg-clip-text text-transparent">
-                Claude Code Quiz
-              </span>
-            </h1>
-            <p className="text-sm text-claude-gray">
-              {userProgress.totalAttempts > 0 ? (
-                <>
-                  <AnimatedCounter target={allQuestions.length} suffix="問" /> |{' '}
-                  {allQuestions.length - unansweredCount}問 解答済み
-                </>
-              ) : (
-                <>
-                  <AnimatedCounter target={allQuestions.length} suffix="問" /> | 8カテゴリ
-                </>
-              )}
-            </p>
-          </div>
+          <MenuHeader
+            totalQuestions={allQuestions.length}
+            answeredCount={allQuestions.length - unansweredCount}
+            hasProgress={userProgress.totalAttempts > 0}
+          />
 
           {/* Engagement — compact single section */}
           <div className="mb-5 flex flex-col gap-2">
@@ -190,34 +130,7 @@ export function ModeSelection() {
           )}
 
           {/* First-time user: simplified entry point */}
-          {userProgress.totalAttempts === 0 && (
-            <div className="mb-5 space-y-3">
-              <div className="rounded-2xl border-2 border-claude-orange/30 bg-gradient-to-r from-claude-orange/5 to-transparent p-4 dark:border-claude-orange/40 dark:from-claude-orange/10">
-                <p className="mb-1 text-xs font-semibold text-claude-orange">はじめての方へ</p>
-                <p className="mb-3 text-sm text-claude-dark">
-                  AI の知識は問いません。全体像モードで基礎から順番にガイドします。完了すると修了証が発行されます。
-                </p>
-                <button
-                  onClick={() => {
-                    haptics.light()
-                    startSession({ mode: 'overview' })
-                  }}
-                  className="tap-highlight inline-flex items-center gap-2 rounded-2xl bg-claude-orange px-5 py-2.5 text-sm font-semibold text-white shadow-sm"
-                >
-                  🗺️ 全体像モードで始める
-                </button>
-              </div>
-              <button
-                onClick={() => {
-                  haptics.light()
-                  startSession({ mode: 'random' })
-                }}
-                className="tap-highlight w-full rounded-2xl border border-stone-200 bg-white px-4 py-3 text-center text-sm font-medium text-stone-600 dark:border-stone-700 dark:bg-stone-800 dark:text-stone-300"
-              >
-                🎲 まずは気軽にチャレンジ
-              </button>
-            </div>
-          )}
+          {userProgress.totalAttempts === 0 && <FirstTimeGuide />}
 
           {/* Search */}
           <QuizSearch />
@@ -424,9 +337,6 @@ export function ModeSelection() {
           )}
         </div>
       </div>
-
-      {/* Keyboard shortcut help (desktop) */}
-      <KeyboardShortcutHelp isOpen={showShortcuts} onClose={() => setShowShortcuts(false)} />
 
       {/* Fixed bottom bar — start button (hidden for first-time users who use inline CTAs) */}
       <div className="fixed bottom-0 left-0 right-0 z-20 border-t border-stone-200 bg-white/95 px-4 pb-[calc(env(safe-area-inset-bottom,0px)+8px)] pt-3 backdrop-blur-sm dark:border-stone-700 dark:bg-stone-900/95">
