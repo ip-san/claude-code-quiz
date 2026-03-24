@@ -14,6 +14,7 @@
     "preview:web": "vite preview --config vite.config.web.ts",
     "typecheck": "tsc --noEmit",
     "lint": "eslint src electron",
+    "check": "tsc --noEmit && vitest run && node scripts/quiz-utils.mjs check",
     "test": "vitest run",
     "test:watch": "vitest",
     "test:coverage": "vitest run --coverage",
