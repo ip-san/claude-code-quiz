@@ -19,14 +19,14 @@ export function ResumeSessionBanner() {
     : ''
 
   return (
-    <div className="mb-5 animate-slide-down rounded-2xl border border-claude-orange/30 bg-gradient-to-r from-claude-orange/10 to-claude-orange/5 p-4">
+    <div className="mb-5 animate-slide-down rounded-2xl border border-claude-orange/30 bg-gradient-to-r from-claude-orange/10 to-claude-orange/5 p-4 dark:from-claude-orange/15 dark:to-claude-orange/5">
       <div className="mb-2 flex items-center gap-2">
         <span className="text-xl">{modeIcon}</span>
         <div className="flex-1">
           <span className="text-sm font-semibold text-claude-dark">
             前回の続きがあります
           </span>
-          <p className="text-xs text-stone-500">
+          <p className="text-xs text-stone-500 dark:text-stone-400">
             {modeName} - 問題 {progress}
             {scoreText && ` (${scoreText})`}
           </p>
@@ -42,7 +42,7 @@ export function ResumeSessionBanner() {
         </button>
         <button
           onClick={discardSavedSession}
-          className="tap-highlight inline-flex items-center justify-center gap-1.5 rounded-2xl border border-stone-300 px-4 py-3 text-stone-500"
+          className="tap-highlight inline-flex items-center justify-center gap-1.5 rounded-2xl border border-stone-300 px-4 py-3 text-stone-500 dark:border-stone-600 dark:text-stone-400"
           aria-label="保存されたセッションを破棄"
         >
           <Trash2 className="h-4 w-4" />
