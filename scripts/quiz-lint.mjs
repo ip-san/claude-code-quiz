@@ -340,8 +340,8 @@ function lintUrls(quizzes) {
     }
 
     // Validate domain (code.claude.com for Claude Code docs, platform.claude.com for Agent SDK docs)
-    const isCodeDocs = quiz.referenceUrl.startsWith('https://code.claude.com/docs/en/')
-    const isPlatformDocs = quiz.referenceUrl.startsWith('https://platform.claude.com/docs/en/')
+    const isCodeDocs = quiz.referenceUrl.startsWith('https://code.claude.com/docs/ja/') || quiz.referenceUrl.startsWith('https://code.claude.com/docs/en/')
+    const isPlatformDocs = quiz.referenceUrl.startsWith('https://platform.claude.com/docs/ja/') || quiz.referenceUrl.startsWith('https://platform.claude.com/docs/en/')
     if (!isCodeDocs && !isPlatformDocs) {
       issues.push({
         id: quiz.id,
