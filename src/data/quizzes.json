@@ -3490,7 +3490,7 @@
     {
       "id": "bp-002",
       "category": "bestpractices",
-      "difficulty": "advanced",
+      "difficulty": "intermediate",
       "question": "コードベースの探索時、最も効率的なアプローチはどれですか？",
       "options": [
         {
@@ -3726,7 +3726,7 @@
     {
       "id": "mem-019",
       "category": "memory",
-      "difficulty": "advanced",
+      "difficulty": "intermediate",
       "question": "`CLAUDE.md`で特定の指示の遵守率を高めるために推奨される表現方法はどれですか？",
       "options": [
         {
@@ -7128,7 +7128,7 @@
     {
       "id": "ext-040",
       "category": "extensions",
-      "difficulty": "advanced",
+      "difficulty": "intermediate",
       "question": "Hookイベントの中で、ツール実行が失敗した場合に発火するイベントは何ですか？",
       "options": [
         {
@@ -7180,7 +7180,7 @@
     {
       "id": "ext-042",
       "category": "extensions",
-      "difficulty": "advanced",
+      "difficulty": "intermediate",
       "question": "Hookハンドラーの「once」フィールドの役割は何ですか？",
       "options": [
         {
@@ -7250,7 +7250,7 @@
     {
       "id": "ext-044",
       "category": "extensions",
-      "difficulty": "advanced",
+      "difficulty": "intermediate",
       "question": "Hookの「`matcher`」フィールドの役割は何ですか？",
       "options": [
         {
