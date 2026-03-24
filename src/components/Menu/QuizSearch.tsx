@@ -1,5 +1,5 @@
 import { useState, useMemo } from 'react'
-import { Search, X, Play, ChevronDown, ChevronUp, ExternalLink } from 'lucide-react'
+import { Search, X, Play, ChevronDown, ChevronUp, ExternalLink, Bookmark } from 'lucide-react'
 import { useQuizStore } from '@/stores/quizStore'
 import { getCategoryById } from '@/domain/valueObjects/Category'
 import { haptics } from '@/lib/haptics'
@@ -13,7 +13,7 @@ import { QuizText } from '@/components/Quiz/QuizText'
  * 2. リファレンスモード: 解説をその場で読む（業務中のクイックリファレンス）
  */
 export function QuizSearch() {
-  const { allQuestions, startSessionWithIds } = useQuizStore()
+  const { allQuestions, startSessionWithIds, toggleBookmark, userProgress } = useQuizStore()
   const [query, setQuery] = useState('')
   const [isOpen, setIsOpen] = useState(false)
   const [expandedId, setExpandedId] = useState<string | null>(null)
@@ -93,13 +93,22 @@ export function QuizSearch() {
                     <p className="text-xs leading-relaxed text-stone-600 dark:text-stone-400">
                       <QuizText text={r.explanation} />
                     </p>
-                    {r.referenceUrl && (
-                      <a href={r.referenceUrl} target="_blank" rel="noopener noreferrer"
-                        className="mt-2 inline-flex items-center gap-1 text-xs text-claude-orange">
-                        <ExternalLink className="h-3 w-3" />
-                        公式ドキュメント
-                      </a>
-                    )}
+                    <div className="mt-2 flex items-center gap-3">
+                      {r.referenceUrl && (
+                        <a href={r.referenceUrl} target="_blank" rel="noopener noreferrer"
+                          className="inline-flex items-center gap-1 text-xs text-claude-orange">
+                          <ExternalLink className="h-3 w-3" />
+                          公式ドキュメント
+                        </a>
+                      )}
+                      <button
+                        onClick={() => { haptics.light(); toggleBookmark(r.id) }}
+                        className="inline-flex items-center gap-1 text-xs text-stone-400"
+                      >
+                        <Bookmark className={`h-3 w-3 ${userProgress.isBookmarked(r.id) ? 'fill-yellow-500 text-yellow-500' : ''}`} />
+                        {userProgress.isBookmarked(r.id) ? '保存済み' : '後で学ぶ'}
+                      </button>
+                    </div>
                   </div>
                 )}
               </div>
@@ -196,17 +205,22 @@ export function QuizSearch() {
                           <p className="text-xs leading-relaxed text-stone-600 dark:text-stone-400">
                             <QuizText text={r.explanation} />
                           </p>
-                          {r.referenceUrl && (
-                            <a
-                              href={r.referenceUrl}
-                              target="_blank"
-                              rel="noopener noreferrer"
-                              className="mt-2 inline-flex items-center gap-1 text-xs text-claude-orange"
+                          <div className="mt-2 flex items-center gap-3">
+                            {r.referenceUrl && (
+                              <a href={r.referenceUrl} target="_blank" rel="noopener noreferrer"
+                                className="inline-flex items-center gap-1 text-xs text-claude-orange">
+                                <ExternalLink className="h-3 w-3" />
+                                公式ドキュメント
+                              </a>
+                            )}
+                            <button
+                              onClick={() => { haptics.light(); toggleBookmark(r.id) }}
+                              className="inline-flex items-center gap-1 text-xs text-stone-400"
                             >
-                              <ExternalLink className="h-3 w-3" />
-                              公式ドキュメント
-                            </a>
-                          )}
+                              <Bookmark className={`h-3 w-3 ${userProgress.isBookmarked(r.id) ? 'fill-yellow-500 text-yellow-500' : ''}`} />
+                              {userProgress.isBookmarked(r.id) ? '保存済み' : '後で学ぶ'}
+                            </button>
+                          </div>
                         </div>
                       )}
                     </div>

@@ -162,9 +162,9 @@ export const PREDEFINED_QUIZ_MODES: QuizMode[] = [
   }),
   QuizMode.create({
     id: 'bookmark',
-    name: 'ブックマーク復習',
-    description: 'ブックマークした問題を集中学習',
-    icon: '⭐',
+    name: '後で学ぶ',
+    description: '保存した問題をまとめて学習',
+    icon: '📌',
     questionCount: null,
     timeLimit: null,
     shuffleQuestions: true,
