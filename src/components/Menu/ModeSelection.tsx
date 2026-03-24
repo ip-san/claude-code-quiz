@@ -24,6 +24,7 @@ import { haptics } from '@/lib/haptics'
 import { MasteryRoadmap } from './MasteryRoadmap'
 import { MenuHeader } from './MenuHeader'
 import { FirstTimeGuide } from './FirstTimeGuide'
+import { bottomBarStyles } from '@/lib/styles'
 import { DailySnapshot, hasSeenSnapshotToday } from './DailySnapshot'
 import { QuizSearch } from './QuizSearch'
 
@@ -339,7 +340,7 @@ export function ModeSelection() {
       </div>
 
       {/* Fixed bottom bar — start button (hidden for first-time users who use inline CTAs) */}
-      <div className="fixed bottom-0 left-0 right-0 z-20 border-t border-stone-200 bg-white/95 px-4 pb-[calc(env(safe-area-inset-bottom,0px)+8px)] pt-3 backdrop-blur-sm dark:border-stone-700 dark:bg-stone-900/95">
+      <div className={`${bottomBarStyles.fixed} px-4 pb-[calc(env(safe-area-inset-bottom,0px)+8px)] pt-3`}>
         <div className="mx-auto flex items-center gap-4 sm:max-w-2xl lg:max-w-4xl">
           <div className="flex-1">
             <p className="text-xs text-stone-500">

@@ -10,6 +10,7 @@ const QuizResult = lazy(() => import('@/components/Quiz/QuizResult').then(m => (
 const ProgressDashboard = lazy(() => import('@/components/Progress/ProgressDashboard').then(m => ({ default: m.ProgressDashboard })))
 import { getChapterFromTags } from '@/domain/valueObjects/OverviewChapter'
 import { XCircle } from 'lucide-react'
+import { pageStyles, headerStyles } from '@/lib/styles'
 
 /** Compact loading indicator for lazy-loaded screens */
 function LoadingSpinner() {
@@ -233,11 +234,11 @@ function QuizView({
   }, [])
 
   return (
-    <div className="flex min-h-screen flex-col bg-stone-100 dark:bg-stone-900 sm:bg-claude-cream">
+    <div className={`flex min-h-screen flex-col ${pageStyles.quiz}`}>
       {isElectron && <div className="h-8 titlebar-drag bg-transparent" />}
 
       {/* Sticky header — native navigation bar feel */}
-      <div className="sticky top-0 z-10 border-b border-stone-200 bg-claude-cream/95 backdrop-blur-sm dark:border-stone-700 dark:bg-stone-900/95">
+      <div className={headerStyles.sticky}>
         <div className="mx-auto max-w-3xl px-4 pb-2 pt-3 sm:py-3">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2">

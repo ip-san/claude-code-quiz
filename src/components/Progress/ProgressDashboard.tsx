@@ -10,6 +10,7 @@ import { LearningRecommendation } from './LearningRecommendation'
 import { WeakPointInsight } from './WeakPointInsight'
 
 import { getColorHex } from '@/lib/colors'
+import { pageStyles, headerStyles, cardStyles, buttonStyles } from '@/lib/styles'
 
 /**
  * Progress Dashboard component
@@ -122,9 +123,9 @@ export function ProgressDashboard() {
   }
 
   return (
-    <div className="min-h-screen bg-claude-cream dark:bg-stone-900">
+    <div className={`min-h-screen ${pageStyles.cream}`}>
       {/* Sticky header */}
-      <div className="sticky top-0 z-10 border-b border-stone-200 bg-claude-cream/95 px-4 py-3 backdrop-blur-sm dark:border-stone-700 dark:bg-stone-900/95 sm:px-6">
+      <div className={`${headerStyles.sticky} px-4 py-3 sm:px-6`}>
         <div className="mx-auto flex items-center justify-between sm:max-w-2xl lg:max-w-4xl">
           <h1 className="text-lg font-bold text-claude-dark">学習進捗</h1>
           <button
@@ -141,7 +142,7 @@ export function ProgressDashboard() {
 
         {/* Empty State */}
         {hasNoProgress && (
-          <div className="mb-8 rounded-2xl border border-stone-200 bg-white p-8 text-center shadow-sm dark:bg-stone-800">
+          <div className={`mb-8 ${cardStyles.elevated} p-8 text-center`}>
             <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-stone-100 dark:bg-stone-700">
               <span className="text-3xl">📊</span>
             </div>
@@ -211,13 +212,13 @@ export function ProgressDashboard() {
           return (
             <div className="mb-6 flex flex-wrap gap-3">
               {best !== null && (
-                <div className="flex-1 rounded-2xl border border-stone-200 bg-white p-4 shadow-sm dark:bg-stone-800">
+                <div className="flex-1 ${cardStyles.elevated} p-4">
                   <div className="mb-1 text-xs text-stone-500">最高正答率</div>
                   <div className="text-2xl font-bold text-claude-orange">{best}%</div>
                 </div>
               )}
               {trend !== null && (
-                <div className="flex-1 rounded-2xl border border-stone-200 bg-white p-4 shadow-sm dark:bg-stone-800">
+                <div className="flex-1 ${cardStyles.elevated} p-4">
                   <div className="mb-1 text-xs text-stone-500">成長トレンド</div>
                   <div className={`text-2xl font-bold ${trend >= 0 ? 'text-green-600' : 'text-red-500'}`}>
                     {trend >= 0 ? '+' : ''}{trend}%
@@ -295,7 +296,7 @@ export function ProgressDashboard() {
               return (
                 <div
                   key={category.id}
-                  className="rounded-2xl border border-stone-200 bg-white p-4 shadow-sm dark:bg-stone-800"
+                  className="${cardStyles.elevated} p-4"
                 >
                   <div className="mb-2 flex items-center justify-between">
                     <div className="flex items-center gap-2">
@@ -353,14 +354,14 @@ export function ProgressDashboard() {
             <button
               onClick={handleExport}
               aria-label="学習履歴をエクスポートする"
-              className="tap-highlight flex-1 rounded-2xl border border-stone-300 px-6 py-3 font-semibold text-stone-600 dark:border-stone-600 dark:text-stone-300"
+              className="${buttonStyles.secondary} flex-1"
             >
               📥 履歴をエクスポート
             </button>
             <button
               onClick={handleImport}
               aria-label="学習履歴をインポートする"
-              className="tap-highlight flex-1 rounded-2xl border border-stone-300 px-6 py-3 font-semibold text-stone-600 dark:border-stone-600 dark:text-stone-300"
+              className="${buttonStyles.secondary} flex-1"
             >
               📤 履歴をインポート
             </button>
@@ -370,7 +371,7 @@ export function ProgressDashboard() {
           <button
             onClick={handleCsvExport}
             aria-label="CSVで進捗をエクスポートする"
-            className="tap-highlight w-full rounded-2xl border border-stone-300 px-6 py-3 font-semibold text-stone-600 dark:border-stone-600 dark:text-stone-300"
+            className={`${buttonStyles.secondary} w-full`}
           >
             📊 CSVでエクスポート（管理者向け）
           </button>
@@ -413,7 +414,7 @@ interface StatCardProps {
 
 function StatCard({ label, value, icon }: StatCardProps) {
   return (
-    <div className="animate-card-enter rounded-2xl border border-stone-200 bg-white p-4 shadow-sm dark:border-stone-700 dark:bg-stone-800">
+    <div className={`animate-card-enter ${cardStyles.elevated} p-4`}>
       <div className="mb-1 text-2xl">{icon}</div>
       <div className="text-2xl font-bold text-claude-dark">{value}</div>
       <div className="text-sm text-stone-500">{label}</div>

@@ -2,7 +2,12 @@
 @tailwind components;
 @tailwind utilities;
 
-/* Dark mode overrides */
+/* Dark mode fallback overrides
+ * NOTE: All components now use explicit Tailwind dark: prefixes.
+ * These CSS rules serve as a safety net — if a dark: class is
+ * accidentally omitted, these fallbacks prevent white-on-white.
+ * New components should use styles from src/lib/styles.ts instead.
+ */
 .dark {
   color-scheme: dark;
 }
