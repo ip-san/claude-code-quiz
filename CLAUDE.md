@@ -89,9 +89,11 @@ npm run quiz:randomize # correctIndex ランダム化
 | 項目 | 詳細 |
 |------|------|
 | デプロイ | `main` への push で GitHub Actions が自動デプロイ |
-| オフライン | Service Worker でアセット＋クイズデータをプリキャッシュ（skipWaiting で即反映） |
-| 更新通知 | 新バージョン検出時に画面下部にバナー→「更新」で即反映。手動チェックボタン（🔄）あり |
+| オフライン | Service Worker でアセット＋クイズデータをプリキャッシュ（autoUpdate で自動反映） |
+| 更新 | autoUpdate + cleanupOutdatedCaches で自動適用。controllerchange でリロードバナー表示 |
 | レスポンシブ | モバイルファースト設計、Safe Area対応、ネイティブ風タップフィードバック |
+| ダークモード | Tailwind `dark:` prefix で全画面完全対応。テーマ切替はスムーズ transition |
+| コード分割 | quiz-data / vendor / 画面別チャンク。初期ロード 189KB（80%削減） |
 | プラットフォーム抽象化 | `src/lib/platformAPI.ts` で Electron/Web を自動切替 |
 | ビルド設定 | `vite.config.web.ts`（Electron用 `vite.config.ts` と分離） |
 | 画面縦ロック | PWA manifest で `orientation: portrait` |
@@ -100,7 +102,7 @@ npm run quiz:randomize # correctIndex ランダム化
 
 | モード | 説明 | フィードバック |
 |--------|------|--------------|
-| 全体像 | 6チャプター構成の学習パス（初心者推奨） | 毎問表示 |
+| 全体像 | 6チャプター構成56問の学習パス（初心者推奨） | 毎問表示 |
 | 実力テスト | 全カテゴリ100問、60分制限 | **全問終了後に一括表示**（deferFeedback） |
 | カテゴリ別 | 選択カテゴリの全問 | 毎問表示 |
 | ランダム | 20問をランダム出題 | 毎問表示 |
@@ -160,7 +162,7 @@ npm run quiz:randomize # correctIndex ランダム化
 - カテゴリ自己ベスト更新バッジ（CategoryBreakthroughBadge）
 - 連続正解トースト（StreakToast: 3/5/10/15/20問）
 - 連続不正解時の励まし（EncouragementToast）
-- SRS復習バナー（期限到来の問題数を表示）
+- SRS復習（DailySnapshot 内に統合、期限到来の問題数を表示）
 - セッション履歴グラフ + リスト
 - ストリークマイルストーンバッジ（3, 7, 14, 30, 60, 100日）
 - デイリーゴール達成バッジ
@@ -169,15 +171,13 @@ npm run quiz:randomize # correctIndex ランダム化
 
 ### 学習支援
 
+- キーワード検索・リファレンス（QuizSearch）: 630問から検索、解説をその場で展開可能
 - 身につけたスキル表示（SkillsAcquired）: 正解カテゴリ→実務能力変換
-- 実践プロンプト集（PracticePrompts）: コピペで即Claude Code実践
-- チーム説明ヒント（TeachingTip）: 学んだことを他者に伝える力を育成
 - チーム共有ガイド（TeamShareGuide）: Slack提案メッセージのワンタップコピー
 - 「明日やること」アクションアイテム: チャプター別の具体的行動指示
 - 学習レコメンドエンジン（LearningRecommendation）: 弱点分析→次の行動提案
 - 弱点パターン可視化（WeakPointInsight）: 正答率<70%カテゴリの復習ボタン
 - 教えられるカテゴリ表示: 正答率90%以上のカテゴリを可視化
-- 不正解時のドキュメントリンク: 公式ドキュメントへの直接導線
 - 修了証（CertificateGenerator）: 全体像モード70%+ / 実力テスト80%+
 
 ## セッション永続化
@@ -254,8 +254,9 @@ npm run quiz:randomize # correctIndex ランダム化
 `tags` フィールドを使って問題をクロスカテゴリでグループ化できる。
 問題は元のカテゴリに所属したまま、タグで別のモードにも登場させられる。
 
-- `overview`: 全体像モード対象問題
-- `overview-NNN`: 全体像モード内の出題順序（010, 020, ... で管理）
+- `overview`: 全体像モード対象問題（現在56問）
+- `overview-ch-N`: チャプター割り当て（ch-1〜ch-6）
+- `overview-NNN`: 全体像モード内の出題順序（010, 020, ... で管理、グローバルユニーク）
 
 ## 現在のカテゴリ
 
