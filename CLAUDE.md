@@ -96,6 +96,7 @@ npm run quiz:randomize # correctIndex ランダム化
 | デプロイ | `main` への push で GitHub Actions が自動デプロイ |
 | オフライン | Service Worker でアセット＋クイズデータをプリキャッシュ（autoUpdate で自動反映） |
 | 更新 | autoUpdate + cleanupOutdatedCaches で自動適用。controllerchange でリロードバナー表示 |
+| アイコン | 全面オレンジ塗りつぶし「CC Quiz」。maskable対応でiOS/Android黒縁なし |
 | レスポンシブ | モバイルファースト設計、Safe Area対応、ネイティブ風タップフィードバック |
 | ダークモード | Tailwind `dark:` prefix で全画面完全対応。テーマ切替はスムーズ transition |
 | コード分割 | quiz-data / vendor / 画面別チャンク。初期ロード 189KB（80%削減） |
@@ -176,7 +177,8 @@ npm run quiz:randomize # correctIndex ランダム化
 
 ### 学習支援
 
-- キーワード検索・リファレンス（QuizSearch）: 630問から検索、解説をその場で展開可能
+- キーワード検索・リファレンス（QuizSearch）: 630問から検索、解説をその場で展開可能。10件超は全件表示画面
+- 「後で学ぶ」ブックマーク: 検索結果から1タップで保存 → 📌後で学ぶモードでまとめて学習
 - 身につけたスキル表示（SkillsAcquired）: 正解カテゴリ→実務能力変換
 - チーム共有ガイド（TeamShareGuide）: Slack提案メッセージのワンタップコピー
 - 「明日やること」アクションアイテム: チャプター別の具体的行動指示
