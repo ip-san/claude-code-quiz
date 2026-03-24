@@ -108,6 +108,8 @@ npm run quiz:randomize # correctIndex ランダム化
 | 苦手克服 | SRS優先度順で正答率の低い問題 | 毎問表示 |
 | 未回答 | まだ解いていない問題 | 毎問表示 |
 | ブックマーク | ブックマーク済み問題 | 毎問表示 |
+| カスタム | カテゴリ・難易度を自由に組み合わせ | 毎問表示 |
+| 復習 | 間違えた問題を解説付きで復習 | 毎問表示 |
 
 ### 実力テスト（deferFeedback モード）
 
@@ -237,7 +239,7 @@ npm run quiz:randomize # correctIndex ランダム化
   ],
   "correctIndex": 0,
   "explanation": "解説",
-  "referenceUrl": "https://code.claude.com/docs/en/..."
+  "referenceUrl": "https://code.claude.com/docs/ja/..."
 }
 ```
 
