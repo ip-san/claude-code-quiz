@@ -17,6 +17,7 @@ export function QuizSearch() {
   const [query, setQuery] = useState('')
   const [isOpen, setIsOpen] = useState(false)
   const [expandedId, setExpandedId] = useState<string | null>(null)
+  const [showAll, setShowAll] = useState(false)
 
   const allResults = useMemo(() => {
     if (query.length < 2) return []
@@ -30,6 +31,84 @@ export function QuizSearch() {
 
   // Display limit for the list, but quiz launch uses ALL results
   const displayResults = allResults.slice(0, 10)
+
+  // Full-screen view for all results
+  if (showAll) {
+    return (
+      <div className="fixed inset-0 z-50 flex flex-col bg-claude-cream dark:bg-stone-900">
+        {/* Header */}
+        <div className="flex items-center justify-between border-b border-stone-200 px-4 py-3 dark:border-stone-700">
+          <div>
+            <h2 className="text-sm font-bold text-claude-dark">「{query}」の検索結果</h2>
+            <p className="text-xs text-stone-400">{allResults.length}件</p>
+          </div>
+          <div className="flex items-center gap-2">
+            <button
+              onClick={() => {
+                haptics.light()
+                startSessionWithIds(allResults.map(r => r.id))
+                setShowAll(false)
+                setIsOpen(false)
+                setQuery('')
+              }}
+              className="tap-highlight inline-flex items-center gap-1.5 rounded-xl bg-claude-orange px-3 py-1.5 text-xs font-medium text-white"
+            >
+              <Play className="h-3 w-3 fill-white" />
+              {allResults.length}問に挑戦
+            </button>
+            <button
+              onClick={() => setShowAll(false)}
+              className="tap-highlight rounded-full p-2 text-stone-400"
+              aria-label="戻る"
+            >
+              <X className="h-5 w-5" />
+            </button>
+          </div>
+        </div>
+        {/* All results */}
+        <div className="flex-1 overflow-y-auto">
+          {allResults.map(r => {
+            const cat = getCategoryById(r.category)
+            const isExpanded = expandedId === r.id
+            return (
+              <div key={r.id} className="border-b border-stone-100 dark:border-stone-800">
+                <button
+                  onClick={() => setExpandedId(isExpanded ? null : r.id)}
+                  className="tap-highlight flex w-full items-start gap-2 px-4 py-3 text-left"
+                >
+                  <span className="mt-0.5 flex-shrink-0 text-sm">{cat?.icon}</span>
+                  <span className="flex-1 text-sm leading-snug text-claude-dark">
+                    {r.question}
+                  </span>
+                  {isExpanded
+                    ? <ChevronUp className="mt-0.5 h-4 w-4 flex-shrink-0 text-stone-400" />
+                    : <ChevronDown className="mt-0.5 h-4 w-4 flex-shrink-0 text-stone-400" />
+                  }
+                </button>
+                {isExpanded && (
+                  <div className="border-t border-stone-100 bg-stone-50/50 px-4 py-3 dark:border-stone-700 dark:bg-stone-900/50">
+                    <p className="mb-2 text-xs font-medium text-green-600 dark:text-green-400">
+                      ✓ {r.options[r.correctIndex]?.text}
+                    </p>
+                    <p className="text-xs leading-relaxed text-stone-600 dark:text-stone-400">
+                      <QuizText text={r.explanation} />
+                    </p>
+                    {r.referenceUrl && (
+                      <a href={r.referenceUrl} target="_blank" rel="noopener noreferrer"
+                        className="mt-2 inline-flex items-center gap-1 text-xs text-claude-orange">
+                        <ExternalLink className="h-3 w-3" />
+                        公式ドキュメント
+                      </a>
+                    )}
+                  </div>
+                )}
+              </div>
+            )
+          })}
+        </div>
+      </div>
+    )
+  }
 
   if (!isOpen) {
     return (
@@ -134,9 +213,12 @@ export function QuizSearch() {
                   )
                 })}
                 {allResults.length > 10 && (
-                  <p className="px-4 py-2 text-center text-xs text-stone-400">
-                    他 {allResults.length - 10}件（「{allResults.length}問に挑戦」で全て出題）
-                  </p>
+                  <button
+                    onClick={() => setShowAll(true)}
+                    className="tap-highlight w-full border-t border-stone-100 px-4 py-2.5 text-center text-xs font-medium text-claude-orange dark:border-stone-700"
+                  >
+                    すべて表示（残り {allResults.length - 10}件）
+                  </button>
                 )}
               </div>
             </>
