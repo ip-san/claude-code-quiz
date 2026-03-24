@@ -199,8 +199,7 @@ html, body {
 @media (pointer: fine) {
   button:focus-visible,
   [role="option"]:focus-visible,
-  [role="checkbox"]:focus-visible,
-  input:focus-visible {
+  [role="checkbox"]:focus-visible {
     outline: 2px solid #D97757;
     outline-offset: 2px;
   }
