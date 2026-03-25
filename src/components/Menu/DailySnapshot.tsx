@@ -7,6 +7,7 @@ import { haptics } from '@/lib/haptics'
 import { theme } from '@/config/theme'
 
 const SNAPSHOT_KEY = `${theme.storagePrefix}-snapshot-dismissed`
+const LEGACY_SNAPSHOT_KEY = 'snapshot-dismissed-date'
 
 interface DailySnapshotProps {
   onDismiss: () => void
@@ -125,6 +126,7 @@ export function DailySnapshot({ onDismiss }: DailySnapshotProps) {
 /** 今日すでにスナップショットを閉じたか確認 */
 export function hasSeenSnapshotToday(): boolean {
   try {
-    return localStorage.getItem(SNAPSHOT_KEY) === DailyGoalService.getTodayString()
+    const today = DailyGoalService.getTodayString()
+    return localStorage.getItem(SNAPSHOT_KEY) === today || localStorage.getItem(LEGACY_SNAPSHOT_KEY) === today
   } catch { return true }
 }
