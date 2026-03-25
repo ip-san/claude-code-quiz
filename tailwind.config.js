@@ -36,6 +36,7 @@ export default {
         'bounce-in': 'bounce-in 0.4s ease-out forwards',
         'view-enter': 'view-enter 0.3s ease-out forwards',
         'slide-in-right': 'slide-in-right 0.3s ease-out forwards',
+        'slide-in-left': 'slide-in-left 0.25s ease-out forwards',
       },
       keyframes: {
         shake: {
@@ -126,6 +127,10 @@ export default {
         'slide-in-right': {
           '0%': { opacity: '0', transform: 'translateX(30px)' },
           '100%': { opacity: '1', transform: 'translateX(0)' },
+        },
+        'slide-in-left': {
+          '0%': { transform: 'translateX(-100%)' },
+          '100%': { transform: 'translateX(0)' },
         },
       },
     },

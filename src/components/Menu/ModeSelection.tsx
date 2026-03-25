@@ -1,6 +1,5 @@
-import { Check, ChevronRight, Play, RefreshCw } from 'lucide-react'
+import { Play } from 'lucide-react'
 import { useMemo, useState } from 'react'
-import { locale } from '@/config/locale'
 import { type Category, PREDEFINED_CATEGORIES } from '@/domain/valueObjects/Category'
 import { type DifficultyLevel, PREDEFINED_DIFFICULTIES } from '@/domain/valueObjects/Difficulty'
 import { PREDEFINED_QUIZ_MODES, type QuizModeId } from '@/domain/valueObjects/QuizMode'
@@ -11,37 +10,22 @@ import { bottomBarStyles } from '@/lib/styles'
 import { useQuizStore } from '@/stores/quizStore'
 import { ChapterProgressMap } from './ChapterProgressMap'
 import { CustomQuizBanner } from './CustomQuizBanner'
-import { DailyGoalIndicator } from './DailyGoalIndicator'
 import { DailySnapshot, hasSeenSnapshotToday } from './DailySnapshot'
 import { FirstTimeGuide } from './FirstTimeGuide'
-import { MasteryRoadmap } from './MasteryRoadmap'
 import { MenuHeader } from './MenuHeader'
 import { QuizSearch } from './QuizSearch'
 import { ResumeSessionBanner } from './ResumeSessionBanner'
-import { StreakBanner } from './StreakBanner'
 
 export function ModeSelection() {
-  const {
-    allQuestions,
-    getFilteredQuestions,
-    startSession,
-    getBookmarkedCount,
-    userProgress,
-    getCategoryStats,
-    setViewState,
-  } = useQuizStore()
+  const { allQuestions, getFilteredQuestions, startSession, getBookmarkedCount, userProgress } = useQuizStore()
 
   const [selectedMode, setSelectedMode] = useState<QuizModeId>('random')
-  const [updateStatus, setUpdateStatus] = useState<string | null>(null)
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null)
   const [selectedDifficulty, setSelectedDifficulty] = useState<DifficultyLevel | null>(null)
   const [snapshotDismissed, setSnapshotDismissed] = useState(() => hasSeenSnapshotToday())
   const [showAllModes, setShowAllModes] = useState(false)
 
   const bookmarkedCount = getBookmarkedCount()
-
-  // Memoize category stats for mastery display
-  const masteryStats = useMemo(() => getCategoryStats(), [getCategoryStats])
 
   const overviewCount = useMemo(() => allQuestions.filter((q) => q.tags.includes('overview')).length, [allQuestions])
 
@@ -107,12 +91,6 @@ export function ModeSelection() {
             hasProgress={userProgress.totalAttempts > 0}
           />
 
-          {/* Engagement — compact single section */}
-          <div className="mb-5 flex flex-col gap-2">
-            <StreakBanner />
-            {userProgress.totalAttempts > 0 && <DailyGoalIndicator />}
-          </div>
-
           {/* Daily Snapshot — removes decision paralysis (includes SRS info) */}
           {userProgress.totalAttempts > 0 && !snapshotDismissed && (
             <DailySnapshot onDismiss={() => setSnapshotDismissed(true)} />
@@ -123,21 +101,6 @@ export function ModeSelection() {
 
           {/* Search */}
           <QuizSearch />
-
-          {/* Explanation Reader */}
-          <button
-            onClick={() => setViewState('reader')}
-            className="tap-highlight mb-5 flex w-full items-center gap-3 rounded-2xl border border-stone-200 bg-white px-4 py-3 text-left dark:border-stone-700 dark:bg-stone-800"
-          >
-            <span className="text-lg">📖</span>
-            <div className="flex-1">
-              <span className="text-sm font-medium text-claude-dark dark:text-stone-200">{locale.reader.title}</span>
-              <p className="text-xs text-stone-400">
-                {allQuestions.length}問の{locale.reader.subtitle}
-              </p>
-            </div>
-            <ChevronRight className="h-4 w-4 text-stone-300 dark:text-stone-600" />
-          </button>
 
           {/* Chapter progress map for overview mode */}
           <ChapterProgressMap
@@ -295,54 +258,8 @@ export function ModeSelection() {
             </div>
           )}
 
-          {/* AI Mastery Roadmap — 5段階の成長ロードマップ */}
-          {userProgress.totalAttempts > 0 && (
-            <MasteryRoadmap
-              totalCorrect={userProgress.totalCorrect}
-              totalAttempts={userProgress.totalAttempts}
-              totalQuestions={allQuestions.length}
-              unansweredCount={unansweredCount}
-              categoryStats={masteryStats}
-            />
-          )}
-
-          {/* Category mastery overview — moved to ProgressDashboard for cleaner menu */}
-
           {/* Custom quiz CTA — only show for power users (Electron/developer context) */}
           {isElectron && <CustomQuizBanner />}
-
-          {/* Update check (PWA only) */}
-          {!isElectron && (
-            <div className="text-center">
-              <button
-                onClick={async () => {
-                  setUpdateStatus(null)
-                  const reg = await navigator.serviceWorker?.getRegistration()
-                  if (reg) {
-                    await reg.update()
-                    // Wait briefly for new SW to install
-                    await new Promise((r) => setTimeout(r, 1000))
-                    if (reg.waiting) {
-                      // New version found — reload to apply
-                      window.location.reload()
-                    } else {
-                      setUpdateStatus('最新版です')
-                      setTimeout(() => setUpdateStatus(null), 2000)
-                    }
-                  }
-                }}
-                className="tap-highlight inline-flex items-center gap-1.5 text-xs text-stone-400"
-                aria-label="更新を確認"
-              >
-                {updateStatus ? (
-                  <Check className="h-3.5 w-3.5 text-green-500" />
-                ) : (
-                  <RefreshCw className="h-3.5 w-3.5" />
-                )}
-                {updateStatus ?? '更新を確認'}
-              </button>
-            </div>
-          )}
         </div>
       </div>
 
