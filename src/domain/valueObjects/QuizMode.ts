@@ -2,6 +2,8 @@
  * QuizMode Value Object
  * Represents different quiz session modes
  */
+import { theme } from '@/config/theme'
+
 export type QuizModeId = 'full' | 'category' | 'random' | 'quick' | 'weak' | 'unanswered' | 'custom' | 'bookmark' | 'review' | 'overview'
 
 export interface QuizModeProps {
@@ -83,7 +85,7 @@ export const PREDEFINED_QUIZ_MODES: QuizMode[] = [
   QuizMode.create({
     id: 'overview',
     name: '全体像モード',
-    description: 'Claude Codeの全機能を幅広くカバー',
+    description: `${theme.subject}の全機能を幅広くカバー`,
     icon: '🗺️',
     questionCount: null,
     timeLimit: null,
