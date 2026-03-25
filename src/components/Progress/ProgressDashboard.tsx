@@ -150,15 +150,6 @@ export function ProgressDashboard() {
             </div>
           )}
 
-          {/* Permanent growth message — skills don't expire */}
-          {!hasNoProgress && (
-            <div className="mb-4 rounded-2xl border border-green-200 bg-green-50/50 px-4 py-3 dark:border-green-500/30 dark:bg-green-500/10">
-              <p className="text-center text-sm text-green-700 dark:text-green-300">
-                あなたが身につけたスキルは、環境が変わっても消えません。
-              </p>
-            </div>
-          )}
-
           {/* Overall Stats */}
           <div className="mb-6 grid grid-cols-2 gap-4 sm:grid-cols-4">
             <StatCard label="総回答数" value={userProgress.totalAttempts} icon="📝" />
