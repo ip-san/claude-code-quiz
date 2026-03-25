@@ -373,7 +373,7 @@ export function ProgressDashboard() {
             aria-label="CSVで進捗をエクスポートする"
             className={`${buttonStyles.secondary} w-full`}
           >
-            📊 CSVでエクスポート（管理者向け）
+            📊 CSVでエクスポート
           </button>
 
           {/* Status message */}

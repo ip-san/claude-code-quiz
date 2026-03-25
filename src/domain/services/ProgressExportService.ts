@@ -1,7 +1,7 @@
 /**
  * ProgressExportService - 進捗データのCSVエクスポートサービス
  *
- * 管理者向けに、学習進捗をCSV形式でエクスポートする機能を提供。
+ * 学習進捗をCSV形式でエクスポートする機能を提供。
  * QuizSessionService と同様、すべてのメソッドが static でステートレス。
  */
 
