@@ -10,6 +10,9 @@ const QuizResult = lazy(() => import('@/components/Quiz/QuizResult').then((m) =>
 const ProgressDashboard = lazy(() =>
   import('@/components/Progress/ProgressDashboard').then((m) => ({ default: m.ProgressDashboard }))
 )
+const ExplanationReader = lazy(() =>
+  import('@/components/Reader/ExplanationReader').then((m) => ({ default: m.ExplanationReader }))
+)
 
 import { XCircle } from 'lucide-react'
 import { getChapterFromTags } from '@/domain/valueObjects/OverviewChapter'
@@ -130,6 +133,12 @@ export default function App() {
             <ProgressDashboard />
           </Suspense>
         )
+      case 'reader':
+        return (
+          <Suspense fallback={<LoadingSpinner />}>
+            <ExplanationReader />
+          </Suspense>
+        )
       case 'result':
         return (
           <Suspense fallback={<LoadingSpinner />}>
@@ -146,6 +155,7 @@ export default function App() {
     const themeColors: Record<string, string> = {
       menu: '#FAF9F5',
       progress: '#FAF9F5',
+      reader: '#FAF9F5',
       result: '#FAF9F5',
     }
     setThemeColor(themeColors[viewState] ?? '#FAF9F5')

@@ -1,4 +1,4 @@
-import { Check, Play, RefreshCw } from 'lucide-react'
+import { Check, ChevronRight, Play, RefreshCw } from 'lucide-react'
 import { useMemo, useState } from 'react'
 import { type Category, PREDEFINED_CATEGORIES } from '@/domain/valueObjects/Category'
 import { type DifficultyLevel, PREDEFINED_DIFFICULTIES } from '@/domain/valueObjects/Difficulty'
@@ -19,8 +19,15 @@ import { ResumeSessionBanner } from './ResumeSessionBanner'
 import { StreakBanner } from './StreakBanner'
 
 export function ModeSelection() {
-  const { allQuestions, getFilteredQuestions, startSession, getBookmarkedCount, userProgress, getCategoryStats } =
-    useQuizStore()
+  const {
+    allQuestions,
+    getFilteredQuestions,
+    startSession,
+    getBookmarkedCount,
+    userProgress,
+    getCategoryStats,
+    setViewState,
+  } = useQuizStore()
 
   const [selectedMode, setSelectedMode] = useState<QuizModeId>('random')
   const [updateStatus, setUpdateStatus] = useState<string | null>(null)
@@ -114,6 +121,19 @@ export function ModeSelection() {
 
           {/* Search */}
           <QuizSearch />
+
+          {/* Explanation Reader */}
+          <button
+            onClick={() => setViewState('reader')}
+            className="tap-highlight mb-5 flex w-full items-center gap-3 rounded-2xl border border-stone-200 bg-white px-4 py-3 text-left dark:border-stone-700 dark:bg-stone-800"
+          >
+            <span className="text-lg">📖</span>
+            <div className="flex-1">
+              <span className="text-sm font-medium text-claude-dark dark:text-stone-200">解説リーダー</span>
+              <p className="text-xs text-stone-400">{allQuestions.length}問の解説をリファレンスとして閲覧</p>
+            </div>
+            <ChevronRight className="h-4 w-4 text-stone-300 dark:text-stone-600" />
+          </button>
 
           {/* Mode Selection — primary modes always visible, rest collapsible */}
           <div className="mb-5">

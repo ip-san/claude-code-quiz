@@ -61,9 +61,10 @@ import { platformAPI } from '@/lib/platformAPI'
  * 【状態遷移】
  * menu ─(startSession)─> quiz ─(complete)─> result ─(endSession)─> menu
  *   │                                          │
- *   └────────────(showProgress)────────────> progress
+ *   ├────────────(showProgress)────────────> progress
+ *   └────────────(setViewState)────────────> reader
  */
-type ViewState = 'menu' | 'quiz' | 'result' | 'progress'
+type ViewState = 'menu' | 'quiz' | 'result' | 'progress' | 'reader'
 
 // ============================================================
 // Store Interface

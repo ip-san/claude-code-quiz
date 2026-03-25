@@ -218,6 +218,20 @@ export interface LocaleConfig {
     readonly modes: Record<string, string>
   }
 
+  // === Reader ===
+  readonly reader: {
+    readonly title: string
+    readonly subtitle: string
+    readonly allQuestions: string
+    readonly bookmarked: string
+    readonly wrongAnswers: string
+    readonly weakAreas: string
+    readonly unanswered: string
+    readonly noResults: string
+    readonly correctAnswer: string
+    readonly countLabel: (filtered: number, total: number) => string
+  }
+
   // === Streak Banner ===
   readonly streakBanner: {
     readonly milestones: {
@@ -435,6 +449,19 @@ const ja: LocaleConfig = {
       review: '復習',
       quick: '60秒チェック',
     },
+  },
+
+  reader: {
+    title: '解説リーダー',
+    subtitle: '解説をリファレンスとして閲覧',
+    allQuestions: '全問',
+    bookmarked: '保存済み',
+    wrongAnswers: '間違えた問題',
+    weakAreas: '苦手な問題',
+    unanswered: '未回答',
+    noResults: '条件に一致する問題がありません',
+    correctAnswer: '正解',
+    countLabel: (filtered, total) => `${filtered} / ${total}件`,
   },
 
   streakBanner: {
