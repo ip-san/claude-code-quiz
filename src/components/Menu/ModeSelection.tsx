@@ -1,5 +1,6 @@
 import { Check, ChevronRight, Play, RefreshCw } from 'lucide-react'
 import { useMemo, useState } from 'react'
+import { locale } from '@/config/locale'
 import { type Category, PREDEFINED_CATEGORIES } from '@/domain/valueObjects/Category'
 import { type DifficultyLevel, PREDEFINED_DIFFICULTIES } from '@/domain/valueObjects/Difficulty'
 import { PREDEFINED_QUIZ_MODES, type QuizModeId } from '@/domain/valueObjects/QuizMode'
@@ -130,8 +131,10 @@ export function ModeSelection() {
           >
             <span className="text-lg">📖</span>
             <div className="flex-1">
-              <span className="text-sm font-medium text-claude-dark dark:text-stone-200">解説リーダー</span>
-              <p className="text-xs text-stone-400">{allQuestions.length}問の解説をリファレンスとして閲覧</p>
+              <span className="text-sm font-medium text-claude-dark dark:text-stone-200">{locale.reader.title}</span>
+              <p className="text-xs text-stone-400">
+                {allQuestions.length}問の{locale.reader.subtitle}
+              </p>
             </div>
             <ChevronRight className="h-4 w-4 text-stone-300 dark:text-stone-600" />
           </button>

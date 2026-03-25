@@ -66,9 +66,9 @@ export function DailySnapshot({ onDismiss }: DailySnapshotProps) {
 
   const handleQuickStart = () => {
     haptics.light()
-    // SRS due があれば quick モード、なければ random
+    // SRS due があれば quick モード（3問）、なければ random
     if (snapshot.dueCount > 0) {
-      startSession({ mode: 'quick' })
+      startSession({ mode: 'quick', questionCount: 3 })
     } else {
       startSession({ mode: 'random' })
     }
