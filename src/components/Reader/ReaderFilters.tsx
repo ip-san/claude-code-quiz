@@ -7,6 +7,9 @@ export type StatusFilter = 'all' | 'bookmarked' | 'wrong' | 'weak' | 'unanswered
 interface ReaderFiltersProps {
   selectedCategory: string | null
   onCategoryChange: (category: string | null) => void
+  docPages?: { page: string; count: number }[]
+  selectedDocPage?: string | null
+  onDocPageChange?: (page: string | null) => void
   selectedDifficulty: DifficultyLevel | null
   onDifficultyChange: (difficulty: DifficultyLevel | null) => void
   statusFilter: StatusFilter
@@ -24,6 +27,9 @@ const statusOptions: { value: StatusFilter; label: string }[] = [
 export function ReaderFilters({
   selectedCategory,
   onCategoryChange,
+  docPages,
+  selectedDocPage,
+  onDocPageChange,
   selectedDifficulty,
   onDifficultyChange,
   statusFilter,
@@ -57,6 +63,35 @@ export function ReaderFilters({
           </button>
         ))}
       </div>
+
+      {/* Doc page sub-filter (shown when category selected) */}
+      {selectedCategory && docPages && docPages.length > 1 && onDocPageChange && (
+        <div className="-mx-4 flex gap-1.5 overflow-x-auto px-4 scrollbar-hide">
+          <button
+            onClick={() => onDocPageChange(null)}
+            className={`tap-highlight flex-shrink-0 rounded-full px-2.5 py-1 text-[10px] font-medium transition-colors ${
+              !selectedDocPage
+                ? 'bg-stone-700 text-white dark:bg-stone-300 dark:text-stone-900'
+                : 'bg-stone-100 text-stone-500 dark:bg-stone-700 dark:text-stone-400'
+            }`}
+          >
+            全ページ
+          </button>
+          {docPages.map(({ page, count }) => (
+            <button
+              key={page}
+              onClick={() => onDocPageChange(selectedDocPage === page ? null : page)}
+              className={`tap-highlight flex-shrink-0 rounded-full px-2.5 py-1 text-[10px] font-medium transition-colors ${
+                selectedDocPage === page
+                  ? 'bg-stone-700 text-white dark:bg-stone-300 dark:text-stone-900'
+                  : 'bg-stone-100 text-stone-500 dark:bg-stone-700 dark:text-stone-400'
+              }`}
+            >
+              {page} ({count})
+            </button>
+          ))}
+        </div>
+      )}
 
       {/* Difficulty + Status */}
       <div className="flex flex-wrap gap-1.5">

@@ -11,21 +11,45 @@ import { ReaderFilters, type StatusFilter } from './ReaderFilters'
 const INITIAL_DISPLAY_COUNT = 50
 const LOAD_MORE_COUNT = 50
 
+/** Extract doc page slug from referenceUrl */
+function getDocPage(url: string | undefined): string | null {
+  if (!url) return null
+  const m = url.match(/\/docs\/(?:ja|en)\/(.+?)(?:#.*)?$/)
+  return m ? m[1] : null
+}
+
 export function ExplanationReader() {
   const { allQuestions, userProgress, toggleBookmark, setViewState } = useQuizStore()
 
   const [searchQuery, setSearchQuery] = useState('')
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null)
+  const [selectedDocPage, setSelectedDocPage] = useState<string | null>(null)
   const [selectedDifficulty, setSelectedDifficulty] = useState<DifficultyLevel | null>(null)
   const [statusFilter, setStatusFilter] = useState<StatusFilter>('all')
   const [expandedId, setExpandedId] = useState<string | null>(null)
   const [displayCount, setDisplayCount] = useState(INITIAL_DISPLAY_COUNT)
+
+  // Available doc pages for the selected category
+  const docPages = useMemo(() => {
+    if (!selectedCategory) return []
+    const pages = new Map<string, number>()
+    for (const q of allQuestions) {
+      if (q.category !== selectedCategory) continue
+      const page = getDocPage(q.referenceUrl)
+      if (page) pages.set(page, (pages.get(page) ?? 0) + 1)
+    }
+    return [...pages.entries()].sort((a, b) => b[1] - a[1]).map(([page, count]) => ({ page, count }))
+  }, [allQuestions, selectedCategory])
 
   const filteredQuestions = useMemo(() => {
     let questions = allQuestions
 
     if (selectedCategory) {
       questions = questions.filter((q) => q.category === selectedCategory)
+    }
+
+    if (selectedDocPage) {
+      questions = questions.filter((q) => getDocPage(q.referenceUrl) === selectedDocPage)
     }
 
     if (selectedDifficulty) {
@@ -66,7 +90,7 @@ export function ExplanationReader() {
     }
 
     return questions
-  }, [allQuestions, selectedCategory, selectedDifficulty, statusFilter, searchQuery, userProgress])
+  }, [allQuestions, selectedCategory, selectedDocPage, selectedDifficulty, statusFilter, searchQuery, userProgress])
 
   // Reset display count when filters change
   const displayQuestions = filteredQuestions.slice(0, displayCount)
@@ -154,6 +178,14 @@ export function ExplanationReader() {
             selectedCategory={selectedCategory}
             onCategoryChange={(c) => {
               setSelectedCategory(c)
+              setSelectedDocPage(null)
+              setExpandedId(null)
+              setDisplayCount(INITIAL_DISPLAY_COUNT)
+            }}
+            docPages={docPages}
+            selectedDocPage={selectedDocPage}
+            onDocPageChange={(p) => {
+              setSelectedDocPage(p)
               setExpandedId(null)
               setDisplayCount(INITIAL_DISPLAY_COUNT)
             }}

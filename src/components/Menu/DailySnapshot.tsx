@@ -36,6 +36,24 @@ export function DailySnapshot({ onDismiss }: DailySnapshotProps) {
       return qp && qp.attempts > 0 && SpacedRepetitionService.isDue(qp, now)
     }).length
 
+    // SRS review forecast (next 7 days)
+    const forecast: { label: string; count: number }[] = []
+    const dayMs = 86400000
+    const dayLabels = ['明日', '明後日']
+    for (let d = 1; d <= 6; d++) {
+      const dayStart = now + dayMs * d
+      const dayEnd = dayStart + dayMs
+      const count = allQuestions.filter((q) => {
+        const qp = userProgress.questionProgress[q.id]
+        if (!qp || qp.attempts === 0 || qp.nextReviewAt === undefined) return false
+        return qp.nextReviewAt > now && qp.nextReviewAt >= dayStart && qp.nextReviewAt < dayEnd
+      }).length
+      if (count > 0) {
+        const label = d <= 2 ? dayLabels[d - 1] : `${d}日後`
+        forecast.push({ label, count })
+      }
+    }
+
     // Last session time
     const lastSession =
       userProgress.sessionHistory.length > 0
@@ -43,7 +61,7 @@ export function DailySnapshot({ onDismiss }: DailySnapshotProps) {
         : null
     const hoursSinceLastSession = lastSession ? Math.round((now - lastSession.completedAt) / 3600000) : null
 
-    return { remaining, dueCount, hoursSinceLastSession }
+    return { remaining, dueCount, hoursSinceLastSession, forecast }
   }, [userProgress, allQuestions])
 
   const handleQuickStart = () => {
@@ -98,6 +116,16 @@ export function DailySnapshot({ onDismiss }: DailySnapshotProps) {
           <p>
             <strong>🎯 目標: あと{snapshot.remaining}問</strong>
           </p>
+        )}
+        {snapshot.forecast.length > 0 && (
+          <div className="mt-1 flex flex-wrap gap-x-3 gap-y-0.5">
+            <span className="text-xs text-stone-400">📅 復習予定:</span>
+            {snapshot.forecast.slice(0, 4).map((f) => (
+              <span key={f.label} className="text-xs text-stone-500 dark:text-stone-400">
+                {f.label} <strong>{f.count}問</strong>
+              </span>
+            ))}
+          </div>
         )}
       </div>
 

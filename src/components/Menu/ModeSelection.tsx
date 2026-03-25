@@ -8,6 +8,7 @@ import { haptics } from '@/lib/haptics'
 import { isElectron } from '@/lib/platformAPI'
 import { bottomBarStyles } from '@/lib/styles'
 import { useQuizStore } from '@/stores/quizStore'
+import { ChapterProgressMap } from './ChapterProgressMap'
 import { CustomQuizBanner } from './CustomQuizBanner'
 import { DailyGoalIndicator } from './DailyGoalIndicator'
 import { DailySnapshot, hasSeenSnapshotToday } from './DailySnapshot'
@@ -134,6 +135,13 @@ export function ModeSelection() {
             </div>
             <ChevronRight className="h-4 w-4 text-stone-300 dark:text-stone-600" />
           </button>
+
+          {/* Chapter progress map for overview mode */}
+          <ChapterProgressMap
+            allQuestions={allQuestions}
+            userProgress={userProgress}
+            onStartChapter={() => startSession({ mode: 'overview' })}
+          />
 
           {/* Mode Selection — primary modes always visible, rest collapsible */}
           <div className="mb-5">
