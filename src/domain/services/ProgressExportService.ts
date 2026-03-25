@@ -9,6 +9,13 @@ import type { UserProgress } from '../entities/UserProgress'
 import type { Question } from '../entities/Question'
 
 export class ProgressExportService {
+  /** ヘッダー行 + データ行を CSV 文字列に結合 */
+  private static toCsv(headers: string[], rows: (string | number)[][]): string {
+    return [headers.join(','), ...rows.map((row) => row.map((v) => this.escapeCsvValue(String(v))).join(','))].join(
+      '\r\n'
+    )
+  }
+
   /**
    * 問題別の進捗CSVを生成
    */
@@ -23,9 +30,7 @@ export class ProgressExportService {
       return [q.id, q.category, q.difficulty, attempts, correctCount, accuracy, lastAttempt]
     })
 
-    return [headers.join(','), ...rows.map((row) => row.map((v) => this.escapeCsvValue(String(v))).join(','))].join(
-      '\r\n'
-    )
+    return this.toCsv(headers, rows)
   }
 
   /**
@@ -59,9 +64,7 @@ export class ProgressExportService {
       return [category, stats.total, stats.attempted, accuracy]
     })
 
-    return [headers.join(','), ...rows.map((row) => row.map((v) => this.escapeCsvValue(String(v))).join(','))].join(
-      '\r\n'
-    )
+    return this.toCsv(headers, rows)
   }
 
   /**
