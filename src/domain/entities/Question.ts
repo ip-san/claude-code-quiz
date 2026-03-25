@@ -304,12 +304,8 @@ export class Question {
    * - explain: 噛み砕いて解説（初心者向け）
    * - practical: 実践的なシナリオ・活用例
    * - compare: 類似概念との比較・使い分け
-   * - mistake: 間違えた選択肢の分析（不正解時専用）
    */
-  generateAIPromptByType(
-    type: 'explain' | 'practical' | 'compare' | 'mistake',
-    selectedOptionText?: string,
-  ): string {
+  generateAIPromptByType(type: 'explain' | 'practical' | 'compare'): string {
     if (type === 'explain' && this.aiPrompt) return this.aiPrompt
 
     const correctAnswers = this.isMultiSelect
@@ -334,17 +330,6 @@ ${context}`
         return `Claude Codeの以下のトピックに関連する類似機能や概念との違いを整理してください。「どんな場面でどちらを選ぶべきか」の判断基準も教えてください。
 
 ${context}`
-      case 'mistake':
-        return `Claude Codeに関する以下のクイズで間違えました。なぜ混同しやすいのか分析し、二度と間違えないための覚え方を教えてください。
-
-問題: ${this.question}
-私の回答: ${selectedOptionText ?? '(不明)'}
-${prefix}${correctAnswers}
-
-以下の3点を教えてください：
-1. この2つを混同しやすい理由（どこが紛らわしいのか）
-2. 正解と誤答の決定的な違い（1行で区別するポイント）
-3. 覚え方のコツ（語呂合わせ、イメージ、対比など）`
     }
   }
 
