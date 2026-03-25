@@ -1,3 +1,4 @@
+import { ChevronDown, ChevronUp } from 'lucide-react'
 import { useCallback, useEffect, useRef, useState } from 'react'
 import { SessionInsightService } from '@/domain/services/SessionInsightService'
 import { type Category, PREDEFINED_CATEGORIES } from '@/domain/valueObjects/Category'
@@ -12,10 +13,6 @@ import { SessionHistoryChart } from './SessionHistoryChart'
 import { SessionHistoryList } from './SessionHistoryList'
 import { WeakPointInsight } from './WeakPointInsight'
 
-/**
- * Progress Dashboard component
- * Displays learning progress, category stats, and weak points
- */
 export function ProgressDashboard() {
   const {
     userProgress,
@@ -28,22 +25,19 @@ export function ProgressDashboard() {
   } = useQuizStore()
 
   const [exportStatus, setExportStatus] = useState<string | null>(null)
+  const [showCharts, setShowCharts] = useState(false)
+  const [showCategories, setShowCategories] = useState(false)
+  const [showDataManagement, setShowDataManagement] = useState(false)
   const statusTimeoutRef = useRef<NodeJS.Timeout | null>(null)
 
-  // タイムアウトのクリーンアップ（メモリリーク防止）
   useEffect(() => {
     return () => {
-      if (statusTimeoutRef.current) {
-        clearTimeout(statusTimeoutRef.current)
-      }
+      if (statusTimeoutRef.current) clearTimeout(statusTimeoutRef.current)
     }
   }, [])
 
-  // ステータスメッセージを表示して自動クリア
-  const showStatus = useCallback((message: string, duration: number = 3000) => {
-    if (statusTimeoutRef.current) {
-      clearTimeout(statusTimeoutRef.current)
-    }
+  const showStatus = useCallback((message: string, duration = 3000) => {
+    if (statusTimeoutRef.current) clearTimeout(statusTimeoutRef.current)
     setExportStatus(message)
     statusTimeoutRef.current = setTimeout(() => {
       setExportStatus(null)
@@ -53,54 +47,27 @@ export function ProgressDashboard() {
 
   const categoryStats = getCategoryStats()
   const overallAccuracy = userProgress.getOverallAccuracy()
-
-  // Empty state check
   const hasNoProgress = userProgress.totalAttempts === 0
-
-  const handleWeakMode = () => {
-    startSession({ mode: 'weak' })
-  }
-
-  const handleResetProgress = async () => {
-    if (window.confirm('学習履歴をリセットしますか？この操作は取り消せません。')) {
-      await resetUserProgress()
-    }
-  }
 
   const handleExport = async () => {
     try {
       const progressRepo = getProgressRepository()
       const jsonData = await progressRepo.export()
       const result = await platformAPI.exportProgress(jsonData)
-
-      if (result.success) {
-        showStatus('エクスポートしました')
-      } else if ('error' in result && result.error !== 'cancelled') {
-        showStatus(`エラー: ${result.error}`, 5000)
-      }
+      if (result.success) showStatus('エクスポートしました')
+      else if ('error' in result && result.error !== 'cancelled') showStatus(`エラー: ${result.error}`, 5000)
     } catch {
       showStatus('エクスポートに失敗しました', 5000)
-    }
-  }
-
-  const handleCsvExport = async () => {
-    try {
-      await exportProgressCsv()
-      showStatus('CSVをエクスポートしました')
-    } catch {
-      showStatus('CSVエクスポートに失敗しました', 5000)
     }
   }
 
   const handleImport = async () => {
     try {
       const result = await platformAPI.importProgress()
-
       if (result.success && result.data) {
         if (window.confirm('現在の学習履歴を上書きしますか？この操作は取り消せません。')) {
           const progressRepo = getProgressRepository()
           const success = await progressRepo.import(result.data)
-
           if (success) {
             await loadUserProgress()
             showStatus('インポートしました')
@@ -150,61 +117,15 @@ export function ProgressDashboard() {
             </div>
           )}
 
-          {/* Overall Stats */}
-          <div className="mb-6 grid grid-cols-2 gap-4 sm:grid-cols-4">
+          {/* Overall Stats — always visible */}
+          <div className="mb-4 grid grid-cols-2 gap-3 sm:grid-cols-4">
             <StatCard label="総回答数" value={userProgress.totalAttempts} icon="📝" />
             <StatCard label="正解数" value={userProgress.totalCorrect} icon="✅" />
             <StatCard label="正答率" value={`${overallAccuracy}%`} icon="📊" />
             <StatCard label="セッション数" value={`${userProgress.sessionHistory.length}回`} icon="📚" />
           </div>
 
-          {/* Session History Chart */}
-          {!hasNoProgress && (
-            <div className="mb-6">
-              <h2 className="mb-4 text-lg font-semibold text-claude-dark">正答率の推移</h2>
-              <SessionHistoryChart sessions={userProgress.sessionHistory} />
-              <div className="mt-4">
-                <CategoryTrendChart sessions={userProgress.sessionHistory} />
-              </div>
-            </div>
-          )}
-
-          {/* Learning Insights */}
-          {!hasNoProgress &&
-            (() => {
-              const trend = SessionInsightService.getImprovementTrend(userProgress.sessionHistory)
-              const best = SessionInsightService.getBestScore(userProgress.sessionHistory)
-              if (trend === null && best === null) return null
-              return (
-                <div className="mb-6 flex flex-wrap gap-3">
-                  {best !== null && (
-                    <div className="flex-1 ${cardStyles.elevated} p-4">
-                      <div className="mb-1 text-xs text-stone-500">最高正答率</div>
-                      <div className="text-2xl font-bold text-claude-orange">{best}%</div>
-                    </div>
-                  )}
-                  {trend !== null && (
-                    <div className="flex-1 ${cardStyles.elevated} p-4">
-                      <div className="mb-1 text-xs text-stone-500">成長トレンド</div>
-                      <div className={`text-2xl font-bold ${trend >= 0 ? 'text-green-600' : 'text-red-500'}`}>
-                        {trend >= 0 ? '+' : ''}
-                        {trend}%
-                      </div>
-                    </div>
-                  )}
-                </div>
-              )
-            })()}
-
-          {/* Session History List */}
-          {!hasNoProgress && userProgress.sessionHistory.length > 0 && (
-            <div className="mb-6">
-              <h2 className="mb-4 text-lg font-semibold text-claude-dark">最近のセッション</h2>
-              <SessionHistoryList sessions={userProgress.sessionHistory} limit={5} />
-            </div>
-          )}
-
-          {/* Learning Recommendation */}
+          {/* Learning Recommendation — always visible */}
           {!hasNoProgress && (
             <LearningRecommendation
               categoryStats={categoryStats}
@@ -213,172 +134,225 @@ export function ProgressDashboard() {
             />
           )}
 
-          {/* Weak Point Insight — show specific areas to improve */}
+          {/* Weak Point Insight — always visible */}
           {!hasNoProgress && <WeakPointInsight categoryStats={categoryStats} onStartSession={startSession} />}
 
-          {/* Teaching Readiness — categories the user can teach */}
-          {!hasNoProgress &&
-            (() => {
-              const teachable = PREDEFINED_CATEGORIES.filter((cat) => {
-                const stats = categoryStats[cat.id]
-                if (!stats || stats.attemptedQuestions < 5) return false
-                return Math.round((stats.correctAnswers / stats.attemptedQuestions) * 100) >= 90
-              })
-              if (teachable.length === 0) return null
-              return (
-                <div className="mb-6 rounded-2xl border border-purple-200 bg-purple-50/50 p-4 dark:border-purple-500/30 dark:bg-purple-500/10">
-                  <p className="mb-2 text-sm font-bold text-purple-700 dark:text-purple-300">🎓 教えられるカテゴリ</p>
-                  <p className="mb-3 text-xs text-stone-500">
-                    正答率90%以上 — このカテゴリはチームに教えられるレベルです
-                  </p>
-                  <div className="flex flex-wrap gap-2">
-                    {teachable.map((cat) => (
-                      <span
-                        key={cat.id}
-                        className="inline-flex items-center gap-1 rounded-full bg-purple-100 px-3 py-1 text-sm font-medium text-purple-700 dark:bg-purple-500/20 dark:text-purple-300"
-                      >
-                        {cat.icon} {cat.name}
-                      </span>
-                    ))}
-                  </div>
-                </div>
-              )
-            })()}
+          {/* Action button — always visible */}
+          {!hasNoProgress && (
+            <button
+              onClick={() => startSession({ mode: 'weak' })}
+              className="tap-highlight mb-4 w-full rounded-2xl bg-claude-orange px-6 py-3 font-semibold text-white"
+            >
+              🎯 苦手問題に挑戦
+            </button>
+          )}
 
-          {/* Category Progress */}
-          <div className="mb-6">
-            <h2 className="mb-4 text-lg font-semibold text-claude-dark">カテゴリ別進捗</h2>
-            <div className="max-h-96 space-y-3 overflow-y-auto">
-              {PREDEFINED_CATEGORIES.map((category: Category) => {
-                const stats = categoryStats[category.id]
-                const progress = stats
-                  ? Math.round((stats.correctAnswers / Math.max(stats.attemptedQuestions, 1)) * 100)
-                  : 0
-                const attempted = stats?.attemptedQuestions ?? 0
-                const total = stats?.totalQuestions ?? 0
-
+          {/* ── Collapsible: Charts ── */}
+          {!hasNoProgress && (
+            <CollapsibleSection title="正答率の推移" isOpen={showCharts} onToggle={() => setShowCharts(!showCharts)}>
+              <SessionHistoryChart sessions={userProgress.sessionHistory} />
+              <div className="mt-4">
+                <CategoryTrendChart sessions={userProgress.sessionHistory} />
+              </div>
+              {(() => {
+                const trend = SessionInsightService.getImprovementTrend(userProgress.sessionHistory)
+                const best = SessionInsightService.getBestScore(userProgress.sessionHistory)
+                if (trend === null && best === null) return null
                 return (
-                  <div key={category.id} className="${cardStyles.elevated} p-4">
-                    <div className="mb-2 flex items-center justify-between">
-                      <div className="flex items-center gap-2">
-                        <span>{category.icon}</span>
-                        <span className="font-medium text-claude-dark">{category.name}</span>
-                        {progress >= 90 && <span className="text-xs">🏆</span>}
-                        {progress >= 70 && progress < 90 && <span className="text-xs">⭐</span>}
+                  <div className="mt-4 flex flex-wrap gap-3">
+                    {best !== null && (
+                      <div className={`flex-1 ${cardStyles.base} p-4`}>
+                        <div className="mb-1 text-xs text-stone-500">最高正答率</div>
+                        <div className="text-2xl font-bold text-claude-orange">{best}%</div>
                       </div>
-                      <div className="flex items-center gap-2">
+                    )}
+                    {trend !== null && (
+                      <div className={`flex-1 ${cardStyles.base} p-4`}>
+                        <div className="mb-1 text-xs text-stone-500">成長トレンド</div>
+                        <div className={`text-2xl font-bold ${trend >= 0 ? 'text-green-600' : 'text-red-500'}`}>
+                          {trend >= 0 ? '+' : ''}
+                          {trend}%
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                )
+              })()}
+              {userProgress.sessionHistory.length > 0 && (
+                <div className="mt-4">
+                  <h3 className="mb-2 text-sm font-semibold text-stone-500">最近のセッション</h3>
+                  <SessionHistoryList sessions={userProgress.sessionHistory} limit={5} />
+                </div>
+              )}
+            </CollapsibleSection>
+          )}
+
+          {/* ── Collapsible: Category Details ── */}
+          {!hasNoProgress && (
+            <CollapsibleSection
+              title="カテゴリ別進捗"
+              isOpen={showCategories}
+              onToggle={() => setShowCategories(!showCategories)}
+            >
+              {/* Teaching readiness */}
+              {(() => {
+                const teachable = PREDEFINED_CATEGORIES.filter((cat) => {
+                  const stats = categoryStats[cat.id]
+                  if (!stats || stats.attemptedQuestions < 5) return false
+                  return Math.round((stats.correctAnswers / stats.attemptedQuestions) * 100) >= 90
+                })
+                if (teachable.length === 0) return null
+                return (
+                  <div className="mb-4 rounded-2xl border border-purple-200 bg-purple-50/50 p-4 dark:border-purple-500/30 dark:bg-purple-500/10">
+                    <p className="mb-2 text-sm font-bold text-purple-700 dark:text-purple-300">🎓 教えられるカテゴリ</p>
+                    <div className="flex flex-wrap gap-2">
+                      {teachable.map((cat) => (
                         <span
-                          className={`text-sm font-semibold ${progress >= 70 ? 'text-green-600' : progress >= 50 ? 'text-amber-600' : 'text-stone-500'}`}
+                          key={cat.id}
+                          className="inline-flex items-center gap-1 rounded-full bg-purple-100 px-3 py-1 text-sm font-medium text-purple-700 dark:bg-purple-500/20 dark:text-purple-300"
                         >
-                          {progress}%
+                          {cat.icon} {cat.name}
                         </span>
-                        <span className="text-xs text-stone-400">
-                          {attempted}/{total}
-                        </span>
-                      </div>
-                    </div>
-                    <div className="mb-1 h-2 overflow-hidden rounded-full bg-stone-200">
-                      <div
-                        className="h-full animate-progress-fill rounded-full progress-gradient"
-                        style={{
-                          width: `${(attempted / Math.max(total, 1)) * 100}%`,
-                          backgroundColor: getColorHex(category.color ?? 'gray'),
-                        }}
-                      />
-                    </div>
-                    <div className="flex justify-between text-xs text-stone-500">
-                      <span>正答率: {progress}%</span>
-                      <span>
-                        {stats?.correctAnswers ?? 0}問正解 / {attempted - (stats?.correctAnswers ?? 0)}問不正解
-                      </span>
+                      ))}
                     </div>
                   </div>
                 )
-              })}
-            </div>
-          </div>
-
-          {/* Actions */}
-          <div className="space-y-3">
-            <div className="flex flex-col gap-3 sm:flex-row">
-              <button
-                onClick={handleWeakMode}
-                aria-label="苦手問題に挑戦する"
-                className="tap-highlight flex-1 rounded-2xl bg-claude-orange px-6 py-3 font-semibold text-white"
-              >
-                🎯 苦手問題に挑戦
-              </button>
-            </div>
-
-            {/* Export/Import buttons */}
-            <div className="flex flex-col gap-3 sm:flex-row">
-              <button
-                onClick={handleExport}
-                aria-label="学習履歴をエクスポートする"
-                className="${buttonStyles.secondary} flex-1"
-              >
-                📥 履歴をエクスポート
-              </button>
-              <button
-                onClick={handleImport}
-                aria-label="学習履歴をインポートする"
-                className="${buttonStyles.secondary} flex-1"
-              >
-                📤 履歴をインポート
-              </button>
-            </div>
-
-            {/* CSV Export button */}
-            <button
-              onClick={handleCsvExport}
-              aria-label="CSVで進捗をエクスポートする"
-              className={`${buttonStyles.secondary} w-full`}
-            >
-              📊 CSVでエクスポート
-            </button>
-
-            {/* Status message */}
-            {exportStatus && (
-              <div
-                className={`rounded-2xl px-4 py-2 text-center text-sm ${
-                  exportStatus.startsWith('エラー') || exportStatus.includes('失敗')
-                    ? 'bg-red-500/20 text-red-400'
-                    : 'bg-green-500/20 text-green-400'
-                }`}
-                role="status"
-                aria-live="polite"
-              >
-                {exportStatus}
+              })()}
+              <div className="space-y-3">
+                {PREDEFINED_CATEGORIES.map((category: Category) => {
+                  const stats = categoryStats[category.id]
+                  const progress = stats
+                    ? Math.round((stats.correctAnswers / Math.max(stats.attemptedQuestions, 1)) * 100)
+                    : 0
+                  const attempted = stats?.attemptedQuestions ?? 0
+                  const total = stats?.totalQuestions ?? 0
+                  return (
+                    <div key={category.id} className={`${cardStyles.base} p-4`}>
+                      <div className="mb-2 flex items-center justify-between">
+                        <div className="flex items-center gap-2">
+                          <span>{category.icon}</span>
+                          <span className="font-medium text-claude-dark">{category.name}</span>
+                          {progress >= 90 && <span className="text-xs">🏆</span>}
+                          {progress >= 70 && progress < 90 && <span className="text-xs">⭐</span>}
+                        </div>
+                        <div className="flex items-center gap-2">
+                          <span
+                            className={`text-sm font-semibold ${progress >= 70 ? 'text-green-600' : progress >= 50 ? 'text-amber-600' : 'text-stone-500'}`}
+                          >
+                            {progress}%
+                          </span>
+                          <span className="text-xs text-stone-400">
+                            {attempted}/{total}
+                          </span>
+                        </div>
+                      </div>
+                      <div className="h-2 overflow-hidden rounded-full bg-stone-200 dark:bg-stone-700">
+                        <div
+                          className="h-full rounded-full progress-gradient"
+                          style={{
+                            width: `${(attempted / Math.max(total, 1)) * 100}%`,
+                            backgroundColor: getColorHex(category.color ?? 'gray'),
+                          }}
+                        />
+                      </div>
+                    </div>
+                  )
+                })}
               </div>
-            )}
+            </CollapsibleSection>
+          )}
 
-            {/* Reset button */}
-            <button
-              onClick={handleResetProgress}
-              aria-label="学習履歴をリセットする"
-              className="tap-highlight w-full rounded-2xl border border-red-600/50 px-6 py-3 font-semibold text-red-400"
-            >
-              履歴をリセット
-            </button>
-          </div>
+          {/* ── Collapsible: Data Management ── */}
+          <CollapsibleSection
+            title="データ管理"
+            isOpen={showDataManagement}
+            onToggle={() => setShowDataManagement(!showDataManagement)}
+          >
+            <div className="space-y-3">
+              <div className="flex flex-col gap-3 sm:flex-row">
+                <button onClick={handleExport} className={`${buttonStyles.secondary} flex-1`}>
+                  📥 履歴をエクスポート
+                </button>
+                <button onClick={handleImport} className={`${buttonStyles.secondary} flex-1`}>
+                  📤 履歴をインポート
+                </button>
+              </div>
+              <button
+                onClick={async () => {
+                  try {
+                    await exportProgressCsv()
+                    showStatus('CSVをエクスポートしました')
+                  } catch {
+                    showStatus('CSVエクスポートに失敗しました', 5000)
+                  }
+                }}
+                className={`${buttonStyles.secondary} w-full`}
+              >
+                📊 CSVでエクスポート
+              </button>
+              {exportStatus && (
+                <div
+                  className={`rounded-2xl px-4 py-2 text-center text-sm ${
+                    exportStatus.startsWith('エラー') || exportStatus.includes('失敗')
+                      ? 'bg-red-500/20 text-red-400'
+                      : 'bg-green-500/20 text-green-400'
+                  }`}
+                  role="status"
+                  aria-live="polite"
+                >
+                  {exportStatus}
+                </div>
+              )}
+              <button
+                onClick={async () => {
+                  if (window.confirm('学習履歴をリセットしますか？この操作は取り消せません。')) {
+                    await resetUserProgress()
+                  }
+                }}
+                className="tap-highlight w-full rounded-2xl border border-red-600/50 px-6 py-3 font-semibold text-red-400"
+              >
+                履歴をリセット
+              </button>
+            </div>
+          </CollapsibleSection>
         </div>
       </div>
     </div>
   )
 }
 
-interface StatCardProps {
-  label: string
-  value: string | number
-  icon: string
+/** Collapsible section with chevron toggle */
+function CollapsibleSection({
+  title,
+  isOpen,
+  onToggle,
+  children,
+}: {
+  title: string
+  isOpen: boolean
+  onToggle: () => void
+  children: React.ReactNode
+}) {
+  return (
+    <div className="mb-4">
+      <button
+        onClick={onToggle}
+        className="tap-highlight mb-2 flex w-full items-center justify-between rounded-xl px-1 py-2 text-left"
+      >
+        <h2 className="text-sm font-semibold text-stone-500">{title}</h2>
+        {isOpen ? <ChevronUp className="h-4 w-4 text-stone-400" /> : <ChevronDown className="h-4 w-4 text-stone-400" />}
+      </button>
+      {isOpen && <div className="animate-card-enter">{children}</div>}
+    </div>
+  )
 }
 
-function StatCard({ label, value, icon }: StatCardProps) {
+function StatCard({ label, value, icon }: { label: string; value: string | number; icon: string }) {
   return (
-    <div className={`animate-card-enter ${cardStyles.elevated} p-4`}>
-      <div className="mb-1 text-2xl">{icon}</div>
-      <div className="text-2xl font-bold text-claude-dark">{value}</div>
-      <div className="text-sm text-stone-500">{label}</div>
+    <div className={`animate-card-enter ${cardStyles.elevated} p-3`}>
+      <div className="mb-0.5 text-lg">{icon}</div>
+      <div className="text-xl font-bold text-claude-dark">{value}</div>
+      <div className="text-xs text-stone-500">{label}</div>
     </div>
   )
 }
