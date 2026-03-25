@@ -14,15 +14,20 @@ import {
   Briefcase,
   GitCompare,
   ChevronDown,
+  HelpCircle,
 } from 'lucide-react'
 import { QuizText } from './QuizText'
 import { DiagramRenderer } from './diagrams/DiagramRenderer'
 
-const PROMPT_TYPES = [
-  { type: 'explain' as const, label: '噛み砕いて解説', icon: BookOpen, description: '例え話で初心者にもわかりやすく' },
-  { type: 'practical' as const, label: '実践シナリオ', icon: Briefcase, description: '開発現場での具体的な活用例' },
-  { type: 'compare' as const, label: '比較・使い分け', icon: GitCompare, description: '類似機能との違いと判断基準' },
-] as const
+type PromptType = 'explain' | 'practical' | 'compare' | 'mistake'
+
+const BASE_PROMPT_TYPES: Array<{ type: PromptType; label: string; icon: typeof BookOpen; description: string }> = [
+  { type: 'explain', label: '噛み砕いて解説', icon: BookOpen, description: '例え話で初心者にもわかりやすく' },
+  { type: 'practical', label: '実践シナリオ', icon: Briefcase, description: '開発現場での具体的な活用例' },
+  { type: 'compare', label: '比較・使い分け', icon: GitCompare, description: '類似機能との違いと判断基準' },
+]
+
+const MISTAKE_PROMPT = { type: 'mistake' as PromptType, label: 'なぜ間違えた？', icon: HelpCircle, description: '混同の原因を分析し、覚え方のコツを教えてもらう' }
 
 interface FeedbackProps {
   quiz: Question
@@ -99,9 +104,12 @@ export function Feedback({ quiz, isCorrect }: FeedbackProps) {
     }
   }
 
-  const handleCopyAIPrompt = async (type: 'explain' | 'practical' | 'compare') => {
+  const handleCopyAIPrompt = async (type: PromptType) => {
     try {
-      const prompt = quiz.generateAIPromptByType(type)
+      const selectedOptionText = type === 'mistake' && selectedOption
+        ? selectedOption.text
+        : undefined
+      const prompt = quiz.generateAIPromptByType(type, selectedOptionText)
 
       const success = await platformAPI.copyToClipboard(prompt)
       if (success) {
@@ -322,7 +330,7 @@ export function Feedback({ quiz, isCorrect }: FeedbackProps) {
               プロンプトをコピーしました — Claude に貼り付けて聞いてみましょう
             </p>
           )}
-          {PROMPT_TYPES.map(({ type, label, icon: Icon, description }) => (
+          {[...(!isCorrect ? [MISTAKE_PROMPT] : []), ...BASE_PROMPT_TYPES].map(({ type, label, icon: Icon, description }) => (
             <button
               key={type}
               onClick={() => handleCopyAIPrompt(type)}
