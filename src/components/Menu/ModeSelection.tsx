@@ -3,7 +3,6 @@ import { useMemo, useState } from 'react'
 import { type Category, PREDEFINED_CATEGORIES } from '@/domain/valueObjects/Category'
 import { type DifficultyLevel, PREDEFINED_DIFFICULTIES } from '@/domain/valueObjects/Difficulty'
 import { PREDEFINED_QUIZ_MODES, type QuizModeId } from '@/domain/valueObjects/QuizMode'
-import { getColorHex } from '@/lib/colors'
 import { haptics } from '@/lib/haptics'
 import { isElectron } from '@/lib/platformAPI'
 import { bottomBarStyles } from '@/lib/styles'
@@ -192,36 +191,50 @@ export function ModeSelection() {
           {(selectedMode === 'category' || selectedMode === 'custom') && (
             <div className="mb-5">
               <h2 className="mb-2 text-sm font-semibold text-stone-500">カテゴリ</h2>
-              <div className="grid grid-cols-3 gap-2 sm:grid-cols-4 lg:grid-cols-8">
-                {PREDEFINED_CATEGORIES.map((category: Category) => (
-                  <button
-                    key={category.id}
-                    onClick={() => {
-                      haptics.light()
-                      setSelectedCategory(selectedCategory === category.id ? null : category.id)
-                    }}
-                    aria-pressed={selectedCategory === category.id}
-                    className={`tap-highlight rounded-2xl border p-2.5 text-center transition-all ${
-                      selectedCategory === category.id
-                        ? 'shadow-sm'
-                        : 'border-stone-200 bg-white dark:border-stone-700 dark:bg-stone-800'
-                    }`}
-                    style={
-                      selectedCategory === category.id
-                        ? {
-                            borderColor: getColorHex(category.color ?? 'gray'),
-                            backgroundColor: `${getColorHex(category.color ?? 'gray')}10`,
-                          }
-                        : {}
-                    }
-                  >
-                    <div className="flex flex-col items-center gap-0.5">
-                      <span className="text-xl">{category.icon}</span>
-                      <span className="text-xs font-medium text-claude-dark">{category.name}</span>
-                      <span className="text-xs text-stone-400">{getCategoryQuestionCount(category.id)}問</span>
-                    </div>
-                  </button>
-                ))}
+              <div className="grid grid-cols-2 gap-2 sm:grid-cols-3">
+                {PREDEFINED_CATEGORIES.map((category: Category) => {
+                  const isSelected = selectedCategory === category.id
+                  const total = getCategoryQuestionCount(category.id)
+                  const cp = userProgress.categoryProgress[category.id]
+                  const attempted = cp?.attemptedQuestions ?? 0
+                  const accuracy = cp?.accuracy ?? 0
+                  const progressPct = total > 0 ? (attempted / total) * 100 : 0
+                  return (
+                    <button
+                      key={category.id}
+                      onClick={() => {
+                        haptics.light()
+                        setSelectedCategory(isSelected ? null : category.id)
+                      }}
+                      aria-pressed={isSelected}
+                      className={`tap-highlight rounded-xl border p-3 text-left transition-all ${
+                        isSelected
+                          ? 'border-claude-orange bg-claude-orange/5 shadow-sm dark:bg-claude-orange/10'
+                          : 'border-stone-200 bg-white dark:border-stone-700 dark:bg-stone-800'
+                      }`}
+                    >
+                      <div className="mb-1 flex items-center justify-between">
+                        <span className="text-xs font-semibold text-stone-500 dark:text-stone-400">
+                          {category.icon} {category.name}
+                        </span>
+                        {accuracy >= 90 && <span className="text-xs">🏆</span>}
+                        {accuracy >= 70 && accuracy < 90 && <span className="text-xs">⭐</span>}
+                      </div>
+                      <div className="mb-1 h-1 overflow-hidden rounded-full bg-stone-100 dark:bg-stone-700">
+                        <div
+                          className={`h-full rounded-full transition-all ${accuracy >= 90 ? 'bg-green-500' : 'progress-gradient'}`}
+                          style={{ width: `${progressPct}%` }}
+                        />
+                      </div>
+                      <div className="flex items-center justify-between text-[10px] text-stone-400">
+                        <span>
+                          {attempted}/{total}問
+                        </span>
+                        {attempted > 0 && <span>{accuracy}%</span>}
+                      </div>
+                    </button>
+                  )
+                })}
               </div>
             </div>
           )}
