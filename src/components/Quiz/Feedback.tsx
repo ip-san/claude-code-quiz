@@ -10,9 +10,19 @@ import {
   Sparkles,
   AlertTriangle,
   FileText,
+  BookOpen,
+  Briefcase,
+  GitCompare,
+  ChevronDown,
 } from 'lucide-react'
 import { QuizText } from './QuizText'
 import { DiagramRenderer } from './diagrams/DiagramRenderer'
+
+const PROMPT_TYPES = [
+  { type: 'explain' as const, label: '噛み砕いて解説', icon: BookOpen, description: '例え話で初心者にもわかりやすく' },
+  { type: 'practical' as const, label: '実践シナリオ', icon: Briefcase, description: '開発現場での具体的な活用例' },
+  { type: 'compare' as const, label: '比較・使い分け', icon: GitCompare, description: '類似機能との違いと判断基準' },
+] as const
 
 interface FeedbackProps {
   quiz: Question
@@ -52,6 +62,7 @@ export function Feedback({ quiz, isCorrect }: FeedbackProps) {
   const [copied, setCopied] = useState(false)
   const [markdownCopied, setMarkdownCopied] = useState(false)
   const [animate, setAnimate] = useState(false)
+  const [showPrompts, setShowPrompts] = useState(false)
 
   const selectedAnswer = sessionState?.selectedAnswer ?? null
   const selectedAnswers = sessionState?.selectedAnswers ?? []
@@ -88,9 +99,9 @@ export function Feedback({ quiz, isCorrect }: FeedbackProps) {
     }
   }
 
-  const handleCopyAIPrompt = async () => {
+  const handleCopyAIPrompt = async (type: 'explain' | 'practical' | 'compare') => {
     try {
-      const prompt = quiz.generateAIPrompt()
+      const prompt = quiz.generateAIPromptByType(type)
 
       const success = await platformAPI.copyToClipboard(prompt)
       if (success) {
@@ -286,27 +297,46 @@ export function Feedback({ quiz, isCorrect }: FeedbackProps) {
             </>
           )}
         </button>
-
-        {!isCorrect && (
-          <button
-            onClick={handleCopyAIPrompt}
-            aria-label={copied ? 'プロンプトをコピーしました' : 'AIに深掘りするためのプロンプトをコピー'}
-            className="tap-highlight flex items-center justify-center gap-1.5 rounded-2xl border border-blue-500/30 bg-blue-500/10 px-4 py-3 text-sm font-medium text-blue-400 dark:border-blue-400/30 dark:bg-blue-400/15 dark:text-blue-300"
-          >
-            {copied ? (
-              <>
-                <Check className="h-4 w-4" aria-hidden="true" />
-                コピーしました
-              </>
-            ) : (
-              <>
-                <Sparkles className="h-4 w-4" aria-hidden="true" />
-                AIに深掘りする
-              </>
-            )}
-          </button>
-        )}
       </div>
+    </AnimatedSection>
+  )
+
+  // 6: AI prompt picker — shown for both correct and incorrect
+  sections.push(
+    <AnimatedSection key="ai-prompts" order={sections.length} animate={animate} noMotion={noMotion} className="mt-3">
+      <button
+        onClick={() => setShowPrompts(v => !v)}
+        className="tap-highlight flex w-full items-center justify-between rounded-2xl border border-blue-500/30 bg-blue-500/10 px-4 py-3 text-sm font-medium text-blue-500 dark:border-blue-400/30 dark:bg-blue-400/15 dark:text-blue-300"
+      >
+        <span className="flex items-center gap-1.5">
+          <Sparkles className="h-4 w-4" aria-hidden="true" />
+          AIにもっと教えてもらう
+        </span>
+        <ChevronDown className={`h-4 w-4 transition-transform ${showPrompts ? 'rotate-180' : ''}`} aria-hidden="true" />
+      </button>
+      {showPrompts && (
+        <div className="mt-2 flex flex-col gap-1.5">
+          {copied && (
+            <p className="text-center text-xs text-green-500">
+              <Check className="mr-1 inline h-3 w-3" />
+              プロンプトをコピーしました — Claude に貼り付けて聞いてみましょう
+            </p>
+          )}
+          {PROMPT_TYPES.map(({ type, label, icon: Icon, description }) => (
+            <button
+              key={type}
+              onClick={() => handleCopyAIPrompt(type)}
+              className="tap-highlight flex items-start gap-3 rounded-xl border border-stone-200 bg-white px-3 py-2.5 text-left dark:border-stone-600 dark:bg-stone-700"
+            >
+              <Icon className="mt-0.5 h-4 w-4 flex-shrink-0 text-blue-400" aria-hidden="true" />
+              <div>
+                <p className="text-sm font-medium text-claude-dark">{label}</p>
+                <p className="text-[11px] text-stone-400 dark:text-stone-500">{description}</p>
+              </div>
+            </button>
+          ))}
+        </div>
+      )}
     </AnimatedSection>
   )
 

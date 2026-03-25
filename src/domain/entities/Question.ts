@@ -295,20 +295,42 @@ export class Question {
    * なければデフォルトのプロンプトを生成。
    */
   generateAIPrompt(): string {
-    if (this.aiPrompt) return this.aiPrompt
+    return this.generateAIPromptByType('explain')
+  }
+
+  /**
+   * タイプ別 AI プロンプトを生成
+   *
+   * - explain: 噛み砕いて解説（初心者向け）
+   * - practical: 実践的なシナリオ・活用例
+   * - compare: 類似概念との比較・使い分け
+   */
+  generateAIPromptByType(type: 'explain' | 'practical' | 'compare'): string {
+    if (type === 'explain' && this.aiPrompt) return this.aiPrompt
 
     const correctAnswers = this.isMultiSelect
       ? this.getCorrectOptions().map(o => o.text).join('\n- ')
       : this.getCorrectOption().text
     const prefix = this.isMultiSelect ? '正解（複数）:\n- ' : '正解: '
 
-    return `Claude Codeの以下の問題について詳しく説明してください：
+    const context = `問題: ${this.question}\n${prefix}${correctAnswers}\n解説: ${this.explanation}`
 
-問題: ${this.question}
-${prefix}${correctAnswers}
-解説: ${this.explanation}
+    switch (type) {
+      case 'explain':
+        return `Claude Codeの以下のトピックについて、初心者にもわかるように噛み砕いて説明してください。専門用語には簡単な補足を添えてください。
 
-この機能の使い方や具体例も含めて教えてください。`
+${context}
+
+この機能が「なぜ必要なのか」を日常の例え話も交えて教えてください。`
+      case 'practical':
+        return `Claude Codeの以下の機能について、実際の開発プロジェクトでの活用シナリオを3つ教えてください。それぞれ「どんな場面で」「具体的にどう使うか」「得られる効果」を含めてください。
+
+${context}`
+      case 'compare':
+        return `Claude Codeの以下のトピックに関連する類似機能や概念との違いを整理してください。「どんな場面でどちらを選ぶべきか」の判断基準も教えてください。
+
+${context}`
+    }
   }
 
   /**
