@@ -1,9 +1,22 @@
-import { BarChart3, Bookmark, BookOpen, HelpCircle, Menu, Moon, RefreshCw, Sun, X } from 'lucide-react'
+import {
+  BarChart3,
+  Bookmark,
+  BookOpen,
+  ChevronDown,
+  ChevronUp,
+  HelpCircle,
+  Menu,
+  Moon,
+  RefreshCw,
+  Sun,
+  X,
+} from 'lucide-react'
 import { useState } from 'react'
 import { KeyboardShortcutHelp } from '@/components/Layout/KeyboardShortcutHelp'
 import { locale } from '@/config/locale'
 import { theme } from '@/config/theme'
 import { DailyGoalService } from '@/domain/services/DailyGoalService'
+import { PREDEFINED_QUIZ_MODES } from '@/domain/valueObjects/QuizMode'
 import { haptics } from '@/lib/haptics'
 import { isElectron } from '@/lib/platformAPI'
 import { applyTheme, getStoredTheme, setStoredTheme, type Theme } from '@/lib/theme'
@@ -26,6 +39,7 @@ export function MenuHeader({ totalQuestions, answeredCount, hasProgress }: MenuH
   const [currentTheme, setCurrentTheme] = useState<Theme>(() => getStoredTheme())
   const [showShortcuts, setShowShortcuts] = useState(false)
   const [menuOpen, setMenuOpen] = useState(false)
+  const [modesExpanded, setModesExpanded] = useState(false)
   const [updateStatus, setUpdateStatus] = useState<'checking' | 'latest' | 'error' | null>(null)
 
   const streak = userProgress.streakDays
@@ -170,6 +184,39 @@ export function MenuHeader({ totalQuestions, answeredCount, hasProgress }: MenuH
                     sublabel="統計・推移・AI活用レベル"
                     onClick={() => handleMenuAction(() => setViewState('progress'))}
                   />
+                )}
+              </div>
+
+              {/* Quiz modes accordion */}
+              <div className="border-b border-stone-100 py-2 dark:border-stone-800">
+                <button
+                  onClick={() => setModesExpanded(!modesExpanded)}
+                  className="tap-highlight flex w-full items-center gap-3 px-4 py-3 text-left text-sm text-claude-dark dark:text-stone-200"
+                >
+                  <span className="text-stone-400">🎮</span>
+                  <span className="flex-1 font-medium">クイズモード</span>
+                  {modesExpanded ? (
+                    <ChevronUp className="h-4 w-4 text-stone-400" />
+                  ) : (
+                    <ChevronDown className="h-4 w-4 text-stone-400" />
+                  )}
+                </button>
+                {modesExpanded && (
+                  <div className="pb-1">
+                    {PREDEFINED_QUIZ_MODES.filter((m) => m.id !== 'review' && m.id !== 'bookmark').map((mode) => (
+                      <button
+                        key={mode.id}
+                        onClick={() => handleMenuAction(() => startSession({ mode: mode.id }))}
+                        className="tap-highlight flex w-full items-center gap-3 px-4 py-2.5 pl-11 text-left"
+                      >
+                        <span className="text-sm">{mode.icon}</span>
+                        <div className="flex-1">
+                          <span className="text-sm text-claude-dark dark:text-stone-200">{mode.name}</span>
+                          <p className="text-[10px] text-stone-400">{mode.description}</p>
+                        </div>
+                      </button>
+                    ))}
+                  </div>
                 )}
               </div>
 
