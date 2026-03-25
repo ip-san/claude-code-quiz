@@ -1,9 +1,9 @@
-import { useMemo } from 'react'
 import { ArrowRight } from 'lucide-react'
+import { useMemo } from 'react'
 import type { Question } from '@/domain/entities/Question'
-import { useQuizStore } from '@/stores/quizStore'
-import { haptics } from '@/lib/haptics'
 import { getDifficultyLabel } from '@/lib/badgeStyles'
+import { haptics } from '@/lib/haptics'
+import { useQuizStore } from '@/stores/quizStore'
 
 interface RelatedQuestionsProps {
   currentQuestion: Question

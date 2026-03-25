@@ -1,6 +1,6 @@
 import { useState } from 'react'
-import { useQuizStore } from '@/stores/quizStore'
 import { DailyGoalService } from '@/domain/services/DailyGoalService'
+import { useQuizStore } from '@/stores/quizStore'
 
 /**
  * DailyGoalIndicator - デイリーゴール進捗の表示と目標変更

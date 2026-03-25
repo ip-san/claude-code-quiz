@@ -1,4 +1,4 @@
-import { Sparkles, GraduationCap, TrendingUp, ArrowRight } from 'lucide-react'
+import { ArrowRight, GraduationCap, Sparkles, TrendingUp } from 'lucide-react'
 import { theme } from '@/config/theme'
 
 const WELCOME_KEY = `${theme.storagePrefix}-welcomed`

@@ -1,5 +1,5 @@
-import { describe, it, expect } from 'vitest'
-import { QuizMode, PREDEFINED_QUIZ_MODES, getQuizModeById } from './QuizMode'
+import { describe, expect, it } from 'vitest'
+import { getQuizModeById, PREDEFINED_QUIZ_MODES, QuizMode } from './QuizMode'
 
 describe('QuizMode Value Object', () => {
   describe('create()', () => {

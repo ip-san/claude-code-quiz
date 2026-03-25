@@ -17,7 +17,7 @@
  * - 全体像モードのタグ品質
  */
 
-import { describe, it, expect } from 'vitest'
+import { describe, expect, it } from 'vitest'
 import quizData from '../../data/quizzes.json'
 import { PREDEFINED_CATEGORIES } from '../../domain/valueObjects/Category'
 

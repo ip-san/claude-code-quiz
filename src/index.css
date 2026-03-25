@@ -123,7 +123,8 @@ pre {
 
 /* System font stack (iOS/Android native feel) */
 html {
-  font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'Helvetica Neue', 'Hiragino Sans', 'Noto Sans JP', sans-serif;
+  font-family:
+    -apple-system, BlinkMacSystemFont, "SF Pro Text", "Helvetica Neue", "Hiragino Sans", "Noto Sans JP", sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   /* Prevent iOS zoom on input focus */
@@ -139,12 +140,14 @@ body {
 }
 
 /* Smooth dark mode toggle (prevents background flash) */
-html, body {
+html,
+body {
   transition: background-color 0.2s ease;
 }
 
 /* Prevent overscroll bounce (native feel) */
-html, body {
+html,
+body {
   overscroll-behavior: none;
 }
 
@@ -210,7 +213,7 @@ html, body {
   button:focus-visible,
   [role="option"]:focus-visible,
   [role="checkbox"]:focus-visible {
-    outline: 2px solid #D97757;
+    outline: 2px solid #d97757;
     outline-offset: 2px;
   }
 }
@@ -227,7 +230,7 @@ html, body {
 
 /* Gradient progress bar */
 .progress-gradient {
-  background: linear-gradient(90deg, #D97757, #e8956e);
+  background: linear-gradient(90deg, #d97757, #e8956e);
 }
 .progress-gradient-green {
   background: linear-gradient(90deg, #22c55e, #4ade80);
@@ -276,7 +279,8 @@ html, body {
 
 /* Wrong answer — shake + red border flash */
 @keyframes wrong-flash {
-  0%, 100% {
+  0%,
+  100% {
     border-color: transparent;
     background-color: white;
   }
@@ -286,7 +290,8 @@ html, body {
   }
 }
 @keyframes wrong-flash-dark {
-  0%, 100% {
+  0%,
+  100% {
     border-color: transparent;
     background-color: #292524;
   }
@@ -320,15 +325,27 @@ html, body {
   animation: brush-draw 0.35s cubic-bezier(0.25, 0.1, 0.25, 1) 0.06s forwards;
 }
 @keyframes brush-draw {
-  to { stroke-dashoffset: 0; }
+  to {
+    stroke-dashoffset: 0;
+  }
 }
 
 /* Correct check icon — scale pop + stroke draw */
 @keyframes check-icon-pop {
-  0% { transform: scale(0); opacity: 0; }
-  50% { transform: scale(1.3); }
-  70% { transform: scale(0.9); }
-  100% { transform: scale(1); opacity: 1; }
+  0% {
+    transform: scale(0);
+    opacity: 0;
+  }
+  50% {
+    transform: scale(1.3);
+  }
+  70% {
+    transform: scale(0.9);
+  }
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
 }
 .check-icon-enter {
   animation: check-icon-pop 0.4s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
@@ -341,17 +358,34 @@ html, body {
   animation: draw-check 0.3s ease-out 0.15s forwards;
 }
 @keyframes draw-check {
-  to { stroke-dashoffset: 0; }
+  to {
+    stroke-dashoffset: 0;
+  }
 }
 
 /* Wrong X icon — shake in */
 @keyframes wrong-icon-shake {
-  0% { transform: scale(0); opacity: 0; }
-  40% { transform: scale(1.1); opacity: 1; }
-  55% { transform: scale(1.1) rotate(8deg); }
-  70% { transform: scale(1.1) rotate(-8deg); }
-  85% { transform: scale(1) rotate(4deg); }
-  100% { transform: scale(1) rotate(0deg); opacity: 1; }
+  0% {
+    transform: scale(0);
+    opacity: 0;
+  }
+  40% {
+    transform: scale(1.1);
+    opacity: 1;
+  }
+  55% {
+    transform: scale(1.1) rotate(8deg);
+  }
+  70% {
+    transform: scale(1.1) rotate(-8deg);
+  }
+  85% {
+    transform: scale(1) rotate(4deg);
+  }
+  100% {
+    transform: scale(1) rotate(0deg);
+    opacity: 1;
+  }
 }
 .wrong-icon-enter {
   animation: wrong-icon-shake 0.5s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
@@ -359,7 +393,9 @@ html, body {
 
 /* Respect prefers-reduced-motion globally */
 @media (prefers-reduced-motion: reduce) {
-  *, *::before, *::after {
+  *,
+  *::before,
+  *::after {
     animation-duration: 0.01ms !important;
     animation-iteration-count: 1 !important;
     transition-duration: 0.01ms !important;

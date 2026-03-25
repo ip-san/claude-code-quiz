@@ -1,7 +1,7 @@
-import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest'
-import { QuizSessionService, type QuizSessionConfig } from './QuizSessionService'
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { Question } from '../entities/Question'
 import { UserProgress } from '../entities/UserProgress'
+import { type QuizSessionConfig, QuizSessionService } from './QuizSessionService'
 
 describe('QuizSessionService', () => {
   let mockNow: number

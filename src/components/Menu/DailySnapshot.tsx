@@ -1,10 +1,10 @@
+import { Clock, X, Zap } from 'lucide-react'
 import { useMemo } from 'react'
-import { Zap, Clock, X } from 'lucide-react'
-import { useQuizStore } from '@/stores/quizStore'
-import { SpacedRepetitionService } from '@/domain/services/SpacedRepetitionService'
-import { DailyGoalService } from '@/domain/services/DailyGoalService'
-import { haptics } from '@/lib/haptics'
 import { theme } from '@/config/theme'
+import { DailyGoalService } from '@/domain/services/DailyGoalService'
+import { SpacedRepetitionService } from '@/domain/services/SpacedRepetitionService'
+import { haptics } from '@/lib/haptics'
+import { useQuizStore } from '@/stores/quizStore'
 
 const SNAPSHOT_KEY = `${theme.storagePrefix}-snapshot-dismissed`
 const LEGACY_SNAPSHOT_KEY = 'snapshot-dismissed-date'

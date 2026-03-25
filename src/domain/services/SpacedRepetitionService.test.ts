@@ -1,7 +1,7 @@
-import { describe, it, expect } from 'vitest'
-import { SpacedRepetitionService } from './SpacedRepetitionService'
-import { UserProgress, type QuestionProgress } from '../entities/UserProgress'
+import { describe, expect, it } from 'vitest'
 import { Question } from '../entities/Question'
+import { type QuestionProgress, UserProgress } from '../entities/UserProgress'
+import { SpacedRepetitionService } from './SpacedRepetitionService'
 
 const DAY_MS = 86400000
 

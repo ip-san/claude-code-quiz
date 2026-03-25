@@ -1,8 +1,8 @@
-import { useMemo } from 'react'
 import { TrendingUp } from 'lucide-react'
+import { useMemo } from 'react'
 import type { Question } from '@/domain/entities/Question'
-import type { AnswerRecord } from '@/domain/services/QuizSessionService'
 import type { UserProgress } from '@/domain/entities/UserProgress'
+import type { AnswerRecord } from '@/domain/services/QuizSessionService'
 import { getCategoryById } from '@/domain/valueObjects/Category'
 
 interface CategoryBreakthroughBadgeProps {

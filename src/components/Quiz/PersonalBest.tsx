@@ -1,5 +1,5 @@
-import { useMemo } from 'react'
 import { Trophy } from 'lucide-react'
+import { useMemo } from 'react'
 import type { SessionRecord } from '@/domain/entities/UserProgress'
 
 interface PersonalBestProps {

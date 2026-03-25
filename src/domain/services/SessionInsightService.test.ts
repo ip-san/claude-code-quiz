@@ -1,6 +1,6 @@
-import { describe, it, expect } from 'vitest'
-import { SessionInsightService } from './SessionInsightService'
+import { describe, expect, it } from 'vitest'
 import type { SessionRecord } from '../entities/UserProgress'
+import { SessionInsightService } from './SessionInsightService'
 
 function createSession(percentage: number, index: number = 0): SessionRecord {
   return {

@@ -1,7 +1,0 @@
-dist/
-dist-web/
-dist-electron/
-release/
-coverage/
-node_modules/
-*.json

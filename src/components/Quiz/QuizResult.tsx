@@ -1,19 +1,19 @@
-import { useMemo, useState, useEffect } from 'react'
-import { useQuizStore, APP_CONFIG } from '@/stores/quizStore'
-import { getScoreMessage } from '@/domain/services/ScoreMessageService'
-import { getOverviewRecommendation } from '@/domain/services/RecommendationService'
-import { getChapterFromTags } from '@/domain/valueObjects/OverviewChapter'
-import { RotateCcw, Star, Home, BookOpen, ArrowRight, Target, Share2 } from 'lucide-react'
-import { ScoreRing } from './ScoreRing'
-import { ConfettiEffect } from './ConfettiEffect'
-import { StreakMilestoneBadge, DailyGoalBadge } from './StreakMilestoneBadge'
-import { DailyGoalService } from '@/domain/services/DailyGoalService'
+import { ArrowRight, BookOpen, Home, RotateCcw, Share2, Star, Target } from 'lucide-react'
+import { useEffect, useMemo, useState } from 'react'
 import { theme } from '@/config/theme'
-import { CertificateGenerator } from './CertificateGenerator'
-import { PersonalBest } from './PersonalBest'
-import { SkillsAcquired } from './SkillsAcquired'
-import { TeamShareGuide } from './TeamShareGuide'
+import { DailyGoalService } from '@/domain/services/DailyGoalService'
+import { getOverviewRecommendation } from '@/domain/services/RecommendationService'
+import { getScoreMessage } from '@/domain/services/ScoreMessageService'
+import { getChapterFromTags } from '@/domain/valueObjects/OverviewChapter'
+import { APP_CONFIG, useQuizStore } from '@/stores/quizStore'
 import { CategoryBreakthroughBadge } from './CategoryBreakthroughBadge'
+import { CertificateGenerator } from './CertificateGenerator'
+import { ConfettiEffect } from './ConfettiEffect'
+import { PersonalBest } from './PersonalBest'
+import { ScoreRing } from './ScoreRing'
+import { SkillsAcquired } from './SkillsAcquired'
+import { DailyGoalBadge, StreakMilestoneBadge } from './StreakMilestoneBadge'
+import { TeamShareGuide } from './TeamShareGuide'
 
 // Star visualization constants
 const STAR_COUNT = 5
@@ -293,7 +293,9 @@ export function QuizResult() {
                       text: `${stars}\n${theme.appName}: ${score}/${answeredCount}問正解 (${percentage}%)\n${isPassing ? '✅ 合格！' : '📚 もう少し！'}\n${theme.shareHashtags}`,
                       url: window.location.href,
                     })
-                    .catch(() => {})
+                    .catch(() => {
+                      /* user cancelled share */
+                    })
                 }}
                 className="tap-highlight inline-flex w-full items-center justify-center gap-2 rounded-2xl border border-stone-300 px-6 py-3.5 text-base font-semibold text-stone-600 dark:border-stone-600 dark:text-stone-300"
               >

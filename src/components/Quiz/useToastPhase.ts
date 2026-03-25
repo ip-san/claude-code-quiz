@@ -1,4 +1,4 @@
-import { useState, useCallback, CSSProperties } from 'react'
+import { CSSProperties, useCallback, useState } from 'react'
 
 type ToastPhase = 'hidden' | 'enter' | 'visible' | 'exit'
 

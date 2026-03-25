@@ -35,23 +35,21 @@
  */
 
 import { create } from 'zustand'
-
+import { theme } from '@/config/theme'
 // Domain imports
 import { Question } from '@/domain/entities/Question'
 import { UserProgress } from '@/domain/entities/UserProgress'
-import type { QuizModeId } from '@/domain/valueObjects/QuizMode'
-import type { DifficultyLevel } from '@/domain/valueObjects/Difficulty'
-import { PREDEFINED_CATEGORIES } from '@/domain/valueObjects/Category'
-import { getQuizModeById } from '@/domain/valueObjects/QuizMode'
-import { theme } from '@/config/theme'
-import { QuizSessionService, type QuizSessionConfig, type QuizSessionState } from '@/domain/services/QuizSessionService'
-import { ProgressExportService } from '@/domain/services/ProgressExportService'
-
-// Infrastructure imports
-import { getQuizRepository, getProgressRepository } from '@/infrastructure'
-import { platformAPI } from '@/lib/platformAPI'
 import { DailyGoalService } from '@/domain/services/DailyGoalService'
+import { ProgressExportService } from '@/domain/services/ProgressExportService'
+import { type QuizSessionConfig, QuizSessionService, type QuizSessionState } from '@/domain/services/QuizSessionService'
+import { PREDEFINED_CATEGORIES } from '@/domain/valueObjects/Category'
+import type { DifficultyLevel } from '@/domain/valueObjects/Difficulty'
+import type { QuizModeId } from '@/domain/valueObjects/QuizMode'
+import { getQuizModeById } from '@/domain/valueObjects/QuizMode'
+// Infrastructure imports
+import { getProgressRepository, getQuizRepository } from '@/infrastructure'
 import { getSessionRepository, type SavedSessionData } from '@/infrastructure/persistence/SessionRepository'
+import { platformAPI } from '@/lib/platformAPI'
 
 // ============================================================
 // View State
@@ -927,7 +925,7 @@ export const useQuizStore = create<QuizStore>((set, get) => ({
   useHint: () => {
     const state = get()
     if (!state.sessionState) return
-    // eslint-disable-next-line react-hooks/rules-of-hooks -- QuizSessionService.useHint is not a React Hook
+    // biome-ignore lint/correctness/useHookAtTopLevel: QuizSessionService.useHint is not a React Hook
     const newSessionState = QuizSessionService.useHint(state.sessionState)
     set({ sessionState: newSessionState })
   },
@@ -1021,6 +1019,6 @@ export const useQuizStore = create<QuizStore>((set, get) => ({
   },
 }))
 
+export type { QuizSessionConfig, QuizSessionState }
 // Re-export types and configs
 export { APP_CONFIG }
-export type { QuizSessionConfig, QuizSessionState }

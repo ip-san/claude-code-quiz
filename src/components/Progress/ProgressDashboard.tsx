@@ -1,16 +1,15 @@
-import { useState, useRef, useEffect, useCallback } from 'react'
-import { useQuizStore } from '@/stores/quizStore'
-import { platformAPI } from '@/lib/platformAPI'
-import { PREDEFINED_CATEGORIES, type Category } from '@/domain/valueObjects/Category'
+import { useCallback, useEffect, useRef, useState } from 'react'
+import { SessionInsightService } from '@/domain/services/SessionInsightService'
+import { type Category, PREDEFINED_CATEGORIES } from '@/domain/valueObjects/Category'
 import { getProgressRepository } from '@/infrastructure/persistence/LocalStorageProgressRepository'
+import { getColorHex } from '@/lib/colors'
+import { platformAPI } from '@/lib/platformAPI'
+import { buttonStyles, cardStyles, headerStyles, pageStyles } from '@/lib/styles'
+import { useQuizStore } from '@/stores/quizStore'
+import { LearningRecommendation } from './LearningRecommendation'
 import { SessionHistoryChart } from './SessionHistoryChart'
 import { SessionHistoryList } from './SessionHistoryList'
-import { SessionInsightService } from '@/domain/services/SessionInsightService'
-import { LearningRecommendation } from './LearningRecommendation'
 import { WeakPointInsight } from './WeakPointInsight'
-
-import { getColorHex } from '@/lib/colors'
-import { pageStyles, headerStyles, cardStyles, buttonStyles } from '@/lib/styles'
 
 /**
  * Progress Dashboard component

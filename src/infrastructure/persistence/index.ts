@@ -1,2 +1,2 @@
-export * from './LocalStorageProgressRepository'
 export * from './ElectronStoreQuizRepository'
+export * from './LocalStorageProgressRepository'

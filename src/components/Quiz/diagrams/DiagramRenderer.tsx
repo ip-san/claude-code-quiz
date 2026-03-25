@@ -1,8 +1,8 @@
 import type { DiagramData } from '@/infrastructure/validation/QuizValidator'
-import { HierarchyDiagram } from './HierarchyDiagram'
-import { FlowDiagram } from './FlowDiagram'
-import { CycleDiagram } from './CycleDiagram'
 import { ComparisonDiagram } from './ComparisonDiagram'
+import { CycleDiagram } from './CycleDiagram'
+import { FlowDiagram } from './FlowDiagram'
+import { HierarchyDiagram } from './HierarchyDiagram'
 
 interface DiagramRendererProps {
   diagram: DiagramData

@@ -1,6 +1,6 @@
-import { useEffect, useState } from 'react'
 import { Heart } from 'lucide-react'
-import { useToastPhase, toastContainerProps } from './useToastPhase'
+import { useEffect, useState } from 'react'
+import { toastContainerProps, useToastPhase } from './useToastPhase'
 
 interface EncouragementToastProps {
   wrongStreak: number

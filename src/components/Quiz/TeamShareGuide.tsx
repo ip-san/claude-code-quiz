@@ -1,6 +1,6 @@
-import { Users, Copy, Check } from 'lucide-react'
-import { useCopyToClipboard } from '@/lib/useCopyToClipboard'
+import { Check, Copy, Users } from 'lucide-react'
 import { theme } from '@/config/theme'
+import { useCopyToClipboard } from '@/lib/useCopyToClipboard'
 
 interface TeamShareGuideProps {
   percentage: number

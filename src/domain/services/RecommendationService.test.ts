@@ -1,6 +1,6 @@
-import { describe, it, expect } from 'vitest'
-import { getOverviewRecommendation } from './RecommendationService'
+import { describe, expect, it } from 'vitest'
 import { Question } from '../entities/Question'
+import { getOverviewRecommendation } from './RecommendationService'
 
 function makeQuestion(id: string, category: string): Question {
   return Question.create({

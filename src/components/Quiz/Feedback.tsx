@@ -1,23 +1,23 @@
-import { useState, useEffect, useMemo } from 'react'
-import { useQuizStore } from '@/stores/quizStore'
-import type { Question } from '@/domain/entities/Question'
-import { platformAPI } from '@/lib/platformAPI'
 import {
-  CheckCircle2,
-  XCircle,
-  ExternalLink,
-  Check,
-  Sparkles,
   AlertTriangle,
-  FileText,
   BookOpen,
   Briefcase,
-  GitCompare,
+  Check,
+  CheckCircle2,
   ChevronDown,
+  ExternalLink,
+  FileText,
+  GitCompare,
+  Sparkles,
+  XCircle,
 } from 'lucide-react'
-import { QuizText } from './QuizText'
-import { DiagramRenderer } from './diagrams/DiagramRenderer'
+import { useEffect, useMemo, useState } from 'react'
 import { locale } from '@/config/locale'
+import type { Question } from '@/domain/entities/Question'
+import { platformAPI } from '@/lib/platformAPI'
+import { useQuizStore } from '@/stores/quizStore'
+import { DiagramRenderer } from './diagrams/DiagramRenderer'
+import { QuizText } from './QuizText'
 
 type PromptType = 'explain' | 'practical' | 'compare'
 

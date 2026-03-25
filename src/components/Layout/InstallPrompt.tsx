@@ -1,5 +1,5 @@
-import { useState, useEffect } from 'react'
-import { Download, X, Share } from 'lucide-react'
+import { Download, Share, X } from 'lucide-react'
+import { useEffect, useState } from 'react'
 
 interface BeforeInstallPromptEvent extends Event {
   prompt: () => Promise<void>

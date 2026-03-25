@@ -1,6 +1,6 @@
 import { ChevronLeft, ChevronRight, Send } from 'lucide-react'
-import { haptics } from '@/lib/haptics'
 import type { QuizSessionState } from '@/domain/services/QuizSessionService'
+import { haptics } from '@/lib/haptics'
 
 interface QuizBottomBarProps {
   sessionState: QuizSessionState | null

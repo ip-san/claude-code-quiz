@@ -1,5 +1,5 @@
+import { Keyboard, X } from 'lucide-react'
 import { useEffect, useRef } from 'react'
-import { X, Keyboard } from 'lucide-react'
 
 interface KeyboardShortcutHelpProps {
   isOpen: boolean

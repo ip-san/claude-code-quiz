@@ -1,7 +1,7 @@
+import { Compass, RefreshCw, TrendingUp, Trophy } from 'lucide-react'
 import { useMemo } from 'react'
 import { PREDEFINED_CATEGORIES } from '@/domain/valueObjects/Category'
 import type { QuizModeId } from '@/domain/valueObjects/QuizMode'
-import { Compass, TrendingUp, RefreshCw, Trophy } from 'lucide-react'
 
 interface CategoryStat {
   totalQuestions: number

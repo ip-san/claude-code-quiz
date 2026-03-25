@@ -5,8 +5,8 @@
  * QuizSessionService と同様、すべてのメソッドが static でステートレス。
  */
 
-import type { UserProgress } from '../entities/UserProgress'
 import type { Question } from '../entities/Question'
+import type { UserProgress } from '../entities/UserProgress'
 
 export class ProgressExportService {
   /** ヘッダー行 + データ行を CSV 文字列に結合 */

@@ -1,6 +1,6 @@
-import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest'
-import { QuizSet } from './QuizSet'
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { Question } from './Question'
+import { QuizSet } from './QuizSet'
 
 describe('QuizSet Entity', () => {
   let mockNow: number

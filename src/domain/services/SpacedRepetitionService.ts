@@ -6,9 +6,8 @@
  * 期限到来の問題を優先的に出題する。
  */
 
-import type { QuestionProgress } from '../entities/UserProgress'
 import type { Question } from '../entities/Question'
-import type { UserProgress } from '../entities/UserProgress'
+import type { QuestionProgress, UserProgress } from '../entities/UserProgress'
 
 /** 間隔反復の復習間隔テーブル（ミリ秒） */
 export const SRS_INTERVALS_MS: readonly number[] = [

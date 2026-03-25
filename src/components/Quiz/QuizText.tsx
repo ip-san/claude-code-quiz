@@ -47,6 +47,7 @@ function parseInlineCode(
   let match: RegExpExecArray | null
   let codeCount = 0
 
+  // biome-ignore lint/suspicious/noAssignInExpressions: regex exec loop pattern
   while ((match = regex.exec(text)) !== null) {
     // Text before the match
     if (match.index > lastIndex) {

@@ -1,4 +1,4 @@
-import { X, Square, CheckSquare } from 'lucide-react'
+import { CheckSquare, Square, X } from 'lucide-react'
 import { QuizText } from './QuizText'
 
 interface OptionButtonProps {

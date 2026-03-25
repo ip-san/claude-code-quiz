@@ -22,9 +22,9 @@
  * - Question.fromData(): 外部データから安全に作成（例外を投げない）
  */
 
-import type { DifficultyLevel } from '../valueObjects/Difficulty'
-import type { DiagramData } from '../../infrastructure/validation/QuizValidator'
 import { theme } from '@/config/theme'
+import type { DiagramData } from '../../infrastructure/validation/QuizValidator'
+import type { DifficultyLevel } from '../valueObjects/Difficulty'
 
 /**
  * 選択肢の値オブジェクト

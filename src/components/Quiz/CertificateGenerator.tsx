@@ -1,5 +1,5 @@
-import { useState } from 'react'
 import { Award } from 'lucide-react'
+import { useState } from 'react'
 import { theme } from '@/config/theme'
 
 interface CertificateGeneratorProps {

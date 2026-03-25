@@ -1,6 +1,6 @@
 import { useMemo } from 'react'
+import { getCategoryCount, theme } from '@/config/theme'
 import { PREDEFINED_CATEGORIES } from '@/domain/valueObjects/Category'
-import { theme, getCategoryCount } from '@/config/theme'
 
 const MASTERY_LEVELS = theme.masteryLevels
 

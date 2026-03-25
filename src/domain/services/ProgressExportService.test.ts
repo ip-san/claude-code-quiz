@@ -1,7 +1,7 @@
-import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest'
-import { ProgressExportService } from './ProgressExportService'
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { Question } from '../entities/Question'
 import { UserProgress } from '../entities/UserProgress'
+import { ProgressExportService } from './ProgressExportService'
 
 describe('ProgressExportService', () => {
   let mockNow: number

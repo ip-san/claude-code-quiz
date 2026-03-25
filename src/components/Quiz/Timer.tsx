@@ -1,6 +1,6 @@
-import { useEffect, useRef, useCallback } from 'react'
-import { useQuizStore } from '@/stores/quizStore'
+import { useCallback, useEffect, useRef } from 'react'
 import { haptics } from '@/lib/haptics'
+import { useQuizStore } from '@/stores/quizStore'
 
 // Time thresholds (in seconds) - extracted as constants for maintainability
 const LOW_TIME_THRESHOLD = 300 // 5 minutes warning

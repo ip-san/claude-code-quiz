@@ -5,9 +5,8 @@
  * Question エンティティは保存せず、ID のみ保持してサイズを最小化。
  */
 
-import type { QuizSessionConfig } from '../../domain/services/QuizSessionService'
-
 import { theme } from '@/config/theme'
+import type { QuizSessionConfig } from '../../domain/services/QuizSessionService'
 
 const STORAGE_KEY = `${theme.storagePrefix}-session`
 

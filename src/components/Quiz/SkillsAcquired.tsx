@@ -1,8 +1,8 @@
+import { CheckCircle } from 'lucide-react'
 import { useMemo } from 'react'
+import { getSkillDescription } from '@/config/theme'
 import type { Question } from '@/domain/entities/Question'
 import type { AnswerRecord } from '@/domain/services/QuizSessionService'
-import { CheckCircle } from 'lucide-react'
-import { getSkillDescription } from '@/config/theme'
 
 interface SkillsAcquiredProps {
   questions: readonly Question[]

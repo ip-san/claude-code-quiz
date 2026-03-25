@@ -1,8 +1,7 @@
-import type { IProgressRepository } from '../../domain/repositories/IProgressRepository'
-import { UserProgress } from '../../domain/entities/UserProgress'
-import { validateUserProgress } from '../validation/QuizValidator'
-
 import { theme } from '@/config/theme'
+import { UserProgress } from '../../domain/entities/UserProgress'
+import type { IProgressRepository } from '../../domain/repositories/IProgressRepository'
+import { validateUserProgress } from '../validation/QuizValidator'
 
 const STORAGE_KEY = `${theme.storagePrefix}-progress`
 

@@ -1,10 +1,10 @@
-import { useState } from 'react'
 import { BarChart3, HelpCircle, Moon, Sun } from 'lucide-react'
-import { useQuizStore } from '@/stores/quizStore'
-import { getStoredTheme, setStoredTheme, applyTheme, type Theme } from '@/lib/theme'
-import { AnimatedCounter } from './AnimatedCounter'
+import { useState } from 'react'
 import { KeyboardShortcutHelp } from '@/components/Layout/KeyboardShortcutHelp'
 import { theme } from '@/config/theme'
+import { applyTheme, getStoredTheme, setStoredTheme, type Theme } from '@/lib/theme'
+import { useQuizStore } from '@/stores/quizStore'
+import { AnimatedCounter } from './AnimatedCounter'
 
 interface MenuHeaderProps {
   totalQuestions: number

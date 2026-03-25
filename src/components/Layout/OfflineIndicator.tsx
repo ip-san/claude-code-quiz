@@ -1,5 +1,5 @@
-import { useState, useEffect } from 'react'
 import { WifiOff } from 'lucide-react'
+import { useEffect, useState } from 'react'
 
 /**
  * オフライン時に画面上部にバナーを表示する。

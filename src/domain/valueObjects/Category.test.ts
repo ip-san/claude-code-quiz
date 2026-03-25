@@ -1,6 +1,6 @@
-import { describe, it, expect } from 'vitest'
-import { Category, PREDEFINED_CATEGORIES, getCategoryById } from './Category'
+import { describe, expect, it } from 'vitest'
 import { theme } from '@/config/theme'
+import { Category, getCategoryById, PREDEFINED_CATEGORIES } from './Category'
 
 describe('Category Value Object', () => {
   describe('create()', () => {

@@ -1,9 +1,8 @@
-import type { IQuizRepository } from '../../domain/repositories/IQuizRepository'
-import { QuizSet } from '../../domain/entities/QuizSet'
-import { type QuizFileData } from '../validation/QuizValidator'
-
 // Import default quiz data
 import defaultQuizData from '../../data/quizzes.json'
+import { QuizSet } from '../../domain/entities/QuizSet'
+import type { IQuizRepository } from '../../domain/repositories/IQuizRepository'
+import { type QuizFileData } from '../validation/QuizValidator'
 
 /**
  * ElectronStoreQuizRepository

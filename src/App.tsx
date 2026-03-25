@@ -1,18 +1,19 @@
-import { useEffect, useState, useMemo } from 'react'
-import { useQuizStore } from '@/stores/quizStore'
-import { isElectron } from '@/lib/platformAPI'
+import { useEffect, useMemo, useState } from 'react'
 import { ModeSelection } from '@/components/Menu/ModeSelection'
 import { QuizCard } from '@/components/Quiz/QuizCard'
 import { Timer } from '@/components/Quiz/Timer'
+import { isElectron } from '@/lib/platformAPI'
+import { useQuizStore } from '@/stores/quizStore'
 
 // Lazy-load screens not needed on initial render
 const QuizResult = lazy(() => import('@/components/Quiz/QuizResult').then((m) => ({ default: m.QuizResult })))
 const ProgressDashboard = lazy(() =>
   import('@/components/Progress/ProgressDashboard').then((m) => ({ default: m.ProgressDashboard }))
 )
-import { getChapterFromTags } from '@/domain/valueObjects/OverviewChapter'
+
 import { XCircle } from 'lucide-react'
-import { pageStyles, headerStyles } from '@/lib/styles'
+import { getChapterFromTags } from '@/domain/valueObjects/OverviewChapter'
+import { headerStyles, pageStyles } from '@/lib/styles'
 
 /** Compact loading indicator for lazy-loaded screens */
 function LoadingSpinner() {
@@ -28,10 +29,11 @@ function setThemeColor(color: string) {
   const meta = document.querySelector('meta[name="theme-color"]')
   if (meta) meta.setAttribute('content', color)
 }
+
 import { lazy, Suspense, useRef } from 'react'
-import { OfflineIndicator } from '@/components/Layout/OfflineIndicator'
 import { InstallPrompt } from '@/components/Layout/InstallPrompt'
-import { WelcomeScreen, hasSeenWelcome } from '@/components/Layout/WelcomeScreen'
+import { OfflineIndicator } from '@/components/Layout/OfflineIndicator'
+import { hasSeenWelcome, WelcomeScreen } from '@/components/Layout/WelcomeScreen'
 
 // Lazy-load PWA update prompt only in web builds (avoids virtual:pwa-register error in Electron)
 const PWAUpdatePrompt = !isElectron

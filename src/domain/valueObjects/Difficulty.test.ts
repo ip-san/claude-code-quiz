@@ -1,4 +1,4 @@
-import { describe, it, expect } from 'vitest'
+import { describe, expect, it } from 'vitest'
 import { Difficulty, PREDEFINED_DIFFICULTIES } from './Difficulty'
 
 describe('Difficulty Value Object', () => {

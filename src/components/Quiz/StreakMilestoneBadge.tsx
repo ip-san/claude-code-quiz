@@ -1,5 +1,5 @@
-import { StreakMilestoneService } from '@/domain/services/StreakMilestoneService'
 import { DailyGoalService } from '@/domain/services/DailyGoalService'
+import { StreakMilestoneService } from '@/domain/services/StreakMilestoneService'
 
 interface StreakMilestoneBadgeProps {
   currentStreak: number

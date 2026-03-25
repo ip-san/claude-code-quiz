@@ -1,5 +1,5 @@
-import { useQuizStore } from '@/stores/quizStore'
 import { haptics } from '@/lib/haptics'
+import { useQuizStore } from '@/stores/quizStore'
 
 /**
  * 初回ユーザー向けの導入カード

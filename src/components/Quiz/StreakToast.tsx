@@ -1,6 +1,6 @@
-import { useEffect, useState } from 'react'
 import { Flame } from 'lucide-react'
-import { useToastPhase, toastContainerProps } from './useToastPhase'
+import { useEffect, useState } from 'react'
+import { toastContainerProps, useToastPhase } from './useToastPhase'
 
 interface StreakToastProps {
   streak: number
