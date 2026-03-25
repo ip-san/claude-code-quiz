@@ -3,6 +3,7 @@ name: quiz-refine
 description: クイズの検証・修正。--dry-run で報告のみ。quiz refine、クイズ検証、自律修正
 context: fork
 allowed-tools: Read, Write, Edit, Bash, Grep, Glob, TodoWrite
+argument-hint: "[iterations] [categories...] [--dry-run] [--full] [--force]"
 ---
 
 # Quiz Refine Skill
