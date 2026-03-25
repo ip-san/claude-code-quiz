@@ -7,6 +7,9 @@
 
 export const isElectron = typeof window !== 'undefined' && !!window.electronAPI
 
+// isElectron === true の場合にのみ呼ばれるため、electronAPI は確実に存在する
+const api = () => window.electronAPI as NonNullable<typeof window.electronAPI>
+
 function downloadFile(content: string, filename: string, mimeType: string) {
   const blob = new Blob([content], { type: mimeType })
   const url = URL.createObjectURL(blob)
@@ -64,14 +67,14 @@ function pickAndReadFile(accept: string): Promise<{ success: boolean; data?: str
 
 export const platformAPI = {
   openExternal: isElectron
-    ? (url: string) => window.electronAPI!.openExternal(url)
+    ? (url: string) => api().openExternal(url)
     : (url: string) => {
         window.open(url, '_blank', 'noopener,noreferrer')
         return Promise.resolve(true)
       },
 
   copyToClipboard: isElectron
-    ? (text: string) => window.electronAPI!.copyToClipboard(text)
+    ? (text: string) => api().copyToClipboard(text)
     : async (text: string) => {
         try {
           await navigator.clipboard.writeText(text)
@@ -82,16 +85,16 @@ export const platformAPI = {
       },
 
   exportProgress: isElectron
-    ? (data: string) => window.electronAPI!.exportProgress(data)
+    ? (data: string) => api().exportProgress(data)
     : async (data: string): Promise<{ success: boolean; error?: string }> => {
         downloadFile(data, 'quiz-progress.json', 'application/json')
         return { success: true }
       },
 
-  importProgress: isElectron ? () => window.electronAPI!.importProgress() : () => pickAndReadFile('.json'),
+  importProgress: isElectron ? () => api().importProgress() : () => pickAndReadFile('.json'),
 
   exportCsv: isElectron
-    ? (data: string, filename: string) => window.electronAPI!.exportCsv(data, filename)
+    ? (data: string, filename: string) => api().exportCsv(data, filename)
     : async (data: string, filename: string): Promise<{ success: boolean; error?: string }> => {
         downloadFile(data, filename, 'text/csv')
         return { success: true }

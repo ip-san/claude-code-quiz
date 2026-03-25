@@ -244,7 +244,7 @@ export function Feedback({ quiz, isCorrect }: FeedbackProps) {
               <p className="mb-1 font-medium text-claude-dark">{locale.feedback.whyWrong}</p>
               {wrongSelected.map((opt, i) => (
                 <p key={i} className="text-sm leading-relaxed text-stone-600 dark:text-stone-300">
-                  <QuizText text={opt.wrongFeedback!} />
+                  <QuizText text={opt.wrongFeedback ?? ''} />
                 </p>
               ))}
             </div>
@@ -267,7 +267,7 @@ export function Feedback({ quiz, isCorrect }: FeedbackProps) {
           <div>
             <p className="mb-1 font-medium text-claude-dark">{locale.feedback.whyWrong}</p>
             <p className="text-sm leading-relaxed text-stone-600 dark:text-stone-300">
-              <QuizText text={selectedOption.wrongFeedback!} />
+              <QuizText text={selectedOption.wrongFeedback ?? ''} />
             </p>
           </div>
         </div>

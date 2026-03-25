@@ -44,7 +44,8 @@ export class ProgressExportService {
       if (!categoryMap.has(q.category)) {
         categoryMap.set(q.category, { total: 0, attempted: 0, correct: 0 })
       }
-      const cat = categoryMap.get(q.category)!
+      const cat = categoryMap.get(q.category)
+      if (!cat) continue
       cat.total++
       const qp = progress.questionProgress[q.id]
       if (qp && qp.attempts > 0) {

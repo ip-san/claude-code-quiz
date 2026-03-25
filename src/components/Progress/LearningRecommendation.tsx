@@ -82,7 +82,7 @@ export function LearningRecommendation({ categoryStats, totalAttempts, onStartSe
         title: '伸びしろのある分野',
         message: `${weakestCat.icon} ${weakestCat.name}（正答率 ${weakestCat.accuracy}%）を重点的に復習すると、大きく成長できます。`,
         action: `${weakestCat.name} を復習`,
-        onAction: () => onStartSession({ mode: 'category', categoryFilter: weakestCat!.id }),
+        onAction: () => onStartSession({ mode: 'category', categoryFilter: weakestCat.id }),
       }
     }
 
@@ -94,7 +94,7 @@ export function LearningRecommendation({ categoryStats, totalAttempts, onStartSe
         title: 'エキスパートを目指す',
         message: `${weakestCat.icon} ${weakestCat.name}（正答率 ${weakestCat.accuracy}%）を90%以上にすると🏆マスター認定です。`,
         action: `${weakestCat.name} を極める`,
-        onAction: () => onStartSession({ mode: 'category', categoryFilter: weakestCat!.id }),
+        onAction: () => onStartSession({ mode: 'category', categoryFilter: weakestCat.id }),
       }
     }
 

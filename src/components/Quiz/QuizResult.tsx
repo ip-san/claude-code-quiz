@@ -79,7 +79,7 @@ export function QuizResult() {
     }, interval)
 
     return () => clearInterval(timer)
-  }, [score, percentage, noMotion])
+  }, [percentage, noMotion])
 
   // Recommendation for overview mode: find weakest category from wrong answers
   const recommendation = useMemo(() => {
@@ -236,7 +236,7 @@ export function QuizResult() {
                     で{recommendation.wrongCount}問間違えました。カテゴリ別学習で深掘りしてみましょう。
                   </p>
                   <button
-                    onClick={() => handleStartCategorySession(recommendation.categoryId!)}
+                    onClick={() => recommendation.categoryId && handleStartCategorySession(recommendation.categoryId)}
                     className="inline-flex items-center gap-1.5 rounded-lg bg-indigo-500 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-indigo-600"
                   >
                     {recommendation.categoryIcon} {recommendation.categoryName}を深掘り

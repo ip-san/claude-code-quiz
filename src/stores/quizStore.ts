@@ -877,7 +877,7 @@ export const useQuizStore = create<QuizStore>((set, get) => ({
     const wrongQuestions = state.sessionState.questions.filter((q) => wrongQuestionIds.has(q.id))
     const answerMap = new Map(state.sessionWrongAnswers.map((w) => [w.questionId, w.selectedAnswer]))
     const multiAnswerMap = new Map(
-      state.sessionWrongAnswers.filter((w) => w.selectedAnswers).map((w) => [w.questionId, w.selectedAnswers!])
+      state.sessionWrongAnswers.filter((w) => w.selectedAnswers).map((w) => [w.questionId, w.selectedAnswers ?? []])
     )
     const reviewUserAnswers = wrongQuestions.map((q) => answerMap.get(q.id) ?? -1)
     const reviewUserMultiAnswers = wrongQuestions.map((q) => multiAnswerMap.get(q.id) ?? [])
