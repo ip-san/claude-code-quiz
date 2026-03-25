@@ -31,6 +31,7 @@ src/
 │   ├── Quiz/         # QuizCard, Feedback, OptionButton, QuizResult, ScoreRing, etc.
 │   ├── Menu/         # ModeSelection, QuizSearch, MasteryRoadmap, DailySnapshot, etc.
 │   ├── Progress/     # ProgressDashboard, LearningRecommendation, WeakPointInsight
+│   ├── Reader/       # ExplanationReader, ReaderCard, ReaderFilters
 │   └── Layout/       # WelcomeScreen, PWAUpdatePrompt, ErrorBoundary, etc.
 ├── lib/              # ユーティリティ（platformAPI, haptics, useSwipe, theme）
 └── data/             # クイズデータ（JSON、638問）

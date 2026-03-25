@@ -169,22 +169,6 @@ export function MenuHeader({ totalQuestions, answeredCount, hasProgress }: MenuH
                   sublabel={`${totalQuestions}問の${locale.reader.subtitle}`}
                   onClick={() => handleMenuAction(() => setViewState('reader'))}
                 />
-                {bookmarkedCount > 0 && (
-                  <MenuItem
-                    icon={<Bookmark className="h-4.5 w-4.5" />}
-                    label="後で学ぶ"
-                    sublabel={`${bookmarkedCount}問を保存中`}
-                    onClick={() => handleMenuAction(() => startSession({ mode: 'bookmark' }))}
-                  />
-                )}
-                {hasProgress && (
-                  <MenuItem
-                    icon={<BarChart3 className="h-4.5 w-4.5" />}
-                    label={locale.progress.title}
-                    sublabel="統計・推移・AI活用レベル"
-                    onClick={() => handleMenuAction(() => setViewState('progress'))}
-                  />
-                )}
               </div>
 
               {/* Quiz modes accordion */}
@@ -217,6 +201,26 @@ export function MenuHeader({ totalQuestions, answeredCount, hasProgress }: MenuH
                       </button>
                     ))}
                   </div>
+                )}
+              </div>
+
+              {/* Bookmark + Progress */}
+              <div className="border-b border-stone-100 py-2 dark:border-stone-800">
+                {bookmarkedCount > 0 && (
+                  <MenuItem
+                    icon={<Bookmark className="h-4.5 w-4.5" />}
+                    label="後で学ぶ"
+                    sublabel={`${bookmarkedCount}問を保存中`}
+                    onClick={() => handleMenuAction(() => startSession({ mode: 'bookmark' }))}
+                  />
+                )}
+                {hasProgress && (
+                  <MenuItem
+                    icon={<BarChart3 className="h-4.5 w-4.5" />}
+                    label={locale.progress.title}
+                    sublabel="統計・推移・AI活用レベル"
+                    onClick={() => handleMenuAction(() => setViewState('progress'))}
+                  />
                 )}
               </div>
 
