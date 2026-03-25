@@ -99,14 +99,46 @@ const claudeCodeTheme: ThemeConfig = {
   pwaUrl: 'https://ip-san.github.io/claude-code-quiz/',
   shareHashtags: '#ClaudeCode #AI駆動開発 #DX推進',
   categories: [
-    { id: 'memory', name: 'Memory (CLAUDE.md)', description: 'CLAUDE.md、@インポート、.claude/rules/による永続的なコンテキスト管理', icon: '📝', color: 'blue', weight: 15, skillDescription: 'プロジェクト文脈を記憶させられる' },
-    { id: 'skills', name: 'Skills', description: 'スキル作成、frontmatter設定、動的コンテキスト注入', icon: '✨', color: 'purple', weight: 15, skillDescription: 'AI ワークフローを作れる' },
-    { id: 'tools', name: 'Tools', description: 'Read/Write/Edit/Bash/Glob/Grep等の組み込みツール', icon: '🔧', color: 'orange', weight: 15, skillDescription: 'ファイル操作・検索を自動化できる' },
-    { id: 'commands', name: 'Commands', description: '/context、/compact、/init、!prefix等のコマンド操作', icon: '💻', color: 'emerald', weight: 15, skillDescription: '対話を効率的にコントロールできる' },
-    { id: 'extensions', name: 'Extensions', description: 'MCP、Hooks、Subagents、Pluginsによる拡張機能', icon: '🧩', color: 'pink', weight: 15, skillDescription: 'MCP・プラグインで拡張できる' },
-    { id: 'session', name: 'Session & Context', description: 'セッション管理、コンテキストウィンドウ、fork操作', icon: '📚', color: 'cyan', weight: 10, skillDescription: 'セッション管理を安全に行える' },
-    { id: 'keyboard', name: 'Keyboard & UI', description: 'ショートカット、Vimモード、UI操作', icon: '⌨️', color: 'yellow', weight: 10, skillDescription: 'ショートカットで素早く操作' },
-    { id: 'bestpractices', name: 'Best Practices', description: '効果的な使い方、プロンプト設計、ワークフロー', icon: '💡', color: 'green', weight: 10, skillDescription: '実務で成果を出せる' },
+    {
+      id: 'memory', name: 'Memory (CLAUDE.md)', icon: '📝', color: 'blue', weight: 15,
+      description: 'CLAUDE.md、@インポート、.claude/rules/による永続的なコンテキスト管理',
+      skillDescription: 'プロジェクト文脈を記憶させられる',
+    },
+    {
+      id: 'skills', name: 'Skills', icon: '✨', color: 'purple', weight: 15,
+      description: 'スキル作成、frontmatter設定、動的コンテキスト注入',
+      skillDescription: 'AI ワークフローを作れる',
+    },
+    {
+      id: 'tools', name: 'Tools', icon: '🔧', color: 'orange', weight: 15,
+      description: 'Read/Write/Edit/Bash/Glob/Grep等の組み込みツール',
+      skillDescription: 'ファイル操作・検索を自動化できる',
+    },
+    {
+      id: 'commands', name: 'Commands', icon: '💻', color: 'emerald', weight: 15,
+      description: '/context、/compact、/init、!prefix等のコマンド操作',
+      skillDescription: '対話を効率的にコントロールできる',
+    },
+    {
+      id: 'extensions', name: 'Extensions', icon: '🧩', color: 'pink', weight: 15,
+      description: 'MCP、Hooks、Subagents、Pluginsによる拡張機能',
+      skillDescription: 'MCP・プラグインで拡張できる',
+    },
+    {
+      id: 'session', name: 'Session & Context', icon: '📚', color: 'cyan', weight: 10,
+      description: 'セッション管理、コンテキストウィンドウ、fork操作',
+      skillDescription: 'セッション管理を安全に行える',
+    },
+    {
+      id: 'keyboard', name: 'Keyboard & UI', icon: '⌨️', color: 'yellow', weight: 10,
+      description: 'ショートカット、Vimモード、UI操作',
+      skillDescription: 'ショートカットで素早く操作',
+    },
+    {
+      id: 'bestpractices', name: 'Best Practices', icon: '💡', color: 'green', weight: 10,
+      description: '効果的な使い方、プロンプト設計、ワークフロー',
+      skillDescription: '実務で成果を出せる',
+    },
   ],
   masteryLevels: [
     { name: 'AI入門者', icon: '🌱', color: 'text-claude-orange', bg: 'bg-claude-orange/10', req: null },

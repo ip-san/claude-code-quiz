@@ -8,6 +8,7 @@ interface WelcomeScreenProps {
   onComplete: () => void
 }
 
+// welcomeFeatures の各項目に対応するアイコン（項目数が多い場合は循環して使用）
 const FEATURE_ICONS = [Sparkles, GraduationCap, TrendingUp] as const
 
 /**
@@ -79,13 +80,18 @@ export function WelcomeScreen({ onComplete }: WelcomeScreenProps) {
   )
 }
 
-/** Check if user has seen the welcome screen */
+/**
+ * ウェルカム画面の表示済み判定
+ * localStorage → sessionStorage の順で確認（プライベートブラウジング対応）
+ * レガシーキーもフォールバックで確認（テーマプレフィックス移行対応）
+ */
 export function hasSeenWelcome(): boolean {
+  const keys = [WELCOME_KEY, LEGACY_WELCOME_KEY]
   try {
-    if (localStorage.getItem(WELCOME_KEY) === '1' || localStorage.getItem(LEGACY_WELCOME_KEY) === '1') return true
-  } catch { /* ignore */ }
+    if (keys.some(k => localStorage.getItem(k) === '1')) return true
+  } catch { /* localStorage が使えない環境 */ }
   try {
-    if (sessionStorage.getItem(WELCOME_KEY) === '1' || sessionStorage.getItem(LEGACY_WELCOME_KEY) === '1') return true
-  } catch { /* ignore */ }
+    if (keys.some(k => sessionStorage.getItem(k) === '1')) return true
+  } catch { /* sessionStorage も使えない環境 */ }
   return false
 }

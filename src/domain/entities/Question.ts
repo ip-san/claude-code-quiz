@@ -307,8 +307,10 @@ export class Question {
    * - compare: 類似概念との比較・使い分け
    */
   generateAIPromptByType(type: 'explain' | 'practical' | 'compare'): string {
+    // explain タイプのみ、問題固有のカスタムプロンプトがあればそれを優先
     if (type === 'explain' && this.aiPrompt) return this.aiPrompt
 
+    // 複数選択の場合、prefix に最初の "- " を含め、join で後続を "\n- " で繋ぐ
     const correctAnswers = this.isMultiSelect
       ? this.getCorrectOptions().map(o => o.text).join('\n- ')
       : this.getCorrectOption().text

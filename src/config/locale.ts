@@ -405,7 +405,7 @@ const ja: LocaleConfig = {
   },
 
   timer: {
-    remaining: (m, s) => `残り時間 ${m}分${s}秒`,
+    remaining: (minutes, seconds) => `残り時間 ${minutes}分${seconds}秒`,
   },
 
   recommendation: {

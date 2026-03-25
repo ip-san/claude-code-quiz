@@ -16,6 +16,7 @@ export interface OverviewChapter {
   readonly actionItem: string
 }
 
+// quizzes.json の tags と一致するよう、id からタグ文字列を生成
 export const OVERVIEW_CHAPTERS: readonly OverviewChapter[] = Object.freeze(
   theme.overviewChapters.map(ch => ({
     ...ch,

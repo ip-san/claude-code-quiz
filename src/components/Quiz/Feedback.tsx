@@ -225,7 +225,7 @@ export function Feedback({ quiz, isCorrect }: FeedbackProps) {
           <AlertTriangle className="mt-0.5 h-5 w-5 flex-shrink-0 text-amber-500" />
           <div>
             <p className="mb-1 font-medium text-claude-dark">
-              なぜこの回答が誤りなのか
+              {locale.feedback.whyWrong}
             </p>
             <p className="text-sm leading-relaxed text-stone-600 dark:text-stone-300">
               <QuizText text={selectedOption.wrongFeedback!} />
