@@ -1,5 +1,6 @@
 import { describe, it, expect } from 'vitest'
 import { Category, PREDEFINED_CATEGORIES, getCategoryById } from './Category'
+import { theme } from '@/config/theme'
 
 describe('Category Value Object', () => {
   describe('create()', () => {
@@ -98,8 +99,9 @@ describe('Category Value Object', () => {
 })
 
 describe('PREDEFINED_CATEGORIES', () => {
-  it('should have 8 predefined categories', () => {
-    expect(PREDEFINED_CATEGORIES).toHaveLength(8)
+  it('should have predefined categories matching theme config', () => {
+    expect(PREDEFINED_CATEGORIES.length).toBeGreaterThan(0)
+    expect(PREDEFINED_CATEGORIES).toHaveLength(theme.categories.length)
   })
 
   it('should have all required categories', () => {

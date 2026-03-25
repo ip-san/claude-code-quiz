@@ -2,6 +2,7 @@ import { Sparkles, GraduationCap, TrendingUp, ArrowRight } from 'lucide-react'
 import { theme } from '@/config/theme'
 
 const WELCOME_KEY = `${theme.storagePrefix}-welcomed`
+const LEGACY_WELCOME_KEY = 'claude-quiz-welcomed'
 
 interface WelcomeScreenProps {
   onComplete: () => void
@@ -81,10 +82,10 @@ export function WelcomeScreen({ onComplete }: WelcomeScreenProps) {
 /** Check if user has seen the welcome screen */
 export function hasSeenWelcome(): boolean {
   try {
-    if (localStorage.getItem(WELCOME_KEY) === '1') return true
+    if (localStorage.getItem(WELCOME_KEY) === '1' || localStorage.getItem(LEGACY_WELCOME_KEY) === '1') return true
   } catch { /* ignore */ }
   try {
-    if (sessionStorage.getItem(WELCOME_KEY) === '1') return true
+    if (sessionStorage.getItem(WELCOME_KEY) === '1' || sessionStorage.getItem(LEGACY_WELCOME_KEY) === '1') return true
   } catch { /* ignore */ }
   return false
 }

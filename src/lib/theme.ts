@@ -6,12 +6,13 @@
 import { theme as appTheme } from '@/config/theme'
 
 const STORAGE_KEY = `${appTheme.storagePrefix}-theme`
+const LEGACY_STORAGE_KEY = 'claude-quiz-theme'
 
 export type Theme = 'light' | 'dark' | 'system'
 
 export function getStoredTheme(): Theme {
   try {
-    return (localStorage.getItem(STORAGE_KEY) as Theme) ?? 'system'
+    return (localStorage.getItem(STORAGE_KEY) as Theme) ?? (localStorage.getItem(LEGACY_STORAGE_KEY) as Theme) ?? 'system'
   } catch {
     return 'system'
   }

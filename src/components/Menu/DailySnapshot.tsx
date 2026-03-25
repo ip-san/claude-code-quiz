@@ -4,8 +4,9 @@ import { useQuizStore } from '@/stores/quizStore'
 import { SpacedRepetitionService } from '@/domain/services/SpacedRepetitionService'
 import { DailyGoalService } from '@/domain/services/DailyGoalService'
 import { haptics } from '@/lib/haptics'
+import { theme } from '@/config/theme'
 
-const SNAPSHOT_KEY = 'snapshot-dismissed-date'
+const SNAPSHOT_KEY = `${theme.storagePrefix}-snapshot-dismissed`
 
 interface DailySnapshotProps {
   onDismiss: () => void
