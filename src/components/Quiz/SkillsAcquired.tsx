@@ -2,18 +2,7 @@ import { useMemo } from 'react'
 import type { Question } from '@/domain/entities/Question'
 import type { AnswerRecord } from '@/domain/services/QuizSessionService'
 import { CheckCircle } from 'lucide-react'
-
-/** カテゴリIDから「できるようになったこと」のマッピング */
-const SKILL_DESCRIPTIONS: Record<string, string> = {
-  memory: 'プロジェクト文脈を記憶させられる',
-  skills: 'AI ワークフローを作れる',
-  tools: 'ファイル操作・検索を自動化できる',
-  commands: '対話を効率的にコントロールできる',
-  extensions: 'MCP・プラグインで拡張できる',
-  session: 'セッション管理を安全に行える',
-  keyboard: 'ショートカットで素早く操作',
-  bestpractices: '実務で成果を出せる',
-}
+import { getSkillDescription } from '@/config/theme'
 
 interface SkillsAcquiredProps {
   questions: readonly Question[]
@@ -40,7 +29,7 @@ export function SkillsAcquired({ questions, answerHistory }: SkillsAcquiredProps
       .filter(([, count]) => count > 0)
       .map(([catId]) => ({
         id: catId,
-        description: SKILL_DESCRIPTIONS[catId] ?? '',
+        description: getSkillDescription(catId),
       }))
       .filter(s => s.description)
   }, [questions, answerHistory])

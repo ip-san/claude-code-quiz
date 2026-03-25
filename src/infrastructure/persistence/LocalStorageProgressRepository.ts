@@ -2,7 +2,9 @@ import type { IProgressRepository } from '../../domain/repositories/IProgressRep
 import { UserProgress } from '../../domain/entities/UserProgress'
 import { validateUserProgress } from '../validation/QuizValidator'
 
-const STORAGE_KEY = 'claude-code-quiz-progress'
+import { theme } from '@/config/theme'
+
+const STORAGE_KEY = `${theme.storagePrefix}-progress`
 
 /**
  * LocalStorageProgressRepository

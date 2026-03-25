@@ -54,73 +54,19 @@ export class Category {
   }
 }
 
-// Pre-defined categories for Claude Code Quiz
-export const PREDEFINED_CATEGORIES: Category[] = [
+// テーマ設定からカテゴリを動的に生成
+import { theme } from '@/config/theme'
+
+export const PREDEFINED_CATEGORIES: Category[] = theme.categories.map(c =>
   Category.create({
-    id: 'memory',
-    name: 'Memory (CLAUDE.md)',
-    description: 'CLAUDE.md、@インポート、.claude/rules/による永続的なコンテキスト管理',
-    icon: '📝',
-    color: 'blue',
-    weight: 15,
-  }),
-  Category.create({
-    id: 'skills',
-    name: 'Skills',
-    description: 'スキル作成、frontmatter設定、動的コンテキスト注入',
-    icon: '✨',
-    color: 'purple',
-    weight: 15,
-  }),
-  Category.create({
-    id: 'tools',
-    name: 'Tools',
-    description: 'Read/Write/Edit/Bash/Glob/Grep等の組み込みツール',
-    icon: '🔧',
-    color: 'orange',
-    weight: 15,
-  }),
-  Category.create({
-    id: 'commands',
-    name: 'Commands',
-    description: '/context、/compact、/init、!prefix等のコマンド操作',
-    icon: '💻',
-    color: 'emerald',
-    weight: 15,
-  }),
-  Category.create({
-    id: 'extensions',
-    name: 'Extensions',
-    description: 'MCP、Hooks、Subagents、Pluginsによる拡張機能',
-    icon: '🧩',
-    color: 'pink',
-    weight: 15,
-  }),
-  Category.create({
-    id: 'session',
-    name: 'Session & Context',
-    description: 'セッション管理、コンテキストウィンドウ、fork操作',
-    icon: '📚',
-    color: 'cyan',
-    weight: 10,
-  }),
-  Category.create({
-    id: 'keyboard',
-    name: 'Keyboard & UI',
-    description: 'ショートカット、Vimモード、UI操作',
-    icon: '⌨️',
-    color: 'yellow',
-    weight: 10,
-  }),
-  Category.create({
-    id: 'bestpractices',
-    name: 'Best Practices',
-    description: '効果的な使い方、プロンプト設計、ワークフロー',
-    icon: '💡',
-    color: 'green',
-    weight: 10,
-  }),
-]
+    id: c.id,
+    name: c.name,
+    description: c.description,
+    icon: c.icon,
+    color: c.color,
+    weight: c.weight,
+  })
+)
 
 export function getCategoryById(id: string): Category | undefined {
   return PREDEFINED_CATEGORIES.find(c => c.id === id)

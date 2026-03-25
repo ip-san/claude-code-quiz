@@ -147,7 +147,7 @@ describe('QuizSet Entity', () => {
 
       const quizSet = QuizSet.createDefault(data)
 
-      expect(quizSet.title).toBe('Claude Code マスタークイズ')
+      expect(quizSet.title).toBe('Claude Code Quiz マスタークイズ')
     })
 
     it('should filter out invalid questions', () => {

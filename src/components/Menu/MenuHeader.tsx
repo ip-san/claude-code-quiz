@@ -4,6 +4,7 @@ import { useQuizStore } from '@/stores/quizStore'
 import { getStoredTheme, setStoredTheme, applyTheme, type Theme } from '@/lib/theme'
 import { AnimatedCounter } from './AnimatedCounter'
 import { KeyboardShortcutHelp } from '@/components/Layout/KeyboardShortcutHelp'
+import { theme } from '@/config/theme'
 
 interface MenuHeaderProps {
   totalQuestions: number
@@ -55,7 +56,7 @@ export function MenuHeader({ totalQuestions, answeredCount, hasProgress }: MenuH
         </div>
         <h1 className="mb-1 text-2xl font-bold">
           <span className="bg-gradient-to-r from-claude-orange to-orange-400 bg-clip-text text-transparent">
-            Claude Code Quiz
+            {theme.appName}
           </span>
         </h1>
         <p className="text-sm text-claude-gray">
@@ -66,7 +67,7 @@ export function MenuHeader({ totalQuestions, answeredCount, hasProgress }: MenuH
             </>
           ) : (
             <>
-              <AnimatedCounter target={totalQuestions} suffix="問" /> | 8カテゴリ
+              <AnimatedCounter target={totalQuestions} suffix="問" /> | {theme.categories.length}カテゴリ
             </>
           )}
         </p>

@@ -1,26 +1,13 @@
 import { useMemo } from 'react'
 import { PREDEFINED_CATEGORIES } from '@/domain/valueObjects/Category'
+import { theme, getCategoryCount } from '@/config/theme'
 
-/**
- * 5段階のAI活用レベル定義
- *
- * 🌱 AI入門者: 学習を始めたばかり
- * 📚 AI学習者: 正答率50%以上
- * 🚀 AI実践者: 正答率70%以上
- * ⚡ AI推進者: 正答率80%以上 + 半数以上の問題を学習
- * 👑 AI牽引役: 正答率85%以上 + 全カテゴリ70%習得（7/8以上）
- */
-const MASTERY_LEVELS = [
-  { name: 'AI入門者', icon: '🌱', color: 'text-claude-orange', bg: 'bg-claude-orange/10', req: null },
-  { name: 'AI学習者', icon: '📚', color: 'text-blue-600', bg: 'bg-blue-500/10', req: '正答率50%以上' },
-  { name: 'AI実践者', icon: '🚀', color: 'text-green-600', bg: 'bg-green-500/10', req: '正答率70%以上' },
-  { name: 'AI推進者', icon: '⚡', color: 'text-purple-600', bg: 'bg-purple-500/10', req: '正答率80% + 半数以上学習' },
-  { name: 'AI牽引役', icon: '👑', color: 'text-yellow-600', bg: 'bg-yellow-500/10', req: '正答率85% + 全カテゴリ習得' },
-] as const
+const MASTERY_LEVELS = theme.masteryLevels
 
 /** 正答率・網羅率・カテゴリ習得数から現在のレベルを判定 */
 function calculateLevelIndex(accuracy: number, answeredRatio: number, masteredCount: number): number {
-  if (accuracy >= 85 && masteredCount >= 7) return 4
+  const minMastered = Math.max(getCategoryCount() - 1, 1)
+  if (accuracy >= 85 && masteredCount >= minMastered) return 4
   if (accuracy >= 80 && answeredRatio >= 0.5) return 3
   if (accuracy >= 70) return 2
   if (accuracy >= 50) return 1
@@ -40,7 +27,7 @@ function calculateProgressToNext(
     // 推進者: 正答率50% + 網羅率50% の複合
     case 2: return Math.min((accuracy / 80) * 50 + answeredRatio * 50, 100)
     // 牽引役: 正答率50% + カテゴリ習得率50% の複合
-    case 3: return Math.min((accuracy / 85) * 50 + (masteredCount / 7) * 50, 100)
+    case 3: return Math.min((accuracy / 85) * 50 + (masteredCount / Math.max(getCategoryCount() - 1, 1)) * 50, 100)
     default: return 100
   }
 }
@@ -98,7 +85,7 @@ export function MasteryRoadmap({
         <div className="flex-1">
           <p className={`text-sm font-bold ${current.color}`}>{current.name}</p>
           <p className="text-xs text-stone-500 dark:text-stone-400">
-            正答率 {stats.overallAccuracy}% · {stats.answered}/{totalQuestions}問 · {stats.masteredCategories}/8カテゴリ習得
+            正答率 {stats.overallAccuracy}% · {stats.answered}/{totalQuestions}問 · {stats.masteredCategories}/{getCategoryCount()}カテゴリ習得
           </p>
         </div>
       </div>

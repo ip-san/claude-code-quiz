@@ -1,5 +1,6 @@
 import { Users, Copy, Check } from 'lucide-react'
 import { useCopyToClipboard } from '@/lib/useCopyToClipboard'
+import { theme } from '@/config/theme'
 
 interface TeamShareGuideProps {
   percentage: number
@@ -19,17 +20,7 @@ export function TeamShareGuide({ percentage, mode }: TeamShareGuideProps) {
   // 全体像モード完了時のみ表示
   if (mode !== 'overview' || percentage < 50) return null
 
-  const shareMessage = `Claude Code Quiz で AI コーディングアシスタントの基本を学びました（正答率 ${percentage}%）。
-
-チームで AI 駆動開発を始めるために、まずこの3つから取り組みませんか？
-
-1. 各自が Claude Code Quiz を完了する（スマホで10分）
-2. プロジェクトに CLAUDE.md を作成して開発ルールを共有する
-3. 週1回「AI で何を自動化できたか」を共有する場を設ける
-
-クイズはこちら → https://ip-san.github.io/claude-code-quiz/
-
-#ClaudeCode #AI駆動開発 #DX推進`
+  const shareMessage = theme.teamShareTemplate.replace('${percentage}', String(percentage))
 
   const handleCopy = () => copy(shareMessage)
 
@@ -47,11 +38,7 @@ export function TeamShareGuide({ percentage, mode }: TeamShareGuideProps) {
 
       {/* 3-step team action plan */}
       <div className="mb-4 space-y-2">
-        {[
-          'チームメンバーにこのクイズを共有する',
-          'プロジェクトに CLAUDE.md を作成してルールを統一する',
-          '週1回「AIで何を自動化できたか」共有会を設ける',
-        ].map((step, i) => (
+        {theme.teamShareSteps.map((step, i) => (
           <div key={step} className="flex items-start gap-2">
             <span className="flex h-5 w-5 flex-shrink-0 items-center justify-center rounded-full bg-purple-500 text-xs font-bold text-white">
               {i + 1}

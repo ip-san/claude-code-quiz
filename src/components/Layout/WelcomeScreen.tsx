@@ -1,28 +1,13 @@
 import { Sparkles, GraduationCap, TrendingUp, ArrowRight } from 'lucide-react'
+import { theme } from '@/config/theme'
 
-const WELCOME_KEY = 'claude-quiz-welcomed'
+const WELCOME_KEY = `${theme.storagePrefix}-welcomed`
 
 interface WelcomeScreenProps {
   onComplete: () => void
 }
 
-const FEATURES = [
-  {
-    icon: <Sparkles className="h-6 w-6 text-claude-orange" />,
-    title: '知識ゼロから始められる',
-    desc: 'AI を使ったことがなくても大丈夫。基礎から順番にガイドします',
-  },
-  {
-    icon: <GraduationCap className="h-6 w-6 text-blue-500" />,
-    title: '1問ずつ、確実に身につく',
-    desc: '解説付きのクイズで「わかった」を積み重ねていきましょう',
-  },
-  {
-    icon: <TrendingUp className="h-6 w-6 text-green-500" />,
-    title: 'あなたのペースで成長',
-    desc: 'スマホでいつでも学習。毎日少しずつで、着実にスキルアップ',
-  },
-] as const
+const FEATURE_ICONS = [Sparkles, GraduationCap, TrendingUp] as const
 
 /**
  * 初回起動時のウェルカム画面
@@ -44,36 +29,39 @@ export function WelcomeScreen({ onComplete }: WelcomeScreenProps) {
       <div className="w-full max-w-sm animate-view-enter text-center">
         {/* Logo */}
         <div className="mx-auto mb-6 flex h-24 w-24 items-center justify-center rounded-3xl bg-claude-orange shadow-lg">
-          <span className="text-4xl font-bold text-white">CC</span>
+          <span className="text-4xl font-bold text-white">{theme.logoText}</span>
         </div>
 
         <h1 className="mb-2 text-3xl font-bold text-claude-dark sm:text-2xl">
-          Claude Code Quiz
+          {theme.appName}
         </h1>
         <p className="mb-2 text-sm text-claude-gray">
-          AI 時代のスキルを、今日から身につける
+          {theme.tagline}
         </p>
         <p className="mb-6 text-xs text-stone-400">
-          経験不問 | 630問 | スマホでいつでも
+          {theme.subtitle}
         </p>
 
         {/* Features */}
         <div className="mb-8 space-y-3 text-left">
-          {FEATURES.map((feature, i) => (
-            <div
-              key={i}
-              className="flex items-start gap-3 rounded-2xl bg-white p-4 shadow-sm animate-feedback-section dark:bg-stone-800"
-              style={{ animationDelay: `${(i + 1) * 150}ms` }}
-            >
-              <div className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-xl bg-stone-50">
-                {feature.icon}
+          {theme.welcomeFeatures.map((feature, i) => {
+            const Icon = FEATURE_ICONS[i % FEATURE_ICONS.length]
+            return (
+              <div
+                key={i}
+                className="flex items-start gap-3 rounded-2xl bg-white p-4 shadow-sm animate-feedback-section dark:bg-stone-800"
+                style={{ animationDelay: `${(i + 1) * 150}ms` }}
+              >
+                <div className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-xl bg-stone-50">
+                  <Icon className={`h-6 w-6 ${feature.iconColor}`} />
+                </div>
+                <div>
+                  <p className="text-sm font-semibold text-claude-dark">{feature.title}</p>
+                  <p className="text-xs text-claude-gray">{feature.desc}</p>
+                </div>
               </div>
-              <div>
-                <p className="text-sm font-semibold text-claude-dark">{feature.title}</p>
-                <p className="text-xs text-claude-gray">{feature.desc}</p>
-              </div>
-            </div>
-          ))}
+            )
+          })}
         </div>
 
         {/* CTA */}

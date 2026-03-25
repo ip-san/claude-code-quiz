@@ -43,6 +43,7 @@ import type { QuizModeId } from '@/domain/valueObjects/QuizMode'
 import type { DifficultyLevel } from '@/domain/valueObjects/Difficulty'
 import { PREDEFINED_CATEGORIES } from '@/domain/valueObjects/Category'
 import { getQuizModeById } from '@/domain/valueObjects/QuizMode'
+import { theme } from '@/config/theme'
 import {
   QuizSessionService,
   type QuizSessionConfig,
@@ -182,7 +183,7 @@ interface QuizStore {
  * - テスト時にモック可能
  */
 const APP_CONFIG = {
-  title: 'Claude Code マスタークイズ',
+  title: `${theme.appName} マスタークイズ`,
   version: '2.0.0',
   passingScore: 70,           // 合格点（%）
   weakThreshold: 50,          // 苦手判定の閾値（%）

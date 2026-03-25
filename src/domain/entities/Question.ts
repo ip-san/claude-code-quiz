@@ -24,6 +24,7 @@
 
 import type { DifficultyLevel } from '../valueObjects/Difficulty'
 import type { DiagramData } from '../../infrastructure/validation/QuizValidator'
+import { theme } from '@/config/theme'
 
 /**
  * 選択肢の値オブジェクト
@@ -315,19 +316,21 @@ export class Question {
 
     const context = `問題: ${this.question}\n${prefix}${correctAnswers}\n解説: ${this.explanation}`
 
+    const subject = theme.subject
+
     switch (type) {
       case 'explain':
-        return `Claude Codeの以下のトピックについて、初心者にもわかるように噛み砕いて説明してください。専門用語には簡単な補足を添えてください。
+        return `${subject}の以下のトピックについて、初心者にもわかるように噛み砕いて説明してください。専門用語には簡単な補足を添えてください。
 
 ${context}
 
 この機能が「なぜ必要なのか」を日常の例え話も交えて教えてください。`
       case 'practical':
-        return `Claude Codeの以下の機能について、実際の開発プロジェクトでの活用シナリオを3つ教えてください。それぞれ「どんな場面で」「具体的にどう使うか」「得られる効果」を含めてください。
+        return `${subject}の以下の機能について、実際の開発プロジェクトでの活用シナリオを3つ教えてください。それぞれ「どんな場面で」「具体的にどう使うか」「得られる効果」を含めてください。
 
 ${context}`
       case 'compare':
-        return `Claude Codeの以下のトピックに関連する類似機能や概念との違いを整理してください。「どんな場面でどちらを選ぶべきか」の判断基準も教えてください。
+        return `${subject}の以下のトピックに関連する類似機能や概念との違いを整理してください。「どんな場面でどちらを選ぶべきか」の判断基準も教えてください。
 
 ${context}`
     }
@@ -343,7 +346,7 @@ ${context}`
       ? `**正解（複数）:**\n${this.getCorrectOptions().map(o => `- ${o.text}`).join('\n')}`
       : `**正解:** ${this.getCorrectOption().text}`
 
-    return `## Claude Code Quiz
+    return `## ${theme.appName}
 
 **問題:** ${this.question}
 

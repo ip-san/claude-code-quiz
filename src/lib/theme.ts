@@ -3,7 +3,9 @@
  * Persists preference to localStorage, respects system preference as default
  */
 
-const STORAGE_KEY = 'claude-quiz-theme'
+import { theme as appTheme } from '@/config/theme'
+
+const STORAGE_KEY = `${appTheme.storagePrefix}-theme`
 
 export type Theme = 'light' | 'dark' | 'system'
 

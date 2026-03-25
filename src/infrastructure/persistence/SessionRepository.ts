@@ -7,7 +7,9 @@
 
 import type { QuizSessionConfig } from '../../domain/services/QuizSessionService'
 
-const STORAGE_KEY = 'claude-code-quiz-session'
+import { theme } from '@/config/theme'
+
+const STORAGE_KEY = `${theme.storagePrefix}-session`
 
 export interface SavedAnswerRecord {
   readonly questionIndex: number

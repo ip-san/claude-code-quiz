@@ -1,4 +1,5 @@
 import { Question, type QuestionProps } from './Question'
+import { theme } from '@/config/theme'
 
 /**
  * QuizSetType - Distinguishes between default (read-only) and user (writable) sets
@@ -75,7 +76,7 @@ export class QuizSet {
 
     return QuizSet.create({
       id: 'default',
-      title: data.title ?? 'Claude Code マスタークイズ',
+      title: data.title ?? `${theme.appName} マスタークイズ`,
       description: data.description,
       version: data.version,
       type: 'default',

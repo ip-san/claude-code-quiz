@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { Award } from 'lucide-react'
+import { theme } from '@/config/theme'
 
 interface CertificateGeneratorProps {
   score: number
@@ -49,7 +50,7 @@ export function CertificateGenerator({ score, total, percentage, mode }: Certifi
     // Subtitle
     ctx.fillStyle = '#6B6B6B'
     ctx.font = '16px -apple-system, sans-serif'
-    ctx.fillText('Claude Code Quiz Master Certification', 400, 110)
+    ctx.fillText(theme.certificateTitle, 400, 110)
 
     // Name
     ctx.fillStyle = '#1A1A1A'
@@ -69,8 +70,8 @@ export function CertificateGenerator({ score, total, percentage, mode }: Certifi
     ctx.fillStyle = '#1A1A1A'
     ctx.font = '16px -apple-system, sans-serif'
     const certDesc = mode === 'overview'
-      ? 'Claude Code の全体像を習得したことを証明します'
-      : 'Claude Code の機能と使い方に関する実力テストに合格しました'
+      ? theme.certificateDescOverview
+      : theme.certificateDescFull
     ctx.fillText(certDesc, 400, 370)
 
     // Date
@@ -82,11 +83,11 @@ export function CertificateGenerator({ score, total, percentage, mode }: Certifi
     // Footer
     ctx.fillStyle = '#D9775740'
     ctx.font = '12px -apple-system, sans-serif'
-    ctx.fillText('Powered by Claude Code Quiz', 400, 460)
+    ctx.fillText(theme.certificateFooter, 400, 460)
 
     // Download
     const link = document.createElement('a')
-    link.download = `claude-code-quiz-certificate-${Date.now()}.png`
+    link.download = `${theme.storagePrefix}-certificate-${Date.now()}.png`
     link.href = canvas.toDataURL('image/png')
     link.click()
 

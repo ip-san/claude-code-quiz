@@ -8,6 +8,7 @@ import { ScoreRing } from './ScoreRing'
 import { ConfettiEffect } from './ConfettiEffect'
 import { StreakMilestoneBadge, DailyGoalBadge } from './StreakMilestoneBadge'
 import { DailyGoalService } from '@/domain/services/DailyGoalService'
+import { theme } from '@/config/theme'
 import { CertificateGenerator } from './CertificateGenerator'
 import { PersonalBest } from './PersonalBest'
 import { SkillsAcquired } from './SkillsAcquired'
@@ -292,8 +293,8 @@ export function QuizResult() {
                 onClick={() => {
                   const stars = '⭐'.repeat(Math.ceil(percentage / 20))
                   navigator.share({
-                    title: 'Claude Code Quiz',
-                    text: `${stars}\nClaude Code Quiz: ${score}/${answeredCount}問正解 (${percentage}%)\n${isPassing ? '✅ 合格！' : '📚 もう少し！'}\n#ClaudeCodeQuiz`,
+                    title: theme.appName,
+                    text: `${stars}\n${theme.appName}: ${score}/${answeredCount}問正解 (${percentage}%)\n${isPassing ? '✅ 合格！' : '📚 もう少し！'}\n${theme.shareHashtags}`,
                     url: window.location.href,
                   }).catch(() => {})
                 }}
@@ -340,12 +341,12 @@ export function QuizResult() {
                   学んだ知識を実践してみましょう
                 </p>
                 <a
-                  href="https://docs.anthropic.com/en/docs/claude-code/overview"
+                  href={theme.officialDocsUrl}
                   target="_blank"
                   rel="noopener noreferrer"
                   className="tap-highlight inline-flex items-center gap-1.5 rounded-xl bg-claude-orange/10 px-4 py-2 text-sm font-medium text-claude-orange dark:bg-claude-orange/20"
                 >
-                  Claude Code を始める
+                  {theme.officialDocsLabel}
                   <ArrowRight className="h-4 w-4" />
                 </a>
               </div>
