@@ -17,13 +17,14 @@ import {
 } from 'lucide-react'
 import { QuizText } from './QuizText'
 import { DiagramRenderer } from './diagrams/DiagramRenderer'
+import { locale } from '@/config/locale'
 
 type PromptType = 'explain' | 'practical' | 'compare'
 
 const PROMPT_TYPES: Array<{ type: PromptType; label: string; icon: typeof BookOpen; description: string }> = [
-  { type: 'explain', label: '噛み砕いて解説', icon: BookOpen, description: '例え話で初心者にもわかりやすく' },
-  { type: 'practical', label: '実践シナリオ', icon: Briefcase, description: '開発現場での具体的な活用例' },
-  { type: 'compare', label: '比較・使い分け', icon: GitCompare, description: '類似機能との違いと判断基準' },
+  { type: 'explain', label: locale.feedback.prompts.explain.label, icon: BookOpen, description: locale.feedback.prompts.explain.description },
+  { type: 'practical', label: locale.feedback.prompts.practical.label, icon: Briefcase, description: locale.feedback.prompts.practical.description },
+  { type: 'compare', label: locale.feedback.prompts.compare.label, icon: GitCompare, description: locale.feedback.prompts.compare.description },
 ]
 
 interface FeedbackProps {
@@ -142,12 +143,12 @@ export function Feedback({ quiz, isCorrect }: FeedbackProps) {
       {isCorrect ? (
         <>
           <CheckCircle2 className="h-5 w-5 text-green-400" />
-          <span className="font-semibold text-green-400">正解！</span>
+          <span className="font-semibold text-green-400">{locale.feedback.correct}</span>
         </>
       ) : (
         <>
           <XCircle className="h-5 w-5 text-red-400" />
-          <span className="font-semibold text-red-400">不正解</span>
+          <span className="font-semibold text-red-400">{locale.feedback.incorrect}</span>
         </>
       )}
     </AnimatedSection>
@@ -158,7 +159,7 @@ export function Feedback({ quiz, isCorrect }: FeedbackProps) {
     sections.push(
       <AnimatedSection key="review-multi" order={sections.length} animate={animate} noMotion={noMotion} className="mb-4 rounded-2xl border border-amber-200 bg-amber-50 p-3">
         <p className="text-sm text-amber-800">
-          <span className="font-medium">あなたの回答:</span>
+          <span className="font-medium">{locale.feedback.yourAnswer}</span>
         </p>
         <ul className="ml-4 mt-1 list-disc text-sm text-amber-800">
           {selectedAnswers.map(i => (
@@ -166,7 +167,7 @@ export function Feedback({ quiz, isCorrect }: FeedbackProps) {
           ))}
         </ul>
         <p className="mt-2 text-sm text-green-700">
-          <span className="font-medium">正解:</span>
+          <span className="font-medium">{locale.feedback.correctAnswer}</span>
         </p>
         <ul className="ml-4 mt-1 list-disc text-sm text-green-700">
           {quiz.getCorrectOptions().map((opt, i) => (
@@ -180,11 +181,11 @@ export function Feedback({ quiz, isCorrect }: FeedbackProps) {
     sections.push(
       <AnimatedSection key="review-single" order={sections.length} animate={animate} noMotion={noMotion} className="mb-4 rounded-2xl border border-amber-200 bg-amber-50 p-3">
         <p className="text-sm text-amber-800">
-          <span className="font-medium">あなたの回答:</span>{' '}
+          <span className="font-medium">{locale.feedback.yourAnswer}</span>{' '}
           <QuizText text={quiz.options[selectedAnswer]?.text ?? ''} />
         </p>
         <p className="mt-1 text-sm text-green-700">
-          <span className="font-medium">正解:</span>{' '}
+          <span className="font-medium">{locale.feedback.correctAnswer}</span>{' '}
           <QuizText text={quiz.options[quiz.correctIndex]?.text ?? ''} />
         </p>
       </AnimatedSection>
@@ -204,7 +205,7 @@ export function Feedback({ quiz, isCorrect }: FeedbackProps) {
             <AlertTriangle className="mt-0.5 h-5 w-5 flex-shrink-0 text-amber-500" />
             <div>
               <p className="mb-1 font-medium text-claude-dark">
-                なぜこの回答が誤りなのか
+                {locale.feedback.whyWrong}
               </p>
               {wrongSelected.map((opt, i) => (
                 <p key={i} className="text-sm leading-relaxed text-stone-600 dark:text-stone-300">
@@ -239,7 +240,7 @@ export function Feedback({ quiz, isCorrect }: FeedbackProps) {
   if (!isCorrect && isMultiSelect && !isReviewMode) {
     sections.push(
       <AnimatedSection key="correct-multi" order={sections.length} animate={animate} noMotion={noMotion} className="mb-4 rounded-2xl border border-green-200 bg-green-50 p-3">
-        <p className="text-sm font-medium text-green-700">正解:</p>
+        <p className="text-sm font-medium text-green-700">{locale.feedback.correctAnswer}</p>
         <ul className="ml-4 mt-1 list-disc text-sm text-green-700">
           {quiz.getCorrectOptions().map((opt, i) => (
             <li key={i}><QuizText text={opt.text} /></li>
@@ -253,7 +254,7 @@ export function Feedback({ quiz, isCorrect }: FeedbackProps) {
   const explanationOrder = sections.length
   sections.push(
     <AnimatedSection key="explanation" order={explanationOrder} animate={animate} noMotion={noMotion} className="mb-4">
-      <p className="mb-1 text-sm font-medium text-claude-dark">解説</p>
+      <p className="mb-1 text-sm font-medium text-claude-dark">{locale.feedback.explanation}</p>
       <div>
         <p className="text-sm leading-relaxed text-stone-600 dark:text-stone-300">
           <QuizText text={quiz.explanation} animated={animate && !noMotion} animationDelay={300 + explanationOrder * 120} />
@@ -270,32 +271,32 @@ export function Feedback({ quiz, isCorrect }: FeedbackProps) {
   // 5: Action buttons
   sections.push(
     <AnimatedSection key="actions" order={sections.length} animate={animate} noMotion={noMotion}>
-      <div className="flex flex-col gap-2 sm:flex-row sm:flex-wrap" role="group" aria-label="アクションボタン">
+      <div className="flex flex-col gap-2 sm:flex-row sm:flex-wrap" role="group" aria-label={locale.feedback.actionButtons}>
         {quiz.referenceUrl && (
           <button
             onClick={handleOpenReference}
-            aria-label="公式ドキュメントを開く"
+            aria-label={locale.feedback.openDocs}
             className="tap-highlight flex items-center justify-center gap-1.5 rounded-2xl border border-stone-300 bg-white px-4 py-3 text-sm font-medium text-stone-600 dark:bg-stone-700 dark:border-stone-600 dark:text-stone-300"
           >
             <ExternalLink className="h-4 w-4" aria-hidden="true" />
-            公式ドキュメント
+            {locale.feedback.officialDocs}
           </button>
         )}
 
         <button
           onClick={handleCopyMarkdown}
-          aria-label={markdownCopied ? 'Markdownをコピーしました' : 'Markdown形式でコピー'}
+          aria-label={markdownCopied ? locale.feedback.markdownCopied : locale.feedback.copyMarkdown}
           className="tap-highlight flex items-center justify-center gap-1.5 rounded-2xl border border-purple-500/30 bg-purple-500/10 px-4 py-3 text-sm font-medium text-purple-400 dark:border-purple-400/30 dark:bg-purple-400/15 dark:text-purple-300"
         >
           {markdownCopied ? (
             <>
               <Check className="h-4 w-4" aria-hidden="true" />
-              コピーしました
+              {locale.common.copied}
             </>
           ) : (
             <>
               <FileText className="h-4 w-4" aria-hidden="true" />
-              解説をコピー
+              {locale.feedback.copyExplanation}
             </>
           )}
         </button>
@@ -312,7 +313,7 @@ export function Feedback({ quiz, isCorrect }: FeedbackProps) {
       >
         <span className="flex items-center gap-1.5">
           <Sparkles className="h-4 w-4" aria-hidden="true" />
-          AIにもっと教えてもらう
+          {locale.feedback.aiLearnMore}
         </span>
         <ChevronDown className={`h-4 w-4 transition-transform ${showPrompts ? 'rotate-180' : ''}`} aria-hidden="true" />
       </button>
@@ -321,7 +322,7 @@ export function Feedback({ quiz, isCorrect }: FeedbackProps) {
           {copied && (
             <p className="text-center text-xs text-green-500">
               <Check className="mr-1 inline h-3 w-3" />
-              プロンプトをコピーしました — Claude に貼り付けて聞いてみましょう
+              {locale.feedback.promptCopied}
             </p>
           )}
           {PROMPT_TYPES.map(({ type, label, icon: Icon, description }) => (
