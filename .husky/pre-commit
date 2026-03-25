@@ -1,2 +1,2 @@
-npx lint-staged
-npx vitest run --changed --reporter=dot
+bunx lint-staged
+bunx vitest run --changed --reporter=dot
