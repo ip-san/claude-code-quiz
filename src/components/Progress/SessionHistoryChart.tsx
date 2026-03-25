@@ -27,9 +27,7 @@ export function SessionHistoryChart({ sessions }: SessionHistoryChartProps) {
   if (sessions.length < 2) {
     return (
       <div className={`${cardStyles.base} p-6 text-center`}>
-        <p className="text-sm text-stone-400">
-          グラフを表示するには2回以上のセッションが必要です
-        </p>
+        <p className="text-sm text-stone-400">グラフを表示するには2回以上のセッションが必要です</p>
       </div>
     )
   }
@@ -44,9 +42,7 @@ export function SessionHistoryChart({ sessions }: SessionHistoryChartProps) {
     percentage: s.percentage,
   }))
 
-  const pathD = points
-    .map((p, i) => `${i === 0 ? 'M' : 'L'} ${p.x} ${p.y}`)
-    .join(' ')
+  const pathD = points.map((p, i) => `${i === 0 ? 'M' : 'L'} ${p.x} ${p.y}`).join(' ')
 
   // Area fill path
   const areaD = `${pathD} L ${points[points.length - 1].x} ${PADDING.top + INNER_HEIGHT} L ${points[0].x} ${PADDING.top + INNER_HEIGHT} Z`
@@ -76,12 +72,7 @@ export function SessionHistoryChart({ sessions }: SessionHistoryChartProps) {
                 stroke={gridColor}
                 strokeDasharray={v === 0 ? undefined : '4,4'}
               />
-              <text
-                x={PADDING.left - 8}
-                y={y + 4}
-                textAnchor="end"
-                className="fill-stone-400 text-[10px]"
-              >
+              <text x={PADDING.left - 8} y={y + 4} textAnchor="end" className="fill-stone-400 text-[10px]">
                 {v}%
               </text>
             </g>
@@ -108,15 +99,7 @@ export function SessionHistoryChart({ sessions }: SessionHistoryChartProps) {
 
         {/* Data points */}
         {points.map((p, i) => (
-          <circle
-            key={i}
-            cx={p.x}
-            cy={p.y}
-            r={3}
-            fill="#D97757"
-            stroke={dotStroke}
-            strokeWidth={1.5}
-          >
+          <circle key={i} cx={p.x} cy={p.y} r={3} fill="#D97757" stroke={dotStroke} strokeWidth={1.5}>
             <title>{`セッション${i + 1}: ${p.percentage}%`}</title>
           </circle>
         ))}
@@ -124,7 +107,10 @@ export function SessionHistoryChart({ sessions }: SessionHistoryChartProps) {
       <div className="mt-1 flex items-center justify-between text-xs text-stone-400">
         <span>過去</span>
         <span className="flex items-center gap-1">
-          <span className="inline-block h-px w-4 bg-claude-orange opacity-50" style={{ borderTop: '1px dashed #D97757' }} />
+          <span
+            className="inline-block h-px w-4 bg-claude-orange opacity-50"
+            style={{ borderTop: '1px dashed #D97757' }}
+          />
           合格ライン(70%)
         </span>
         <span>最新</span>

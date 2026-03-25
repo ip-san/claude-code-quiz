@@ -42,5 +42,10 @@ export function AnimatedCounter({ target, duration = 600, className, suffix = ''
     return () => clearInterval(timer)
   }, [target, duration])
 
-  return <span className={className}>{count}{suffix}</span>
+  return (
+    <span className={className}>
+      {count}
+      {suffix}
+    </span>
+  )
 }

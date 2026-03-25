@@ -12,35 +12,26 @@ export class ProgressExportService {
   /**
    * 問題別の進捗CSVを生成
    */
-  static generateQuestionCsv(
-    questions: Question[],
-    progress: UserProgress
-  ): string {
+  static generateQuestionCsv(questions: Question[], progress: UserProgress): string {
     const headers = ['問題ID', 'カテゴリ', '難易度', '回答回数', '正解回数', '正答率(%)', '最終回答日時']
-    const rows = questions.map(q => {
+    const rows = questions.map((q) => {
       const qp = progress.questionProgress[q.id]
       const attempts = qp?.attempts ?? 0
       const correctCount = qp?.correctCount ?? 0
       const accuracy = attempts > 0 ? Math.round((correctCount / attempts) * 100) : 0
-      const lastAttempt = qp?.lastAttemptAt
-        ? new Date(qp.lastAttemptAt).toISOString()
-        : ''
+      const lastAttempt = qp?.lastAttemptAt ? new Date(qp.lastAttemptAt).toISOString() : ''
       return [q.id, q.category, q.difficulty, attempts, correctCount, accuracy, lastAttempt]
     })
 
-    return [
-      headers.join(','),
-      ...rows.map(row => row.map(v => this.escapeCsvValue(String(v))).join(','))
-    ].join('\r\n')
+    return [headers.join(','), ...rows.map((row) => row.map((v) => this.escapeCsvValue(String(v))).join(','))].join(
+      '\r\n'
+    )
   }
 
   /**
    * カテゴリ別サマリーCSVを生成
    */
-  static generateCategoryCsv(
-    questions: Question[],
-    progress: UserProgress
-  ): string {
+  static generateCategoryCsv(questions: Question[], progress: UserProgress): string {
     const headers = ['カテゴリ', '総問題数', '回答済み', '正答率(%)']
     const categoryMap = new Map<string, { total: number; attempted: number; correct: number }>()
 
@@ -59,21 +50,18 @@ export class ProgressExportService {
 
     const rows = Array.from(categoryMap.entries()).map(([category, stats]) => {
       const totalAttempts = questions
-        .filter(q => q.category === category)
+        .filter((q) => q.category === category)
         .reduce((sum, q) => {
           const qp = progress.questionProgress[q.id]
           return sum + (qp?.attempts ?? 0)
         }, 0)
-      const accuracy = totalAttempts > 0
-        ? Math.round((stats.correct / totalAttempts) * 100)
-        : 0
+      const accuracy = totalAttempts > 0 ? Math.round((stats.correct / totalAttempts) * 100) : 0
       return [category, stats.total, stats.attempted, accuracy]
     })
 
-    return [
-      headers.join(','),
-      ...rows.map(row => row.map(v => this.escapeCsvValue(String(v))).join(','))
-    ].join('\r\n')
+    return [headers.join(','), ...rows.map((row) => row.map((v) => this.escapeCsvValue(String(v))).join(','))].join(
+      '\r\n'
+    )
   }
 
   /**

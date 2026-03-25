@@ -18,10 +18,7 @@ describe('QuizValidator', () => {
           {
             id: 'q1',
             question: 'What is Claude Code?',
-            options: [
-              { text: 'A CLI tool' },
-              { text: 'A web app' },
-            ],
+            options: [{ text: 'A CLI tool' }, { text: 'A web app' }],
             correctIndex: 0,
             explanation: 'Claude Code is a CLI tool.',
             category: 'tools',
@@ -70,7 +67,7 @@ describe('QuizValidator', () => {
       const result = validateQuizFile(json)
 
       expect(result.success).toBe(false)
-      expect(result.errors?.some(e => e.includes('At least one quiz'))).toBe(true)
+      expect(result.errors?.some((e) => e.includes('At least one quiz'))).toBe(true)
     })
 
     it('should reject quiz with missing required fields', () => {
@@ -108,7 +105,7 @@ describe('QuizValidator', () => {
       const result = validateQuizFile(json)
 
       expect(result.success).toBe(false)
-      expect(result.errors?.some(e => e.includes('At least 2 options'))).toBe(true)
+      expect(result.errors?.some((e) => e.includes('At least 2 options'))).toBe(true)
     })
 
     it('should reject quiz with more than 6 options', () => {
@@ -129,7 +126,7 @@ describe('QuizValidator', () => {
       const result = validateQuizFile(json)
 
       expect(result.success).toBe(false)
-      expect(result.errors?.some(e => e.includes('Maximum 6 options'))).toBe(true)
+      expect(result.errors?.some((e) => e.includes('Maximum 6 options'))).toBe(true)
     })
 
     it('should reject quiz with invalid correctIndex', () => {
@@ -150,7 +147,7 @@ describe('QuizValidator', () => {
       const result = validateQuizFile(json)
 
       expect(result.success).toBe(false)
-      expect(result.errors?.some(e => e.includes('must be within options array bounds'))).toBe(true)
+      expect(result.errors?.some((e) => e.includes('must be within options array bounds'))).toBe(true)
     })
 
     it('should reject quiz with invalid difficulty', () => {
@@ -192,7 +189,7 @@ describe('QuizValidator', () => {
       const result = validateQuizFile(json)
 
       expect(result.success).toBe(false)
-      expect(result.errors?.some(e => e.includes('valid URL'))).toBe(true)
+      expect(result.errors?.some((e) => e.includes('valid URL'))).toBe(true)
     })
 
     it('should accept optional fields', () => {
@@ -204,10 +201,7 @@ describe('QuizValidator', () => {
           {
             id: 'q1',
             question: 'Test',
-            options: [
-              { text: 'A', wrongFeedback: 'Wrong!' },
-              { text: 'B' },
-            ],
+            options: [{ text: 'A', wrongFeedback: 'Wrong!' }, { text: 'B' }],
             correctIndex: 1,
             explanation: 'Test',
             category: 'tools',
@@ -232,7 +226,7 @@ describe('QuizValidator', () => {
       const validJson = JSON.stringify({
         modifiedAt: 1700000000000,
         questionProgress: {
-          'q1': {
+          q1: {
             questionId: 'q1',
             attempts: 5,
             correctCount: 3,
@@ -241,7 +235,7 @@ describe('QuizValidator', () => {
           },
         },
         categoryProgress: {
-          'tools': {
+          tools: {
             categoryId: 'tools',
             totalQuestions: 10,
             attemptedQuestions: 5,
@@ -290,7 +284,7 @@ describe('QuizValidator', () => {
         modifiedAt: 1700000000000,
         questionProgress: {},
         categoryProgress: {
-          'tools': {
+          tools: {
             categoryId: 'tools',
             totalQuestions: 10,
             attemptedQuestions: 5,
@@ -428,7 +422,7 @@ describe('QuizItemSchema', () => {
       question: 'What is Claude?',
       options: [
         { text: 'An AI assistant', wrongFeedback: 'Correct!' },
-        { text: 'A car', wrongFeedback: 'No, that\'s wrong' },
+        { text: 'A car', wrongFeedback: "No, that's wrong" },
       ],
       correctIndex: 0,
       explanation: 'Claude is an AI assistant by Anthropic.',
@@ -448,10 +442,7 @@ describe('QuizItemSchema', () => {
     const item = {
       id: 'q1',
       question: 'Test',
-      options: [
-        { text: 'A' },
-        { text: 'B' },
-      ],
+      options: [{ text: 'A' }, { text: 'B' }],
       correctIndex: 0,
       explanation: 'Test',
       category: 'tools',

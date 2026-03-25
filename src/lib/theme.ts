@@ -12,7 +12,9 @@ export type Theme = 'light' | 'dark' | 'system'
 
 export function getStoredTheme(): Theme {
   try {
-    return (localStorage.getItem(STORAGE_KEY) as Theme) ?? (localStorage.getItem(LEGACY_STORAGE_KEY) as Theme) ?? 'system'
+    return (
+      (localStorage.getItem(STORAGE_KEY) as Theme) ?? (localStorage.getItem(LEGACY_STORAGE_KEY) as Theme) ?? 'system'
+    )
   } catch {
     return 'system'
   }
@@ -21,12 +23,13 @@ export function getStoredTheme(): Theme {
 export function setStoredTheme(theme: Theme): void {
   try {
     localStorage.setItem(STORAGE_KEY, theme)
-  } catch { /* ignore */ }
+  } catch {
+    /* ignore */
+  }
 }
 
 export function applyTheme(theme: Theme): void {
-  const isDark = theme === 'dark' ||
-    (theme === 'system' && window.matchMedia('(prefers-color-scheme: dark)').matches)
+  const isDark = theme === 'dark' || (theme === 'system' && window.matchMedia('(prefers-color-scheme: dark)').matches)
 
   document.documentElement.classList.toggle('dark', isDark)
 

@@ -76,9 +76,9 @@ describe('ProgressExportService', () => {
       const lines = csv.split('\r\n')
       const fields = lines[1].split(',')
 
-      expect(fields[3]).toBe('2')   // attempts
-      expect(fields[4]).toBe('1')   // correctCount
-      expect(fields[5]).toBe('50')  // accuracy
+      expect(fields[3]).toBe('2') // attempts
+      expect(fields[4]).toBe('1') // correctCount
+      expect(fields[5]).toBe('50') // accuracy
     })
   })
 
@@ -108,16 +108,13 @@ describe('ProgressExportService', () => {
     })
 
     it('should show correct attempted count', () => {
-      const questions = [
-        createTestQuestion('q1', 'tools'),
-        createTestQuestion('q2', 'tools'),
-      ]
+      const questions = [createTestQuestion('q1', 'tools'), createTestQuestion('q2', 'tools')]
       let progress = UserProgress.empty()
       progress = progress.recordAnswer('q1', 'tools', true)
 
       const csv = ProgressExportService.generateCategoryCsv(questions, progress)
       const lines = csv.split('\r\n')
-      const toolsRow = lines.find(l => l.startsWith('tools'))
+      const toolsRow = lines.find((l) => l.startsWith('tools'))
 
       expect(toolsRow).toBeDefined()
       expect(toolsRow).toContain('tools,2,1')

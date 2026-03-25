@@ -62,9 +62,7 @@ export function ProgressDashboard() {
   }
 
   const handleResetProgress = async () => {
-    if (
-      window.confirm('学習履歴をリセットしますか？この操作は取り消せません。')
-    ) {
+    if (window.confirm('学習履歴をリセットしますか？この操作は取り消せません。')) {
       await resetUserProgress()
     }
   }
@@ -99,11 +97,7 @@ export function ProgressDashboard() {
       const result = await platformAPI.importProgress()
 
       if (result.success && result.data) {
-        if (
-          window.confirm(
-            '現在の学習履歴を上書きしますか？この操作は取り消せません。'
-          )
-        ) {
+        if (window.confirm('現在の学習履歴を上書きしますか？この操作は取り消せません。')) {
           const progressRepo = getProgressRepository()
           const success = await progressRepo.import(result.data)
 
@@ -139,268 +133,241 @@ export function ProgressDashboard() {
 
       <div className="px-4 pb-8 pt-4 sm:px-6">
         <div className="mx-auto sm:max-w-2xl lg:max-w-4xl">
-
-        {/* Empty State */}
-        {hasNoProgress && (
-          <div className={`mb-8 ${cardStyles.elevated} p-8 text-center`}>
-            <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-stone-100 dark:bg-stone-700">
-              <span className="text-3xl">📊</span>
-            </div>
-            <h3 className="mb-2 text-lg font-medium text-claude-dark">
-              ここに学習の記録が残ります
-            </h3>
-            <p className="mb-4 text-sm text-stone-500">
-              最初の1問を解くと、あなたの成長が見えるようになります
-            </p>
-            <button
-              onClick={() => setViewState('menu')}
-              className="tap-highlight rounded-2xl bg-claude-orange px-6 py-3 text-sm font-semibold text-white"
-            >
-              最初の1問を解く
-            </button>
-          </div>
-        )}
-
-        {/* Permanent growth message — skills don't expire */}
-        {!hasNoProgress && (
-          <div className="mb-4 rounded-2xl border border-green-200 bg-green-50/50 px-4 py-3 dark:border-green-500/30 dark:bg-green-500/10">
-            <p className="text-center text-sm text-green-700 dark:text-green-300">
-              あなたが身につけたスキルは、環境が変わっても消えません。
-            </p>
-          </div>
-        )}
-
-        {/* Overall Stats */}
-        <div className="mb-6 grid grid-cols-2 gap-4 sm:grid-cols-4">
-          <StatCard
-            label="総回答数"
-            value={userProgress.totalAttempts}
-            icon="📝"
-          />
-          <StatCard
-            label="正解数"
-            value={userProgress.totalCorrect}
-            icon="✅"
-          />
-          <StatCard
-            label="正答率"
-            value={`${overallAccuracy}%`}
-            icon="📊"
-          />
-          <StatCard
-            label="セッション数"
-            value={`${userProgress.sessionHistory.length}回`}
-            icon="📚"
-          />
-        </div>
-
-        {/* Session History Chart */}
-        {!hasNoProgress && (
-          <div className="mb-6">
-            <h2 className="mb-4 text-lg font-semibold text-claude-dark">
-              正答率の推移
-            </h2>
-            <SessionHistoryChart sessions={userProgress.sessionHistory} />
-          </div>
-        )}
-
-        {/* Learning Insights */}
-        {!hasNoProgress && (() => {
-          const trend = SessionInsightService.getImprovementTrend(userProgress.sessionHistory)
-          const best = SessionInsightService.getBestScore(userProgress.sessionHistory)
-          if (trend === null && best === null) return null
-          return (
-            <div className="mb-6 flex flex-wrap gap-3">
-              {best !== null && (
-                <div className="flex-1 ${cardStyles.elevated} p-4">
-                  <div className="mb-1 text-xs text-stone-500">最高正答率</div>
-                  <div className="text-2xl font-bold text-claude-orange">{best}%</div>
-                </div>
-              )}
-              {trend !== null && (
-                <div className="flex-1 ${cardStyles.elevated} p-4">
-                  <div className="mb-1 text-xs text-stone-500">成長トレンド</div>
-                  <div className={`text-2xl font-bold ${trend >= 0 ? 'text-green-600' : 'text-red-500'}`}>
-                    {trend >= 0 ? '+' : ''}{trend}%
-                  </div>
-                </div>
-              )}
-            </div>
-          )
-        })()}
-
-        {/* Session History List */}
-        {!hasNoProgress && userProgress.sessionHistory.length > 0 && (
-          <div className="mb-6">
-            <h2 className="mb-4 text-lg font-semibold text-claude-dark">
-              最近のセッション
-            </h2>
-            <SessionHistoryList sessions={userProgress.sessionHistory} limit={5} />
-          </div>
-        )}
-
-        {/* Learning Recommendation */}
-        {!hasNoProgress && (
-          <LearningRecommendation
-            categoryStats={categoryStats}
-            totalAttempts={userProgress.totalAttempts}
-            onStartSession={startSession}
-          />
-        )}
-
-        {/* Weak Point Insight — show specific areas to improve */}
-        {!hasNoProgress && (
-          <WeakPointInsight
-            categoryStats={categoryStats}
-            onStartSession={startSession}
-          />
-        )}
-
-        {/* Teaching Readiness — categories the user can teach */}
-        {!hasNoProgress && (() => {
-          const teachable = PREDEFINED_CATEGORIES.filter(cat => {
-            const stats = categoryStats[cat.id]
-            if (!stats || stats.attemptedQuestions < 5) return false
-            return Math.round((stats.correctAnswers / stats.attemptedQuestions) * 100) >= 90
-          })
-          if (teachable.length === 0) return null
-          return (
-            <div className="mb-6 rounded-2xl border border-purple-200 bg-purple-50/50 p-4 dark:border-purple-500/30 dark:bg-purple-500/10">
-              <p className="mb-2 text-sm font-bold text-purple-700 dark:text-purple-300">🎓 教えられるカテゴリ</p>
-              <p className="mb-3 text-xs text-stone-500">正答率90%以上 — このカテゴリはチームに教えられるレベルです</p>
-              <div className="flex flex-wrap gap-2">
-                {teachable.map(cat => (
-                  <span key={cat.id} className="inline-flex items-center gap-1 rounded-full bg-purple-100 px-3 py-1 text-sm font-medium text-purple-700 dark:bg-purple-500/20 dark:text-purple-300">
-                    {cat.icon} {cat.name}
-                  </span>
-                ))}
+          {/* Empty State */}
+          {hasNoProgress && (
+            <div className={`mb-8 ${cardStyles.elevated} p-8 text-center`}>
+              <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-stone-100 dark:bg-stone-700">
+                <span className="text-3xl">📊</span>
               </div>
-            </div>
-          )
-        })()}
-
-        {/* Category Progress */}
-        <div className="mb-6">
-          <h2 className="mb-4 text-lg font-semibold text-claude-dark">
-            カテゴリ別進捗
-          </h2>
-          <div className="max-h-96 space-y-3 overflow-y-auto">
-            {PREDEFINED_CATEGORIES.map((category: Category) => {
-              const stats = categoryStats[category.id]
-              const progress = stats
-                ? Math.round((stats.correctAnswers / Math.max(stats.attemptedQuestions, 1)) * 100)
-                : 0
-              const attempted = stats?.attemptedQuestions ?? 0
-              const total = stats?.totalQuestions ?? 0
-
-              return (
-                <div
-                  key={category.id}
-                  className="${cardStyles.elevated} p-4"
-                >
-                  <div className="mb-2 flex items-center justify-between">
-                    <div className="flex items-center gap-2">
-                      <span>{category.icon}</span>
-                      <span className="font-medium text-claude-dark">
-                        {category.name}
-                      </span>
-                      {progress >= 90 && <span className="text-xs">🏆</span>}
-                      {progress >= 70 && progress < 90 && <span className="text-xs">⭐</span>}
-                    </div>
-                    <div className="flex items-center gap-2">
-                      <span className={`text-sm font-semibold ${progress >= 70 ? 'text-green-600' : progress >= 50 ? 'text-amber-600' : 'text-stone-500'}`}>
-                        {progress}%
-                      </span>
-                      <span className="text-xs text-stone-400">
-                        {attempted}/{total}
-                      </span>
-                    </div>
-                  </div>
-                  <div className="mb-1 h-2 overflow-hidden rounded-full bg-stone-200">
-                    <div
-                      className="h-full animate-progress-fill rounded-full progress-gradient"
-                      style={{
-                        width: `${(attempted / Math.max(total, 1)) * 100}%`,
-                        backgroundColor: getColorHex(category.color ?? 'gray'),
-                      }}
-                    />
-                  </div>
-                  <div className="flex justify-between text-xs text-stone-500">
-                    <span>正答率: {progress}%</span>
-                    <span>
-                      {stats?.correctAnswers ?? 0}問正解 / {attempted - (stats?.correctAnswers ?? 0)}問不正解
-                    </span>
-                  </div>
-                </div>
-              )
-            })}
-          </div>
-        </div>
-
-        {/* Actions */}
-        <div className="space-y-3">
-          <div className="flex flex-col gap-3 sm:flex-row">
-            <button
-              onClick={handleWeakMode}
-              aria-label="苦手問題に挑戦する"
-              className="tap-highlight flex-1 rounded-2xl bg-claude-orange px-6 py-3 font-semibold text-white"
-            >
-              🎯 苦手問題に挑戦
-            </button>
-          </div>
-
-          {/* Export/Import buttons */}
-          <div className="flex flex-col gap-3 sm:flex-row">
-            <button
-              onClick={handleExport}
-              aria-label="学習履歴をエクスポートする"
-              className="${buttonStyles.secondary} flex-1"
-            >
-              📥 履歴をエクスポート
-            </button>
-            <button
-              onClick={handleImport}
-              aria-label="学習履歴をインポートする"
-              className="${buttonStyles.secondary} flex-1"
-            >
-              📤 履歴をインポート
-            </button>
-          </div>
-
-          {/* CSV Export button */}
-          <button
-            onClick={handleCsvExport}
-            aria-label="CSVで進捗をエクスポートする"
-            className={`${buttonStyles.secondary} w-full`}
-          >
-            📊 CSVでエクスポート
-          </button>
-
-          {/* Status message */}
-          {exportStatus && (
-            <div
-              className={`rounded-2xl px-4 py-2 text-center text-sm ${
-                exportStatus.startsWith('エラー') || exportStatus.includes('失敗')
-                  ? 'bg-red-500/20 text-red-400'
-                  : 'bg-green-500/20 text-green-400'
-              }`}
-              role="status"
-              aria-live="polite"
-            >
-              {exportStatus}
+              <h3 className="mb-2 text-lg font-medium text-claude-dark">ここに学習の記録が残ります</h3>
+              <p className="mb-4 text-sm text-stone-500">最初の1問を解くと、あなたの成長が見えるようになります</p>
+              <button
+                onClick={() => setViewState('menu')}
+                className="tap-highlight rounded-2xl bg-claude-orange px-6 py-3 text-sm font-semibold text-white"
+              >
+                最初の1問を解く
+              </button>
             </div>
           )}
 
-          {/* Reset button */}
-          <button
-            onClick={handleResetProgress}
-            aria-label="学習履歴をリセットする"
-            className="tap-highlight w-full rounded-2xl border border-red-600/50 px-6 py-3 font-semibold text-red-400"
-          >
-            履歴をリセット
-          </button>
+          {/* Permanent growth message — skills don't expire */}
+          {!hasNoProgress && (
+            <div className="mb-4 rounded-2xl border border-green-200 bg-green-50/50 px-4 py-3 dark:border-green-500/30 dark:bg-green-500/10">
+              <p className="text-center text-sm text-green-700 dark:text-green-300">
+                あなたが身につけたスキルは、環境が変わっても消えません。
+              </p>
+            </div>
+          )}
+
+          {/* Overall Stats */}
+          <div className="mb-6 grid grid-cols-2 gap-4 sm:grid-cols-4">
+            <StatCard label="総回答数" value={userProgress.totalAttempts} icon="📝" />
+            <StatCard label="正解数" value={userProgress.totalCorrect} icon="✅" />
+            <StatCard label="正答率" value={`${overallAccuracy}%`} icon="📊" />
+            <StatCard label="セッション数" value={`${userProgress.sessionHistory.length}回`} icon="📚" />
+          </div>
+
+          {/* Session History Chart */}
+          {!hasNoProgress && (
+            <div className="mb-6">
+              <h2 className="mb-4 text-lg font-semibold text-claude-dark">正答率の推移</h2>
+              <SessionHistoryChart sessions={userProgress.sessionHistory} />
+            </div>
+          )}
+
+          {/* Learning Insights */}
+          {!hasNoProgress &&
+            (() => {
+              const trend = SessionInsightService.getImprovementTrend(userProgress.sessionHistory)
+              const best = SessionInsightService.getBestScore(userProgress.sessionHistory)
+              if (trend === null && best === null) return null
+              return (
+                <div className="mb-6 flex flex-wrap gap-3">
+                  {best !== null && (
+                    <div className="flex-1 ${cardStyles.elevated} p-4">
+                      <div className="mb-1 text-xs text-stone-500">最高正答率</div>
+                      <div className="text-2xl font-bold text-claude-orange">{best}%</div>
+                    </div>
+                  )}
+                  {trend !== null && (
+                    <div className="flex-1 ${cardStyles.elevated} p-4">
+                      <div className="mb-1 text-xs text-stone-500">成長トレンド</div>
+                      <div className={`text-2xl font-bold ${trend >= 0 ? 'text-green-600' : 'text-red-500'}`}>
+                        {trend >= 0 ? '+' : ''}
+                        {trend}%
+                      </div>
+                    </div>
+                  )}
+                </div>
+              )
+            })()}
+
+          {/* Session History List */}
+          {!hasNoProgress && userProgress.sessionHistory.length > 0 && (
+            <div className="mb-6">
+              <h2 className="mb-4 text-lg font-semibold text-claude-dark">最近のセッション</h2>
+              <SessionHistoryList sessions={userProgress.sessionHistory} limit={5} />
+            </div>
+          )}
+
+          {/* Learning Recommendation */}
+          {!hasNoProgress && (
+            <LearningRecommendation
+              categoryStats={categoryStats}
+              totalAttempts={userProgress.totalAttempts}
+              onStartSession={startSession}
+            />
+          )}
+
+          {/* Weak Point Insight — show specific areas to improve */}
+          {!hasNoProgress && <WeakPointInsight categoryStats={categoryStats} onStartSession={startSession} />}
+
+          {/* Teaching Readiness — categories the user can teach */}
+          {!hasNoProgress &&
+            (() => {
+              const teachable = PREDEFINED_CATEGORIES.filter((cat) => {
+                const stats = categoryStats[cat.id]
+                if (!stats || stats.attemptedQuestions < 5) return false
+                return Math.round((stats.correctAnswers / stats.attemptedQuestions) * 100) >= 90
+              })
+              if (teachable.length === 0) return null
+              return (
+                <div className="mb-6 rounded-2xl border border-purple-200 bg-purple-50/50 p-4 dark:border-purple-500/30 dark:bg-purple-500/10">
+                  <p className="mb-2 text-sm font-bold text-purple-700 dark:text-purple-300">🎓 教えられるカテゴリ</p>
+                  <p className="mb-3 text-xs text-stone-500">
+                    正答率90%以上 — このカテゴリはチームに教えられるレベルです
+                  </p>
+                  <div className="flex flex-wrap gap-2">
+                    {teachable.map((cat) => (
+                      <span
+                        key={cat.id}
+                        className="inline-flex items-center gap-1 rounded-full bg-purple-100 px-3 py-1 text-sm font-medium text-purple-700 dark:bg-purple-500/20 dark:text-purple-300"
+                      >
+                        {cat.icon} {cat.name}
+                      </span>
+                    ))}
+                  </div>
+                </div>
+              )
+            })()}
+
+          {/* Category Progress */}
+          <div className="mb-6">
+            <h2 className="mb-4 text-lg font-semibold text-claude-dark">カテゴリ別進捗</h2>
+            <div className="max-h-96 space-y-3 overflow-y-auto">
+              {PREDEFINED_CATEGORIES.map((category: Category) => {
+                const stats = categoryStats[category.id]
+                const progress = stats
+                  ? Math.round((stats.correctAnswers / Math.max(stats.attemptedQuestions, 1)) * 100)
+                  : 0
+                const attempted = stats?.attemptedQuestions ?? 0
+                const total = stats?.totalQuestions ?? 0
+
+                return (
+                  <div key={category.id} className="${cardStyles.elevated} p-4">
+                    <div className="mb-2 flex items-center justify-between">
+                      <div className="flex items-center gap-2">
+                        <span>{category.icon}</span>
+                        <span className="font-medium text-claude-dark">{category.name}</span>
+                        {progress >= 90 && <span className="text-xs">🏆</span>}
+                        {progress >= 70 && progress < 90 && <span className="text-xs">⭐</span>}
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <span
+                          className={`text-sm font-semibold ${progress >= 70 ? 'text-green-600' : progress >= 50 ? 'text-amber-600' : 'text-stone-500'}`}
+                        >
+                          {progress}%
+                        </span>
+                        <span className="text-xs text-stone-400">
+                          {attempted}/{total}
+                        </span>
+                      </div>
+                    </div>
+                    <div className="mb-1 h-2 overflow-hidden rounded-full bg-stone-200">
+                      <div
+                        className="h-full animate-progress-fill rounded-full progress-gradient"
+                        style={{
+                          width: `${(attempted / Math.max(total, 1)) * 100}%`,
+                          backgroundColor: getColorHex(category.color ?? 'gray'),
+                        }}
+                      />
+                    </div>
+                    <div className="flex justify-between text-xs text-stone-500">
+                      <span>正答率: {progress}%</span>
+                      <span>
+                        {stats?.correctAnswers ?? 0}問正解 / {attempted - (stats?.correctAnswers ?? 0)}問不正解
+                      </span>
+                    </div>
+                  </div>
+                )
+              })}
+            </div>
+          </div>
+
+          {/* Actions */}
+          <div className="space-y-3">
+            <div className="flex flex-col gap-3 sm:flex-row">
+              <button
+                onClick={handleWeakMode}
+                aria-label="苦手問題に挑戦する"
+                className="tap-highlight flex-1 rounded-2xl bg-claude-orange px-6 py-3 font-semibold text-white"
+              >
+                🎯 苦手問題に挑戦
+              </button>
+            </div>
+
+            {/* Export/Import buttons */}
+            <div className="flex flex-col gap-3 sm:flex-row">
+              <button
+                onClick={handleExport}
+                aria-label="学習履歴をエクスポートする"
+                className="${buttonStyles.secondary} flex-1"
+              >
+                📥 履歴をエクスポート
+              </button>
+              <button
+                onClick={handleImport}
+                aria-label="学習履歴をインポートする"
+                className="${buttonStyles.secondary} flex-1"
+              >
+                📤 履歴をインポート
+              </button>
+            </div>
+
+            {/* CSV Export button */}
+            <button
+              onClick={handleCsvExport}
+              aria-label="CSVで進捗をエクスポートする"
+              className={`${buttonStyles.secondary} w-full`}
+            >
+              📊 CSVでエクスポート
+            </button>
+
+            {/* Status message */}
+            {exportStatus && (
+              <div
+                className={`rounded-2xl px-4 py-2 text-center text-sm ${
+                  exportStatus.startsWith('エラー') || exportStatus.includes('失敗')
+                    ? 'bg-red-500/20 text-red-400'
+                    : 'bg-green-500/20 text-green-400'
+                }`}
+                role="status"
+                aria-live="polite"
+              >
+                {exportStatus}
+              </div>
+            )}
+
+            {/* Reset button */}
+            <button
+              onClick={handleResetProgress}
+              aria-label="学習履歴をリセットする"
+              className="tap-highlight w-full rounded-2xl border border-red-600/50 px-6 py-3 font-semibold text-red-400"
+            >
+              履歴をリセット
+            </button>
+          </div>
         </div>
-      </div>
       </div>
     </div>
   )

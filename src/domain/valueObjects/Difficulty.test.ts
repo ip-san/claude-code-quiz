@@ -1,8 +1,5 @@
 import { describe, it, expect } from 'vitest'
-import {
-  Difficulty,
-  PREDEFINED_DIFFICULTIES,
-} from './Difficulty'
+import { Difficulty, PREDEFINED_DIFFICULTIES } from './Difficulty'
 
 describe('Difficulty Value Object', () => {
   describe('create()', () => {
@@ -19,17 +16,19 @@ describe('Difficulty Value Object', () => {
     })
 
     it('should throw error for invalid difficulty level', () => {
-      expect(() => Difficulty.create({
-        id: 'invalid' as any,
-        name: 'Invalid',
-        color: '#000',
-      })).toThrow('Invalid difficulty level: invalid')
+      expect(() =>
+        Difficulty.create({
+          id: 'invalid' as any,
+          name: 'Invalid',
+          color: '#000',
+        })
+      ).toThrow('Invalid difficulty level: invalid')
     })
 
     it('should accept all valid difficulty levels', () => {
       const levels = ['beginner', 'intermediate', 'advanced'] as const
 
-      levels.forEach(level => {
+      levels.forEach((level) => {
         const difficulty = Difficulty.create({
           id: level,
           name: 'Test',
@@ -124,4 +123,3 @@ describe('PREDEFINED_DIFFICULTIES', () => {
     expect(PREDEFINED_DIFFICULTIES[2].id).toBe('advanced')
   })
 })
-

@@ -19,8 +19,9 @@ export function InstallPrompt() {
   const [dismissed, setDismissed] = useState(false)
 
   const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent)
-  const isStandalone = window.matchMedia('(display-mode: standalone)').matches
-    || ('standalone' in navigator && (navigator as unknown as { standalone: boolean }).standalone)
+  const isStandalone =
+    window.matchMedia('(display-mode: standalone)').matches ||
+    ('standalone' in navigator && (navigator as unknown as { standalone: boolean }).standalone)
 
   useEffect(() => {
     if (isStandalone) return
@@ -29,7 +30,9 @@ export function InstallPrompt() {
         setDismissed(true)
         return
       }
-    } catch { /* private browsing */ }
+    } catch {
+      /* private browsing */
+    }
 
     if (isIOS) {
       // iOS: show guide after 2 seconds
@@ -51,14 +54,20 @@ export function InstallPrompt() {
     try {
       await deferredPrompt.prompt()
       await deferredPrompt.userChoice
-    } catch { /* prompt failed */ }
+    } catch {
+      /* prompt failed */
+    }
     setDeferredPrompt(null)
   }
 
   const handleDismiss = () => {
     setDismissed(true)
     setShowIOSGuide(false)
-    try { sessionStorage.setItem('pwa-install-dismissed', '1') } catch { /* private browsing */ }
+    try {
+      sessionStorage.setItem('pwa-install-dismissed', '1')
+    } catch {
+      /* private browsing */
+    }
   }
 
   // Don't show if dismissed or already installed
@@ -80,12 +89,20 @@ export function InstallPrompt() {
           </div>
           <div className="space-y-2 text-xs text-stone-600 dark:text-stone-400">
             <div className="flex items-center gap-2">
-              <span className="flex h-5 w-5 flex-shrink-0 items-center justify-center rounded-full bg-claude-orange text-xs font-bold text-white">1</span>
-              <span>Safari 画面下の <strong>共有ボタン</strong>（□↑）をタップ</span>
+              <span className="flex h-5 w-5 flex-shrink-0 items-center justify-center rounded-full bg-claude-orange text-xs font-bold text-white">
+                1
+              </span>
+              <span>
+                Safari 画面下の <strong>共有ボタン</strong>（□↑）をタップ
+              </span>
             </div>
             <div className="flex items-center gap-2">
-              <span className="flex h-5 w-5 flex-shrink-0 items-center justify-center rounded-full bg-claude-orange text-xs font-bold text-white">2</span>
-              <span><strong>「ホーム画面に追加」</strong>をタップ</span>
+              <span className="flex h-5 w-5 flex-shrink-0 items-center justify-center rounded-full bg-claude-orange text-xs font-bold text-white">
+                2
+              </span>
+              <span>
+                <strong>「ホーム画面に追加」</strong>をタップ
+              </span>
             </div>
           </div>
         </div>

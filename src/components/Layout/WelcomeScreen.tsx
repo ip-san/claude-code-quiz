@@ -21,7 +21,11 @@ export function WelcomeScreen({ onComplete }: WelcomeScreenProps) {
       localStorage.setItem(WELCOME_KEY, '1')
     } catch {
       // private browsing — use sessionStorage as fallback
-      try { sessionStorage.setItem(WELCOME_KEY, '1') } catch { /* ignore */ }
+      try {
+        sessionStorage.setItem(WELCOME_KEY, '1')
+      } catch {
+        /* ignore */
+      }
     }
     onComplete()
   }
@@ -34,15 +38,9 @@ export function WelcomeScreen({ onComplete }: WelcomeScreenProps) {
           <span className="text-4xl font-bold text-white">{theme.logoText}</span>
         </div>
 
-        <h1 className="mb-2 text-3xl font-bold text-claude-dark sm:text-2xl">
-          {theme.appName}
-        </h1>
-        <p className="mb-2 text-sm text-claude-gray">
-          {theme.tagline}
-        </p>
-        <p className="mb-6 text-xs text-stone-400">
-          {theme.subtitle}
-        </p>
+        <h1 className="mb-2 text-3xl font-bold text-claude-dark sm:text-2xl">{theme.appName}</h1>
+        <p className="mb-2 text-sm text-claude-gray">{theme.tagline}</p>
+        <p className="mb-6 text-xs text-stone-400">{theme.subtitle}</p>
 
         {/* Features */}
         <div className="mb-8 space-y-3 text-left">
@@ -88,10 +86,14 @@ export function WelcomeScreen({ onComplete }: WelcomeScreenProps) {
 export function hasSeenWelcome(): boolean {
   const keys = [WELCOME_KEY, LEGACY_WELCOME_KEY]
   try {
-    if (keys.some(k => localStorage.getItem(k) === '1')) return true
-  } catch { /* localStorage が使えない環境 */ }
+    if (keys.some((k) => localStorage.getItem(k) === '1')) return true
+  } catch {
+    /* localStorage が使えない環境 */
+  }
   try {
-    if (keys.some(k => sessionStorage.getItem(k) === '1')) return true
-  } catch { /* sessionStorage も使えない環境 */ }
+    if (keys.some((k) => sessionStorage.getItem(k) === '1')) return true
+  } catch {
+    /* sessionStorage も使えない環境 */
+  }
   return false
 }

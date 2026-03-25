@@ -18,15 +18,22 @@ export function HierarchyDiagram({ label, items }: HierarchyDiagramProps) {
   const getColor = (index: number, total: number) => {
     if (index === 0) return { bg: 'bg-claude-orange/15', border: 'border-claude-orange/40', text: 'text-claude-orange' }
     const ratio = index / (total - 1)
-    if (ratio < 0.5) return { bg: 'bg-amber-50 dark:bg-amber-500/10', border: 'border-amber-200 dark:border-amber-500/30', text: 'text-amber-700 dark:text-amber-300' }
-    return { bg: 'bg-stone-50 dark:bg-stone-800', border: 'border-stone-200 dark:border-stone-700', text: 'text-stone-600 dark:text-stone-400' }
+    if (ratio < 0.5)
+      return {
+        bg: 'bg-amber-50 dark:bg-amber-500/10',
+        border: 'border-amber-200 dark:border-amber-500/30',
+        text: 'text-amber-700 dark:text-amber-300',
+      }
+    return {
+      bg: 'bg-stone-50 dark:bg-stone-800',
+      border: 'border-stone-200 dark:border-stone-700',
+      text: 'text-stone-600 dark:text-stone-400',
+    }
   }
 
   return (
     <div ref={containerRef} aria-label={label ?? '階層図'}>
-      {label && (
-        <p className="mb-2 text-xs font-medium text-stone-500 dark:text-stone-400">{label}</p>
-      )}
+      {label && <p className="mb-2 text-xs font-medium text-stone-500 dark:text-stone-400">{label}</p>}
       <div className="flex flex-col items-center gap-0.5">
         {items.map((item, i) => {
           const color = getColor(i, items.length)
@@ -53,18 +60,17 @@ export function HierarchyDiagram({ label, items }: HierarchyDiagramProps) {
                 <span className={`text-xs font-semibold ${i === 0 ? 'text-claude-orange' : color.text}`}>
                   {item.text}
                 </span>
-                {item.sub && (
-                  <span className="ml-1.5 text-[10px] text-stone-400 dark:text-stone-500">
-                    {item.sub}
-                  </span>
-                )}
+                {item.sub && <span className="ml-1.5 text-[10px] text-stone-400 dark:text-stone-500">{item.sub}</span>}
               </div>
             </div>
           )
         })}
       </div>
       {/* Priority indicator */}
-      <div className="mt-1.5 flex items-center justify-between text-[10px] text-stone-400 dark:text-stone-500" aria-hidden="true">
+      <div
+        className="mt-1.5 flex items-center justify-between text-[10px] text-stone-400 dark:text-stone-500"
+        aria-hidden="true"
+      >
         <span>▲ 高優先</span>
         <span>低優先 ▼</span>
       </div>

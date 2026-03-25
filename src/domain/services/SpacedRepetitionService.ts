@@ -12,13 +12,13 @@ import type { UserProgress } from '../entities/UserProgress'
 
 /** 間隔反復の復習間隔テーブル（ミリ秒） */
 export const SRS_INTERVALS_MS: readonly number[] = [
-  3600000,        // 0: 1時間
-  14400000,       // 1: 4時間
-  86400000,       // 2: 1日
-  259200000,      // 3: 3日
-  604800000,      // 4: 7日
-  1209600000,     // 5: 14日
-  2592000000,     // 6+: 30日
+  3600000, // 0: 1時間
+  14400000, // 1: 4時間
+  86400000, // 2: 1日
+  259200000, // 3: 3日
+  604800000, // 4: 7日
+  1209600000, // 5: 14日
+  2592000000, // 6+: 30日
 ]
 
 export class SpacedRepetitionService {
@@ -48,17 +48,13 @@ export class SpacedRepetitionService {
    */
   static getDueCount(userProgress: UserProgress, now: number): number {
     const allQp = Object.values(userProgress.questionProgress)
-    return allQp.filter(qp => this.isDue(qp, now)).length
+    return allQp.filter((qp) => this.isDue(qp, now)).length
   }
 
   /**
    * 問題を復習優先度順にソート（最も期限超過が大きいものを先頭に）
    */
-  static sortByPriority(
-    questions: Question[],
-    userProgress: UserProgress,
-    now: number
-  ): Question[] {
+  static sortByPriority(questions: Question[], userProgress: UserProgress, now: number): Question[] {
     return [...questions].sort((a, b) => {
       const qpA = userProgress.questionProgress[a.id]
       const qpB = userProgress.questionProgress[b.id]

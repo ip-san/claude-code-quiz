@@ -6,11 +6,7 @@ interface UseDiagramAnimationOptions {
   initialDelayMs?: number
 }
 
-export function useDiagramAnimation({
-  itemCount,
-  staggerMs = 120,
-  initialDelayMs = 200,
-}: UseDiagramAnimationOptions) {
+export function useDiagramAnimation({ itemCount, staggerMs = 120, initialDelayMs = 200 }: UseDiagramAnimationOptions) {
   const containerRef = useRef<HTMLDivElement>(null)
   const [isVisible, setIsVisible] = useState(false)
 
@@ -38,8 +34,7 @@ export function useDiagramAnimation({
     return () => observer.disconnect()
   }, [])
 
-  const getItemDelay = (index: number): string =>
-    `${initialDelayMs + index * staggerMs}ms`
+  const getItemDelay = (index: number): string => `${initialDelayMs + index * staggerMs}ms`
 
   return { containerRef, isVisible, getItemDelay, itemCount }
 }

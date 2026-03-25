@@ -30,7 +30,7 @@ export class Difficulty {
   }
 
   static fromId(id: DifficultyLevel): Difficulty {
-    const difficulty = PREDEFINED_DIFFICULTIES.find(d => d.id === id)
+    const difficulty = PREDEFINED_DIFFICULTIES.find((d) => d.id === id)
     if (!difficulty) {
       throw new Error(`Unknown difficulty: ${id}`)
     }

@@ -69,9 +69,7 @@ export function CertificateGenerator({ score, total, percentage, mode }: Certifi
     // Description
     ctx.fillStyle = '#1A1A1A'
     ctx.font = '16px -apple-system, sans-serif'
-    const certDesc = mode === 'overview'
-      ? theme.certificateDescOverview
-      : theme.certificateDescFull
+    const certDesc = mode === 'overview' ? theme.certificateDescOverview : theme.certificateDescFull
     ctx.fillText(certDesc, 400, 370)
 
     // Date

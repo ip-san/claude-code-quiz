@@ -23,13 +23,13 @@ export function DailyGoalIndicator() {
   const goalOptions = [5, 10, 15, 20, 30, 50]
 
   return (
-    <div className={`animate-card-enter rounded-2xl border px-4 py-3 ${isAchieved ? 'border-green-300 bg-green-50/50 dark:border-green-500/30 dark:bg-green-500/10' : 'border-stone-200 bg-white dark:border-stone-700 dark:bg-stone-800'}`}>
+    <div
+      className={`animate-card-enter rounded-2xl border px-4 py-3 ${isAchieved ? 'border-green-300 bg-green-50/50 dark:border-green-500/30 dark:bg-green-500/10' : 'border-stone-200 bg-white dark:border-stone-700 dark:bg-stone-800'}`}
+    >
       <div className="mb-2 flex items-center justify-between">
         <div className="flex items-center gap-2">
           <span className="text-base">{isAchieved ? '🎉' : '🎯'}</span>
-          <span className="text-sm font-medium text-claude-dark">
-            今日の目標
-          </span>
+          <span className="text-sm font-medium text-claude-dark">今日の目標</span>
         </div>
         <button
           onClick={() => setShowGoalPicker(!showGoalPicker)}
@@ -41,7 +41,14 @@ export function DailyGoalIndicator() {
       </div>
 
       {/* Progress bar */}
-      <div className="mb-1.5 h-2.5 overflow-hidden rounded-full bg-stone-200" role="progressbar" aria-valuenow={todayCount} aria-valuemin={0} aria-valuemax={dailyGoal} aria-label="今日の目標進捗">
+      <div
+        className="mb-1.5 h-2.5 overflow-hidden rounded-full bg-stone-200"
+        role="progressbar"
+        aria-valuenow={todayCount}
+        aria-valuemin={0}
+        aria-valuemax={dailyGoal}
+        aria-label="今日の目標進捗"
+      >
         <div
           className={`h-full animate-progress-fill rounded-full ${
             isAchieved ? 'progress-gradient-green' : 'progress-gradient'
@@ -57,9 +64,7 @@ export function DailyGoalIndicator() {
         {isAchieved ? (
           <span className="font-medium text-green-600">達成！</span>
         ) : (
-          <span className="text-stone-400">
-            あと{dailyGoal - todayCount}問
-          </span>
+          <span className="text-stone-400">あと{dailyGoal - todayCount}問</span>
         )}
       </div>
 

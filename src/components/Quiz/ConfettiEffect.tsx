@@ -34,18 +34,20 @@ export function ConfettiEffect() {
     return () => clearTimeout(timer)
   }, [])
 
-  const particles = useMemo<Particle[]>(() =>
-    Array.from({ length: PARTICLE_COUNT }).map(() => ({
-      x: 45 + Math.random() * 10,
-      y: 35 + Math.random() * 10,
-      angle: Math.random() * 360,
-      speed: 80 + Math.random() * 120,
-      size: 4 + Math.random() * 6,
-      color: COLORS[Math.floor(Math.random() * COLORS.length)],
-      delay: 800 + Math.random() * 200, // Stagger after ScoreRing animation (800ms)
-      shape: (['circle', 'square', 'diamond'] as const)[Math.floor(Math.random() * 3)],
-    })),
-  [])
+  const particles = useMemo<Particle[]>(
+    () =>
+      Array.from({ length: PARTICLE_COUNT }).map(() => ({
+        x: 45 + Math.random() * 10,
+        y: 35 + Math.random() * 10,
+        angle: Math.random() * 360,
+        speed: 80 + Math.random() * 120,
+        size: 4 + Math.random() * 6,
+        color: COLORS[Math.floor(Math.random() * COLORS.length)],
+        delay: 800 + Math.random() * 200, // Stagger after ScoreRing animation (800ms)
+        shape: (['circle', 'square', 'diamond'] as const)[Math.floor(Math.random() * 3)],
+      })),
+    []
+  )
 
   if (!show) return null
 
@@ -59,22 +61,24 @@ export function ConfettiEffect() {
         return (
           <div
             key={i}
-            style={{
-              position: 'absolute',
-              left: `${p.x}%`,
-              top: `${p.y}%`,
-              width: p.size,
-              height: p.size,
-              backgroundColor: p.color,
-              borderRadius: p.shape === 'circle' ? '50%' : p.shape === 'diamond' ? '2px' : '1px',
-              transform: p.shape === 'diamond' ? 'rotate(45deg)' : undefined,
-              opacity: 1,
-              animation: `confetti-burst 800ms ease-out ${p.delay}ms forwards`,
-              // CSS custom properties for the animation endpoint
-              '--tx': `${tx}px`,
-              '--ty': `${ty}px`,
-              '--rot': `${Math.random() * 720 - 360}deg`,
-            } as React.CSSProperties}
+            style={
+              {
+                position: 'absolute',
+                left: `${p.x}%`,
+                top: `${p.y}%`,
+                width: p.size,
+                height: p.size,
+                backgroundColor: p.color,
+                borderRadius: p.shape === 'circle' ? '50%' : p.shape === 'diamond' ? '2px' : '1px',
+                transform: p.shape === 'diamond' ? 'rotate(45deg)' : undefined,
+                opacity: 1,
+                animation: `confetti-burst 800ms ease-out ${p.delay}ms forwards`,
+                // CSS custom properties for the animation endpoint
+                '--tx': `${tx}px`,
+                '--ty': `${ty}px`,
+                '--rot': `${Math.random() * 720 - 360}deg`,
+              } as React.CSSProperties
+            }
           />
         )
       })}

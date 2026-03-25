@@ -53,11 +53,7 @@ export function QuizBottomBar({
                 key={i}
                 onClick={() => goToQuestion(i)}
                 className={`h-2.5 w-2.5 rounded-full transition-all ${
-                  isCurrent
-                    ? 'scale-125 bg-claude-orange'
-                    : answered
-                      ? 'bg-green-400'
-                      : 'bg-stone-300'
+                  isCurrent ? 'scale-125 bg-claude-orange' : answered ? 'bg-green-400' : 'bg-stone-300'
                 }`}
                 aria-label={`問題${i + 1}${answered ? '（回答済み）' : ''}`}
               />
@@ -66,7 +62,10 @@ export function QuizBottomBar({
         </div>
         <div className="flex gap-2">
           <button
-            onClick={() => { haptics.light(); previousQuestion() }}
+            onClick={() => {
+              haptics.light()
+              previousQuestion()
+            }}
             disabled={currentIndex <= 0}
             className="tap-highlight rounded-2xl border-2 border-stone-300 px-3 py-3 text-stone-500 disabled:opacity-40 dark:border-stone-600 dark:text-stone-400"
           >
@@ -95,7 +94,10 @@ export function QuizBottomBar({
             )
           })()}
           <button
-            onClick={() => { haptics.light(); nextQuestion() }}
+            onClick={() => {
+              haptics.light()
+              nextQuestion()
+            }}
             disabled={isLastQuestion}
             className="tap-highlight rounded-2xl border-2 border-stone-300 px-3 py-3 text-stone-500 disabled:opacity-40 dark:border-stone-600 dark:text-stone-400"
           >
@@ -111,7 +113,10 @@ export function QuizBottomBar({
     <div className="fixed bottom-0 left-0 right-0 z-20 border-t border-stone-200 bg-white px-4 pb-[calc(env(safe-area-inset-bottom,0px)+8px)] pt-2 dark:border-stone-700 dark:bg-stone-900 sm:relative sm:mt-6 sm:border-0 sm:bg-transparent sm:p-0 sm:pb-0 sm:pt-0 sm:dark:bg-transparent">
       <div className="flex gap-2">
         <button
-          onClick={() => { haptics.light(); previousQuestion() }}
+          onClick={() => {
+            haptics.light()
+            previousQuestion()
+          }}
           disabled={!canGoBack}
           className="tap-highlight flex items-center justify-center rounded-2xl border-2 border-stone-300 px-3 py-3 text-stone-500 disabled:opacity-40 dark:border-stone-600 dark:text-stone-400"
         >
@@ -119,7 +124,10 @@ export function QuizBottomBar({
         </button>
         {isAnswered ? (
           <button
-            onClick={() => { haptics.light(); nextQuestion() }}
+            onClick={() => {
+              haptics.light()
+              nextQuestion()
+            }}
             className="tap-highlight flex-1 rounded-2xl bg-claude-orange py-3.5 text-base font-semibold text-white sm:py-3"
           >
             次の問題へ
@@ -133,7 +141,10 @@ export function QuizBottomBar({
               submitAnswer={submitAnswer}
             />
             <button
-              onClick={() => { haptics.light(); nextQuestion() }}
+              onClick={() => {
+                haptics.light()
+                nextQuestion()
+              }}
               disabled={isLastQuestion}
               className="tap-highlight flex items-center justify-center rounded-2xl border-2 border-stone-300 px-3 py-3 text-stone-500 disabled:opacity-40 dark:border-stone-600 dark:text-stone-400"
             >
@@ -148,7 +159,10 @@ export function QuizBottomBar({
 
 /** 回答ボタン（共通） */
 function SubmitButton({
-  isMultiSelect, selectedAnswer, selectedAnswers, submitAnswer,
+  isMultiSelect,
+  selectedAnswer,
+  selectedAnswers,
+  submitAnswer,
 }: {
   isMultiSelect: boolean
   selectedAnswer: number | null
@@ -158,12 +172,13 @@ function SubmitButton({
   const hasSelection = isMultiSelect ? selectedAnswers.length > 0 : selectedAnswer !== null
   return (
     <button
-      onClick={() => { haptics.medium(); submitAnswer() }}
+      onClick={() => {
+        haptics.medium()
+        submitAnswer()
+      }}
       disabled={!hasSelection}
       className={`flex-1 rounded-2xl py-3 text-base font-semibold ${
-        hasSelection
-          ? 'tap-highlight bg-claude-orange text-white'
-          : 'bg-stone-200 text-stone-400'
+        hasSelection ? 'tap-highlight bg-claude-orange text-white' : 'bg-stone-200 text-stone-400'
       }`}
     >
       {hasSelection ? '回答する' : '選択肢を選ぶ'}

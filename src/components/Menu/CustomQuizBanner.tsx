@@ -13,11 +13,11 @@ export function CustomQuizBanner() {
           <Sparkles className="h-5 w-5 text-claude-orange" />
         </div>
         <div>
-          <p className="text-sm font-semibold text-claude-dark">
-            自分だけのクイズを作ろう
-          </p>
+          <p className="text-sm font-semibold text-claude-dark">自分だけのクイズを作ろう</p>
           <p className="text-xs text-stone-500">
-            Claude Code で <code className="rounded bg-stone-100 px-1 text-claude-orange dark:bg-stone-800">/generate-quiz-data</code> を実行
+            Claude Code で{' '}
+            <code className="rounded bg-stone-100 px-1 text-claude-orange dark:bg-stone-800">/generate-quiz-data</code>{' '}
+            を実行
           </p>
         </div>
       </div>

@@ -4,7 +4,17 @@
  */
 import { theme } from '@/config/theme'
 
-export type QuizModeId = 'full' | 'category' | 'random' | 'quick' | 'weak' | 'unanswered' | 'custom' | 'bookmark' | 'review' | 'overview'
+export type QuizModeId =
+  | 'full'
+  | 'category'
+  | 'random'
+  | 'quick'
+  | 'weak'
+  | 'unanswered'
+  | 'custom'
+  | 'bookmark'
+  | 'review'
+  | 'overview'
 
 export interface QuizModeProps {
   readonly id: QuizModeId
@@ -39,7 +49,18 @@ export class QuizMode {
   }
 
   static create(props: QuizModeProps): QuizMode {
-    const validModes: QuizModeId[] = ['full', 'category', 'random', 'quick', 'weak', 'unanswered', 'custom', 'bookmark', 'review', 'overview']
+    const validModes: QuizModeId[] = [
+      'full',
+      'category',
+      'random',
+      'quick',
+      'weak',
+      'unanswered',
+      'custom',
+      'bookmark',
+      'review',
+      'overview',
+    ]
     if (!validModes.includes(props.id)) {
       throw new Error(`Invalid quiz mode: ${props.id}`)
     }
@@ -47,7 +68,7 @@ export class QuizMode {
   }
 
   static fromId(id: QuizModeId): QuizMode {
-    const mode = PREDEFINED_QUIZ_MODES.find(m => m.id === id)
+    const mode = PREDEFINED_QUIZ_MODES.find((m) => m.id === id)
     if (!mode) {
       throw new Error(`Unknown quiz mode: ${id}`)
     }
@@ -185,5 +206,5 @@ export const PREDEFINED_QUIZ_MODES: QuizMode[] = [
 ]
 
 export function getQuizModeById(id: QuizModeId): QuizMode | undefined {
-  return PREDEFINED_QUIZ_MODES.find(m => m.id === id)
+  return PREDEFINED_QUIZ_MODES.find((m) => m.id === id)
 }

@@ -19,16 +19,21 @@ function calculateProgressToNext(
   levelIndex: number,
   accuracy: number,
   answeredRatio: number,
-  masteredCount: number,
+  masteredCount: number
 ): number {
   switch (levelIndex) {
-    case 0: return Math.min((accuracy / 50) * 100, 100)
-    case 1: return Math.min((accuracy / 70) * 100, 100)
+    case 0:
+      return Math.min((accuracy / 50) * 100, 100)
+    case 1:
+      return Math.min((accuracy / 70) * 100, 100)
     // 推進者: 正答率50% + 網羅率50% の複合
-    case 2: return Math.min((accuracy / 80) * 50 + answeredRatio * 50, 100)
+    case 2:
+      return Math.min((accuracy / 80) * 50 + answeredRatio * 50, 100)
     // 牽引役: 正答率50% + カテゴリ習得率50% の複合
-    case 3: return Math.min((accuracy / 85) * 50 + (masteredCount / Math.max(getCategoryCount() - 1, 1)) * 50, 100)
-    default: return 100
+    case 3:
+      return Math.min((accuracy / 85) * 50 + (masteredCount / Math.max(getCategoryCount() - 1, 1)) * 50, 100)
+    default:
+      return 100
   }
 }
 
@@ -57,7 +62,7 @@ export function MasteryRoadmap({
     const overallAccuracy = totalAttempts > 0 ? Math.round((totalCorrect / totalAttempts) * 100) : 0
 
     // 正答率70%以上のカテゴリ数
-    const masteredCategories = PREDEFINED_CATEGORIES.filter(cat => {
+    const masteredCategories = PREDEFINED_CATEGORIES.filter((cat) => {
       const s = categoryStats[cat.id]
       if (!s || s.attemptedQuestions === 0) return false
       return Math.round((s.correctAnswers / s.attemptedQuestions) * 100) >= 70
@@ -85,17 +90,27 @@ export function MasteryRoadmap({
         <div className="flex-1">
           <p className={`text-sm font-bold ${current.color}`}>{current.name}</p>
           <p className="text-xs text-stone-500 dark:text-stone-400">
-            正答率 {stats.overallAccuracy}% · {stats.answered}/{totalQuestions}問 · {stats.masteredCategories}/{getCategoryCount()}カテゴリ習得
+            正答率 {stats.overallAccuracy}% · {stats.answered}/{totalQuestions}問 · {stats.masteredCategories}/
+            {getCategoryCount()}カテゴリ習得
           </p>
         </div>
       </div>
       {next && (
         <div className="mt-3">
           <div className="mb-1 flex items-center justify-between text-xs">
-            <span className="text-stone-500 dark:text-stone-400">次: {next.icon} {next.name}</span>
+            <span className="text-stone-500 dark:text-stone-400">
+              次: {next.icon} {next.name}
+            </span>
             <span className="text-stone-400 dark:text-stone-300">{next.req}</span>
           </div>
-          <div className="h-2 overflow-hidden rounded-full bg-stone-200" role="progressbar" aria-valuenow={nextProgress} aria-valuemin={0} aria-valuemax={100} aria-label="次のレベルへの進捗">
+          <div
+            className="h-2 overflow-hidden rounded-full bg-stone-200"
+            role="progressbar"
+            aria-valuenow={nextProgress}
+            aria-valuemin={0}
+            aria-valuemax={100}
+            aria-label="次のレベルへの進捗"
+          >
             <div
               className="h-full rounded-full progress-gradient transition-all"
               style={{ width: `${nextProgress}%` }}

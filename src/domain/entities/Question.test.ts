@@ -6,12 +6,7 @@ describe('Question Entity', () => {
     return Question.create({
       id: 'test-001',
       question: 'What is Claude Code?',
-      options: [
-        { text: 'A CLI tool' },
-        { text: 'A web app' },
-        { text: 'A mobile app' },
-        { text: 'A desktop app' },
-      ],
+      options: [{ text: 'A CLI tool' }, { text: 'A web app' }, { text: 'A mobile app' }, { text: 'A desktop app' }],
       correctIndex: 0,
       explanation: 'Claude Code is an agentic coding tool from Anthropic.',
       category: 'tools',
@@ -52,7 +47,9 @@ describe('Question Entity', () => {
     })
 
     it('should throw error for more than 6 options', () => {
-      const manyOptions = Array(7).fill(null).map((_, i) => ({ text: `Option ${i}` }))
+      const manyOptions = Array(7)
+        .fill(null)
+        .map((_, i) => ({ text: `Option ${i}` }))
       expect(() => createTestQuestion({ options: manyOptions })).toThrow('Maximum 6 options allowed')
     })
 
@@ -66,7 +63,9 @@ describe('Question Entity', () => {
     })
 
     it('should throw error for invalid referenceUrl', () => {
-      expect(() => createTestQuestion({ referenceUrl: 'not-a-url' })).toThrow('Reference URL must be a valid HTTP/HTTPS URL')
+      expect(() => createTestQuestion({ referenceUrl: 'not-a-url' })).toThrow(
+        'Reference URL must be a valid HTTP/HTTPS URL'
+      )
     })
 
     it('should accept valid referenceUrl', () => {
@@ -149,14 +148,11 @@ describe('Question Entity', () => {
 
     it('should return wrongFeedback if defined', () => {
       const question = createTestQuestion({
-        options: [
-          { text: 'Correct answer' },
-          { text: 'Wrong answer', wrongFeedback: 'This is why it\'s wrong' },
-        ],
+        options: [{ text: 'Correct answer' }, { text: 'Wrong answer', wrongFeedback: "This is why it's wrong" }],
         correctIndex: 0,
       })
 
-      expect(question.getWrongFeedback(1)).toBe('This is why it\'s wrong')
+      expect(question.getWrongFeedback(1)).toBe("This is why it's wrong")
     })
 
     it('should return undefined if wrongFeedback not defined', () => {
@@ -403,11 +399,7 @@ describe('Question Entity', () => {
         const rawData = {
           id: 'multi-raw-001',
           question: 'Select all correct answers',
-          options: [
-            { text: 'A' },
-            { text: 'B' },
-            { text: 'C', wrongFeedback: 'Wrong' },
-          ],
+          options: [{ text: 'A' }, { text: 'B' }, { text: 'C', wrongFeedback: 'Wrong' }],
           correctIndices: [0, 1],
           explanation: 'A and B are correct',
           category: 'tools',

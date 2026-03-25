@@ -6,8 +6,10 @@ import { QuizCard } from '@/components/Quiz/QuizCard'
 import { Timer } from '@/components/Quiz/Timer'
 
 // Lazy-load screens not needed on initial render
-const QuizResult = lazy(() => import('@/components/Quiz/QuizResult').then(m => ({ default: m.QuizResult })))
-const ProgressDashboard = lazy(() => import('@/components/Progress/ProgressDashboard').then(m => ({ default: m.ProgressDashboard })))
+const QuizResult = lazy(() => import('@/components/Quiz/QuizResult').then((m) => ({ default: m.QuizResult })))
+const ProgressDashboard = lazy(() =>
+  import('@/components/Progress/ProgressDashboard').then((m) => ({ default: m.ProgressDashboard }))
+)
 import { getChapterFromTags } from '@/domain/valueObjects/OverviewChapter'
 import { XCircle } from 'lucide-react'
 import { pageStyles, headerStyles } from '@/lib/styles'
@@ -33,7 +35,7 @@ import { WelcomeScreen, hasSeenWelcome } from '@/components/Layout/WelcomeScreen
 
 // Lazy-load PWA update prompt only in web builds (avoids virtual:pwa-register error in Electron)
 const PWAUpdatePrompt = !isElectron
-  ? lazy(() => import('@/components/Layout/PWAUpdatePrompt').then(m => ({ default: m.PWAUpdatePrompt })))
+  ? lazy(() => import('@/components/Layout/PWAUpdatePrompt').then((m) => ({ default: m.PWAUpdatePrompt })))
   : null
 
 export default function App() {
@@ -82,7 +84,11 @@ export default function App() {
     <>
       <OfflineIndicator />
       <InstallPrompt />
-      {PWAUpdatePrompt && <Suspense fallback={null}><PWAUpdatePrompt /></Suspense>}
+      {PWAUpdatePrompt && (
+        <Suspense fallback={null}>
+          <PWAUpdatePrompt />
+        </Suspense>
+      )}
     </>
   ) : null
 
@@ -117,9 +123,17 @@ export default function App() {
       case 'menu':
         return <ModeSelection />
       case 'progress':
-        return <Suspense fallback={<LoadingSpinner />}><ProgressDashboard /></Suspense>
+        return (
+          <Suspense fallback={<LoadingSpinner />}>
+            <ProgressDashboard />
+          </Suspense>
+        )
       case 'result':
-        return <Suspense fallback={<LoadingSpinner />}><QuizResult /></Suspense>
+        return (
+          <Suspense fallback={<LoadingSpinner />}>
+            <QuizResult />
+          </Suspense>
+        )
       default:
         return null
     }
@@ -137,9 +151,7 @@ export default function App() {
     return (
       <div className="min-h-screen bg-claude-cream" key={viewState}>
         {isElectron && <div className="h-8 titlebar-drag bg-transparent" />}
-        <div className="animate-view-enter">
-          {viewContent}
-        </div>
+        <div className="animate-view-enter">{viewContent}</div>
         {pwaOverlays}
       </div>
     )
@@ -149,12 +161,7 @@ export default function App() {
   const progress = getProgress()
   const timeRemaining = sessionState?.timeRemaining ?? null
 
-  return (
-    <QuizView
-      progress={progress}
-      timeRemaining={timeRemaining}
-    />
-  )
+  return <QuizView progress={progress} timeRemaining={timeRemaining} />
 }
 
 /**
@@ -243,9 +250,7 @@ function QuizView({
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2">
               {isReviewMode && (
-                <span className="rounded-full bg-amber-100 px-2.5 py-0.5 text-xs font-medium text-amber-700">
-                  復習
-                </span>
+                <span className="rounded-full bg-amber-100 px-2.5 py-0.5 text-xs font-medium text-amber-700">復習</span>
               )}
               {isOverviewMode && currentChapter && (
                 <span className="rounded-full bg-claude-orange/10 px-2.5 py-0.5 text-xs font-medium text-claude-orange">
@@ -272,7 +277,14 @@ function QuizView({
             </button>
           </div>
           {/* Progress bar */}
-          <div className="mt-2 h-1.5 overflow-hidden rounded-full bg-stone-200 dark:bg-stone-700 sm:h-1" role="progressbar" aria-valuenow={progress.current} aria-valuemin={1} aria-valuemax={progress.total} aria-label="問題の進捗">
+          <div
+            className="mt-2 h-1.5 overflow-hidden rounded-full bg-stone-200 dark:bg-stone-700 sm:h-1"
+            role="progressbar"
+            aria-valuenow={progress.current}
+            aria-valuemin={1}
+            aria-valuemax={progress.total}
+            aria-label="問題の進捗"
+          >
             <div
               className="h-full rounded-full progress-gradient transition-all"
               style={{
@@ -292,7 +304,15 @@ function QuizView({
 
       {/* iOS-style bottom sheet dialog */}
       {showQuitDialog && (
-        <div className="fixed inset-0 z-50 flex items-end justify-center sm:items-center" role="dialog" aria-modal="true" aria-labelledby="quit-dialog-title" onClick={(e) => { if (e.target === e.currentTarget) handleCancelQuit() }}>
+        <div
+          className="fixed inset-0 z-50 flex items-end justify-center sm:items-center"
+          role="dialog"
+          aria-modal="true"
+          aria-labelledby="quit-dialog-title"
+          onClick={(e) => {
+            if (e.target === e.currentTarget) handleCancelQuit()
+          }}
+        >
           {/* Backdrop */}
           <div className="absolute inset-0 bg-black/40" />
           {/* Sheet */}
@@ -311,9 +331,7 @@ function QuizView({
               {isReviewMode ? '復習を中止しますか？' : 'クイズを中止しますか？'}
             </h3>
             <p className="mb-6 text-center text-sm text-stone-500">
-              {isReviewMode
-                ? 'メニューに戻ります。'
-                : '進捗は保存されます。あとで続きから再開できます。'}
+              {isReviewMode ? 'メニューに戻ります。' : '進捗は保存されます。あとで続きから再開できます。'}
             </p>
             <div className="flex flex-col gap-2">
               <button

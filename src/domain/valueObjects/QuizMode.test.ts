@@ -26,22 +26,24 @@ describe('QuizMode Value Object', () => {
     })
 
     it('should throw error for invalid mode id', () => {
-      expect(() => QuizMode.create({
-        id: 'invalid' as any,
-        name: 'Invalid',
-        description: '',
-        icon: '',
-        questionCount: null,
-        timeLimit: null,
-        shuffleQuestions: true,
-        shuffleOptions: false,
-      })).toThrow('Invalid quiz mode: invalid')
+      expect(() =>
+        QuizMode.create({
+          id: 'invalid' as any,
+          name: 'Invalid',
+          description: '',
+          icon: '',
+          questionCount: null,
+          timeLimit: null,
+          shuffleQuestions: true,
+          shuffleOptions: false,
+        })
+      ).toThrow('Invalid quiz mode: invalid')
     })
 
     it('should accept all valid mode ids', () => {
       const validModes = ['full', 'category', 'random', 'weak', 'custom', 'bookmark', 'review'] as const
 
-      validModes.forEach(modeId => {
+      validModes.forEach((modeId) => {
         const mode = QuizMode.create({
           id: modeId,
           name: 'Test',
@@ -171,7 +173,7 @@ describe('PREDEFINED_QUIZ_MODES', () => {
   })
 
   it('should have all required modes', () => {
-    const ids = PREDEFINED_QUIZ_MODES.map(m => m.id)
+    const ids = PREDEFINED_QUIZ_MODES.map((m) => m.id)
 
     expect(ids).toContain('full')
     expect(ids).toContain('category')
@@ -184,7 +186,7 @@ describe('PREDEFINED_QUIZ_MODES', () => {
   })
 
   it('should have unique ids', () => {
-    const ids = PREDEFINED_QUIZ_MODES.map(m => m.id)
+    const ids = PREDEFINED_QUIZ_MODES.map((m) => m.id)
     const uniqueIds = [...new Set(ids)]
 
     expect(ids.length).toBe(uniqueIds.length)

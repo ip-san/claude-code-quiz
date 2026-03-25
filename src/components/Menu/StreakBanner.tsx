@@ -22,7 +22,8 @@ export function StreakBanner() {
           おかえりなさい。あなたの学びは消えていません。
         </p>
         <p className="mt-0.5 text-xs text-blue-500 dark:text-blue-400">
-          これまで{userProgress.totalAttempts}問に挑戦し、{userProgress.totalCorrect}問正解しています。今日からまた始めましょう。
+          これまで{userProgress.totalAttempts}問に挑戦し、{userProgress.totalCorrect}
+          問正解しています。今日からまた始めましょう。
         </p>
       </div>
     )
@@ -61,9 +62,7 @@ export function StreakBanner() {
         <span className="text-lg font-bold text-claude-dark">{streak}日連続</span>
         <span className="text-xl">{getStreakEmoji(streak)}</span>
       </div>
-      <p className="mt-1 text-sm text-stone-500">
-        {getStreakMessage(streak)}
-      </p>
+      <p className="mt-1 text-sm text-stone-500">{getStreakMessage(streak)}</p>
     </div>
   )
 }

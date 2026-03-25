@@ -22,9 +22,24 @@ import { locale } from '@/config/locale'
 type PromptType = 'explain' | 'practical' | 'compare'
 
 const PROMPT_TYPES: Array<{ type: PromptType; label: string; icon: typeof BookOpen; description: string }> = [
-  { type: 'explain', label: locale.feedback.prompts.explain.label, icon: BookOpen, description: locale.feedback.prompts.explain.description },
-  { type: 'practical', label: locale.feedback.prompts.practical.label, icon: Briefcase, description: locale.feedback.prompts.practical.description },
-  { type: 'compare', label: locale.feedback.prompts.compare.label, icon: GitCompare, description: locale.feedback.prompts.compare.description },
+  {
+    type: 'explain',
+    label: locale.feedback.prompts.explain.label,
+    icon: BookOpen,
+    description: locale.feedback.prompts.explain.description,
+  },
+  {
+    type: 'practical',
+    label: locale.feedback.prompts.practical.label,
+    icon: Briefcase,
+    description: locale.feedback.prompts.practical.description,
+  },
+  {
+    type: 'compare',
+    label: locale.feedback.prompts.compare.label,
+    icon: GitCompare,
+    description: locale.feedback.prompts.compare.description,
+  },
 ]
 
 interface FeedbackProps {
@@ -49,9 +64,7 @@ function AnimatedSection({
   className?: string
   children: React.ReactNode
 }) {
-  const style = noMotion
-    ? undefined
-    : { opacity: animate ? undefined : 0, animationDelay: `${150 + order * 120}ms` }
+  const style = noMotion ? undefined : { opacity: animate ? undefined : 0, animationDelay: `${150 + order * 120}ms` }
   const animClass = noMotion || !animate ? '' : 'animate-feedback-section'
   return (
     <div className={`${className} ${animClass}`} style={style}>
@@ -69,15 +82,11 @@ export function Feedback({ quiz, isCorrect }: FeedbackProps) {
 
   const selectedAnswer = sessionState?.selectedAnswer ?? null
   const selectedAnswers = sessionState?.selectedAnswers ?? []
-  const selectedOption =
-    selectedAnswer !== null ? quiz.options[selectedAnswer] : null
+  const selectedOption = selectedAnswer !== null ? quiz.options[selectedAnswer] : null
   const isReviewMode = sessionState?.isReviewMode ?? false
   const isMultiSelect = quiz.isMultiSelect
 
-  const noMotion = useMemo(
-    () => window.matchMedia('(prefers-reduced-motion: reduce)').matches,
-    []
-  )
+  const noMotion = useMemo(() => window.matchMedia('(prefers-reduced-motion: reduce)').matches, [])
 
   // Trigger animations after mount
   useEffect(() => {
@@ -139,7 +148,13 @@ export function Feedback({ quiz, isCorrect }: FeedbackProps) {
 
   // 0: Header
   sections.push(
-    <AnimatedSection key="header" order={0} animate={animate} noMotion={noMotion} className="mb-3 flex items-center gap-2">
+    <AnimatedSection
+      key="header"
+      order={0}
+      animate={animate}
+      noMotion={noMotion}
+      className="mb-3 flex items-center gap-2"
+    >
       {isCorrect ? (
         <>
           <CheckCircle2 className="h-5 w-5 text-green-400" />
@@ -157,13 +172,21 @@ export function Feedback({ quiz, isCorrect }: FeedbackProps) {
   // 1: Review mode - user answer vs correct
   if (isReviewMode && !isCorrect && isMultiSelect && selectedAnswers.length > 0) {
     sections.push(
-      <AnimatedSection key="review-multi" order={sections.length} animate={animate} noMotion={noMotion} className="mb-4 rounded-2xl border border-amber-200 bg-amber-50 p-3">
+      <AnimatedSection
+        key="review-multi"
+        order={sections.length}
+        animate={animate}
+        noMotion={noMotion}
+        className="mb-4 rounded-2xl border border-amber-200 bg-amber-50 p-3"
+      >
         <p className="text-sm text-amber-800">
           <span className="font-medium">{locale.feedback.yourAnswer}</span>
         </p>
         <ul className="ml-4 mt-1 list-disc text-sm text-amber-800">
-          {selectedAnswers.map(i => (
-            <li key={i}><QuizText text={quiz.options[i]?.text ?? ''} /></li>
+          {selectedAnswers.map((i) => (
+            <li key={i}>
+              <QuizText text={quiz.options[i]?.text ?? ''} />
+            </li>
           ))}
         </ul>
         <p className="mt-2 text-sm text-green-700">
@@ -171,7 +194,9 @@ export function Feedback({ quiz, isCorrect }: FeedbackProps) {
         </p>
         <ul className="ml-4 mt-1 list-disc text-sm text-green-700">
           {quiz.getCorrectOptions().map((opt, i) => (
-            <li key={i}><QuizText text={opt.text} /></li>
+            <li key={i}>
+              <QuizText text={opt.text} />
+            </li>
           ))}
         </ul>
       </AnimatedSection>
@@ -179,7 +204,13 @@ export function Feedback({ quiz, isCorrect }: FeedbackProps) {
   }
   if (isReviewMode && !isCorrect && !isMultiSelect && selectedAnswer !== null && selectedAnswer !== quiz.correctIndex) {
     sections.push(
-      <AnimatedSection key="review-single" order={sections.length} animate={animate} noMotion={noMotion} className="mb-4 rounded-2xl border border-amber-200 bg-amber-50 p-3">
+      <AnimatedSection
+        key="review-single"
+        order={sections.length}
+        animate={animate}
+        noMotion={noMotion}
+        className="mb-4 rounded-2xl border border-amber-200 bg-amber-50 p-3"
+      >
         <p className="text-sm text-amber-800">
           <span className="font-medium">{locale.feedback.yourAnswer}</span>{' '}
           <QuizText text={quiz.options[selectedAnswer]?.text ?? ''} />
@@ -195,18 +226,22 @@ export function Feedback({ quiz, isCorrect }: FeedbackProps) {
   // 2: Wrong feedback (skip in review mode — review sections already show the comparison)
   if (!isCorrect && !isReviewMode && isMultiSelect) {
     const wrongSelected = selectedAnswers
-      .filter(i => !quiz.isCorrectIndex(i))
-      .map(i => quiz.options[i])
-      .filter(opt => opt?.wrongFeedback)
+      .filter((i) => !quiz.isCorrectIndex(i))
+      .map((i) => quiz.options[i])
+      .filter((opt) => opt?.wrongFeedback)
     if (wrongSelected.length > 0) {
       sections.push(
-        <AnimatedSection key="wrong-multi" order={sections.length} animate={animate} noMotion={noMotion} className="mb-4 rounded-2xl border border-red-200 bg-red-50 p-4">
+        <AnimatedSection
+          key="wrong-multi"
+          order={sections.length}
+          animate={animate}
+          noMotion={noMotion}
+          className="mb-4 rounded-2xl border border-red-200 bg-red-50 p-4"
+        >
           <div className="flex items-start gap-2">
             <AlertTriangle className="mt-0.5 h-5 w-5 flex-shrink-0 text-amber-500" />
             <div>
-              <p className="mb-1 font-medium text-claude-dark">
-                {locale.feedback.whyWrong}
-              </p>
+              <p className="mb-1 font-medium text-claude-dark">{locale.feedback.whyWrong}</p>
               {wrongSelected.map((opt, i) => (
                 <p key={i} className="text-sm leading-relaxed text-stone-600 dark:text-stone-300">
                   <QuizText text={opt.wrongFeedback!} />
@@ -220,13 +255,17 @@ export function Feedback({ quiz, isCorrect }: FeedbackProps) {
   }
   if (!isCorrect && !isReviewMode && !isMultiSelect && selectedOption?.wrongFeedback) {
     sections.push(
-      <AnimatedSection key="wrong-single" order={sections.length} animate={animate} noMotion={noMotion} className="mb-4 rounded-2xl border border-red-200 bg-red-50 p-4">
+      <AnimatedSection
+        key="wrong-single"
+        order={sections.length}
+        animate={animate}
+        noMotion={noMotion}
+        className="mb-4 rounded-2xl border border-red-200 bg-red-50 p-4"
+      >
         <div className="flex items-start gap-2">
           <AlertTriangle className="mt-0.5 h-5 w-5 flex-shrink-0 text-amber-500" />
           <div>
-            <p className="mb-1 font-medium text-claude-dark">
-              {locale.feedback.whyWrong}
-            </p>
+            <p className="mb-1 font-medium text-claude-dark">{locale.feedback.whyWrong}</p>
             <p className="text-sm leading-relaxed text-stone-600 dark:text-stone-300">
               <QuizText text={selectedOption.wrongFeedback!} />
             </p>
@@ -239,11 +278,19 @@ export function Feedback({ quiz, isCorrect }: FeedbackProps) {
   // 3: Multi-select correct answers (non-review)
   if (!isCorrect && isMultiSelect && !isReviewMode) {
     sections.push(
-      <AnimatedSection key="correct-multi" order={sections.length} animate={animate} noMotion={noMotion} className="mb-4 rounded-2xl border border-green-200 bg-green-50 p-3">
+      <AnimatedSection
+        key="correct-multi"
+        order={sections.length}
+        animate={animate}
+        noMotion={noMotion}
+        className="mb-4 rounded-2xl border border-green-200 bg-green-50 p-3"
+      >
         <p className="text-sm font-medium text-green-700">{locale.feedback.correctAnswer}</p>
         <ul className="ml-4 mt-1 list-disc text-sm text-green-700">
           {quiz.getCorrectOptions().map((opt, i) => (
-            <li key={i}><QuizText text={opt.text} /></li>
+            <li key={i}>
+              <QuizText text={opt.text} />
+            </li>
           ))}
         </ul>
       </AnimatedSection>
@@ -257,7 +304,11 @@ export function Feedback({ quiz, isCorrect }: FeedbackProps) {
       <p className="mb-1 text-sm font-medium text-claude-dark">{locale.feedback.explanation}</p>
       <div>
         <p className="text-sm leading-relaxed text-stone-600 dark:text-stone-300">
-          <QuizText text={quiz.explanation} animated={animate && !noMotion} animationDelay={300 + explanationOrder * 120} />
+          <QuizText
+            text={quiz.explanation}
+            animated={animate && !noMotion}
+            animationDelay={300 + explanationOrder * 120}
+          />
         </p>
         {quiz.diagram && (
           <div className="mt-3 border-t border-stone-200 pt-3">
@@ -271,7 +322,11 @@ export function Feedback({ quiz, isCorrect }: FeedbackProps) {
   // 5: Action buttons
   sections.push(
     <AnimatedSection key="actions" order={sections.length} animate={animate} noMotion={noMotion}>
-      <div className="flex flex-col gap-2 sm:flex-row sm:flex-wrap" role="group" aria-label={locale.feedback.actionButtons}>
+      <div
+        className="flex flex-col gap-2 sm:flex-row sm:flex-wrap"
+        role="group"
+        aria-label={locale.feedback.actionButtons}
+      >
         {quiz.referenceUrl && (
           <button
             onClick={handleOpenReference}
@@ -308,7 +363,7 @@ export function Feedback({ quiz, isCorrect }: FeedbackProps) {
   sections.push(
     <AnimatedSection key="ai-prompts" order={sections.length} animate={animate} noMotion={noMotion} className="mt-3">
       <button
-        onClick={() => setShowPrompts(v => !v)}
+        onClick={() => setShowPrompts((v) => !v)}
         className="tap-highlight flex w-full items-center justify-between rounded-2xl border border-blue-500/30 bg-blue-500/10 px-4 py-3 text-sm font-medium text-blue-500 dark:border-blue-400/30 dark:bg-blue-400/15 dark:text-blue-300"
       >
         <span className="flex items-center gap-1.5">

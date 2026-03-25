@@ -23,15 +23,14 @@ interface WeakPointInsightProps {
  */
 export function WeakPointInsight({ categoryStats, onStartSession }: WeakPointInsightProps) {
   const weakPoints = useMemo(() => {
-    return PREDEFINED_CATEGORIES
-      .map(cat => {
-        const stats = categoryStats[cat.id]
-        if (!stats || stats.attemptedQuestions < 3) return null
-        const accuracy = Math.round((stats.correctAnswers / stats.attemptedQuestions) * 100)
-        const wrongCount = stats.attemptedQuestions - stats.correctAnswers
-        if (accuracy >= 70) return null // 70%以上は弱点とみなさない
-        return { id: cat.id, name: cat.name, icon: cat.icon, accuracy, wrongCount }
-      })
+    return PREDEFINED_CATEGORIES.map((cat) => {
+      const stats = categoryStats[cat.id]
+      if (!stats || stats.attemptedQuestions < 3) return null
+      const accuracy = Math.round((stats.correctAnswers / stats.attemptedQuestions) * 100)
+      const wrongCount = stats.attemptedQuestions - stats.correctAnswers
+      if (accuracy >= 70) return null // 70%以上は弱点とみなさない
+      return { id: cat.id, name: cat.name, icon: cat.icon, accuracy, wrongCount }
+    })
       .filter((x): x is NonNullable<typeof x> => x !== null)
       .sort((a, b) => a.accuracy - b.accuracy) // 正答率が低い順
       .slice(0, 3) // 上位3つまで
@@ -52,7 +51,9 @@ export function WeakPointInsight({ categoryStats, onStartSession }: WeakPointIns
               <span>{wp.icon}</span>
               <div>
                 <p className="text-sm font-medium text-claude-dark">{wp.name}</p>
-                <p className="text-xs text-stone-400">{wp.wrongCount}問 間違い · 正答率 {wp.accuracy}%</p>
+                <p className="text-xs text-stone-400">
+                  {wp.wrongCount}問 間違い · 正答率 {wp.accuracy}%
+                </p>
               </div>
             </div>
             <button

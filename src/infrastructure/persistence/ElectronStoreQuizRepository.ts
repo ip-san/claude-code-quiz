@@ -56,7 +56,6 @@ export class ElectronStoreQuizRepository implements IQuizRepository {
   async getActiveSet(): Promise<QuizSet> {
     return this.getDefaultSet()
   }
-
 }
 
 // Singleton instance

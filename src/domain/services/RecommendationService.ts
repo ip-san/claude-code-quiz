@@ -19,7 +19,7 @@ interface WrongAnswer {
  */
 export function getOverviewRecommendation(
   wrongAnswers: readonly WrongAnswer[],
-  questions: readonly Question[],
+  questions: readonly Question[]
 ): OverviewRecommendation | null {
   if (wrongAnswers.length === 0) {
     return { type: 'perfect' }
@@ -28,7 +28,7 @@ export function getOverviewRecommendation(
   // カテゴリ別の間違い数をカウント
   const categoryCounts: Record<string, number> = {}
   for (const wrong of wrongAnswers) {
-    const question = questions.find(q => q.id === wrong.questionId)
+    const question = questions.find((q) => q.id === wrong.questionId)
     if (question) {
       categoryCounts[question.category] = (categoryCounts[question.category] ?? 0) + 1
     }

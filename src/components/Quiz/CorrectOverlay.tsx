@@ -28,9 +28,10 @@ export function CorrectOverlay() {
       aria-hidden="true"
     >
       {/* Subtle backdrop */}
-      <div className={`absolute inset-0 transition-opacity duration-300 ${
-        phase === 'exit' ? 'opacity-0' : 'opacity-100'
-      }`} style={{ backgroundColor: 'rgba(34, 197, 94, 0.06)' }} />
+      <div
+        className={`absolute inset-0 transition-opacity duration-300 ${phase === 'exit' ? 'opacity-0' : 'opacity-100'}`}
+        style={{ backgroundColor: 'rgba(34, 197, 94, 0.06)' }}
+      />
 
       {/* Brush stroke check mark */}
       <svg

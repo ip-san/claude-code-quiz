@@ -57,10 +57,8 @@ export class Category {
 // テーマ設定からカテゴリを動的に生成（Category.create で ID/名前のバリデーションを通す）
 import { theme } from '@/config/theme'
 
-export const PREDEFINED_CATEGORIES: Category[] = theme.categories.map(c =>
-  Category.create(c)
-)
+export const PREDEFINED_CATEGORIES: Category[] = theme.categories.map((c) => Category.create(c))
 
 export function getCategoryById(id: string): Category | undefined {
-  return PREDEFINED_CATEGORIES.find(c => c.id === id)
+  return PREDEFINED_CATEGORIES.find((c) => c.id === id)
 }

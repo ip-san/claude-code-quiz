@@ -105,7 +105,7 @@ describe('UserProgress Entity', () => {
 
       progress = progress.recordAnswer('q1', 'tools', true)
       progress = progress.recordAnswer('q1', 'tools', false) // Same question
-      progress = progress.recordAnswer('q1', 'tools', true)  // Same question
+      progress = progress.recordAnswer('q1', 'tools', true) // Same question
 
       // attemptedQuestions should only count unique questions
       expect(progress.categoryProgress['tools'].attemptedQuestions).toBe(1)

@@ -23,10 +23,7 @@ export function StreakToast({ streak }: StreakToastProps) {
     const milestones = [3, 5, 10, 15, 20]
     if (milestones.includes(streak) && streak !== lastShown) {
       setLastShown(streak)
-      const msg = streak >= 20 ? '圧巻！'
-        : streak >= 10 ? '絶好調！'
-        : streak >= 5 ? 'すごい！'
-        : 'いい調子！'
+      const msg = streak >= 20 ? '圧巻！' : streak >= 10 ? '絶好調！' : streak >= 5 ? 'すごい！' : 'いい調子！'
       setMessage(`${msg} ${streak}問連続正解`)
 
       // Enter → visible → exit → hidden
@@ -34,7 +31,11 @@ export function StreakToast({ streak }: StreakToastProps) {
       const t1 = setTimeout(() => setPhase('visible'), 50)
       const t2 = setTimeout(() => setPhase('exit'), 2000)
       const t3 = setTimeout(() => setPhase('hidden'), 2500)
-      return () => { clearTimeout(t1); clearTimeout(t2); clearTimeout(t3) }
+      return () => {
+        clearTimeout(t1)
+        clearTimeout(t2)
+        clearTimeout(t3)
+      }
     }
   }, [streak, lastShown])
 

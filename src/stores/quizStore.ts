@@ -44,24 +44,14 @@ import type { DifficultyLevel } from '@/domain/valueObjects/Difficulty'
 import { PREDEFINED_CATEGORIES } from '@/domain/valueObjects/Category'
 import { getQuizModeById } from '@/domain/valueObjects/QuizMode'
 import { theme } from '@/config/theme'
-import {
-  QuizSessionService,
-  type QuizSessionConfig,
-  type QuizSessionState,
-} from '@/domain/services/QuizSessionService'
+import { QuizSessionService, type QuizSessionConfig, type QuizSessionState } from '@/domain/services/QuizSessionService'
 import { ProgressExportService } from '@/domain/services/ProgressExportService'
 
 // Infrastructure imports
-import {
-  getQuizRepository,
-  getProgressRepository,
-} from '@/infrastructure'
+import { getQuizRepository, getProgressRepository } from '@/infrastructure'
 import { platformAPI } from '@/lib/platformAPI'
 import { DailyGoalService } from '@/domain/services/DailyGoalService'
-import {
-  getSessionRepository,
-  type SavedSessionData,
-} from '@/infrastructure/persistence/SessionRepository'
+import { getSessionRepository, type SavedSessionData } from '@/infrastructure/persistence/SessionRepository'
 
 // ============================================================
 // View State
@@ -161,13 +151,16 @@ interface QuizStore {
   getCurrentQuestion: () => Question | null
   getProgress: () => { current: number; total: number }
   getFilteredQuestions: (categoryId: string | null, difficulty: DifficultyLevel | null) => Question[]
-  getCategoryStats: () => Record<string, {
-    categoryId: string
-    totalQuestions: number
-    attemptedQuestions: number
-    correctAnswers: number
-    accuracy: number
-  }>
+  getCategoryStats: () => Record<
+    string,
+    {
+      categoryId: string
+      totalQuestions: number
+      attemptedQuestions: number
+      correctAnswers: number
+      accuracy: number
+    }
+  >
 }
 
 // ============================================================
@@ -185,9 +178,9 @@ interface QuizStore {
 const APP_CONFIG = {
   title: `${theme.appName} マスタークイズ`,
   version: '2.0.0',
-  passingScore: 70,           // 合格点（%）
-  weakThreshold: 50,          // 苦手判定の閾値（%）
-  minAttemptsForWeak: 1,      // 苦手判定に必要な最小回答数
+  passingScore: 70, // 合格点（%）
+  weakThreshold: 50, // 苦手判定の閾値（%）
+  minAttemptsForWeak: 1, // 苦手判定に必要な最小回答数
   defaultMode: 'random' as QuizModeId,
 }
 
@@ -228,7 +221,7 @@ function saveSessionSnapshot(
 
   const data: SavedSessionData = {
     sessionConfig: sessionState.config,
-    questionIds: sessionState.questions.map(q => q.id),
+    questionIds: sessionState.questions.map((q) => q.id),
     currentIndex: sessionState.currentIndex,
     score: sessionState.score,
     answeredCount: sessionState.answeredCount,
@@ -326,9 +319,7 @@ export const useQuizStore = create<QuizStore>((set, get) => ({
    */
   startSession: (configOverrides) => {
     const state = get()
-    const modeConfig = configOverrides.mode
-      ? getQuizModeById(configOverrides.mode)
-      : null
+    const modeConfig = configOverrides.mode ? getQuizModeById(configOverrides.mode) : null
 
     // モード設定をマージ（ユーザー指定 > モードデフォルト > 既存設定）
     const config: QuizSessionConfig = {
@@ -337,15 +328,15 @@ export const useQuizStore = create<QuizStore>((set, get) => ({
       timeLimit:
         configOverrides.timeLimit !== undefined
           ? configOverrides.timeLimit
-          : modeConfig?.timeLimit ?? state.sessionConfig.timeLimit,
+          : (modeConfig?.timeLimit ?? state.sessionConfig.timeLimit),
       questionCount:
         configOverrides.questionCount !== undefined
           ? configOverrides.questionCount
-          : modeConfig ? modeConfig.questionCount : state.sessionConfig.questionCount,
-      shuffleQuestions:
-        modeConfig?.shuffleQuestions ?? state.sessionConfig.shuffleQuestions,
-      shuffleOptions:
-        modeConfig?.shuffleOptions ?? state.sessionConfig.shuffleOptions,
+          : modeConfig
+            ? modeConfig.questionCount
+            : state.sessionConfig.questionCount,
+      shuffleQuestions: modeConfig?.shuffleQuestions ?? state.sessionConfig.shuffleQuestions,
+      shuffleOptions: modeConfig?.shuffleOptions ?? state.sessionConfig.shuffleOptions,
     }
 
     // QuizSessionService でセッション用の問題を準備
@@ -385,8 +376,8 @@ export const useQuizStore = create<QuizStore>((set, get) => ({
    */
   startSessionWithIds: (questionIds: string[]) => {
     const state = get()
-    const questionMap = new Map(state.allQuestions.map(q => [q.id, q]))
-    const questions = questionIds.map(id => questionMap.get(id)).filter((q): q is Question => q !== undefined)
+    const questionMap = new Map(state.allQuestions.map((q) => [q.id, q]))
+    const questions = questionIds.map((id) => questionMap.get(id)).filter((q): q is Question => q !== undefined)
 
     if (questions.length === 0) return
 
@@ -506,17 +497,11 @@ export const useQuizStore = create<QuizStore>((set, get) => ({
         return
       }
 
-      const updatedProgress = state.userProgress.recordAnswer(
-        currentQuestion.id,
-        currentQuestion.category,
-        isCorrect
-      )
+      const updatedProgress = state.userProgress.recordAnswer(currentQuestion.id, currentQuestion.category, isCorrect)
 
       // Track wrong answers for review feature
       // Remove previous entry for this question (re-answer case)
-      const filteredWrongAnswers = state.sessionWrongAnswers.filter(
-        w => w.questionId !== currentQuestion.id
-      )
+      const filteredWrongAnswers = state.sessionWrongAnswers.filter((w) => w.questionId !== currentQuestion.id)
       const newWrongAnswers = isCorrect
         ? filteredWrongAnswers
         : [
@@ -524,9 +509,7 @@ export const useQuizStore = create<QuizStore>((set, get) => ({
             {
               questionId: currentQuestion.id,
               selectedAnswer: state.sessionState.selectedAnswer ?? -1,
-              selectedAnswers: currentQuestion.isMultiSelect
-                ? [...state.sessionState.selectedAnswers]
-                : undefined,
+              selectedAnswers: currentQuestion.isMultiSelect ? [...state.sessionState.selectedAnswers] : undefined,
             },
           ]
 
@@ -538,9 +521,11 @@ export const useQuizStore = create<QuizStore>((set, get) => ({
       })
 
       // Save progress asynchronously with error handling
-      getProgressRepository().save(updatedProgress).catch((error) => {
-        console.error('Failed to save progress:', error)
-      })
+      getProgressRepository()
+        .save(updatedProgress)
+        .catch((error) => {
+          console.error('Failed to save progress:', error)
+        })
 
       // Save session snapshot so resume picks up the updated score/answeredCount
       saveSessionSnapshot(newState, newWrongAnswers)
@@ -608,7 +593,11 @@ export const useQuizStore = create<QuizStore>((set, get) => ({
 
     if (newSessionState.isCompleted) {
       getSessionRepository().clear()
-      recordCompletedSession(newSessionState, () => get().userProgress, (p) => set({ userProgress: p }))
+      recordCompletedSession(
+        newSessionState,
+        () => get().userProgress,
+        (p) => set({ userProgress: p })
+      )
       set({
         sessionState: newSessionState,
         viewState: 'result',
@@ -712,7 +701,7 @@ export const useQuizStore = create<QuizStore>((set, get) => ({
     let finalCount: number
     if (historySize > 0) {
       let correctCount = 0
-      state.sessionState.answerHistory.forEach(record => {
+      state.sessionState.answerHistory.forEach((record) => {
         if (record.isCorrect) correctCount++
       })
       finalScore = correctCount
@@ -739,7 +728,11 @@ export const useQuizStore = create<QuizStore>((set, get) => ({
       answeredCount: finalCount,
       isCompleted: true,
     }
-    recordCompletedSession(completedState, () => state.userProgress, (p) => set({ userProgress: p }))
+    recordCompletedSession(
+      completedState,
+      () => state.userProgress,
+      (p) => set({ userProgress: p })
+    )
     set({
       sessionState: completedState,
       viewState: 'result',
@@ -764,7 +757,11 @@ export const useQuizStore = create<QuizStore>((set, get) => ({
 
     if (newSessionState.isCompleted && !state.sessionState.isCompleted) {
       getSessionRepository().clear()
-      recordCompletedSession(newSessionState, () => state.userProgress, (p) => set({ userProgress: p }))
+      recordCompletedSession(
+        newSessionState,
+        () => state.userProgress,
+        (p) => set({ userProgress: p })
+      )
       set({
         sessionState: newSessionState,
         viewState: 'result',
@@ -779,9 +776,11 @@ export const useQuizStore = create<QuizStore>((set, get) => ({
     const state = get()
     const updatedProgress = state.userProgress.toggleBookmark(questionId)
     set({ userProgress: updatedProgress })
-    getProgressRepository().save(updatedProgress).catch((error) => {
-      console.error('Failed to save bookmark:', error)
-    })
+    getProgressRepository()
+      .save(updatedProgress)
+      .catch((error) => {
+        console.error('Failed to save bookmark:', error)
+      })
   },
 
   getBookmarkedCount: () => {
@@ -813,10 +812,8 @@ export const useQuizStore = create<QuizStore>((set, get) => ({
     if (!saved) return
 
     // Reconstruct questions from IDs
-    const questionMap = new Map(state.allQuestions.map(q => [q.id, q]))
-    const questions = saved.questionIds
-      .map(id => questionMap.get(id))
-      .filter((q): q is Question => q !== undefined)
+    const questionMap = new Map(state.allQuestions.map((q) => [q.id, q]))
+    const questions = saved.questionIds.map((id) => questionMap.get(id)).filter((q): q is Question => q !== undefined)
 
     if (questions.length === 0) {
       getSessionRepository().clear()
@@ -878,16 +875,14 @@ export const useQuizStore = create<QuizStore>((set, get) => ({
     const state = get()
     if (!state.sessionState || state.sessionWrongAnswers.length === 0) return
 
-    const wrongQuestionIds = new Set(state.sessionWrongAnswers.map(w => w.questionId))
-    const wrongQuestions = state.sessionState.questions.filter(q => wrongQuestionIds.has(q.id))
-    const answerMap = new Map(state.sessionWrongAnswers.map(w => [w.questionId, w.selectedAnswer]))
+    const wrongQuestionIds = new Set(state.sessionWrongAnswers.map((w) => w.questionId))
+    const wrongQuestions = state.sessionState.questions.filter((q) => wrongQuestionIds.has(q.id))
+    const answerMap = new Map(state.sessionWrongAnswers.map((w) => [w.questionId, w.selectedAnswer]))
     const multiAnswerMap = new Map(
-      state.sessionWrongAnswers
-        .filter(w => w.selectedAnswers)
-        .map(w => [w.questionId, w.selectedAnswers!])
+      state.sessionWrongAnswers.filter((w) => w.selectedAnswers).map((w) => [w.questionId, w.selectedAnswers!])
     )
-    const reviewUserAnswers = wrongQuestions.map(q => answerMap.get(q.id) ?? -1)
-    const reviewUserMultiAnswers = wrongQuestions.map(q => multiAnswerMap.get(q.id) ?? [])
+    const reviewUserAnswers = wrongQuestions.map((q) => answerMap.get(q.id) ?? -1)
+    const reviewUserMultiAnswers = wrongQuestions.map((q) => multiAnswerMap.get(q.id) ?? [])
 
     const config: QuizSessionConfig = {
       mode: 'review',
@@ -899,11 +894,11 @@ export const useQuizStore = create<QuizStore>((set, get) => ({
       shuffleOptions: false,
     }
 
-    const sessionState = QuizSessionService.createInitialState(
-      [...wrongQuestions],
-      config,
-      { isReviewMode: true, reviewUserAnswers, reviewUserMultiAnswers }
-    )
+    const sessionState = QuizSessionService.createInitialState([...wrongQuestions], config, {
+      isReviewMode: true,
+      reviewUserAnswers,
+      reviewUserMultiAnswers,
+    })
 
     set({
       sessionState,
@@ -921,9 +916,11 @@ export const useQuizStore = create<QuizStore>((set, get) => ({
       modifiedAt: Date.now(),
     })
     set({ userProgress: updatedProgress })
-    getProgressRepository().save(updatedProgress).catch((error) => {
-      console.error('Failed to save daily goal:', error)
-    })
+    getProgressRepository()
+      .save(updatedProgress)
+      .catch((error) => {
+        console.error('Failed to save daily goal:', error)
+      })
   },
 
   // Hint actions
@@ -939,14 +936,8 @@ export const useQuizStore = create<QuizStore>((set, get) => ({
   exportProgressCsv: async () => {
     const state = get()
     const dateStr = new Date().toISOString().split('T')[0]
-    const questionCsv = ProgressExportService.generateQuestionCsv(
-      state.allQuestions,
-      state.userProgress
-    )
-    const categoryCsv = ProgressExportService.generateCategoryCsv(
-      state.allQuestions,
-      state.userProgress
-    )
+    const questionCsv = ProgressExportService.generateQuestionCsv(state.allQuestions, state.userProgress)
+    const categoryCsv = ProgressExportService.generateCategoryCsv(state.allQuestions, state.userProgress)
     const combinedCsv = `${questionCsv}\r\n\r\n--- カテゴリ別サマリー ---\r\n${categoryCsv}`
     await platformAPI.exportCsv(combinedCsv, `quiz-progress-${dateStr}.csv`)
   },
@@ -987,11 +978,11 @@ export const useQuizStore = create<QuizStore>((set, get) => ({
     let questions = state.allQuestions
 
     if (categoryId) {
-      questions = questions.filter(q => q.category === categoryId)
+      questions = questions.filter((q) => q.category === categoryId)
     }
 
     if (difficulty) {
-      questions = questions.filter(q => q.difficulty === difficulty)
+      questions = questions.filter((q) => q.difficulty === difficulty)
     }
 
     return questions
@@ -999,23 +990,22 @@ export const useQuizStore = create<QuizStore>((set, get) => ({
 
   getCategoryStats: () => {
     const state = get()
-    const stats: Record<string, {
-      categoryId: string
-      totalQuestions: number
-      attemptedQuestions: number
-      correctAnswers: number
-      accuracy: number
-    }> = {}
+    const stats: Record<
+      string,
+      {
+        categoryId: string
+        totalQuestions: number
+        attemptedQuestions: number
+        correctAnswers: number
+        accuracy: number
+      }
+    > = {}
 
     for (const category of PREDEFINED_CATEGORIES) {
-      const categoryQuestions = state.allQuestions.filter(
-        q => q.category === category.id
-      )
-      const attemptedQuestions = categoryQuestions.filter(
-        q => state.userProgress.hasAttempted(q.id)
-      )
+      const categoryQuestions = state.allQuestions.filter((q) => q.category === category.id)
+      const attemptedQuestions = categoryQuestions.filter((q) => state.userProgress.hasAttempted(q.id))
       const correctAnswers = attemptedQuestions.filter(
-        q => state.userProgress.questionProgress[q.id]?.lastCorrect
+        (q) => state.userProgress.questionProgress[q.id]?.lastCorrect
       ).length
 
       stats[category.id] = {
@@ -1023,9 +1013,7 @@ export const useQuizStore = create<QuizStore>((set, get) => ({
         totalQuestions: categoryQuestions.length,
         attemptedQuestions: attemptedQuestions.length,
         correctAnswers,
-        accuracy: attemptedQuestions.length > 0
-          ? Math.round((correctAnswers / attemptedQuestions.length) * 100)
-          : 0,
+        accuracy: attemptedQuestions.length > 0 ? Math.round((correctAnswers / attemptedQuestions.length) * 100) : 0,
       }
     }
 

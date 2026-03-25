@@ -27,11 +27,7 @@ export class DailyGoalService {
   /**
    * ゴールが今回の回答で初めて達成されたかを判定
    */
-  static isGoalNewlyAchieved(
-    previousCount: number,
-    newCount: number,
-    dailyGoal: number
-  ): boolean {
+  static isGoalNewlyAchieved(previousCount: number, newCount: number, dailyGoal: number): boolean {
     return previousCount < dailyGoal && newCount >= dailyGoal
   }
 }

@@ -194,16 +194,16 @@ export class Question {
         return null // 不正な数値は拒否
       }
 
-      const questionType = d.type === 'multi' ? 'multi' as QuestionType : 'single' as QuestionType
+      const questionType = d.type === 'multi' ? ('multi' as QuestionType) : ('single' as QuestionType)
       const correctIndices = Array.isArray(d.correctIndices)
-        ? d.correctIndices.map(Number).filter(n => !Number.isNaN(n))
+        ? d.correctIndices.map(Number).filter((n) => !Number.isNaN(n))
         : undefined
 
       return Question.create({
         id: String(d.id ?? ''),
         question: String(d.question ?? ''),
         options: Array.isArray(d.options)
-          ? d.options.map(o => ({
+          ? d.options.map((o) => ({
               text: String((o as Record<string, unknown>).text ?? ''),
               wrongFeedback: (o as Record<string, unknown>).wrongFeedback
                 ? String((o as Record<string, unknown>).wrongFeedback)
@@ -268,7 +268,7 @@ export class Question {
    * 全正解の選択肢を取得
    */
   getCorrectOptions(): QuizOption[] {
-    return this.correctIndices.map(i => this.options[i])
+    return this.correctIndices.map((i) => this.options[i])
   }
 
   /**
@@ -312,7 +312,9 @@ export class Question {
 
     // 複数選択の場合、prefix に最初の "- " を含め、join で後続を "\n- " で繋ぐ
     const correctAnswers = this.isMultiSelect
-      ? this.getCorrectOptions().map(o => o.text).join('\n- ')
+      ? this.getCorrectOptions()
+          .map((o) => o.text)
+          .join('\n- ')
       : this.getCorrectOption().text
     const prefix = this.isMultiSelect ? '正解（複数）:\n- ' : '正解: '
 
@@ -345,7 +347,9 @@ ${context}`
    */
   toMarkdown(): string {
     const correctSection = this.isMultiSelect
-      ? `**正解（複数）:**\n${this.getCorrectOptions().map(o => `- ${o.text}`).join('\n')}`
+      ? `**正解（複数）:**\n${this.getCorrectOptions()
+          .map((o) => `- ${o.text}`)
+          .join('\n')}`
       : `**正解:** ${this.getCorrectOption().text}`
 
     return `## ${theme.appName}

@@ -37,8 +37,8 @@ export interface QuizSessionConfig {
   readonly mode: QuizModeId
   readonly categoryFilter: string | null
   readonly difficultyFilter: DifficultyLevel | null
-  readonly questionCount: number | null   // null = 全問
-  readonly timeLimit: number | null       // null = 時間無制限（分単位）
+  readonly questionCount: number | null // null = 全問
+  readonly timeLimit: number | null // null = 時間無制限（分単位）
   readonly shuffleQuestions: boolean
   readonly shuffleOptions: boolean
 }
@@ -60,17 +60,17 @@ export interface QuizSessionState {
   readonly questions: readonly Question[]
   readonly currentIndex: number
   readonly selectedAnswer: number | null
-  readonly selectedAnswers: readonly number[]  // 複数選択用
+  readonly selectedAnswers: readonly number[] // 複数選択用
   readonly isAnswered: boolean
   readonly isCorrect: boolean | null
   readonly score: number
   readonly answeredCount: number
   readonly isCompleted: boolean
   readonly startedAt: number | null
-  readonly timeRemaining: number | null   // 秒単位
+  readonly timeRemaining: number | null // 秒単位
   readonly isReviewMode: boolean
   readonly reviewUserAnswers: readonly number[]
-  readonly reviewUserMultiAnswers: readonly (readonly number[])[]  // 複数選択の復習用
+  readonly reviewUserMultiAnswers: readonly (readonly number[])[] // 複数選択の復習用
   readonly hintUsed: boolean
   readonly hintsUsedCount: number
   /** 実力テストモード: 回答後にフィードバックを表示せず即次の問題へ */
@@ -139,22 +139,20 @@ export class QuizSessionService {
 
     // Filter by category
     if (config.categoryFilter) {
-      questions = questions.filter(q => q.category === config.categoryFilter)
+      questions = questions.filter((q) => q.category === config.categoryFilter)
     }
 
     // Filter by difficulty
     if (config.difficultyFilter) {
-      questions = questions.filter(q => q.difficulty === config.difficultyFilter)
+      questions = questions.filter((q) => q.difficulty === config.difficultyFilter)
     }
 
     // For overview mode, filter to tagged questions and sort by order tag
     if (config.mode === 'overview') {
-      questions = questions.filter(q =>
-        q.tags.includes('overview')
-      )
+      questions = questions.filter((q) => q.tags.includes('overview'))
       questions.sort((a, b) => {
         const getOrder = (q: Question): number => {
-          const orderTag = q.tags.find(t => t.startsWith('overview-'))
+          const orderTag = q.tags.find((t) => t.startsWith('overview-'))
           return orderTag ? parseInt(orderTag.replace('overview-', ''), 10) : 999
         }
         return getOrder(a) - getOrder(b)
@@ -163,9 +161,7 @@ export class QuizSessionService {
 
     // For bookmark mode, filter to bookmarked questions
     if (config.mode === 'bookmark') {
-      const bookmarked = questions.filter(q =>
-        userProgress.isBookmarked(q.id)
-      )
+      const bookmarked = questions.filter((q) => userProgress.isBookmarked(q.id))
       if (bookmarked.length > 0) {
         questions = bookmarked
       }
@@ -174,21 +170,22 @@ export class QuizSessionService {
     // For weak mode: find weak questions + their prerequisite fundamentals
     let weakUsedSRS = false
     if (config.mode === 'weak') {
-      const weakQuestions = questions.filter(q =>
+      const weakQuestions = questions.filter((q) =>
         userProgress.isWeakQuestion(q.id, weakThreshold, minAttemptsForWeak)
       )
 
       if (weakQuestions.length > 0) {
         // Find categories where user is weak
-        const weakCategories = new Set(weakQuestions.map(q => q.category))
+        const weakCategories = new Set(weakQuestions.map((q) => q.category))
 
         // Find unmastered fundamentals in those categories
         // (beginner questions user hasn't answered or got wrong)
-        const prerequisites = questions.filter(q =>
-          weakCategories.has(q.category) &&
-          q.difficulty === 'beginner' &&
-          !weakQuestions.some(w => w.id === q.id) &&
-          (userProgress.getQuestionAccuracy(q.id) ?? 0) < 100
+        const prerequisites = questions.filter(
+          (q) =>
+            weakCategories.has(q.category) &&
+            q.difficulty === 'beginner' &&
+            !weakQuestions.some((w) => w.id === q.id) &&
+            (userProgress.getQuestionAccuracy(q.id) ?? 0) < 100
         )
 
         // Build sequence: fundamentals first, then weak questions
@@ -200,7 +197,7 @@ export class QuizSessionService {
 
         // Deduplicate (a question could be both prerequisite and weak)
         const seen = new Set<string>()
-        questions = combined.filter(q => {
+        questions = combined.filter((q) => {
           if (seen.has(q.id)) return false
           seen.add(q.id)
           return true
@@ -208,9 +205,7 @@ export class QuizSessionService {
         weakUsedSRS = true
       } else {
         // Fallback: try unanswered questions (these should be shuffled normally)
-        const unansweredQuestions = questions.filter(q =>
-          !userProgress.hasAttempted(q.id)
-        )
+        const unansweredQuestions = questions.filter((q) => !userProgress.hasAttempted(q.id))
         if (unansweredQuestions.length > 0) {
           questions = unansweredQuestions
         }
@@ -220,7 +215,7 @@ export class QuizSessionService {
     // For quick mode, pick SRS-due questions (most overdue first, 3 questions)
     if (config.mode === 'quick') {
       const now = Date.now()
-      const dueQuestions = questions.filter(q => {
+      const dueQuestions = questions.filter((q) => {
         const qp = userProgress.questionProgress[q.id]
         return qp && qp.attempts > 0 && SpacedRepetitionService.isDue(qp, now)
       })
@@ -232,7 +227,7 @@ export class QuizSessionService {
 
     // For unanswered mode, filter to unanswered questions
     if (config.mode === 'unanswered') {
-      const unanswered = questions.filter(q => !userProgress.hasAttempted(q.id))
+      const unanswered = questions.filter((q) => !userProgress.hasAttempted(q.id))
       if (unanswered.length > 0) {
         questions = unanswered
       }
@@ -241,8 +236,8 @@ export class QuizSessionService {
     // Adaptive difficulty: for random/category modes, prioritize questions
     // the user hasn't mastered yet (unmastered first, then mastered)
     if ((config.mode === 'random' || config.mode === 'category') && userProgress.totalAttempts > 0) {
-      const unmastered = questions.filter(q => (userProgress.getQuestionAccuracy(q.id) ?? 0) < 100)
-      const mastered = questions.filter(q => (userProgress.getQuestionAccuracy(q.id) ?? 0) >= 100)
+      const unmastered = questions.filter((q) => (userProgress.getQuestionAccuracy(q.id) ?? 0) < 100)
+      const mastered = questions.filter((q) => (userProgress.getQuestionAccuracy(q.id) ?? 0) >= 100)
       // Mix: unmastered shuffled first, mastered shuffled after
       questions = [...this.shuffleArray(unmastered), ...this.shuffleArray(mastered)]
     }
@@ -290,8 +285,7 @@ export class QuizSessionService {
         firstIsCorrect = firstQuestion.isCorrectMultiAnswer([...firstSelectedAnswers])
       } else {
         firstUserAnswer = reviewUserAnswers.length > 0 ? reviewUserAnswers[0] : null
-        firstIsCorrect = firstUserAnswer !== null
-          ? firstQuestion.isCorrectAnswer(firstUserAnswer) : null
+        firstIsCorrect = firstUserAnswer !== null ? firstQuestion.isCorrectAnswer(firstUserAnswer) : null
       }
     }
 
@@ -310,7 +304,7 @@ export class QuizSessionService {
       timeRemaining: config.timeLimit ? config.timeLimit * 60 : null,
       isReviewMode,
       reviewUserAnswers: Object.freeze(reviewUserAnswers),
-      reviewUserMultiAnswers: Object.freeze(reviewUserMultiAnswers.map(a => Object.freeze([...a]))),
+      reviewUserMultiAnswers: Object.freeze(reviewUserMultiAnswers.map((a) => Object.freeze([...a]))),
       hintUsed: false,
       hintsUsedCount: 0,
       deferFeedback: config.mode === 'full',
@@ -340,10 +334,7 @@ export class QuizSessionService {
    *
    * すでに回答済みの場合は何もしない。
    */
-  static selectAnswer(
-    state: QuizSessionState,
-    answerIndex: number
-  ): QuizSessionState {
+  static selectAnswer(state: QuizSessionState, answerIndex: number): QuizSessionState {
     if (state.isAnswered) {
       return state
     }
@@ -359,10 +350,7 @@ export class QuizSessionService {
    * すでに選択されていれば解除、されていなければ追加。
    * 回答済みの場合は何もしない。
    */
-  static toggleAnswer(
-    state: QuizSessionState,
-    answerIndex: number
-  ): QuizSessionState {
+  static toggleAnswer(state: QuizSessionState, answerIndex: number): QuizSessionState {
     if (state.isAnswered) {
       return state
     }
@@ -484,8 +472,7 @@ export class QuizSessionService {
         selectedAnswer: userAnswer,
         selectedAnswers: Object.freeze([]),
         isAnswered: true,
-        isCorrect: nextQuestion && userAnswer !== null
-          ? nextQuestion.isCorrectAnswer(userAnswer) : null,
+        isCorrect: nextQuestion && userAnswer !== null ? nextQuestion.isCorrectAnswer(userAnswer) : null,
         hintUsed: false,
       }
     }

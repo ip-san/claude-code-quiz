@@ -32,8 +32,8 @@ export function TeamShareGuide({ percentage, mode }: TeamShareGuideProps) {
       </div>
 
       <p className="mb-4 text-sm text-claude-dark">
-        あなたが学んだことを、チームにも共有しましょう。
-        AI 駆動開発は一人では完結しません。チーム全体で取り組むことで、本当の変革が起こります。
+        あなたが学んだことを、チームにも共有しましょう。 AI
+        駆動開発は一人では完結しません。チーム全体で取り組むことで、本当の変革が起こります。
       </p>
 
       {/* 3-step team action plan */}
@@ -66,9 +66,7 @@ export function TeamShareGuide({ percentage, mode }: TeamShareGuideProps) {
         )}
       </button>
 
-      <p className="mt-2 text-center text-xs text-stone-400">
-        Slack やメールにそのまま貼り付けられます
-      </p>
+      <p className="mt-2 text-center text-xs text-stone-400">Slack やメールにそのまま貼り付けられます</p>
     </div>
   )
 }

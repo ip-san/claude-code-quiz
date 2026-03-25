@@ -78,7 +78,7 @@ export interface CategoryProgress {
   readonly totalQuestions: number
   readonly attemptedQuestions: number
   readonly correctAnswers: number
-  readonly accuracy: number  // パーセンテージ（0-100）
+  readonly accuracy: number // パーセンテージ（0-100）
 }
 
 /**
@@ -167,11 +167,7 @@ export class UserProgress {
    * 4. streakDays - 連続学習日数
    * 5. lastSessionAt / modifiedAt - タイムスタンプ
    */
-  recordAnswer(
-    questionId: string,
-    categoryId: string,
-    isCorrect: boolean
-  ): UserProgress {
+  recordAnswer(questionId: string, categoryId: string, isCorrect: boolean): UserProgress {
     const now = Date.now()
     const existing = this.questionProgress[questionId]
 
@@ -202,9 +198,7 @@ export class UserProgress {
       totalQuestions: existingCategory?.totalQuestions ?? 0,
       attemptedQuestions,
       correctAnswers,
-      accuracy: attemptedQuestions > 0
-        ? Math.round((correctAnswers / attemptedQuestions) * 100)
-        : 0,
+      accuracy: attemptedQuestions > 0 ? Math.round((correctAnswers / attemptedQuestions) * 100) : 0,
     }
 
     // Calculate new streak
@@ -256,11 +250,7 @@ export class UserProgress {
     // Uses local timezone to match dailyAnswerCounts and user's perception of "today"
     const getLocalDateNumber = (timestamp: number): number => {
       const date = new Date(timestamp)
-      return (
-        date.getFullYear() * 10000 +
-        (date.getMonth() + 1) * 100 +
-        date.getDate()
-      )
+      return date.getFullYear() * 10000 + (date.getMonth() + 1) * 100 + date.getDate()
     }
 
     // First session ever
@@ -360,7 +350,7 @@ export class UserProgress {
   toggleBookmark(questionId: string): UserProgress {
     const isCurrentlyBookmarked = this.bookmarkedQuestionIds.includes(questionId)
     const newBookmarks = isCurrentlyBookmarked
-      ? this.bookmarkedQuestionIds.filter(id => id !== questionId)
+      ? this.bookmarkedQuestionIds.filter((id) => id !== questionId)
       : [...this.bookmarkedQuestionIds, questionId]
 
     return UserProgress.create({

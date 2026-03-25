@@ -31,18 +31,17 @@ export function DailySnapshot({ onDismiss }: DailySnapshotProps) {
     const remaining = Math.max(0, dailyGoal - todayCount)
 
     // SRS due count
-    const dueCount = allQuestions.filter(q => {
+    const dueCount = allQuestions.filter((q) => {
       const qp = userProgress.questionProgress[q.id]
       return qp && qp.attempts > 0 && SpacedRepetitionService.isDue(qp, now)
     }).length
 
     // Last session time
-    const lastSession = userProgress.sessionHistory.length > 0
-      ? userProgress.sessionHistory[userProgress.sessionHistory.length - 1]
-      : null
-    const hoursSinceLastSession = lastSession
-      ? Math.round((now - lastSession.completedAt) / 3600000)
-      : null
+    const lastSession =
+      userProgress.sessionHistory.length > 0
+        ? userProgress.sessionHistory[userProgress.sessionHistory.length - 1]
+        : null
+    const hoursSinceLastSession = lastSession ? Math.round((now - lastSession.completedAt) / 3600000) : null
 
     return { remaining, dueCount, hoursSinceLastSession }
   }, [userProgress, allQuestions])
@@ -58,7 +57,11 @@ export function DailySnapshot({ onDismiss }: DailySnapshotProps) {
   }
 
   const handleDismiss = () => {
-    try { localStorage.setItem(SNAPSHOT_KEY, DailyGoalService.getTodayString()) } catch { /* ignore */ }
+    try {
+      localStorage.setItem(SNAPSHOT_KEY, DailyGoalService.getTodayString())
+    } catch {
+      /* ignore */
+    }
     onDismiss()
   }
 
@@ -79,24 +82,32 @@ export function DailySnapshot({ onDismiss }: DailySnapshotProps) {
           <div className="flex items-center gap-2">
             <Clock className="h-3.5 w-3.5 text-stone-400" />
             <span className="text-xs text-stone-500">
-              前回の学習: {snapshot.hoursSinceLastSession < 24
+              前回の学習:{' '}
+              {snapshot.hoursSinceLastSession < 24
                 ? `${snapshot.hoursSinceLastSession}時間前`
                 : `${Math.round(snapshot.hoursSinceLastSession / 24)}日前`}
             </span>
           </div>
         )}
         {snapshot.dueCount > 0 && (
-          <p><strong>🧠 復習: {snapshot.dueCount}問</strong></p>
+          <p>
+            <strong>🧠 復習: {snapshot.dueCount}問</strong>
+          </p>
         )}
         {snapshot.remaining > 0 && (
-          <p><strong>🎯 目標: あと{snapshot.remaining}問</strong></p>
+          <p>
+            <strong>🎯 目標: あと{snapshot.remaining}問</strong>
+          </p>
         )}
       </div>
 
       {snapshot.dueCount > 0 ? (
         <div className="flex gap-2">
           <button
-            onClick={() => { haptics.light(); startSession({ mode: 'quick', questionCount: snapshot.dueCount }) }}
+            onClick={() => {
+              haptics.light()
+              startSession({ mode: 'quick', questionCount: snapshot.dueCount })
+            }}
             className="tap-highlight flex-1 rounded-xl bg-blue-500 py-2.5 text-sm font-semibold text-white"
             aria-label={`復習期限の${snapshot.dueCount}問を全て復習する`}
           >
@@ -128,5 +139,7 @@ export function hasSeenSnapshotToday(): boolean {
   try {
     const today = DailyGoalService.getTodayString()
     return localStorage.getItem(SNAPSHOT_KEY) === today || localStorage.getItem(LEGACY_SNAPSHOT_KEY) === today
-  } catch { return true }
+  } catch {
+    return true
+  }
 }

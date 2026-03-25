@@ -8,10 +8,7 @@ function makeQuestion(id: string, category: string): Question {
     category,
     difficulty: 'beginner',
     question: 'Test question',
-    options: [
-      { text: 'A' },
-      { text: 'B', wrongFeedback: 'Wrong' },
-    ],
+    options: [{ text: 'A' }, { text: 'B', wrongFeedback: 'Wrong' }],
     correctIndex: 0,
     explanation: 'Test',
     referenceUrl: 'https://code.claude.com/docs/ja/overview',
@@ -33,11 +30,7 @@ describe('RecommendationService', () => {
   })
 
   it('finds weakest category from wrong answers', () => {
-    const wrongAnswers = [
-      { questionId: 'q1' },
-      { questionId: 'q2' },
-      { questionId: 'q3' },
-    ]
+    const wrongAnswers = [{ questionId: 'q1' }, { questionId: 'q2' }, { questionId: 'q3' }]
     const result = getOverviewRecommendation(wrongAnswers, questions)
     expect(result?.type).toBe('category')
     expect(result?.categoryId).toBe('memory') // 2 wrong vs 1 for tools

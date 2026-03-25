@@ -14,7 +14,7 @@ interface PersonalBestProps {
 export function PersonalBest({ sessionHistory, currentPercentage }: PersonalBestProps) {
   const personalBest = useMemo(() => {
     if (sessionHistory.length === 0) return null
-    return Math.max(...sessionHistory.map(s => s.percentage))
+    return Math.max(...sessionHistory.map((s) => s.percentage))
   }, [sessionHistory])
 
   const isNewRecord = personalBest === null || currentPercentage > personalBest

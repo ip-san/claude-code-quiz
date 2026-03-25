@@ -62,8 +62,7 @@ export function MenuHeader({ totalQuestions, answeredCount, hasProgress }: MenuH
         <p className="text-sm text-claude-gray">
           {hasProgress ? (
             <>
-              <AnimatedCounter target={totalQuestions} suffix="問" /> |{' '}
-              {answeredCount}問 解答済み
+              <AnimatedCounter target={totalQuestions} suffix="問" /> | {answeredCount}問 解答済み
             </>
           ) : (
             <>

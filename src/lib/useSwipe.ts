@@ -14,12 +14,7 @@ interface UseSwipeOptions {
  * Distinguishes horizontal swipe from vertical scroll by angle.
  * Handles touch cancel and aborts swipe if vertical scroll is detected.
  */
-export function useSwipe({
-  onSwipeLeft,
-  onSwipeRight,
-  threshold = 50,
-  disabled = false,
-}: UseSwipeOptions) {
+export function useSwipe({ onSwipeLeft, onSwipeRight, threshold = 50, disabled = false }: UseSwipeOptions) {
   const touchStart = useRef<{ x: number; y: number } | null>(null)
   const aborted = useRef(false)
 
@@ -33,19 +28,16 @@ export function useSwipe({
     [disabled]
   )
 
-  const onTouchMove = useCallback(
-    (e: React.TouchEvent) => {
-      if (!touchStart.current || aborted.current) return
-      const touch = e.touches[0]
-      const dy = Math.abs(touch.clientY - touchStart.current.y)
-      const dx = Math.abs(touch.clientX - touchStart.current.x)
-      // If vertical movement exceeds horizontal early, abort swipe (it's a scroll)
-      if (dy > 10 && dy > dx) {
-        aborted.current = true
-      }
-    },
-    []
-  )
+  const onTouchMove = useCallback((e: React.TouchEvent) => {
+    if (!touchStart.current || aborted.current) return
+    const touch = e.touches[0]
+    const dy = Math.abs(touch.clientY - touchStart.current.y)
+    const dx = Math.abs(touch.clientX - touchStart.current.x)
+    // If vertical movement exceeds horizontal early, abort swipe (it's a scroll)
+    if (dy > 10 && dy > dx) {
+      aborted.current = true
+    }
+  }, [])
 
   const onTouchEnd = useCallback(
     (e: React.TouchEvent) => {

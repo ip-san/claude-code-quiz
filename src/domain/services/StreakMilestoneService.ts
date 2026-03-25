@@ -12,12 +12,12 @@ export interface StreakMilestone {
 }
 
 const MILESTONES: readonly StreakMilestone[] = [
-  { days: 3,   label: '3日連続達成！',   emoji: '🌟' },
-  { days: 7,   label: '1週間連続！',     emoji: '🏆' },
-  { days: 14,  label: '2週間連続！',     emoji: '🔥' },
-  { days: 30,  label: '1ヶ月連続！',     emoji: '💎' },
-  { days: 60,  label: '2ヶ月連続！',     emoji: '👑' },
-  { days: 100, label: '100日連続！',     emoji: '🚀' },
+  { days: 3, label: '3日連続達成！', emoji: '🌟' },
+  { days: 7, label: '1週間連続！', emoji: '🏆' },
+  { days: 14, label: '2週間連続！', emoji: '🔥' },
+  { days: 30, label: '1ヶ月連続！', emoji: '💎' },
+  { days: 60, label: '2ヶ月連続！', emoji: '👑' },
+  { days: 100, label: '100日連続！', emoji: '🚀' },
 ]
 
 export class StreakMilestoneService {
@@ -26,10 +26,7 @@ export class StreakMilestoneService {
    * 複数跨いだ場合は最大のものを返す。
    * 跨いでいない場合は null を返す。
    */
-  static getMilestone(
-    currentStreak: number,
-    previousStreak: number
-  ): StreakMilestone | null {
+  static getMilestone(currentStreak: number, previousStreak: number): StreakMilestone | null {
     if (currentStreak <= previousStreak) return null
 
     let result: StreakMilestone | null = null

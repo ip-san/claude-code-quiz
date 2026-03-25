@@ -51,7 +51,12 @@ export function useQuizKeyboard({
 
       if (isMultiSelect) {
         switch (e.key) {
-          case '1': case '2': case '3': case '4': case '5': case '6':
+          case '1':
+          case '2':
+          case '3':
+          case '4':
+          case '5':
+          case '6':
             if (!isAnswered) {
               const index = parseInt(e.key) - 1
               if (index < optionCount) toggleAnswer(index)
@@ -69,30 +74,35 @@ export function useQuizKeyboard({
         }
       } else {
         switch (e.key) {
-          case 'ArrowUp': case 'ArrowLeft':
+          case 'ArrowUp':
+          case 'ArrowLeft':
             e.preventDefault()
             if (!isAnswered) {
-              const prevIndex = selectedAnswer === null
-                ? optionCount - 1
-                : (selectedAnswer - 1 + optionCount) % optionCount
+              const prevIndex =
+                selectedAnswer === null ? optionCount - 1 : (selectedAnswer - 1 + optionCount) % optionCount
               selectAnswer(prevIndex)
             }
             break
-          case 'ArrowDown': case 'ArrowRight':
+          case 'ArrowDown':
+          case 'ArrowRight':
             e.preventDefault()
             if (!isAnswered) {
-              const nextIdx = selectedAnswer === null
-                ? 0
-                : (selectedAnswer + 1) % optionCount
+              const nextIdx = selectedAnswer === null ? 0 : (selectedAnswer + 1) % optionCount
               selectAnswer(nextIdx)
             }
             break
-          case 'Enter': case ' ':
+          case 'Enter':
+          case ' ':
             e.preventDefault()
             if (!isAnswered && selectedAnswer !== null) submitAnswer()
             else if (isAnswered) nextQuestion()
             break
-          case '1': case '2': case '3': case '4': case '5': case '6':
+          case '1':
+          case '2':
+          case '3':
+          case '4':
+          case '5':
+          case '6':
             if (!isAnswered) {
               const index = parseInt(e.key) - 1
               if (index < optionCount) selectAnswer(index)
@@ -101,7 +111,21 @@ export function useQuizKeyboard({
         }
       }
     },
-    [quiz, selectedAnswer, selectedAnswers, isAnswered, isCorrect, isReviewMode, isMultiSelect, isModalOpen, selectAnswer, toggleAnswer, submitAnswer, nextQuestion, retryQuestion]
+    [
+      quiz,
+      selectedAnswer,
+      selectedAnswers,
+      isAnswered,
+      isCorrect,
+      isReviewMode,
+      isMultiSelect,
+      isModalOpen,
+      selectAnswer,
+      toggleAnswer,
+      submitAnswer,
+      nextQuestion,
+      retryQuestion,
+    ]
   )
 
   useEffect(() => {

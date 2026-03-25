@@ -29,7 +29,11 @@ export function EncouragementToast({ wrongStreak }: EncouragementToastProps) {
       const t1 = setTimeout(() => setPhase('visible'), 50)
       const t2 = setTimeout(() => setPhase('exit'), 3000)
       const t3 = setTimeout(() => setPhase('hidden'), 3500)
-      return () => { clearTimeout(t1); clearTimeout(t2); clearTimeout(t3) }
+      return () => {
+        clearTimeout(t1)
+        clearTimeout(t2)
+        clearTimeout(t3)
+      }
     }
   }, [wrongStreak])
 

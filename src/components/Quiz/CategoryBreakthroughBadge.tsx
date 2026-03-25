@@ -37,7 +37,7 @@ export function CategoryBreakthroughBadge({ questions, answerHistory, userProgre
       let prevCorrect = 0
       let prevTotal = 0
       for (const [qId, progress] of Object.entries(userProgress.questionProgress)) {
-        const q = questions.find(qu => qu.id === qId)
+        const q = questions.find((qu) => qu.id === qId)
         if (q?.category === catId && progress.attempts > 0) {
           prevTotal += progress.attempts
           prevCorrect += progress.correctCount
@@ -62,7 +62,10 @@ export function CategoryBreakthroughBadge({ questions, answerHistory, userProgre
   return (
     <div className="mb-4 space-y-2">
       {breakthroughs.map((bt) => (
-        <div key={bt.categoryName} className="flex items-center justify-center gap-2 rounded-2xl bg-gradient-to-r from-green-400 to-emerald-500 px-4 py-2.5 text-white shadow-md animate-bounce-in">
+        <div
+          key={bt.categoryName}
+          className="flex items-center justify-center gap-2 rounded-2xl bg-gradient-to-r from-green-400 to-emerald-500 px-4 py-2.5 text-white shadow-md animate-bounce-in"
+        >
           <TrendingUp className="h-5 w-5" />
           <span className="text-sm font-bold">
             {bt.icon} {bt.categoryName} 自己ベスト更新！ {bt.prev}% → {bt.now}%

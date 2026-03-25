@@ -13,7 +13,10 @@
     "preview": "vite preview",
     "preview:web": "vite preview --config vite.config.web.ts",
     "typecheck": "tsc --noEmit",
+    "format": "prettier --write \"src/**/*.{ts,tsx}\"",
+    "format:check": "prettier --check \"src/**/*.{ts,tsx}\"",
     "lint": "eslint src electron",
+    "knip": "knip",
     "check": "tsc --noEmit && eslint src electron && vitest run && node scripts/quiz-utils.mjs check",
     "check:all": "tsc --noEmit && eslint src electron && vitest run && node scripts/quiz-utils.mjs check && node scripts/validate-docs.mjs",
     "docs:validate": "node scripts/validate-docs.mjs",
@@ -82,8 +85,10 @@
     "eslint-plugin-react-hooks": "^7.0.1",
     "husky": "^9.1.7",
     "jsdom": "^27.4.0",
+    "knip": "^6.0.5",
     "lint-staged": "^16.2.7",
     "postcss": "^8.4.38",
+    "prettier": "^3.8.1",
     "sharp": "^0.34.5",
     "tailwindcss": "^3.4.4",
     "typescript": "^5.5.2",
@@ -118,7 +123,10 @@
     }
   },
   "lint-staged": {
-    "*.{ts,tsx}": "eslint --fix"
+    "*.{ts,tsx}": [
+      "prettier --write",
+      "eslint --fix"
+    ]
   },
   "type": "module"
 }

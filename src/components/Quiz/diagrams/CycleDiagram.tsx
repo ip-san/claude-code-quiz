@@ -27,9 +27,7 @@ export function CycleDiagram({ label, trigger, states }: CycleDiagramProps) {
 
   return (
     <div ref={containerRef} aria-label={label ?? '循環図'}>
-      {label && (
-        <p className="mb-2 text-xs font-medium text-stone-500 dark:text-stone-400">{label}</p>
-      )}
+      {label && <p className="mb-2 text-xs font-medium text-stone-500 dark:text-stone-400">{label}</p>}
 
       {/* Circular layout — flex-wrap fallback for narrow screens */}
       <div className="flex flex-wrap items-center justify-center gap-1.5">
@@ -38,12 +36,21 @@ export function CycleDiagram({ label, trigger, states }: CycleDiagramProps) {
             {/* Arrow between states */}
             {i > 0 && (
               <svg
-                width="16" height="12" viewBox="0 0 16 12"
+                width="16"
+                height="12"
+                viewBox="0 0 16 12"
                 className="flex-shrink-0 text-claude-orange/50"
                 aria-hidden="true"
                 style={{ opacity: isVisible ? 1 : 0, animationDelay: getItemDelay(i) }}
               >
-                <path d="M0 6 L10 6 M8 3 L11 6 L8 9" stroke="currentColor" strokeWidth="2" fill="none" strokeLinecap="round" strokeLinejoin="round" />
+                <path
+                  d="M0 6 L10 6 M8 3 L11 6 L8 9"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                  fill="none"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                />
               </svg>
             )}
             {/* State node */}
@@ -62,12 +69,20 @@ export function CycleDiagram({ label, trigger, states }: CycleDiagramProps) {
         ))}
         {/* Return arrow — cycle indicator */}
         <svg
-          width="20" height="14" viewBox="0 0 20 14"
+          width="20"
+          height="14"
+          viewBox="0 0 20 14"
           className="flex-shrink-0 text-claude-orange/40"
           aria-hidden="true"
           style={{ opacity: isVisible ? 1 : 0, animationDelay: getItemDelay(states.length) }}
         >
-          <path d="M2 7 C2 2 18 2 18 7 M16 5 L18 7 L16 9" stroke="currentColor" strokeWidth="1.5" fill="none" strokeLinecap="round" />
+          <path
+            d="M2 7 C2 2 18 2 18 7 M16 5 L18 7 L16 9"
+            stroke="currentColor"
+            strokeWidth="1.5"
+            fill="none"
+            strokeLinecap="round"
+          />
         </svg>
       </div>
 
@@ -75,8 +90,8 @@ export function CycleDiagram({ label, trigger, states }: CycleDiagramProps) {
         <p className="mt-1 text-center text-[10px] text-stone-400 dark:text-stone-500">
           <code className="rounded bg-stone-100 px-1 py-0.5 font-mono text-stone-600 dark:bg-stone-700 dark:text-stone-300">
             {trigger}
-          </code>
-          {' '}で切り替え
+          </code>{' '}
+          で切り替え
         </p>
       )}
     </div>

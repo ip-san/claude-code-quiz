@@ -20,7 +20,16 @@ const STAR_COUNT = 5
 const STAR_PERCENTAGE_DIVISOR = 20
 
 export function QuizResult() {
-  const { sessionState, endSession, startSession, retrySession, startReviewSession, sessionConfig, sessionWrongAnswers, userProgress } = useQuizStore()
+  const {
+    sessionState,
+    endSession,
+    startSession,
+    retrySession,
+    startReviewSession,
+    sessionConfig,
+    sessionWrongAnswers,
+    userProgress,
+  } = useQuizStore()
 
   const score = sessionState?.score ?? 0
   const answeredCount = sessionState?.answeredCount ?? 0
@@ -35,15 +44,10 @@ export function QuizResult() {
   const [showContent, setShowContent] = useState(false)
 
   // Prevent NaN when no questions answered (edge case: timer expired immediately)
-  const percentage = answeredCount > 0
-    ? Math.round((score / answeredCount) * 100)
-    : 0
+  const percentage = answeredCount > 0 ? Math.round((score / answeredCount) * 100) : 0
   const isPassing = percentage >= APP_CONFIG.passingScore
 
-  const noMotion = useMemo(
-    () => window.matchMedia('(prefers-reduced-motion: reduce)').matches,
-    []
-  )
+  const noMotion = useMemo(() => window.matchMedia('(prefers-reduced-motion: reduce)').matches, [])
 
   // Count-up animation
   useEffect(() => {
@@ -142,29 +146,25 @@ export function QuizResult() {
         </div>
 
         {/* Title + percentage + pass/fail — compact header */}
-        <h2 className={`mb-1 text-xl font-bold sm:text-2xl ${result.color}`}>
-          {result.title}
-        </h2>
+        <h2 className={`mb-1 text-xl font-bold sm:text-2xl ${result.color}`}>{result.title}</h2>
         <p className="mb-1 text-sm text-stone-500">{result.message}</p>
         <div className="mb-4 inline-flex flex-wrap items-center justify-center gap-2">
           <span className={`text-lg font-bold ${result.color}`}>{displayPercent}%</span>
-          <span className={`rounded-full px-2.5 py-0.5 text-xs font-medium ${
-            isPassing ? 'bg-green-500/10 text-green-600' : 'bg-red-500/10 text-red-500'
-          }`}>
+          <span
+            className={`rounded-full px-2.5 py-0.5 text-xs font-medium ${
+              isPassing ? 'bg-green-500/10 text-green-600' : 'bg-red-500/10 text-red-500'
+            }`}
+          >
             {isPassing ? '✓ 合格' : '✗ 不合格'}
           </span>
           {hintsUsedCount > 0 && (
-            <span className="rounded-full bg-amber-100 px-2 py-0.5 text-xs text-amber-700">
-              💡{hintsUsedCount}
-            </span>
+            <span className="rounded-full bg-amber-100 px-2 py-0.5 text-xs text-amber-700">💡{hintsUsedCount}</span>
           )}
         </div>
 
         {/* Personal best + review mode note */}
         <PersonalBest sessionHistory={userProgress.sessionHistory} currentPercentage={percentage} />
-        {isReviewMode && (
-          <p className="mb-4 text-xs text-stone-400">復習モード — スコア非反映</p>
-        )}
+        {isReviewMode && <p className="mb-4 text-xs text-stone-400">復習モード — スコア非反映</p>}
 
         {/* Category breakthrough badges */}
         {showStars && !isReviewMode && sessionState && (
@@ -181,9 +181,7 @@ export function QuizResult() {
             <Star
               key={i}
               className={`h-8 w-8 ${
-                showStars && i < filledStars
-                  ? 'fill-yellow-500 text-yellow-500'
-                  : 'text-stone-300'
+                showStars && i < filledStars ? 'fill-yellow-500 text-yellow-500' : 'text-stone-300'
               } ${showStars && !noMotion && i < filledStars ? 'animate-star-pop' : ''}`}
               style={showStars && !noMotion && i < filledStars ? { animationDelay: `${i * 100}ms` } : undefined}
               aria-hidden="true"
@@ -207,7 +205,10 @@ export function QuizResult() {
         )}
 
         {/* Content below stars fades in after stars */}
-        <div className={noMotion || showContent ? 'opacity-100' : 'opacity-0'} style={{ transition: noMotion ? 'none' : 'opacity 0.3s ease-out' }}>
+        <div
+          className={noMotion || showContent ? 'opacity-100' : 'opacity-0'}
+          style={{ transition: noMotion ? 'none' : 'opacity 0.3s ease-out' }}
+        >
           {/* Recommendation for overview mode */}
           {recommendation && (
             <div className="mb-6 rounded-xl border border-indigo-200 bg-indigo-50 p-4 text-left">
@@ -229,7 +230,9 @@ export function QuizResult() {
               ) : (
                 <>
                   <p className="mb-3 text-sm text-stone-600 dark:text-stone-300">
-                    <span className="font-medium">{recommendation.categoryIcon} {recommendation.categoryName}</span>
+                    <span className="font-medium">
+                      {recommendation.categoryIcon} {recommendation.categoryName}
+                    </span>
                     で{recommendation.wrongCount}問間違えました。カテゴリ別学習で深掘りしてみましょう。
                   </p>
                   <button
@@ -246,21 +249,13 @@ export function QuizResult() {
 
           {/* Skills acquired — show what they can now do */}
           {!isReviewMode && sessionState && (
-            <SkillsAcquired
-              questions={sessionState.questions}
-              answerHistory={sessionState.answerHistory}
-            />
+            <SkillsAcquired questions={sessionState.questions} answerHistory={sessionState.answerHistory} />
           )}
 
           {/* Practice prompts + teaching tips moved to ProgressDashboard for cleaner result screen */}
 
           {/* Certificate */}
-          <CertificateGenerator
-            score={score}
-            total={answeredCount}
-            percentage={percentage}
-            mode={sessionConfig.mode}
-          />
+          <CertificateGenerator score={score} total={answeredCount} percentage={percentage} mode={sessionConfig.mode} />
 
           {/* Action buttons */}
           <div className="flex flex-col gap-3">
@@ -292,11 +287,13 @@ export function QuizResult() {
               <button
                 onClick={() => {
                   const stars = '⭐'.repeat(Math.ceil(percentage / 20))
-                  navigator.share({
-                    title: theme.appName,
-                    text: `${stars}\n${theme.appName}: ${score}/${answeredCount}問正解 (${percentage}%)\n${isPassing ? '✅ 合格！' : '📚 もう少し！'}\n${theme.shareHashtags}`,
-                    url: window.location.href,
-                  }).catch(() => {})
+                  navigator
+                    .share({
+                      title: theme.appName,
+                      text: `${stars}\n${theme.appName}: ${score}/${answeredCount}問正解 (${percentage}%)\n${isPassing ? '✅ 合格！' : '📚 もう少し！'}\n${theme.shareHashtags}`,
+                      url: window.location.href,
+                    })
+                    .catch(() => {})
                 }}
                 className="tap-highlight inline-flex w-full items-center justify-center gap-2 rounded-2xl border border-stone-300 px-6 py-3.5 text-base font-semibold text-stone-600 dark:border-stone-600 dark:text-stone-300"
               >
@@ -314,50 +311,46 @@ export function QuizResult() {
           </div>
 
           {/* Next step — connect learning to action */}
-          {!isReviewMode && (() => {
-            // For overview mode: show action item from the last completed chapter
-            if (isOverviewMode && sessionState) {
-              const lastQuestion = sessionState.questions[sessionState.questions.length - 1]
-              const lastChapter = lastQuestion ? getChapterFromTags(lastQuestion.tags) : null
-              const actionItem = lastChapter?.actionItem
-              if (actionItem) {
-                return (
-                  <div className="mt-6 rounded-2xl border border-green-300 bg-green-50 p-4 text-left dark:border-green-500/30 dark:bg-green-500/10">
-                    <p className="mb-1 text-xs font-semibold text-green-600 dark:text-green-400">明日やること</p>
-                    <p className="mb-3 text-sm text-claude-dark">{actionItem}</p>
-                    <p className="text-xs text-stone-400">
-                      知識を行動に変えるのは、今です。小さな一歩が未来を変えます。
-                    </p>
-                  </div>
-                )
+          {!isReviewMode &&
+            (() => {
+              // For overview mode: show action item from the last completed chapter
+              if (isOverviewMode && sessionState) {
+                const lastQuestion = sessionState.questions[sessionState.questions.length - 1]
+                const lastChapter = lastQuestion ? getChapterFromTags(lastQuestion.tags) : null
+                const actionItem = lastChapter?.actionItem
+                if (actionItem) {
+                  return (
+                    <div className="mt-6 rounded-2xl border border-green-300 bg-green-50 p-4 text-left dark:border-green-500/30 dark:bg-green-500/10">
+                      <p className="mb-1 text-xs font-semibold text-green-600 dark:text-green-400">明日やること</p>
+                      <p className="mb-3 text-sm text-claude-dark">{actionItem}</p>
+                      <p className="text-xs text-stone-400">
+                        知識を行動に変えるのは、今です。小さな一歩が未来を変えます。
+                      </p>
+                    </div>
+                  )
+                }
               }
-            }
 
-            // For other modes: general CTA
-            return (
-              <div className="mt-6 rounded-2xl border border-claude-orange/20 bg-claude-orange/5 p-4 text-center dark:border-claude-orange/30 dark:bg-claude-orange/10">
-                <p className="mb-1 text-xs font-semibold text-claude-orange">Next Step</p>
-                <p className="mb-3 text-sm text-claude-dark">
-                  学んだ知識を実践してみましょう
-                </p>
-                <a
-                  href={theme.officialDocsUrl}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="tap-highlight inline-flex items-center gap-1.5 rounded-xl bg-claude-orange/10 px-4 py-2 text-sm font-medium text-claude-orange dark:bg-claude-orange/20"
-                >
-                  {theme.officialDocsLabel}
-                  <ArrowRight className="h-4 w-4" />
-                </a>
-              </div>
-            )
-          })()}
+              // For other modes: general CTA
+              return (
+                <div className="mt-6 rounded-2xl border border-claude-orange/20 bg-claude-orange/5 p-4 text-center dark:border-claude-orange/30 dark:bg-claude-orange/10">
+                  <p className="mb-1 text-xs font-semibold text-claude-orange">Next Step</p>
+                  <p className="mb-3 text-sm text-claude-dark">学んだ知識を実践してみましょう</p>
+                  <a
+                    href={theme.officialDocsUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="tap-highlight inline-flex items-center gap-1.5 rounded-xl bg-claude-orange/10 px-4 py-2 text-sm font-medium text-claude-orange dark:bg-claude-orange/20"
+                  >
+                    {theme.officialDocsLabel}
+                    <ArrowRight className="h-4 w-4" />
+                  </a>
+                </div>
+              )
+            })()}
 
           {/* Team sharing guide — individual learning → team transformation */}
-          {!isReviewMode && (
-            <TeamShareGuide percentage={percentage} mode={sessionConfig.mode} />
-          )}
-
+          {!isReviewMode && <TeamShareGuide percentage={percentage} mode={sessionConfig.mode} />}
         </div>
       </div>
     </div>

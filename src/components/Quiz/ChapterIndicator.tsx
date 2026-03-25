@@ -18,12 +18,8 @@ export function ChapterIndicator({ chapter, totalChapters }: ChapterIndicatorPro
           <p className="text-xs font-medium text-claude-orange">
             Chapter {chapter.id} / {totalChapters}
           </p>
-          <p className="text-sm font-semibold text-claude-dark">
-            {chapter.name}
-          </p>
-          <p className="text-xs text-claude-gray">
-            {chapter.subtitle}
-          </p>
+          <p className="text-sm font-semibold text-claude-dark">{chapter.name}</p>
+          <p className="text-xs text-claude-gray">{chapter.subtitle}</p>
         </div>
       </div>
     </div>

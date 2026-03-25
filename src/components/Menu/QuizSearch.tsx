@@ -22,10 +22,11 @@ export function QuizSearch() {
   const allResults = useMemo(() => {
     if (query.length < 2) return []
     const q = query.toLowerCase()
-    return allQuestions.filter(quiz =>
-      quiz.question.toLowerCase().includes(q) ||
-      quiz.explanation.toLowerCase().includes(q) ||
-      quiz.options.some(opt => opt.text.toLowerCase().includes(q))
+    return allQuestions.filter(
+      (quiz) =>
+        quiz.question.toLowerCase().includes(q) ||
+        quiz.explanation.toLowerCase().includes(q) ||
+        quiz.options.some((opt) => opt.text.toLowerCase().includes(q))
     )
   }, [allQuestions, query])
 
@@ -46,7 +47,7 @@ export function QuizSearch() {
             <button
               onClick={() => {
                 haptics.light()
-                startSessionWithIds(allResults.map(r => r.id))
+                startSessionWithIds(allResults.map((r) => r.id))
                 setShowAll(false)
                 setIsOpen(false)
                 setQuery('')
@@ -57,7 +58,10 @@ export function QuizSearch() {
               {allResults.length}問に挑戦
             </button>
             <button
-              onClick={() => { setShowAll(false); setExpandedId(null) }}
+              onClick={() => {
+                setShowAll(false)
+                setExpandedId(null)
+              }}
               className="tap-highlight rounded-full p-2 text-stone-400"
               aria-label="戻る"
             >
@@ -67,7 +71,7 @@ export function QuizSearch() {
         </div>
         {/* All results */}
         <div className="flex-1 overflow-y-auto">
-          {allResults.map(r => {
+          {allResults.map((r) => {
             const cat = getCategoryById(r.category)
             const isExpanded = expandedId === r.id
             return (
@@ -77,13 +81,12 @@ export function QuizSearch() {
                   className="tap-highlight flex w-full items-start gap-2 px-4 py-3 text-left"
                 >
                   <span className="mt-0.5 flex-shrink-0 text-sm">{cat?.icon}</span>
-                  <span className="flex-1 text-sm leading-snug text-claude-dark dark:text-stone-200">
-                    {r.question}
-                  </span>
-                  {isExpanded
-                    ? <ChevronUp className="mt-0.5 h-4 w-4 flex-shrink-0 text-stone-400" />
-                    : <ChevronDown className="mt-0.5 h-4 w-4 flex-shrink-0 text-stone-400" />
-                  }
+                  <span className="flex-1 text-sm leading-snug text-claude-dark dark:text-stone-200">{r.question}</span>
+                  {isExpanded ? (
+                    <ChevronUp className="mt-0.5 h-4 w-4 flex-shrink-0 text-stone-400" />
+                  ) : (
+                    <ChevronDown className="mt-0.5 h-4 w-4 flex-shrink-0 text-stone-400" />
+                  )}
                 </button>
                 {isExpanded && (
                   <div className="border-t border-stone-100 bg-stone-50/50 px-4 py-3 dark:border-stone-700 dark:bg-stone-900/50">
@@ -95,17 +98,26 @@ export function QuizSearch() {
                     </p>
                     <div className="mt-2 flex items-center gap-3">
                       {r.referenceUrl && (
-                        <a href={r.referenceUrl} target="_blank" rel="noopener noreferrer"
-                          className="inline-flex items-center gap-1 text-xs text-claude-orange">
+                        <a
+                          href={r.referenceUrl}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="inline-flex items-center gap-1 text-xs text-claude-orange"
+                        >
                           <ExternalLink className="h-3 w-3" />
                           公式ドキュメント
                         </a>
                       )}
                       <button
-                        onClick={() => { haptics.light(); toggleBookmark(r.id) }}
+                        onClick={() => {
+                          haptics.light()
+                          toggleBookmark(r.id)
+                        }}
                         className="inline-flex items-center gap-1 text-xs text-stone-400"
                       >
-                        <Bookmark className={`h-3 w-3 ${userProgress.isBookmarked(r.id) ? 'fill-yellow-500 text-yellow-500' : ''}`} />
+                        <Bookmark
+                          className={`h-3 w-3 ${userProgress.isBookmarked(r.id) ? 'fill-yellow-500 text-yellow-500' : ''}`}
+                        />
                         {userProgress.isBookmarked(r.id) ? '保存済み' : '後で学ぶ'}
                       </button>
                     </div>
@@ -138,14 +150,21 @@ export function QuizSearch() {
         <input
           type="text"
           value={query}
-          onChange={(e) => { setQuery(e.target.value); setExpandedId(null) }}
+          onChange={(e) => {
+            setQuery(e.target.value)
+            setExpandedId(null)
+          }}
           placeholder="例: CLAUDE.md, MCP, hooks"
           className="flex-1 bg-transparent text-sm text-claude-dark outline-none placeholder:text-stone-400 dark:text-stone-200"
           autoFocus
           aria-label="問題を検索"
         />
         <button
-          onClick={() => { setQuery(''); setIsOpen(false); setExpandedId(null) }}
+          onClick={() => {
+            setQuery('')
+            setIsOpen(false)
+            setExpandedId(null)
+          }}
           className="tap-highlight rounded-full p-2 text-stone-400"
           aria-label="検索を閉じる"
         >
@@ -165,7 +184,7 @@ export function QuizSearch() {
                 <button
                   onClick={() => {
                     haptics.light()
-                    startSessionWithIds(allResults.map(r => r.id))
+                    startSessionWithIds(allResults.map((r) => r.id))
                     setIsOpen(false)
                     setQuery('')
                   }}
@@ -178,7 +197,7 @@ export function QuizSearch() {
 
               {/* Results — tap to expand explanation */}
               <div className="max-h-80 overflow-y-auto">
-                {displayResults.map(r => {
+                {displayResults.map((r) => {
                   const cat = getCategoryById(r.category)
                   const isExpanded = expandedId === r.id
                   return (
@@ -191,10 +210,11 @@ export function QuizSearch() {
                         <span className="flex-1 text-sm leading-snug text-claude-dark dark:text-stone-200">
                           {r.question.length > 80 ? r.question.slice(0, 80) + '...' : r.question}
                         </span>
-                        {isExpanded
-                          ? <ChevronUp className="mt-0.5 h-4 w-4 flex-shrink-0 text-stone-400" />
-                          : <ChevronDown className="mt-0.5 h-4 w-4 flex-shrink-0 text-stone-400" />
-                        }
+                        {isExpanded ? (
+                          <ChevronUp className="mt-0.5 h-4 w-4 flex-shrink-0 text-stone-400" />
+                        ) : (
+                          <ChevronDown className="mt-0.5 h-4 w-4 flex-shrink-0 text-stone-400" />
+                        )}
                       </button>
                       {/* Expanded: answer + explanation */}
                       {isExpanded && (
@@ -207,17 +227,26 @@ export function QuizSearch() {
                           </p>
                           <div className="mt-2 flex items-center gap-3">
                             {r.referenceUrl && (
-                              <a href={r.referenceUrl} target="_blank" rel="noopener noreferrer"
-                                className="inline-flex items-center gap-1 text-xs text-claude-orange">
+                              <a
+                                href={r.referenceUrl}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="inline-flex items-center gap-1 text-xs text-claude-orange"
+                              >
                                 <ExternalLink className="h-3 w-3" />
                                 公式ドキュメント
                               </a>
                             )}
                             <button
-                              onClick={() => { haptics.light(); toggleBookmark(r.id) }}
+                              onClick={() => {
+                                haptics.light()
+                                toggleBookmark(r.id)
+                              }}
                               className="inline-flex items-center gap-1 text-xs text-stone-400"
                             >
-                              <Bookmark className={`h-3 w-3 ${userProgress.isBookmarked(r.id) ? 'fill-yellow-500 text-yellow-500' : ''}`} />
+                              <Bookmark
+                                className={`h-3 w-3 ${userProgress.isBookmarked(r.id) ? 'fill-yellow-500 text-yellow-500' : ''}`}
+                              />
                               {userProgress.isBookmarked(r.id) ? '保存済み' : '後で学ぶ'}
                             </button>
                           </div>

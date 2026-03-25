@@ -20,10 +20,7 @@ function createQuestion(id: string): Question {
   return Question.create({
     id,
     question: `Question ${id}`,
-    options: [
-      { text: 'A' },
-      { text: 'B', wrongFeedback: 'Wrong' },
-    ],
+    options: [{ text: 'A' }, { text: 'B', wrongFeedback: 'Wrong' }],
     correctIndex: 0,
     explanation: 'Explanation',
     category: 'tools',
@@ -114,9 +111,9 @@ describe('SpacedRepetitionService', () => {
 
       const progress = UserProgress.create({
         questionProgress: {
-          q1: createQP({ questionId: 'q1', nextReviewAt: now - DAY_MS }),     // 1 day overdue
+          q1: createQP({ questionId: 'q1', nextReviewAt: now - DAY_MS }), // 1 day overdue
           q2: createQP({ questionId: 'q2', nextReviewAt: now - 3 * DAY_MS }), // 3 days overdue
-          q3: createQP({ questionId: 'q3', nextReviewAt: now }),               // just due
+          q3: createQP({ questionId: 'q3', nextReviewAt: now }), // just due
         },
       })
 

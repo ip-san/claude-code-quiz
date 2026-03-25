@@ -63,31 +63,37 @@ describe('QuizSet Entity', () => {
 
     it('should throw error for empty id', () => {
       const questions = [createTestQuestion('q1')]
-      expect(() => QuizSet.create({
-        id: '',
-        title: 'Test',
-        type: 'user',
-        questions,
-      })).toThrow('QuizSet ID is required')
+      expect(() =>
+        QuizSet.create({
+          id: '',
+          title: 'Test',
+          type: 'user',
+          questions,
+        })
+      ).toThrow('QuizSet ID is required')
     })
 
     it('should throw error for empty title', () => {
       const questions = [createTestQuestion('q1')]
-      expect(() => QuizSet.create({
-        id: 'test',
-        title: '',
-        type: 'user',
-        questions,
-      })).toThrow('QuizSet title is required')
+      expect(() =>
+        QuizSet.create({
+          id: 'test',
+          title: '',
+          type: 'user',
+          questions,
+        })
+      ).toThrow('QuizSet title is required')
     })
 
     it('should throw error for empty questions', () => {
-      expect(() => QuizSet.create({
-        id: 'test',
-        title: 'Test',
-        type: 'user',
-        questions: [],
-      })).toThrow('QuizSet must have at least one question')
+      expect(() =>
+        QuizSet.create({
+          id: 'test',
+          title: 'Test',
+          type: 'user',
+          questions: [],
+        })
+      ).toThrow('QuizSet must have at least one question')
     })
 
     it('should freeze questions array', () => {
@@ -222,7 +228,7 @@ describe('QuizSet Entity', () => {
       const toolsQuestions = quizSet.getQuestionsByCategory('tools')
 
       expect(toolsQuestions).toHaveLength(2)
-      expect(toolsQuestions.every(q => q.category === 'tools')).toBe(true)
+      expect(toolsQuestions.every((q) => q.category === 'tools')).toBe(true)
     })
 
     it('should return empty array for non-existent category', () => {
@@ -260,11 +266,7 @@ describe('QuizSet Entity', () => {
 
   describe('getQuestionCount()', () => {
     it('should return correct count', () => {
-      const questions = [
-        createTestQuestion('q1'),
-        createTestQuestion('q2'),
-        createTestQuestion('q3'),
-      ]
+      const questions = [createTestQuestion('q1'), createTestQuestion('q2'), createTestQuestion('q3')]
       const quizSet = QuizSet.create({
         id: 'test',
         title: 'Test',

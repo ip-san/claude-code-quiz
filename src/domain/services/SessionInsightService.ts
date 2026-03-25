@@ -32,16 +32,13 @@ export class SessionInsightService {
    */
   static getBestScore(history: readonly SessionRecord[]): number | null {
     if (history.length === 0) return null
-    return Math.max(...history.map(s => s.percentage))
+    return Math.max(...history.map((s) => s.percentage))
   }
 
   /**
    * 直近Nセッションを取得（最新が末尾）
    */
-  static getRecentSessions(
-    history: readonly SessionRecord[],
-    count: number = 10
-  ): readonly SessionRecord[] {
+  static getRecentSessions(history: readonly SessionRecord[], count: number = 10): readonly SessionRecord[] {
     return history.slice(-count)
   }
 }

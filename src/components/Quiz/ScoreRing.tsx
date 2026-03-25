@@ -63,14 +63,7 @@ export function ScoreRing({ percentage, score, total, color, noMotion }: ScoreRi
     <div className="relative inline-flex items-center justify-center">
       <svg width={size} height={size} className="-rotate-90">
         {/* Background ring */}
-        <circle
-          cx={size / 2}
-          cy={size / 2}
-          r={radius}
-          fill="none"
-          stroke="#e5e7eb"
-          strokeWidth={strokeWidth}
-        />
+        <circle cx={size / 2} cy={size / 2} r={radius} fill="none" stroke="#e5e7eb" strokeWidth={strokeWidth} />
         {/* Progress ring */}
         <circle
           cx={size / 2}

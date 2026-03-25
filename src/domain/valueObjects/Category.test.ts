@@ -35,27 +35,33 @@ describe('Category Value Object', () => {
     })
 
     it('should throw error for empty id', () => {
-      expect(() => Category.create({
-        id: '',
-        name: 'Test',
-        description: 'Description',
-      })).toThrow('Category ID is required')
+      expect(() =>
+        Category.create({
+          id: '',
+          name: 'Test',
+          description: 'Description',
+        })
+      ).toThrow('Category ID is required')
     })
 
     it('should throw error for empty name', () => {
-      expect(() => Category.create({
-        id: 'test',
-        name: '',
-        description: 'Description',
-      })).toThrow('Category name is required')
+      expect(() =>
+        Category.create({
+          id: 'test',
+          name: '',
+          description: 'Description',
+        })
+      ).toThrow('Category name is required')
     })
 
     it('should throw error for whitespace-only id', () => {
-      expect(() => Category.create({
-        id: '   ',
-        name: 'Test',
-        description: 'Description',
-      })).toThrow('Category ID is required')
+      expect(() =>
+        Category.create({
+          id: '   ',
+          name: 'Test',
+          description: 'Description',
+        })
+      ).toThrow('Category ID is required')
     })
   })
 
@@ -105,7 +111,7 @@ describe('PREDEFINED_CATEGORIES', () => {
   })
 
   it('should have all required categories', () => {
-    const ids = PREDEFINED_CATEGORIES.map(c => c.id)
+    const ids = PREDEFINED_CATEGORIES.map((c) => c.id)
 
     expect(ids).toContain('memory')
     expect(ids).toContain('skills')
@@ -118,7 +124,7 @@ describe('PREDEFINED_CATEGORIES', () => {
   })
 
   it('should have unique ids', () => {
-    const ids = PREDEFINED_CATEGORIES.map(c => c.id)
+    const ids = PREDEFINED_CATEGORIES.map((c) => c.id)
     const uniqueIds = [...new Set(ids)]
 
     expect(ids.length).toBe(uniqueIds.length)

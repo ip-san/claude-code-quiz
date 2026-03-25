@@ -61,11 +61,7 @@ describe('SessionInsightService', () => {
     })
 
     it('should return the highest percentage', () => {
-      const history = [
-        createSession(60, 0),
-        createSession(90, 1),
-        createSession(75, 2),
-      ]
+      const history = [createSession(60, 0), createSession(90, 1), createSession(75, 2)]
       expect(SessionInsightService.getBestScore(history)).toBe(90)
     })
   })

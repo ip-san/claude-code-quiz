@@ -5,8 +5,7 @@
  * Web 環境ではブラウザ標準 API にフォールバックする。
  */
 
-export const isElectron =
-  typeof window !== 'undefined' && !!window.electronAPI
+export const isElectron = typeof window !== 'undefined' && !!window.electronAPI
 
 function downloadFile(content: string, filename: string, mimeType: string) {
   const blob = new Blob([content], { type: mimeType })
@@ -23,9 +22,7 @@ function downloadFile(content: string, filename: string, mimeType: string) {
   }, 100)
 }
 
-function pickAndReadFile(
-  accept: string
-): Promise<{ success: boolean; data?: string; error?: string }> {
+function pickAndReadFile(accept: string): Promise<{ success: boolean; data?: string; error?: string }> {
   return new Promise((resolve) => {
     const input = document.createElement('input')
     input.type = 'file'
@@ -91,13 +88,10 @@ export const platformAPI = {
         return { success: true }
       },
 
-  importProgress: isElectron
-    ? () => window.electronAPI!.importProgress()
-    : () => pickAndReadFile('.json'),
+  importProgress: isElectron ? () => window.electronAPI!.importProgress() : () => pickAndReadFile('.json'),
 
   exportCsv: isElectron
-    ? (data: string, filename: string) =>
-        window.electronAPI!.exportCsv(data, filename)
+    ? (data: string, filename: string) => window.electronAPI!.exportCsv(data, filename)
     : async (data: string, filename: string): Promise<{ success: boolean; error?: string }> => {
         downloadFile(data, filename, 'text/csv')
         return { success: true }

@@ -92,7 +92,7 @@ describe('QuizSessionService', () => {
       const result = QuizSessionService.prepareSessionQuestions(questions, config, progress)
 
       expect(result).toHaveLength(2)
-      expect(result.every(q => q.category === 'tools')).toBe(true)
+      expect(result.every((q) => q.category === 'tools')).toBe(true)
     })
 
     it('should filter by difficulty', () => {
@@ -107,7 +107,7 @@ describe('QuizSessionService', () => {
       const result = QuizSessionService.prepareSessionQuestions(questions, config, progress)
 
       expect(result).toHaveLength(2)
-      expect(result.every(q => q.difficulty === 'beginner')).toBe(true)
+      expect(result.every((q) => q.difficulty === 'beginner')).toBe(true)
     })
 
     it('should limit question count', () => {
@@ -127,11 +127,7 @@ describe('QuizSessionService', () => {
     })
 
     it('should prioritize weak questions in weak mode', () => {
-      const questions = [
-        createTestQuestion('q1'),
-        createTestQuestion('q2'),
-        createTestQuestion('q3'),
-      ]
+      const questions = [createTestQuestion('q1'), createTestQuestion('q2'), createTestQuestion('q3')]
       const config = createDefaultConfig({ mode: 'weak' })
 
       // Create progress with q2 as weak (0% accuracy)
@@ -145,15 +141,11 @@ describe('QuizSessionService', () => {
       // q2 is weak, q1 and q3 are unmastered beginners in same category → all included
       expect(result.length).toBeGreaterThanOrEqual(1)
       // Weak question must be included
-      expect(result.some(q => q.id === 'q2')).toBe(true)
+      expect(result.some((q) => q.id === 'q2')).toBe(true)
     })
 
     it('should fallback to unanswered questions when no weak questions', () => {
-      const questions = [
-        createTestQuestion('q1'),
-        createTestQuestion('q2'),
-        createTestQuestion('q3'),
-      ]
+      const questions = [createTestQuestion('q1'), createTestQuestion('q2'), createTestQuestion('q3')]
       const config = createDefaultConfig({ mode: 'weak' })
 
       // Create progress where q1 has been answered correctly (not weak)
@@ -164,7 +156,7 @@ describe('QuizSessionService', () => {
 
       // Should return unanswered questions (q2, q3)
       expect(result).toHaveLength(2)
-      expect(result.map(q => q.id)).not.toContain('q1')
+      expect(result.map((q) => q.id)).not.toContain('q1')
     })
   })
 
@@ -440,11 +432,7 @@ describe('QuizSessionService', () => {
 
   describe('bookmark mode filtering', () => {
     it('should filter to bookmarked questions in bookmark mode', () => {
-      const questions = [
-        createTestQuestion('q1'),
-        createTestQuestion('q2'),
-        createTestQuestion('q3'),
-      ]
+      const questions = [createTestQuestion('q1'), createTestQuestion('q2'), createTestQuestion('q3')]
       const config = createDefaultConfig({ mode: 'bookmark' })
       let progress = UserProgress.empty()
       progress = progress.toggleBookmark('q2')
@@ -456,10 +444,7 @@ describe('QuizSessionService', () => {
     })
 
     it('should return all questions if no bookmarks in bookmark mode', () => {
-      const questions = [
-        createTestQuestion('q1'),
-        createTestQuestion('q2'),
-      ]
+      const questions = [createTestQuestion('q1'), createTestQuestion('q2')]
       const config = createDefaultConfig({ mode: 'bookmark' })
       const progress = UserProgress.empty()
 
@@ -660,11 +645,7 @@ describe('QuizSessionService', () => {
   })
 
   describe('overview mode filtering', () => {
-    const createTaggedQuestion = (
-      id: string,
-      tags: string[],
-      category = 'bestpractices'
-    ): Question => {
+    const createTaggedQuestion = (id: string, tags: string[], category = 'bestpractices'): Question => {
       return Question.create({
         id,
         question: `Test question ${id}`,
@@ -689,7 +670,7 @@ describe('QuizSessionService', () => {
       const result = QuizSessionService.prepareSessionQuestions(questions, config, progress)
 
       expect(result).toHaveLength(2)
-      expect(result.every(q => q.tags.includes('overview'))).toBe(true)
+      expect(result.every((q) => q.tags.includes('overview'))).toBe(true)
     })
 
     it('should sort by overview-NNN order tag', () => {
@@ -703,7 +684,7 @@ describe('QuizSessionService', () => {
 
       const result = QuizSessionService.prepareSessionQuestions(questions, config, progress)
 
-      expect(result.map(q => q.id)).toEqual(['ov-1', 'ov-2', 'ov-3'])
+      expect(result.map((q) => q.id)).toEqual(['ov-1', 'ov-2', 'ov-3'])
     })
 
     it('should place questions without order tag at the end', () => {
@@ -717,14 +698,11 @@ describe('QuizSessionService', () => {
 
       const result = QuizSessionService.prepareSessionQuestions(questions, config, progress)
 
-      expect(result.map(q => q.id)).toEqual(['ov-1', 'ov-2', 'ov-x'])
+      expect(result.map((q) => q.id)).toEqual(['ov-1', 'ov-2', 'ov-x'])
     })
 
     it('should return empty array when no tagged questions exist', () => {
-      const questions = [
-        createTestQuestion('q1'),
-        createTestQuestion('q2'),
-      ]
+      const questions = [createTestQuestion('q1'), createTestQuestion('q2')]
       const config = createDefaultConfig({ mode: 'overview', shuffleQuestions: false })
       const progress = UserProgress.empty()
 
@@ -905,11 +883,35 @@ describe('QuizSessionService', () => {
 
 describe('Re-answer score handling', () => {
   const questions = [
-    Question.create({ id: 'q1', category: 'tools', difficulty: 'beginner', question: 'Q1', options: [{ text: 'A' }, { text: 'B', wrongFeedback: 'wrong' }], correctIndex: 0, explanation: 'E1' }),
-    Question.create({ id: 'q2', category: 'tools', difficulty: 'beginner', question: 'Q2', options: [{ text: 'A' }, { text: 'B', wrongFeedback: 'wrong' }], correctIndex: 0, explanation: 'E2' }),
+    Question.create({
+      id: 'q1',
+      category: 'tools',
+      difficulty: 'beginner',
+      question: 'Q1',
+      options: [{ text: 'A' }, { text: 'B', wrongFeedback: 'wrong' }],
+      correctIndex: 0,
+      explanation: 'E1',
+    }),
+    Question.create({
+      id: 'q2',
+      category: 'tools',
+      difficulty: 'beginner',
+      question: 'Q2',
+      options: [{ text: 'A' }, { text: 'B', wrongFeedback: 'wrong' }],
+      correctIndex: 0,
+      explanation: 'E2',
+    }),
   ]
 
-  const config: QuizSessionConfig = { mode: 'random', questionCount: 2, timeLimit: null, shuffleQuestions: false, shuffleOptions: false, categoryFilter: null, difficultyFilter: null }
+  const config: QuizSessionConfig = {
+    mode: 'random',
+    questionCount: 2,
+    timeLimit: null,
+    shuffleQuestions: false,
+    shuffleOptions: false,
+    categoryFilter: null,
+    difficultyFilter: null,
+  }
 
   it('should not double-count score on re-answer', () => {
     let state = QuizSessionService.createInitialState(questions, config)
@@ -922,7 +924,13 @@ describe('Re-answer score handling', () => {
 
     // Go to Q2 and back to Q1 (simulate re-visit)
     const q2State = QuizSessionService.nextQuestion(r1.newState)
-    const backState: typeof q2State = { ...q2State, currentIndex: 0, selectedAnswer: 1, isAnswered: false, isCorrect: null }
+    const backState: typeof q2State = {
+      ...q2State,
+      currentIndex: 0,
+      selectedAnswer: 1,
+      isAnswered: false,
+      isCorrect: null,
+    }
 
     // Re-answer Q1 wrongly
     const r2 = QuizSessionService.submitAnswer(backState)!

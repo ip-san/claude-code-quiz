@@ -18,7 +18,7 @@ export interface OverviewChapter {
 
 // quizzes.json の tags と一致するよう、id からタグ文字列を生成
 export const OVERVIEW_CHAPTERS: readonly OverviewChapter[] = Object.freeze(
-  theme.overviewChapters.map(ch => ({
+  theme.overviewChapters.map((ch) => ({
     ...ch,
     tag: `overview-ch-${ch.id}`,
   }))
@@ -28,7 +28,7 @@ export const OVERVIEW_CHAPTERS: readonly OverviewChapter[] = Object.freeze(
  * Question の tags から所属チャプターを取得
  */
 export function getChapterFromTags(tags: readonly string[]): OverviewChapter | null {
-  const chapterTag = tags.find(t => t.startsWith('overview-ch-'))
+  const chapterTag = tags.find((t) => t.startsWith('overview-ch-'))
   if (!chapterTag) return null
-  return OVERVIEW_CHAPTERS.find(ch => ch.tag === chapterTag) ?? null
+  return OVERVIEW_CHAPTERS.find((ch) => ch.tag === chapterTag) ?? null
 }

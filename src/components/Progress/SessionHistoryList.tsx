@@ -46,9 +46,7 @@ export function SessionHistoryList({ sessions, limit = 10 }: SessionHistoryListP
   if (recent.length === 0) {
     return (
       <div className={`${cardStyles.base} p-6 text-center`}>
-        <p className="text-sm text-stone-400">
-          まだセッション履歴がありません
-        </p>
+        <p className="text-sm text-stone-400">まだセッション履歴がありません</p>
       </div>
     )
   }
@@ -62,29 +60,26 @@ export function SessionHistoryList({ sessions, limit = 10 }: SessionHistoryListP
         {recent.map((session) => {
           const isToday = new Date(session.completedAt).toDateString() === new Date().toDateString()
           return (
-          <div key={session.id} className={`flex items-center justify-between px-4 py-2.5 ${isToday ? 'border-l-2 border-green-400 bg-green-50/30' : ''}`}>
-            <div className="flex items-center gap-3">
-              <span className="text-xs text-stone-400">
-                {formatDate(session.completedAt)}
-              </span>
-              <span className="rounded bg-stone-100 px-2 py-0.5 text-xs text-stone-600 dark:bg-stone-700 dark:text-stone-300">
-                {MODE_LABELS[session.mode] ?? session.mode}
-              </span>
-              {session.categoryFilter && (
-                <span className="text-xs text-stone-400">
-                  {session.categoryFilter}
+            <div
+              key={session.id}
+              className={`flex items-center justify-between px-4 py-2.5 ${isToday ? 'border-l-2 border-green-400 bg-green-50/30' : ''}`}
+            >
+              <div className="flex items-center gap-3">
+                <span className="text-xs text-stone-400">{formatDate(session.completedAt)}</span>
+                <span className="rounded bg-stone-100 px-2 py-0.5 text-xs text-stone-600 dark:bg-stone-700 dark:text-stone-300">
+                  {MODE_LABELS[session.mode] ?? session.mode}
                 </span>
-              )}
+                {session.categoryFilter && <span className="text-xs text-stone-400">{session.categoryFilter}</span>}
+              </div>
+              <div className="flex items-center gap-2">
+                <span className="text-xs text-stone-500">
+                  {session.score}/{session.totalQuestions}
+                </span>
+                <span className={`text-sm font-semibold ${getScoreColor(session.percentage)}`}>
+                  {session.percentage}%
+                </span>
+              </div>
             </div>
-            <div className="flex items-center gap-2">
-              <span className="text-xs text-stone-500">
-                {session.score}/{session.totalQuestions}
-              </span>
-              <span className={`text-sm font-semibold ${getScoreColor(session.percentage)}`}>
-                {session.percentage}%
-              </span>
-            </div>
-          </div>
           )
         })}
       </div>

@@ -1,17 +1,8 @@
 import { useState, useMemo } from 'react'
 import { useQuizStore } from '@/stores/quizStore'
-import {
-  PREDEFINED_QUIZ_MODES,
-  type QuizModeId,
-} from '@/domain/valueObjects/QuizMode'
-import {
-  PREDEFINED_CATEGORIES,
-  type Category,
-} from '@/domain/valueObjects/Category'
-import {
-  PREDEFINED_DIFFICULTIES,
-  type DifficultyLevel,
-} from '@/domain/valueObjects/Difficulty'
+import { PREDEFINED_QUIZ_MODES, type QuizModeId } from '@/domain/valueObjects/QuizMode'
+import { PREDEFINED_CATEGORIES, type Category } from '@/domain/valueObjects/Category'
+import { PREDEFINED_DIFFICULTIES, type DifficultyLevel } from '@/domain/valueObjects/Difficulty'
 import { ResumeSessionBanner } from './ResumeSessionBanner'
 import { CustomQuizBanner } from './CustomQuizBanner'
 import { StreakBanner } from './StreakBanner'
@@ -29,14 +20,8 @@ import { DailySnapshot, hasSeenSnapshotToday } from './DailySnapshot'
 import { QuizSearch } from './QuizSearch'
 
 export function ModeSelection() {
-  const {
-    allQuestions,
-    getFilteredQuestions,
-    startSession,
-    getBookmarkedCount,
-    userProgress,
-    getCategoryStats,
-  } = useQuizStore()
+  const { allQuestions, getFilteredQuestions, startSession, getBookmarkedCount, userProgress, getCategoryStats } =
+    useQuizStore()
 
   const [selectedMode, setSelectedMode] = useState<QuizModeId>('random')
   const [updateStatus, setUpdateStatus] = useState<string | null>(null)
@@ -47,24 +32,17 @@ export function ModeSelection() {
 
   const bookmarkedCount = getBookmarkedCount()
 
-
   // Memoize category stats for mastery display
   const masteryStats = useMemo(() => getCategoryStats(), [getCategoryStats])
 
-  const overviewCount = useMemo(
-    () => allQuestions.filter(q => q.tags.includes('overview')).length,
-    [allQuestions]
-  )
+  const overviewCount = useMemo(() => allQuestions.filter((q) => q.tags.includes('overview')).length, [allQuestions])
 
   const unansweredCount = useMemo(
-    () => allQuestions.filter(q => !userProgress.hasAttempted(q.id)).length,
+    () => allQuestions.filter((q) => !userProgress.hasAttempted(q.id)).length,
     [allQuestions, userProgress]
   )
 
-  const mode = useMemo(
-    () => PREDEFINED_QUIZ_MODES.find((m) => m.id === selectedMode),
-    [selectedMode]
-  )
+  const mode = useMemo(() => PREDEFINED_QUIZ_MODES.find((m) => m.id === selectedMode), [selectedMode])
 
   const availableQuizzes = useMemo(
     () => getFilteredQuestions(selectedCategory, selectedDifficulty),
@@ -74,9 +52,7 @@ export function ModeSelection() {
   const categoryQuestionCounts = useMemo(() => {
     const counts: Record<string, number> = {}
     for (const category of PREDEFINED_CATEGORIES) {
-      counts[category.id] = allQuestions.filter(
-        (q) => q.category === category.id
-      ).length
+      counts[category.id] = allQuestions.filter((q) => q.category === category.id).length
     }
     return counts
   }, [allQuestions])
@@ -96,10 +72,14 @@ export function ModeSelection() {
   /** 選択中モードの出題数を取得 */
   const getQuestionCount = (): number => {
     switch (selectedMode) {
-      case 'overview': return overviewCount
-      case 'unanswered': return unansweredCount
-      case 'bookmark': return bookmarkedCount
-      default: return mode?.questionCount ?? availableQuizzes.length
+      case 'overview':
+        return overviewCount
+      case 'unanswered':
+        return unansweredCount
+      case 'bookmark':
+        return bookmarkedCount
+      default:
+        return mode?.questionCount ?? availableQuizzes.length
     }
   }
   const questionCount = getQuestionCount()
@@ -140,56 +120,61 @@ export function ModeSelection() {
           <div className="mb-5">
             <h2 className="mb-2 text-sm font-semibold text-stone-500">モード</h2>
             <div className="flex flex-wrap gap-2">
-              {PREDEFINED_QUIZ_MODES
-                .filter((m) => m.id !== 'review')
+              {PREDEFINED_QUIZ_MODES.filter((m) => m.id !== 'review')
                 .filter((m) => {
                   // Primary modes always shown; others visible when expanded or selected
                   const primaryModes = ['overview', 'random', 'category', 'quick']
                   return showAllModes || primaryModes.includes(m.id) || m.id === selectedMode
                 })
                 .map((modeConfig) => {
-                const isDisabled =
-                  (modeConfig.id === 'bookmark' && bookmarkedCount === 0) ||
-                  (modeConfig.id === 'unanswered' && unansweredCount === 0)
-                return (
-                  <button
-                    key={modeConfig.id}
-                    onClick={() => {
-                      if (isDisabled) return
-                      haptics.light()
-                      setSelectedMode(modeConfig.id)
-                      // Reset filters when switching away from category/custom mode
-                      if (modeConfig.id !== 'category' && modeConfig.id !== 'custom') {
-                        setSelectedCategory(null)
-                        setSelectedDifficulty(null)
-                      }
-                    }}
-                    disabled={isDisabled}
-                    aria-disabled={isDisabled || undefined}
-                    className={`tap-highlight flex items-center gap-1.5 rounded-full border px-3.5 py-2 text-sm font-medium transition-all ${
-                      isDisabled
-                        ? 'cursor-not-allowed border-stone-200 bg-stone-100 opacity-50 dark:border-stone-700 dark:bg-stone-800'
-                        : selectedMode === modeConfig.id
-                          ? 'border-claude-orange bg-claude-orange text-white shadow-sm'
-                          : 'border-stone-200 bg-white text-claude-dark dark:border-stone-700 dark:bg-stone-800'
-                    }`}
-                  >
-                    <span>{modeConfig.icon}</span>
-                    <span>{modeConfig.name}</span>
-                    {(() => {
-                      const count = modeConfig.id === 'overview' ? overviewCount
-                        : modeConfig.id === 'bookmark' ? bookmarkedCount
-                        : modeConfig.id === 'unanswered' ? unansweredCount
-                        : modeConfig.questionCount
-                      return count ? (
-                        <span className={`text-xs ${selectedMode === modeConfig.id ? 'text-white/70' : 'text-stone-400'}`}>
-                          {count}
-                        </span>
-                      ) : null
-                    })()}
-                  </button>
-                )
-              })}
+                  const isDisabled =
+                    (modeConfig.id === 'bookmark' && bookmarkedCount === 0) ||
+                    (modeConfig.id === 'unanswered' && unansweredCount === 0)
+                  return (
+                    <button
+                      key={modeConfig.id}
+                      onClick={() => {
+                        if (isDisabled) return
+                        haptics.light()
+                        setSelectedMode(modeConfig.id)
+                        // Reset filters when switching away from category/custom mode
+                        if (modeConfig.id !== 'category' && modeConfig.id !== 'custom') {
+                          setSelectedCategory(null)
+                          setSelectedDifficulty(null)
+                        }
+                      }}
+                      disabled={isDisabled}
+                      aria-disabled={isDisabled || undefined}
+                      className={`tap-highlight flex items-center gap-1.5 rounded-full border px-3.5 py-2 text-sm font-medium transition-all ${
+                        isDisabled
+                          ? 'cursor-not-allowed border-stone-200 bg-stone-100 opacity-50 dark:border-stone-700 dark:bg-stone-800'
+                          : selectedMode === modeConfig.id
+                            ? 'border-claude-orange bg-claude-orange text-white shadow-sm'
+                            : 'border-stone-200 bg-white text-claude-dark dark:border-stone-700 dark:bg-stone-800'
+                      }`}
+                    >
+                      <span>{modeConfig.icon}</span>
+                      <span>{modeConfig.name}</span>
+                      {(() => {
+                        const count =
+                          modeConfig.id === 'overview'
+                            ? overviewCount
+                            : modeConfig.id === 'bookmark'
+                              ? bookmarkedCount
+                              : modeConfig.id === 'unanswered'
+                                ? unansweredCount
+                                : modeConfig.questionCount
+                        return count ? (
+                          <span
+                            className={`text-xs ${selectedMode === modeConfig.id ? 'text-white/70' : 'text-stone-400'}`}
+                          >
+                            {count}
+                          </span>
+                        ) : null
+                      })()}
+                    </button>
+                  )
+                })}
               {!showAllModes && (
                 <button
                   onClick={() => setShowAllModes(true)}
@@ -213,18 +198,14 @@ export function ModeSelection() {
           {/* Category Filter */}
           {(selectedMode === 'category' || selectedMode === 'custom') && (
             <div className="mb-5">
-              <h2 className="mb-2 text-sm font-semibold text-stone-500">
-                カテゴリ
-              </h2>
+              <h2 className="mb-2 text-sm font-semibold text-stone-500">カテゴリ</h2>
               <div className="grid grid-cols-3 gap-2 sm:grid-cols-4 lg:grid-cols-8">
                 {PREDEFINED_CATEGORIES.map((category: Category) => (
                   <button
                     key={category.id}
                     onClick={() => {
                       haptics.light()
-                      setSelectedCategory(
-                        selectedCategory === category.id ? null : category.id
-                      )
+                      setSelectedCategory(selectedCategory === category.id ? null : category.id)
                     }}
                     aria-pressed={selectedCategory === category.id}
                     className={`tap-highlight rounded-2xl border p-2.5 text-center transition-all ${
@@ -243,12 +224,8 @@ export function ModeSelection() {
                   >
                     <div className="flex flex-col items-center gap-0.5">
                       <span className="text-xl">{category.icon}</span>
-                      <span className="text-xs font-medium text-claude-dark">
-                        {category.name}
-                      </span>
-                      <span className="text-xs text-stone-400">
-                        {getCategoryQuestionCount(category.id)}問
-                      </span>
+                      <span className="text-xs font-medium text-claude-dark">{category.name}</span>
+                      <span className="text-xs text-stone-400">{getCategoryQuestionCount(category.id)}問</span>
                     </div>
                   </button>
                 ))}
@@ -274,11 +251,7 @@ export function ModeSelection() {
                 {PREDEFINED_DIFFICULTIES.map((diff) => (
                   <button
                     key={diff.id}
-                    onClick={() =>
-                      setSelectedDifficulty(
-                        selectedDifficulty === diff.id ? null : diff.id
-                      )
-                    }
+                    onClick={() => setSelectedDifficulty(selectedDifficulty === diff.id ? null : diff.id)}
                     className={`tap-highlight rounded-full border px-4 py-2.5 text-sm font-medium transition-all ${
                       selectedDifficulty === diff.id
                         ? 'border-claude-orange bg-claude-orange text-white'
@@ -318,7 +291,7 @@ export function ModeSelection() {
                   if (reg) {
                     await reg.update()
                     // Wait briefly for new SW to install
-                    await new Promise(r => setTimeout(r, 1000))
+                    await new Promise((r) => setTimeout(r, 1000))
                     if (reg.waiting) {
                       // New version found — reload to apply
                       window.location.reload()
@@ -331,7 +304,11 @@ export function ModeSelection() {
                 className="tap-highlight inline-flex items-center gap-1.5 text-xs text-stone-400"
                 aria-label="更新を確認"
               >
-                {updateStatus ? <Check className="h-3.5 w-3.5 text-green-500" /> : <RefreshCw className="h-3.5 w-3.5" />}
+                {updateStatus ? (
+                  <Check className="h-3.5 w-3.5 text-green-500" />
+                ) : (
+                  <RefreshCw className="h-3.5 w-3.5" />
+                )}
                 {updateStatus ?? '更新を確認'}
               </button>
             </div>

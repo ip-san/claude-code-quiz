@@ -15,13 +15,7 @@ export function DiagramRenderer({ diagram }: DiagramRendererProps) {
     case 'flow':
       return <FlowDiagram label={diagram.label} steps={diagram.steps} />
     case 'cycle':
-      return (
-        <CycleDiagram
-          label={diagram.label}
-          trigger={diagram.trigger}
-          states={diagram.states}
-        />
-      )
+      return <CycleDiagram label={diagram.label} trigger={diagram.trigger} states={diagram.states} />
     case 'comparison':
       return <ComparisonDiagram label={diagram.label} columns={diagram.columns} />
     default:

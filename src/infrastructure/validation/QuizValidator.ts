@@ -126,44 +126,46 @@ export type DiagramData = z.infer<typeof DiagramSchema>
 // Quiz Item Schema
 // ============================================================
 
-export const QuizItemSchema = z.object({
-  id: z.string().min(1, 'Quiz ID is required'),
-  question: z.string().min(1, 'Question is required'),
-  options: z
-    .array(QuizOptionSchema)
-    .min(2, 'At least 2 options are required')
-    .max(6, 'Maximum 6 options allowed'),
-  correctIndex: z.number().int().min(0).optional(),
-  explanation: z.string().min(1, 'Explanation is required'),
-  referenceUrl: z.string().url('Must be a valid URL').refine(
-    (url) => url.startsWith('http://') || url.startsWith('https://'),
-    { message: 'URL must start with http:// or https://' }
-  ).optional(),
-  aiPrompt: z.string().optional(),
-  hint: z.string().optional(),
-  category: z.string().min(1, 'Category is required'),
-  difficulty: DifficultySchema,
-  tags: z.array(z.string()).optional(),
-  type: QuestionTypeSchema,
-  correctIndices: z.array(z.number().int().min(0)).optional(),
-  diagram: DiagramSchema.optional(),
-}).refine(
-  (data) => {
-    if (data.type === 'multi') {
-      // multi: correctIndices must exist with at least 2 entries, all within bounds
-      if (!data.correctIndices || data.correctIndices.length < 2) return false
-      const unique = new Set(data.correctIndices)
-      if (unique.size !== data.correctIndices.length) return false
-      return data.correctIndices.every(i => i < data.options.length)
+export const QuizItemSchema = z
+  .object({
+    id: z.string().min(1, 'Quiz ID is required'),
+    question: z.string().min(1, 'Question is required'),
+    options: z.array(QuizOptionSchema).min(2, 'At least 2 options are required').max(6, 'Maximum 6 options allowed'),
+    correctIndex: z.number().int().min(0).optional(),
+    explanation: z.string().min(1, 'Explanation is required'),
+    referenceUrl: z
+      .string()
+      .url('Must be a valid URL')
+      .refine((url) => url.startsWith('http://') || url.startsWith('https://'), {
+        message: 'URL must start with http:// or https://',
+      })
+      .optional(),
+    aiPrompt: z.string().optional(),
+    hint: z.string().optional(),
+    category: z.string().min(1, 'Category is required'),
+    difficulty: DifficultySchema,
+    tags: z.array(z.string()).optional(),
+    type: QuestionTypeSchema,
+    correctIndices: z.array(z.number().int().min(0)).optional(),
+    diagram: DiagramSchema.optional(),
+  })
+  .refine(
+    (data) => {
+      if (data.type === 'multi') {
+        // multi: correctIndices must exist with at least 2 entries, all within bounds
+        if (!data.correctIndices || data.correctIndices.length < 2) return false
+        const unique = new Set(data.correctIndices)
+        if (unique.size !== data.correctIndices.length) return false
+        return data.correctIndices.every((i) => i < data.options.length)
+      }
+      // single: correctIndex is required and must be within bounds
+      if (data.correctIndex == null) return false
+      return data.correctIndex < data.options.length
+    },
+    {
+      message: 'correctIndex/correctIndices must be within options array bounds',
     }
-    // single: correctIndex is required and must be within bounds
-    if (data.correctIndex == null) return false
-    return data.correctIndex < data.options.length
-  },
-  {
-    message: 'correctIndex/correctIndices must be within options array bounds',
-  }
-)
+  )
 
 /**
  * クイズファイルスキーマ（インポート/エクスポート用）
@@ -243,15 +245,19 @@ export const UserProgressSchema = z.object({
   bookmarkedQuestionIds: z.array(z.string()).optional(),
   dailyGoal: z.number().int().min(1).optional(),
   dailyAnswerCounts: z.record(z.string(), z.number().int().min(0)).optional(),
-  sessionHistory: z.array(z.object({
-    id: z.string(),
-    completedAt: z.number(),
-    mode: z.string(),
-    categoryFilter: z.string().nullable(),
-    score: z.number().int().min(0),
-    totalQuestions: z.number().int().min(0),
-    percentage: z.number().min(0).max(100),
-  })).optional(),
+  sessionHistory: z
+    .array(
+      z.object({
+        id: z.string(),
+        completedAt: z.number(),
+        mode: z.string(),
+        categoryFilter: z.string().nullable(),
+        score: z.number().int().min(0),
+        totalQuestions: z.number().int().min(0),
+        percentage: z.number().min(0).max(100),
+      })
+    )
+    .optional(),
 })
 
 // ============================================================
@@ -303,9 +309,7 @@ export function validateQuizFile(jsonString: string): ValidationResult<QuizFileD
     const parsed = JSON.parse(jsonString)
 
     // Support both array and object formats
-    const dataToValidate = Array.isArray(parsed)
-      ? { quizzes: parsed }
-      : parsed
+    const dataToValidate = Array.isArray(parsed) ? { quizzes: parsed } : parsed
 
     const result = QuizFileSchema.safeParse(dataToValidate)
 
@@ -314,7 +318,7 @@ export function validateQuizFile(jsonString: string): ValidationResult<QuizFileD
     }
 
     // エラーメッセージをパス付きで整形
-    const errors = result.error.errors.map(err => {
+    const errors = result.error.errors.map((err) => {
       const path = err.path.join('.')
       return path ? `${path}: ${err.message}` : err.message
     })
@@ -342,7 +346,7 @@ export function validateUserProgress(jsonString: string): ValidationResult<UserP
       return { success: true, data: result.data }
     }
 
-    const errors = result.error.errors.map(err => {
+    const errors = result.error.errors.map((err) => {
       const path = err.path.join('.')
       return path ? `${path}: ${err.message}` : err.message
     })
@@ -369,7 +373,7 @@ export function validateQuizSetStorage(data: unknown): ValidationResult<QuizSetS
     return { success: true, data: result.data }
   }
 
-  const errors = result.error.errors.map(err => {
+  const errors = result.error.errors.map((err) => {
     const path = err.path.join('.')
     return path ? `${path}: ${err.message}` : err.message
   })

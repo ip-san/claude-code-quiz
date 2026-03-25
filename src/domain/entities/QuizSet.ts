@@ -42,7 +42,9 @@ export class QuizSet {
     this.updatedAt = props.updatedAt
   }
 
-  static create(props: Omit<QuizSetProps, 'createdAt' | 'updatedAt'> & { createdAt?: number; updatedAt?: number }): QuizSet {
+  static create(
+    props: Omit<QuizSetProps, 'createdAt' | 'updatedAt'> & { createdAt?: number; updatedAt?: number }
+  ): QuizSet {
     if (!props.id || props.id.trim().length === 0) {
       throw new Error('QuizSet ID is required')
     }
@@ -70,9 +72,7 @@ export class QuizSet {
     version?: string
     quizzes: QuestionProps[]
   }): QuizSet {
-    const questions = data.quizzes
-      .map(q => Question.fromData(q))
-      .filter((q): q is Question => q !== null)
+    const questions = data.quizzes.map((q) => Question.fromData(q)).filter((q): q is Question => q !== null)
 
     return QuizSet.create({
       id: 'default',
@@ -95,14 +95,14 @@ export class QuizSet {
    * Get questions by category
    */
   getQuestionsByCategory(categoryId: string): Question[] {
-    return this.questions.filter(q => q.category === categoryId)
+    return this.questions.filter((q) => q.category === categoryId)
   }
 
   /**
    * Get questions by difficulty
    */
   getQuestionsByDifficulty(difficulty: string): Question[] {
-    return this.questions.filter(q => q.difficulty === difficulty)
+    return this.questions.filter((q) => q.difficulty === difficulty)
   }
 
   /**
@@ -116,14 +116,14 @@ export class QuizSet {
    * Get unique categories in this set
    */
   getCategories(): string[] {
-    return [...new Set(this.questions.map(q => q.category))]
+    return [...new Set(this.questions.map((q) => q.category))]
   }
 
   /**
    * Find question by ID
    */
   findQuestion(questionId: string): Question | undefined {
-    return this.questions.find(q => q.id === questionId)
+    return this.questions.find((q) => q.id === questionId)
   }
 
   equals(other: QuizSet): boolean {
@@ -146,7 +146,7 @@ export class QuizSet {
       description: this.description,
       version: this.version,
       type: this.type,
-      quizzes: this.questions.map(q => q.toJSON()),
+      quizzes: this.questions.map((q) => q.toJSON()),
       createdAt: this.createdAt,
       updatedAt: this.updatedAt,
     }

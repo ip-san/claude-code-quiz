@@ -79,13 +79,13 @@ describe('quizStore', () => {
 
     it('should start session with specific question IDs', () => {
       const questions = useQuizStore.getState().allQuestions.slice(0, 5)
-      const ids = questions.map(q => q.id)
+      const ids = questions.map((q) => q.id)
       useQuizStore.getState().startSessionWithIds(ids)
 
       const state = useQuizStore.getState()
       expect(state.viewState).toBe('quiz')
       expect(state.sessionState!.questions.length).toBe(5)
-      expect(state.sessionState!.questions.map(q => q.id)).toEqual(ids)
+      expect(state.sessionState!.questions.map((q) => q.id)).toEqual(ids)
     })
 
     it('should not start with empty IDs', () => {
