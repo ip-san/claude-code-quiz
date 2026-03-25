@@ -25,6 +25,7 @@ export function MenuHeader({ totalQuestions, answeredCount, hasProgress }: MenuH
   const [currentTheme, setCurrentTheme] = useState<Theme>(() => getStoredTheme())
   const [showShortcuts, setShowShortcuts] = useState(false)
   const [menuOpen, setMenuOpen] = useState(false)
+  const [updateStatus, setUpdateStatus] = useState<'checking' | 'latest' | 'error' | null>(null)
 
   const streak = userProgress.streakDays
   const today = DailyGoalService.getTodayString()
@@ -188,20 +189,37 @@ export function MenuHeader({ totalQuestions, answeredCount, hasProgress }: MenuH
                 </div>
                 {!isElectron && (
                   <MenuItem
-                    icon={<RefreshCw className="h-4.5 w-4.5" />}
-                    label="更新を確認"
-                    onClick={() =>
-                      handleMenuAction(async () => {
+                    icon={<RefreshCw className={`h-4.5 w-4.5 ${updateStatus === 'checking' ? 'animate-spin' : ''}`} />}
+                    label={
+                      updateStatus === 'checking'
+                        ? '確認中...'
+                        : updateStatus === 'latest'
+                          ? '✓ 最新版です'
+                          : updateStatus === 'error'
+                            ? '確認に失敗しました'
+                            : '更新を確認'
+                    }
+                    onClick={async () => {
+                      if (updateStatus === 'checking') return
+                      haptics.light()
+                      setUpdateStatus('checking')
+                      try {
                         const reg = await navigator.serviceWorker?.getRegistration()
                         if (reg) {
                           await reg.update()
                           await new Promise((r) => setTimeout(r, 1000))
                           if (reg.waiting) {
                             window.location.reload()
+                            return
                           }
                         }
-                      })
-                    }
+                        setUpdateStatus('latest')
+                        setTimeout(() => setUpdateStatus(null), 3000)
+                      } catch {
+                        setUpdateStatus('error')
+                        setTimeout(() => setUpdateStatus(null), 3000)
+                      }
+                    }}
                   />
                 )}
               </div>
