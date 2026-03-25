@@ -1,4 +1,4 @@
-import { BarChart3, BookOpen, HelpCircle, Menu, Moon, RefreshCw, Sun, Trophy, X } from 'lucide-react'
+import { BarChart3, BookOpen, HelpCircle, Menu, Moon, RefreshCw, Sun, X } from 'lucide-react'
 import { useState } from 'react'
 import { KeyboardShortcutHelp } from '@/components/Layout/KeyboardShortcutHelp'
 import { locale } from '@/config/locale'
@@ -158,13 +158,7 @@ export function MenuHeader({ totalQuestions, answeredCount, hasProgress }: MenuH
                   <MenuItem
                     icon={<BarChart3 className="h-4.5 w-4.5" />}
                     label={locale.progress.title}
-                    onClick={() => handleMenuAction(() => setViewState('progress'))}
-                  />
-                )}
-                {hasProgress && (
-                  <MenuItem
-                    icon={<Trophy className="h-4.5 w-4.5" />}
-                    label="AI活用レベル"
+                    sublabel="統計・推移・AI活用レベル"
                     onClick={() => handleMenuAction(() => setViewState('progress'))}
                   />
                 )}

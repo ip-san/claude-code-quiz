@@ -105,7 +105,7 @@ interface QuizStore {
   initialize: () => Promise<void>
 
   // Session actions
-  startSession: (config: Partial<QuizSessionConfig>) => void
+  startSession: (config: Partial<QuizSessionConfig>, options?: { startIndex?: number }) => void
   startSessionWithIds: (questionIds: string[]) => void
   retrySession: () => void
   retryQuestion: () => void
@@ -333,7 +333,7 @@ export const useQuizStore = create<QuizStore>((set, get) => ({
    * ストアから分離し、テスト可能にするため。
    * ストアは状態管理に専念し、ロジックは Domain Layer に任せる。
    */
-  startSession: (configOverrides) => {
+  startSession: (configOverrides, options?: { startIndex?: number }) => {
     const state = get()
     const modeConfig = configOverrides.mode ? getQuizModeById(configOverrides.mode) : null
 
@@ -367,8 +367,11 @@ export const useQuizStore = create<QuizStore>((set, get) => ({
     // Guard: no questions available for this config
     if (sessionQuestions.length === 0) return
 
+    const initialState = QuizSessionService.createInitialState(sessionQuestions, config)
+    const startIndex = options?.startIndex ? Math.min(options.startIndex, sessionQuestions.length - 1) : 0
     const sessionState = {
-      ...QuizSessionService.createInitialState(sessionQuestions, config),
+      ...initialState,
+      currentIndex: startIndex,
       initialStreakDays: state.userProgress.streakDays,
       initialTodayCount: state.userProgress.getDailyCount(DailyGoalService.getTodayString()),
     }

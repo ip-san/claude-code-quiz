@@ -106,7 +106,7 @@ export function ModeSelection() {
           <ChapterProgressMap
             allQuestions={allQuestions}
             userProgress={userProgress}
-            onStartChapter={() => startSession({ mode: 'overview' })}
+            onStartChapter={(_chapterId, startIndex) => startSession({ mode: 'overview' }, { startIndex })}
           />
 
           {/* Mode Selection — primary modes always visible, rest collapsible */}

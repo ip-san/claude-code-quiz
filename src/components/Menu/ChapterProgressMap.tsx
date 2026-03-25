@@ -7,28 +7,45 @@ import { haptics } from '@/lib/haptics'
 interface ChapterProgressMapProps {
   allQuestions: readonly Question[]
   userProgress: UserProgress
-  onStartChapter: (chapterId: number) => void
+  onStartChapter: (chapterId: number, startIndex: number) => void
 }
 
 export function ChapterProgressMap({ allQuestions, userProgress, onStartChapter }: ChapterProgressMapProps) {
+  // Build the full overview question list (same order as QuizSessionService)
+  const overviewQuestions = useMemo(() => {
+    return allQuestions
+      .filter((q) => q.tags.includes('overview'))
+      .sort((a, b) => {
+        const getOrder = (q: Question): number => {
+          const tag = q.tags.find((t) => /^overview-\d/.test(t))
+          return tag ? Number.parseInt(tag.replace('overview-', ''), 10) : 999
+        }
+        return getOrder(a) - getOrder(b)
+      })
+  }, [allQuestions])
+
   const chapters = useMemo(() => {
     return OVERVIEW_CHAPTERS.map((ch) => {
-      const questions = allQuestions.filter((q) => q.tags.includes(ch.tag))
+      const chapterQuestions = overviewQuestions.filter((q) => q.tags.includes(ch.tag))
+      // Find the index of the first question of this chapter in the full overview list
+      const firstQuestion = chapterQuestions[0]
+      const startIndex = firstQuestion ? overviewQuestions.indexOf(firstQuestion) : 0
+
       let answered = 0
       let correct = 0
-      for (const q of questions) {
+      for (const q of chapterQuestions) {
         const p = userProgress.questionProgress[q.id]
         if (p && p.attempts > 0) {
           answered++
           if (p.lastCorrect) correct++
         }
       }
-      const total = questions.length
+      const total = chapterQuestions.length
       const accuracy = answered > 0 ? Math.round((correct / answered) * 100) : 0
       const isComplete = answered === total && total > 0
-      return { ...ch, total, answered, correct, accuracy, isComplete }
+      return { ...ch, total, answered, correct, accuracy, isComplete, startIndex }
     })
-  }, [allQuestions, userProgress])
+  }, [overviewQuestions, userProgress])
 
   const hasAnyProgress = chapters.some((ch) => ch.answered > 0)
   if (!hasAnyProgress) return null
@@ -44,7 +61,7 @@ export function ChapterProgressMap({ allQuestions, userProgress, onStartChapter 
               key={ch.id}
               onClick={() => {
                 haptics.light()
-                onStartChapter(ch.id)
+                onStartChapter(ch.id, ch.startIndex)
               }}
               className="tap-highlight rounded-xl border border-stone-200 bg-white p-3 text-left dark:border-stone-700 dark:bg-stone-800"
             >
@@ -55,7 +72,6 @@ export function ChapterProgressMap({ allQuestions, userProgress, onStartChapter 
                 {ch.isComplete && <span className="text-xs">✅</span>}
               </div>
               <p className="mb-1.5 line-clamp-1 text-xs font-medium text-claude-dark dark:text-stone-200">{ch.name}</p>
-              {/* Progress bar */}
               <div className="mb-1 h-1 overflow-hidden rounded-full bg-stone-100 dark:bg-stone-700">
                 <div
                   className={`h-full rounded-full transition-all ${ch.isComplete ? 'bg-green-500' : 'progress-gradient'}`}
