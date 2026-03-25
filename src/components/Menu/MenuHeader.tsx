@@ -1,4 +1,4 @@
-import { BarChart3, BookOpen, HelpCircle, Menu, Moon, RefreshCw, Sun, X } from 'lucide-react'
+import { BarChart3, Bookmark, BookOpen, HelpCircle, Menu, Moon, RefreshCw, Sun, X } from 'lucide-react'
 import { useState } from 'react'
 import { KeyboardShortcutHelp } from '@/components/Layout/KeyboardShortcutHelp'
 import { locale } from '@/config/locale'
@@ -21,7 +21,8 @@ interface MenuHeaderProps {
  * タイトル + ストリーク/ゴールバッジ + ハンバーガーメニュー
  */
 export function MenuHeader({ totalQuestions, answeredCount, hasProgress }: MenuHeaderProps) {
-  const { setViewState, userProgress } = useQuizStore()
+  const { setViewState, userProgress, startSession, getBookmarkedCount } = useQuizStore()
+  const bookmarkedCount = getBookmarkedCount()
   const [currentTheme, setCurrentTheme] = useState<Theme>(() => getStoredTheme())
   const [showShortcuts, setShowShortcuts] = useState(false)
   const [menuOpen, setMenuOpen] = useState(false)
@@ -154,6 +155,14 @@ export function MenuHeader({ totalQuestions, answeredCount, hasProgress }: MenuH
                   sublabel={`${totalQuestions}問の${locale.reader.subtitle}`}
                   onClick={() => handleMenuAction(() => setViewState('reader'))}
                 />
+                {bookmarkedCount > 0 && (
+                  <MenuItem
+                    icon={<Bookmark className="h-4.5 w-4.5" />}
+                    label="後で学ぶ"
+                    sublabel={`${bookmarkedCount}問を保存中`}
+                    onClick={() => handleMenuAction(() => startSession({ mode: 'bookmark' }))}
+                  />
+                )}
                 {hasProgress && (
                   <MenuItem
                     icon={<BarChart3 className="h-4.5 w-4.5" />}
