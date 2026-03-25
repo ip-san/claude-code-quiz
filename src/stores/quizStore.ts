@@ -243,11 +243,28 @@ function recordCompletedSession(
   updateStore: (progress: UserProgress) => void
 ): void {
   if (sessionState.isReviewMode) return
+
+  // Compute per-category breakdown from answerHistory
+  const categoryBreakdown: Record<string, { correct: number; total: number }> = {}
+  for (const [idx, record] of sessionState.answerHistory) {
+    const question = sessionState.questions[idx]
+    if (!question) continue
+    const cat = question.category
+    if (!categoryBreakdown[cat]) {
+      categoryBreakdown[cat] = { correct: 0, total: 0 }
+    }
+    categoryBreakdown[cat].total++
+    if (record.isCorrect) {
+      categoryBreakdown[cat].correct++
+    }
+  }
+
   const updatedProgress = getCurrentProgress().recordSession(
     sessionState.config.mode,
     sessionState.config.categoryFilter ?? null,
     sessionState.score,
-    sessionState.answeredCount
+    sessionState.answeredCount,
+    categoryBreakdown
   )
   updateStore(updatedProgress)
   getProgressRepository().save(updatedProgress).catch(console.error)

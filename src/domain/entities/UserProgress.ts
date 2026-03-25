@@ -56,6 +56,12 @@ export interface QuestionProgress {
  * 各クイズセッション完了時に記録される。
  * セッション履歴グラフや成長分析に使用。
  */
+/** カテゴリ別セッション内訳 */
+export interface CategoryBreakdown {
+  readonly correct: number
+  readonly total: number
+}
+
 export interface SessionRecord {
   readonly id: string
   readonly completedAt: number
@@ -64,6 +70,8 @@ export interface SessionRecord {
   readonly score: number
   readonly totalQuestions: number
   readonly percentage: number
+  /** カテゴリ別正答内訳（v2以降のセッションのみ） */
+  readonly categoryBreakdown?: Readonly<Record<string, CategoryBreakdown>>
 }
 
 /**
@@ -363,7 +371,13 @@ export class UserProgress {
   /**
    * セッション完了を記録
    */
-  recordSession(mode: string, categoryFilter: string | null, score: number, totalQuestions: number): UserProgress {
+  recordSession(
+    mode: string,
+    categoryFilter: string | null,
+    score: number,
+    totalQuestions: number,
+    categoryBreakdown?: Record<string, CategoryBreakdown>
+  ): UserProgress {
     const percentage = totalQuestions > 0 ? Math.round((score / totalQuestions) * 100) : 0
     const record: SessionRecord = {
       id: `${Date.now()}-${Math.random().toString(36).slice(2, 8)}`,
@@ -373,6 +387,7 @@ export class UserProgress {
       score,
       totalQuestions,
       percentage,
+      ...(categoryBreakdown && { categoryBreakdown }),
     }
     // Keep last 100 sessions
     const newHistory = [...this.sessionHistory, record].slice(-100)

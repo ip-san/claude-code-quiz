@@ -6,6 +6,7 @@ import { getColorHex } from '@/lib/colors'
 import { platformAPI } from '@/lib/platformAPI'
 import { buttonStyles, cardStyles, headerStyles, pageStyles } from '@/lib/styles'
 import { useQuizStore } from '@/stores/quizStore'
+import { CategoryTrendChart } from './CategoryTrendChart'
 import { LearningRecommendation } from './LearningRecommendation'
 import { SessionHistoryChart } from './SessionHistoryChart'
 import { SessionHistoryList } from './SessionHistoryList'
@@ -171,6 +172,9 @@ export function ProgressDashboard() {
             <div className="mb-6">
               <h2 className="mb-4 text-lg font-semibold text-claude-dark">正答率の推移</h2>
               <SessionHistoryChart sessions={userProgress.sessionHistory} />
+              <div className="mt-4">
+                <CategoryTrendChart sessions={userProgress.sessionHistory} />
+              </div>
             </div>
           )}
 
