@@ -23,7 +23,6 @@ jobs:
         with:
           bun-version: latest
       - run: bun install --frozen-lockfile
-      - run: bunx playwright install --with-deps chromium
       - run: bun run check:all
       - run: bun run build:web
       - uses: actions/upload-pages-artifact@v3
