@@ -161,16 +161,6 @@ export function MenuHeader({ totalQuestions, answeredCount, hasProgress }: MenuH
 
             {/* Menu items */}
             <nav className="flex-1 overflow-y-auto py-2">
-              {/* Primary actions */}
-              <div className="border-b border-stone-100 pb-2 dark:border-stone-800">
-                <MenuItem
-                  icon={<BookOpen className="h-4.5 w-4.5" />}
-                  label={locale.reader.title}
-                  sublabel={`${totalQuestions}問の${locale.reader.subtitle}`}
-                  onClick={() => handleMenuAction(() => setViewState('reader'))}
-                />
-              </div>
-
               {/* Quiz modes accordion */}
               <div className="border-b border-stone-100 py-2 dark:border-stone-800">
                 <button
@@ -204,16 +194,18 @@ export function MenuHeader({ totalQuestions, answeredCount, hasProgress }: MenuH
                 )}
               </div>
 
-              {/* Bookmark + Progress */}
+              {/* Bookmark + Progress + Reader */}
               <div className="border-b border-stone-100 py-2 dark:border-stone-800">
-                {bookmarkedCount > 0 && (
-                  <MenuItem
-                    icon={<Bookmark className="h-4.5 w-4.5" />}
-                    label="後で学ぶ"
-                    sublabel={`${bookmarkedCount}問を保存中`}
-                    onClick={() => handleMenuAction(() => startSession({ mode: 'bookmark' }))}
-                  />
-                )}
+                <MenuItem
+                  icon={<Bookmark className="h-4.5 w-4.5" />}
+                  label="後で学ぶ"
+                  sublabel={
+                    bookmarkedCount > 0 ? `${bookmarkedCount}問を保存中` : '問題をブックマークすると表示されます'
+                  }
+                  onClick={() =>
+                    bookmarkedCount > 0 ? handleMenuAction(() => startSession({ mode: 'bookmark' })) : undefined
+                  }
+                />
                 {hasProgress && (
                   <MenuItem
                     icon={<BarChart3 className="h-4.5 w-4.5" />}
@@ -222,6 +214,12 @@ export function MenuHeader({ totalQuestions, answeredCount, hasProgress }: MenuH
                     onClick={() => handleMenuAction(() => setViewState('progress'))}
                   />
                 )}
+                <MenuItem
+                  icon={<BookOpen className="h-4.5 w-4.5" />}
+                  label={locale.reader.title}
+                  sublabel={`${totalQuestions}問の${locale.reader.subtitle}`}
+                  onClick={() => handleMenuAction(() => setViewState('reader'))}
+                />
               </div>
 
               {/* Settings */}
