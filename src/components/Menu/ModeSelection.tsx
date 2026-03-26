@@ -1,10 +1,8 @@
 import { BookOpen, ChevronRight } from 'lucide-react'
 import { useMemo, useState } from 'react'
 import { locale } from '@/config/locale'
-import { isElectron } from '@/lib/platformAPI'
 import { useQuizStore } from '@/stores/quizStore'
 import { ChapterProgressMap } from './ChapterProgressMap'
-import { CustomQuizBanner } from './CustomQuizBanner'
 import { DailySnapshot, hasSeenSnapshotToday } from './DailySnapshot'
 import { FirstTimeGuide } from './FirstTimeGuide'
 import { MenuHeader } from './MenuHeader'
@@ -77,9 +75,6 @@ export function ModeSelection() {
             userProgress={userProgress}
             onStartChapter={(_chapterId, startIndex) => startSession({ mode: 'overview' }, { startIndex })}
           />
-
-          {/* Custom quiz CTA — only show for power users (Electron/developer context) */}
-          {isElectron && <CustomQuizBanner />}
         </div>
       </div>
     </div>
