@@ -150,6 +150,18 @@ CLAUDE.md の開発コマンドセクションに記載されたコマンドが 
 ✅ Spec Audit Complete — CLAUDE.md と実装は全セクションで一致しています。
 ```
 
+## Step 3: Web 品質監査（オプション）
+
+引数に `quality` を指定した場合、または全セクション監査時にオプションとして実行する。
+
+**`/web-quality-audit` スキルの基準を適用し、以下を追加チェック:**
+
+- **アクセシビリティ:** `/accessibility` スキル基準で JSX コンポーネントを検査（alt, aria, focus, contrast）
+- **パフォーマンス:** `/performance` スキル基準でバンドル・キャッシュ・画像を検査
+- **ベストプラクティス:** deprecated API、セキュリティヘッダー、コンソールエラー
+
+結果は Step 2 のレポートに「Web Quality」セクションとして追加する。
+
 ## 修正方針
 
 - **CLAUDE.md が古い場合**: CLAUDE.md を実装に合わせて修正する
