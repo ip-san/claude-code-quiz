@@ -8,25 +8,17 @@
 
 import type { Question } from '../entities/Question'
 import type { QuestionProgress, UserProgress } from '../entities/UserProgress'
+import { calculateNextReview, SRS_INTERVALS_MS } from '../valueObjects/SrsInterval'
 
-/** 間隔反復の復習間隔テーブル（ミリ秒） */
-export const SRS_INTERVALS_MS: readonly number[] = [
-  3600000, // 0: 1時間
-  14400000, // 1: 4時間
-  86400000, // 2: 1日
-  259200000, // 3: 3日
-  604800000, // 4: 7日
-  1209600000, // 5: 14日
-  2592000000, // 6+: 30日
-]
+// Re-export for backwards compatibility
+export { SRS_INTERVALS_MS }
 
 export class SpacedRepetitionService {
   /**
    * 次回復習日時を計算
    */
   static calculateNextReview(correctStreak: number, now: number): number {
-    const index = Math.min(correctStreak, SRS_INTERVALS_MS.length - 1)
-    return now + SRS_INTERVALS_MS[index]
+    return calculateNextReview(correctStreak, now)
   }
 
   /**

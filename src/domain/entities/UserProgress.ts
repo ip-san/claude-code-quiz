@@ -1,4 +1,4 @@
-import { SpacedRepetitionService } from '../services/SpacedRepetitionService'
+import { calculateNextReview } from '../valueObjects/SrsInterval'
 
 /**
  * UserProgress Entity - ユーザーの学習進捗を表すエンティティ
@@ -182,7 +182,7 @@ export class UserProgress {
     // Update question progress
     // Calculate next review time for spaced repetition
     const correctStreak = isCorrect ? (existing?.correctStreak ?? 0) + 1 : 0
-    const nextReviewAt = SpacedRepetitionService.calculateNextReview(correctStreak, now)
+    const nextReviewAt = calculateNextReview(correctStreak, now)
 
     const newQuestionProgress: QuestionProgress = {
       questionId,
