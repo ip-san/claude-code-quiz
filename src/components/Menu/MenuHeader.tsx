@@ -5,6 +5,8 @@ import {
   ChevronDown,
   ChevronUp,
   HelpCircle,
+  Layers,
+  Map as MapIcon,
   Menu,
   Moon,
   RefreshCw,
@@ -177,7 +179,9 @@ export function MenuHeader({ totalQuestions, answeredCount, hasProgress }: MenuH
                 </button>
                 {modesExpanded && (
                   <div className="pb-1">
-                    {PREDEFINED_QUIZ_MODES.filter((m) => m.id !== 'review' && m.id !== 'bookmark').map((mode) => (
+                    {PREDEFINED_QUIZ_MODES.filter(
+                      (m) => m.id !== 'review' && m.id !== 'bookmark' && m.id !== 'flashcard' && m.id !== 'scenario'
+                    ).map((mode) => (
                       <button
                         key={mode.id}
                         onClick={() => handleMenuAction(() => startSession({ mode: mode.id }))}
@@ -216,6 +220,28 @@ export function MenuHeader({ totalQuestions, answeredCount, hasProgress }: MenuH
                   label={locale.reader.title}
                   sublabel={`${totalQuestions}問の${locale.reader.subtitle}`}
                   onClick={() => handleMenuAction(() => setViewState('reader'))}
+                />
+              </div>
+
+              {/* Learning tools */}
+              <div className="border-b border-stone-100 py-2 dark:border-stone-800">
+                <MenuItem
+                  icon={<span className="text-sm">🃏</span>}
+                  label="フラッシュカード"
+                  sublabel="問題を見て考え、タップで正解を確認"
+                  onClick={() => handleMenuAction(() => startSession({ mode: 'flashcard' }))}
+                />
+                <MenuItem
+                  icon={<MapIcon className="h-4.5 w-4.5" />}
+                  label="知識マップ"
+                  sublabel="カテゴリ間の関連を可視化"
+                  onClick={() => handleMenuAction(() => setViewState('knowledgeMap'))}
+                />
+                <MenuItem
+                  icon={<Layers className="h-4.5 w-4.5" />}
+                  label="実践シナリオ"
+                  sublabel="実務に沿ったストーリーで学ぶ"
+                  onClick={() => handleMenuAction(() => setViewState('scenarioSelect'))}
                 />
               </div>
 
