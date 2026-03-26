@@ -1,4 +1,4 @@
-import { test, expect } from '@playwright/test'
+import { expect, test } from '@playwright/test'
 
 test.describe('Quiz App E2E', () => {
   test.beforeEach(async ({ page }) => {
@@ -49,21 +49,20 @@ test.describe('Quiz App E2E', () => {
   test('dark mode toggle works', async ({ page }) => {
     await page.getByRole('button', { name: /はじめる/ }).click()
 
-    // Toggle dark mode
-    await page.getByRole('button', { name: 'テーマ切替' }).click()
+    // Open hamburger menu
+    await page.getByRole('button', { name: 'メニューを開く' }).click()
+
+    // Toggle dark mode (menu stays open)
+    await page.getByRole('button', { name: 'ダークモード' }).click()
 
     // Check dark class is applied
-    const isDark = await page.evaluate(() =>
-      document.documentElement.classList.contains('dark')
-    )
+    const isDark = await page.evaluate(() => document.documentElement.classList.contains('dark'))
     expect(isDark).toBe(true)
 
-    // Toggle back
-    await page.getByRole('button', { name: 'テーマ切替' }).click()
+    // Toggle back (menu is still open, label changed to ライトモード)
+    await page.getByRole('button', { name: 'ライトモード' }).click()
 
-    const isLight = await page.evaluate(() =>
-      !document.documentElement.classList.contains('dark')
-    )
+    const isLight = await page.evaluate(() => !document.documentElement.classList.contains('dark'))
     expect(isLight).toBe(true)
   })
 
@@ -92,7 +91,10 @@ test.describe('Quiz App E2E', () => {
 
     // Quit back to menu
     await page.getByRole('button', { name: /中止/ }).click()
-    await page.getByRole('button', { name: /続ける|中止する/ }).last().click()
+    await page
+      .getByRole('button', { name: /続ける|中止する/ })
+      .last()
+      .click()
 
     // Open progress (📊 icon in header)
     const progressButton = page.getByRole('button', { name: '学習履歴' })

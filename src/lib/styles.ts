@@ -44,9 +44,3 @@ export const headerStyles = {
   sticky:
     'sticky top-0 z-10 border-b border-stone-200 bg-claude-cream/95 backdrop-blur-sm dark:border-stone-700 dark:bg-stone-900/95',
 } as const
-
-/** ボトムバー */
-export const bottomBarStyles = {
-  fixed:
-    'fixed bottom-0 left-0 right-0 z-20 border-t border-stone-200 bg-white/95 backdrop-blur-sm dark:border-stone-700 dark:bg-stone-900/95',
-} as const
