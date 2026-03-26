@@ -13,9 +13,6 @@ const ProgressDashboard = lazy(() =>
 const ExplanationReader = lazy(() =>
   import('@/components/Reader/ExplanationReader').then((m) => ({ default: m.ExplanationReader }))
 )
-const KnowledgeMap = lazy(() =>
-  import('@/components/KnowledgeMap/KnowledgeMap').then((m) => ({ default: m.KnowledgeMap }))
-)
 const ScenarioList = lazy(() => import('@/components/Quiz/ScenarioView').then((m) => ({ default: m.ScenarioList })))
 const FlashCard = lazy(() => import('@/components/Quiz/FlashCard').then((m) => ({ default: m.FlashCard })))
 const ScenarioView = lazy(() => import('@/components/Quiz/ScenarioView').then((m) => ({ default: m.ScenarioView })))
@@ -146,12 +143,6 @@ export default function App() {
             <ExplanationReader />
           </Suspense>
         )
-      case 'knowledgeMap':
-        return (
-          <Suspense fallback={<LoadingSpinner />}>
-            <KnowledgeMap />
-          </Suspense>
-        )
       case 'scenarioSelect':
         return (
           <Suspense fallback={<LoadingSpinner />}>
@@ -176,7 +167,6 @@ export default function App() {
       progress: '#FAF9F5',
       reader: '#FAF9F5',
       result: '#FAF9F5',
-      knowledgeMap: '#FAF9F5',
       scenarioSelect: '#FAF9F5',
     }
     setThemeColor(themeColors[viewState] ?? '#FAF9F5')

@@ -6,7 +6,6 @@ import {
   ChevronUp,
   HelpCircle,
   Layers,
-  Map as MapIcon,
   Menu,
   Moon,
   RefreshCw,
@@ -245,12 +244,6 @@ export function MenuHeader({ totalQuestions, answeredCount, hasProgress }: MenuH
                   label="フラッシュカード"
                   sublabel="問題を見て考え、タップで正解を確認"
                   onClick={() => handleMenuAction(() => startSession({ mode: 'flashcard' }))}
-                />
-                <MenuItem
-                  icon={<MapIcon className="h-4.5 w-4.5" />}
-                  label="知識マップ"
-                  sublabel="カテゴリ間の関連を可視化"
-                  onClick={() => handleMenuAction(() => setViewState('knowledgeMap'))}
                 />
                 <MenuItem
                   icon={<Layers className="h-4.5 w-4.5" />}

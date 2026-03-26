@@ -27,7 +27,7 @@ src/
 │   ├── validation/   # Zod スキーマ、品質テスト
 │   └── persistence/  # localStorage リポジトリ
 ├── stores/           # Zustand 状態管理（quizStore + テスト）
-├── components/       # React UIコンポーネント（56ファイル）
+├── components/       # React UIコンポーネント（55ファイル）
 │   ├── Quiz/         # QuizCard, Feedback, OptionButton, QuizResult, ScoreRing, etc.
 │   ├── Menu/         # ModeSelection, QuizSearch, MasteryRoadmap, DailySnapshot, etc.
 │   ├── Progress/     # ProgressDashboard, LearningRecommendation, WeakPointInsight
@@ -189,7 +189,6 @@ npm run check:all      # check + docs:validate（CI用フルチェック）
 
 ### 学習支援
 
-- **知識マップ（KnowledgeMap）:** 8カテゴリの関連をSVGノードグラフで可視化。正答率で色分け、タップでカテゴリ学習開始
 - **フラッシュカード:** 問題を見て考え、タップで正解確認。自己評価（知ってた/あやしい/知らなかった）でSRS連携
 - **実践シナリオ（scenarioSelect）:** 実務に即したストーリー形式で既存問題を出題（3シナリオ）
 - **キーワード検索（QuizSearch）:** 638問から検索、解説をその場で展開可能。10件超は全件表示画面
