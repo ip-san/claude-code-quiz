@@ -113,6 +113,31 @@
         "noWith": "error",
         "useGetterReturn": "error",
         "useNamespaceKeyword": "error"
+      },
+      "a11y": {
+        "noAriaHiddenOnFocusable": "warn",
+        "noAriaUnsupportedElements": "warn",
+        "noDistractingElements": "error",
+        "noLabelWithoutControl": "warn",
+        "noNoninteractiveElementToInteractiveRole": "warn",
+        "noPositiveTabindex": "error",
+        "noRedundantAlt": "warn",
+        "noRedundantRoles": "warn",
+        "useAltText": "error",
+        "useAnchorContent": "error",
+        "useAriaPropsForRole": "warn",
+        "useButtonType": "off",
+        "useFocusableInteractive": "warn",
+        "useHeadingContent": "error",
+        "useHtmlLang": "error",
+        "useKeyWithClickEvents": "warn",
+        "useKeyWithMouseEvents": "warn",
+        "useMediaCaption": "warn",
+        "useSemanticElements": "warn",
+        "useValidAnchor": "error",
+        "useValidAriaProps": "error",
+        "useValidAriaRole": "error",
+        "useValidAriaValues": "error"
       }
     },
     "includes": ["**", "!dist/**", "!dist-electron/**", "!release/**", "!coverage/**", "!node_modules/**"]
