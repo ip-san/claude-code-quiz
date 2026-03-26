@@ -168,16 +168,6 @@ export const PREDEFINED_QUIZ_MODES: QuizMode[] = [
     shuffleOptions: false,
   }),
   QuizMode.create({
-    id: 'unanswered',
-    name: '未解答チャレンジ',
-    description: 'まだ解いたことのない問題に挑戦',
-    icon: '🆕',
-    questionCount: null,
-    timeLimit: null,
-    shuffleQuestions: true,
-    shuffleOptions: false,
-  }),
-  QuizMode.create({
     id: 'bookmark',
     name: '後で学ぶ',
     description: '保存した問題をまとめて学習',

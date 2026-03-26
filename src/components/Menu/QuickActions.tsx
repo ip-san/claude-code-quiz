@@ -33,9 +33,6 @@ export function QuickActions({ allQuestions, userProgress, onStart }: QuickActio
     // Weak question count
     const weakCount = allQuestions.filter((q) => userProgress.isWeakQuestion(q.id, 50, 2)).length
 
-    // Unanswered count
-    const unansweredCount = allQuestions.filter((q) => !userProgress.hasAttempted(q.id)).length
-
     // Bookmarked count
     const bookmarkedCount = userProgress.bookmarkedQuestionIds.length
 
@@ -67,17 +64,6 @@ export function QuickActions({ allQuestions, userProgress, onStart }: QuickActio
         label: '苦手克服',
         sublabel: `${weakCount}問が苦手`,
         priority: 80,
-      })
-    }
-
-    // Unanswered — when many questions remain
-    if (unansweredCount > 0 && unansweredCount < allQuestions.length) {
-      candidates.push({
-        mode: 'unanswered',
-        icon: '🆕',
-        label: '未解答',
-        sublabel: `残り${unansweredCount}問`,
-        priority: unansweredCount > allQuestions.length * 0.5 ? 60 : 40,
       })
     }
 

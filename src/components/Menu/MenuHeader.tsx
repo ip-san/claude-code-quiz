@@ -182,7 +182,12 @@ export function MenuHeader({ totalQuestions, answeredCount, hasProgress }: MenuH
                 {modesExpanded && (
                   <div className="pb-1">
                     {PREDEFINED_QUIZ_MODES.filter(
-                      (m) => m.id !== 'review' && m.id !== 'bookmark' && m.id !== 'flashcard' && m.id !== 'scenario'
+                      (m) =>
+                        m.id !== 'review' &&
+                        m.id !== 'bookmark' &&
+                        m.id !== 'flashcard' &&
+                        m.id !== 'scenario' &&
+                        m.id !== 'quick'
                     ).map((mode) => (
                       <button
                         key={mode.id}
