@@ -178,16 +178,6 @@ export const PREDEFINED_QUIZ_MODES: QuizMode[] = [
     shuffleOptions: false,
   }),
   QuizMode.create({
-    id: 'custom',
-    name: 'カスタム',
-    description: '問題数・時間・カテゴリを自由に設定',
-    icon: '⚙️',
-    questionCount: null,
-    timeLimit: null,
-    shuffleQuestions: true,
-    shuffleOptions: false,
-  }),
-  QuizMode.create({
     id: 'bookmark',
     name: '後で学ぶ',
     description: '保存した問題をまとめて学習',

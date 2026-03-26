@@ -27,7 +27,7 @@ src/
 │   ├── validation/   # Zod スキーマ、品質テスト
 │   └── persistence/  # localStorage リポジトリ
 ├── stores/           # Zustand 状態管理（quizStore + テスト）
-├── components/       # React UIコンポーネント（53ファイル）
+├── components/       # React UIコンポーネント（56ファイル）
 │   ├── Quiz/         # QuizCard, Feedback, OptionButton, QuizResult, ScoreRing, etc.
 │   ├── Menu/         # ModeSelection, QuizSearch, MasteryRoadmap, DailySnapshot, etc.
 │   ├── Progress/     # ProgressDashboard, LearningRecommendation, WeakPointInsight
@@ -124,8 +124,9 @@ npm run check:all      # check + docs:validate（CI用フルチェック）
 | 苦手克服モード | SRS優先度順で正答率の低い問題 | 毎問表示 |
 | 未解答チャレンジ | まだ解いていない問題 | 毎問表示 |
 | 後で学ぶ | ブックマーク済み問題 | 毎問表示 |
-| カスタム | カテゴリ・難易度を自由に組み合わせ | 毎問表示 |
 | 間違い復習 | 間違えた問題を解説付きで復習 | 毎問表示 |
+| フラッシュカード | 問題を見て考え、タップで正解を確認。自己評価で記録 | 毎問表示 |
+| 実践シナリオ | 実務シナリオに沿ってClaude Codeを学ぶ | 毎問表示 |
 
 ### 実力テスト（deferFeedback モード）
 
@@ -189,6 +190,9 @@ npm run check:all      # check + docs:validate（CI用フルチェック）
 
 ### 学習支援
 
+- **知識マップ（KnowledgeMap）:** 8カテゴリの関連をSVGノードグラフで可視化。正答率で色分け、タップでカテゴリ学習開始
+- **フラッシュカード:** 問題を見て考え、タップで正解確認。自己評価（知ってた/あやしい/知らなかった）でSRS連携
+- **実践シナリオ（scenarioSelect）:** 実務に即したストーリー形式で既存問題を出題（3シナリオ）
 - **キーワード検索（QuizSearch）:** 638問から検索、解説をその場で展開可能。10件超は全件表示画面
 - **解説リーダー（ExplanationReader）:** 638問の解説をクイズなしで閲覧。カテゴリ・難易度・ステータスフィルタ + ドキュメントページ別サブフィルタ
 - **「後で学ぶ」ブックマーク:** 検索結果・解説リーダーから1タップで保存 → ハンバーガーメニューからまとめて学習

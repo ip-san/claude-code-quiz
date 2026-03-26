@@ -168,8 +168,8 @@ describe('QuizMode Value Object', () => {
 })
 
 describe('PREDEFINED_QUIZ_MODES', () => {
-  it('should have 12 predefined modes', () => {
-    expect(PREDEFINED_QUIZ_MODES).toHaveLength(12)
+  it('should have 11 predefined modes', () => {
+    expect(PREDEFINED_QUIZ_MODES).toHaveLength(11)
   })
 
   it('should have all required modes', () => {
@@ -179,7 +179,6 @@ describe('PREDEFINED_QUIZ_MODES', () => {
     expect(ids).toContain('category')
     expect(ids).toContain('random')
     expect(ids).toContain('weak')
-    expect(ids).toContain('custom')
     expect(ids).toContain('bookmark')
     expect(ids).toContain('review')
     expect(ids).toContain('overview')
