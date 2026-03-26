@@ -131,8 +131,8 @@ try {
 const modeLines = claudeMd.match(/^\|[^|]+\|[^|]+\| 毎問表示/gm) || []
 const deferLines = claudeMd.match(/^\|[^|]+\|[^|]+\|.*deferFeedback/gm) || []
 const totalModes = modeLines.length + deferLines.length
-if (totalModes < 10) {
-  errors.push(`Mode table may be incomplete: found ${totalModes} modes (expected 10)`)
+if (totalModes < 9) {
+  errors.push(`Mode table may be incomplete: found ${totalModes} modes (expected 9)`)
 }
 
 // ── ViewState check ─────────────────────────────────────────
