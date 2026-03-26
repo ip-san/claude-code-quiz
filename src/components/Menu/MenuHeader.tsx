@@ -199,12 +199,9 @@ export function MenuHeader({ totalQuestions, answeredCount, hasProgress }: MenuH
                 <MenuItem
                   icon={<Bookmark className="h-4.5 w-4.5" />}
                   label="後で学ぶ"
-                  sublabel={
-                    bookmarkedCount > 0 ? `${bookmarkedCount}問を保存中` : '問題をブックマークすると表示されます'
-                  }
-                  onClick={() =>
-                    bookmarkedCount > 0 ? handleMenuAction(() => startSession({ mode: 'bookmark' })) : undefined
-                  }
+                  sublabel={bookmarkedCount > 0 ? `${bookmarkedCount}問を保存中` : 'ブックマークすると学習できます'}
+                  disabled={bookmarkedCount === 0}
+                  onClick={() => handleMenuAction(() => startSession({ mode: 'bookmark' }))}
                 />
                 {hasProgress && (
                   <MenuItem
@@ -299,18 +296,23 @@ function MenuItem({
   label,
   sublabel,
   onClick,
+  disabled,
 }: {
   icon: React.ReactNode
   label: string
   sublabel?: string
   onClick: () => void
+  disabled?: boolean
 }) {
   return (
     <button
-      onClick={onClick}
-      className="tap-highlight flex w-full items-center gap-3 px-4 py-3 text-left text-sm text-claude-dark dark:text-stone-200"
+      onClick={disabled ? undefined : onClick}
+      disabled={disabled}
+      className={`tap-highlight flex w-full items-center gap-3 px-4 py-3 text-left text-sm ${
+        disabled ? 'cursor-not-allowed text-stone-300 dark:text-stone-600' : 'text-claude-dark dark:text-stone-200'
+      }`}
     >
-      <span className="text-stone-400">{icon}</span>
+      <span className={disabled ? 'opacity-40' : 'text-stone-400'}>{icon}</span>
       <div className="flex-1">
         <span className="font-medium">{label}</span>
         {sublabel && <p className="text-xs text-stone-400">{sublabel}</p>}

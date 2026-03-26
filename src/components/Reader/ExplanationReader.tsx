@@ -1,5 +1,5 @@
 import { ArrowLeft, Search, X } from 'lucide-react'
-import { useMemo, useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import { locale } from '@/config/locale'
 import { getCategoryById } from '@/domain/valueObjects/Category'
 import type { DifficultyLevel } from '@/domain/valueObjects/Difficulty'
@@ -243,17 +243,38 @@ export function ExplanationReader() {
             ))
           )}
 
-          {/* Load more */}
-          {hasMore && (
-            <button
-              onClick={() => setDisplayCount((c) => c + LOAD_MORE_COUNT)}
-              className="tap-highlight w-full border-t border-stone-200 px-4 py-3 text-center text-sm font-medium text-claude-orange dark:border-stone-700"
-            >
-              さらに表示（残り {filteredQuestions.length - displayCount}件）
-            </button>
-          )}
+          {/* Infinite scroll sentinel */}
+          {hasMore && <LoadMoreSentinel onVisible={() => setDisplayCount((c) => c + LOAD_MORE_COUNT)} />}
         </div>
       </div>
+    </div>
+  )
+}
+
+/** Sentinel element that triggers loading more items when scrolled into view */
+function LoadMoreSentinel({ onVisible }: { onVisible: () => void }) {
+  const ref = useRef<HTMLDivElement>(null)
+  const onVisibleRef = useRef(onVisible)
+  onVisibleRef.current = onVisible
+
+  useEffect(() => {
+    const el = ref.current
+    if (!el) return
+    const observer = new IntersectionObserver(
+      (entries) => {
+        if (entries[0]?.isIntersecting) {
+          onVisibleRef.current()
+        }
+      },
+      { rootMargin: '200px' }
+    )
+    observer.observe(el)
+    return () => observer.disconnect()
+  }, [])
+
+  return (
+    <div ref={ref} className="flex justify-center py-4">
+      <div className="h-5 w-5 animate-spin rounded-full border-2 border-stone-200 border-t-claude-orange dark:border-stone-700" />
     </div>
   )
 }
