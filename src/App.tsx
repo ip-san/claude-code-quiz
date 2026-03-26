@@ -13,8 +13,15 @@ const ProgressDashboard = lazy(() =>
 const ExplanationReader = lazy(() =>
   import('@/components/Reader/ExplanationReader').then((m) => ({ default: m.ExplanationReader }))
 )
+const KnowledgeMap = lazy(() =>
+  import('@/components/KnowledgeMap/KnowledgeMap').then((m) => ({ default: m.KnowledgeMap }))
+)
+const ScenarioList = lazy(() => import('@/components/Quiz/ScenarioView').then((m) => ({ default: m.ScenarioList })))
+const FlashCard = lazy(() => import('@/components/Quiz/FlashCard').then((m) => ({ default: m.FlashCard })))
+const ScenarioView = lazy(() => import('@/components/Quiz/ScenarioView').then((m) => ({ default: m.ScenarioView })))
 
-import { XCircle } from 'lucide-react'
+import { ArrowLeft, XCircle } from 'lucide-react'
+import { SCENARIOS } from '@/data/scenarios'
 import { getChapterFromTags } from '@/domain/valueObjects/OverviewChapter'
 import { headerStyles, pageStyles } from '@/lib/styles'
 
@@ -139,6 +146,18 @@ export default function App() {
             <ExplanationReader />
           </Suspense>
         )
+      case 'knowledgeMap':
+        return (
+          <Suspense fallback={<LoadingSpinner />}>
+            <KnowledgeMap />
+          </Suspense>
+        )
+      case 'scenarioSelect':
+        return (
+          <Suspense fallback={<LoadingSpinner />}>
+            <ScenarioSelectView />
+          </Suspense>
+        )
       case 'result':
         return (
           <Suspense fallback={<LoadingSpinner />}>
@@ -157,6 +176,8 @@ export default function App() {
       progress: '#FAF9F5',
       reader: '#FAF9F5',
       result: '#FAF9F5',
+      knowledgeMap: '#FAF9F5',
+      scenarioSelect: '#FAF9F5',
     }
     setThemeColor(themeColors[viewState] ?? '#FAF9F5')
 
@@ -174,6 +195,57 @@ export default function App() {
   const timeRemaining = sessionState?.timeRemaining ?? null
 
   return <QuizView progress={progress} timeRemaining={timeRemaining} />
+}
+
+/** Quiz content switcher — renders FlashCard, ScenarioView, or QuizCard based on mode */
+function QuizContent({ isModalOpen }: { isModalOpen: boolean }) {
+  const { sessionState, activeScenarioId } = useQuizStore()
+  const mode = sessionState?.config.mode
+
+  if (mode === 'flashcard') {
+    return (
+      <Suspense fallback={<LoadingSpinner />}>
+        <FlashCard isModalOpen={isModalOpen} />
+      </Suspense>
+    )
+  }
+
+  if (mode === 'scenario' && activeScenarioId) {
+    const scenario = SCENARIOS.find((s) => s.id === activeScenarioId)
+    if (scenario) {
+      return (
+        <Suspense fallback={<LoadingSpinner />}>
+          <ScenarioView scenario={scenario} isModalOpen={isModalOpen} />
+        </Suspense>
+      )
+    }
+  }
+
+  return <QuizCard isModalOpen={isModalOpen} />
+}
+
+/** Scenario selection screen */
+function ScenarioSelectView() {
+  const { endSession, startScenarioSession } = useQuizStore()
+  return (
+    <div className="min-h-screen bg-claude-cream dark:bg-stone-900">
+      <div className="sticky top-0 z-10 border-b border-stone-200 bg-white/80 backdrop-blur-sm dark:border-stone-700 dark:bg-stone-800/80">
+        <div className="mx-auto max-w-3xl px-4 pb-2 pt-3">
+          <div className="flex items-center gap-3">
+            <button onClick={endSession} className="tap-highlight rounded-full p-1" aria-label="戻る">
+              <ArrowLeft className="h-5 w-5 text-stone-600 dark:text-stone-300" />
+            </button>
+            <h1 className="text-lg font-bold text-claude-dark">実践シナリオ</h1>
+          </div>
+        </div>
+      </div>
+      <div className="mx-auto max-w-3xl px-4 py-4">
+        <Suspense fallback={<LoadingSpinner />}>
+          <ScenarioList onSelect={(id) => startScenarioSession(id)} />
+        </Suspense>
+      </div>
+    </div>
+  )
 }
 
 /**
@@ -310,7 +382,7 @@ function QuizView({
       {/* Scrollable content */}
       <div className="flex-1">
         <div className="mx-auto px-3 py-3 sm:max-w-3xl sm:px-4 sm:py-6">
-          <QuizCard isModalOpen={showQuitDialog} />
+          <QuizContent isModalOpen={showQuitDialog} />
         </div>
       </div>
 

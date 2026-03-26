@@ -15,6 +15,8 @@ export type QuizModeId =
   | 'bookmark'
   | 'review'
   | 'overview'
+  | 'flashcard'
+  | 'scenario'
 
 export interface QuizModeProps {
   readonly id: QuizModeId
@@ -60,6 +62,8 @@ export class QuizMode {
       'bookmark',
       'review',
       'overview',
+      'flashcard',
+      'scenario',
     ]
     if (!validModes.includes(props.id)) {
       throw new Error(`Invalid quiz mode: ${props.id}`)
@@ -197,6 +201,26 @@ export const PREDEFINED_QUIZ_MODES: QuizMode[] = [
     id: 'review',
     name: '間違い復習',
     description: '間違えた問題を解説付きで復習',
+    icon: '📖',
+    questionCount: null,
+    timeLimit: null,
+    shuffleQuestions: false,
+    shuffleOptions: false,
+  }),
+  QuizMode.create({
+    id: 'flashcard',
+    name: 'フラッシュカード',
+    description: '問題を見て考え、タップで正解を確認。自己評価で記録',
+    icon: '🃏',
+    questionCount: 20,
+    timeLimit: null,
+    shuffleQuestions: true,
+    shuffleOptions: false,
+  }),
+  QuizMode.create({
+    id: 'scenario',
+    name: '実践シナリオ',
+    description: '実務シナリオに沿ってClaude Codeを学ぶ',
     icon: '📖',
     questionCount: null,
     timeLimit: null,

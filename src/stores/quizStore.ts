@@ -36,6 +36,7 @@
 
 import { create } from 'zustand'
 import { theme } from '@/config/theme'
+import { SCENARIOS } from '@/data/scenarios'
 // Domain imports
 import { Question } from '@/domain/entities/Question'
 import { UserProgress } from '@/domain/entities/UserProgress'
@@ -64,7 +65,7 @@ import { platformAPI } from '@/lib/platformAPI'
  *   ├────────────(showProgress)────────────> progress
  *   └────────────(setViewState)────────────> reader
  */
-type ViewState = 'menu' | 'quiz' | 'result' | 'progress' | 'reader'
+type ViewState = 'menu' | 'quiz' | 'result' | 'progress' | 'reader' | 'knowledgeMap' | 'scenarioSelect'
 
 // ============================================================
 // Store Interface
@@ -107,6 +108,8 @@ interface QuizStore {
   // Session actions
   startSession: (config: Partial<QuizSessionConfig>, options?: { startIndex?: number }) => void
   startSessionWithIds: (questionIds: string[]) => void
+  startScenarioSession: (scenarioId: string) => void
+  activeScenarioId: string | null
   retrySession: () => void
   retryQuestion: () => void
   selectAnswer: (index: number) => void
@@ -279,6 +282,7 @@ export const useQuizStore = create<QuizStore>((set, get) => ({
   sessionWrongAnswers: [],
   userProgress: UserProgress.empty(),
   savedSession: null,
+  activeScenarioId: null,
   isLoading: true,
 
   // View actions
@@ -421,6 +425,44 @@ export const useQuizStore = create<QuizStore>((set, get) => ({
       sessionState,
       sessionWrongAnswers: [],
       savedSession: null,
+      viewState: 'quiz',
+    })
+    saveSessionSnapshot(sessionState, [])
+  },
+
+  startScenarioSession: (scenarioId: string) => {
+    const scenario = SCENARIOS.find((s) => s.id === scenarioId)
+    if (!scenario) return
+
+    const state = get()
+    const questionMap = new Map(state.allQuestions.map((q) => [q.id, q]))
+    const questionIds = scenario.steps.filter((s) => s.type === 'question').map((s) => s.questionId!)
+    const questions = questionIds.map((id) => questionMap.get(id)).filter((q): q is Question => q !== undefined)
+
+    if (questions.length === 0) return
+
+    const config: QuizSessionConfig = {
+      mode: 'scenario',
+      categoryFilter: null,
+      difficultyFilter: null,
+      questionCount: null,
+      timeLimit: null,
+      shuffleQuestions: false,
+      shuffleOptions: false,
+    }
+
+    const sessionState = {
+      ...QuizSessionService.createInitialState(questions, config),
+      initialStreakDays: state.userProgress.streakDays,
+      initialTodayCount: state.userProgress.getDailyCount(DailyGoalService.getTodayString()),
+    }
+
+    set({
+      sessionConfig: config,
+      sessionState,
+      sessionWrongAnswers: [],
+      savedSession: null,
+      activeScenarioId: scenarioId,
       viewState: 'quiz',
     })
     saveSessionSnapshot(sessionState, [])
