@@ -18,6 +18,7 @@ import { KeyboardShortcutHelp } from '@/components/Layout/KeyboardShortcutHelp'
 import { locale } from '@/config/locale'
 import { theme } from '@/config/theme'
 import { DailyGoalService } from '@/domain/services/DailyGoalService'
+import { PREDEFINED_CATEGORIES } from '@/domain/valueObjects/Category'
 import { PREDEFINED_QUIZ_MODES } from '@/domain/valueObjects/QuizMode'
 import { haptics } from '@/lib/haptics'
 import { isElectron } from '@/lib/platformAPI'
@@ -43,6 +44,7 @@ export function MenuHeader({ totalQuestions, answeredCount, hasProgress }: MenuH
   const [menuOpen, setMenuOpen] = useState(false)
   const [modesExpanded, setModesExpanded] = useState(false)
   const [updateStatus, setUpdateStatus] = useState<'checking' | 'latest' | 'error' | null>(null)
+  const [showCategoryPicker, setShowCategoryPicker] = useState(false)
 
   const streak = userProgress.streakDays
   const today = DailyGoalService.getTodayString()
@@ -184,7 +186,15 @@ export function MenuHeader({ totalQuestions, answeredCount, hasProgress }: MenuH
                     ).map((mode) => (
                       <button
                         key={mode.id}
-                        onClick={() => handleMenuAction(() => startSession({ mode: mode.id }))}
+                        onClick={() => {
+                          if (mode.id === 'category') {
+                            haptics.light()
+                            setMenuOpen(false)
+                            setShowCategoryPicker(true)
+                          } else {
+                            handleMenuAction(() => startSession({ mode: mode.id }))
+                          }
+                        }}
                         className="tap-highlight flex w-full items-center gap-3 px-4 py-2.5 pl-11 text-left"
                       >
                         <span className="text-sm">{mode.icon}</span>
@@ -313,6 +323,60 @@ export function MenuHeader({ totalQuestions, answeredCount, hasProgress }: MenuH
       )}
 
       <KeyboardShortcutHelp isOpen={showShortcuts} onClose={() => setShowShortcuts(false)} />
+
+      {/* Category picker dialog */}
+      {showCategoryPicker && (
+        <div
+          className="fixed inset-0 z-50 flex items-end justify-center sm:items-center"
+          role="dialog"
+          aria-modal="true"
+          aria-label="カテゴリを選択"
+          onClick={(e) => {
+            if (e.target === e.currentTarget) setShowCategoryPicker(false)
+          }}
+        >
+          <div className="absolute inset-0 bg-black/40" />
+          <div className="relative mx-2 mb-2 w-full max-w-sm animate-slide-down rounded-2xl bg-white p-5 shadow-2xl dark:bg-stone-800 sm:mx-4 sm:mb-0 sm:animate-none">
+            <h3 className="mb-4 text-center text-lg font-semibold text-claude-dark">カテゴリを選択</h3>
+            <div className="flex max-h-80 flex-col gap-1.5 overflow-y-auto">
+              {PREDEFINED_CATEGORIES.map((cat) => {
+                const catStats = useQuizStore.getState().getCategoryStats()[cat.id]
+                const accuracy = catStats?.accuracy ?? 0
+                const attempted = (catStats?.attemptedQuestions ?? 0) > 0
+                return (
+                  <button
+                    key={cat.id}
+                    onClick={() => {
+                      setShowCategoryPicker(false)
+                      haptics.light()
+                      startSession({ mode: 'category', categoryFilter: cat.id })
+                    }}
+                    className="tap-highlight flex items-center gap-3 rounded-xl px-3 py-3 text-left transition-colors hover:bg-stone-50 active:bg-stone-100 dark:hover:bg-stone-700 dark:active:bg-stone-600"
+                  >
+                    <span className="text-xl">{cat.icon}</span>
+                    <div className="flex-1">
+                      <span className="text-sm font-medium text-claude-dark">{cat.name}</span>
+                    </div>
+                    {attempted && (
+                      <span
+                        className={`text-xs font-medium ${accuracy >= 80 ? 'text-emerald-500' : accuracy >= 50 ? 'text-amber-500' : 'text-red-500'}`}
+                      >
+                        {accuracy}%
+                      </span>
+                    )}
+                  </button>
+                )
+              })}
+            </div>
+            <button
+              onClick={() => setShowCategoryPicker(false)}
+              className="tap-highlight mt-3 w-full rounded-xl py-3 text-sm font-medium text-stone-500"
+            >
+              キャンセル
+            </button>
+          </div>
+        </div>
+      )}
     </>
   )
 }
