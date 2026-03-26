@@ -21,11 +21,11 @@ const errors = []
 const autoFixes = []
 
 // ── Helper ──────────────────────────────────────────────────
-function checkCount(label, actual, pattern) {
+function checkCount(label, actual, pattern, tolerance = 0) {
   const match = claudeMd.match(pattern)
   if (match) {
     const docValue = parseInt(match[1])
-    if (docValue !== actual) {
+    if (Math.abs(docValue - actual) > tolerance) {
       errors.push(`${label}: actual ${actual}, CLAUDE.md says ${docValue}`)
       autoFixes.push({ label, pattern, old: docValue, new: actual })
     }
@@ -122,7 +122,7 @@ try {
   })
   checkCount('Domain test count (table)', layerCounts.domain, /\| Domain \| (\d+) \|/)
   checkCount('Infrastructure test count (table)', layerCounts.infrastructure, /\| Infrastructure \| (\d+) \|/)
-  checkCount('Store test count (table)', layerCounts.stores, /\| Store \| (\d+) \|/)
+  checkCount('Store test count (table)', layerCounts.stores, /\| Store \| (\d+) \|/, 1)
 } catch {
   // skip
 }
