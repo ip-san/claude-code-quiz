@@ -27,7 +27,7 @@ src/
 │   ├── validation/   # Zod スキーマ、品質テスト
 │   └── persistence/  # localStorage リポジトリ
 ├── stores/           # Zustand 状態管理（quizStore + テスト）
-├── components/       # React UIコンポーネント（55ファイル）
+├── components/       # React UIコンポーネント（56ファイル）
 │   ├── Quiz/         # QuizCard, Feedback, OptionButton, QuizResult, ScoreRing, etc.
 │   ├── Menu/         # ModeSelection, QuizSearch, MasteryRoadmap, DailySnapshot, etc.
 │   ├── Progress/     # ProgressDashboard, LearningRecommendation, WeakPointInsight

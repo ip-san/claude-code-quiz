@@ -8,6 +8,7 @@ import { CustomQuizBanner } from './CustomQuizBanner'
 import { DailySnapshot, hasSeenSnapshotToday } from './DailySnapshot'
 import { FirstTimeGuide } from './FirstTimeGuide'
 import { MenuHeader } from './MenuHeader'
+import { QuickActions } from './QuickActions'
 import { QuizSearch } from './QuizSearch'
 import { ResumeSessionBanner } from './ResumeSessionBanner'
 
@@ -38,6 +39,15 @@ export function ModeSelection() {
           {/* Daily Snapshot — removes decision paralysis (includes SRS info) */}
           {userProgress.totalAttempts > 0 && !snapshotDismissed && (
             <DailySnapshot onDismiss={() => setSnapshotDismissed(true)} />
+          )}
+
+          {/* Quick actions — shown when DailySnapshot is dismissed */}
+          {userProgress.totalAttempts > 0 && snapshotDismissed && (
+            <QuickActions
+              allQuestions={allQuestions}
+              userProgress={userProgress}
+              onStart={(mode) => startSession({ mode })}
+            />
           )}
 
           {/* First-time user: simplified entry point */}
