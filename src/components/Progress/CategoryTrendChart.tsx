@@ -161,6 +161,7 @@ export function CategoryTrendChart({ sessions }: CategoryTrendChartProps) {
 
             {/* Category lines */}
             {categoryLines.map(({ category, points, color }) => {
+              if (points.length < 2) return null
               const svgPoints = points.map((p, i) => ({
                 x: PADDING.left + (i / (points.length - 1)) * INNER_WIDTH,
                 y: PADDING.top + INNER_HEIGHT - (p.percentage / 100) * INNER_HEIGHT,
