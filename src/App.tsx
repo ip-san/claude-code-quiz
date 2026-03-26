@@ -56,6 +56,11 @@ export default function App() {
     initialize()
   }, [initialize])
 
+  // Scroll to top on view change
+  useEffect(() => {
+    window.scrollTo(0, 0)
+  }, [viewState])
+
   // Browser back button — always returns to menu
   useEffect(() => {
     if (isLoading || isElectron) return

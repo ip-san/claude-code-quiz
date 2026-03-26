@@ -83,6 +83,11 @@ export function QuizCard({ isModalOpen = false }: { isModalOpen?: boolean }) {
   const [consecutiveWrong, setConsecutiveWrong] = useState(0)
   const prevIsAnsweredRef = useRef(false)
 
+  // Scroll to top on question change
+  useEffect(() => {
+    window.scrollTo(0, 0)
+  }, [currentIndex])
+
   // Reset streak on new session (questions array identity changes)
   const questionsRef = useRef(sessionState?.questions)
   useEffect(() => {
