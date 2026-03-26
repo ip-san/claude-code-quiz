@@ -1,4 +1,4 @@
-import { test, expect } from '@playwright/test'
+import { expect, test } from '@playwright/test'
 
 /**
  * Visual Regression テスト
@@ -71,6 +71,27 @@ test.describe('Visual Regression', () => {
     })
     await page.waitForTimeout(500)
     await expect(page).toHaveScreenshot('quiz-dark.png', {
+      maxDiffPixelRatio: 0.1,
+    })
+  })
+
+  test('reader screen — light mode', async ({ page }) => {
+    await page.getByRole('button', { name: /はじめる/ }).click()
+    await page.getByText('解説リーダー').first().click()
+    await page.waitForTimeout(500)
+    await expect(page).toHaveScreenshot('reader-light.png', {
+      maxDiffPixelRatio: 0.1,
+    })
+  })
+
+  test('reader screen — dark mode', async ({ page }) => {
+    await page.getByRole('button', { name: /はじめる/ }).click()
+    await page.getByText('解説リーダー').first().click()
+    await page.evaluate(() => {
+      document.documentElement.classList.add('dark')
+    })
+    await page.waitForTimeout(500)
+    await expect(page).toHaveScreenshot('reader-dark.png', {
       maxDiffPixelRatio: 0.1,
     })
   })

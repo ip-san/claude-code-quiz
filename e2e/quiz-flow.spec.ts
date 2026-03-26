@@ -18,9 +18,9 @@ test.describe('Quiz App E2E', () => {
     // Click はじめる
     await page.getByRole('button', { name: /はじめる/ }).click()
 
-    // Should see menu with mode heading and start button
-    await expect(page.getByRole('heading', { name: 'モード' })).toBeVisible()
-    await expect(page.getByRole('button', { name: /開始/ })).toBeVisible()
+    // Should see menu with hamburger, search, and first-time guide
+    await expect(page.getByRole('button', { name: 'メニューを開く' })).toBeVisible()
+    await expect(page.getByText('検索・リファレンス')).toBeVisible()
   })
 
   test('start random quiz and answer a question', async ({ page }) => {
@@ -96,14 +96,58 @@ test.describe('Quiz App E2E', () => {
       .last()
       .click()
 
-    // Open progress (📊 icon in header)
-    const progressButton = page.getByRole('button', { name: '学習履歴' })
+    // Open progress via hamburger menu
+    await page.getByRole('button', { name: 'メニューを開く' }).click()
+    const progressButton = page.getByRole('button', { name: '学習進捗' })
     if (await progressButton.isVisible()) {
       await progressButton.click()
       await expect(page.getByText('学習進捗')).toBeVisible()
       // Close
       await page.getByRole('button', { name: '閉じる' }).click()
     }
+  })
+
+  test('hamburger menu opens and lists quiz modes', async ({ page }) => {
+    await page.getByRole('button', { name: /はじめる/ }).click()
+
+    // Open hamburger
+    await page.getByRole('button', { name: 'メニューを開く' }).click()
+    const menu = page.getByRole('dialog', { name: 'メニュー' })
+    await expect(menu.getByText('クイズモード')).toBeVisible()
+
+    // Expand quiz modes accordion
+    await menu.getByText('クイズモード').click()
+    await expect(menu.getByText('実力テスト')).toBeVisible()
+
+    // Close hamburger
+    await menu.getByRole('button', { name: 'メニューを閉じる' }).click()
+  })
+
+  test('explanation reader opens and shows questions', async ({ page }) => {
+    await page.getByRole('button', { name: /はじめる/ }).click()
+
+    // Click reader shortcut on main screen
+    await page.getByText('解説リーダー').first().click()
+
+    // Should see reader header and question count
+    await expect(page.getByRole('heading', { name: '解説リーダー' })).toBeVisible()
+    await expect(page.getByText(/\d+ \/ \d+件/)).toBeVisible()
+
+    // Go back
+    await page.getByRole('button', { name: '戻る' }).click()
+  })
+
+  test('start quiz from hamburger menu', async ({ page }) => {
+    await page.getByRole('button', { name: /はじめる/ }).click()
+
+    // Open hamburger → expand modes → start random
+    await page.getByRole('button', { name: 'メニューを開く' }).click()
+    const menu = page.getByRole('dialog', { name: 'メニュー' })
+    await menu.getByText('クイズモード').click()
+    await menu.getByText('全カテゴリからランダムに20問').click()
+
+    // Should enter quiz screen
+    await page.waitForSelector('[role="listbox"], [role="group"]', { timeout: 5000 })
   })
 
   test('app loads without errors', async ({ page }) => {
