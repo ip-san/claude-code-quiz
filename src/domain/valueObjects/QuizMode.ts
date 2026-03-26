@@ -15,7 +15,6 @@ export type QuizModeId =
   | 'bookmark'
   | 'review'
   | 'overview'
-  | 'flashcard'
   | 'scenario'
 
 export interface QuizModeProps {
@@ -62,7 +61,6 @@ export class QuizMode {
       'bookmark',
       'review',
       'overview',
-      'flashcard',
       'scenario',
     ]
     if (!validModes.includes(props.id)) {
@@ -185,16 +183,6 @@ export const PREDEFINED_QUIZ_MODES: QuizMode[] = [
     questionCount: null,
     timeLimit: null,
     shuffleQuestions: false,
-    shuffleOptions: false,
-  }),
-  QuizMode.create({
-    id: 'flashcard',
-    name: 'フラッシュカード',
-    description: '問題を見て考え、タップで正解を確認。自己評価で記録',
-    icon: '🃏',
-    questionCount: 20,
-    timeLimit: null,
-    shuffleQuestions: true,
     shuffleOptions: false,
   }),
   QuizMode.create({

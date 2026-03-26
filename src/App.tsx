@@ -14,7 +14,6 @@ const ExplanationReader = lazy(() =>
   import('@/components/Reader/ExplanationReader').then((m) => ({ default: m.ExplanationReader }))
 )
 const ScenarioList = lazy(() => import('@/components/Quiz/ScenarioView').then((m) => ({ default: m.ScenarioList })))
-const FlashCard = lazy(() => import('@/components/Quiz/FlashCard').then((m) => ({ default: m.FlashCard })))
 const ScenarioView = lazy(() => import('@/components/Quiz/ScenarioView').then((m) => ({ default: m.ScenarioView })))
 
 import { ArrowLeft, XCircle } from 'lucide-react'
@@ -192,18 +191,10 @@ export default function App() {
   return <QuizView progress={progress} timeRemaining={timeRemaining} />
 }
 
-/** Quiz content switcher — renders FlashCard, ScenarioView, or QuizCard based on mode */
+/** Quiz content switcher — renders ScenarioView or QuizCard based on mode */
 function QuizContent({ isModalOpen }: { isModalOpen: boolean }) {
   const { sessionState, activeScenarioId } = useQuizStore()
   const mode = sessionState?.config.mode
-
-  if (mode === 'flashcard') {
-    return (
-      <Suspense fallback={<LoadingSpinner />}>
-        <FlashCard isModalOpen={isModalOpen} />
-      </Suspense>
-    )
-  }
 
   if (mode === 'scenario' && activeScenarioId) {
     const scenario = SCENARIOS.find((s) => s.id === activeScenarioId)

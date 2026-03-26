@@ -181,12 +181,7 @@ export function MenuHeader({ totalQuestions, answeredCount, hasProgress }: MenuH
                 {modesExpanded && (
                   <div className="pb-1">
                     {PREDEFINED_QUIZ_MODES.filter(
-                      (m) =>
-                        m.id !== 'review' &&
-                        m.id !== 'bookmark' &&
-                        m.id !== 'flashcard' &&
-                        m.id !== 'scenario' &&
-                        m.id !== 'quick'
+                      (m) => m.id !== 'review' && m.id !== 'bookmark' && m.id !== 'scenario' && m.id !== 'quick'
                     ).map((mode) => (
                       <button
                         key={mode.id}
@@ -239,12 +234,6 @@ export function MenuHeader({ totalQuestions, answeredCount, hasProgress }: MenuH
 
               {/* Learning tools */}
               <div className="border-b border-stone-100 py-2 dark:border-stone-800">
-                <MenuItem
-                  icon={<span className="text-sm">🃏</span>}
-                  label="フラッシュカード"
-                  sublabel="問題を見て考え、タップで正解を確認"
-                  onClick={() => handleMenuAction(() => startSession({ mode: 'flashcard' }))}
-                />
                 <MenuItem
                   icon={<Layers className="h-4.5 w-4.5" />}
                   label="実践シナリオ"
