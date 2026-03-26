@@ -23,9 +23,10 @@ const LAYER_RULES = {
 }
 
 // Known exceptions (tech debt, tracked for future refactoring)
-const KNOWN_VIOLATIONS = [
+// Format: "exact/file/path -> forbidden_layer"
+const KNOWN_VIOLATIONS = new Set([
   'domain/entities/Question.ts -> infrastructure', // QuizValidator used for Zod schema
-]
+])
 
 function getAllFiles(dir, ext) {
   const results = []
@@ -59,7 +60,7 @@ for (const file of tsFiles) {
       // Check if import resolves to a forbidden layer
       if (importPath.includes(`/${forbidden}/`) || importPath.startsWith(`../${forbidden}`)) {
         const key = `${rel} -> ${forbidden}`
-        if (KNOWN_VIOLATIONS.some((kv) => key.startsWith(kv.split(' -> ')[0]) && kv.includes(forbidden))) {
+        if (KNOWN_VIOLATIONS.has(key)) {
           warnings.push(`Known layer violation: ${rel} imports from '${forbidden}' layer (tracked)`)
         } else {
           errors.push(`Layer violation: ${rel} imports from '${forbidden}' layer (${importPath})`)
@@ -99,17 +100,19 @@ for (const file of storeFiles) {
   const content = readFileSync(file, 'utf8')
   const rel = relative('.', file)
 
-  // Count state properties (lines with : type in the interface/type)
-  const stateMatch = content.match(/interface \w+State \{([^}]+)\}/s)
+  // Count state properties (interface or type alias)
+  const stateMatch = content.match(/(?:interface|type) \w+State\s*=?\s*\{([^}]+)\}/s)
   if (stateMatch) {
-    const stateProps = (stateMatch[1].match(/^\s+\w+.*:/gm) || []).length
+    const stateProps = (stateMatch[1].match(/^\s+\w+\s*[?:].*$/gm) || []).length
     if (stateProps > STORE_STATE_LIMIT) {
       warnings.push(`Store bloat: ${rel} has ${stateProps} state properties (limit: ${STORE_STATE_LIMIT})`)
     }
   }
 
-  // Count actions (functions in the store)
-  const actionMatches = content.match(/\w+:\s*\(/g) || []
+  // Count store actions: lines matching "actionName: (" or "actionName: () =>"
+  // inside the create() block (exclude interface definitions and comments)
+  const createBlock = content.match(/create(?:<[^>]+>)?\(\s*\((?:set|get|\.\.\.)[^)]*\)\s*=>\s*\(\{([\s\S]*)\}\)\s*\)/)?.[1] ?? ''
+  const actionMatches = createBlock.match(/^\s+\w+:\s*\(/gm) || []
   if (actionMatches.length > STORE_ACTION_LIMIT) {
     warnings.push(`Store bloat: ${rel} has ${actionMatches.length} actions (limit: ${STORE_ACTION_LIMIT})`)
   }

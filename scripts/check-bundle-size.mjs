@@ -42,7 +42,11 @@ const totalKB = chunks.reduce((sum, c) => sum + c.sizeKB, 0)
 const jsChunks = chunks.filter((c) => c.name.endsWith('.js'))
 const cssChunks = chunks.filter((c) => c.name.endsWith('.css'))
 const isExcluded = (name) => EXCLUDE_FROM_INITIAL.some((ex) => name.includes(ex))
-const initialJS = jsChunks.filter((c) => !isExcluded(c.name) && (c.name.includes('index') || c.name.includes('vendor')))
+// Initial load = all JS/CSS chunks EXCEPT explicitly excluded (lazy-loaded) ones
+// This is more robust than matching specific chunk names
+const LAZY_CHUNK_PATTERNS = ['quiz-data', 'QuizResult', 'ProgressDashboard', 'ExplanationReader', 'PWAUpdatePrompt', 'trophy']
+const isLazy = (name) => LAZY_CHUNK_PATTERNS.some((p) => name.includes(p))
+const initialJS = jsChunks.filter((c) => !isExcluded(c.name) && !isLazy(c.name))
 const initialKB = initialJS.reduce((sum, c) => sum + c.sizeKB, 0) + cssChunks.reduce((sum, c) => sum + c.sizeKB, 0)
 
 const errors = []
