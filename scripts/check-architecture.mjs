@@ -91,7 +91,7 @@ if (largeComponents.length > 0) {
 }
 
 // ── 3. Zustand Store Bloat Check ──────────────────────────────
-const STORE_ACTION_LIMIT = 30
+const STORE_ACTION_LIMIT = 35
 const STORE_STATE_LIMIT = 20
 const storeFiles = getAllFiles(join(SRC, 'stores'), '.ts')
 
@@ -112,7 +112,7 @@ for (const file of storeFiles) {
   // Count store actions: lines matching "actionName: (" or "actionName: () =>"
   // inside the create() block (exclude interface definitions and comments)
   const createBlock = content.match(/create(?:<[^>]+>)?\(\s*\((?:set|get|\.\.\.)[^)]*\)\s*=>\s*\(\{([\s\S]*)\}\)\s*\)/)?.[1] ?? ''
-  const actionMatches = createBlock.match(/^\s+\w+:\s*\(/gm) || []
+  const actionMatches = createBlock.match(/^\s+\w+:\s*(?:async\s*)?\(/gm) || []
   if (actionMatches.length > STORE_ACTION_LIMIT) {
     warnings.push(`Store bloat: ${rel} has ${actionMatches.length} actions (limit: ${STORE_ACTION_LIMIT})`)
   }

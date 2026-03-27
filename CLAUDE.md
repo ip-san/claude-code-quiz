@@ -29,7 +29,7 @@ src/
 ├── stores/           # Zustand 状態管理（quizStore + テスト）
 ├── components/       # React UIコンポーネント（53ファイル）
 │   ├── Quiz/         # QuizCard, Feedback, OptionButton, QuizResult, ScoreRing, etc.
-│   ├── Menu/         # ModeSelection, QuizSearch, MasteryRoadmap, DailySnapshot, etc.
+│   ├── Menu/         # ModeSelection, QuizSearch, ChapterProgressMap, DailySnapshot, etc.
 │   ├── Progress/     # ProgressDashboard, LearningRecommendation, WeakPointInsight
 │   ├── Reader/       # ExplanationReader, ReaderCard, ReaderFilters
 │   └── Layout/       # WelcomeScreen, PWAUpdatePrompt, ErrorBoundary, etc.
@@ -53,7 +53,7 @@ npm run preview:web    # Web版プレビュー
 # 品質チェック
 npm run check         # 型チェック + lint + 375テスト + 638問チェック（一括）
 npm test              # ユニット + Store テスト（375テスト、Vitest）
-npm run test:e2e      # E2E + Visual Regression テスト（13テスト、Playwright）
+npm run test:e2e      # E2E + Visual Regression テスト（18テスト、Playwright）
 npm run test:e2e:ui   # E2E をビジュアルUIで実行（デバッグ用）
 
 # クイズ管理
@@ -221,13 +221,13 @@ npm run check:all      # check + docs:validate（CI用フルチェック）
 | Domain | 300 | Vitest | entities, services, valueObjects |
 | Infrastructure | 60 | Vitest | validation（Zod スキーマ、コンテンツ品質） |
 | Store | 15 | Vitest | initialize, startSession, submitAnswer, navigation |
-| E2E | 7 | Playwright | ユーザーフロー（ウェルカム→クイズ→結果） |
-| Visual Regression | 6 | Playwright | スクリーンショット比較（ライト/ダーク × 3画面） |
+| E2E | 10 | Playwright | ユーザーフロー（ウェルカム→クイズ→結果） |
+| Visual Regression | 8 | Playwright | スクリーンショット比較（ライト/ダーク × 4画面） |
 
 ```bash
 npm run check         # 型 + lint + 375テスト + 638問（~5秒）
 npm test              # Unit + Store（375テスト、~2秒）
-npm run test:e2e      # E2E + Visual（13テスト、~22秒）
+npm run test:e2e      # E2E + Visual（18テスト、~16秒）
 ```
 
 Visual Regression ベースライン更新: `npx playwright test --update-snapshots`

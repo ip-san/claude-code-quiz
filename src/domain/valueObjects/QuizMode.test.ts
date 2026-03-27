@@ -41,7 +41,18 @@ describe('QuizMode Value Object', () => {
     })
 
     it('should accept all valid mode ids', () => {
-      const validModes = ['full', 'category', 'random', 'weak', 'custom', 'bookmark', 'review'] as const
+      const validModes = [
+        'full',
+        'category',
+        'random',
+        'quick',
+        'weak',
+        'custom',
+        'bookmark',
+        'review',
+        'overview',
+        'scenario',
+      ] as const
 
       validModes.forEach((modeId) => {
         const mode = QuizMode.create({

@@ -233,6 +233,7 @@ function saveSessionSnapshot(
     hintUsedOnCurrent: sessionState.hintUsed,
     savedAt: Date.now(),
     answerRecords,
+    scenarioId: useQuizStore.getState().activeScenarioId ?? undefined,
   }
   getSessionRepository().save(data)
 }
@@ -806,6 +807,7 @@ export const useQuizStore = create<QuizStore>((set, get) => ({
       viewState: 'menu',
       sessionState: null,
       sessionWrongAnswers: [],
+      activeScenarioId: null,
     })
   },
 
@@ -922,6 +924,7 @@ export const useQuizStore = create<QuizStore>((set, get) => ({
       sessionState: resumedState,
       sessionWrongAnswers: [...saved.wrongAnswers],
       savedSession: null,
+      activeScenarioId: saved.scenarioId ?? null,
       viewState: 'quiz',
     })
   },
