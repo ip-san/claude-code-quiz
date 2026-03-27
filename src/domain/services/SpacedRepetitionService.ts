@@ -63,8 +63,8 @@ export class SpacedRepetitionService {
    */
   private static getOverdue(qp: QuestionProgress | undefined, now: number): number {
     if (!qp || qp.attempts === 0) {
-      // 未回答: 30日分の overdue（本当に忘れかけた問題より低い優先度）
-      return 2592000000
+      // 未回答: 最低優先度（復習が必要な問題を先に出す）
+      return -1
     }
     if (qp.nextReviewAt === undefined) {
       return Number.MAX_SAFE_INTEGER

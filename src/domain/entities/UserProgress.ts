@@ -50,6 +50,8 @@ export interface QuestionProgress {
   readonly correctStreak?: number
   /** 忘却回数（マスター後に不正解した回数）。ラプスが多いほど再上昇を遅くする */
   readonly lapseCount?: number
+  /** ラプス前の最大ストリーク。再上昇速度の制限に使用 */
+  readonly maxStreakBeforeLapse?: number
 }
 
 /**
@@ -198,18 +200,21 @@ export class UserProgress {
     // Calculate SRS streak with lapse penalty
     const prevStreak = existing?.correctStreak ?? 0
     const prevLapseCount = existing?.lapseCount ?? 0
+    const prevMaxStreak = existing?.maxStreakBeforeLapse ?? 0
 
     let correctStreak: number
     let lapseCount = prevLapseCount
+    let maxStreakBeforeLapse = prevMaxStreak
     if (isCorrect) {
-      // After a lapse, cap re-climb speed: streak can't exceed (prevMax / 2) until lapse penalty expires
-      const maxAfterLapse = prevLapseCount > 0 ? Math.max(1, Math.floor(prevStreak + 1)) : Infinity
-      correctStreak = Math.min((existing?.correctStreak ?? 0) + 1, maxAfterLapse)
+      // After a lapse, cap re-climb: streak can't exceed half of pre-lapse max
+      const maxAfterLapse = prevLapseCount > 0 ? Math.max(2, Math.floor(prevMaxStreak / 2)) : Infinity
+      correctStreak = Math.min(prevStreak + 1, maxAfterLapse)
     } else {
-      // Wrong answer: reset streak, increment lapse count if previously mastered (streak >= 3)
+      // Wrong answer: reset streak, record lapse if previously mastered (streak >= 3)
       correctStreak = 0
       if (prevStreak >= 3) {
         lapseCount = prevLapseCount + 1
+        maxStreakBeforeLapse = Math.max(prevMaxStreak, prevStreak)
       }
     }
     const nextReviewAt = calculateNextReview(correctStreak, now)
@@ -223,6 +228,7 @@ export class UserProgress {
       nextReviewAt,
       correctStreak,
       lapseCount,
+      maxStreakBeforeLapse,
     }
 
     // Update category progress

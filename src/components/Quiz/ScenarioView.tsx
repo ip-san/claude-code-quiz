@@ -1,5 +1,5 @@
 import { ArrowRight, BookOpen } from 'lucide-react'
-import { useMemo, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { QuizCard } from '@/components/Quiz/QuizCard'
 import { SCENARIOS, type ScenarioData } from '@/data/scenarios'
 import { useQuizStore } from '@/stores/quizStore'
@@ -57,6 +57,11 @@ export function ScenarioView({ scenario, isModalOpen }: { scenario: ScenarioData
   // Track which narratives have been dismissed
   const [dismissedForIndex, setDismissedForIndex] = useState<Set<number>>(new Set())
   const [narrativePageIndex, setNarrativePageIndex] = useState(0)
+
+  // Reset narrative page when question changes
+  useEffect(() => {
+    setNarrativePageIndex(0)
+  }, [currentQuestionIndex])
 
   const narratives = narrativeMap[currentQuestionIndex]
   const hasNarrative = narratives && narratives.length > 0 && !dismissedForIndex.has(currentQuestionIndex)

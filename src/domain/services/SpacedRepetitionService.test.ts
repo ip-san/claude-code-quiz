@@ -52,6 +52,10 @@ describe('SpacedRepetitionService', () => {
       expect(SpacedRepetitionService.calculateNextReview(4, now)).toBe(now + 7 * DAY_MS)
     })
 
+    it('should return now + 14 days for streak 5', () => {
+      expect(SpacedRepetitionService.calculateNextReview(5, now)).toBe(now + 14 * DAY_MS)
+    })
+
     it('should return now + 30 days for streak 6', () => {
       expect(SpacedRepetitionService.calculateNextReview(6, now)).toBe(now + 30 * DAY_MS)
     })
@@ -131,7 +135,7 @@ describe('SpacedRepetitionService', () => {
       expect(sorted[2].id).toBe('q3')
     })
 
-    it('should prioritize never-attempted questions', () => {
+    it('should prioritize overdue questions over never-attempted', () => {
       const q1 = createQuestion('q1')
       const q2 = createQuestion('q2')
 
@@ -143,7 +147,7 @@ describe('SpacedRepetitionService', () => {
       })
 
       const sorted = SpacedRepetitionService.sortByPriority([q1, q2], progress, now)
-      expect(sorted[0].id).toBe('q2') // Never attempted = highest priority
+      expect(sorted[0].id).toBe('q1') // Overdue questions take priority over unanswered
     })
   })
 })

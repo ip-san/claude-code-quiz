@@ -47,6 +47,7 @@ describe('QuizMode Value Object', () => {
         'random',
         'quick',
         'weak',
+        'unanswered',
         'custom',
         'bookmark',
         'review',

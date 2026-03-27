@@ -36,8 +36,9 @@ interface MenuHeaderProps {
  * タイトル + ストリーク/ゴールバッジ + ハンバーガーメニュー
  */
 export function MenuHeader({ totalQuestions, answeredCount, hasProgress }: MenuHeaderProps) {
-  const { setViewState, userProgress, startSession, getBookmarkedCount } = useQuizStore()
+  const { setViewState, userProgress, startSession, getBookmarkedCount, getCategoryStats } = useQuizStore()
   const bookmarkedCount = getBookmarkedCount()
+  const categoryStats = getCategoryStats()
   const [currentTheme, setCurrentTheme] = useState<Theme>(() => getStoredTheme())
   const [showShortcuts, setShowShortcuts] = useState(false)
   const [menuOpen, setMenuOpen] = useState(false)
@@ -327,7 +328,7 @@ export function MenuHeader({ totalQuestions, answeredCount, hasProgress }: MenuH
             <h3 className="mb-4 text-center text-lg font-semibold text-claude-dark">カテゴリを選択</h3>
             <div className="flex max-h-80 flex-col gap-1.5 overflow-y-auto">
               {PREDEFINED_CATEGORIES.map((cat) => {
-                const catStats = useQuizStore.getState().getCategoryStats()[cat.id]
+                const catStats = categoryStats[cat.id]
                 const accuracy = catStats?.accuracy ?? 0
                 const attempted = (catStats?.attemptedQuestions ?? 0) > 0
                 return (
