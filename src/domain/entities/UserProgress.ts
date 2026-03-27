@@ -48,6 +48,8 @@ export interface QuestionProgress {
   readonly lastCorrect: boolean
   readonly nextReviewAt?: number
   readonly correctStreak?: number
+  /** 忘却回数（マスター後に不正解した回数）。ラプスが多いほど再上昇を遅くする */
+  readonly lapseCount?: number
 }
 
 /**
@@ -175,13 +177,41 @@ export class UserProgress {
    * 4. streakDays - 連続学習日数
    * 5. lastSessionAt / modifiedAt - タイムスタンプ
    */
-  recordAnswer(questionId: string, categoryId: string, isCorrect: boolean): UserProgress {
+  recordAnswer(questionId: string, categoryId: string, isCorrect: boolean, isRetry = false): UserProgress {
     const now = Date.now()
     const existing = this.questionProgress[questionId]
 
-    // Update question progress
-    // Calculate next review time for spaced repetition
-    const correctStreak = isCorrect ? (existing?.correctStreak ?? 0) + 1 : 0
+    // On retry, only update timestamps — don't inflate SRS streak
+    if (isRetry) {
+      const retryProgress: QuestionProgress = {
+        ...(existing ?? { questionId, attempts: 0, correctCount: 0, lastAttemptAt: 0, lastCorrect: false }),
+        lastAttemptAt: now,
+        lastCorrect: isCorrect,
+      }
+      return UserProgress.create({
+        ...this.toJSON(),
+        questionProgress: { ...this.questionProgress, [questionId]: retryProgress },
+        modifiedAt: now,
+      })
+    }
+
+    // Calculate SRS streak with lapse penalty
+    const prevStreak = existing?.correctStreak ?? 0
+    const prevLapseCount = existing?.lapseCount ?? 0
+
+    let correctStreak: number
+    let lapseCount = prevLapseCount
+    if (isCorrect) {
+      // After a lapse, cap re-climb speed: streak can't exceed (prevMax / 2) until lapse penalty expires
+      const maxAfterLapse = prevLapseCount > 0 ? Math.max(1, Math.floor(prevStreak + 1)) : Infinity
+      correctStreak = Math.min((existing?.correctStreak ?? 0) + 1, maxAfterLapse)
+    } else {
+      // Wrong answer: reset streak, increment lapse count if previously mastered (streak >= 3)
+      correctStreak = 0
+      if (prevStreak >= 3) {
+        lapseCount = prevLapseCount + 1
+      }
+    }
     const nextReviewAt = calculateNextReview(correctStreak, now)
 
     const newQuestionProgress: QuestionProgress = {
@@ -192,6 +222,7 @@ export class UserProgress {
       lastCorrect: isCorrect,
       nextReviewAt,
       correctStreak,
+      lapseCount,
     }
 
     // Update category progress

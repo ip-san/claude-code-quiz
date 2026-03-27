@@ -52,9 +52,17 @@ describe('SpacedRepetitionService', () => {
       expect(SpacedRepetitionService.calculateNextReview(4, now)).toBe(now + 7 * DAY_MS)
     })
 
-    it('should return now + 30 days for streak 6+', () => {
+    it('should return now + 30 days for streak 6', () => {
       expect(SpacedRepetitionService.calculateNextReview(6, now)).toBe(now + 30 * DAY_MS)
-      expect(SpacedRepetitionService.calculateNextReview(10, now)).toBe(now + 30 * DAY_MS)
+    })
+
+    it('should return now + 60 days for streak 7', () => {
+      expect(SpacedRepetitionService.calculateNextReview(7, now)).toBe(now + 60 * DAY_MS)
+    })
+
+    it('should return now + 90 days for streak 8+', () => {
+      expect(SpacedRepetitionService.calculateNextReview(8, now)).toBe(now + 90 * DAY_MS)
+      expect(SpacedRepetitionService.calculateNextReview(10, now)).toBe(now + 90 * DAY_MS)
     })
   })
 

@@ -559,7 +559,14 @@ export const useQuizStore = create<QuizStore>((set, get) => ({
         return
       }
 
-      const updatedProgress = state.userProgress.recordAnswer(currentQuestion.id, currentQuestion.category, isCorrect)
+      // Detect retry: if this question was already answered in this session
+      const isRetry = state.sessionState.answerHistory.has(state.sessionState.currentIndex)
+      const updatedProgress = state.userProgress.recordAnswer(
+        currentQuestion.id,
+        currentQuestion.category,
+        isCorrect,
+        isRetry
+      )
 
       // Track wrong answers for review feature
       // Remove previous entry for this question (re-answer case)

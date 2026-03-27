@@ -58,10 +58,15 @@ export class SpacedRepetitionService {
 
   /**
    * 問題の期限超過度を算出（ミリ秒）
-   * 未回答や nextReviewAt 未設定は最大優先度
+   * 未回答は30日分の overdue として扱う（回答済み問題より低い優先度）
+   * nextReviewAt 未設定の回答済み問題は最大優先度
    */
   private static getOverdue(qp: QuestionProgress | undefined, now: number): number {
-    if (!qp || qp.attempts === 0 || qp.nextReviewAt === undefined) {
+    if (!qp || qp.attempts === 0) {
+      // 未回答: 30日分の overdue（本当に忘れかけた問題より低い優先度）
+      return 2592000000
+    }
+    if (qp.nextReviewAt === undefined) {
       return Number.MAX_SAFE_INTEGER
     }
     return now - qp.nextReviewAt

@@ -170,9 +170,15 @@ export class QuizSessionService {
     // For weak mode: find weak questions + their prerequisite fundamentals
     let weakUsedSRS = false
     if (config.mode === 'weak') {
-      const weakQuestions = questions.filter((q) =>
+      const now = Date.now()
+      const allWeakQuestions = questions.filter((q) =>
         userProgress.isWeakQuestion(q.id, weakThreshold, minAttemptsForWeak)
       )
+      // Prefer due weak questions; fall back to all weak if none are due
+      const dueWeak = allWeakQuestions.filter((q) =>
+        SpacedRepetitionService.isDue(userProgress.questionProgress[q.id], now)
+      )
+      const weakQuestions = dueWeak.length > 0 ? dueWeak : allWeakQuestions
 
       if (weakQuestions.length > 0) {
         // Find categories where user is weak
@@ -221,8 +227,19 @@ export class QuizSessionService {
       })
       if (dueQuestions.length > 0) {
         questions = SpacedRepetitionService.sortByPriority(dueQuestions, userProgress, now)
+      } else {
+        // Fallback: oldest-answered questions (most likely forgotten)
+        const answered = questions
+          .filter((q) => userProgress.hasAttempted(q.id))
+          .sort((a, b) => {
+            const aTime = userProgress.questionProgress[a.id]?.lastAttemptAt ?? 0
+            const bTime = userProgress.questionProgress[b.id]?.lastAttemptAt ?? 0
+            return aTime - bTime // oldest first
+          })
+        if (answered.length > 0) {
+          questions = answered
+        }
       }
-      // If no due questions, fall back to weak questions or random
     }
 
     // For unanswered mode, filter to unanswered questions
