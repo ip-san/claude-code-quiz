@@ -164,9 +164,12 @@ export function TutorialScreen({ onComplete }: TutorialScreenProps) {
   }
 
   return (
-    <div className="flex min-h-screen flex-col bg-claude-cream dark:bg-stone-900">
+    <div
+      className="grid bg-claude-cream dark:bg-stone-900"
+      style={{ minHeight: '100dvh', gridTemplateRows: 'auto 1fr auto' }}
+    >
       {/* Skip button */}
-      <div className="flex justify-end px-4 pt-4">
+      <div className="flex justify-end px-4 pt-3">
         <button
           onClick={() => {
             haptics.light()
@@ -180,9 +183,9 @@ export function TutorialScreen({ onComplete }: TutorialScreenProps) {
         </button>
       </div>
 
-      {/* Slide content */}
-      <div className="flex flex-1 flex-col px-6" key={currentSlide} aria-live="polite">
-        <div className="mx-auto mt-auto mb-auto w-full max-w-sm animate-view-enter">
+      {/* Slide content — fills remaining space, content centered */}
+      <div className="flex items-center px-6" key={currentSlide} aria-live="polite">
+        <div className="mx-auto w-full max-w-sm animate-view-enter">
           {/* Icon */}
           <div className="mb-2 flex justify-center">{slide.icon}</div>
 
