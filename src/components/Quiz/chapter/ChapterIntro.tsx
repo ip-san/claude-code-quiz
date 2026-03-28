@@ -1,4 +1,5 @@
 import { ArrowRight, BookOpen, Brain, CheckCircle2 } from 'lucide-react'
+import { locale } from '@/config/locale'
 import type { OverviewChapter } from '@/domain/valueObjects/OverviewChapter'
 import { OVERVIEW_CHAPTERS } from '@/domain/valueObjects/OverviewChapter'
 import { trackChapterProgress } from '@/lib/analytics'
@@ -104,11 +105,10 @@ export function ChapterIntro({ chapter, onStart }: ChapterIntroProps) {
           <div className="flex items-start gap-3">
             <Brain className="mt-0.5 h-5 w-5 flex-shrink-0 text-green-600 dark:text-green-400" />
             <div>
-              <p className="text-sm font-semibold text-green-800 dark:text-green-300">間違えても大丈夫！</p>
-              <p className="mt-1 text-xs text-green-700 dark:text-green-400">
-                このクイズは「テスト」ではなく「学習ツール」です。
-                知らない問題が出ても、解説を読めば理解できるように作られています。 気軽に進めてください。
+              <p className="text-sm font-semibold text-green-800 dark:text-green-300">
+                {locale.chapterIntro.mistakesOkTitle}
               </p>
+              <p className="mt-1 text-xs text-green-700 dark:text-green-400">{locale.chapterIntro.mistakesOkBody}</p>
             </div>
           </div>
         </div>
@@ -119,7 +119,9 @@ export function ChapterIntro({ chapter, onStart }: ChapterIntroProps) {
         <div className="rounded-2xl bg-white p-4 shadow-sm dark:bg-stone-800">
           <div className="mb-3 flex items-center gap-2">
             <BookOpen className="h-4 w-4 text-claude-orange" />
-            <p className="text-sm font-semibold text-claude-dark dark:text-stone-200">このチャプターで学ぶこと</p>
+            <p className="text-sm font-semibold text-claude-dark dark:text-stone-200">
+              {locale.chapterIntro.learningPointsHeading}
+            </p>
           </div>
           <ul className="space-y-2">
             {details.learningPoints.map((point, i) => (
@@ -152,7 +154,7 @@ export function ChapterIntro({ chapter, onStart }: ChapterIntroProps) {
           }}
           className="tap-highlight inline-flex items-center gap-2 rounded-2xl bg-claude-orange px-8 py-3.5 text-base font-semibold text-white shadow-md"
         >
-          {isFirstChapter ? '学習を始める' : 'チャプターを始める'}
+          {isFirstChapter ? locale.chapterIntro.startLearning : locale.chapterIntro.startChapter}
           <ArrowRight className="h-5 w-5" />
         </button>
       </div>

@@ -243,6 +243,120 @@ export interface LocaleConfig {
       readonly day3: string
     }
   }
+
+  // === Tutorial ===
+  readonly tutorial: {
+    readonly skip: string
+    readonly slideLabel: (index: number) => string
+    readonly prevLabel: string
+    readonly slides: ReadonlyArray<{
+      readonly title: string
+      readonly description: string
+      readonly tip?: string
+    }>
+    readonly terminalYou: string
+    readonly terminalClaude: string
+    readonly terminalPrompt: string
+    readonly terminalReply: string
+    readonly terminalReplyCont: string
+    readonly bubbles: readonly string[]
+    readonly capabilities: ReadonlyArray<{ readonly label: string }>
+    readonly pathSteps: ReadonlyArray<{
+      readonly label: string
+      readonly desc: string
+    }>
+  }
+
+  // === Chapter Intro ===
+  readonly chapterIntro: {
+    readonly mistakesOkTitle: string
+    readonly mistakesOkBody: string
+    readonly learningPointsHeading: string
+    readonly startLearning: string
+    readonly startChapter: string
+  }
+
+  // === Study First ===
+  readonly studyFirst: {
+    readonly title: string
+    readonly subtitle: string
+    readonly howToLearnTitle: string
+    readonly howToLearnBody: string
+    readonly afterLearning: string
+    readonly doneReading: string
+    readonly readingDoneTitle: string
+    readonly readingDoneBody: (questionCount: number) => string
+    readonly startQuiz: string
+    readonly reread: string
+    readonly backToChapters: string
+  }
+
+  // === First Time Guide ===
+  readonly firstTimeGuide: {
+    readonly beginnerLabel: string
+    readonly beginnerDesc: string
+    readonly quizLearnLabel: string
+    readonly quizLearnDesc: string
+    readonly readFirstLabel: string
+    readonly readFirstDesc: string
+    readonly experiencedLabel: string
+    readonly experiencedDesc: string
+  }
+
+  // === Menu Header ===
+  readonly menuHeader: {
+    readonly openMenu: string
+    readonly closeMenu: string
+    readonly menuLabel: string
+    readonly aboutClaude: string
+    readonly aboutClaudeDesc: string
+    readonly quizModes: string
+    readonly scenarioLabel: string
+    readonly scenarioDesc: string
+    readonly bookmarkLabel: string
+    readonly bookmarkSaving: (count: number) => string
+    readonly bookmarkEmpty: string
+    readonly bookmarkHint: string
+    readonly progressDesc: string
+    readonly readFirstLabel: string
+    readonly readFirstDesc: string
+    readonly lightMode: string
+    readonly darkMode: string
+    readonly keyboardShortcuts: string
+    readonly checking: string
+    readonly latestVersion: string
+    readonly checkFailed: string
+    readonly updateCheck: string
+    readonly streakFooter: (streak: number, count: number, goal: number) => string
+    readonly dailyGoalLabel: (count: number, goal: number) => string
+    readonly quizModesButton: string
+    readonly quizModesDesc: string
+    readonly streakBadge: (days: number) => string
+  }
+
+  // === Weak Point (extended) ===
+  readonly weakPointDetail: {
+    readonly wrongCountLabel: (count: number, accuracy: number) => string
+    readonly reviewButton: string
+    readonly weakTopics: string
+    readonly openDocLabel: (label: string) => string
+  }
+
+  // === Scenario ===
+  readonly scenario: {
+    readonly epilogue: string
+    readonly beforeQuestion: (current: number, total: number) => string
+    readonly nextButton: string
+    readonly difficultyLabels: Record<string, string>
+    readonly questionStats: (total: number, answered: number) => string
+  }
+
+  // === Category Picker ===
+  readonly categoryPicker: {
+    readonly title: string
+    readonly cancel: string
+    readonly dialogLabel: string
+  }
 }
 
 // ============================================================
@@ -473,6 +587,140 @@ const ja: LocaleConfig = {
       day7: '1週間連続！良い調子です',
       day3: '3日連続！この調子で続けましょう',
     },
+  },
+
+  tutorial: {
+    skip: 'スキップ',
+    slideLabel: (i) => `スライド ${i}`,
+    prevLabel: '前へ',
+    slides: [
+      {
+        title: 'Claude Code って何？',
+        description:
+          'ターミナル（黒い画面）で動く AI アシスタントです。日本語で話しかけるだけで、コードを書いたり、ファイルを編集したり、コマンドを実行してくれます。',
+        tip: 'プログラミング経験がなくても使えます',
+      },
+      {
+        title: '日本語で指示するだけ',
+        description:
+          '難しいコマンドを覚える必要はありません。やりたいことを日本語で伝えるだけで、AI が最適な方法を考えて実行してくれます。',
+      },
+      {
+        title: 'AI ができること',
+        description:
+          'ファイルの読み書き、コード生成、バグ修正、テスト作成、ドキュメント生成など、開発作業の多くを AI がサポートしてくれます。',
+        tip: '実行前に必ず確認があるので安心です',
+      },
+      {
+        title: 'このクイズで学べること',
+        description:
+          'Claude Code の基本操作から応用テクニックまで、クイズ形式で楽しく学べます。間違えても解説付きなので、確実に知識が身につきます。',
+      },
+    ],
+    terminalYou: 'あなた:',
+    terminalClaude: 'Claude:',
+    terminalPrompt: 'このプロジェクトの構成を教えて',
+    terminalReply: 'このプロジェクトは React + TypeScript で',
+    terminalReplyCont: '構成されています。主なディレクトリは...',
+    bubbles: ['ログイン機能を追加して', 'このバグを直して', 'テストを書いて', 'コードをリファクタリングして'],
+    capabilities: [
+      { label: 'コード生成' },
+      { label: 'ファイル編集' },
+      { label: 'コマンド実行' },
+      { label: '安全性チェック' },
+    ],
+    pathSteps: [
+      { label: '基本操作を知る', desc: '全体像モード 6チャプター' },
+      { label: '知識を確認する', desc: 'カテゴリ別・ランダム問題' },
+      { label: '実力を試す', desc: '100問の実力テスト' },
+    ],
+  },
+
+  chapterIntro: {
+    mistakesOkTitle: '間違えても大丈夫！',
+    mistakesOkBody:
+      'このクイズは「テスト」ではなく「学習ツール」です。知らない問題が出ても、解説を読めば理解できるように作られています。 気軽に進めてください。',
+    learningPointsHeading: 'このチャプターで学ぶこと',
+    startLearning: '学習を始める',
+    startChapter: 'チャプターを始める',
+  },
+
+  studyFirst: {
+    title: '読んでから解く',
+    subtitle: '解説を読んでからクイズに挑戦',
+    howToLearnTitle: '学習の進め方',
+    howToLearnBody:
+      'チャプターを選んで、基礎的な解説を読みましょう。やさしい内容だけに絞っているので、 Claude Code を知らなくても読み進められます。',
+    afterLearning: 'このチャプターを学んだら...',
+    doneReading: '読み終えた',
+    readingDoneTitle: '解説を読み終えました！',
+    readingDoneBody: (questionCount) =>
+      `学んだ内容を ${questionCount}問のクイズで確認しましょう。 解説を読んだ後なので、きっと解けるはずです。`,
+    startQuiz: 'クイズに挑戦する',
+    reread: 'もう一度読む',
+    backToChapters: 'チャプター選択に戻る',
+  },
+
+  firstTimeGuide: {
+    beginnerLabel: 'はじめての方へ',
+    beginnerDesc: 'AI の知識は問いません。2つの学び方から選べます。',
+    quizLearnLabel: 'クイズで学ぶ',
+    quizLearnDesc: '問題を解きながら覚える（6チャプター構成）',
+    readFirstLabel: '読んでから解く',
+    readFirstDesc: '解説を読んでからクイズに挑戦',
+    experiencedLabel: 'すでに活用されている方へ',
+    experiencedDesc: '実力テスト・カテゴリ別など多様なモード',
+  },
+
+  menuHeader: {
+    openMenu: 'メニューを開く',
+    closeMenu: 'メニューを閉じる',
+    menuLabel: 'メニュー',
+    aboutClaude: 'Claude Code とは',
+    aboutClaudeDesc: '基本を4画面で紹介',
+    quizModes: 'クイズモード',
+    scenarioLabel: '実践シナリオ',
+    scenarioDesc: '実務に沿ったストーリーで学ぶ',
+    bookmarkLabel: '後で学ぶ',
+    bookmarkSaving: (count) => `${count}問を保存中`,
+    bookmarkEmpty: '後で学ぶ',
+    bookmarkHint: 'クイズ中に🔖をタップで保存できます',
+    progressDesc: '統計・推移・AI活用レベル',
+    readFirstLabel: '読んでから解く',
+    readFirstDesc: '解説を読んでからクイズに挑戦',
+    lightMode: 'ライトモード',
+    darkMode: 'ダークモード',
+    keyboardShortcuts: 'キーボードショートカット',
+    checking: '確認中...',
+    latestVersion: '✓ 最新版です',
+    checkFailed: '確認に失敗しました',
+    updateCheck: '更新を確認',
+    streakFooter: (streak, count, goal) => `🔥 ${streak}日連続学習 | 今日 ${count}/${goal}問`,
+    dailyGoalLabel: (count, goal) => `今日の目標 ${count}/${goal}問`,
+    quizModesButton: 'クイズモード',
+    quizModesDesc: '全体像・実力テスト・カテゴリ別など',
+    streakBadge: (days) => `🔥 ${days}日`,
+  },
+
+  weakPointDetail: {
+    wrongCountLabel: (count, accuracy) => `${count}問 間違い · 正答率 ${accuracy}%`,
+    reviewButton: '復習',
+    weakTopics: '特に弱いトピック:',
+    openDocLabel: (label) => `${label} のドキュメントを開く`,
+  },
+
+  scenario: {
+    epilogue: 'エピローグ',
+    beforeQuestion: (current, total) => `${current}/${total}問目の前に`,
+    nextButton: '次へ',
+    difficultyLabels: { beginner: '初級', intermediate: '中級', advanced: '上級' },
+    questionStats: (total, answered) => `${total}問 · ${answered}/${total}回答済み`,
+  },
+
+  categoryPicker: {
+    title: 'カテゴリを選択',
+    cancel: 'キャンセル',
+    dialogLabel: 'カテゴリを選択',
   },
 }
 

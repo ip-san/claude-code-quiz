@@ -1,5 +1,6 @@
 import { ArrowLeft, ArrowRight, BookOpen, CheckCircle2, Play } from 'lucide-react'
 import { useMemo, useState } from 'react'
+import { locale } from '@/config/locale'
 import type { Question } from '@/domain/entities/Question'
 import type { UserProgress } from '@/domain/entities/UserProgress'
 import {
@@ -86,12 +87,12 @@ export function StudyFirstView({ allQuestions, userProgress, onBack, onStartQuiz
       <div className={headerStyles.sticky}>
         <div className="mx-auto max-w-3xl px-4 pb-2 pt-3">
           <div className="flex items-center gap-3">
-            <button onClick={onBack} className="tap-highlight rounded-full p-1" aria-label="戻る">
+            <button onClick={onBack} className="tap-highlight rounded-full p-1" aria-label={locale.common.back}>
               <ArrowLeft className="h-5 w-5 text-stone-600 dark:text-stone-300" />
             </button>
             <div>
-              <h1 className="text-lg font-bold text-claude-dark dark:text-stone-100">読んでから解く</h1>
-              <p className="text-xs text-stone-400">解説を読んでからクイズに挑戦</p>
+              <h1 className="text-lg font-bold text-claude-dark dark:text-stone-100">{locale.studyFirst.title}</h1>
+              <p className="text-xs text-stone-400">{locale.studyFirst.subtitle}</p>
             </div>
           </div>
         </div>
@@ -103,11 +104,10 @@ export function StudyFirstView({ allQuestions, userProgress, onBack, onStartQuiz
           <div className="flex items-start gap-3">
             <BookOpen className="mt-0.5 h-5 w-5 flex-shrink-0 text-blue-500" />
             <div>
-              <p className="text-sm font-semibold text-blue-800 dark:text-blue-300">学習の進め方</p>
-              <p className="mt-1 text-xs text-blue-700 dark:text-blue-400">
-                チャプターを選んで、基礎的な解説を読みましょう。やさしい内容だけに絞っているので、 Claude Code
-                を知らなくても読み進められます。
+              <p className="text-sm font-semibold text-blue-800 dark:text-blue-300">
+                {locale.studyFirst.howToLearnTitle}
               </p>
+              <p className="mt-1 text-xs text-blue-700 dark:text-blue-400">{locale.studyFirst.howToLearnBody}</p>
             </div>
           </div>
         </div>
@@ -135,7 +135,10 @@ export function StudyFirstView({ allQuestions, userProgress, onBack, onStartQuiz
                 </div>
                 <p className="text-sm font-semibold text-claude-dark dark:text-stone-200">{ch.name}</p>
                 <p className="text-xs text-stone-400">{ch.subtitle}</p>
-                <p className="mt-1 text-xs text-stone-400">{ch.total}問</p>
+                <p className="mt-1 text-xs text-stone-400">
+                  {ch.total}
+                  {locale.common.questionSuffix}
+                </p>
               </div>
               <ArrowRight className="h-4 w-4 flex-shrink-0 text-stone-300 dark:text-stone-600" />
             </button>
@@ -168,7 +171,7 @@ function StudyReader({
       <div className={headerStyles.sticky}>
         <div className="mx-auto max-w-3xl px-4 pb-2 pt-3">
           <div className="flex items-center gap-3">
-            <button onClick={onBack} className="tap-highlight rounded-full p-1" aria-label="戻る">
+            <button onClick={onBack} className="tap-highlight rounded-full p-1" aria-label={locale.common.back}>
               <ArrowLeft className="h-5 w-5 text-stone-600 dark:text-stone-300" />
             </button>
             <div>
@@ -207,7 +210,7 @@ function StudyReader({
 
             {/* Action item */}
             <div className="mt-6 rounded-xl border border-claude-orange/20 bg-claude-orange/5 p-4">
-              <p className="text-xs font-semibold text-claude-orange">このチャプターを学んだら...</p>
+              <p className="text-xs font-semibold text-claude-orange">{locale.studyFirst.afterLearning}</p>
               <p className="mt-1 text-sm text-stone-600 dark:text-stone-300">{chapter.actionItem}</p>
             </div>
           </div>
@@ -224,7 +227,7 @@ function StudyReader({
             }}
             className="tap-highlight flex h-12 w-full items-center justify-center gap-2 rounded-xl bg-claude-orange text-base font-semibold text-white"
           >
-            読み終えた
+            {locale.studyFirst.doneReading}
             <CheckCircle2 className="h-4 w-4" />
           </button>
         </div>
@@ -256,13 +259,13 @@ function ReadyToQuiz({
           <CheckCircle2 className="h-8 w-8 text-green-600 dark:text-green-400" />
         </div>
 
-        <h2 className="mb-2 text-xl font-bold text-claude-dark dark:text-stone-100">解説を読み終えました！</h2>
+        <h2 className="mb-2 text-xl font-bold text-claude-dark dark:text-stone-100">
+          {locale.studyFirst.readingDoneTitle}
+        </h2>
         <p className="mb-1 text-sm text-stone-500">
           {chapter.icon} Ch.{chapter.id}: {chapter.name}
         </p>
-        <p className="mb-6 text-xs text-stone-400">
-          学んだ内容を {questionCount}問のクイズで確認しましょう。 解説を読んだ後なので、きっと解けるはずです。
-        </p>
+        <p className="mb-6 text-xs text-stone-400">{locale.studyFirst.readingDoneBody(questionCount)}</p>
 
         <div className="space-y-3">
           <button
@@ -273,7 +276,7 @@ function ReadyToQuiz({
             className="tap-highlight flex w-full items-center justify-center gap-2 rounded-2xl bg-claude-orange py-3.5 text-base font-semibold text-white shadow-md"
           >
             <Play className="h-5 w-5 fill-white" />
-            クイズに挑戦する
+            {locale.studyFirst.startQuiz}
           </button>
           <button
             onClick={() => {
@@ -282,10 +285,10 @@ function ReadyToQuiz({
             }}
             className="tap-highlight w-full rounded-2xl border border-stone-200 bg-white py-3 text-sm font-medium text-stone-600 dark:border-stone-700 dark:bg-stone-800 dark:text-stone-300"
           >
-            もう一度読む
+            {locale.studyFirst.reread}
           </button>
           <button onClick={onBack} className="tap-highlight w-full py-2 text-sm text-stone-400">
-            チャプター選択に戻る
+            {locale.studyFirst.backToChapters}
           </button>
         </div>
       </div>

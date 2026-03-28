@@ -1,5 +1,6 @@
 import { AlertTriangle, ChevronDown, ChevronUp, ExternalLink } from 'lucide-react'
 import { useMemo, useState } from 'react'
+import { locale } from '@/config/locale'
 import type { Question } from '@/domain/entities/Question'
 import type { UserProgress } from '@/domain/entities/UserProgress'
 import { PREDEFINED_CATEGORIES } from '@/domain/valueObjects/Category'
@@ -88,7 +89,7 @@ export function WeakPointInsight({ allQuestions, userProgress, categoryStats, on
     <div className="mb-6 rounded-2xl border border-amber-200 bg-amber-50 p-4 dark:border-amber-500/30 dark:bg-amber-500/10">
       <div className="mb-3 flex items-center gap-2">
         <AlertTriangle className="h-4 w-4 text-amber-600 dark:text-amber-400" />
-        <p className="text-sm font-bold text-amber-800 dark:text-amber-200">伸びしろのある分野</p>
+        <p className="text-sm font-bold text-amber-800 dark:text-amber-200">{locale.weakPoint.heading}</p>
       </div>
       <div className="space-y-2">
         {weakPoints.map((wp) => {
@@ -104,7 +105,7 @@ export function WeakPointInsight({ allQuestions, userProgress, categoryStats, on
                   <div className="flex-1">
                     <p className="text-sm font-medium text-claude-dark dark:text-stone-200">{wp.name}</p>
                     <p className="text-xs text-stone-400">
-                      {wp.wrongCount}問 間違い · 正答率 {wp.accuracy}%
+                      {locale.weakPointDetail.wrongCountLabel(wp.wrongCount, wp.accuracy)}
                     </p>
                   </div>
                   {wp.subtopics.length > 0 &&
@@ -118,14 +119,14 @@ export function WeakPointInsight({ allQuestions, userProgress, categoryStats, on
                   onClick={() => onStartSession({ mode: 'category', categoryFilter: wp.id })}
                   className="tap-highlight ml-2 rounded-lg bg-amber-500 px-3 py-1.5 text-xs font-medium text-white"
                 >
-                  復習
+                  {locale.weakPointDetail.reviewButton}
                 </button>
               </div>
 
               {/* サブトピック詳細 */}
               {isExpanded && wp.subtopics.length > 0 && (
                 <div className="border-t border-stone-100 px-3 pb-3 pt-2 dark:border-stone-700">
-                  <p className="mb-2 text-xs font-medium text-stone-500">特に弱いトピック:</p>
+                  <p className="mb-2 text-xs font-medium text-stone-500">{locale.weakPointDetail.weakTopics}</p>
                   <div className="space-y-1.5">
                     {wp.subtopics.map((st) => (
                       <div key={st.slug} className="flex items-center gap-2">
@@ -158,7 +159,7 @@ export function WeakPointInsight({ allQuestions, userProgress, categoryStats, on
                           target="_blank"
                           rel="noopener noreferrer"
                           className="tap-highlight p-1 text-stone-300 dark:text-stone-600"
-                          aria-label={`${st.label} のドキュメントを開く`}
+                          aria-label={locale.weakPointDetail.openDocLabel(st.label)}
                         >
                           <ExternalLink className="h-3 w-3" />
                         </a>

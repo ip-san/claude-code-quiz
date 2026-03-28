@@ -1,5 +1,6 @@
 import { ChevronRight } from 'lucide-react'
 import { useMemo, useState } from 'react'
+import { locale } from '@/config/locale'
 import { haptics } from '@/lib/haptics'
 import { useQuizStore } from '@/stores/quizStore'
 import { ChapterProgressMap } from './ChapterProgressMap'
@@ -65,8 +66,10 @@ export function ModeSelection() {
             >
               <span className="text-xl">🎮</span>
               <div className="flex-1">
-                <span className="text-sm font-medium text-claude-dark dark:text-stone-200">クイズモード</span>
-                <p className="text-xs text-stone-400">全体像・実力テスト・カテゴリ別など</p>
+                <span className="text-sm font-medium text-claude-dark dark:text-stone-200">
+                  {locale.menuHeader.quizModesButton}
+                </span>
+                <p className="text-xs text-stone-400">{locale.menuHeader.quizModesDesc}</p>
               </div>
               <ChevronRight className="h-4 w-4 text-stone-300 dark:text-stone-600" />
             </button>

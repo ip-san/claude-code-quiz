@@ -1,3 +1,4 @@
+import { locale } from '@/config/locale'
 import { PREDEFINED_CATEGORIES } from '@/domain/valueObjects/Category'
 import { haptics } from '@/lib/haptics'
 import { useQuizStore } from '@/stores/quizStore'
@@ -19,14 +20,14 @@ export function CategoryPicker({ onClose }: CategoryPickerProps) {
       className="fixed inset-0 z-50 flex items-end justify-center sm:items-center"
       role="dialog"
       aria-modal="true"
-      aria-label="カテゴリを選択"
+      aria-label={locale.categoryPicker.dialogLabel}
       onClick={(e) => {
         if (e.target === e.currentTarget) onClose()
       }}
     >
       <div className="absolute inset-0 bg-black/40" />
       <div className="relative mx-2 mb-2 w-full max-w-sm animate-slide-down rounded-2xl bg-white p-5 shadow-2xl dark:bg-stone-800 sm:mx-4 sm:mb-0 sm:animate-none">
-        <h3 className="mb-4 text-center text-lg font-semibold text-claude-dark">カテゴリを選択</h3>
+        <h3 className="mb-4 text-center text-lg font-semibold text-claude-dark">{locale.categoryPicker.title}</h3>
         <div className="flex max-h-80 flex-col gap-1.5 overflow-y-auto">
           {PREDEFINED_CATEGORIES.map((cat) => {
             const catStats = categoryStats[cat.id]
@@ -61,7 +62,7 @@ export function CategoryPicker({ onClose }: CategoryPickerProps) {
           onClick={onClose}
           className="tap-highlight mt-3 w-full rounded-xl py-3 text-sm font-medium text-stone-500"
         >
-          キャンセル
+          {locale.categoryPicker.cancel}
         </button>
       </div>
     </div>

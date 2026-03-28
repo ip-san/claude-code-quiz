@@ -119,14 +119,14 @@ export function MenuHeader({
               setMenuOpen(true)
             }}
             className="tap-highlight rounded-full p-2 text-stone-500"
-            aria-label="メニューを開く"
+            aria-label={locale.menuHeader.openMenu}
           >
             <Menu className="h-5 w-5" />
           </button>
           <div className="flex items-center gap-2">
             {hasProgress && streak > 0 && (
               <span className="flex items-center gap-1 rounded-full bg-orange-50 px-2.5 py-1 text-xs font-semibold text-orange-600 dark:bg-orange-500/10 dark:text-orange-400">
-                🔥 {streak}日
+                {locale.menuHeader.streakBadge(streak)}
               </span>
             )}
             {hasProgress && (
@@ -143,11 +143,14 @@ export function MenuHeader({
           <p className="text-sm text-claude-gray">
             {hasProgress ? (
               <>
-                <AnimatedCounter target={totalQuestions} suffix="問" /> | {answeredCount}問 解答済み
+                <AnimatedCounter target={totalQuestions} suffix={locale.common.questionSuffix} /> | {answeredCount}
+                {locale.menu.answered}
               </>
             ) : (
               <>
-                <AnimatedCounter target={totalQuestions} suffix="問" /> | {theme.categories.length}カテゴリ
+                <AnimatedCounter target={totalQuestions} suffix={locale.common.questionSuffix} /> |{' '}
+                {theme.categories.length}
+                {locale.common.categorySuffix}
               </>
             )}
           </p>
@@ -156,7 +159,12 @@ export function MenuHeader({
 
       {/* Slide-in menu */}
       {menuOpen && (
-        <div className="fixed inset-0 z-50 flex" role="dialog" aria-modal="true" aria-label="メニュー">
+        <div
+          className="fixed inset-0 z-50 flex"
+          role="dialog"
+          aria-modal="true"
+          aria-label={locale.menuHeader.menuLabel}
+        >
           <div className="absolute inset-0 bg-black/40" onClick={() => setMenuOpen(false)} />
           <div className="relative z-10 flex h-full w-72 flex-col bg-claude-cream shadow-2xl animate-slide-in-left dark:bg-stone-900">
             <div className="flex items-center justify-between border-b border-stone-200 px-4 py-3 dark:border-stone-700">
@@ -164,7 +172,7 @@ export function MenuHeader({
               <button
                 onClick={() => setMenuOpen(false)}
                 className="tap-highlight rounded-full p-1.5 text-stone-400"
-                aria-label="メニューを閉じる"
+                aria-label={locale.menuHeader.closeMenu}
               >
                 <X className="h-5 w-5" />
               </button>
@@ -175,8 +183,8 @@ export function MenuHeader({
               <MenuSection>
                 <MenuItem
                   icon={<GraduationCap className="h-4.5 w-4.5" />}
-                  label="Claude Code とは"
-                  sublabel="基本を4画面で紹介"
+                  label={locale.menuHeader.aboutClaude}
+                  sublabel={locale.menuHeader.aboutClaudeDesc}
                   onClick={() => handleMenuAction(() => setViewState('tutorial'))}
                 />
               </MenuSection>
@@ -188,7 +196,7 @@ export function MenuHeader({
                   className="tap-highlight flex w-full items-center gap-3 px-4 py-3 text-left text-sm text-claude-dark dark:text-stone-200"
                 >
                   <span className="text-stone-400">🎮</span>
-                  <span className="flex-1 font-medium">クイズモード</span>
+                  <span className="flex-1 font-medium">{locale.menuHeader.quizModes}</span>
                   {modesExpanded ? (
                     <ChevronUp className="h-4 w-4 text-stone-400" />
                   ) : (
@@ -224,8 +232,8 @@ export function MenuHeader({
                 )}
                 <MenuItem
                   icon={<Layers className="h-4.5 w-4.5" />}
-                  label="実践シナリオ"
-                  sublabel="実務に沿ったストーリーで学ぶ"
+                  label={locale.menuHeader.scenarioLabel}
+                  sublabel={locale.menuHeader.scenarioDesc}
                   onClick={() => handleMenuAction(() => setViewState('scenarioSelect'))}
                 />
               </MenuSection>
@@ -235,8 +243,8 @@ export function MenuHeader({
                 {bookmarkedCount > 0 ? (
                   <MenuItem
                     icon={<Bookmark className="h-4.5 w-4.5" />}
-                    label="後で学ぶ"
-                    sublabel={`${bookmarkedCount}問を保存中`}
+                    label={locale.menuHeader.bookmarkLabel}
+                    sublabel={locale.menuHeader.bookmarkSaving(bookmarkedCount)}
                     onClick={() => handleMenuAction(() => startSession({ mode: 'bookmark' }))}
                   />
                 ) : (
@@ -245,8 +253,10 @@ export function MenuHeader({
                       <Bookmark className="h-4.5 w-4.5" />
                     </span>
                     <div>
-                      <span className="font-medium text-stone-300 dark:text-stone-600">後で学ぶ</span>
-                      <p className="text-xs text-stone-300 dark:text-stone-600">クイズ中に🔖をタップで保存できます</p>
+                      <span className="font-medium text-stone-300 dark:text-stone-600">
+                        {locale.menuHeader.bookmarkEmpty}
+                      </span>
+                      <p className="text-xs text-stone-300 dark:text-stone-600">{locale.menuHeader.bookmarkHint}</p>
                     </div>
                   </div>
                 )}
@@ -254,20 +264,20 @@ export function MenuHeader({
                   <MenuItem
                     icon={<BarChart3 className="h-4.5 w-4.5" />}
                     label={locale.progress.title}
-                    sublabel="統計・推移・AI活用レベル"
+                    sublabel={locale.menuHeader.progressDesc}
                     onClick={() => handleMenuAction(() => setViewState('progress'))}
                   />
                 )}
                 <MenuItem
                   icon={<BookOpen className="h-4.5 w-4.5" />}
                   label={locale.reader.title}
-                  sublabel={`${totalQuestions}問の${locale.reader.subtitle}`}
+                  sublabel={`${totalQuestions}${locale.common.questionSuffix}の${locale.reader.subtitle}`}
                   onClick={() => handleMenuAction(() => setViewState('reader'))}
                 />
                 <MenuItem
                   icon={<BookOpenCheck className="h-4.5 w-4.5" />}
-                  label="読んでから解く"
-                  sublabel="解説を読んでからクイズに挑戦"
+                  label={locale.menuHeader.readFirstLabel}
+                  sublabel={locale.menuHeader.readFirstDesc}
                   onClick={() => handleMenuAction(() => setViewState('studyFirst'))}
                 />
               </MenuSection>
@@ -276,7 +286,7 @@ export function MenuHeader({
               <div className="py-2">
                 <MenuItem
                   icon={currentTheme === 'dark' ? <Sun className="h-4.5 w-4.5" /> : <Moon className="h-4.5 w-4.5" />}
-                  label={currentTheme === 'dark' ? 'ライトモード' : 'ダークモード'}
+                  label={currentTheme === 'dark' ? locale.menuHeader.lightMode : locale.menuHeader.darkMode}
                   onClick={() => {
                     haptics.light()
                     toggleTheme()
@@ -286,7 +296,7 @@ export function MenuHeader({
                   <div className="hidden sm:block">
                     <MenuItem
                       icon={<HelpCircle className="h-4.5 w-4.5" />}
-                      label="キーボードショートカット"
+                      label={locale.menuHeader.keyboardShortcuts}
                       onClick={() => handleMenuAction(() => setShowShortcuts(true))}
                     />
                   </div>
@@ -296,12 +306,12 @@ export function MenuHeader({
                     icon={<RefreshCw className={`h-4.5 w-4.5 ${updateStatus === 'checking' ? 'animate-spin' : ''}`} />}
                     label={
                       updateStatus === 'checking'
-                        ? '確認中...'
+                        ? locale.menuHeader.checking
                         : updateStatus === 'latest'
-                          ? '✓ 最新版です'
+                          ? locale.menuHeader.latestVersion
                           : updateStatus === 'error'
-                            ? '確認に失敗しました'
-                            : '更新を確認'
+                            ? locale.menuHeader.checkFailed
+                            : locale.menuHeader.updateCheck
                     }
                     onClick={handleUpdateCheck}
                   />
@@ -313,7 +323,7 @@ export function MenuHeader({
             {hasProgress && streak > 0 && (
               <div className="border-t border-stone-200 px-4 py-3 dark:border-stone-700">
                 <p className="text-xs text-stone-400">
-                  🔥 {streak}日連続学習 | 今日 {todayCount}/{dailyGoal}問
+                  {locale.menuHeader.streakFooter(streak, todayCount, dailyGoal)}
                 </p>
               </div>
             )}
@@ -345,7 +355,10 @@ function DailyGoalRing({
   goal: number
 }) {
   return (
-    <div className="relative flex h-8 w-8 items-center justify-center" aria-label={`今日の目標 ${count}/${goal}問`}>
+    <div
+      className="relative flex h-8 w-8 items-center justify-center"
+      aria-label={locale.menuHeader.dailyGoalLabel(count, goal)}
+    >
       <svg className="h-8 w-8 -rotate-90" viewBox="0 0 32 32">
         <circle
           cx="16"

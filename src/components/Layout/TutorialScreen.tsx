@@ -11,6 +11,7 @@ import {
 } from 'lucide-react'
 import { useState } from 'react'
 import { AppLogo } from '@/components/Layout/AppLogo'
+import { locale } from '@/config/locale'
 import { theme } from '@/config/theme'
 import { trackTutorial } from '@/lib/analytics'
 import { haptics } from '@/lib/haptics'
@@ -28,38 +29,13 @@ interface SlideData {
   tip?: string
 }
 
-const SLIDE_DATA: SlideData[] = [
-  {
-    iconType: 'terminal',
-    title: 'Claude Code って何？',
-    description:
-      'ターミナル（黒い画面）で動く AI アシスタントです。日本語で話しかけるだけで、コードを書いたり、ファイルを編集したり、コマンドを実行してくれます。',
-    visualType: 'terminal',
-    tip: 'プログラミング経験がなくても使えます',
-  },
-  {
-    iconType: 'message',
-    title: '日本語で指示するだけ',
-    description:
-      '難しいコマンドを覚える必要はありません。やりたいことを日本語で伝えるだけで、AI が最適な方法を考えて実行してくれます。',
-    visualType: 'bubbles',
-  },
-  {
-    iconType: 'zap',
-    title: 'AI ができること',
-    description:
-      'ファイルの読み書き、コード生成、バグ修正、テスト作成、ドキュメント生成など、開発作業の多くを AI がサポートしてくれます。',
-    visualType: 'capabilities',
-    tip: '実行前に必ず確認があるので安心です',
-  },
-  {
-    iconType: 'logo',
-    title: 'このクイズで学べること',
-    description:
-      'Claude Code の基本操作から応用テクニックまで、クイズ形式で楽しく学べます。間違えても解説付きなので、確実に知識が身につきます。',
-    visualType: 'path',
-  },
-]
+const SLIDE_DATA: SlideData[] = locale.tutorial.slides.map((slide, i) => ({
+  iconType: (['terminal', 'message', 'zap', 'logo'] as const)[i],
+  title: slide.title,
+  description: slide.description,
+  visualType: (['terminal', 'bubbles', 'capabilities', 'path'] as const)[i],
+  tip: slide.tip,
+}))
 
 function SlideIcon({ type }: { type: SlideData['iconType'] }) {
   switch (type) {
@@ -89,46 +65,48 @@ function SlideVisual({ type }: { type: SlideData['visualType'] }) {
             <span className="text-green-400">$</span> claude
           </p>
           <p className="mt-2 text-stone-300">
-            <span className="text-blue-400">あなた:</span> このプロジェクトの構成を教えて
+            <span className="text-blue-400">{locale.tutorial.terminalYou}</span> {locale.tutorial.terminalPrompt}
           </p>
           <p className="mt-2 text-stone-300">
-            <span className="text-claude-orange">Claude:</span> このプロジェクトは React + TypeScript で
+            <span className="text-claude-orange">{locale.tutorial.terminalClaude}</span> {locale.tutorial.terminalReply}
           </p>
-          <p className="text-stone-300">構成されています。主なディレクトリは...</p>
+          <p className="text-stone-300">{locale.tutorial.terminalReplyCont}</p>
           <span className="animate-pulse text-claude-orange">|</span>
         </div>
       )
     case 'bubbles':
       return (
         <div className="space-y-3">
-          {[
-            { text: 'ログイン機能を追加して', color: 'bg-blue-50 dark:bg-blue-900/30' },
-            { text: 'このバグを直して', color: 'bg-green-50 dark:bg-green-900/30' },
-            { text: 'テストを書いて', color: 'bg-purple-50 dark:bg-purple-900/30' },
-            { text: 'コードをリファクタリングして', color: 'bg-amber-50 dark:bg-amber-900/30' },
-          ].map((item) => (
-            <div key={item.text} className={`flex items-center gap-2 rounded-xl ${item.color} px-4 py-2.5`}>
-              <span>💬</span>
-              <span className="text-sm font-medium text-stone-700 dark:text-stone-200">{item.text}</span>
-            </div>
-          ))}
+          {locale.tutorial.bubbles.map((text, i) => {
+            const colors = [
+              'bg-blue-50 dark:bg-blue-900/30',
+              'bg-green-50 dark:bg-green-900/30',
+              'bg-purple-50 dark:bg-purple-900/30',
+              'bg-amber-50 dark:bg-amber-900/30',
+            ]
+            return (
+              <div key={text} className={`flex items-center gap-2 rounded-xl ${colors[i]} px-4 py-2.5`}>
+                <span>💬</span>
+                <span className="text-sm font-medium text-stone-700 dark:text-stone-200">{text}</span>
+              </div>
+            )
+          })}
         </div>
       )
     case 'capabilities':
       return (
         <div className="grid grid-cols-2 gap-2">
-          {[
-            { icon: <Code2 className="h-5 w-5" />, label: 'コード生成' },
-            { icon: <FileText className="h-5 w-5" />, label: 'ファイル編集' },
-            { icon: <Terminal className="h-5 w-5" />, label: 'コマンド実行' },
-            { icon: <Shield className="h-5 w-5" />, label: '安全性チェック' },
-          ].map((item) => (
+          {[Code2, FileText, Terminal, Shield].map((Icon, i) => (
             <div
-              key={item.label}
+              key={locale.tutorial.capabilities[i].label}
               className="flex flex-col items-center gap-2 rounded-xl bg-white p-3 shadow-sm dark:bg-stone-800"
             >
-              <div className="text-claude-orange">{item.icon}</div>
-              <span className="text-xs font-medium text-stone-600 dark:text-stone-300">{item.label}</span>
+              <div className="text-claude-orange">
+                <Icon className="h-5 w-5" />
+              </div>
+              <span className="text-xs font-medium text-stone-600 dark:text-stone-300">
+                {locale.tutorial.capabilities[i].label}
+              </span>
             </div>
           ))}
         </div>
@@ -136,17 +114,10 @@ function SlideVisual({ type }: { type: SlideData['visualType'] }) {
     case 'path':
       return (
         <div className="space-y-2">
-          {[
-            { step: 1, label: '基本操作を知る', desc: '全体像モード 6チャプター' },
-            { step: 2, label: '知識を確認する', desc: 'カテゴリ別・ランダム問題' },
-            { step: 3, label: '実力を試す', desc: '100問の実力テスト' },
-          ].map((item) => (
-            <div
-              key={item.step}
-              className="flex items-center gap-3 rounded-xl bg-white p-3 shadow-sm dark:bg-stone-800"
-            >
+          {locale.tutorial.pathSteps.map((item, i) => (
+            <div key={i + 1} className="flex items-center gap-3 rounded-xl bg-white p-3 shadow-sm dark:bg-stone-800">
               <div className="flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-full bg-claude-orange/10 text-sm font-bold text-claude-orange">
-                {item.step}
+                {i + 1}
               </div>
               <div>
                 <p className="text-sm font-semibold text-claude-dark dark:text-stone-200">{item.label}</p>
@@ -199,7 +170,7 @@ export function TutorialScreen({ onComplete }: TutorialScreenProps) {
           }}
           className="tap-highlight flex items-center gap-1 rounded-full px-3 py-1.5 text-xs font-medium text-stone-400 hover:text-stone-600 dark:hover:text-stone-300"
         >
-          スキップ
+          {locale.tutorial.skip}
           <ChevronRight className="h-3 w-3" />
         </button>
       </div>
@@ -236,7 +207,7 @@ export function TutorialScreen({ onComplete }: TutorialScreenProps) {
                 className={`h-2 rounded-full transition-all ${
                   i === currentSlide ? 'w-6 bg-claude-orange' : 'w-2 bg-stone-300 dark:bg-stone-600'
                 }`}
-                aria-label={`スライド ${i + 1}`}
+                aria-label={locale.tutorial.slideLabel(i + 1)}
               />
             ))}
           </div>
@@ -251,7 +222,7 @@ export function TutorialScreen({ onComplete }: TutorialScreenProps) {
                   ? 'border-stone-200 text-stone-300 dark:border-stone-700 dark:text-stone-600'
                   : 'border-stone-300 text-stone-600 dark:border-stone-600 dark:text-stone-300'
               }`}
-              aria-label="前へ"
+              aria-label={locale.tutorial.prevLabel}
             >
               <ArrowLeft className="h-5 w-5" />
             </button>
@@ -259,7 +230,7 @@ export function TutorialScreen({ onComplete }: TutorialScreenProps) {
               onClick={goNext}
               className="tap-highlight flex h-12 flex-1 items-center justify-center gap-2 rounded-2xl bg-claude-orange text-base font-semibold text-white shadow-md"
             >
-              {isLast ? 'はじめる' : '次へ'}
+              {isLast ? locale.common.start : locale.common.next}
               <ArrowRight className="h-5 w-5" />
             </button>
           </div>
