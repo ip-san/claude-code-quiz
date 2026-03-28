@@ -19,6 +19,7 @@
 
 import { describe, expect, it } from 'vitest'
 import quizData from '../../data/quizzes.json'
+import { SCENARIOS } from '../../data/scenarios'
 import { PREDEFINED_CATEGORIES } from '../../domain/valueObjects/Category'
 
 const quizzes = quizData.quizzes
@@ -442,6 +443,23 @@ describe('Quiz Content Quality', () => {
         .filter((q) => q.diagram.type === 'comparison')
         .filter((q) => (q.diagram.columns?.length ?? 0) < 2)
       expect(violations.map((q) => q.id)).toEqual([])
+    })
+  })
+
+  // ── Scenario reference integrity ──────────────────────────
+  describe('シナリオ参照整合性', () => {
+    const quizIds = new Set(quizzes.map((q: { id: string }) => q.id))
+
+    it('全シナリオの questionId が quizzes.json に存在すること', () => {
+      const missing: string[] = []
+      for (const scenario of SCENARIOS) {
+        for (const step of scenario.steps) {
+          if (step.type === 'question' && step.questionId && !quizIds.has(step.questionId)) {
+            missing.push(`${scenario.id}: ${step.questionId}`)
+          }
+        }
+      }
+      expect(missing, `存在しない questionId: ${missing.join(', ')}`).toEqual([])
     })
   })
 })
