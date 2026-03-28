@@ -92,12 +92,18 @@ export function ScenarioView({ scenario, isModalOpen }: { scenario: ScenarioData
   const narratives = narrativeMap[narrativeKey]
   const hasNarrative = narratives && narratives.length > 0 && !dismissedForIndex.has(narrativeKey)
 
+  const { nextQuestion } = useQuizStore()
+
   const handleNarrativeNext = () => {
     if (narratives && narrativePageIndex < narratives.length - 1) {
       setNarrativePageIndex(narrativePageIndex + 1)
     } else {
       setDismissedForIndex((prev) => new Set([...prev, narrativeKey]))
       setNarrativePageIndex(0)
+      // After epilogue is dismissed, proceed to result screen via nextQuestion
+      if (showEpilogue) {
+        nextQuestion()
+      }
     }
   }
 
@@ -117,7 +123,23 @@ export function ScenarioView({ scenario, isModalOpen }: { scenario: ScenarioData
     )
   }
 
-  return <QuizCard isModalOpen={isModalOpen} />
+  // Check if last question is answered — intercept "next" to show epilogue first
+  const isLastQuestionAnswered = currentQuestionIndex === questionCount - 1 && sessionState?.isAnswered === true
+  const hasEpilogue = narrativeMap[questionCount] && !dismissedForIndex.has(questionCount)
+
+  return (
+    <QuizCard
+      isModalOpen={isModalOpen}
+      onLastQuestionNext={
+        isLastQuestionAnswered && hasEpilogue
+          ? () => {
+              setShowEpilogue(true)
+              setNarrativePageIndex(0)
+            }
+          : undefined
+      }
+    />
+  )
 }
 
 /** Scenario selection list for menu */
