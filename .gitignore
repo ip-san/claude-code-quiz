@@ -26,7 +26,8 @@ npm-debug.log*
 .env.local
 .env.*.local
 
-# GTM import (generated from template + .env, contains Measurement ID)
+# GTM generated files (contain account IDs and Measurement ID)
+gtm/container-config.json
 gtm/container-import.json
 
 # TypeScript

@@ -11,7 +11,7 @@
  *
  * 環境変数（.env）:
  *   GOOGLE_APPLICATION_CREDENTIALS - サービスアカウントキー
- *   VITE_GTM_ID - GTMコンテナの公開ID（例: GTM-KRDHH2T2）
+ *   VITE_GTM_ID - GTMコンテナの公開ID（例: GTM-XXXXXXX）
  */
 
 import { readFileSync } from 'fs'
