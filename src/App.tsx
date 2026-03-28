@@ -1,8 +1,16 @@
-import { useEffect, useMemo, useState } from 'react'
+import { ArrowLeft, XCircle } from 'lucide-react'
+import { lazy, Suspense, useEffect, useMemo, useRef, useState } from 'react'
+import { InstallPrompt } from '@/components/Layout/InstallPrompt'
+import { OfflineIndicator } from '@/components/Layout/OfflineIndicator'
+import { hasSeenTutorial, markTutorialSeen, TutorialScreen } from '@/components/Layout/TutorialScreen'
+import { hasSeenWelcome, WelcomeScreen } from '@/components/Layout/WelcomeScreen'
 import { ModeSelection } from '@/components/Menu/ModeSelection'
 import { QuizCard } from '@/components/Quiz/QuizCard'
 import { Timer } from '@/components/Quiz/Timer'
+import { SCENARIOS } from '@/data/scenarios'
+import { getChapterFromTags } from '@/domain/valueObjects/OverviewChapter'
 import { isElectron } from '@/lib/platformAPI'
+import { headerStyles, pageStyles } from '@/lib/styles'
 import { useQuizStore } from '@/stores/quizStore'
 
 // Lazy-load screens not needed on initial render
@@ -19,11 +27,6 @@ const StudyFirstView = lazy(() =>
   import('@/components/Menu/StudyFirstView').then((m) => ({ default: m.StudyFirstView }))
 )
 
-import { ArrowLeft, XCircle } from 'lucide-react'
-import { SCENARIOS } from '@/data/scenarios'
-import { getChapterFromTags } from '@/domain/valueObjects/OverviewChapter'
-import { headerStyles, pageStyles } from '@/lib/styles'
-
 /** Compact loading indicator for lazy-loaded screens */
 function LoadingSpinner() {
   return (
@@ -38,12 +41,6 @@ function setThemeColor(color: string) {
   const meta = document.querySelector('meta[name="theme-color"]')
   if (meta) meta.setAttribute('content', color)
 }
-
-import { lazy, Suspense, useRef } from 'react'
-import { InstallPrompt } from '@/components/Layout/InstallPrompt'
-import { OfflineIndicator } from '@/components/Layout/OfflineIndicator'
-import { hasSeenTutorial, markTutorialSeen, TutorialScreen } from '@/components/Layout/TutorialScreen'
-import { hasSeenWelcome, WelcomeScreen } from '@/components/Layout/WelcomeScreen'
 
 // Lazy-load PWA update prompt only in web builds (avoids virtual:pwa-register error in Electron)
 const PWAUpdatePrompt = !isElectron
