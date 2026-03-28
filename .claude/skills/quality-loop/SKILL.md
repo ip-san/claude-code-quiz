@@ -1,25 +1,39 @@
 ---
 name: quality-loop
-description: コードレビュー + クイズ追加判定 + クイズ検証を一括実行。品質ループ、定期チェック、quality loop
+description: GA4分析 + コードレビュー + クイズ追加判定 + クイズ検証を一括実行。品質ループ、定期チェック、quality loop
 allowed-tools: Read, Write, Edit, Bash, Grep, Glob, Agent, Skill
-argument-hint: "[--skip-review] [--skip-generate] [--skip-refine] [--dry-run]"
+argument-hint: "[--skip-analytics] [--skip-review] [--skip-generate] [--skip-refine] [--dry-run]"
 ---
 
 # Quality Loop Skill
 
-コード品質とクイズ品質を一括でチェックする統合スキル。
-3ステップを順番に実行し、結果をまとめて報告する。
+GA4分析・コード品質・クイズ品質を一括でチェックする統合スキル。
+4ステップを順番に実行し、結果をまとめて報告する。
 
 ## 引数
 
 `$ARGUMENTS` を空白で分割し、以下のフラグを認識する:
 
+- `--skip-analytics`: ステップ0（GA4分析）をスキップ
 - `--skip-review`: ステップ1（code-review）をスキップ
 - `--skip-generate`: ステップ2（クイズ追加判定・生成）をスキップ
 - `--skip-refine`: ステップ3（quiz-refine）をスキップ
 - `--dry-run`: ステップ2で追加推奨の分析のみ行い、実際の生成はしない
 
 フラグなしの場合は全ステップを実行する。
+
+## ステップ0: GA4 分析
+
+**スキップ条件:** `--skip-analytics` フラグ、または GA4 MCP ツールが利用不可
+
+1. `/analytics-insight` スキルを実行する（直近7日間）
+2. 分析結果からクイズ改善の示唆を抽出:
+   - 正答率が低いカテゴリ → ステップ2のクイズ追加候補
+   - チュートリアルスキップ率 → UI改善の示唆
+   - 離脱率の高いチャプター → コンテンツ改善の示唆
+3. 分析結果のアクション提案をステップ2に引き継ぐ
+
+**MCP未接続時の動作:** GA4 MCP ツール（ga4_summary 等）が見つからない場合は「MCP未接続」と報告してスキップ。エラーにはしない。
 
 ## ステップ1: コードレビュー
 
@@ -41,6 +55,7 @@ argument-hint: "[--skip-review] [--skip-generate] [--skip-refine] [--dry-run]"
    - **カテゴリ偏り:** Weight に対する問題数比率を計算。Weight 15 のカテゴリが全体の 8% 未満なら不足
    - **カバレッジ不足:** 5問未満のドキュメントページを特定
    - **新機能対応:** 直近の変更で新しいClaude Code関連の概念が追加されたか確認（UIのみの変更は対象外）
+   - **GA4分析結果:** ステップ0の分析で正答率が低いカテゴリや離脱率の高いチャプターがあれば、そのカテゴリの問題改善を優先
 
 ### 生成（`--dry-run` でない場合）
 
@@ -63,13 +78,14 @@ argument-hint: "[--skip-review] [--skip-generate] [--skip-refine] [--dry-run]"
 
 ## 結果レポート
 
-3ステップの結果を以下の形式でまとめて報告する:
+4ステップの結果を以下の形式でまとめて報告する:
 
 ```
 ## Quality Loop 結果
 
 | ステップ | 結果 | 詳細 |
 |---------|------|------|
+| 0. GA4分析 | 完了/スキップ/MCP未接続 | ユーザー数, 主要指標, アクション提案 |
 | 1. code-review | 完了/スキップ | Critical N件, High N件 修正 |
 | 2. クイズ追加 | 追加不要/追加済み(N問)/スキップ | 対象カテゴリ: ... |
 | 3. quiz-refine | 完了/スキップ | N問スキャン, N件修正 |
