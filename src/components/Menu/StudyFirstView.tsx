@@ -9,6 +9,7 @@ import {
   OVERVIEW_CHAPTERS,
   type OverviewChapter,
 } from '@/domain/valueObjects/OverviewChapter'
+import { trackStudyFirst } from '@/lib/analytics'
 import { haptics } from '@/lib/haptics'
 import { headerStyles } from '@/lib/styles'
 
@@ -55,7 +56,10 @@ export function StudyFirstView({ allQuestions, userProgress, onBack, onStartQuiz
           setSelectedChapterId(null)
           setReadingComplete(false)
         }}
-        onComplete={() => setReadingComplete(true)}
+        onComplete={() => {
+          trackStudyFirst(selectedChapter.id, 'finish_reading')
+          setReadingComplete(true)
+        }}
       />
     )
   }
@@ -65,7 +69,10 @@ export function StudyFirstView({ allQuestions, userProgress, onBack, onStartQuiz
       <ReadyToQuiz
         chapter={selectedChapter}
         questionCount={selectedChapter.total}
-        onStartQuiz={() => onStartQuiz(selectedChapter.id, selectedChapter.startIndex)}
+        onStartQuiz={() => {
+          trackStudyFirst(selectedChapter.id, 'start_quiz')
+          onStartQuiz(selectedChapter.id, selectedChapter.startIndex)
+        }}
         onReread={() => setReadingComplete(false)}
         onBack={() => {
           setSelectedChapterId(null)
@@ -114,6 +121,7 @@ export function StudyFirstView({ allQuestions, userProgress, onBack, onStartQuiz
               key={ch.id}
               onClick={() => {
                 haptics.light()
+                trackStudyFirst(ch.id, 'start_reading')
                 setSelectedChapterId(ch.id)
                 setReadingComplete(false)
               }}

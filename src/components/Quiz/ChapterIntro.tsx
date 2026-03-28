@@ -1,6 +1,7 @@
 import { ArrowRight, BookOpen, Brain, CheckCircle2 } from 'lucide-react'
 import type { OverviewChapter } from '@/domain/valueObjects/OverviewChapter'
 import { OVERVIEW_CHAPTERS } from '@/domain/valueObjects/OverviewChapter'
+import { trackChapterProgress } from '@/lib/analytics'
 import { haptics } from '@/lib/haptics'
 
 interface ChapterIntroProps {
@@ -146,6 +147,7 @@ export function ChapterIntro({ chapter, onStart }: ChapterIntroProps) {
         <button
           onClick={() => {
             haptics.light()
+            trackChapterProgress(chapter.id, 'start')
             onStart()
           }}
           className="tap-highlight inline-flex items-center gap-2 rounded-2xl bg-claude-orange px-8 py-3.5 text-base font-semibold text-white shadow-md"

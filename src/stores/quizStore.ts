@@ -50,6 +50,7 @@ import { getQuizModeById } from '@/domain/valueObjects/QuizMode'
 // Infrastructure imports
 import { getProgressRepository, getQuizRepository } from '@/infrastructure'
 import { getSessionRepository, type SavedSessionData } from '@/infrastructure/persistence/SessionRepository'
+import { trackQuizComplete, trackQuizStart } from '@/lib/analytics'
 import { platformAPI } from '@/lib/platformAPI'
 
 // ============================================================
@@ -272,6 +273,12 @@ function recordCompletedSession(
   )
   updateStore(updatedProgress)
   getProgressRepository().save(updatedProgress).catch(console.error)
+
+  // Track quiz completion
+  const accuracy =
+    sessionState.answeredCount > 0 ? Math.round((sessionState.score / sessionState.answeredCount) * 100) : 0
+  const durationSec = sessionState.startedAt ? Math.round((Date.now() - sessionState.startedAt) / 1000) : 0
+  trackQuizComplete(sessionState.config.mode, sessionState.score, sessionState.answeredCount, accuracy, durationSec)
 }
 
 export const useQuizStore = create<QuizStore>((set, get) => ({
@@ -388,6 +395,9 @@ export const useQuizStore = create<QuizStore>((set, get) => ({
       savedSession: null,
       viewState: 'quiz',
     })
+
+    // Track quiz start
+    trackQuizStart(config.mode, sessionQuestions.length, config.categoryFilter ?? undefined)
 
     // Save initial session snapshot for resume (skip review mode)
     if (config.mode !== 'review') {

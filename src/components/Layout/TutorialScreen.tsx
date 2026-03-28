@@ -11,6 +11,7 @@ import {
 } from 'lucide-react'
 import { useState } from 'react'
 import { theme } from '@/config/theme'
+import { trackTutorial } from '@/lib/analytics'
 import { haptics } from '@/lib/haptics'
 
 interface TutorialScreenProps {
@@ -148,6 +149,7 @@ export function TutorialScreen({ onComplete }: TutorialScreenProps) {
   const goNext = () => {
     haptics.light()
     if (isLast) {
+      trackTutorial('complete')
       onComplete()
     } else {
       setCurrentSlide((prev) => prev + 1)
@@ -168,6 +170,7 @@ export function TutorialScreen({ onComplete }: TutorialScreenProps) {
         <button
           onClick={() => {
             haptics.light()
+            trackTutorial('skip', currentSlide)
             onComplete()
           }}
           className="tap-highlight flex items-center gap-1 rounded-full px-3 py-1.5 text-xs font-medium text-stone-400 hover:text-stone-600 dark:hover:text-stone-300"
