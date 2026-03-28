@@ -84,7 +84,7 @@ try {
   const testResult = JSON.parse(testOutput)
   const testCount = testResult.numPassedTests
   if (testCount) {
-    checkCount('Vitest test count', testCount, /Vitest（(\d+)テスト）/, 1)
+    checkCount('Vitest test count', testCount, /Vitest（(\d+)テスト）/)
     // Check all inline "Nテスト" in CLAUDE.md AND README.md
     for (const [file, content] of [['CLAUDE.md', claudeMd], ['README.md', readmeMd]]) {
       const inlineMatches = content.match(/(\d+)テスト/g) || []

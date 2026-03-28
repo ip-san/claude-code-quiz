@@ -1,3 +1,11 @@
 bunx lint-staged
 bunx vitest run --changed --reporter=dot
 node scripts/validate-docs.mjs
+
+# Prevent banned patterns in staged files
+if git diff --cached --name-only | grep -q '\.tsx$'; then
+  if git diff --cached -U0 | grep -q 'min-h-screen'; then
+    echo "❌ min-h-screen detected — use min-h-dvh instead (iOS PWA compatibility)"
+    exit 1
+  fi
+fi

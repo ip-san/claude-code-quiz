@@ -1,3 +1,4 @@
+import { execSync } from 'child_process'
 import { readFileSync } from 'fs'
 import { describe, expect, it } from 'vitest'
 import { SCENARIOS } from './scenarios'
@@ -111,6 +112,15 @@ describe('narrativeMap building logic', () => {
   })
 })
 
+describe('banned patterns guard', () => {
+  it('no min-h-screen in tsx files (use min-h-dvh for iOS PWA)', () => {
+    const result = execSync('grep -rn "min-h-screen" src/components/ src/App.tsx 2>/dev/null || true', {
+      encoding: 'utf8',
+    })
+    expect(result.trim(), `min-h-screen found:\n${result}`).toBe('')
+  })
+})
+
 describe('ScenarioView epilogue integration guard', () => {
   it('ScenarioView passes onLastQuestionNext to QuizCard', () => {
     // This is a structural guard: if someone refactors ScenarioView and
@@ -125,5 +135,24 @@ describe('ScenarioView epilogue integration guard', () => {
     const quizCardCode = readFileSync('src/components/Quiz/QuizCard.tsx', 'utf8')
     expect(quizCardCode).toContain('onLastQuestionNext')
     expect(quizCardCode).toContain('onLastQuestionNext ?? nextQuestion')
+  })
+
+  it('QuizCard swipe handler respects onLastQuestionNext', () => {
+    const quizCardCode = readFileSync('src/components/Quiz/QuizCard.tsx', 'utf8')
+    // Swipe-left must check onLastQuestionNext before calling nextQuestion
+    expect(quizCardCode).toMatch(/onSwipeLeft.*onLastQuestionNext/s)
+  })
+
+  it('saveSessionSnapshot receives sessionLabel from store', () => {
+    const sessionCode = readFileSync('src/stores/slices/sessionSlice.ts', 'utf8')
+    const resumeCode = readFileSync('src/stores/slices/resumeSlice.ts', 'utf8')
+    // Every saveSessionSnapshot call (excluding import) must include sessionLabel
+    const sessionCalls = (sessionCode.match(/saveSessionSnapshot\(/g) || []).length
+    const sessionWithLabel = (sessionCode.match(/sessionLabel: get\(\)\.sessionLabel/g) || []).length
+    expect(sessionWithLabel, 'sessionSlice: all calls must include sessionLabel').toBe(sessionCalls)
+
+    const resumeCalls = (resumeCode.match(/saveSessionSnapshot\(/g) || []).length
+    const resumeWithLabel = (resumeCode.match(/sessionLabel: get\(\)\.sessionLabel/g) || []).length
+    expect(resumeWithLabel, 'resumeSlice: all calls must include sessionLabel').toBe(resumeCalls)
   })
 })
