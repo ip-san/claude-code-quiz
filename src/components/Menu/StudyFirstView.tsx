@@ -1,7 +1,5 @@
 import { ArrowLeft, ArrowRight, BookOpen, CheckCircle2, Play } from 'lucide-react'
 import { useMemo, useState } from 'react'
-import { DiagramRenderer } from '@/components/Quiz/diagrams/DiagramRenderer'
-import { QuizText } from '@/components/Quiz/QuizText'
 import type { Question } from '@/domain/entities/Question'
 import type { UserProgress } from '@/domain/entities/UserProgress'
 import {
@@ -52,7 +50,6 @@ export function StudyFirstView({ allQuestions, userProgress, onBack, onStartQuiz
     return (
       <StudyReader
         chapter={selectedChapter}
-        questions={selectedChapter.questions}
         onBack={() => {
           setSelectedChapterId(null)
           setReadingComplete(false)
@@ -150,158 +147,85 @@ export function StudyFirstView({ allQuestions, userProgress, onBack, onStartQuiz
 }
 
 /**
- * 解説リーダー（チャプター単位）
- * 1問ずつ解説を表示し、スワイプ or ボタンで進む
+ * チャプター導入読み物
+ * クイズの解説ではなく、「このチャプターで何ができるようになるか」を
+ * ワクワクする文章で伝える。初心者が読み進められる平易な内容。
  */
 function StudyReader({
   chapter,
-  questions,
   onBack,
   onComplete,
 }: {
   chapter: OverviewChapter
-  questions: readonly Question[]
   onBack: () => void
   onComplete: () => void
 }) {
-  const [currentIndex, setCurrentIndex] = useState(0)
-  const question = questions[currentIndex]
-  const isLast = currentIndex === questions.length - 1
-
-  const goNext = () => {
-    haptics.light()
-    if (isLast) {
-      onComplete()
-    } else {
-      setCurrentIndex((prev) => prev + 1)
-    }
-  }
-
-  const goPrev = () => {
-    haptics.light()
-    if (currentIndex > 0) {
-      setCurrentIndex((prev) => prev - 1)
-    }
-  }
-
-  if (!question) return null
+  const introContent = chapter.introContent ?? []
 
   return (
     <div className="flex min-h-dvh flex-col bg-claude-cream dark:bg-stone-900">
       {/* Header */}
       <div className={headerStyles.sticky}>
         <div className="mx-auto max-w-3xl px-4 pb-2 pt-3">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-3">
-              <button onClick={onBack} className="tap-highlight rounded-full p-1" aria-label="戻る">
-                <ArrowLeft className="h-5 w-5 text-stone-600 dark:text-stone-300" />
-              </button>
-              <div>
-                <span className="text-xs font-medium text-claude-orange">
-                  {chapter.icon} Ch.{chapter.id}
-                </span>
-                <p className="text-sm font-semibold text-claude-dark dark:text-stone-200">{chapter.name}</p>
-              </div>
+          <div className="flex items-center gap-3">
+            <button onClick={onBack} className="tap-highlight rounded-full p-1" aria-label="戻る">
+              <ArrowLeft className="h-5 w-5 text-stone-600 dark:text-stone-300" />
+            </button>
+            <div>
+              <span className="text-xs font-medium text-claude-orange">
+                {chapter.icon} Ch.{chapter.id}
+              </span>
+              <p className="text-sm font-semibold text-claude-dark dark:text-stone-200">{chapter.name}</p>
             </div>
-            <span className="text-sm text-stone-400">
-              {currentIndex + 1} / {questions.length}
-            </span>
-          </div>
-          {/* Progress bar */}
-          <div className="mt-2 h-1 overflow-hidden rounded-full bg-stone-200 dark:bg-stone-700">
-            <div
-              className="h-full rounded-full progress-gradient transition-all"
-              style={{ width: `${((currentIndex + 1) / questions.length) * 100}%` }}
-            />
           </div>
         </div>
       </div>
 
       {/* Content */}
-      <div className="flex-1 px-4 py-4">
-        <div className="mx-auto max-w-3xl" key={question.id} aria-live="polite">
-          <div className="animate-slide-in-right rounded-2xl bg-white p-5 shadow-sm dark:bg-stone-800">
-            {/* Question as title */}
-            <h3 className="mb-4 text-base font-semibold leading-snug text-claude-dark dark:text-stone-100">
-              <QuizText text={question.question} />
-            </h3>
-
-            {/* Correct answer highlight */}
-            <div className="mb-3 rounded-xl bg-green-50 p-3 dark:bg-green-900/20">
-              <p className="text-xs font-medium text-green-600 dark:text-green-400">正解</p>
-              <p className="mt-1 text-sm font-medium text-green-800 dark:text-green-200">
-                {question.options[question.correctIndex]?.text}
-              </p>
+      <div className="flex-1 px-4 py-6">
+        <div className="mx-auto max-w-3xl">
+          <div className="animate-view-enter rounded-2xl bg-white p-6 shadow-sm dark:bg-stone-800">
+            {/* Chapter icon + title */}
+            <div className="mb-5 text-center">
+              <span className="text-4xl">{chapter.icon}</span>
+              <h2 className="mt-2 text-xl font-bold text-claude-dark dark:text-stone-100">{chapter.name}</h2>
+              <p className="mt-1 text-sm text-stone-400">{chapter.subtitle}</p>
             </div>
 
-            {/* Explanation */}
-            <div className="mb-3">
-              <p className="mb-1 text-xs font-semibold text-stone-500">解説</p>
-              <div className="text-sm leading-relaxed text-stone-600 dark:text-stone-300">
-                <QuizText text={question.explanation} />
-              </div>
+            {/* Intro paragraphs */}
+            <div className="space-y-4">
+              {introContent.map((paragraph, i) => (
+                <p
+                  key={i}
+                  className="text-sm leading-relaxed text-stone-600 dark:text-stone-300"
+                  style={{ animationDelay: `${i * 100}ms` }}
+                >
+                  {paragraph}
+                </p>
+              ))}
             </div>
 
-            {/* Diagram if available */}
-            {question.diagram && (
-              <div className="mt-3">
-                <DiagramRenderer diagram={question.diagram} />
-              </div>
-            )}
-
-            {/* Wrong answer explanations */}
-            {question.options.some((opt, i) => i !== question.correctIndex && opt.wrongFeedback) && (
-              <div className="mt-4 rounded-xl bg-stone-50 p-3 dark:bg-stone-900/50">
-                <p className="mb-2 text-xs font-semibold text-stone-500">よくある間違い</p>
-                <div className="space-y-2">
-                  {question.options.map(
-                    (opt, i) =>
-                      i !== question.correctIndex &&
-                      opt.wrongFeedback && (
-                        <div key={i} className="text-xs text-stone-500 dark:text-stone-400">
-                          <span className="font-medium text-red-400">✗ {opt.text}</span>
-                          <span className="mx-1">—</span>
-                          {opt.wrongFeedback}
-                        </div>
-                      )
-                  )}
-                </div>
-              </div>
-            )}
+            {/* Action item */}
+            <div className="mt-6 rounded-xl border border-claude-orange/20 bg-claude-orange/5 p-4">
+              <p className="text-xs font-semibold text-claude-orange">このチャプターを学んだら...</p>
+              <p className="mt-1 text-sm text-stone-600 dark:text-stone-300">{chapter.actionItem}</p>
+            </div>
           </div>
         </div>
       </div>
 
-      {/* Bottom navigation */}
+      {/* Bottom button */}
       <div className="sticky bottom-0 border-t border-stone-200 bg-white/80 px-4 py-3 backdrop-blur-sm dark:border-stone-700 dark:bg-stone-800/80">
-        <div className="mx-auto flex max-w-3xl items-center gap-3">
+        <div className="mx-auto max-w-3xl">
           <button
-            onClick={goPrev}
-            disabled={currentIndex === 0}
-            className={`tap-highlight flex h-11 w-11 items-center justify-center rounded-xl border ${
-              currentIndex === 0
-                ? 'border-stone-200 text-stone-300 dark:border-stone-700 dark:text-stone-600'
-                : 'border-stone-300 text-stone-600 dark:border-stone-600 dark:text-stone-300'
-            }`}
-            aria-label="前の解説"
+            onClick={() => {
+              haptics.light()
+              onComplete()
+            }}
+            className="tap-highlight flex h-12 w-full items-center justify-center gap-2 rounded-xl bg-claude-orange text-base font-semibold text-white"
           >
-            <ArrowLeft className="h-4 w-4" />
-          </button>
-          <button
-            onClick={goNext}
-            className="tap-highlight flex h-11 flex-1 items-center justify-center gap-2 rounded-xl bg-claude-orange text-sm font-semibold text-white"
-          >
-            {isLast ? (
-              <>
-                読み終えた
-                <CheckCircle2 className="h-4 w-4" />
-              </>
-            ) : (
-              <>
-                次の解説
-                <ArrowRight className="h-4 w-4" />
-              </>
-            )}
+            読み終えた
+            <CheckCircle2 className="h-4 w-4" />
           </button>
         </div>
       </div>

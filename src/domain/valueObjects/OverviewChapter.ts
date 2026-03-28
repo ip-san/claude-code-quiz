@@ -14,6 +14,8 @@ export interface OverviewChapter {
   readonly icon: string
   /** このチャプターを学んだ人が明日の仕事でできる具体的なアクション */
   readonly actionItem: string
+  /** 「読んでから解く」モードで表示する導入読み物 */
+  readonly introContent?: readonly string[]
 }
 
 // quizzes.json の tags と一致するよう、id からタグ文字列を生成
