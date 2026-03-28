@@ -31,7 +31,7 @@ export function WelcomeScreen({ onComplete }: WelcomeScreenProps) {
   }
 
   return (
-    <div className="flex flex-col items-center justify-center bg-claude-cream px-6" style={{ minHeight: '100dvh' }}>
+    <div className="flex min-h-dvh flex-col items-center justify-center bg-claude-cream px-6">
       <div className="w-full max-w-sm animate-view-enter text-center">
         {/* Logo */}
         <div className="mx-auto mb-6 flex h-24 w-24 items-center justify-center rounded-3xl bg-claude-orange shadow-lg">

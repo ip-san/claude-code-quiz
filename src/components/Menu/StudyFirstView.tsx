@@ -325,10 +325,7 @@ function ReadyToQuiz({
   onBack: () => void
 }) {
   return (
-    <div
-      className="flex flex-col items-center justify-center bg-claude-cream px-6 dark:bg-stone-900"
-      style={{ minHeight: '100dvh' }}
-    >
+    <div className="flex min-h-dvh flex-col items-center justify-center bg-claude-cream px-6 dark:bg-stone-900">
       <div className="w-full max-w-sm animate-view-enter text-center">
         <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-2xl bg-green-100 dark:bg-green-900/30">
           <CheckCircle2 className="h-8 w-8 text-green-600 dark:text-green-400" />

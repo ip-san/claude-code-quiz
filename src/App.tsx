@@ -30,7 +30,7 @@ const StudyFirstView = lazy(() =>
 /** Compact loading indicator for lazy-loaded screens */
 function LoadingSpinner() {
   return (
-    <div className="flex items-center justify-center bg-claude-cream dark:bg-stone-900" style={{ minHeight: '100dvh' }}>
+    <div className="flex min-h-dvh items-center justify-center bg-claude-cream dark:bg-stone-900">
       <div className="h-8 w-8 animate-spin rounded-full border-4 border-stone-200 border-t-claude-orange dark:border-stone-700" />
     </div>
   )
@@ -135,7 +135,7 @@ export default function App() {
   // Show branded loading screen
   if (isLoading) {
     return (
-      <div className="flex flex-col items-center justify-center bg-claude-cream" style={{ minHeight: '100dvh' }}>
+      <div className="flex min-h-dvh flex-col items-center justify-center bg-claude-cream">
         <div className="animate-bounce-in text-center">
           <div className="mx-auto mb-4 flex h-24 w-24 items-center justify-center rounded-3xl bg-claude-orange shadow-lg">
             <span className="text-4xl font-bold text-white">CC</span>
@@ -183,7 +183,7 @@ export default function App() {
           </Suspense>
         )
       case 'tutorial':
-        return <TutorialScreen onComplete={() => useQuizStore.getState().setViewState('menu')} />
+        return <TutorialScreen onComplete={endSession} />
       default:
         return null
     }

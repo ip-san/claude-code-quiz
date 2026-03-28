@@ -18,121 +18,147 @@ interface TutorialScreenProps {
   onComplete: () => void
 }
 
-interface TutorialSlide {
-  icon: React.ReactNode
+interface SlideData {
+  iconType: 'terminal' | 'message' | 'zap' | 'logo'
   title: string
   description: string
-  visual: React.ReactNode
+  visualType: 'terminal' | 'bubbles' | 'capabilities' | 'path'
   tip?: string
 }
 
-const TUTORIAL_SLIDES: TutorialSlide[] = [
+const SLIDE_DATA: SlideData[] = [
   {
-    icon: <Terminal className="h-8 w-8 text-claude-orange" />,
+    iconType: 'terminal',
     title: 'Claude Code って何？',
     description:
       'ターミナル（黒い画面）で動く AI アシスタントです。日本語で話しかけるだけで、コードを書いたり、ファイルを編集したり、コマンドを実行してくれます。',
-    visual: (
-      <div className="rounded-xl bg-stone-900 p-4 font-mono text-sm">
-        <div className="mb-2 flex items-center gap-2">
-          <div className="h-3 w-3 rounded-full bg-red-500" />
-          <div className="h-3 w-3 rounded-full bg-yellow-500" />
-          <div className="h-3 w-3 rounded-full bg-green-500" />
-          <span className="ml-2 text-xs text-stone-500">Terminal</span>
-        </div>
-        <p className="text-stone-400">
-          <span className="text-green-400">$</span> claude
-        </p>
-        <p className="mt-2 text-stone-300">
-          <span className="text-blue-400">あなた:</span> このプロジェクトの構成を教えて
-        </p>
-        <p className="mt-2 text-stone-300">
-          <span className="text-claude-orange">Claude:</span> このプロジェクトは React + TypeScript で
-        </p>
-        <p className="text-stone-300">構成されています。主なディレクトリは...</p>
-        <span className="animate-pulse text-claude-orange">|</span>
-      </div>
-    ),
+    visualType: 'terminal',
     tip: 'プログラミング経験がなくても使えます',
   },
   {
-    icon: <MessageSquare className="h-8 w-8 text-blue-500" />,
+    iconType: 'message',
     title: '日本語で指示するだけ',
     description:
       '難しいコマンドを覚える必要はありません。やりたいことを日本語で伝えるだけで、AI が最適な方法を考えて実行してくれます。',
-    visual: (
-      <div className="space-y-3">
-        <ExampleBubble emoji="💬" text="ログイン機能を追加して" color="bg-blue-50 dark:bg-blue-900/30" />
-        <ExampleBubble emoji="💬" text="このバグを直して" color="bg-green-50 dark:bg-green-900/30" />
-        <ExampleBubble emoji="💬" text="テストを書いて" color="bg-purple-50 dark:bg-purple-900/30" />
-        <ExampleBubble emoji="💬" text="コードをリファクタリングして" color="bg-amber-50 dark:bg-amber-900/30" />
-      </div>
-    ),
+    visualType: 'bubbles',
   },
   {
-    icon: <Zap className="h-8 w-8 text-purple-500" />,
+    iconType: 'zap',
     title: 'AI ができること',
     description:
       'ファイルの読み書き、コード生成、バグ修正、テスト作成、ドキュメント生成など、開発作業の多くを AI がサポートしてくれます。',
-    visual: (
-      <div className="grid grid-cols-2 gap-2">
-        <CapabilityCard icon={<Code2 className="h-5 w-5" />} label="コード生成" />
-        <CapabilityCard icon={<FileText className="h-5 w-5" />} label="ファイル編集" />
-        <CapabilityCard icon={<Terminal className="h-5 w-5" />} label="コマンド実行" />
-        <CapabilityCard icon={<Shield className="h-5 w-5" />} label="安全性チェック" />
-      </div>
-    ),
+    visualType: 'capabilities',
     tip: '実行前に必ず確認があるので安心です',
   },
   {
-    icon: (
-      <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-claude-orange text-white">
-        <span className="text-sm font-bold">{theme.logoText}</span>
-      </div>
-    ),
+    iconType: 'logo',
     title: 'このクイズで学べること',
     description:
       'Claude Code の基本操作から応用テクニックまで、クイズ形式で楽しく学べます。間違えても解説付きなので、確実に知識が身につきます。',
-    visual: (
-      <div className="space-y-2">
-        <LearningPath step={1} label="基本操作を知る" desc="全体像モード 6チャプター" />
-        <LearningPath step={2} label="知識を確認する" desc="カテゴリ別・ランダム問題" />
-        <LearningPath step={3} label="実力を試す" desc="100問の実力テスト" />
-      </div>
-    ),
+    visualType: 'path',
   },
 ]
 
-function ExampleBubble({ emoji, text, color }: { emoji: string; text: string; color: string }) {
-  return (
-    <div className={`flex items-center gap-2 rounded-xl ${color} px-4 py-2.5`}>
-      <span>{emoji}</span>
-      <span className="text-sm font-medium text-stone-700 dark:text-stone-200">{text}</span>
-    </div>
-  )
+function SlideIcon({ type }: { type: SlideData['iconType'] }) {
+  switch (type) {
+    case 'terminal':
+      return <Terminal className="h-8 w-8 text-claude-orange" />
+    case 'message':
+      return <MessageSquare className="h-8 w-8 text-blue-500" />
+    case 'zap':
+      return <Zap className="h-8 w-8 text-purple-500" />
+    case 'logo':
+      return (
+        <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-claude-orange text-white">
+          <span className="text-sm font-bold">{theme.logoText}</span>
+        </div>
+      )
+  }
 }
 
-function CapabilityCard({ icon, label }: { icon: React.ReactNode; label: string }) {
-  return (
-    <div className="flex flex-col items-center gap-2 rounded-xl bg-white p-3 shadow-sm dark:bg-stone-800">
-      <div className="text-claude-orange">{icon}</div>
-      <span className="text-xs font-medium text-stone-600 dark:text-stone-300">{label}</span>
-    </div>
-  )
-}
-
-function LearningPath({ step, label, desc }: { step: number; label: string; desc: string }) {
-  return (
-    <div className="flex items-center gap-3 rounded-xl bg-white p-3 shadow-sm dark:bg-stone-800">
-      <div className="flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-full bg-claude-orange/10 text-sm font-bold text-claude-orange">
-        {step}
-      </div>
-      <div>
-        <p className="text-sm font-semibold text-claude-dark dark:text-stone-200">{label}</p>
-        <p className="text-xs text-stone-400">{desc}</p>
-      </div>
-    </div>
-  )
+function SlideVisual({ type }: { type: SlideData['visualType'] }) {
+  switch (type) {
+    case 'terminal':
+      return (
+        <div className="rounded-xl bg-stone-900 p-4 font-mono text-sm">
+          <div className="mb-2 flex items-center gap-2">
+            <div className="h-3 w-3 rounded-full bg-red-500" />
+            <div className="h-3 w-3 rounded-full bg-yellow-500" />
+            <div className="h-3 w-3 rounded-full bg-green-500" />
+            <span className="ml-2 text-xs text-stone-500">Terminal</span>
+          </div>
+          <p className="text-stone-400">
+            <span className="text-green-400">$</span> claude
+          </p>
+          <p className="mt-2 text-stone-300">
+            <span className="text-blue-400">あなた:</span> このプロジェクトの構成を教えて
+          </p>
+          <p className="mt-2 text-stone-300">
+            <span className="text-claude-orange">Claude:</span> このプロジェクトは React + TypeScript で
+          </p>
+          <p className="text-stone-300">構成されています。主なディレクトリは...</p>
+          <span className="animate-pulse text-claude-orange">|</span>
+        </div>
+      )
+    case 'bubbles':
+      return (
+        <div className="space-y-3">
+          {[
+            { text: 'ログイン機能を追加して', color: 'bg-blue-50 dark:bg-blue-900/30' },
+            { text: 'このバグを直して', color: 'bg-green-50 dark:bg-green-900/30' },
+            { text: 'テストを書いて', color: 'bg-purple-50 dark:bg-purple-900/30' },
+            { text: 'コードをリファクタリングして', color: 'bg-amber-50 dark:bg-amber-900/30' },
+          ].map((item) => (
+            <div key={item.text} className={`flex items-center gap-2 rounded-xl ${item.color} px-4 py-2.5`}>
+              <span>💬</span>
+              <span className="text-sm font-medium text-stone-700 dark:text-stone-200">{item.text}</span>
+            </div>
+          ))}
+        </div>
+      )
+    case 'capabilities':
+      return (
+        <div className="grid grid-cols-2 gap-2">
+          {[
+            { icon: <Code2 className="h-5 w-5" />, label: 'コード生成' },
+            { icon: <FileText className="h-5 w-5" />, label: 'ファイル編集' },
+            { icon: <Terminal className="h-5 w-5" />, label: 'コマンド実行' },
+            { icon: <Shield className="h-5 w-5" />, label: '安全性チェック' },
+          ].map((item) => (
+            <div
+              key={item.label}
+              className="flex flex-col items-center gap-2 rounded-xl bg-white p-3 shadow-sm dark:bg-stone-800"
+            >
+              <div className="text-claude-orange">{item.icon}</div>
+              <span className="text-xs font-medium text-stone-600 dark:text-stone-300">{item.label}</span>
+            </div>
+          ))}
+        </div>
+      )
+    case 'path':
+      return (
+        <div className="space-y-2">
+          {[
+            { step: 1, label: '基本操作を知る', desc: '全体像モード 6チャプター' },
+            { step: 2, label: '知識を確認する', desc: 'カテゴリ別・ランダム問題' },
+            { step: 3, label: '実力を試す', desc: '100問の実力テスト' },
+          ].map((item) => (
+            <div
+              key={item.step}
+              className="flex items-center gap-3 rounded-xl bg-white p-3 shadow-sm dark:bg-stone-800"
+            >
+              <div className="flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-full bg-claude-orange/10 text-sm font-bold text-claude-orange">
+                {item.step}
+              </div>
+              <div>
+                <p className="text-sm font-semibold text-claude-dark dark:text-stone-200">{item.label}</p>
+                <p className="text-xs text-stone-400">{item.desc}</p>
+              </div>
+            </div>
+          ))}
+        </div>
+      )
+  }
 }
 
 /**
@@ -143,8 +169,8 @@ function LearningPath({ step, label, desc }: { step: number; label: string; desc
  */
 export function TutorialScreen({ onComplete }: TutorialScreenProps) {
   const [currentSlide, setCurrentSlide] = useState(0)
-  const slide = TUTORIAL_SLIDES[currentSlide]
-  const isLast = currentSlide === TUTORIAL_SLIDES.length - 1
+  const slide = SLIDE_DATA[currentSlide]
+  const isLast = currentSlide === SLIDE_DATA.length - 1
 
   const goNext = () => {
     haptics.light()
@@ -164,10 +190,7 @@ export function TutorialScreen({ onComplete }: TutorialScreenProps) {
   }
 
   return (
-    <div
-      className="grid bg-claude-cream dark:bg-stone-900"
-      style={{ minHeight: '100dvh', gridTemplateRows: 'auto 1fr auto' }}
-    >
+    <div className="grid min-h-dvh bg-claude-cream dark:bg-stone-900" style={{ gridTemplateRows: 'auto 1fr auto' }}>
       {/* Skip button */}
       <div className="flex justify-end px-4 pt-3">
         <button
@@ -186,19 +209,16 @@ export function TutorialScreen({ onComplete }: TutorialScreenProps) {
       {/* Slide content — fills remaining space, content centered */}
       <div className="flex items-center px-6" key={currentSlide} aria-live="polite">
         <div className="mx-auto w-full max-w-sm animate-view-enter">
-          {/* Icon */}
-          <div className="mb-2 flex justify-center">{slide.icon}</div>
-
-          {/* Title & description */}
+          <div className="mb-2 flex justify-center">
+            <SlideIcon type={slide.iconType} />
+          </div>
           <h2 className="mb-1 text-center text-lg font-bold text-claude-dark dark:text-stone-100">{slide.title}</h2>
           <p className="mb-3 text-center text-sm leading-relaxed text-stone-500 dark:text-stone-400">
             {slide.description}
           </p>
-
-          {/* Visual */}
-          <div className="mb-2">{slide.visual}</div>
-
-          {/* Tip */}
+          <div className="mb-2">
+            <SlideVisual type={slide.visualType} />
+          </div>
           {slide.tip && <p className="text-center text-xs text-stone-400 dark:text-stone-500">💡 {slide.tip}</p>}
         </div>
       </div>
@@ -208,7 +228,7 @@ export function TutorialScreen({ onComplete }: TutorialScreenProps) {
         <div className="mx-auto w-full max-w-sm">
           {/* Progress dots */}
           <div className="mb-4 flex justify-center gap-2">
-            {TUTORIAL_SLIDES.map((_, i) => (
+            {SLIDE_DATA.map((_, i) => (
               <button
                 key={i}
                 onClick={() => {
@@ -253,18 +273,23 @@ export function TutorialScreen({ onComplete }: TutorialScreenProps) {
 
 const TUTORIAL_KEY = `${theme.storagePrefix}-tutorial-seen`
 
-export function hasSeenTutorial(): boolean {
+/** localStorage/sessionStorage のフラグを確認する共通ユーティリティ */
+function hasSeenFlag(key: string): boolean {
   try {
-    if (localStorage.getItem(TUTORIAL_KEY) === '1') return true
+    if (localStorage.getItem(key) === '1') return true
   } catch {
     /* ignore */
   }
   try {
-    if (sessionStorage.getItem(TUTORIAL_KEY) === '1') return true
+    if (sessionStorage.getItem(key) === '1') return true
   } catch {
     /* ignore */
   }
   return false
+}
+
+export function hasSeenTutorial(): boolean {
+  return hasSeenFlag(TUTORIAL_KEY)
 }
 
 export function markTutorialSeen(): void {

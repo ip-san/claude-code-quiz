@@ -73,7 +73,7 @@ export function trackQuizStart(mode: string, questionCount: number, category?: s
   pushEvent('quiz_start', {
     quiz_mode: mode,
     question_count: questionCount,
-    category: category ?? undefined,
+    category,
   })
 }
 
@@ -99,7 +99,7 @@ export function trackChapterProgress(chapterId: number, action: 'start' | 'compl
   pushEvent('chapter_progress', {
     chapter_id: chapterId,
     action,
-    accuracy: accuracy ?? undefined,
+    accuracy,
   })
 }
 
