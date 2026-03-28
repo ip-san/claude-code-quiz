@@ -189,7 +189,17 @@ export function MenuHeader({ totalQuestions, answeredCount, hasProgress, openWit
 
               {/* Resources */}
               <MenuSection>
-                <MenuItem icon={<Bookmark className="h-4.5 w-4.5" />} label="後で学ぶ" sublabel={bookmarkedCount > 0 ? `${bookmarkedCount}問を保存中` : 'ブックマークすると学習できます'} disabled={bookmarkedCount === 0} onClick={() => handleMenuAction(() => startSession({ mode: 'bookmark' }))} />
+                {bookmarkedCount > 0 ? (
+                  <MenuItem icon={<Bookmark className="h-4.5 w-4.5" />} label="後で学ぶ" sublabel={`${bookmarkedCount}問を保存中`} onClick={() => handleMenuAction(() => startSession({ mode: 'bookmark' }))} />
+                ) : (
+                  <div className="flex items-center gap-3 px-4 py-3 text-sm">
+                    <span className="text-stone-300 dark:text-stone-600"><Bookmark className="h-4.5 w-4.5" /></span>
+                    <div>
+                      <span className="font-medium text-stone-300 dark:text-stone-600">後で学ぶ</span>
+                      <p className="text-xs text-stone-300 dark:text-stone-600">クイズ中に🔖をタップで保存できます</p>
+                    </div>
+                  </div>
+                )}
                 {hasProgress && <MenuItem icon={<BarChart3 className="h-4.5 w-4.5" />} label={locale.progress.title} sublabel="統計・推移・AI活用レベル" onClick={() => handleMenuAction(() => setViewState('progress'))} />}
                 <MenuItem icon={<BookOpen className="h-4.5 w-4.5" />} label={locale.reader.title} sublabel={`${totalQuestions}問の${locale.reader.subtitle}`} onClick={() => handleMenuAction(() => setViewState('reader'))} />
                 <MenuItem icon={<BookOpenCheck className="h-4.5 w-4.5" />} label="読んでから解く" sublabel="解説を読んでからクイズに挑戦" onClick={() => handleMenuAction(() => setViewState('studyFirst'))} />

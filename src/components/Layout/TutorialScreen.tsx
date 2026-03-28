@@ -259,7 +259,7 @@ export function TutorialScreen({ onComplete }: TutorialScreenProps) {
               onClick={goNext}
               className="tap-highlight flex h-12 flex-1 items-center justify-center gap-2 rounded-2xl bg-claude-orange text-base font-semibold text-white shadow-md"
             >
-              {isLast ? 'クイズを始める' : '次へ'}
+              {isLast ? 'はじめる' : '次へ'}
               <ArrowRight className="h-5 w-5" />
             </button>
           </div>

@@ -187,7 +187,15 @@ export function QuizCard({ isModalOpen = false }: { isModalOpen?: boolean }) {
 
       {/* Compact chapter indicator (shown after intro was dismissed) */}
       {showChapterIndicator && currentChapter && (
-        <ChapterIndicator chapter={currentChapter} totalChapters={OVERVIEW_CHAPTERS.length} />
+        <ChapterIndicator
+          chapter={currentChapter}
+          totalChapters={OVERVIEW_CHAPTERS.length}
+          onShowIntro={() => setDismissedIntros((prev) => {
+            const next = new Set(prev)
+            next.delete(currentChapter.id)
+            return next
+          })}
+        />
       )}
 
       <div
@@ -348,6 +356,21 @@ export function QuizCard({ isModalOpen = false }: { isModalOpen?: boolean }) {
                 </button>
               </div>
             )}
+          </div>
+        )}
+
+        {/* Inline "next" button after feedback (supplements fixed bottom bar) */}
+        {isAnswered && !deferFeedback && (
+          <div className="mt-4 sm:hidden">
+            <button
+              onClick={() => {
+                haptics.light()
+                nextQuestion()
+              }}
+              className="tap-highlight w-full rounded-2xl bg-claude-orange py-3.5 text-base font-semibold text-white"
+            >
+              次の問題へ
+            </button>
           </div>
         )}
 
