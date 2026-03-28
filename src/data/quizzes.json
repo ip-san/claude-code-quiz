@@ -749,12 +749,7 @@
             ]
           }
         ]
-      },
-      "tags": [
-        "overview",
-        "overview-ch-5",
-        "overview-360"
-      ]
+      }
     },
     {
       "id": "skill-008",
@@ -858,12 +853,7 @@
       ],
       "correctIndex": 2,
       "explanation": "プロジェクトSkillは`.claude/skills/<skill-name>/SKILL.md`に配置し、そのプロジェクトでのみ使用できます。",
-      "referenceUrl": "https://code.claude.com/docs/ja/skills#where-skills-live",
-      "tags": [
-        "overview",
-        "overview-ch-5",
-        "overview-370"
-      ]
+      "referenceUrl": "https://code.claude.com/docs/ja/skills#where-skills-live"
     },
     {
       "id": "skill-012",
@@ -997,12 +987,7 @@
       ],
       "correctIndex": 2,
       "explanation": "`.claude/commands/`も同様にスラッシュコマンドを作成できますが、Skillsが推奨されます。同名の場合Skillが優先されます。",
-      "referenceUrl": "https://code.claude.com/docs/ja/skills",
-      "tags": [
-        "overview",
-        "overview-ch-5",
-        "overview-380"
-      ]
+      "referenceUrl": "https://code.claude.com/docs/ja/skills"
     },
     {
       "id": "tool-001",
@@ -1531,11 +1516,6 @@
       "explanation": "`/context`コマンドは現在のコンテキストウィンドウの使用状況をカラーグリッドで視覚化します。コンテキストが逼迫するとClaudeの性能が低下するため、定期的に確認し、必要に応じて`/compact`（会話を要約して圧縮）や`/clear`（履歴を完全クリア）でコンテキストを管理することが推奨されています。",
       "referenceUrl": "https://code.claude.com/docs/ja/interactive-mode",
       "hint": "コンテキストの「状態」を確認するコマンドを考えてみましょう。",
-      "tags": [
-        "overview",
-        "overview-ch-3",
-        "overview-160"
-      ],
       "diagram": {
         "type": "flow",
         "label": "コンテキスト管理フロー",
@@ -1672,12 +1652,7 @@
       "correctIndex": 0,
       "explanation": "`@`記号を入力するとファイルパスのオートコンプリートがトリガーされ、プロジェクト内のファイルを素早く参照できます。これはプロンプト入力時にファイルの内容をClaudeに読み込ませる際に便利です。また`CLAUDE.md`内でも`@path/to/file`と記述することでファイルをインポートできます。",
       "referenceUrl": "https://code.claude.com/docs/ja/interactive-mode",
-      "hint": "ファイルパスを示すために使われるキーボードの記号を考えてみましょう。",
-      "tags": [
-        "overview",
-        "overview-ch-3",
-        "overview-180"
-      ]
+      "hint": "ファイルパスを示すために使われるキーボードの記号を考えてみましょう。"
     },
     {
       "id": "cmd-005",
@@ -1757,12 +1732,7 @@
       ],
       "correctIndex": 0,
       "explanation": "`/model`コマンドはモデルの即時切り替えを行います。Opus 4.6とSonnet 4.6ではモデル選択画面で左右矢印キーを使ってエフォートレベル（推論の深さ）を調整できる機能があります。会話履歴は保持され、セッションの中断なく切り替えが可能です。",
-      "referenceUrl": "https://code.claude.com/docs/ja/interactive-mode",
-      "tags": [
-        "overview",
-        "overview-ch-3",
-        "overview-190"
-      ]
+      "referenceUrl": "https://code.claude.com/docs/ja/interactive-mode"
     },
     {
       "id": "cmd-007",
@@ -1897,12 +1867,7 @@
       ],
       "correctIndex": 2,
       "explanation": "`/doctor`コマンドはClaude Codeの健全性チェックを行います。インストールの整合性、必要な依存関係の存在、設定ファイルの正当性などを検証し、問題があれば具体的な修正方法を提示します。セッション固有の問題調査には`/debug`、一般的な状態確認には`/status`を使い分けます。",
-      "referenceUrl": "https://code.claude.com/docs/ja/interactive-mode",
-      "tags": [
-        "overview",
-        "overview-ch-3",
-        "overview-200"
-      ]
+      "referenceUrl": "https://code.claude.com/docs/ja/interactive-mode"
     },
     {
       "id": "cmd-010",
@@ -2555,12 +2520,7 @@
             ]
           }
         ]
-      },
-      "tags": [
-        "overview",
-        "overview-ch-5",
-        "overview-440"
-      ]
+      }
     },
     {
       "id": "ext-012",
@@ -3106,12 +3066,7 @@
       ],
       "correctIndex": 2,
       "explanation": "`Ctrl+C`でClaudeの応答生成を中断できます（ドキュメントで正式に記載されたキャンセルショートカットです）。中断後も会話は継続し、新しい指示を出したり`/rewind`で巻き戻したりできます。ファイル編集の取り消しは`Esc+Esc`（Rewind）で行います。",
-      "referenceUrl": "https://code.claude.com/docs/ja/interactive-mode",
-      "tags": [
-        "overview",
-        "overview-ch-3",
-        "overview-210"
-      ]
+      "referenceUrl": "https://code.claude.com/docs/ja/interactive-mode"
     },
     {
       "id": "key-002",
@@ -3211,12 +3166,7 @@
             ]
           }
         ]
-      },
-      "tags": [
-        "overview",
-        "overview-ch-3",
-        "overview-220"
-      ]
+      }
     },
     {
       "id": "key-004",
@@ -3271,12 +3221,7 @@
         3
       ],
       "explanation": "TabキーはClaude Codeで`!`コマンド履歴の補完とプロンプトサジェスションの受け入れに使われます。ファイルパスのオートコンプリートは`@`記号がトリガーとなります。",
-      "referenceUrl": "https://code.claude.com/docs/ja/interactive-mode",
-      "tags": [
-        "overview",
-        "overview-ch-3",
-        "overview-230"
-      ]
+      "referenceUrl": "https://code.claude.com/docs/ja/interactive-mode"
     },
     {
       "id": "key-006",
@@ -4172,12 +4117,7 @@
       ],
       "correctIndex": 1,
       "explanation": "`AskUserQuestion`ツールは、Claudeが実装方針の選択やあいまいな指示の明確化など、ユーザーの意思決定が必要な場面で使用します。パーミッション確認とは異なり、タスクに関する質問を投げかけてフィードバックを得るためのツールです。",
-      "referenceUrl": "https://code.claude.com/docs/ja/how-claude-code-works",
-      "tags": [
-        "overview",
-        "overview-ch-3",
-        "overview-240"
-      ]
+      "referenceUrl": "https://code.claude.com/docs/ja/how-claude-code-works"
     },
     {
       "id": "tool-018",
@@ -5032,12 +4972,7 @@
             "sub": "情報を活用"
           }
         ]
-      },
-      "tags": [
-        "overview",
-        "overview-ch-5",
-        "overview-460"
-      ]
+      }
     },
     {
       "id": "ext-021",
@@ -5159,12 +5094,7 @@
       ],
       "correctIndex": 2,
       "explanation": "@server:protocol://resource/pathの形式でMCPリソースを参照できます。@メンションのオートコンプリートでファジー検索も可能です。",
-      "referenceUrl": "https://code.claude.com/docs/ja/mcp",
-      "tags": [
-        "overview",
-        "overview-ch-5",
-        "overview-470"
-      ]
+      "referenceUrl": "https://code.claude.com/docs/ja/mcp"
     },
     {
       "id": "ext-024",
@@ -6537,12 +6467,7 @@
       ],
       "correctIndex": 1,
       "explanation": "globパターンはファイル名のマッチングに使うワイルドカード構文です。*は任意の文字列、**は任意の深さのディレクトリ、?は任意の1文字にマッチします。例：**/*.tsは全ディレクトリのTypeScriptファイルにマッチします。",
-      "referenceUrl": "https://code.claude.com/docs/ja/how-claude-code-works#tools",
-      "tags": [
-        "overview",
-        "overview-ch-3",
-        "overview-250"
-      ]
+      "referenceUrl": "https://code.claude.com/docs/ja/how-claude-code-works#tools"
     },
     {
       "id": "tool-025",
@@ -9984,11 +9909,6 @@
       "correctIndex": 1,
       "explanation": "Summarizeは同じセッション内でコンテキストを圧縮します。Forkは元のセッションをそのまま保持しつつ、新しいセッションを分岐させて別のアプローチを試すためのものです（`claude --continue --fork-session`）。",
       "referenceUrl": "https://code.claude.com/docs/ja/checkpointing",
-      "tags": [
-        "overview",
-        "overview-ch-4",
-        "overview-320"
-      ],
       "diagram": {
         "type": "comparison",
         "label": "Summarize vs Fork",
@@ -13766,12 +13686,7 @@
       ],
       "correctIndex": 1,
       "explanation": "Claude Codeのインタラクティブモードでは、`/help` と入力すると利用可能なコマンドの一覧が表示されます。また、入力欄が空の状態で / を入力するとコマンドとスキルの一覧が表示されます。キーボードショートカットを確認したい場合は ? を押します。",
-      "referenceUrl": "https://code.claude.com/docs/ja/interactive-mode",
-      "tags": [
-        "overview",
-        "overview-ch-3",
-        "overview-260"
-      ]
+      "referenceUrl": "https://code.claude.com/docs/ja/interactive-mode"
     },
     {
       "id": "gs-011",
