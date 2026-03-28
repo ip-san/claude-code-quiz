@@ -66,7 +66,7 @@ import { platformAPI } from '@/lib/platformAPI'
  *   ├────────────(showProgress)────────────> progress
  *   └────────────(setViewState)────────────> reader
  */
-type ViewState = 'menu' | 'quiz' | 'result' | 'progress' | 'reader' | 'scenarioSelect' | 'studyFirst'
+type ViewState = 'menu' | 'quiz' | 'result' | 'progress' | 'reader' | 'scenarioSelect' | 'studyFirst' | 'tutorial'
 
 // ============================================================
 // Store Interface

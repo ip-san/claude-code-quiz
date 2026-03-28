@@ -182,6 +182,8 @@ export default function App() {
             <StudyFirstViewWrapper />
           </Suspense>
         )
+      case 'tutorial':
+        return <TutorialScreen onComplete={() => useQuizStore.getState().setViewState('menu')} />
       default:
         return null
     }
@@ -196,6 +198,7 @@ export default function App() {
       result: '#FAF9F5',
       scenarioSelect: '#FAF9F5',
       studyFirst: '#FAF9F5',
+      tutorial: '#FAF9F5',
     }
     setThemeColor(themeColors[viewState] ?? '#FAF9F5')
 

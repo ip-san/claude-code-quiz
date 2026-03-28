@@ -5,6 +5,7 @@ import {
   BookOpenCheck,
   ChevronDown,
   ChevronUp,
+  GraduationCap,
   HelpCircle,
   Layers,
   Menu,
@@ -247,6 +248,12 @@ export function MenuHeader({ totalQuestions, answeredCount, hasProgress }: MenuH
                   label="実践シナリオ"
                   sublabel="実務に沿ったストーリーで学ぶ"
                   onClick={() => handleMenuAction(() => setViewState('scenarioSelect'))}
+                />
+                <MenuItem
+                  icon={<GraduationCap className="h-4.5 w-4.5" />}
+                  label="Claude Code とは"
+                  sublabel="基本を4画面で紹介"
+                  onClick={() => handleMenuAction(() => setViewState('tutorial'))}
                 />
               </div>
 
