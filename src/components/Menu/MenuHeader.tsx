@@ -167,6 +167,16 @@ export function MenuHeader({ totalQuestions, answeredCount, hasProgress }: MenuH
 
             {/* Menu items */}
             <nav className="flex-1 overflow-y-auto py-2">
+              {/* About Claude Code */}
+              <div className="border-b border-stone-100 py-2 dark:border-stone-800">
+                <MenuItem
+                  icon={<GraduationCap className="h-4.5 w-4.5" />}
+                  label="Claude Code とは"
+                  sublabel="基本を4画面で紹介"
+                  onClick={() => handleMenuAction(() => setViewState('tutorial'))}
+                />
+              </div>
+
               {/* Quiz modes accordion */}
               <div className="border-b border-stone-100 py-2 dark:border-stone-800">
                 <button
@@ -248,12 +258,6 @@ export function MenuHeader({ totalQuestions, answeredCount, hasProgress }: MenuH
                   label="実践シナリオ"
                   sublabel="実務に沿ったストーリーで学ぶ"
                   onClick={() => handleMenuAction(() => setViewState('scenarioSelect'))}
-                />
-                <MenuItem
-                  icon={<GraduationCap className="h-4.5 w-4.5" />}
-                  label="Claude Code とは"
-                  sublabel="基本を4画面で紹介"
-                  onClick={() => handleMenuAction(() => setViewState('tutorial'))}
                 />
               </div>
 
