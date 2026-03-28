@@ -33,23 +33,23 @@ const TUTORIAL_SLIDES: TutorialSlide[] = [
     description:
       'ターミナル（黒い画面）で動く AI アシスタントです。日本語で話しかけるだけで、コードを書いたり、ファイルを編集したり、コマンドを実行してくれます。',
     visual: (
-      <div className="rounded-xl bg-stone-900 p-4 font-mono text-sm">
-        <div className="mb-2 flex items-center gap-2">
-          <div className="h-3 w-3 rounded-full bg-red-500" />
-          <div className="h-3 w-3 rounded-full bg-yellow-500" />
-          <div className="h-3 w-3 rounded-full bg-green-500" />
-          <span className="ml-2 text-xs text-stone-500">Terminal</span>
+      <div className="rounded-xl bg-stone-900 p-3 font-mono text-xs leading-relaxed">
+        <div className="mb-1.5 flex items-center gap-1.5">
+          <div className="h-2.5 w-2.5 rounded-full bg-red-500" />
+          <div className="h-2.5 w-2.5 rounded-full bg-yellow-500" />
+          <div className="h-2.5 w-2.5 rounded-full bg-green-500" />
+          <span className="ml-1.5 text-[10px] text-stone-500">Terminal</span>
         </div>
         <p className="text-stone-400">
           <span className="text-green-400">$</span> claude
         </p>
-        <p className="mt-2 text-stone-300">
-          <span className="text-blue-400">あなた:</span> このプロジェクトの構成を教えて
+        <p className="mt-1.5 text-stone-300">
+          <span className="text-blue-400">You:</span> このプロジェクトの構成を教えて
         </p>
-        <p className="mt-2 text-stone-300">
-          <span className="text-claude-orange">Claude:</span> このプロジェクトは React + TypeScript で
+        <p className="mt-1.5 text-stone-300">
+          <span className="text-claude-orange">Claude:</span> React + TypeScript で構成されて
         </p>
-        <p className="text-stone-300">構成されています。主なディレクトリは...</p>
+        <p className="text-stone-300">います。主なディレクトリは...</p>
         <span className="animate-pulse text-claude-orange">|</span>
       </div>
     ),
@@ -181,19 +181,19 @@ export function TutorialScreen({ onComplete }: TutorialScreenProps) {
       </div>
 
       {/* Slide content */}
-      <div className="flex flex-1 flex-col px-6 pb-8" key={currentSlide} aria-live="polite">
-        <div className="mx-auto w-full max-w-sm flex-1 animate-view-enter">
+      <div className="flex flex-1 flex-col justify-center px-6" key={currentSlide} aria-live="polite">
+        <div className="mx-auto w-full max-w-sm animate-view-enter">
           {/* Icon */}
-          <div className="mb-4 mt-4 flex justify-center">{slide.icon}</div>
+          <div className="mb-3 flex justify-center">{slide.icon}</div>
 
           {/* Title & description */}
-          <h2 className="mb-2 text-center text-xl font-bold text-claude-dark dark:text-stone-100">{slide.title}</h2>
-          <p className="mb-5 text-center text-sm leading-relaxed text-stone-500 dark:text-stone-400">
+          <h2 className="mb-1.5 text-center text-xl font-bold text-claude-dark dark:text-stone-100">{slide.title}</h2>
+          <p className="mb-4 text-center text-sm leading-relaxed text-stone-500 dark:text-stone-400">
             {slide.description}
           </p>
 
           {/* Visual */}
-          <div className="mb-4">{slide.visual}</div>
+          <div className="mb-3">{slide.visual}</div>
 
           {/* Tip */}
           {slide.tip && <p className="text-center text-xs text-stone-400 dark:text-stone-500">💡 {slide.tip}</p>}
@@ -201,7 +201,7 @@ export function TutorialScreen({ onComplete }: TutorialScreenProps) {
       </div>
 
       {/* Bottom navigation */}
-      <div className="px-6 pb-8">
+      <div className="px-6 pb-6">
         <div className="mx-auto w-full max-w-sm">
           {/* Progress dots */}
           <div className="mb-4 flex justify-center gap-2">
