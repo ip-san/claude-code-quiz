@@ -1,5 +1,6 @@
 import { ArrowRight, GraduationCap, Sparkles, TrendingUp } from 'lucide-react'
 import { theme } from '@/config/theme'
+import { hasSeenFlag, setSeenFlag } from '@/lib/storage'
 
 const WELCOME_KEY = `${theme.storagePrefix}-welcomed`
 const LEGACY_WELCOME_KEY = 'claude-quiz-welcomed'
@@ -17,16 +18,7 @@ const FEATURE_ICONS = [Sparkles, GraduationCap, TrendingUp] as const
  */
 export function WelcomeScreen({ onComplete }: WelcomeScreenProps) {
   const handleStart = () => {
-    try {
-      localStorage.setItem(WELCOME_KEY, '1')
-    } catch {
-      // private browsing — use sessionStorage as fallback
-      try {
-        sessionStorage.setItem(WELCOME_KEY, '1')
-      } catch {
-        /* ignore */
-      }
-    }
+    setSeenFlag(WELCOME_KEY)
     onComplete()
   }
 
@@ -80,20 +72,8 @@ export function WelcomeScreen({ onComplete }: WelcomeScreenProps) {
 
 /**
  * ウェルカム画面の表示済み判定
- * localStorage → sessionStorage の順で確認（プライベートブラウジング対応）
  * レガシーキーもフォールバックで確認（テーマプレフィックス移行対応）
  */
 export function hasSeenWelcome(): boolean {
-  const keys = [WELCOME_KEY, LEGACY_WELCOME_KEY]
-  try {
-    if (keys.some((k) => localStorage.getItem(k) === '1')) return true
-  } catch {
-    /* localStorage が使えない環境 */
-  }
-  try {
-    if (keys.some((k) => sessionStorage.getItem(k) === '1')) return true
-  } catch {
-    /* sessionStorage も使えない環境 */
-  }
-  return false
+  return hasSeenFlag(WELCOME_KEY) || hasSeenFlag(LEGACY_WELCOME_KEY)
 }

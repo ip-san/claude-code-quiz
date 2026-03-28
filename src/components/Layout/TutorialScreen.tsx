@@ -13,6 +13,7 @@ import { useState } from 'react'
 import { theme } from '@/config/theme'
 import { trackTutorial } from '@/lib/analytics'
 import { haptics } from '@/lib/haptics'
+import { hasSeenFlag, setSeenFlag } from '@/lib/storage'
 
 interface TutorialScreenProps {
   onComplete: () => void
@@ -190,7 +191,7 @@ export function TutorialScreen({ onComplete }: TutorialScreenProps) {
   }
 
   return (
-    <div className="grid min-h-dvh bg-claude-cream dark:bg-stone-900" style={{ gridTemplateRows: 'auto 1fr auto' }}>
+    <div className="grid min-h-dvh grid-rows-[auto_1fr_auto] bg-claude-cream dark:bg-stone-900">
       {/* Skip button */}
       <div className="flex justify-end px-4 pt-3">
         <button
@@ -273,33 +274,10 @@ export function TutorialScreen({ onComplete }: TutorialScreenProps) {
 
 const TUTORIAL_KEY = `${theme.storagePrefix}-tutorial-seen`
 
-/** localStorage/sessionStorage のフラグを確認する共通ユーティリティ */
-function hasSeenFlag(key: string): boolean {
-  try {
-    if (localStorage.getItem(key) === '1') return true
-  } catch {
-    /* ignore */
-  }
-  try {
-    if (sessionStorage.getItem(key) === '1') return true
-  } catch {
-    /* ignore */
-  }
-  return false
-}
-
 export function hasSeenTutorial(): boolean {
   return hasSeenFlag(TUTORIAL_KEY)
 }
 
 export function markTutorialSeen(): void {
-  try {
-    localStorage.setItem(TUTORIAL_KEY, '1')
-  } catch {
-    try {
-      sessionStorage.setItem(TUTORIAL_KEY, '1')
-    } catch {
-      /* ignore */
-    }
-  }
+  setSeenFlag(TUTORIAL_KEY)
 }
