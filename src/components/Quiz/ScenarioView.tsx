@@ -67,26 +67,35 @@ export function ScenarioView({ scenario, isModalOpen }: { scenario: ScenarioData
     setNarrativePageIndex(0)
   }, [currentQuestionIndex])
 
-  const narratives = narrativeMap[currentQuestionIndex]
-  const hasNarrative = narratives && narratives.length > 0 && !dismissedForIndex.has(currentQuestionIndex)
+  const questionCount = scenario.steps.filter((s) => s.type === 'question').length
+  const isLastQuestionAnswered = currentQuestionIndex === questionCount - 1 && sessionState?.isAnswered === true
+
+  // For epilogue: check at questionCount index (after last question is answered)
+  const narrativeKey = isLastQuestionAnswered && narrativeMap[questionCount] ? questionCount : currentQuestionIndex
+  const narratives = narrativeMap[narrativeKey]
+  const hasNarrative = narratives && narratives.length > 0 && !dismissedForIndex.has(narrativeKey)
 
   const handleNarrativeNext = () => {
     if (narratives && narrativePageIndex < narratives.length - 1) {
       setNarrativePageIndex(narrativePageIndex + 1)
     } else {
-      setDismissedForIndex((prev) => new Set([...prev, currentQuestionIndex]))
+      setDismissedForIndex((prev) => new Set([...prev, narrativeKey]))
       setNarrativePageIndex(0)
     }
   }
 
   if (hasNarrative) {
     const text = narratives[narrativePageIndex]
-    const questionCount = scenario.steps.filter((s) => s.type === 'question').length
+    const isEpilogue = narrativeKey === questionCount
     return (
       <ScenarioNarrative
         text={text}
         onNext={handleNarrativeNext}
-        stepLabel={`${scenario.title} — ${currentQuestionIndex + 1}/${questionCount}問目の前に`}
+        stepLabel={
+          isEpilogue
+            ? `${scenario.title} — エピローグ`
+            : `${scenario.title} — ${currentQuestionIndex + 1}/${questionCount}問目の前に`
+        }
       />
     )
   }
