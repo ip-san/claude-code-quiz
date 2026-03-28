@@ -236,6 +236,12 @@ export function MenuHeader({
                   sublabel={locale.menuHeader.scenarioDesc}
                   onClick={() => handleMenuAction(() => setViewState('scenarioSelect'))}
                 />
+                <MenuItem
+                  icon={<BookOpenCheck className="h-4.5 w-4.5" />}
+                  label={locale.menuHeader.readFirstLabel}
+                  sublabel={locale.menuHeader.readFirstDesc}
+                  onClick={() => handleMenuAction(() => setViewState('studyFirst'))}
+                />
               </MenuSection>
 
               {/* Resources */}
@@ -273,12 +279,6 @@ export function MenuHeader({
                   label={locale.reader.title}
                   sublabel={`${totalQuestions}${locale.common.questionSuffix}の${locale.reader.subtitle}`}
                   onClick={() => handleMenuAction(() => setViewState('reader'))}
-                />
-                <MenuItem
-                  icon={<BookOpenCheck className="h-4.5 w-4.5" />}
-                  label={locale.menuHeader.readFirstLabel}
-                  sublabel={locale.menuHeader.readFirstDesc}
-                  onClick={() => handleMenuAction(() => setViewState('studyFirst'))}
                 />
               </MenuSection>
 
