@@ -1,22 +1,27 @@
-import { BookOpen, Map } from 'lucide-react'
+import { BookOpen, ChevronRight, Map } from 'lucide-react'
 import { haptics } from '@/lib/haptics'
 import { useQuizStore } from '@/stores/quizStore'
+
+interface FirstTimeGuideProps {
+  onOpenModes: () => void
+}
 
 /**
  * 初回ユーザー向けの導入カード
  *
- * 2つの明確な学習パスを提示:
- * - クイズで学ぶ（全体像モード）: 問題を解きながら覚える
- * - 読んでから解く: 解説を読んでからクイズに挑戦
+ * 初心者向け:
+ * - クイズで学ぶ（全体像モード）
+ * - 読んでから解く
  *
- * 「ランダム20問」は初心者には難しすぎるため非表示。
- * 経験者向けのモードは QuickActions で表示される。
+ * 経験者向け:
+ * - 「すでに活用されている方へ」→ ハンバーガーメニューをクイズモード展開状態で開く
  */
-export function FirstTimeGuide() {
+export function FirstTimeGuide({ onOpenModes }: FirstTimeGuideProps) {
   const { startSession, setViewState } = useQuizStore()
 
   return (
-    <div className="mb-5">
+    <div className="mb-5 space-y-3">
+      {/* 初心者向け */}
       <div className="rounded-2xl border-2 border-claude-orange/30 bg-gradient-to-r from-claude-orange/5 to-transparent p-4 dark:border-claude-orange/40 dark:from-claude-orange/10">
         <p className="mb-1 text-xs font-semibold text-claude-orange">はじめての方へ</p>
         <p className="mb-4 text-sm text-claude-dark dark:text-stone-200">
@@ -51,6 +56,22 @@ export function FirstTimeGuide() {
           </button>
         </div>
       </div>
+
+      {/* 経験者向け */}
+      <button
+        onClick={() => {
+          haptics.light()
+          onOpenModes()
+        }}
+        className="tap-highlight flex w-full items-center gap-3 rounded-2xl border border-stone-200 bg-white px-4 py-3 text-left dark:border-stone-700 dark:bg-stone-800"
+      >
+        <span className="text-sm text-stone-400">🎯</span>
+        <div className="flex-1">
+          <p className="text-sm font-medium text-claude-dark dark:text-stone-200">すでに活用されている方へ</p>
+          <p className="text-xs text-stone-400">実力テスト・カテゴリ別など多様なモード</p>
+        </div>
+        <ChevronRight className="h-4 w-4 text-stone-300 dark:text-stone-600" />
+      </button>
     </div>
   )
 }

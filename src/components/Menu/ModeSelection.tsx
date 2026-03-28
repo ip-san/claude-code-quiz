@@ -1,6 +1,4 @@
-import { BookOpen, ChevronRight } from 'lucide-react'
 import { useMemo, useState } from 'react'
-import { locale } from '@/config/locale'
 import { useQuizStore } from '@/stores/quizStore'
 import { ChapterProgressMap } from './ChapterProgressMap'
 import { DailySnapshot, hasSeenSnapshotToday } from './DailySnapshot'
@@ -11,9 +9,10 @@ import { QuizSearch } from './QuizSearch'
 import { ResumeSessionBanner } from './ResumeSessionBanner'
 
 export function ModeSelection() {
-  const { allQuestions, startSession, userProgress, setViewState } = useQuizStore()
+  const { allQuestions, startSession, userProgress } = useQuizStore()
 
   const [snapshotDismissed, setSnapshotDismissed] = useState(() => hasSeenSnapshotToday())
+  const [openMenuWithModes, setOpenMenuWithModes] = useState(false)
 
   const unansweredCount = useMemo(
     () => allQuestions.filter((q) => !userProgress.hasAttempted(q.id)).length,
@@ -32,6 +31,8 @@ export function ModeSelection() {
             totalQuestions={allQuestions.length}
             answeredCount={allQuestions.length - unansweredCount}
             hasProgress={userProgress.totalAttempts > 0}
+            openWithModes={openMenuWithModes}
+            onMenuOpened={() => setOpenMenuWithModes(false)}
           />
 
           {/* Daily Snapshot — removes decision paralysis (includes SRS info) */}
@@ -49,25 +50,10 @@ export function ModeSelection() {
           )}
 
           {/* First-time user: simplified entry point */}
-          {userProgress.totalAttempts === 0 && <FirstTimeGuide />}
+          {userProgress.totalAttempts === 0 && <FirstTimeGuide onOpenModes={() => setOpenMenuWithModes(true)} />}
 
           {/* Search */}
           <QuizSearch />
-
-          {/* Explanation Reader shortcut */}
-          <button
-            onClick={() => setViewState('reader')}
-            className="tap-highlight mb-5 flex w-full items-center gap-3 rounded-2xl border border-stone-200 bg-white px-4 py-3 text-left dark:border-stone-700 dark:bg-stone-800"
-          >
-            <BookOpen className="h-5 w-5 text-stone-400" />
-            <div className="flex-1">
-              <span className="text-sm font-medium text-claude-dark dark:text-stone-200">{locale.reader.title}</span>
-              <p className="text-xs text-stone-400">
-                {allQuestions.length}問の{locale.reader.subtitle}
-              </p>
-            </div>
-            <ChevronRight className="h-4 w-4 text-stone-300 dark:text-stone-600" />
-          </button>
 
           {/* Chapter progress map for overview mode */}
           <ChapterProgressMap

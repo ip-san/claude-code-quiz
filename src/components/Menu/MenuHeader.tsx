@@ -14,7 +14,7 @@ import {
   Sun,
   X,
 } from 'lucide-react'
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { KeyboardShortcutHelp } from '@/components/Layout/KeyboardShortcutHelp'
 import { locale } from '@/config/locale'
 import { theme } from '@/config/theme'
@@ -32,13 +32,16 @@ interface MenuHeaderProps {
   totalQuestions: number
   answeredCount: number
   hasProgress: boolean
+  /** 外部からメニューを開く（クイズモード展開状態で） */
+  openWithModes?: boolean
+  onMenuOpened?: () => void
 }
 
 /**
  * メニュー画面のヘッダー
  * タイトル + ストリーク/ゴールバッジ + ハンバーガーメニュー
  */
-export function MenuHeader({ totalQuestions, answeredCount, hasProgress }: MenuHeaderProps) {
+export function MenuHeader({ totalQuestions, answeredCount, hasProgress, openWithModes, onMenuOpened }: MenuHeaderProps) {
   const { setViewState, userProgress, startSession, getBookmarkedCount } = useQuizStore()
   const bookmarkedCount = getBookmarkedCount()
   const [currentTheme, setCurrentTheme] = useState<Theme>(() => getStoredTheme())
@@ -47,6 +50,15 @@ export function MenuHeader({ totalQuestions, answeredCount, hasProgress }: MenuH
   const [modesExpanded, setModesExpanded] = useState(false)
   const [updateStatus, setUpdateStatus] = useState<'checking' | 'latest' | 'error' | null>(null)
   const [showCategoryPicker, setShowCategoryPicker] = useState(false)
+
+  // 外部からメニューを開く（クイズモード展開状態）
+  useEffect(() => {
+    if (openWithModes) {
+      setMenuOpen(true)
+      setModesExpanded(true)
+      onMenuOpened?.()
+    }
+  }, [openWithModes, onMenuOpened])
 
   const streak = userProgress.streakDays
   const today = DailyGoalService.getTodayString()
