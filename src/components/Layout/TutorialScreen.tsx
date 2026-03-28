@@ -181,19 +181,19 @@ export function TutorialScreen({ onComplete }: TutorialScreenProps) {
       </div>
 
       {/* Slide content */}
-      <div className="flex-1 overflow-y-auto px-6 pb-4" key={currentSlide} aria-live="polite">
-        <div className="mx-auto w-full max-w-sm animate-view-enter">
+      <div className="flex flex-1 flex-col px-6" key={currentSlide} aria-live="polite">
+        <div className="mx-auto mt-auto mb-auto w-full max-w-sm animate-view-enter">
           {/* Icon */}
-          <div className="mb-3 flex justify-center">{slide.icon}</div>
+          <div className="mb-2 flex justify-center">{slide.icon}</div>
 
           {/* Title & description */}
-          <h2 className="mb-1.5 text-center text-xl font-bold text-claude-dark dark:text-stone-100">{slide.title}</h2>
-          <p className="mb-4 text-center text-sm leading-relaxed text-stone-500 dark:text-stone-400">
+          <h2 className="mb-1 text-center text-lg font-bold text-claude-dark dark:text-stone-100">{slide.title}</h2>
+          <p className="mb-3 text-center text-sm leading-relaxed text-stone-500 dark:text-stone-400">
             {slide.description}
           </p>
 
           {/* Visual */}
-          <div className="mb-3">{slide.visual}</div>
+          <div className="mb-2">{slide.visual}</div>
 
           {/* Tip */}
           {slide.tip && <p className="text-center text-xs text-stone-400 dark:text-stone-500">💡 {slide.tip}</p>}
