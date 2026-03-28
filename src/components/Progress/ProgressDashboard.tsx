@@ -15,6 +15,7 @@ import { WeakPointInsight } from './WeakPointInsight'
 
 export function ProgressDashboard() {
   const {
+    allQuestions,
     userProgress,
     getCategoryStats,
     setViewState,
@@ -135,7 +136,14 @@ export function ProgressDashboard() {
           )}
 
           {/* Weak Point Insight — always visible */}
-          {!hasNoProgress && <WeakPointInsight categoryStats={categoryStats} onStartSession={startSession} />}
+          {!hasNoProgress && (
+            <WeakPointInsight
+              allQuestions={allQuestions}
+              userProgress={userProgress}
+              categoryStats={categoryStats}
+              onStartSession={startSession}
+            />
+          )}
 
           {/* Action button — always visible */}
           {!hasNoProgress && (
