@@ -31,7 +31,7 @@ export const SCENARIOS: readonly ScenarioData[] = [
     steps: [
       {
         type: 'narrative',
-        text: '月曜の朝。Slackに「新規ECサイトのプロジェクト、今日からよろしく！」とPMからメッセージが届いた。リポジトリは空っぽ。まずはClaude Codeがこのプロジェクトを理解できるように、設定ファイルを用意しよう。',
+        text: '月曜の朝。Slackに「新規ECサイトのプロジェクト、今日からよろしく！」とPMからメッセージが届いた。リポジトリは空っぽ。チームメンバーは4人。全員 Claude Code は初めて。ここで最初にやるべきことを間違えると、後から「AIが使えない」という評価になってしまう。正しい一歩目は、AI にプロジェクトのルールを教えることだ。',
       },
       { type: 'question', questionId: 'mem-001' },
       {
@@ -67,12 +67,12 @@ export const SCENARIOS: readonly ScenarioData[] = [
     steps: [
       {
         type: 'narrative',
-        text: '金曜17:03。PagerDutyが鳴る。「決済APIがタイムアウト、エラー率が30%超過」——帰りかけていた手を止め、ターミナルを開く。Claude Codeで原因を追おう。まずは新しいセッションを始める。',
+        text: '金曜17:03。PagerDutyが鳴る。「決済APIがタイムアウト、エラー率が30%超過」——帰りかけていた手を止め、ターミナルを開く。障害対応で最も危険なのは「焦って見当違いの修正をする」こと。まずは冷静に、Claude Code で原因を特定しよう。新しいセッションを開始して、汚れていないコンテキストで始めるのが鉄則だ。',
       },
       { type: 'question', questionId: 'ses-006' },
       {
         type: 'narrative',
-        text: '「決済処理の周辺でタイムアウトしてるっぽい。エラーログを見てくれ」とClaudeに指示した。Claudeがログファイルを読み、コードをgrepし、該当箇所を特定していく。大量のログ出力をどう扱うか？',
+        text: '「決済処理の周辺でタイムアウトしてるっぽい。エラーログを見て原因を特定してくれ」とClaudeに指示した。ここでのコツは「エラーログを見て」だけでなく「原因を特定して」まで伝えること。AI は指示が具体的なほど的確に動く。Claudeがログを読み始めた。大量の出力が返ってくるが——',
       },
       { type: 'question', questionId: 'tool-027' },
       { type: 'question', questionId: 'bp-021' },
