@@ -1,3 +1,4 @@
+import { readFileSync } from 'fs'
 import { describe, expect, it } from 'vitest'
 import { SCENARIOS } from './scenarios'
 
@@ -114,16 +115,14 @@ describe('ScenarioView epilogue integration guard', () => {
   it('ScenarioView passes onLastQuestionNext to QuizCard', () => {
     // This is a structural guard: if someone refactors ScenarioView and
     // removes the onLastQuestionNext callback, this test will fail.
-    const fs = require('fs')
-    const scenarioViewCode = fs.readFileSync('src/components/Quiz/ScenarioView.tsx', 'utf8')
+    const scenarioViewCode = readFileSync('src/components/Quiz/ScenarioView.tsx', 'utf8')
     expect(scenarioViewCode).toContain('onLastQuestionNext')
     expect(scenarioViewCode).toContain('setShowEpilogue(true)')
     expect(scenarioViewCode).toContain('nextQuestion()')
   })
 
   it('QuizCard accepts onLastQuestionNext prop', () => {
-    const fs = require('fs')
-    const quizCardCode = fs.readFileSync('src/components/Quiz/QuizCard.tsx', 'utf8')
+    const quizCardCode = readFileSync('src/components/Quiz/QuizCard.tsx', 'utf8')
     expect(quizCardCode).toContain('onLastQuestionNext')
     expect(quizCardCode).toContain('onLastQuestionNext ?? nextQuestion')
   })
