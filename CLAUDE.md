@@ -235,6 +235,27 @@ Visual Regression ベースライン更新: `npx playwright test --update-snapsh
 
 ## カスタムスキル
 
+このプロジェクトでは、Claude Code のスキル機能を使ってクイズ品質・コード品質・ユーザー体験の改善を自動化している。
+
+**品質改善の自動化フロー:**
+```
+GA4（PWAユーザーの行動データ）
+  ↓ MCP 経由で取得
+/analytics-insight（ユーザー行動分析・改善提案）
+  ↓
+/code-review（コード品質レビュー）
+  ↓
+/generate-quiz-data + quiz:stats（不足カテゴリの問題を自動生成）
+  ↓
+/quiz-refine（全問題を公式ドキュメントと照合・修正）
+  ↓
+GitHub Actions → GitHub Pages（PWAに自動配信）
+  ↓
+GA4 で改善効果を測定 → ループ
+```
+
+この一連のフローは `/quality-loop` で一括実行できる。`/loop 1h /quality-loop` で定期実行も可能。詳細は [docs/quality-loop.md](docs/quality-loop.md) を参照。
+
 ### /generate-quiz-data
 
 公式ドキュメントを読み込み、クイズ問題を自動生成するスキル。
