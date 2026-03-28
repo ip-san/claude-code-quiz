@@ -1,6 +1,7 @@
 import { Heart } from 'lucide-react'
 import { useEffect, useState } from 'react'
-import { toastContainerProps, useToastPhase } from './useToastPhase'
+import { Toast } from './Toast'
+import { useToastPhase } from './useToastPhase'
 
 interface EncouragementToastProps {
   wrongStreak: number
@@ -29,16 +30,13 @@ export function EncouragementToast({ wrongStreak }: EncouragementToastProps) {
     }
   }, [wrongStreak, trigger])
 
-  if (phase === 'hidden') return null
-
   return (
-    <div {...toastContainerProps}>
-      <div className="rounded-full bg-gradient-to-r from-blue-500 to-indigo-500 px-5 py-2.5 shadow-lg" style={style}>
-        <div className="flex items-center gap-2 text-white">
-          <Heart className="h-4 w-4" />
-          <span className="text-sm font-medium">{message}</span>
-        </div>
-      </div>
-    </div>
+    <Toast
+      phase={phase}
+      style={style}
+      icon={<Heart className="h-4 w-4" />}
+      message={message}
+      gradient="from-blue-500 to-indigo-500"
+    />
   )
 }

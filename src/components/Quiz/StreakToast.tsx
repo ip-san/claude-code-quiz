@@ -1,6 +1,7 @@
 import { Flame } from 'lucide-react'
 import { useEffect, useState } from 'react'
-import { toastContainerProps, useToastPhase } from './useToastPhase'
+import { Toast } from './Toast'
+import { useToastPhase } from './useToastPhase'
 
 interface StreakToastProps {
   streak: number
@@ -29,16 +30,7 @@ export function StreakToast({ streak }: StreakToastProps) {
     }
   }, [streak, lastShown, trigger])
 
-  if (phase === 'hidden') return null
-
   return (
-    <div {...toastContainerProps}>
-      <div className="rounded-full bg-gradient-to-r from-orange-500 to-red-500 px-5 py-2.5 shadow-lg" style={style}>
-        <div className="flex items-center gap-2 text-white">
-          <Flame className="h-5 w-5" />
-          <span className="text-sm font-bold">{message}</span>
-        </div>
-      </div>
-    </div>
+    <Toast phase={phase} style={style} icon={<Flame className="h-5 w-5" />} message={message} gradient="from-orange-500 to-red-500" />
   )
 }
