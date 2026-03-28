@@ -1,11 +1,11 @@
 # アナリティクス イベント定義
 
-アプリから GA4 に送信されるイベントの一覧と、データの流れ。
+PWA のユーザー操作から GA4 に送信されるイベントの一覧と、データの流れ。
 
 ## データフロー
 
 ```
-ユーザー操作
+ユーザーがスマホ/ブラウザで PWA を操作
   ↓
 React コンポーネント
   ↓ trackXxx() を呼び出し
@@ -14,23 +14,23 @@ src/lib/analytics.ts
 GTM (タグ → GA4)
   ↓
 GA4 カスタムディメンション / 指標
-  ↓
-MCP Server → Claude Code
+  ↓ GA4 Data API
+MCP Server → Claude Code で分析
 ```
 
 ## 共通パラメータ
 
-全イベントに自動付与されるパラメータ:
+全イベントに自動付与:
 
 | パラメータ | 型 | 値 | 説明 |
 |-----------|-----|-----|------|
-| `platform` | string | `electron` / `pwa` | 実行プラットフォーム |
+| `platform` | string | `pwa` / `electron` | 配信プラットフォーム。大半のユーザーは `pwa`（GitHub Pages 経由） |
 
 ## イベント一覧
 
 ### tutorial_progress
 
-チュートリアル画面の完了またはスキップ。
+初回訪問時のチュートリアル画面（Claude Code の紹介）の完了またはスキップ。
 
 | パラメータ | 型 | 値 |
 |-----------|-----|-----|
@@ -39,7 +39,7 @@ MCP Server → Claude Code
 
 **送信元:** `src/components/Layout/TutorialScreen.tsx`
 
-**分析用途:** チュートリアルの有効性を測る。スキップ率が高い場合はコンテンツ改善が必要。
+**分析用途:** 初回ユーザーの離脱を防ぐチュートリアルが有効か。スキップ率が高い場合はコンテンツ改善が必要。
 
 ### quiz_start
 
@@ -53,7 +53,7 @@ MCP Server → Claude Code
 
 **送信元:** `src/stores/quizStore.ts` (`startSession`)
 
-**分析用途:** どのモードが人気か、カテゴリ別の利用頻度。
+**分析用途:** どのモードが人気か。初心者は `overview` を選んでいるか。スマホユーザーは `quick`（60秒チェック）を好むか。
 
 ### quiz_complete
 
@@ -69,11 +69,11 @@ MCP Server → Claude Code
 
 **送信元:** `src/stores/quizStore.ts` (`recordCompletedSession`)
 
-**分析用途:** モード別の正答率・完了率・所要時間。学習効果の測定。
+**分析用途:** モード別の正答率・完了率。`quiz_start` と比較して途中離脱率を算出。スマホでの所要時間が PC より長いか。
 
 ### chapter_progress
 
-全体像モードのチャプター開始。
+全体像モード（初心者向け6チャプター構成）のチャプター開始。
 
 | パラメータ | 型 | 値 |
 |-----------|-----|-----|
@@ -83,11 +83,11 @@ MCP Server → Claude Code
 
 **送信元:** `src/components/Quiz/ChapterIntro.tsx`
 
-**分析用途:** チャプター別の進捗・離脱率。どのチャプターで挫折するか。
+**分析用途:** どのチャプターで初心者が挫折するか。チャプター導入画面の効果測定。
 
 ### study_first
 
-「読んでから解く」モードの利用。
+「読んでから解く」モード（解説を先に読んでからクイズに挑戦する初心者向けフロー）。
 
 | パラメータ | 型 | 値 |
 |-----------|-----|-----|
@@ -96,7 +96,7 @@ MCP Server → Claude Code
 
 **送信元:** `src/components/Menu/StudyFirstView.tsx`
 
-**分析用途:** 読んでから解くモードの利用率。解説を読んだ後のクイズ開始率。
+**分析用途:** このモードの利用率。解説を読んだ後にクイズに進む率（`finish_reading` → `start_quiz`）。
 
 ### bookmark
 
@@ -106,43 +106,43 @@ MCP Server → Claude Code
 |-----------|-----|-----|
 | `action` | string | `add` / `remove` |
 
-**送信元:** （未接続 — 将来実装）
+**送信元:** 未接続（将来実装）
 
 ### quiz_search
 
-検索機能の利用。
+キーワード検索の利用。
 
 | パラメータ | 型 | 値 |
 |-----------|-----|-----|
 | `result_count` | number | 検索結果件数 |
 
-**送信元:** （未接続 — 将来実装）
+**送信元:** 未接続（将来実装）
 
 ### reader_open
 
-解説リーダーの利用。
+解説リーダー（クイズなしで解説を閲覧する機能）の利用。
 
-**送信元:** （未接続 — 将来実装）
+**送信元:** 未接続（将来実装）
 
 ### share_result
 
-結果のシェア。
+Web Share API によるクイズ結果のシェア。
 
 | パラメータ | 型 | 値 |
 |-----------|-----|-----|
-| `method` | string | シェア方法（`clipboard`, `share_api` 等） |
+| `method` | string | `clipboard`, `share_api` 等 |
 
-**送信元:** （未接続 — 将来実装）
+**送信元:** 未接続（将来実装）
 
 ### certificate_download
 
-修了証のダウンロード。
+修了証（全体像モード 70%+ / 実力テスト 80%+ で発行）のダウンロード。
 
 | パラメータ | 型 | 値 |
 |-----------|-----|-----|
 | `quiz_mode` | string | `overview` / `full` |
 
-**送信元:** （未接続 — 将来実装）
+**送信元:** 未接続（将来実装）
 
 ## GA4 カスタム定義
 
@@ -150,11 +150,11 @@ MCP Server → Claude Code
 
 | ディメンション名 | パラメータ名 | 範囲 | 用途 |
 |-----------------|-------------|------|------|
-| プラットフォーム | `platform` | イベント | Electron vs PWA の比較 |
-| クイズモード | `quiz_mode` | イベント | モード別の分析 |
-| カテゴリ | `category` | イベント | カテゴリ別の利用頻度 |
+| プラットフォーム | `platform` | イベント | PWA（スマホ/PC）の利用比率 |
+| クイズモード | `quiz_mode` | イベント | モード別の人気・完了率 |
+| カテゴリ | `category` | イベント | カテゴリ別の学習傾向 |
 | アクション | `action` | イベント | 完了/スキップ等の区分 |
-| チャプター | `chapter_id` | イベント | チャプター別の分析 |
+| チャプター | `chapter_id` | イベント | チャプター別の進捗・離脱 |
 
 ### カスタム指標
 
@@ -162,8 +162,8 @@ MCP Server → Claude Code
 |--------|-------------|---------|------|
 | 正答率 | `accuracy` | 標準 | 学習効果の測定 |
 | スコア | `score` | 標準 | 正解数の集計 |
-| 所要時間 | `duration_sec` | 秒 | セッション時間の分析 |
-| 問題数 | `question_count` | 標準 | モード別の問題数 |
+| 所要時間 | `duration_sec` | 秒 | スマホでの学習時間 |
+| 問題数 | `question_count` | 標準 | セッション規模 |
 
 ## イベント追加手順
 
@@ -193,21 +193,22 @@ export function trackNewEvent(param1: string, param2: number): void {
 
 ```typescript
 import { trackNewEvent } from '@/lib/analytics'
-
-// 適切なタイミングで
 trackNewEvent('value1', 42)
 ```
 
 ### 4. GTM に反映
 
 ```bash
-# API 経由で自動デプロイ
 node gtm/deploy-gtm.mjs --apply
 ```
 
 ### 5. GA4 カスタムディメンション（必要な場合）
 
+`gtm/setup-ga4.mjs` にディメンション/指標を追加して再実行:
 ```bash
-# setup-ga4.mjs にディメンション/指標を追加して再実行
 node gtm/setup-ga4.mjs <property-id>
 ```
+
+### 6. デプロイ
+
+`main` に push すれば GitHub Actions が自動でビルド・デプロイ。PWA ユーザーは Service Worker の更新で自動反映。

@@ -1,125 +1,77 @@
 # 自動化ツール一覧
 
-このプロジェクトで使用している自動化ツールとスクリプトの概要。
+PWA のビルド・デプロイ・品質管理・アナリティクスを支える自動化ツールの全体像。
 
 ## 全体像
 
 ```
-┌──────────────────────────────────────────────────┐
-│                  開発ワークフロー                    │
-├──────────┬──────────┬──────────┬─────────────────┤
-│ コード品質 │ クイズ品質 │ アナリティクス│ デプロイ        │
-├──────────┼──────────┼──────────┼─────────────────┤
-│/code-    │/quiz-    │/analytics│ GitHub Actions  │
-│ review   │ refine   │ -insight │ (自動)          │
-│          │/generate-│          │                 │
-│          │ quiz-data│          │                 │
-├──────────┴──────────┴──────────┴─────────────────┤
-│              /quality-loop (統合)                  │
-└──────────────────────────────────────────────────┘
+┌──────────────────────────────────────────────────────────┐
+│                     開発ワークフロー                        │
+├───────────┬───────────┬────────────┬─────────────────────┤
+│ コード品質  │ クイズ品質  │ アナリティクス│ デプロイ            │
+├───────────┼───────────┼────────────┼─────────────────────┤
+│ /code-    │ /quiz-    │ /analytics │ GitHub Actions      │
+│  review   │  refine   │  -insight  │  → GitHub Pages     │
+│           │ /generate-│            │  → PWA 自動更新     │
+│           │  quiz-data│            │                     │
+├───────────┴───────────┴────────────┴─────────────────────┤
+│                /quality-loop (統合オーケストレーター)        │
+└──────────────────────────────────────────────────────────┘
 ```
 
 ## スキル（Claude Code スラッシュコマンド）
 
-### /quality-loop
+### /quality-loop — 品質改善の統合実行
 
 | 項目 | 内容 |
 |------|------|
-| 目的 | 品質改善の全プロセスを一括実行 |
 | 実行内容 | GA4分析 → コードレビュー → クイズ追加判定 → クイズ検証 |
-| 定義ファイル | `.claude/skills/quality-loop/SKILL.md` |
+| 定義 | `.claude/skills/quality-loop/SKILL.md` |
 | 定期実行 | `/loop 1h /quality-loop` |
 
-### /analytics-insight
+### /analytics-insight — GA4 ユーザー行動分析
 
 | 項目 | 内容 |
 |------|------|
-| 目的 | GA4 データからユーザー行動を分析し改善提案 |
+| 分析内容 | PWA ユーザーのファネル、モード利用率、離脱率、正答率 |
 | 依存 | GA4 MCP サーバー（`mcp/ga4-server.mjs`） |
-| 定義ファイル | `.claude/skills/analytics-insight/SKILL.md` |
+| 定義 | `.claude/skills/analytics-insight/SKILL.md` |
 
-### /code-review
-
-| 項目 | 内容 |
-|------|------|
-| 目的 | コード変更の多角的レビュー |
-| 観点 | 品質 + React/TS + アクセシビリティ + パフォーマンス |
-| 定義ファイル | `~/.claude/skills/code-review/SKILL.md`（ユーザーレベル） |
-
-### /quiz-refine
+### /code-review — コード品質レビュー
 
 | 項目 | 内容 |
 |------|------|
-| 目的 | クイズ問題を公式ドキュメントと照合・修正 |
+| 観点 | 品質 + React/TS + アクセシビリティ + PWA パフォーマンス |
+| 定義 | `~/.claude/skills/code-review/SKILL.md`（ユーザーレベル） |
+
+### /quiz-refine — クイズ検証・修正
+
+| 項目 | 内容 |
+|------|------|
+| 内容 | 公式ドキュメントと照合し事実誤りを修正 |
 | モード | 差分（デフォルト） / 全問スキャン（`--full`） |
-| 定義ファイル | `.claude/skills/quiz-refine/SKILL.md` |
+| 定義 | `.claude/skills/quiz-refine/SKILL.md` |
 
-### /generate-quiz-data
-
-| 項目 | 内容 |
-|------|------|
-| 目的 | 公式ドキュメントからクイズ問題を自動生成 |
-| 後処理 | `npm run quiz:post-add`（randomize → check → test → stats） |
-| 定義ファイル | `.claude/skills/generate-quiz-data/SKILL.md` |
-
-### /spec-audit
+### /generate-quiz-data — クイズ自動生成
 
 | 項目 | 内容 |
 |------|------|
-| 目的 | CLAUDE.md の仕様記述と実装の整合性を監査 |
-| 定義ファイル | `.claude/skills/spec-audit/SKILL.md` |
+| 内容 | 公式ドキュメントからクイズ問題を自動生成 |
+| 後処理 | `npm run quiz:post-add` |
+| 定義 | `.claude/skills/generate-quiz-data/SKILL.md` |
+
+### /spec-audit — 仕様整合性監査
+
+| 項目 | 内容 |
+|------|------|
+| 内容 | CLAUDE.md の仕様記述と実装コードの意味的な整合性チェック |
+| 定義 | `.claude/skills/spec-audit/SKILL.md` |
 
 ## GTM / GA4 自動化スクリプト
 
-### gtm/build-container.mjs
+### gtm/events.json — イベント定義（Single Source of Truth）
 
-GTM コンテナ設定を `events.json` から自動生成する。
-
-```bash
-# テンプレート生成
-node gtm/build-container.mjs path/to/exported.json
-
-# + .env の Measurement ID を注入してインポート用ファイル生成
-node gtm/build-container.mjs path/to/exported.json --import
-```
-
-**入力:** `gtm/events.json`（人間が読むイベント定義）+ GTM エクスポート JSON
-**出力:** `gtm/container-config.json`（テンプレート）+ `gtm/container-import.json`（インポート用）
-
-### gtm/deploy-gtm.mjs
-
-GTM API 経由でタグ・トリガー・変数を自動デプロイする。
-
-```bash
-# ドライラン（変更内容を確認）
-node gtm/deploy-gtm.mjs
-
-# 実際に適用して公開
-node gtm/deploy-gtm.mjs --apply
-```
-
-**動作:** `events.json` の定義と GTM コンテナの現状を比較し、差分を適用。新規作成・更新・公開を自動実行。
-
-### gtm/setup-ga4.mjs
-
-GA4 カスタムディメンション・指標を自動登録する。
-
-```bash
-# プロパティ一覧表示
-node gtm/setup-ga4.mjs
-
-# ディメンション・指標を登録
-node gtm/setup-ga4.mjs <property-id>
-
-# ドライラン
-node gtm/setup-ga4.mjs <property-id> --dry-run
-```
-
-**動作:** 既存のディメンション・指標をチェックし、未登録のものだけを作成。重複登録を回避。
-
-### gtm/events.json
-
-全イベントの定義ファイル。他のスクリプトが参照する Single Source of Truth。
+PWA から送信する全イベントの定義。他のスクリプトが参照する。
 
 ```json
 {
@@ -133,70 +85,114 @@ node gtm/setup-ga4.mjs <property-id> --dry-run
 }
 ```
 
-イベントを追加する場合はこのファイルを編集し、`deploy-gtm.mjs --apply` で GTM に反映する。
+### gtm/build-container.mjs — GTM インポート JSON 生成
+
+`events.json` + GTM エクスポート JSON → GTM にインポート可能な JSON を生成。
+
+```bash
+node gtm/build-container.mjs path/to/exported.json --import
+```
+
+### gtm/deploy-gtm.mjs — GTM API 自動デプロイ
+
+`events.json` の定義を GTM API 経由でコンテナに反映し公開する。
+
+```bash
+node gtm/deploy-gtm.mjs          # ドライラン
+node gtm/deploy-gtm.mjs --apply  # 適用 & 公開
+```
+
+### gtm/setup-ga4.mjs — GA4 ディメンション自動登録
+
+GA4 のカスタムディメンション・指標を API 経由で一括登録。
+
+```bash
+node gtm/setup-ga4.mjs                    # プロパティ一覧
+node gtm/setup-ga4.mjs <property-id>      # 登録実行
+```
 
 ## MCP サーバー
 
-### mcp/ga4-server.mjs
+### mcp/ga4-server.mjs — GA4 分析データ取得
 
-GA4 Data API に接続する MCP サーバー。Claude Code から直接 GA4 データをクエリできる。
+Claude Code から GA4 Data API に直接クエリできる MCP サーバー。
 
-**提供ツール:**
+| ツール | 説明 | 使用例 |
+|--------|------|--------|
+| `ga4_summary` | 直近 N 日間の KPI サマリー | 「先週のユーザー数は？」 |
+| `ga4_report` | カスタムレポート | 「モード別の正答率を教えて」 |
+| `ga4_realtime` | リアルタイムデータ | 「今アクティブなユーザーは？」 |
 
-| ツール | 説明 |
-|--------|------|
-| `ga4_summary` | 直近 N 日間の KPI サマリー |
-| `ga4_report` | カスタムレポート（ディメンション・指標・フィルタ指定） |
-| `ga4_realtime` | リアルタイムデータ（過去30分） |
-
-**設定場所:** `~/.claude/settings.json` の `mcpServers`
+設定: `~/.claude/settings.json` の `mcpServers` に登録済み。
 
 ## npm スクリプト
 
 | コマンド | 説明 |
 |---------|------|
+| `npm run dev:web` | PWA 開発サーバー起動 |
+| `npm run build:web` | PWA プロダクションビルド |
+| `npm run preview:web` | ビルド結果のプレビュー |
+| `npm run check` | 型 + lint + テスト + 問題チェック |
+| `npm run check:all` | check + ドキュメント検証（CI で使用） |
 | `npm run quiz:stats` | カテゴリ・難易度・correctIndex 分布 |
 | `npm run quiz:coverage` | ドキュメントページ別カバレッジ |
 | `npm run quiz:check` | 構造的品質チェック |
-| `npm run quiz:randomize` | correctIndex ランダム化 |
 | `npm run quiz:post-add` | 問題追加後の一括処理 |
 | `npm run docs:validate` | CLAUDE.md の統計値検証 |
-| `npm run check` | 型 + lint + テスト + 問題チェック |
-| `npm run check:all` | check + docs:validate |
 
 ## CI/CD
 
-### GitHub Actions（`.github/workflows/deploy.yml`）
+### GitHub Actions → GitHub Pages
 
-`main` ブランチへの push で自動実行:
+`.github/workflows/deploy.yml`:
 
-1. `bun install --frozen-lockfile`
-2. `bun run check:all`（型 + lint + テスト + ドキュメント検証）
-3. `bun run build:web`（`VITE_GTM_ID` を Secret から注入）
-4. GitHub Pages にデプロイ
+```
+main への push
+  ↓
+bun install --frozen-lockfile
+  ↓
+bun run check:all（型 + lint + テスト + ドキュメント検証）
+  ↓
+bun run build:web（VITE_GTM_ID を Secret から注入）
+  ↓
+GitHub Pages にデプロイ
+  ↓
+PWA ユーザーに Service Worker 経由で自動配信
+```
 
 ## ファイル構成
 
 ```
+docs/
+├── analytics-setup.md    # セットアップ手順（このガイド群）
+├── analytics-events.md   # イベント定義
+├── quality-loop.md       # 品質改善ループ
+└── automation.md         # 自動化ツール一覧（本ファイル）
+
 gtm/
 ├── events.json           # イベント定義（SSOT）
 ├── build-container.mjs   # GTM インポート JSON 生成
-├── deploy-gtm.mjs        # GTM API 経由で自動デプロイ
+├── deploy-gtm.mjs        # GTM API 自動デプロイ
 ├── setup-ga4.mjs         # GA4 ディメンション自動登録
-├── container-config.json  # 生成済みテンプレート
-├── container-import.json  # 生成済みインポートファイル（.gitignore）
-└── README.md             # GTM セットアップ手順
+├── container-config.json  # テンプレート（リポジトリ管理）
+├── container-import.json  # インポート用（.gitignore）
+└── README.md             # セットアップ手順（簡易版）
 
 mcp/
 └── ga4-server.mjs        # GA4 MCP サーバー
 
-.claude/skills/
-├── quality-loop/         # 品質改善ループ統合スキル
-├── analytics-insight/    # GA4 分析スキル
-├── quiz-refine/          # クイズ検証スキル
-├── generate-quiz-data/   # クイズ生成スキル
-└── spec-audit/           # 仕様監査スキル
+src/lib/
+└── analytics.ts          # イベント送信の抽象レイヤー
 
-.env.example              # 環境変数テンプレート
+.claude/skills/
+├── quality-loop/         # 品質改善ループ
+├── analytics-insight/    # GA4 分析
+├── quiz-refine/          # クイズ検証
+├── generate-quiz-data/   # クイズ生成
+└── spec-audit/           # 仕様監査
+
+.env.example              # 環境変数テンプレート（リポジトリ管理）
 .env                      # 実際の値（.gitignore）
+.github/workflows/
+└── deploy.yml            # PWA 自動デプロイ
 ```

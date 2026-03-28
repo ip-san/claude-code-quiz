@@ -1,11 +1,11 @@
 # アナリティクス セットアップガイド
 
-GTM（Google Tag Manager）+ GA4（Google Analytics 4）の導入から動作確認までの手順。
+PWA（GitHub Pages）で配信するクイズアプリのユーザー行動を GTM + GA4 で計測し、Claude Code から MCP 経由で分析データを取得するまでの手順。
 
 ## アーキテクチャ
 
 ```
-PWA / Electron ユーザー
+スマホ / PC ブラウザ（PWA）
   │
   │ dataLayer.push({ event: 'quiz_start', ... })
   ↓
@@ -27,16 +27,23 @@ MCP Server (mcp/ga4-server.mjs)
 Claude Code から直接クエリ
 ```
 
+**ポイント:**
+- GTM ID は `.env` + GitHub Actions Secret で管理。リポジトリには含まれない
+- PWA のビルド時に `VITE_GTM_ID` 環境変数として注入される
+- Electron 版でも同じ仕組みで動作する（`platform` パラメータで区別）
+
 ## 前提条件
 
 - Google アカウント
 - GCP プロジェクト（無料枠で十分）
+- GitHub Pages にデプロイ済みの PWA
 
 ## Step 1: GA4 プロパティ作成
 
-1. [analytics.google.com](https://analytics.google.com/) にアクセス
-2. アカウントがなければ「測定を開始」→ アカウント名は自分の名前や組織名
-3. プロパティ作成:
+[analytics.google.com](https://analytics.google.com/) にアクセス
+
+1. アカウントがなければ「測定を開始」→ アカウント名は自分の名前や組織名（複数プロダクトで共有するため、プロダクト名にしない）
+2. プロパティ作成:
 
 | 項目 | 値 |
 |------|-----|
@@ -46,27 +53,28 @@ Claude Code から直接クエリ
 | 業種 | その他 |
 | ビジネス目標 | ユーザー行動の調査 |
 
-4. データストリーム作成（ウェブ）:
+3. データストリーム作成（ウェブ）:
 
-| 項目 | 値 |
-|------|-----|
-| URL | デプロイ先の URL |
-| ストリーム名 | 任意 |
+| 項目 | 値 | 備考 |
+|------|-----|------|
+| URL | `ip-san.github.io/claude-code-quiz` | GitHub Pages の URL |
+| ストリーム名 | `CC Quiz PWA` | |
 
-5. **Measurement ID**（`G-XXXXXXXXXX`）をメモ
+4. **Measurement ID**（`G-XXXXXXXXXX`）をメモ
 
 ## Step 2: GTM コンテナ作成
 
-1. [tagmanager.google.com](https://tagmanager.google.com/) にアクセス
-2. アカウント作成 → コンテナ作成:
+[tagmanager.google.com](https://tagmanager.google.com/) にアクセス
+
+1. アカウント作成 → コンテナ作成:
 
 | 項目 | 値 |
 |------|-----|
 | コンテナ名 | `cc-quiz-web` |
 | プラットフォーム | ウェブ |
 
-3. **コンテナ ID**（`GTM-XXXXXXX`）をメモ
-4. GTM が表示するインストールコードは**貼り付け不要**（アプリ側で動的に読み込む）
+2. **コンテナ ID**（`GTM-XXXXXXX`）をメモ
+3. GTM が表示するインストールコードは**貼り付け不要**（アプリ側で `src/lib/analytics.ts` から動的に読み込む）
 
 ## Step 3: GTM に GA4 Config タグを手動作成
 
@@ -93,6 +101,13 @@ node gtm/build-container.mjs path/to/exported.json --import
 
 # 生成された container-import.json を GTM にインポート
 # GTM管理画面 → 管理 → コンテナをインポート → 「統合」を選択
+# インポート後「公開」
+```
+
+または、GTM API 経由で直接デプロイ（Step 7 のサービスアカウント設定後）:
+
+```bash
+node gtm/deploy-gtm.mjs --apply
 ```
 
 ## Step 6: 環境変数を設定
@@ -116,10 +131,10 @@ GOOGLE_APPLICATION_CREDENTIALS=~/.config/gcloud/claude-code-quiz-sa.json
    - Google Analytics Admin API
    - Google Analytics Data API
    - Tag Manager API
-3. サービスアカウント作成（名前: `ga4-automation`）
-4. JSON キーをダウンロード → `~/.config/gcloud/` に配置
-5. GA4 でサービスアカウントに「編集者」権限を付与
-6. GTM でサービスアカウントに「公開」権限を付与
+3. 「IAMと管理」→「サービスアカウント」→ 作成（名前: `ga4-automation`）
+4. 「キー」タブ → JSON キーをダウンロード → `~/.config/gcloud/` に配置
+5. GA4 管理画面でサービスアカウントに「編集者」権限を付与
+6. GTM 管理画面でサービスアカウントに「公開」権限を付与
 
 ## Step 8: GA4 カスタムディメンション登録
 
@@ -133,32 +148,46 @@ node gtm/setup-ga4.mjs <property-id>
 
 ## Step 9: GitHub Actions に Secret 設定
 
+PWA は GitHub Pages にデプロイされるため、ビルド時に GTM ID を注入する必要がある。
+
 リポジトリの Settings → Secrets and variables → Actions:
 
 | Name | Value |
 |------|-------|
 | `VITE_GTM_ID` | GTM コンテナ ID |
 
+`main` への push で GitHub Actions が自動ビルド → デプロイし、PWA に GTM が組み込まれる。
+
 ## Step 10: 動作確認
+
+### ローカルで確認
 
 ```bash
 npm run dev:web
+# http://localhost:5174/claude-code-quiz/ を開く
 ```
 
 1. ブラウザの DevTools → Console で `window.dataLayer` を確認
 2. クイズを開始して `quiz_start` イベントが送信されることを確認
-3. GTM のプレビューモードでタグの発火を確認
-4. GA4 のリアルタイムレポートでイベントが表示されることを確認
+
+### 本番 PWA で確認
+
+1. GitHub Pages の URL にアクセス
+2. GTM のプレビューモードで接続し、タグの発火を確認
+3. GA4 のリアルタイムレポートでイベントが表示されることを確認
+
+### スマホ（PWA インストール済み）で確認
+
+ホーム画面から起動した PWA でも GTM は動作する。GA4 のリアルタイムレポートでデバイスカテゴリ「mobile」のイベントを確認。
 
 ## セキュリティ
 
 | 情報 | 保管場所 | リポジトリに含まれるか |
 |------|---------|----------------------|
-| GTM コンテナ ID | `.env` | No（`.gitignore`） |
+| GTM コンテナ ID | `.env` / GitHub Secret | No |
 | GA4 Measurement ID | GTM 管理画面内 | No |
 | GA4 Property ID | `.env` | No |
 | GCP サービスアカウントキー | `~/.config/gcloud/` | No |
-| GitHub Actions Secret | GitHub Settings | No |
 | `.env.example`（テンプレート） | リポジトリ | Yes（値なし） |
 | `gtm/events.json`（イベント定義） | リポジトリ | Yes |
-| `gtm/container-config.json`（テンプレート） | リポジトリ | Yes（Measurement ID はプレースホルダー） |
+| `gtm/container-config.json`（テンプレート） | リポジトリ | Yes（ID はプレースホルダー） |
