@@ -1,5 +1,5 @@
 import { ArrowRight, BookOpen } from 'lucide-react'
-import { useEffect, useMemo, useRef, useState } from 'react'
+import { useMemo, useState } from 'react'
 import { QuizCard } from '@/components/Quiz/QuizCard'
 import { SCENARIOS, type ScenarioData } from '@/data/scenarios'
 import { useQuizStore } from '@/stores/quizStore'
@@ -31,10 +31,11 @@ function ScenarioNarrative({ text, onNext, stepLabel }: { text: string; onNext: 
  * Tracks which narrative steps have been shown based on question progress.
  */
 export function ScenarioView({ scenario, isModalOpen }: { scenario: ScenarioData; isModalOpen: boolean }) {
-  const { sessionState } = useQuizStore()
+  const { sessionState, endSession } = useQuizStore()
   const currentQuestionIndex = sessionState?.currentIndex ?? 0
 
   // Build a map: questionIndex -> preceding narrative texts
+  // Also captures epilogue at index = questionCount
   const narrativeMap = useMemo(() => {
     const map: Record<number, string[]> = {}
     let qIdx = 0
@@ -51,43 +52,23 @@ export function ScenarioView({ scenario, isModalOpen }: { scenario: ScenarioData
         qIdx++
       }
     }
-    // Epilogue: narratives after the last question (shown at qIdx = total questions)
+    // Epilogue: narratives after the last question
     if (pending.length > 0) {
       map[qIdx] = [...pending]
     }
     return map
   }, [scenario])
 
+  const questionCount = scenario.steps.filter((s) => s.type === 'question').length
+
   // Track which narratives have been dismissed
   const [dismissedForIndex, setDismissedForIndex] = useState<Set<number>>(new Set())
   const [narrativePageIndex, setNarrativePageIndex] = useState(0)
+  // Epilogue state: set when user finishes the last question's feedback
+  const [epilogueActive, setEpilogueActive] = useState(false)
 
-  // Reset narrative page when question changes
-  useEffect(() => {
-    setNarrativePageIndex(0)
-  }, [currentQuestionIndex])
-
-  const questionCount = scenario.steps.filter((s) => s.type === 'question').length
-  const [showEpilogue, setShowEpilogue] = useState(false)
-
-  // Detect when user clicks "next" on the last answered question → show epilogue
-  const prevIndexRef = useRef(currentQuestionIndex)
-  useEffect(() => {
-    // If last question was answered and index didn't change (nextQuestion on last question),
-    // it means the session is about to end — show epilogue first
-    if (
-      currentQuestionIndex === questionCount - 1 &&
-      prevIndexRef.current === questionCount - 1 &&
-      sessionState?.isAnswered === false &&
-      narrativeMap[questionCount]
-    ) {
-      setShowEpilogue(true)
-    }
-    prevIndexRef.current = currentQuestionIndex
-  }, [currentQuestionIndex, sessionState?.isAnswered, questionCount, narrativeMap])
-
-  // For epilogue: show at questionCount index after user proceeds from last question's feedback
-  const narrativeKey = showEpilogue ? questionCount : currentQuestionIndex
+  // Determine which narrative to show
+  const narrativeKey = epilogueActive ? questionCount : currentQuestionIndex
   const narratives = narrativeMap[narrativeKey]
   const hasNarrative = narratives && narratives.length > 0 && !dismissedForIndex.has(narrativeKey)
 
@@ -97,6 +78,10 @@ export function ScenarioView({ scenario, isModalOpen }: { scenario: ScenarioData
     } else {
       setDismissedForIndex((prev) => new Set([...prev, narrativeKey]))
       setNarrativePageIndex(0)
+      // If epilogue was just dismissed, end the session
+      if (epilogueActive) {
+        endSession()
+      }
     }
   }
 
@@ -116,7 +101,23 @@ export function ScenarioView({ scenario, isModalOpen }: { scenario: ScenarioData
     )
   }
 
-  return <QuizCard isModalOpen={isModalOpen} />
+  // Check if this is the last question and it's been answered — show epilogue trigger
+  const isLastQuestionAnswered = currentQuestionIndex === questionCount - 1 && sessionState?.isAnswered === true
+  const hasEpilogue = narrativeMap[questionCount] && !dismissedForIndex.has(questionCount)
+
+  return (
+    <QuizCard
+      isModalOpen={isModalOpen}
+      onLastQuestionNext={
+        isLastQuestionAnswered && hasEpilogue
+          ? () => {
+              setEpilogueActive(true)
+              setNarrativePageIndex(0)
+            }
+          : undefined
+      }
+    />
+  )
 }
 
 /** Scenario selection list for menu */

@@ -19,7 +19,14 @@ import { QuizBottomBar } from './QuizBottomBar'
 import { QuizText } from './QuizText'
 import { RelatedQuestions } from './result/RelatedQuestions'
 
-export function QuizCard({ isModalOpen = false }: { isModalOpen?: boolean }) {
+export function QuizCard({
+  isModalOpen = false,
+  onLastQuestionNext,
+}: {
+  isModalOpen?: boolean
+  /** シナリオモードで最後の問題の後にエピローグを表示するためのコールバック */
+  onLastQuestionNext?: () => void
+}) {
   const {
     getCurrentQuestion,
     sessionState,
@@ -375,7 +382,7 @@ export function QuizCard({ isModalOpen = false }: { isModalOpen?: boolean }) {
         deferFeedback={deferFeedback}
         canGoBack={canGoBack}
         previousQuestion={previousQuestion}
-        nextQuestion={nextQuestion}
+        nextQuestion={onLastQuestionNext ?? nextQuestion}
         submitAnswer={submitAnswer}
         goToQuestion={goToQuestion}
         finishTest={finishTest}
