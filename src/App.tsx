@@ -1,5 +1,6 @@
 import { ArrowLeft, XCircle } from 'lucide-react'
 import { lazy, Suspense, useEffect, useMemo, useRef, useState } from 'react'
+import { AppLogo } from '@/components/Layout/AppLogo'
 import { InstallPrompt } from '@/components/Layout/InstallPrompt'
 import { OfflineIndicator } from '@/components/Layout/OfflineIndicator'
 import { hasSeenTutorial, markTutorialSeen, TutorialScreen } from '@/components/Layout/TutorialScreen'
@@ -137,8 +138,8 @@ export default function App() {
     return (
       <div className="flex min-h-dvh flex-col items-center justify-center bg-claude-cream">
         <div className="animate-bounce-in text-center">
-          <div className="mx-auto mb-4 flex h-24 w-24 items-center justify-center rounded-3xl bg-claude-orange shadow-lg">
-            <span className="text-4xl font-bold text-white">CC</span>
+          <div className="mx-auto mb-4">
+            <AppLogo size={96} />
           </div>
           <h1 className="mb-1 text-xl font-bold text-claude-dark">Claude Code Quiz</h1>
           <p className="text-sm text-claude-gray">読み込み中...</p>

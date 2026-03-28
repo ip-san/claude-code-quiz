@@ -10,6 +10,7 @@ import {
   Zap,
 } from 'lucide-react'
 import { useState } from 'react'
+import { AppLogo } from '@/components/Layout/AppLogo'
 import { theme } from '@/config/theme'
 import { trackTutorial } from '@/lib/analytics'
 import { haptics } from '@/lib/haptics'
@@ -69,11 +70,7 @@ function SlideIcon({ type }: { type: SlideData['iconType'] }) {
     case 'zap':
       return <Zap className="h-8 w-8 text-purple-500" />
     case 'logo':
-      return (
-        <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-claude-orange text-white">
-          <span className="text-sm font-bold">{theme.logoText}</span>
-        </div>
-      )
+      return <AppLogo size={32} />
   }
 }
 

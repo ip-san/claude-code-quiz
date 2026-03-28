@@ -1,4 +1,5 @@
 import { ArrowRight, GraduationCap, Sparkles, TrendingUp } from 'lucide-react'
+import { AppLogo } from '@/components/Layout/AppLogo'
 import { theme } from '@/config/theme'
 import { hasSeenFlag, setSeenFlag } from '@/lib/storage'
 
@@ -26,8 +27,8 @@ export function WelcomeScreen({ onComplete }: WelcomeScreenProps) {
     <div className="flex min-h-dvh flex-col items-center justify-center bg-claude-cream px-6">
       <div className="w-full max-w-sm animate-view-enter text-center">
         {/* Logo */}
-        <div className="mx-auto mb-6 flex h-24 w-24 items-center justify-center rounded-3xl bg-claude-orange shadow-lg">
-          <span className="text-4xl font-bold text-white">{theme.logoText}</span>
+        <div className="mx-auto mb-6">
+          <AppLogo size={96} />
         </div>
 
         <h1 className="mb-2 text-3xl font-bold text-claude-dark sm:text-2xl">{theme.appName}</h1>
