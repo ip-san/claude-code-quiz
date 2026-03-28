@@ -12,31 +12,34 @@ export function AppLogo({ size = 96 }: { size?: number }) {
         </linearGradient>
       </defs>
       <rect width="512" height="512" rx="112" fill="url(#logo-bg)" />
+      {/* < bracket — pulled inward for padding */}
       <path
-        d="M120 180 L60 256 L120 332"
+        d="M155 200 L100 256 L155 312"
         stroke="white"
-        strokeWidth="40"
+        strokeWidth="36"
         strokeLinecap="round"
         strokeLinejoin="round"
         fill="none"
       />
+      {/* > bracket */}
       <path
-        d="M392 180 L452 256 L392 332"
+        d="M357 200 L412 256 L357 312"
         stroke="white"
-        strokeWidth="40"
+        strokeWidth="36"
         strokeLinecap="round"
         strokeLinejoin="round"
         fill="none"
       />
+      {/* ? mark */}
       <path
-        d="M222 195 Q222 150 256 150 Q290 150 290 195 Q290 240 256 255 L256 280"
+        d="M228 208 Q228 170 256 170 Q284 170 284 208 Q284 245 256 258 L256 278"
         stroke="white"
-        strokeWidth="30"
+        strokeWidth="28"
         strokeLinecap="round"
         strokeLinejoin="round"
         fill="none"
       />
-      <circle cx="256" cy="330" r="17" fill="white" />
+      <circle cx="256" cy="320" r="15" fill="white" />
     </svg>
   )
 }

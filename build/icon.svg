@@ -7,10 +7,11 @@
   </defs>
   <!-- Rounded square background -->
   <rect width="512" height="512" rx="112" fill="url(#bg)"/>
-  <!-- Stylized </> with ? replacing / -->
-  <path d="M120 180 L60 256 L120 332" stroke="white" stroke-width="40" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
-  <path d="M392 180 L452 256 L392 332" stroke="white" stroke-width="40" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
-  <!-- ? in the center (replacing the / in </>) -->
-  <path d="M222 195 Q222 150 256 150 Q290 150 290 195 Q290 240 256 255 L256 280" stroke="white" stroke-width="30" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
-  <circle cx="256" cy="330" r="17" fill="white"/>
+  <!-- < bracket — with inner padding -->
+  <path d="M155 200 L100 256 L155 312" stroke="white" stroke-width="36" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+  <!-- > bracket -->
+  <path d="M357 200 L412 256 L357 312" stroke="white" stroke-width="36" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+  <!-- ? mark (centered) -->
+  <path d="M228 208 Q228 170 256 170 Q284 170 284 208 Q284 245 256 258 L256 278" stroke="white" stroke-width="28" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+  <circle cx="256" cy="320" r="15" fill="white"/>
 </svg>
