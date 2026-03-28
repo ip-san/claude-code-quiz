@@ -7,7 +7,7 @@ import { hasSeenTutorial, markTutorialSeen, TutorialScreen } from '@/components/
 import { hasSeenWelcome, WelcomeScreen } from '@/components/Layout/WelcomeScreen'
 import { ModeSelection } from '@/components/Menu/ModeSelection'
 import { QuizCard } from '@/components/Quiz/QuizCard'
-import { Timer } from '@/components/Quiz/Timer'
+import { Timer } from '@/components/Quiz/chapter/Timer'
 import { SCENARIOS } from '@/data/scenarios'
 import { getChapterFromTags } from '@/domain/valueObjects/OverviewChapter'
 import { isElectron } from '@/lib/platformAPI'

@@ -6,14 +6,14 @@ import { getOverviewRecommendation } from '@/domain/services/RecommendationServi
 import { getScoreMessage } from '@/domain/services/ScoreMessageService'
 import { getChapterFromTags } from '@/domain/valueObjects/OverviewChapter'
 import { APP_CONFIG, useQuizStore } from '@/stores/quizStore'
-import { CategoryBreakthroughBadge } from './CategoryBreakthroughBadge'
-import { CertificateGenerator } from './CertificateGenerator'
-import { ConfettiEffect } from './ConfettiEffect'
-import { PersonalBest } from './PersonalBest'
-import { ScoreRing } from './ScoreRing'
-import { SkillsAcquired } from './SkillsAcquired'
-import { DailyGoalBadge, StreakMilestoneBadge } from './StreakMilestoneBadge'
-import { TeamShareGuide } from './TeamShareGuide'
+import { CategoryBreakthroughBadge } from './overlays/CategoryBreakthroughBadge'
+import { ConfettiEffect } from './overlays/ConfettiEffect'
+import { DailyGoalBadge, StreakMilestoneBadge } from './overlays/StreakMilestoneBadge'
+import { CertificateGenerator } from './result/CertificateGenerator'
+import { PersonalBest } from './result/PersonalBest'
+import { ScoreRing } from './result/ScoreRing'
+import { SkillsAcquired } from './result/SkillsAcquired'
+import { TeamShareGuide } from './result/TeamShareGuide'
 
 // Star visualization constants
 const STAR_COUNT = 5
