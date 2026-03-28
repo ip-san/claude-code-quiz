@@ -286,9 +286,10 @@ function QuizView({
   progress: { current: number; total: number }
   timeRemaining: number | null
 }) {
-  const { endSession, suspendSession, sessionState } = useQuizStore()
+  const { endSession, suspendSession, sessionState, sessionLabel } = useQuizStore()
   const isReviewMode = sessionState?.isReviewMode ?? false
   const isOverviewMode = sessionState?.config.mode === 'overview'
+  const isCustomMode = sessionState?.config.mode === 'custom'
   const [showQuitDialog, setShowQuitDialog] = useState(false)
   const dialogRef = useRef<HTMLDivElement | null>(null)
   const triggerRef = useRef<HTMLButtonElement | null>(null)
@@ -366,6 +367,11 @@ function QuizView({
               {isOverviewMode && currentChapter && (
                 <span className="rounded-full bg-claude-orange/10 px-2.5 py-0.5 text-xs font-medium text-claude-orange">
                   {currentChapter.icon} Ch.{currentChapter.id}
+                </span>
+              )}
+              {isCustomMode && sessionLabel && (
+                <span className="max-w-32 truncate rounded-full bg-blue-100 px-2.5 py-0.5 text-xs font-medium text-blue-700 dark:bg-blue-900/30 dark:text-blue-400">
+                  🔍 {sessionLabel}
                 </span>
               )}
               <span className="text-sm text-stone-500">

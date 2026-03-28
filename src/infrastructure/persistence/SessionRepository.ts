@@ -30,6 +30,7 @@ export interface SavedSessionData {
   readonly savedAt: number
   readonly answerRecords?: SavedAnswerRecord[]
   readonly scenarioId?: string
+  readonly sessionLabel?: string
 }
 
 export class SessionRepository {

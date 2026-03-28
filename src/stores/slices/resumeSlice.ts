@@ -91,6 +91,7 @@ export const createResumeSlice = (set: StoreSet, get: StoreGet): ResumeSlice => 
       sessionWrongAnswers: [...saved.wrongAnswers],
       savedSession: null,
       activeScenarioId: saved.scenarioId ?? null,
+      sessionLabel: saved.sessionLabel ?? null,
       viewState: 'quiz',
     })
   },

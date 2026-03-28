@@ -11,8 +11,9 @@ export function ResumeSessionBanner() {
   if (!savedSession) return null
 
   const mode = getQuizModeById(savedSession.sessionConfig.mode)
-  const modeName = mode?.name ?? savedSession.sessionConfig.mode
-  const modeIcon = mode?.icon ?? '📋'
+  const hasLabel = savedSession.sessionLabel && savedSession.sessionConfig.mode === 'custom'
+  const modeName = hasLabel ? `🔍 ${savedSession.sessionLabel}` : (mode?.name ?? savedSession.sessionConfig.mode)
+  const modeIcon = hasLabel ? '🔍' : (mode?.icon ?? '📋')
   const progress = `${savedSession.currentIndex + 1} / ${savedSession.questionIds.length}`
   const scoreText = savedSession.answeredCount > 0 ? `${savedSession.score}/${savedSession.answeredCount}問正解` : ''
 

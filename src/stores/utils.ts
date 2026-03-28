@@ -91,9 +91,11 @@ export interface QuizStore {
 
   // Session actions
   startSession: (config: Partial<QuizSessionConfig>, options?: { startIndex?: number }) => void
-  startSessionWithIds: (questionIds: string[]) => void
+  startSessionWithIds: (questionIds: string[], label?: string) => void
   startScenarioSession: (scenarioId: string) => void
   activeScenarioId: string | null
+  /** 検索キーワードなど、カスタムセッションのラベル */
+  sessionLabel: string | null
   retrySession: () => void
   retryQuestion: () => void
   selectAnswer: (index: number) => void
@@ -166,7 +168,8 @@ export type StoreGet = () => QuizStore
 export function saveSessionSnapshot(
   sessionState: QuizSessionState,
   wrongAnswers: { questionId: string; selectedAnswer: number; selectedAnswers?: number[] }[],
-  getActiveScenarioId: () => string | null
+  getActiveScenarioId: () => string | null,
+  sessionLabel?: string | null
 ): void {
   const answerRecords: SavedAnswerRecord[] = []
   sessionState.answerHistory.forEach((record, index) => {
@@ -191,6 +194,7 @@ export function saveSessionSnapshot(
     savedAt: Date.now(),
     answerRecords,
     scenarioId: getActiveScenarioId() ?? undefined,
+    sessionLabel: sessionLabel ?? undefined,
   }
   getSessionRepository().save(data)
 }

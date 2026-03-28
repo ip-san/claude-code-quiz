@@ -47,7 +47,10 @@ export function QuizSearch() {
             <button
               onClick={() => {
                 haptics.light()
-                startSessionWithIds(allResults.map((r) => r.id))
+                startSessionWithIds(
+                  allResults.map((r) => r.id),
+                  query
+                )
                 setShowAll(false)
                 setIsOpen(false)
                 setQuery('')
@@ -184,7 +187,10 @@ export function QuizSearch() {
                 <button
                   onClick={() => {
                     haptics.light()
-                    startSessionWithIds(allResults.map((r) => r.id))
+                    startSessionWithIds(
+                      allResults.map((r) => r.id),
+                      query
+                    )
                     setIsOpen(false)
                     setQuery('')
                   }}

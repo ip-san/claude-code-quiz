@@ -22,9 +22,10 @@ export interface SessionSlice {
   sessionState: QuizSessionState | null
   sessionWrongAnswers: { questionId: string; selectedAnswer: number; selectedAnswers?: number[] }[]
   activeScenarioId: string | null
+  sessionLabel: string | null
 
   startSession: (config: Partial<QuizSessionConfig>, options?: { startIndex?: number }) => void
-  startSessionWithIds: (questionIds: string[]) => void
+  startSessionWithIds: (questionIds: string[], label?: string) => void
   startScenarioSession: (scenarioId: string) => void
   retrySession: () => void
   retryQuestion: () => void
@@ -49,6 +50,7 @@ export const createSessionSlice = (set: StoreSet, get: StoreGet): SessionSlice =
   sessionState: null,
   sessionWrongAnswers: [],
   activeScenarioId: null,
+  sessionLabel: null,
 
   startSession: (configOverrides, options?: { startIndex?: number }) => {
     const state = get()
@@ -105,7 +107,7 @@ export const createSessionSlice = (set: StoreSet, get: StoreGet): SessionSlice =
     }
   },
 
-  startSessionWithIds: (questionIds: string[]) => {
+  startSessionWithIds: (questionIds: string[], label?: string) => {
     const state = get()
     const questionMap = new Map(state.allQuestions.map((q) => [q.id, q]))
     const questions = questionIds.map((id) => questionMap.get(id)).filter((q): q is Question => q !== undefined)
@@ -133,9 +135,10 @@ export const createSessionSlice = (set: StoreSet, get: StoreGet): SessionSlice =
       sessionState,
       sessionWrongAnswers: [],
       savedSession: null,
+      sessionLabel: label ?? null,
       viewState: 'quiz',
     })
-    saveSessionSnapshot(sessionState, [], () => get().activeScenarioId)
+    saveSessionSnapshot(sessionState, [], () => get().activeScenarioId, label)
   },
 
   startScenarioSession: (scenarioId: string) => {
@@ -483,6 +486,7 @@ export const createSessionSlice = (set: StoreSet, get: StoreGet): SessionSlice =
       sessionState: null,
       sessionWrongAnswers: [],
       activeScenarioId: null,
+      sessionLabel: null,
     })
   },
 
