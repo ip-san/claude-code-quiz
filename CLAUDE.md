@@ -57,8 +57,8 @@ npm run build:web      # Web版プロダクションビルド
 npm run preview:web    # Web版プレビュー
 
 # 品質チェック
-npm run check         # 型チェック + lint + 389テスト + 658問チェック（一括）
-npm test              # ユニット + Store テスト（389テスト、Vitest）
+npm run check         # 型チェック + lint + 391テスト + 658問チェック（一括）
+npm test              # ユニット + Store テスト（391テスト、Vitest）
 npm run test:e2e      # E2E + Visual Regression テスト（18テスト、Playwright）
 npm run test:e2e:ui   # E2E をビジュアルUIで実行（デバッグ用）
 
@@ -232,8 +232,8 @@ npm run check:all      # check + docs:validate（CI用フルチェック）
 | Visual Regression | 8 | Playwright | スクリーンショット比較（ライト/ダーク × 4画面） |
 
 ```bash
-npm run check         # 型 + lint + 389テスト + 658問（~5秒）
-npm test              # Unit + Store（389テスト、~2秒）
+npm run check         # 型 + lint + 391テスト + 658問（~5秒）
+npm test              # Unit + Store（391テスト、~2秒）
 npm run test:e2e      # E2E + Visual（18テスト、~16秒）
 ```
 
