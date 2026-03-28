@@ -1,7 +1,8 @@
 import { ArrowRight, GraduationCap, Sparkles, TrendingUp } from 'lucide-react'
 import { AppLogo } from '@/components/Layout/AppLogo'
-import { theme } from '@/config/theme'
+import { getSubtitle, theme } from '@/config/theme'
 import { hasSeenFlag, setSeenFlag } from '@/lib/storage'
+import { useQuizStore } from '@/stores/quizStore'
 
 const WELCOME_KEY = `${theme.storagePrefix}-welcomed`
 const LEGACY_WELCOME_KEY = 'claude-quiz-welcomed'
@@ -18,6 +19,8 @@ const FEATURE_ICONS = [Sparkles, GraduationCap, TrendingUp] as const
  * localStorageで表示済みフラグを管理
  */
 export function WelcomeScreen({ onComplete }: WelcomeScreenProps) {
+  const questionCount = useQuizStore((s) => s.allQuestions.length)
+
   const handleStart = () => {
     setSeenFlag(WELCOME_KEY)
     onComplete()
@@ -33,7 +36,7 @@ export function WelcomeScreen({ onComplete }: WelcomeScreenProps) {
 
         <h1 className="mb-2 text-3xl font-bold text-claude-dark sm:text-2xl">{theme.appName}</h1>
         <p className="mb-2 text-sm text-claude-gray">{theme.tagline}</p>
-        <p className="mb-6 text-xs text-stone-400">{theme.subtitle}</p>
+        <p className="mb-6 text-xs text-stone-400">{getSubtitle(questionCount)}</p>
 
         {/* Features */}
         <div className="mb-8 space-y-3 text-left">

@@ -89,7 +89,7 @@ const claudeCodeTheme: ThemeConfig = {
   logoText: 'CC',
   subject: 'Claude Code',
   tagline: 'AI 時代のスキルを、今日から身につける',
-  subtitle: '経験不問 | 658問 | スマホでいつでも',
+  subtitle: '経験不問 | ${count}問 | スマホでいつでも',
   certificateTitle: 'Claude Code Quiz Master Certification',
   certificateFooter: 'Powered by Claude Code Quiz',
   certificateDescOverview: 'Claude Code の全体像を習得したことを証明します',
@@ -280,4 +280,9 @@ export function getCategoryCount(): number {
 /** カテゴリIDからスキル説明を取得 */
 export function getSkillDescription(categoryId: string): string {
   return theme.categories.find((c) => c.id === categoryId)?.skillDescription ?? ''
+}
+
+/** subtitle の ${count} を実際の問題数で置換 */
+export function getSubtitle(questionCount: number): string {
+  return theme.subtitle.replace('${count}', String(questionCount))
 }

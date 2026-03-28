@@ -222,6 +222,50 @@ for (const [catId, catName] of Object.entries(readmeCategoryNames)) {
   }
 }
 
+// ── Inline quiz count references (CLAUDE.md) ───────────────
+// Catch all "N問" references that should match quizCount
+const inlineQuizPatterns = [
+  { pattern: /JSON、(\d+)問/, label: 'CLAUDE.md directory tree quiz count' },
+  { pattern: /(\d+)問チェック/, label: 'CLAUDE.md check command quiz count' },
+  { pattern: /(\d+)問から検索/, label: 'CLAUDE.md search quiz count' },
+  { pattern: /(\d+)問の解説/, label: 'CLAUDE.md reader quiz count' },
+  { pattern: /(\d+)問（~/, label: 'CLAUDE.md test section quiz count' },
+]
+for (const { pattern, label } of inlineQuizPatterns) {
+  const match = claudeMd.match(pattern)
+  if (match) {
+    const found = parseInt(match[1])
+    if (found !== quizCount) {
+      errors.push(`${label}: actual ${quizCount}, CLAUDE.md says ${found}`)
+      autoFixes.push({ label, pattern, old: found, new: quizCount })
+    }
+  }
+}
+
+// ── Inline counts in README.md ──────────────────────────────
+// Diagram count
+const readmeDiagramMatch = readmeMd.match(/(\d+)問にアニメーション/)
+if (readmeDiagramMatch) {
+  const found = parseInt(readmeDiagramMatch[1])
+  if (found !== diagramCount) {
+    errors.push(`README.md diagram count: actual ${diagramCount}, README says ${found}`)
+    autoFixes.push({
+      label: 'README diagram count',
+      pattern: /(\d+)問にアニメーション/,
+      old: found,
+      new: diagramCount,
+      file: 'README.md',
+    })
+  }
+}
+
+// ── theme.ts subtitle check ─────────────────────────────────
+const themeContent = readFileSync('src/config/theme.ts', 'utf8')
+const subtitleHardcoded = themeContent.match(/subtitle:.*?(\d{3,})問/)
+if (subtitleHardcoded) {
+  errors.push(`theme.ts subtitle contains hardcoded count ${subtitleHardcoded[1]} — use \${count} template`)
+}
+
 // ── Reference URL language ──────────────────────────────────
 const enUrls = quizData.quizzes.filter((q) => q.referenceUrl?.includes('/docs/en/')).length
 if (enUrls > 0) {
