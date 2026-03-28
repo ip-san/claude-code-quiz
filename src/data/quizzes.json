@@ -2899,7 +2899,12 @@
       ],
       "correctIndex": 1,
       "explanation": "`/compact <focus>`の形式で、圧縮時に保持すべき焦点を自然言語で指定できます。例えば`/compact データベースマイグレーションの議論を保持`のように記述すると、その話題に関する会話が優先的に保持されます。フォーカス指定なしの`/compact`も可能で、その場合は全体的に要約されます。",
-      "referenceUrl": "https://code.claude.com/docs/ja/interactive-mode"
+      "referenceUrl": "https://code.claude.com/docs/ja/interactive-mode",
+      "tags": [
+        "overview",
+        "overview-ch-4",
+        "overview-340"
+      ]
     },
     {
       "id": "ses-008",
@@ -3427,7 +3432,12 @@
       ],
       "correctIndex": 0,
       "explanation": "サブエージェントはコードベースの探索に適しており、独自のコンテキストウィンドウで動作するためメインセッションのコンテキストを消費しません。ドキュメントでは「use subagents to investigate」として推奨されています。読み取り専用ツール（`Glob`、`Grep`、`Read`等）を使ってコードベースを効率的に探索し、結果の要約のみがメインセッションに返されます。",
-      "referenceUrl": "https://code.claude.com/docs/ja/best-practices"
+      "referenceUrl": "https://code.claude.com/docs/ja/best-practices",
+      "tags": [
+        "overview",
+        "overview-ch-1",
+        "overview-035"
+      ]
     },
     {
       "id": "bp-003",
@@ -3453,7 +3463,12 @@
       "explanation": "`CLAUDE.md`は簡潔に保つことが重要です。各行について「これを削除したらClaudeが間違えるか？」と確認し、Claudeがコードから推測できる内容や標準的な慣習は省くべきです。肥大化するとClaudeが実際の指示を無視しやすくなります。",
       "category": "bestpractices",
       "difficulty": "intermediate",
-      "referenceUrl": "https://code.claude.com/docs/ja/best-practices"
+      "referenceUrl": "https://code.claude.com/docs/ja/best-practices",
+      "tags": [
+        "overview",
+        "overview-ch-2",
+        "overview-095"
+      ]
     },
     {
       "id": "bp-004",
@@ -4196,12 +4211,7 @@
       ],
       "correctIndex": 2,
       "explanation": "画像はドラッグ＆ドロップ、`Ctrl+V`/`Cmd+V`でクリップボードから貼り付け、ファイルパス指定の3通りで添付できます。",
-      "referenceUrl": "https://code.claude.com/docs/ja/interactive-mode",
-      "tags": [
-        "overview",
-        "overview-ch-1",
-        "overview-045"
-      ]
+      "referenceUrl": "https://code.claude.com/docs/ja/interactive-mode"
     },
     {
       "id": "cmd-016",
@@ -4227,12 +4237,7 @@
       "explanation": "`claude -p` \"prompt\" はprintモード（非対話モード）でClaude Codeを実行します。CIパイプラインやスクリプトなど、ユーザーの対話なしに自動実行する場面に最適です。結果を出力して自動終了します。",
       "category": "commands",
       "difficulty": "beginner",
-      "referenceUrl": "https://code.claude.com/docs/ja/common-workflows",
-      "tags": [
-        "overview",
-        "overview-ch-6",
-        "overview-510"
-      ]
+      "referenceUrl": "https://code.claude.com/docs/ja/common-workflows"
     },
     {
       "id": "cmd-017",
@@ -6237,7 +6242,12 @@
       ],
       "correctIndex": 1,
       "explanation": "Infinite exploration（無限探索）パターンの解決策は、スコープを狭く絞るか、サブエージェントに探索を委任してメインのコンテキストを保護することです。",
-      "referenceUrl": "https://code.claude.com/docs/ja/best-practices"
+      "referenceUrl": "https://code.claude.com/docs/ja/best-practices",
+      "tags": [
+        "overview",
+        "overview-ch-3",
+        "overview-167"
+      ]
     },
     {
       "id": "bp-015",
@@ -10724,12 +10734,7 @@
       ],
       "correctIndex": 0,
       "explanation": "公式ドキュメントでは、具体的な依頼が推奨されています。「fix the bug」ではなく「fix the login bug where users see a blank screen after entering wrong credentials」のように、症状や条件を詳しく伝えることで良い結果が得られます。",
-      "referenceUrl": "https://code.claude.com/docs/ja/best-practices",
-      "tags": [
-        "overview",
-        "overview-ch-6",
-        "overview-560"
-      ]
+      "referenceUrl": "https://code.claude.com/docs/ja/best-practices"
     },
     {
       "id": "bp-029",
@@ -13697,12 +13702,7 @@
       ],
       "correctIndex": 1,
       "explanation": "`CLAUDE.md`はプロジェクトルートに配置するマークダウンファイルで、Claude Codeがセッション開始時に自動的に読み込みます。コーディング規約、アーキテクチャの決定事項、好みのライブラリ、レビューチェックリストなどを記述することで、Claudeにプロジェクトの文脈を伝えることができます。",
-      "referenceUrl": "https://code.claude.com/docs/ja/memory",
-      "tags": [
-        "overview",
-        "overview-ch-2",
-        "overview-110"
-      ]
+      "referenceUrl": "https://code.claude.com/docs/ja/memory"
     },
     {
       "id": "bp-048",
