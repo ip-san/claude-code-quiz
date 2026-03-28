@@ -34,7 +34,8 @@ export function StudyFirstView({ allQuestions, userProgress, onBack, onStartQuiz
 
   const chapters = useMemo(() => {
     return OVERVIEW_CHAPTERS.map((ch) => {
-      const questions = overviewQuestions.filter((q) => q.tags.includes(ch.tag))
+      // 「読んでから解く」では beginner のみ表示（初心者が読み進められる難易度）
+      const questions = overviewQuestions.filter((q) => q.tags.includes(ch.tag) && q.difficulty === 'beginner')
       const startIndex = questions[0] ? overviewQuestions.indexOf(questions[0]) : 0
       let answered = 0
       for (const q of questions) {
@@ -107,8 +108,8 @@ export function StudyFirstView({ allQuestions, userProgress, onBack, onStartQuiz
             <div>
               <p className="text-sm font-semibold text-blue-800 dark:text-blue-300">学習の進め方</p>
               <p className="mt-1 text-xs text-blue-700 dark:text-blue-400">
-                チャプターを選んで、まず解説を読みましょう。内容を理解したら、クイズで知識を確認できます。
-                予習してから問題に取り組むので、初心者でも安心です。
+                チャプターを選んで、基礎的な解説を読みましょう。やさしい内容だけに絞っているので、 Claude Code
+                を知らなくても読み進められます。
               </p>
             </div>
           </div>
