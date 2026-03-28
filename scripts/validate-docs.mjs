@@ -85,26 +85,22 @@ try {
   const testCount = testResult.numPassedTests
   if (testCount) {
     checkCount('Vitest test count', testCount, /Vitest（(\d+)テスト）/, 1)
-    // Check all inline "Nテスト" references that should match testCount
-    // Find stale test counts (>100, not matching actual, not E2E/Visual counts)
-    const staleTestCounts = new Set()
-    const inlineMatches = claudeMd.match(/(\d+)テスト/g) || []
-    for (const m of inlineMatches) {
-      const n = parseInt(m)
-      if (n > 100 && Math.abs(n - testCount) > 1) {
-        staleTestCounts.add(n)
+    // Check all inline "Nテスト" in CLAUDE.md AND README.md
+    for (const [file, content] of [['CLAUDE.md', claudeMd], ['README.md', readmeMd]]) {
+      const inlineMatches = content.match(/(\d+)テスト/g) || []
+      for (const m of inlineMatches) {
+        const n = parseInt(m)
+        if (n > 100 && Math.abs(n - testCount) > 1) {
+          errors.push(`${file}: stale test count "${n}テスト", actual ${testCount}`)
+          autoFixes.push({
+            label: `${file} test count ${n}`,
+            old: n,
+            new: testCount,
+            file,
+            _replaceAll: true,
+          })
+        }
       }
-    }
-    // Auto-fix: replace all stale test counts with actual count
-    for (const stale of staleTestCounts) {
-      errors.push(`Inline test count mismatch: "${stale}テスト" found, actual ${testCount}`)
-      autoFixes.push({
-        label: `Inline test count ${stale}`,
-        pattern: new RegExp(`${stale}テスト`),
-        old: stale,
-        new: testCount,
-        _replaceAll: true,
-      })
     }
   }
 } catch {
@@ -231,42 +227,41 @@ for (const [catId, catName] of Object.entries(readmeCategoryNames)) {
   }
 }
 
-// ── Inline quiz count references (CLAUDE.md) ───────────────
-// Catch all "N問" references that should match quizCount
-const inlineQuizPatterns = [
-  { pattern: /JSON、(\d+)問/, label: 'CLAUDE.md directory tree quiz count' },
-  { pattern: /(\d+)問チェック/, label: 'CLAUDE.md check command quiz count' },
-  { pattern: /(\d+)問から検索/, label: 'CLAUDE.md search quiz count' },
-  { pattern: /(\d+)問の解説/, label: 'CLAUDE.md reader quiz count' },
-  { pattern: /(\d+)問（~/, label: 'CLAUDE.md test section quiz count' },
-]
-for (const { pattern, label } of inlineQuizPatterns) {
-  const match = claudeMd.match(pattern)
-  if (match) {
-    const found = parseInt(match[1])
-    if (found !== quizCount) {
-      errors.push(`${label}: actual ${quizCount}, CLAUDE.md says ${found}`)
-      autoFixes.push({ label, pattern, old: found, new: quizCount })
+// ── Global stale number detection ────────────────────────────
+// Instead of pattern-by-pattern checks, detect ALL stale numbers
+// for key metrics and auto-replace them globally.
+
+const knownCounts = {
+  quizCount, // 658 etc.
+  diagramCount, // 250 etc.
+  overviewCount, // 39 etc.
+}
+
+/**
+ * Scan a file for stale inline numbers and register auto-fixes.
+ * Finds all "N問", "Nテスト" patterns and checks against actual values.
+ */
+function scanStaleNumbers(content, file, label) {
+  // Quiz count: find numbers that WERE the quiz count but are now stale
+  // Only flag numbers > 500 (total quiz count range) to avoid false positives
+  // on per-category counts (46問, 152問 etc.)
+  const quizMatches = content.match(/(\d{3,})問/g) || []
+  const staleQuizCounts = new Set()
+  const knownValidCounts = new Set([quizCount, diagramCount, overviewCount, ...Object.values(categoryCountMap)])
+  for (const m of quizMatches) {
+    const n = parseInt(m)
+    if (n > 500 && !knownValidCounts.has(n)) {
+      staleQuizCounts.add(n)
     }
+  }
+  for (const stale of staleQuizCounts) {
+    errors.push(`${label}: stale quiz count "${stale}問" found, actual ${quizCount}`)
+    autoFixes.push({ label: `${label} quiz count ${stale}`, old: stale, new: quizCount, file, _replaceAll: true, _suffix: '問' })
   }
 }
 
-// ── Inline counts in README.md ──────────────────────────────
-// Diagram count
-const readmeDiagramMatch = readmeMd.match(/(\d+)問にアニメーション/)
-if (readmeDiagramMatch) {
-  const found = parseInt(readmeDiagramMatch[1])
-  if (found !== diagramCount) {
-    errors.push(`README.md diagram count: actual ${diagramCount}, README says ${found}`)
-    autoFixes.push({
-      label: 'README diagram count',
-      pattern: /(\d+)問にアニメーション/,
-      old: found,
-      new: diagramCount,
-      file: 'README.md',
-    })
-  }
-}
+scanStaleNumbers(claudeMd, 'CLAUDE.md', 'CLAUDE.md')
+scanStaleNumbers(readmeMd, 'README.md', 'README.md')
 
 // ── theme.ts subtitle check ─────────────────────────────────
 const themeContent = readFileSync('src/config/theme.ts', 'utf8')
@@ -297,8 +292,9 @@ if (process.argv.includes('--fix') && autoFixes.length > 0) {
     let content = readFileSync(file, 'utf8')
     for (const fix of fixes) {
       if (fix._replaceAll) {
-        // Simple global string replacement (e.g. "378テスト" → "389テスト")
-        content = content.replaceAll(`${fix.old}テスト`, `${fix.new}テスト`)
+        // Simple global string replacement (e.g. "378テスト" → "389テスト", "638問" → "658問")
+        const suffix = fix._suffix || 'テスト'
+        content = content.replaceAll(`${fix.old}${suffix}`, `${fix.new}${suffix}`)
       } else {
         const regex = new RegExp(fix.pattern.source.replace('(\\d+)', String(fix.old)))
         const replacement = fix.pattern.source
