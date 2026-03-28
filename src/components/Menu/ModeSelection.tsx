@@ -1,4 +1,7 @@
+import { ChevronRight } from 'lucide-react'
 import { useMemo, useState } from 'react'
+import { AppLogo } from '@/components/Layout/AppLogo'
+import { haptics } from '@/lib/haptics'
 import { useQuizStore } from '@/stores/quizStore'
 import { ChapterProgressMap } from './ChapterProgressMap'
 import { DailySnapshot, hasSeenSnapshotToday } from './DailySnapshot'
@@ -51,6 +54,24 @@ export function ModeSelection() {
 
           {/* First-time user: simplified entry point */}
           {userProgress.totalAttempts === 0 && <FirstTimeGuide onOpenModes={() => setOpenMenuWithModes(true)} />}
+
+          {/* Quiz mode launcher — for returning users */}
+          {userProgress.totalAttempts > 0 && (
+            <button
+              onClick={() => {
+                haptics.light()
+                setOpenMenuWithModes(true)
+              }}
+              className="tap-highlight mb-5 flex w-full items-center gap-3 rounded-2xl border border-stone-200 bg-white px-4 py-3 text-left dark:border-stone-700 dark:bg-stone-800"
+            >
+              <AppLogo size={32} />
+              <div className="flex-1">
+                <span className="text-sm font-medium text-claude-dark dark:text-stone-200">クイズモード</span>
+                <p className="text-xs text-stone-400">全体像・実力テスト・カテゴリ別など</p>
+              </div>
+              <ChevronRight className="h-4 w-4 text-stone-300 dark:text-stone-600" />
+            </button>
+          )}
 
           {/* Search */}
           <QuizSearch />
