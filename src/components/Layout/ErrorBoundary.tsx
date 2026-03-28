@@ -28,7 +28,7 @@ export class ErrorBoundary extends Component<Props, State> {
   render() {
     if (this.state.hasError) {
       return (
-        <div className="flex min-h-screen items-center justify-center bg-claude-cream px-4">
+        <div className="flex items-center justify-center bg-claude-cream px-4" style={{ minHeight: '100dvh' }}>
           <div className="text-center">
             <p className="mb-4 text-lg font-semibold text-claude-dark">エラーが発生しました</p>
             <p className="mb-6 text-sm text-stone-500">アプリを再読み込みしてください</p>

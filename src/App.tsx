@@ -30,7 +30,7 @@ const StudyFirstView = lazy(() =>
 /** Compact loading indicator for lazy-loaded screens */
 function LoadingSpinner() {
   return (
-    <div className="flex min-h-screen items-center justify-center bg-claude-cream dark:bg-stone-900">
+    <div className="flex items-center justify-center bg-claude-cream dark:bg-stone-900" style={{ minHeight: '100dvh' }}>
       <div className="h-8 w-8 animate-spin rounded-full border-4 border-stone-200 border-t-claude-orange dark:border-stone-700" />
     </div>
   )
@@ -135,7 +135,7 @@ export default function App() {
   // Show branded loading screen
   if (isLoading) {
     return (
-      <div className="flex min-h-screen flex-col items-center justify-center bg-claude-cream">
+      <div className="flex flex-col items-center justify-center bg-claude-cream" style={{ minHeight: '100dvh' }}>
         <div className="animate-bounce-in text-center">
           <div className="mx-auto mb-4 flex h-24 w-24 items-center justify-center rounded-3xl bg-claude-orange shadow-lg">
             <span className="text-4xl font-bold text-white">CC</span>
