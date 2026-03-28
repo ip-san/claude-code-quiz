@@ -58,12 +58,7 @@
       ],
       "correctIndex": 0,
       "explanation": "`@path/to/file`の形式で他のファイルをインポートできます。相対パスと絶対パスの両方をサポートし、最大5階層まで再帰的にインポートできます。",
-      "referenceUrl": "https://code.claude.com/docs/ja/memory#import-additional-files",
-      "tags": [
-        "overview",
-        "overview-ch-2",
-        "overview-070"
-      ]
+      "referenceUrl": "https://code.claude.com/docs/ja/memory#import-additional-files"
     },
     {
       "id": "mem-003",
@@ -266,12 +261,7 @@
       "explanation": "`/memory` コマンドは、`CLAUDE.md`ファイルをシステムエディタで直接開く機能です。大幅な再編成では全体を俯瞰しながら編集できるエディタが最も効率的です。オートメモリのエントリポイントも含めた全メモリファイルから選択できます。",
       "category": "memory",
       "difficulty": "beginner",
-      "referenceUrl": "https://code.claude.com/docs/ja/memory#view-and-edit-with-memory",
-      "tags": [
-        "overview",
-        "overview-ch-2",
-        "overview-100"
-      ]
+      "referenceUrl": "https://code.claude.com/docs/ja/memory#view-and-edit-with-memory"
     },
     {
       "id": "mem-010",
@@ -495,12 +485,7 @@
       "correctIndex": 0,
       "explanation": "Skillはディレクトリ内の`SKILL.md`ファイルで定義します。例：`~/.claude/skills/my-skill/SKILL.md`。個人用は`~/.claude/skills/`、プロジェクト用は`.claude/skills/`に配置します。",
       "referenceUrl": "https://code.claude.com/docs/ja/skills",
-      "hint": "スキル定義に使うファイルの名前は、大文字で始まるマークダウンファイルです。",
-      "tags": [
-        "overview",
-        "overview-ch-5",
-        "overview-340"
-      ]
+      "hint": "スキル定義に使うファイルの名前は、大文字で始まるマークダウンファイルです。"
     },
     {
       "id": "skill-002",
@@ -1134,11 +1119,6 @@
       "correctIndex": 3,
       "explanation": "`Bash`ツールはgit、npm、docker等のシェルコマンド実行に使用します。ファイルの読み書きには`Read`/`Edit`/`Write`、検索には`Grep`/`Glob`という専用ツールが用意されており、これらの方がユーザーがレビューしやすいため優先されます。なお、`Bash`ではシェル状態は永続化されず、作業ディレクトリのみ保持されます。",
       "referenceUrl": "https://code.claude.com/docs/ja/how-claude-code-works#tools",
-      "tags": [
-        "overview",
-        "overview-ch-3",
-        "overview-140"
-      ],
       "diagram": {
         "type": "comparison",
         "label": "ツール使い分け",
@@ -1610,7 +1590,12 @@
             ]
           }
         ]
-      }
+      },
+      "tags": [
+        "overview",
+        "overview-ch-4",
+        "overview-320"
+      ]
     },
     {
       "id": "cmd-004",
@@ -2137,7 +2122,12 @@
             "sub": "exit 2でエラー通知"
           }
         ]
-      }
+      },
+      "tags": [
+        "overview",
+        "overview-ch-5",
+        "overview-545"
+      ]
     },
     {
       "id": "ext-004",
@@ -2164,11 +2154,6 @@
       "correctIndex": 1,
       "explanation": "Hooksは`settings.json`のhooksセクションで設定します。主な設定ファイルにはプロジェクト共有用の`.claude/settings.json`、個人用の`.claude/settings.local.json`、全プロジェクト共通の`~/.claude/settings.json`の3つがあります。さらにマネージドポリシー設定、プラグインの`hooks/hooks.json`、スキルまたはエージェントのフロントマターでも定義でき、合計6か所で設定可能です。",
       "referenceUrl": "https://code.claude.com/docs/ja/hooks#configuration",
-      "tags": [
-        "overview",
-        "overview-ch-5",
-        "overview-410"
-      ],
       "diagram": {
         "type": "hierarchy",
         "label": "Hooks設定ファイルの優先度",
@@ -2347,12 +2332,7 @@
       ],
       "correctIndex": 2,
       "explanation": "組み込みサブエージェントには`Explore`、`Plan`、`general-purpose`、`Bash`、`statusline-setup`、`Claude Code Guide`などがあります。Debugは含まれません。",
-      "referenceUrl": "https://code.claude.com/docs/ja/sub-agents",
-      "tags": [
-        "overview",
-        "overview-ch-5",
-        "overview-430"
-      ]
+      "referenceUrl": "https://code.claude.com/docs/ja/sub-agents"
     },
     {
       "id": "ext-009",
@@ -2835,7 +2815,12 @@
             "sub": "許可設定は再承認"
           }
         ]
-      }
+      },
+      "tags": [
+        "overview",
+        "overview-ch-4",
+        "overview-335"
+      ]
     },
     {
       "id": "ses-006",
@@ -3020,12 +3005,7 @@
             ]
           }
         ]
-      },
-      "tags": [
-        "overview",
-        "overview-ch-4",
-        "overview-300"
-      ]
+      }
     },
     {
       "id": "key-001",
@@ -3286,7 +3266,12 @@
             ]
           }
         ]
-      }
+      },
+      "tags": [
+        "overview",
+        "overview-ch-6",
+        "overview-620"
+      ]
     },
     {
       "id": "key-008",
@@ -3411,7 +3396,12 @@
             "sub": "コミット"
           }
         ]
-      }
+      },
+      "tags": [
+        "overview",
+        "overview-ch-1",
+        "overview-040"
+      ]
     },
     {
       "id": "bp-002",
@@ -3673,7 +3663,12 @@
       ],
       "correctIndex": 0,
       "explanation": "「IMPORTANT」「YOU MUST」などの強調キーワードを使うと、Claudeの遵守率が向上します。これらのキーワードはモデルのアテンションを引き、他の指示と区別されます。ドキュメントでは「IMPORTANT」と「YOU MUST」の2つのみが明示的に推奨されており、ALWAYS/NEVERのような語は公式ドキュメントで言及されていません。",
-      "referenceUrl": "https://code.claude.com/docs/ja/best-practices"
+      "referenceUrl": "https://code.claude.com/docs/ja/best-practices",
+      "tags": [
+        "overview",
+        "overview-ch-2",
+        "overview-085"
+      ]
     },
     {
       "id": "mem-020",
@@ -3939,12 +3934,7 @@
       "explanation": "`/agents`コマンドはサブエージェントの作成・管理を対話的に行えるインターフェースです。「Generate with Claude」オプションを選ぶと、自然言語で説明するだけでClaudeがシステムプロンプトと設定を生成してくれます。ツール選択やモデル選択もガイド付きで行えます。",
       "category": "skills",
       "difficulty": "beginner",
-      "referenceUrl": "https://code.claude.com/docs/ja/sub-agents",
-      "tags": [
-        "overview",
-        "overview-ch-5",
-        "overview-450"
-      ]
+      "referenceUrl": "https://code.claude.com/docs/ja/sub-agents"
     },
     {
       "id": "skill-019",
@@ -4206,7 +4196,12 @@
       ],
       "correctIndex": 2,
       "explanation": "画像はドラッグ＆ドロップ、`Ctrl+V`/`Cmd+V`でクリップボードから貼り付け、ファイルパス指定の3通りで添付できます。",
-      "referenceUrl": "https://code.claude.com/docs/ja/interactive-mode"
+      "referenceUrl": "https://code.claude.com/docs/ja/interactive-mode",
+      "tags": [
+        "overview",
+        "overview-ch-1",
+        "overview-045"
+      ]
     },
     {
       "id": "cmd-016",
@@ -5919,12 +5914,7 @@
       "explanation": "クリップボードの画像は、標準的には`Ctrl+V`で貼り付けられますが、iTerm2では`Cmd+V`、Windowsターミナルでは`Alt+V`を使います。ターミナルごとにペースト操作の修飾キーが異なる点に注意が必要です。",
       "category": "keyboard",
       "difficulty": "beginner",
-      "referenceUrl": "https://code.claude.com/docs/ja/interactive-mode",
-      "tags": [
-        "overview",
-        "overview-ch-6",
-        "overview-520"
-      ]
+      "referenceUrl": "https://code.claude.com/docs/ja/interactive-mode"
     },
     {
       "id": "key-020",
@@ -10783,7 +10773,12 @@
             "sub": "的確な修正"
           }
         ]
-      }
+      },
+      "tags": [
+        "overview",
+        "overview-ch-3",
+        "overview-155"
+      ]
     },
     {
       "id": "ses-067",
@@ -13483,11 +13478,6 @@
       "correctIndex": 0,
       "explanation": "Claude Codeは3つの認証方法をサポートしています：(1) Claude subscription（Pro, Max, Teams, Enterprise）、(2) Anthropic Console（APIアクセス、プリペイドクレジット）、(3) サポートされるクラウドプロバイダー（Amazon Bedrock, Google Vertex AI, Microsoft Foundry）。初回ログイン時にプロンプトが表示されます。",
       "referenceUrl": "https://code.claude.com/docs/ja/quickstart",
-      "tags": [
-        "overview",
-        "overview-ch-1",
-        "overview-030"
-      ],
       "diagram": {
         "type": "comparison",
         "label": "3つの認証方法",
@@ -13540,12 +13530,7 @@
       ],
       "correctIndex": 0,
       "explanation": "Claude Codeは多くの環境（Surface）で利用可能です。ターミナルCLI、VS Code、JetBrains IDE（IntelliJ, PyCharm, WebStormなど）、デスクトップアプリ、ウェブブラウザに加え、iOSアプリやSlack、Chrome拡張、GitHub Actions、GitLab CI/CDとの統合もサポートしています。",
-      "referenceUrl": "https://code.claude.com/docs/ja/overview",
-      "tags": [
-        "overview",
-        "overview-ch-1",
-        "overview-040"
-      ]
+      "referenceUrl": "https://code.claude.com/docs/ja/overview"
     },
     {
       "id": "gs-007",
