@@ -1,16 +1,19 @@
 # Claude Code Quiz
 
 Claude Code の機能と使い方を学習するためのクイズアプリケーション。
-デスクトップ（Electron）とスマホ（PWA）の両方で利用可能。
+PWA でスマホ・ブラウザから利用可能。Electron デスクトップ版もあり。
 
 **PWA（スマホ・ブラウザ）:** https://ip-san.github.io/claude-code-quiz/
 
 ## プロジェクト概要
 
 - **アーキテクチャ:** ドメイン駆動設計（DDD）レイヤードアーキテクチャ
-- **技術スタック:** Electron + Vite + React + TypeScript + Tailwind CSS + Zustand
-- **デプロイ:** Electron（デスクトップ）+ PWA / GitHub Pages（スマホ・ブラウザ）
+- **フロントエンド:** React + TypeScript + Vite + Tailwind CSS + Zustand
+- **配信:** PWA / GitHub Pages（メイン）+ Electron（デスクトップ）
+- **アナリティクス:** GTM + GA4（イベント計測）+ MCP サーバー（Claude Code から GA4 データをクエリ）
+- **品質自動化:** `/quality-loop`（GA4分析 → コードレビュー → クイズ生成 → クイズ検証の自動化ループ）
 - **テスト:** Vitest（378テスト）+ Playwright E2E（18テスト）
+- **CI/CD:** GitHub Actions → GitHub Pages 自動デプロイ（GTM ID は Secret 管理）
 - **クイズデータ:** 658問（58ドキュメントページをカバー）
 - **ダイアグラム:** 250問にアニメーション付き解説図（flow/comparison/hierarchy/cycle）
 
@@ -28,14 +31,17 @@ src/
 │   └── persistence/  # localStorage リポジトリ
 ├── stores/           # Zustand 状態管理（quizStore + テスト）
 ├── components/       # React UIコンポーネント（56ファイル）
-│   ├── Quiz/         # QuizCard, Feedback, OptionButton, QuizResult, ScoreRing, etc.
-│   ├── Menu/         # ModeSelection, QuizSearch, ChapterProgressMap, DailySnapshot, etc.
+│   ├── Quiz/         # QuizCard, ChapterIntro, Feedback, QuizResult, ScoreRing, etc.
+│   ├── Menu/         # ModeSelection, StudyFirstView, ChapterProgressMap, etc.
 │   ├── Progress/     # ProgressDashboard, LearningRecommendation, WeakPointInsight
 │   ├── Reader/       # ExplanationReader, ReaderCard, ReaderFilters
-│   └── Layout/       # WelcomeScreen, PWAUpdatePrompt, ErrorBoundary, etc.
-├── lib/              # ユーティリティ（platformAPI, haptics, useSwipe, theme）
-└── data/             # クイズデータ（JSON、638問）
+│   └── Layout/       # WelcomeScreen, TutorialScreen, PWAUpdatePrompt, ErrorBoundary
+├── lib/              # ユーティリティ（platformAPI, analytics, haptics, useSwipe, theme）
+└── data/             # クイズデータ（JSON、658問）
 e2e/                  # E2E + Visual Regression テスト（Playwright）
+gtm/                  # GTM/GA4 自動化（events.json, deploy-gtm.mjs, setup-ga4.mjs）
+mcp/                  # MCP サーバー（ga4-server.mjs — GA4 Data API 接続）
+docs/                 # ドキュメント（セットアップ、イベント定義、品質ループ、自動化）
 ```
 
 ## 開発コマンド
