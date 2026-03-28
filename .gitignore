@@ -43,3 +43,6 @@ coverage/
 .claude/tmp/
 test-results/
 playwright-report/
+.claude/worktrees/
+.claude/scheduled_tasks.lock
+build/icon.ico
