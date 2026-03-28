@@ -1,5 +1,5 @@
 import { ArrowRight, BookOpen } from 'lucide-react'
-import { useEffect, useMemo, useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import { QuizCard } from '@/components/Quiz/QuizCard'
 import { SCENARIOS, type ScenarioData } from '@/data/scenarios'
 import { useQuizStore } from '@/stores/quizStore'
@@ -68,10 +68,26 @@ export function ScenarioView({ scenario, isModalOpen }: { scenario: ScenarioData
   }, [currentQuestionIndex])
 
   const questionCount = scenario.steps.filter((s) => s.type === 'question').length
-  const isLastQuestionAnswered = currentQuestionIndex === questionCount - 1 && sessionState?.isAnswered === true
+  const [showEpilogue, setShowEpilogue] = useState(false)
 
-  // For epilogue: check at questionCount index (after last question is answered)
-  const narrativeKey = isLastQuestionAnswered && narrativeMap[questionCount] ? questionCount : currentQuestionIndex
+  // Detect when user clicks "next" on the last answered question → show epilogue
+  const prevIndexRef = useRef(currentQuestionIndex)
+  useEffect(() => {
+    // If last question was answered and index didn't change (nextQuestion on last question),
+    // it means the session is about to end — show epilogue first
+    if (
+      currentQuestionIndex === questionCount - 1 &&
+      prevIndexRef.current === questionCount - 1 &&
+      sessionState?.isAnswered === false &&
+      narrativeMap[questionCount]
+    ) {
+      setShowEpilogue(true)
+    }
+    prevIndexRef.current = currentQuestionIndex
+  }, [currentQuestionIndex, sessionState?.isAnswered, questionCount, narrativeMap])
+
+  // For epilogue: show at questionCount index after user proceeds from last question's feedback
+  const narrativeKey = showEpilogue ? questionCount : currentQuestionIndex
   const narratives = narrativeMap[narrativeKey]
   const hasNarrative = narratives && narratives.length > 0 && !dismissedForIndex.has(narrativeKey)
 
