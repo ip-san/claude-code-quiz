@@ -85,17 +85,26 @@ try {
   const testCount = testResult.numPassedTests
   if (testCount) {
     checkCount('Vitest test count', testCount, /Vitest（(\d+)テスト）/, 1)
-    // Also check inline references like "375テスト"
+    // Check all inline "Nテスト" references that should match testCount
+    // Find stale test counts (>100, not matching actual, not E2E/Visual counts)
+    const staleTestCounts = new Set()
     const inlineMatches = claudeMd.match(/(\d+)テスト/g) || []
     for (const m of inlineMatches) {
       const n = parseInt(m)
-      if (n > 100 && n !== testCount && !claudeMd.includes(`${n}テスト）+ Playwright`)) {
-        // Only flag standalone test counts that aren't the Vitest(...) pattern
-        const isInContext = claudeMd.includes(`${n}テスト、`)
-        if (isInContext) {
-          errors.push(`Inline test count mismatch: "${n}テスト" found, actual ${testCount}`)
-        }
+      if (n > 100 && Math.abs(n - testCount) > 1) {
+        staleTestCounts.add(n)
       }
+    }
+    // Auto-fix: replace all stale test counts with actual count
+    for (const stale of staleTestCounts) {
+      errors.push(`Inline test count mismatch: "${stale}テスト" found, actual ${testCount}`)
+      autoFixes.push({
+        label: `Inline test count ${stale}`,
+        pattern: new RegExp(`${stale}テスト`),
+        old: stale,
+        new: testCount,
+        _replaceAll: true,
+      })
     }
   }
 } catch {
@@ -287,12 +296,17 @@ if (process.argv.includes('--fix') && autoFixes.length > 0) {
   for (const [file, fixes] of Object.entries(fixesByFile)) {
     let content = readFileSync(file, 'utf8')
     for (const fix of fixes) {
-      const regex = new RegExp(fix.pattern.source.replace('(\\d+)', String(fix.old)))
-      const replacement = fix.pattern.source
-        .replace('(\\d+)', String(fix.new))
-        .replace(/\\/g, '')
-        .replace(/\.\*\*/g, '**')
-      content = content.replace(regex, replacement)
+      if (fix._replaceAll) {
+        // Simple global string replacement (e.g. "378テスト" → "389テスト")
+        content = content.replaceAll(`${fix.old}テスト`, `${fix.new}テスト`)
+      } else {
+        const regex = new RegExp(fix.pattern.source.replace('(\\d+)', String(fix.old)))
+        const replacement = fix.pattern.source
+          .replace('(\\d+)', String(fix.new))
+          .replace(/\\/g, '')
+          .replace(/\.\*\*/g, '**')
+        content = content.replace(regex, replacement)
+      }
     }
     writeFileSync(file, content)
   }
