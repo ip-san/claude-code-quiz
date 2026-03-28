@@ -27,7 +27,10 @@ export const createResumeSlice = (set: StoreSet, get: StoreGet): ResumeSlice => 
   suspendSession: () => {
     const state = get()
     if (state.sessionState && !state.sessionState.isCompleted) {
-      saveSessionSnapshot(state.sessionState, state.sessionWrongAnswers, () => get().activeScenarioId)
+      saveSessionSnapshot(state.sessionState, state.sessionWrongAnswers, () => ({
+        activeScenarioId: get().activeScenarioId,
+        sessionLabel: get().sessionLabel,
+      }))
       const saved = getSessionRepository().load()
       set({
         viewState: 'menu',

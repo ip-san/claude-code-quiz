@@ -103,7 +103,10 @@ export const createSessionSlice = (set: StoreSet, get: StoreGet): SessionSlice =
     trackQuizStart(config.mode, sessionQuestions.length, config.categoryFilter ?? undefined)
 
     if (config.mode !== 'review') {
-      saveSessionSnapshot(sessionState, [], () => get().activeScenarioId)
+      saveSessionSnapshot(sessionState, [], () => ({
+        activeScenarioId: get().activeScenarioId,
+        sessionLabel: get().sessionLabel,
+      }))
     }
   },
 
@@ -138,7 +141,10 @@ export const createSessionSlice = (set: StoreSet, get: StoreGet): SessionSlice =
       sessionLabel: label ?? null,
       viewState: 'quiz',
     })
-    saveSessionSnapshot(sessionState, [], () => get().activeScenarioId, label)
+    saveSessionSnapshot(sessionState, [], () => ({
+      activeScenarioId: get().activeScenarioId,
+      sessionLabel: get().sessionLabel,
+    }))
   },
 
   startScenarioSession: (scenarioId: string) => {
@@ -176,7 +182,10 @@ export const createSessionSlice = (set: StoreSet, get: StoreGet): SessionSlice =
       activeScenarioId: scenarioId,
       viewState: 'quiz',
     })
-    saveSessionSnapshot(sessionState, [], () => get().activeScenarioId)
+    saveSessionSnapshot(sessionState, [], () => ({
+      activeScenarioId: get().activeScenarioId,
+      sessionLabel: get().sessionLabel,
+    }))
   },
 
   retrySession: () => {
@@ -205,7 +214,10 @@ export const createSessionSlice = (set: StoreSet, get: StoreGet): SessionSlice =
     })
 
     if (config.mode !== 'review') {
-      saveSessionSnapshot(sessionState, [], () => get().activeScenarioId)
+      saveSessionSnapshot(sessionState, [], () => ({
+        activeScenarioId: get().activeScenarioId,
+        sessionLabel: get().sessionLabel,
+      }))
     }
   },
 
@@ -281,7 +293,10 @@ export const createSessionSlice = (set: StoreSet, get: StoreGet): SessionSlice =
           console.error('Failed to save progress:', error)
         })
 
-      saveSessionSnapshot(newState, newWrongAnswers, () => get().activeScenarioId)
+      saveSessionSnapshot(newState, newWrongAnswers, () => ({
+        activeScenarioId: get().activeScenarioId,
+        sessionLabel: get().sessionLabel,
+      }))
 
       if (newState.deferFeedback) {
         let nextIdx = newState.currentIndex + 1
@@ -299,7 +314,10 @@ export const createSessionSlice = (set: StoreSet, get: StoreGet): SessionSlice =
             hintUsed: false,
           }
           set({ sessionState: advancedState })
-          saveSessionSnapshot(advancedState, newWrongAnswers, () => get().activeScenarioId)
+          saveSessionSnapshot(advancedState, newWrongAnswers, () => ({
+            activeScenarioId: get().activeScenarioId,
+            sessionLabel: get().sessionLabel,
+          }))
         }
       }
     } else {
@@ -326,7 +344,10 @@ export const createSessionSlice = (set: StoreSet, get: StoreGet): SessionSlice =
           hintUsed: false,
         }
         set({ sessionState: newState })
-        saveSessionSnapshot(newState, state.sessionWrongAnswers, () => get().activeScenarioId)
+        saveSessionSnapshot(newState, state.sessionWrongAnswers, () => ({
+          activeScenarioId: get().activeScenarioId,
+          sessionLabel: get().sessionLabel,
+        }))
       }
       return
     }
@@ -353,7 +374,10 @@ export const createSessionSlice = (set: StoreSet, get: StoreGet): SessionSlice =
     } else {
       set({ sessionState: newSessionState })
       if (!newSessionState.isReviewMode) {
-        saveSessionSnapshot(newSessionState, get().sessionWrongAnswers, () => get().activeScenarioId)
+        saveSessionSnapshot(newSessionState, get().sessionWrongAnswers, () => ({
+          activeScenarioId: get().activeScenarioId,
+          sessionLabel: get().sessionLabel,
+        }))
       }
     }
   },

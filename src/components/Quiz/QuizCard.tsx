@@ -136,11 +136,15 @@ export function QuizCard({
   // Slide-in animation key (changes on each question)
   const questionKey = quiz?.id ?? 'empty'
 
-  // Swipe to navigate questions
+  // Swipe to navigate questions (respects onLastQuestionNext for scenario epilogue)
   const swipeHandlers = useSwipe({
     onSwipeLeft: () => {
       haptics.light()
-      nextQuestion()
+      if (onLastQuestionNext) {
+        onLastQuestionNext()
+      } else {
+        nextQuestion()
+      }
     },
     onSwipeRight: () => {
       if (canGoBack) {

@@ -168,8 +168,7 @@ export type StoreGet = () => QuizStore
 export function saveSessionSnapshot(
   sessionState: QuizSessionState,
   wrongAnswers: { questionId: string; selectedAnswer: number; selectedAnswers?: number[] }[],
-  getActiveScenarioId: () => string | null,
-  sessionLabel?: string | null
+  getStoreValues: () => { activeScenarioId: string | null; sessionLabel: string | null }
 ): void {
   const answerRecords: SavedAnswerRecord[] = []
   sessionState.answerHistory.forEach((record, index) => {
@@ -193,8 +192,8 @@ export function saveSessionSnapshot(
     hintUsedOnCurrent: sessionState.hintUsed,
     savedAt: Date.now(),
     answerRecords,
-    scenarioId: getActiveScenarioId() ?? undefined,
-    sessionLabel: sessionLabel ?? undefined,
+    scenarioId: getStoreValues().activeScenarioId ?? undefined,
+    sessionLabel: getStoreValues().sessionLabel ?? undefined,
   }
   getSessionRepository().save(data)
 }
