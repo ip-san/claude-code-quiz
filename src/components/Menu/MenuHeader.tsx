@@ -219,6 +219,12 @@ export function MenuHeader({
                     ))}
                   </div>
                 )}
+                <MenuItem
+                  icon={<Layers className="h-4.5 w-4.5" />}
+                  label="実践シナリオ"
+                  sublabel="実務に沿ったストーリーで学ぶ"
+                  onClick={() => handleMenuAction(() => setViewState('scenarioSelect'))}
+                />
               </MenuSection>
 
               {/* Resources */}
@@ -260,16 +266,6 @@ export function MenuHeader({
                   label="読んでから解く"
                   sublabel="解説を読んでからクイズに挑戦"
                   onClick={() => handleMenuAction(() => setViewState('studyFirst'))}
-                />
-              </MenuSection>
-
-              {/* Learning tools */}
-              <MenuSection>
-                <MenuItem
-                  icon={<Layers className="h-4.5 w-4.5" />}
-                  label="実践シナリオ"
-                  sublabel="実務に沿ったストーリーで学ぶ"
-                  onClick={() => handleMenuAction(() => setViewState('scenarioSelect'))}
                 />
               </MenuSection>
 
