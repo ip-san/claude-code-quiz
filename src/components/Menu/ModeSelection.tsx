@@ -21,7 +21,7 @@ export function ModeSelection() {
   )
 
   return (
-    <div className="flex min-h-screen flex-col bg-claude-cream dark:bg-stone-900">
+    <div className="flex min-h-dvh flex-col bg-claude-cream dark:bg-stone-900">
       <div className="flex-1 overflow-y-auto px-4 pb-8 pt-6 sm:px-6 sm:pt-8">
         <div className="mx-auto w-full sm:max-w-2xl lg:max-w-4xl">
           {/* Resume session banner */}

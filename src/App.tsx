@@ -204,7 +204,7 @@ export default function App() {
     setThemeColor(themeColors[viewState] ?? '#FAF9F5')
 
     return (
-      <div className="min-h-screen bg-claude-cream" key={viewState}>
+      <div className="min-h-dvh bg-claude-cream" key={viewState}>
         {isElectron && <div className="h-8 titlebar-drag bg-transparent" />}
         <div className="animate-view-enter">{viewContent}</div>
         {pwaOverlays}
@@ -242,7 +242,7 @@ function QuizContent({ isModalOpen }: { isModalOpen: boolean }) {
 function ScenarioSelectView() {
   const { endSession, startScenarioSession } = useQuizStore()
   return (
-    <div className="min-h-screen bg-claude-cream dark:bg-stone-900">
+    <div className="min-h-dvh bg-claude-cream dark:bg-stone-900">
       <div className="sticky top-0 z-10 border-b border-stone-200 bg-white/80 backdrop-blur-sm dark:border-stone-700 dark:bg-stone-800/80">
         <div className="mx-auto max-w-3xl px-4 pb-2 pt-3">
           <div className="flex items-center gap-3">
@@ -352,7 +352,7 @@ function QuizView({
   }, [])
 
   return (
-    <div className={`flex min-h-screen flex-col ${pageStyles.quiz}`}>
+    <div className={`flex min-h-dvh flex-col ${pageStyles.quiz}`}>
       {isElectron && <div className="h-8 titlebar-drag bg-transparent" />}
 
       {/* Sticky header — native navigation bar feel */}

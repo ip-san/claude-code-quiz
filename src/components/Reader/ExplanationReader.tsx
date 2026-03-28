@@ -117,7 +117,7 @@ export function ExplanationReader() {
   }, [displayQuestions, searchQuery, selectedCategory])
 
   return (
-    <div className="flex min-h-screen flex-col bg-claude-cream dark:bg-stone-900">
+    <div className="flex min-h-dvh flex-col bg-claude-cream dark:bg-stone-900">
       {/* Sticky header */}
       <div className={headerStyles.sticky}>
         <div className="mx-auto max-w-3xl px-4 pb-2 pt-3">

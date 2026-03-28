@@ -115,7 +115,7 @@ export function QuizResult() {
   const filledStars = Math.ceil(percentage / STAR_PERCENTAGE_DIVISOR)
 
   return (
-    <div className="min-h-screen overflow-y-auto px-4 py-8 sm:flex sm:items-center sm:justify-center">
+    <div className="min-h-dvh overflow-y-auto px-4 py-8 sm:flex sm:items-center sm:justify-center">
       <div
         className={`mx-auto w-full rounded-2xl border sm:max-w-md ${result.borderColor} ${result.bgColor} p-5 text-center shadow-lg sm:p-8 ${
           noMotion ? '' : 'animate-result-enter'

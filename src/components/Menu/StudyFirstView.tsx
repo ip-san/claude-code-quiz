@@ -83,7 +83,7 @@ export function StudyFirstView({ allQuestions, userProgress, onBack, onStartQuiz
   }
 
   return (
-    <div className="min-h-screen bg-claude-cream dark:bg-stone-900">
+    <div className="min-h-dvh bg-claude-cream dark:bg-stone-900">
       {/* Header */}
       <div className={headerStyles.sticky}>
         <div className="mx-auto max-w-3xl px-4 pb-2 pt-3">
@@ -186,7 +186,7 @@ function StudyReader({
   if (!question) return null
 
   return (
-    <div className="flex min-h-screen flex-col bg-claude-cream dark:bg-stone-900">
+    <div className="flex min-h-dvh flex-col bg-claude-cream dark:bg-stone-900">
       {/* Header */}
       <div className={headerStyles.sticky}>
         <div className="mx-auto max-w-3xl px-4 pb-2 pt-3">

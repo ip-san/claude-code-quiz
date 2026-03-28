@@ -84,7 +84,7 @@ export function ProgressDashboard() {
   }
 
   return (
-    <div className={`min-h-screen ${pageStyles.cream}`}>
+    <div className={`min-h-dvh ${pageStyles.cream}`}>
       {/* Sticky header */}
       <div className={`${headerStyles.sticky} px-4 py-3 sm:px-6`}>
         <div className="mx-auto flex items-center justify-between sm:max-w-2xl lg:max-w-4xl">
