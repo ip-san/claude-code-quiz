@@ -1014,11 +1014,6 @@
       "correctIndex": 0,
       "explanation": "`Grep`と`Glob`は用途が明確に異なります。`Grep`は`ripgrep`ベースでファイル内容を正規表現検索し、`output_mode`でcontent（マッチ行表示）、files_with_matches（ファイルパスのみ）、count（マッチ数）を選択できます。`Glob`はファイル名のパターンマッチング（例: **/*.ts）に特化しています。",
       "referenceUrl": "https://code.claude.com/docs/ja/how-claude-code-works#tools",
-      "tags": [
-        "overview",
-        "overview-ch-3",
-        "overview-120"
-      ],
       "diagram": {
         "type": "comparison",
         "label": "Grep vs Glob",
@@ -1064,12 +1059,7 @@
       ],
       "correctIndex": 1,
       "explanation": "`Glob`ツールはファイル名のパターンマッチングに特化しています。**で再帰検索、{test,spec}で複数パターンのOR指定が可能です。Claude Codeではfindコマンドの代わりに`Glob`ツールの使用が推奨されています。",
-      "referenceUrl": "https://code.claude.com/docs/ja/how-claude-code-works#tools",
-      "tags": [
-        "overview",
-        "overview-ch-3",
-        "overview-130"
-      ]
+      "referenceUrl": "https://code.claude.com/docs/ja/how-claude-code-works#tools"
     },
     {
       "id": "tool-003",
@@ -1284,12 +1274,7 @@
       ],
       "correctIndex": 0,
       "explanation": "`Read`ツールはテキストファイル、画像（PNG、JPG等）、PDF、Jupyter Notebookなど多様なファイル形式に対応しています。大きなファイルには`offset`と`limit`で読み込み範囲を指定でき、デフォルトでは先頭2000行が読み込まれます。ただしディレクトリの読み込みはできません。",
-      "referenceUrl": "https://code.claude.com/docs/ja/how-claude-code-works#tools",
-      "tags": [
-        "overview",
-        "overview-ch-3",
-        "overview-150"
-      ]
+      "referenceUrl": "https://code.claude.com/docs/ja/how-claude-code-works#tools"
     },
     {
       "id": "tool-008",
@@ -8091,7 +8076,12 @@
       ],
       "correctIndex": 3,
       "explanation": "バグ修正依頼では、エラーメッセージの共有、再現手順の説明、間欠的（intermittent）か一貫的（consistent）かの情報が効果的です。Claudeが根本原因を特定しやすくなります。",
-      "referenceUrl": "https://code.claude.com/docs/ja/common-workflows"
+      "referenceUrl": "https://code.claude.com/docs/ja/common-workflows",
+      "tags": [
+        "overview",
+        "overview-ch-3",
+        "overview-160"
+      ]
     },
     {
       "id": "bp-022",
@@ -8827,7 +8817,12 @@
             ]
           }
         ]
-      }
+      },
+      "tags": [
+        "overview",
+        "overview-ch-3",
+        "overview-165"
+      ]
     },
     {
       "id": "ext-056",
@@ -13629,7 +13624,12 @@
             "sub": "ユーザーが確認"
           }
         ]
-      }
+      },
+      "tags": [
+        "overview",
+        "overview-ch-3",
+        "overview-150"
+      ]
     },
     {
       "id": "gs-009",
