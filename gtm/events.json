@@ -1,0 +1,56 @@
+{
+  "$schema": "./events-schema.json",
+  "measurementId": "G-XXXXXXXXXX",
+  "events": [
+    {
+      "name": "tutorial_progress",
+      "description": "チュートリアル完了/スキップ",
+      "params": ["action", "slide_index", "platform"]
+    },
+    {
+      "name": "quiz_start",
+      "description": "クイズ開始",
+      "params": ["quiz_mode", "question_count", "category", "platform"]
+    },
+    {
+      "name": "quiz_complete",
+      "description": "クイズ完了",
+      "params": ["quiz_mode", "score", "total", "accuracy", "duration_sec", "platform"]
+    },
+    {
+      "name": "chapter_progress",
+      "description": "チャプター進捗（全体像モード）",
+      "params": ["chapter_id", "action", "accuracy", "platform"]
+    },
+    {
+      "name": "study_first",
+      "description": "読んでから解くモード",
+      "params": ["chapter_id", "action", "platform"]
+    },
+    {
+      "name": "bookmark",
+      "description": "ブックマーク操作",
+      "params": ["action", "platform"]
+    },
+    {
+      "name": "quiz_search",
+      "description": "検索利用",
+      "params": ["result_count", "platform"]
+    },
+    {
+      "name": "reader_open",
+      "description": "解説リーダー利用",
+      "params": ["platform"]
+    },
+    {
+      "name": "share_result",
+      "description": "結果シェア",
+      "params": ["method", "platform"]
+    },
+    {
+      "name": "certificate_download",
+      "description": "修了証ダウンロード",
+      "params": ["quiz_mode", "platform"]
+    }
+  ]
+}

@@ -26,6 +26,9 @@ npm-debug.log*
 .env.local
 .env.*.local
 
+# GTM import (generated from template + .env, contains Measurement ID)
+gtm/container-import.json
+
 # TypeScript
 *.tsbuildinfo
 dist-electron-types/
