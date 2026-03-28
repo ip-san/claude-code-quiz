@@ -114,7 +114,10 @@ export function MenuHeader({
       <div className="mb-5">
         <div className="mb-2 flex items-center justify-between">
           <button
-            onClick={() => setMenuOpen(true)}
+            onClick={() => {
+              setModesExpanded(false)
+              setMenuOpen(true)
+            }}
             className="tap-highlight rounded-full p-2 text-stone-500"
             aria-label="メニューを開く"
           >
