@@ -2,6 +2,7 @@ import {
   BarChart3,
   Bookmark,
   BookOpen,
+  BookOpenCheck,
   ChevronDown,
   ChevronUp,
   HelpCircle,
@@ -230,6 +231,12 @@ export function MenuHeader({ totalQuestions, answeredCount, hasProgress }: MenuH
                   label={locale.reader.title}
                   sublabel={`${totalQuestions}問の${locale.reader.subtitle}`}
                   onClick={() => handleMenuAction(() => setViewState('reader'))}
+                />
+                <MenuItem
+                  icon={<BookOpenCheck className="h-4.5 w-4.5" />}
+                  label="読んでから解く"
+                  sublabel="解説を読んでからクイズに挑戦"
+                  onClick={() => handleMenuAction(() => setViewState('studyFirst'))}
                 />
               </div>
 

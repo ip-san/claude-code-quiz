@@ -13,7 +13,7 @@
  */
 
 import { readFileSync } from 'fs'
-import { resolve, dirname } from 'path'
+import { dirname, resolve } from 'path'
 import { fileURLToPath } from 'url'
 
 const __dirname = dirname(fileURLToPath(import.meta.url))
@@ -25,7 +25,7 @@ function loadQuizzes() {
 
 function getAllTextFields(quiz) {
   const parts = [quiz.question, quiz.explanation]
-  quiz.options.forEach(opt => {
+  quiz.options.forEach((opt) => {
     parts.push(opt.text)
     if (opt.wrongFeedback) parts.push(opt.wrongFeedback)
   })
@@ -70,7 +70,7 @@ function buildTopicClusters(quizzes) {
         if (!clusters.has(topic)) clusters.set(topic, [])
         // Avoid duplicate entries for same quiz
         const existing = clusters.get(topic)
-        if (!existing.some(e => e.id === quiz.id)) {
+        if (!existing.some((e) => e.id === quiz.id)) {
           existing.push({
             id: quiz.id,
             category: quiz.category,
@@ -95,10 +95,7 @@ const NUMBER_CLAIM_PATTERNS = [
 ]
 
 // Patterns that indicate factual claims about what something is/does
-const FACTUAL_CLAIM_PATTERNS = [
-  /(デフォルト(?:値)?(?:は|が))[^。]+/g,
-  /(正しくは|正しい(?:値|名|名前|パス)は)[^。]+/g,
-]
+const FACTUAL_CLAIM_PATTERNS = [/(デフォルト(?:値)?(?:は|が))[^。]+/g, /(正しくは|正しい(?:値|名|名前|パス)は)[^。]+/g]
 
 function detectContradictions(clusters) {
   const issues = []
@@ -134,13 +131,13 @@ function detectContradictions(clusters) {
 
     // Report numeric contradictions
     for (const [claimKey, claims] of numericClaims.entries()) {
-      const numbers = new Set(claims.map(c => c.number))
+      const numbers = new Set(claims.map((c) => c.number))
       if (numbers.size > 1) {
         issues.push({
           topic,
           type: 'numeric-contradiction',
           message: `Different numeric claims: ${[...numbers].join(' vs ')}`,
-          details: claims.map(c => `  ${c.id}: "${c.context.trim()}"`)
+          details: claims.map((c) => `  ${c.id}: "${c.context.trim()}"`),
         })
       }
     }
@@ -165,13 +162,13 @@ function detectContradictions(clusters) {
 
     // Only flag if there are multiple different claims about defaults
     if (defaultClaims.length >= 2) {
-      const uniqueClaims = new Set(defaultClaims.map(c => c.claim))
+      const uniqueClaims = new Set(defaultClaims.map((c) => c.claim))
       if (uniqueClaims.size > 1) {
         issues.push({
           topic,
           type: 'factual-variation',
           message: `Multiple factual claims about "${topic}"`,
-          details: defaultClaims.map(c => `  ${c.id}: "${c.claim}"`)
+          details: defaultClaims.map((c) => `  ${c.id}: "${c.claim}"`),
         })
       }
     }

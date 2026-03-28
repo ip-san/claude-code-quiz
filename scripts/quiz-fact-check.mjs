@@ -16,8 +16,8 @@
  *   node scripts/quiz-fact-check.mjs config        # 設定キーのみ
  */
 
-import { readFileSync, existsSync, readdirSync } from 'fs'
-import { resolve, dirname } from 'path'
+import { existsSync, readdirSync, readFileSync } from 'fs'
+import { dirname, resolve } from 'path'
 import { fileURLToPath } from 'url'
 
 const __dirname = dirname(fileURLToPath(import.meta.url))
@@ -48,7 +48,7 @@ function getAllTextFields(quiz) {
 
 function extractTermsFromQuizzes(quizzes) {
   const terms = {
-    envVars: new Map(),      // term → Set of question IDs
+    envVars: new Map(), // term → Set of question IDs
     slashCmds: new Map(),
     cliFlags: new Map(),
     hookEvents: new Map(),
@@ -56,12 +56,16 @@ function extractTermsFromQuizzes(quizzes) {
     configKeys: new Map(),
   }
 
-  const ENV_RE = /`(CLAUDE_[A-Z_]+|MAX_[A-Z_]+|MCP_[A-Z_]+|BASH_[A-Z_]+|USE_[A-Z_]+|ANTHROPIC_[A-Z_]+|HTTP_PROXY|HTTPS_PROXY|NO_PROXY|DISABLE_[A-Z_]+)`/g
+  const ENV_RE =
+    /`(CLAUDE_[A-Z_]+|MAX_[A-Z_]+|MCP_[A-Z_]+|BASH_[A-Z_]+|USE_[A-Z_]+|ANTHROPIC_[A-Z_]+|HTTP_PROXY|HTTPS_PROXY|NO_PROXY|DISABLE_[A-Z_]+)`/g
   const SLASH_RE = /`\/([\w-]+)`/g
   const FLAG_RE = /`(--[\w-]+(?:=\S+)?)`/g
-  const HOOK_RE = /`(PreToolUse|PostToolUse|PostToolUseFailure|UserPromptSubmit|SessionStart|SessionEnd|Stop|SubagentStart|SubagentStop|Notification|PermissionRequest|TeammateIdle|TaskCompleted|ConfigChange|WorktreeCreate)`/g
-  const TOOL_RE = /`(Bash|Read|Write|Edit|Grep|Glob|WebFetch|WebSearch|NotebookEdit|TodoWrite|AskUserQuestion|Task|Agent)`/g
-  const CONFIG_RE = /`(allowed-tools|allowedTools|defaultMode|allowManagedHooksOnly|permissions\.deny|permissions\.allow|spinnerVerbs\.mode|spinnerVerbs\.verbs|spinnerVerbs|deniedMcpServers|allowedMcpServers|alwaysThinkingEnabled|availableModels|hookSpecificOutput|autoMemoryEnabled|sandbox\.autoAllowBashIfSandboxed|apiKeyHelper|teammateModeConfig|fileSuggestion|companyAnnouncements|allowManagedHooksOnly|user-invocable|context:\s*fork|argument-hint)`/g
+  const HOOK_RE =
+    /`(PreToolUse|PostToolUse|PostToolUseFailure|UserPromptSubmit|SessionStart|SessionEnd|Stop|SubagentStart|SubagentStop|Notification|PermissionRequest|TeammateIdle|TaskCompleted|ConfigChange|WorktreeCreate)`/g
+  const TOOL_RE =
+    /`(Bash|Read|Write|Edit|Grep|Glob|WebFetch|WebSearch|NotebookEdit|TodoWrite|AskUserQuestion|Task|Agent)`/g
+  const CONFIG_RE =
+    /`(allowed-tools|allowedTools|defaultMode|allowManagedHooksOnly|permissions\.deny|permissions\.allow|spinnerVerbs\.mode|spinnerVerbs\.verbs|spinnerVerbs|deniedMcpServers|allowedMcpServers|alwaysThinkingEnabled|availableModels|hookSpecificOutput|autoMemoryEnabled|sandbox\.autoAllowBashIfSandboxed|apiKeyHelper|teammateModeConfig|fileSuggestion|companyAnnouncements|allowManagedHooksOnly|user-invocable|context:\s*fork|argument-hint)`/g
 
   function addTerm(map, term, quizId) {
     if (!map.has(term)) map.set(term, new Set())
@@ -120,7 +124,7 @@ function loadDocContent() {
     process.exit(1)
   }
 
-  const files = readdirSync(DOCS_DIR).filter(f => f.endsWith('.md'))
+  const files = readdirSync(DOCS_DIR).filter((f) => f.endsWith('.md'))
   const content = {}
   for (const file of files) {
     const page = file.replace('.md', '')
@@ -165,7 +169,9 @@ function checkTerms(termMap, docs, label) {
     console.log(`\n  ⚠ Terms not found in cached documentation:`)
     for (const { term, quizIds } of notFound.sort((a, b) => a.term.localeCompare(b.term))) {
       console.log(`    ${term}`)
-      console.log(`      Used in: ${quizIds.slice(0, 5).join(', ')}${quizIds.length > 5 ? ` (+${quizIds.length - 5} more)` : ''}`)
+      console.log(
+        `      Used in: ${quizIds.slice(0, 5).join(', ')}${quizIds.length > 5 ? ` (+${quizIds.length - 5} more)` : ''}`
+      )
     }
   }
 

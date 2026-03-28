@@ -2,7 +2,7 @@ import { Play } from 'lucide-react'
 import { useMemo, useState } from 'react'
 import type { Question } from '@/domain/entities/Question'
 import type { UserProgress } from '@/domain/entities/UserProgress'
-import { OVERVIEW_CHAPTERS } from '@/domain/valueObjects/OverviewChapter'
+import { getOverviewQuestionsOrdered, OVERVIEW_CHAPTERS } from '@/domain/valueObjects/OverviewChapter'
 import { haptics } from '@/lib/haptics'
 
 interface ChapterProgressMapProps {
@@ -14,17 +14,7 @@ interface ChapterProgressMapProps {
 export function ChapterProgressMap({ allQuestions, userProgress, onStartChapter }: ChapterProgressMapProps) {
   const [selectedChapter, setSelectedChapter] = useState<number | null>(null)
 
-  const overviewQuestions = useMemo(() => {
-    return allQuestions
-      .filter((q) => q.tags.includes('overview'))
-      .sort((a, b) => {
-        const getOrder = (q: Question): number => {
-          const tag = q.tags.find((t) => /^overview-\d/.test(t))
-          return tag ? Number.parseInt(tag.replace('overview-', ''), 10) : 999
-        }
-        return getOrder(a) - getOrder(b)
-      })
-  }, [allQuestions])
+  const overviewQuestions = useMemo(() => getOverviewQuestionsOrdered(allQuestions), [allQuestions])
 
   const chapters = useMemo(() => {
     return OVERVIEW_CHAPTERS.map((ch) => {

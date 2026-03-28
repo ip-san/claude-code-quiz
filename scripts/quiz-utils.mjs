@@ -17,8 +17,8 @@
  *   node scripts/quiz-utils.mjs merge-proposals   # skill-proposals → known-issues マージ
  */
 
-import { readFileSync, writeFileSync, existsSync, readdirSync } from 'fs'
-import { resolve, dirname } from 'path'
+import { existsSync, readdirSync, readFileSync, writeFileSync } from 'fs'
+import { dirname, resolve } from 'path'
 import { fileURLToPath } from 'url'
 
 const __dirname = dirname(fileURLToPath(import.meta.url))
@@ -54,10 +54,10 @@ function randomize() {
 
   const counts = [0, 0, 0, 0]
   let multiCount = 0
-  data.quizzes = data.quizzes.map(q => {
+  data.quizzes = data.quizzes.map((q) => {
     const optionIndices = Array.from({ length: q.options.length }, (_, i) => i)
     const shuffledIndices = shuffle(optionIndices)
-    const newOptions = shuffledIndices.map(i => q.options[i])
+    const newOptions = shuffledIndices.map((i) => q.options[i])
 
     if (q.type === 'multi' && q.correctIndices) {
       // Multi-select: remap correctIndices
@@ -84,7 +84,10 @@ function randomize() {
   const singleCount = data.quizzes.length - multiCount
   console.log(`Randomized ${data.quizzes.length} questions (seed: ${seed})`)
   console.log(`  Single-select: ${singleCount}, Multi-select: ${multiCount}`)
-  console.log('Distribution (single):', counts.map((c, i) => `index${i}: ${c} (${(c / Math.max(singleCount, 1) * 100).toFixed(1)}%)`).join(', '))
+  console.log(
+    'Distribution (single):',
+    counts.map((c, i) => `index${i}: ${c} (${((c / Math.max(singleCount, 1)) * 100).toFixed(1)}%)`).join(', ')
+  )
 }
 
 // === Statistics ===
@@ -92,34 +95,44 @@ function stats() {
   const data = loadQuizzes()
   const quizzes = data.quizzes
 
-  const singleQuizzes = quizzes.filter(q => q.type !== 'multi')
-  const multiQuizzes = quizzes.filter(q => q.type === 'multi')
+  const singleQuizzes = quizzes.filter((q) => q.type !== 'multi')
+  const multiQuizzes = quizzes.filter((q) => q.type === 'multi')
   console.log(`Total: ${quizzes.length} questions (single: ${singleQuizzes.length}, multi: ${multiQuizzes.length})\n`)
 
   // Category distribution
   const categories = {}
-  quizzes.forEach(q => { categories[q.category] = (categories[q.category] || 0) + 1 })
-  console.log('=== Category Distribution ===')
-  Object.entries(categories).sort((a, b) => b[1] - a[1]).forEach(([cat, count]) => {
-    console.log(`  ${cat.padEnd(15)} ${String(count).padStart(3)} (${(count / quizzes.length * 100).toFixed(1)}%)`)
+  quizzes.forEach((q) => {
+    categories[q.category] = (categories[q.category] || 0) + 1
   })
+  console.log('=== Category Distribution ===')
+  Object.entries(categories)
+    .sort((a, b) => b[1] - a[1])
+    .forEach(([cat, count]) => {
+      console.log(`  ${cat.padEnd(15)} ${String(count).padStart(3)} (${((count / quizzes.length) * 100).toFixed(1)}%)`)
+    })
 
   // Difficulty distribution
   const difficulties = {}
-  quizzes.forEach(q => { difficulties[q.difficulty] = (difficulties[q.difficulty] || 0) + 1 })
-  console.log('\n=== Difficulty Distribution ===')
-  Object.entries(difficulties).sort((a, b) => b[1] - a[1]).forEach(([diff, count]) => {
-    console.log(`  ${diff.padEnd(15)} ${String(count).padStart(3)} (${(count / quizzes.length * 100).toFixed(1)}%)`)
+  quizzes.forEach((q) => {
+    difficulties[q.difficulty] = (difficulties[q.difficulty] || 0) + 1
   })
+  console.log('\n=== Difficulty Distribution ===')
+  Object.entries(difficulties)
+    .sort((a, b) => b[1] - a[1])
+    .forEach(([diff, count]) => {
+      console.log(`  ${diff.padEnd(15)} ${String(count).padStart(3)} (${((count / quizzes.length) * 100).toFixed(1)}%)`)
+    })
 
   // correctIndex distribution (single-select only)
   const indices = [0, 0, 0, 0, 0, 0]
-  singleQuizzes.forEach(q => { indices[q.correctIndex] = (indices[q.correctIndex] || 0) + 1 })
+  singleQuizzes.forEach((q) => {
+    indices[q.correctIndex] = (indices[q.correctIndex] || 0) + 1
+  })
   console.log('\n=== correctIndex Distribution (single-select) ===')
   indices.forEach((count, i) => {
     if (count > 0) {
-      const pct = (count / singleQuizzes.length * 100).toFixed(1)
-      const bar = '█'.repeat(Math.round(count / singleQuizzes.length * 40))
+      const pct = ((count / singleQuizzes.length) * 100).toFixed(1)
+      const bar = '█'.repeat(Math.round((count / singleQuizzes.length) * 40))
       console.log(`  index ${i}: ${String(count).padStart(3)} (${pct}%) ${bar}`)
     }
   })
@@ -131,7 +144,7 @@ function coverage() {
   const quizzes = data.quizzes
 
   const pages = {}
-  quizzes.forEach(q => {
+  quizzes.forEach((q) => {
     if (q.referenceUrl) {
       const page = q.referenceUrl.replace(/.*docs\/en\//, '').replace(/#.*/, '')
       pages[page] = (pages[page] || 0) + 1
@@ -139,10 +152,12 @@ function coverage() {
   })
 
   console.log(`=== Documentation Page Coverage (${quizzes.length} total) ===\n`)
-  Object.entries(pages).sort((a, b) => b[1] - a[1]).forEach(([page, count]) => {
-    const bar = '█'.repeat(Math.round(count / 2))
-    console.log(`  ${page.padEnd(25)} ${String(count).padStart(3)} ${bar}`)
-  })
+  Object.entries(pages)
+    .sort((a, b) => b[1] - a[1])
+    .forEach(([page, count]) => {
+      const bar = '█'.repeat(Math.round(count / 2))
+      console.log(`  ${page.padEnd(25)} ${String(count).padStart(3)} ${bar}`)
+    })
 }
 
 // === Quick quality check ===
@@ -152,19 +167,21 @@ function check() {
   let issues = 0
 
   // Duplicate IDs
-  const ids = quizzes.map(q => q.id)
+  const ids = quizzes.map((q) => q.id)
   const dupes = ids.filter((id, i) => ids.indexOf(id) !== i)
   if (dupes.length > 0) {
     console.log(`FAIL: Duplicate IDs: ${dupes.join(', ')}`)
     issues++
   }
 
-  const singleQuizzes = quizzes.filter(q => q.type !== 'multi')
-  const multiQuizzes = quizzes.filter(q => q.type === 'multi')
+  const singleQuizzes = quizzes.filter((q) => q.type !== 'multi')
+  const multiQuizzes = quizzes.filter((q) => q.type === 'multi')
 
   // correctIndex bias (single-select only)
   const counts = [0, 0, 0, 0]
-  singleQuizzes.forEach(q => { counts[q.correctIndex] = (counts[q.correctIndex] || 0) + 1 })
+  singleQuizzes.forEach((q) => {
+    counts[q.correctIndex] = (counts[q.correctIndex] || 0) + 1
+  })
   counts.forEach((c, i) => {
     const pct = c / Math.max(singleQuizzes.length, 1)
     if (pct > 0.35) {
@@ -174,7 +191,7 @@ function check() {
   })
 
   // wrongFeedback structure (single-select)
-  singleQuizzes.forEach(q => {
+  singleQuizzes.forEach((q) => {
     const correct = q.options[q.correctIndex]
     if (correct.wrongFeedback) {
       console.log(`FAIL: ${q.id} correct answer has wrongFeedback`)
@@ -189,7 +206,7 @@ function check() {
   })
 
   // wrongFeedback structure (multi-select)
-  multiQuizzes.forEach(q => {
+  multiQuizzes.forEach((q) => {
     if (!q.correctIndices || q.correctIndices.length < 2) {
       console.log(`FAIL: ${q.id} multi-select needs at least 2 correctIndices`)
       issues++
@@ -206,7 +223,7 @@ function check() {
         issues++
       }
     })
-    q.correctIndices.forEach(idx => {
+    q.correctIndices.forEach((idx) => {
       if (idx < 0 || idx >= q.options.length) {
         console.log(`FAIL: ${q.id} correctIndices[${idx}] out of bounds`)
         issues++
@@ -239,9 +256,11 @@ function search() {
     const searchable = [
       q.question,
       q.explanation,
-      ...q.options.map(o => o.text),
-      ...q.options.filter(o => o.wrongFeedback).map(o => o.wrongFeedback),
-    ].join(' ').toLowerCase()
+      ...q.options.map((o) => o.text),
+      ...q.options.filter((o) => o.wrongFeedback).map((o) => o.wrongFeedback),
+    ]
+      .join(' ')
+      .toLowerCase()
 
     if (searchable.includes(lowerKeyword)) {
       matches.push(q)
@@ -255,9 +274,8 @@ function search() {
 
   console.log(`=== ${matches.length} questions matching "${keyword}" ===\n`)
   for (const q of matches) {
-    const correctText = q.type === 'multi'
-      ? q.correctIndices.map(i => q.options[i].text).join(' / ')
-      : q.options[q.correctIndex].text
+    const correctText =
+      q.type === 'multi' ? q.correctIndices.map((i) => q.options[i].text).join(' / ') : q.options[q.correctIndex].text
     console.log(`  ${q.id.padEnd(12)} [${q.category}/${q.difficulty}]`)
     console.log(`    Q: ${q.question.slice(0, 80)}${q.question.length > 80 ? '...' : ''}`)
     console.log(`    A: ${correctText.slice(0, 80)}${correctText.length > 80 ? '...' : ''}`)
@@ -277,7 +295,7 @@ function edit() {
   const [id, field, ...valueParts] = args
   const value = valueParts.join(' ')
   const data = loadQuizzes()
-  const quiz = data.quizzes.find(q => q.id === id)
+  const quiz = data.quizzes.find((q) => q.id === id)
 
   if (!quiz) {
     console.error(`ERROR: Quiz "${id}" not found`)
@@ -309,7 +327,9 @@ function edit() {
     oldValue = quiz[field] || '(none)'
     quiz[field] = value
   } else {
-    console.error(`ERROR: Unknown field "${field}". Valid: question, explanation, referenceUrl, hint, option.N, wrongFeedback.N`)
+    console.error(
+      `ERROR: Unknown field "${field}". Valid: question, explanation, referenceUrl, hint, option.N, wrongFeedback.N`
+    )
     process.exit(1)
   }
 
@@ -337,9 +357,7 @@ function mergeProposals() {
 
   // Extract proposals with 汎用性: 高 or 中
   const proposalBlocks = proposalsContent.split(/^### Proposal \d+:/m).slice(1)
-  const eligible = proposalBlocks.filter(block =>
-    /汎用性.*[：:]\s*\[?(高|中)\]?/m.test(block)
-  )
+  const eligible = proposalBlocks.filter((block) => /汎用性.*[：:]\s*\[?(高|中)\]?/m.test(block))
 
   if (eligible.length === 0) {
     console.log('No high/medium generalizability proposals found. Nothing to merge.')
@@ -347,7 +365,7 @@ function mergeProposals() {
   }
 
   // Extract existing H2 section titles from known-issues
-  const existingSections = [...knownIssues.matchAll(/^## (.+)$/gm)].map(m => m[1].trim())
+  const existingSections = [...knownIssues.matchAll(/^## (.+)$/gm)].map((m) => m[1].trim())
 
   let additions = []
   for (const block of eligible) {
@@ -362,9 +380,7 @@ function mergeProposals() {
 
     // Check if a similar section exists (fuzzy match on key terms)
     const content = `- ${observation}${proposal ? ' → ' + proposal : ''}`
-    const matched = existingSections.find(s =>
-      title.split(/\s+/).some(word => word.length > 3 && s.includes(word))
-    )
+    const matched = existingSections.find((s) => title.split(/\s+/).some((word) => word.length > 3 && s.includes(word)))
 
     if (matched) {
       additions.push({ type: 'append', section: matched, content })
@@ -383,7 +399,7 @@ function mergeProposals() {
   const newSections = []
 
   // Process appends to existing sections
-  for (const add of additions.filter(a => a.type === 'append')) {
+  for (const add of additions.filter((a) => a.type === 'append')) {
     const sectionHeader = `## ${add.section}`
     const startIdx = updated.indexOf(sectionHeader)
     if (startIdx === -1) continue
@@ -391,9 +407,7 @@ function mergeProposals() {
     // Find the end of this section (next ## or end of file)
     const afterHeader = startIdx + sectionHeader.length
     const nextSectionMatch = updated.slice(afterHeader).match(/\n## /)
-    const endIdx = nextSectionMatch
-      ? afterHeader + nextSectionMatch.index
-      : updated.length
+    const endIdx = nextSectionMatch ? afterHeader + nextSectionMatch.index : updated.length
 
     const sectionContent = updated.slice(startIdx, endIdx).trimEnd()
     updated = updated.slice(0, startIdx) + sectionContent + '\n' + add.content + '\n' + updated.slice(endIdx)
@@ -401,7 +415,7 @@ function mergeProposals() {
   }
 
   // Add new sections at end
-  for (const add of additions.filter(a => a.type === 'new')) {
+  for (const add of additions.filter((a) => a.type === 'new')) {
     updated = updated.trimEnd() + `\n\n## ${add.title}\n\n${add.content}\n`
     newSections.push(`  + New section: "${add.title}"`)
   }
@@ -428,8 +442,8 @@ function sectionCoverage() {
   }
 
   const sectionPages = readdirSync(sectionsDir, { withFileTypes: true })
-    .filter(d => d.isDirectory())
-    .map(d => d.name)
+    .filter((d) => d.isDirectory())
+    .map((d) => d.name)
 
   // Sections to exclude from gap analysis
   const EXCLUDE_SLUGS = new Set(['related-resources', 'see-also', 'next-steps', 'further-reading'])
@@ -443,7 +457,7 @@ function sectionCoverage() {
     const sections = JSON.parse(readFileSync(indexPath, 'utf8'))
 
     // Questions referencing this page
-    const pageQuestions = quizzes.filter(q => {
+    const pageQuestions = quizzes.filter((q) => {
       if (!q.referenceUrl) return false
       const m = q.referenceUrl.match(/\/docs\/en\/([^#?]+)/)
       return m && m[1] === page
@@ -451,23 +465,26 @@ function sectionCoverage() {
 
     // Anchor-based coverage
     const anchoredSlugs = new Set()
-    pageQuestions.forEach(q => {
+    pageQuestions.forEach((q) => {
       const m = q.referenceUrl.match(/#(.+)/)
       if (m) anchoredSlugs.add(m[1])
     })
 
     // Content-match fallback for non-anchored questions
-    const noAnchorQuestions = pageQuestions.filter(q => !q.referenceUrl.includes('#'))
+    const noAnchorQuestions = pageQuestions.filter((q) => !q.referenceUrl.includes('#'))
 
     const sectionResults = sections
-      .filter(s => !EXCLUDE_SLUGS.has(s.slug))
-      .map(section => {
+      .filter((s) => !EXCLUDE_SLUGS.has(s.slug))
+      .map((section) => {
         const hasAnchoredQ = anchoredSlugs.has(section.slug)
 
-        const titleWords = section.title.toLowerCase().split(/\s+/).filter(w => w.length > 3)
-        const contentMatched = noAnchorQuestions.filter(q => {
+        const titleWords = section.title
+          .toLowerCase()
+          .split(/\s+/)
+          .filter((w) => w.length > 3)
+        const contentMatched = noAnchorQuestions.filter((q) => {
           const text = (q.question + ' ' + q.explanation).toLowerCase()
-          return titleWords.some(w => text.includes(w))
+          return titleWords.some((w) => text.includes(w))
         }).length
 
         return {
@@ -478,7 +495,7 @@ function sectionCoverage() {
         }
       })
 
-    const uncovered = sectionResults.filter(s => !s.covered)
+    const uncovered = sectionResults.filter((s) => !s.covered)
 
     results.push({
       page,
@@ -495,7 +512,9 @@ function sectionCoverage() {
   let totalUncovered = 0
   for (const r of results.sort((a, b) => b.uncoveredSections.length - a.uncoveredSections.length)) {
     if (r.uncoveredSections.length === 0) {
-      console.log(`  ${r.page.padEnd(25)} ${r.coveredCount}/${r.totalSections} covered (${r.totalQuestions} questions) OK`)
+      console.log(
+        `  ${r.page.padEnd(25)} ${r.coveredCount}/${r.totalSections} covered (${r.totalQuestions} questions) OK`
+      )
       continue
     }
 
@@ -514,23 +533,27 @@ function sectionCoverage() {
 // === Question Overlap Detection ===
 function overlap() {
   const data = loadQuizzes()
-  const quizzes = data.quizzes.filter(q => q.type !== 'multi')
+  const quizzes = data.quizzes.filter((q) => q.type !== 'multi')
 
   function tokenize(text) {
     return new Set(
-      text.toLowerCase().replace(/`/g, '').split(/[\s、。,.()\[\]「」：:]+/).filter(w => w.length > 2)
+      text
+        .toLowerCase()
+        .replace(/`/g, '')
+        .split(/[\s、。,.()[\]「」：:]+/)
+        .filter((w) => w.length > 2)
     )
   }
 
   function jaccard(a, b) {
-    const intersection = [...a].filter(x => b.has(x)).length
+    const intersection = [...a].filter((x) => b.has(x)).length
     const union = new Set([...a, ...b]).size
     return union === 0 ? 0 : intersection / union
   }
 
   // Strategy 1: Same anchored URL clusters
   const byAnchoredUrl = {}
-  quizzes.forEach(q => {
+  quizzes.forEach((q) => {
     if (!q.referenceUrl || !q.referenceUrl.includes('#')) return
     if (!byAnchoredUrl[q.referenceUrl]) byAnchoredUrl[q.referenceUrl] = []
     byAnchoredUrl[q.referenceUrl].push(q)
@@ -542,7 +565,7 @@ function overlap() {
 
   // Strategy 2: Similar knowledge point (Jaccard on same page)
   const byPage = {}
-  quizzes.forEach(q => {
+  quizzes.forEach((q) => {
     if (!q.referenceUrl) return
     const page = q.referenceUrl.replace(/#.*/, '').replace(/.*\/docs\/en\//, '')
     if (!byPage[page]) byPage[page] = []
@@ -553,7 +576,8 @@ function overlap() {
   for (const [page, qs] of Object.entries(byPage)) {
     for (let i = 0; i < qs.length; i++) {
       for (let j = i + 1; j < qs.length; j++) {
-        const a = qs[i], b = qs[j]
+        const a = qs[i],
+          b = qs[j]
 
         const aTokens = tokenize(a.options[a.correctIndex].text)
         const bTokens = tokenize(b.options[b.correctIndex].text)
@@ -611,15 +635,33 @@ function overlap() {
 // === Main ===
 const command = process.argv[2]
 switch (command) {
-  case 'randomize': randomize(); break
-  case 'stats': stats(); break
-  case 'coverage': coverage(); break
-  case 'check': check(); break
-  case 'search': search(); break
-  case 'edit': edit(); break
-  case 'merge-proposals': mergeProposals(); break
-  case 'section-coverage': sectionCoverage(); break
-  case 'overlap': overlap(); break
+  case 'randomize':
+    randomize()
+    break
+  case 'stats':
+    stats()
+    break
+  case 'coverage':
+    coverage()
+    break
+  case 'check':
+    check()
+    break
+  case 'search':
+    search()
+    break
+  case 'edit':
+    edit()
+    break
+  case 'merge-proposals':
+    mergeProposals()
+    break
+  case 'section-coverage':
+    sectionCoverage()
+    break
+  case 'overlap':
+    overlap()
+    break
   default:
     console.log('Usage: node scripts/quiz-utils.mjs <command>')
     console.log('Commands: randomize, stats, coverage, check, search, edit, merge-proposals, section-coverage, overlap')

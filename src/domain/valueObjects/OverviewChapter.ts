@@ -32,3 +32,18 @@ export function getChapterFromTags(tags: readonly string[]): OverviewChapter | n
   if (!chapterTag) return null
   return OVERVIEW_CHAPTERS.find((ch) => ch.tag === chapterTag) ?? null
 }
+
+/**
+ * overview タグ付き問題を出題順にソートして返す共通ユーティリティ
+ */
+export function getOverviewQuestionsOrdered<T extends { tags: readonly string[] }>(questions: readonly T[]): T[] {
+  return [...questions]
+    .filter((q) => q.tags.includes('overview'))
+    .sort((a, b) => {
+      const getOrder = (q: T): number => {
+        const tag = q.tags.find((t) => /^overview-\d/.test(t))
+        return tag ? Number.parseInt(tag.replace('overview-', ''), 10) : 999
+      }
+      return getOrder(a) - getOrder(b)
+    })
+}

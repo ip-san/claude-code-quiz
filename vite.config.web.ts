@@ -5,10 +5,10 @@
  * GitHub Pages にデプロイするためのPWA設定を含む。
  */
 
-import { defineConfig } from 'vite'
 import react from '@vitejs/plugin-react'
-import { VitePWA } from 'vite-plugin-pwa'
 import { resolve } from 'path'
+import { defineConfig } from 'vite'
+import { VitePWA } from 'vite-plugin-pwa'
 
 export default defineConfig({
   base: '/claude-code-quiz/',
@@ -42,9 +42,7 @@ export default defineConfig({
           { src: 'icons/icon-512-maskable.png', sizes: '512x512', type: 'image/png', purpose: 'maskable' },
         ],
         orientation: 'portrait' as const,
-        shortcuts: [
-          { name: 'クイックスタート', url: '/claude-code-quiz/', description: 'クイズをすぐ開始' },
-        ],
+        shortcuts: [{ name: 'クイックスタート', url: '/claude-code-quiz/', description: 'クイズをすぐ開始' }],
       },
     }),
   ],
@@ -65,7 +63,7 @@ export default defineConfig({
           // Split quiz data (largest payload) into separate chunk
           'quiz-data': ['./src/data/quizzes.json'],
           // Split React + core libs
-          'vendor': ['react', 'react-dom'],
+          vendor: ['react', 'react-dom'],
         },
       },
     },

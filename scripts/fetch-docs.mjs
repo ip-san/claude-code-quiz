@@ -19,8 +19,8 @@
  *   .claude/tmp/docs/{page-name}.md
  */
 
-import { writeFileSync, readFileSync, mkdirSync, existsSync, statSync, rmSync } from 'fs'
-import { resolve, dirname } from 'path'
+import { existsSync, mkdirSync, readFileSync, rmSync, statSync, writeFileSync } from 'fs'
+import { dirname, resolve } from 'path'
 import { fileURLToPath } from 'url'
 import { CATEGORY_DOC_MAP } from './quiz-constants.mjs'
 
@@ -158,9 +158,15 @@ function cleanMarkdown(raw) {
   text = text.replace(/\[Skip to main content\]\([^)]+\)\s*/g, '')
   text = text.replace(/\[Claude Code Docs home page[^\]]*\]\([^)]+\)\s*/g, '')
   text = text.replace(/^(English|⌘K Ask AI|Search\.\.\.|Navigation)\s*$/gm, '')
-  text = text.replace(/^#{5}\s+(Getting started|Core concepts|Platforms and integrations|Build with Claude Code|Deployment|Administration|Configuration|Reference|Resources)\s*$/gm, '')
+  text = text.replace(
+    /^#{5}\s+(Getting started|Core concepts|Platforms and integrations|Build with Claude Code|Deployment|Administration|Configuration|Reference|Resources)\s*$/gm,
+    ''
+  )
   // Concatenated nav breadcrumbs
-  text = text.replace(/^\[[\w\s]+\]\(https:\/\/(code|platform)\.claude\.com\/docs\/[^)]+\)(\[[\w\s]+\]\(https:\/\/(code|platform)\.claude\.com\/docs\/[^)]+\))+\s*$/gm, '')
+  text = text.replace(
+    /^\[[\w\s]+\]\(https:\/\/(code|platform)\.claude\.com\/docs\/[^)]+\)(\[[\w\s]+\]\(https:\/\/(code|platform)\.claude\.com\/docs\/[^)]+\))+\s*$/gm,
+    ''
+  )
 
   // Remove nav link lists (3+ consecutive doc links as bullet items)
   const lines = text.split('\n')
@@ -169,8 +175,10 @@ function cleanMarkdown(raw) {
 
   for (const line of lines) {
     const trimmed = line.trim()
-    const isNavLink = /^\*\s+\[.*?\]\(https:\/\/(code|platform)\.claude\.com\/docs\//.test(trimmed)
-      && !trimmed.includes('`') && trimmed.length < 200
+    const isNavLink =
+      /^\*\s+\[.*?\]\(https:\/\/(code|platform)\.claude\.com\/docs\//.test(trimmed) &&
+      !trimmed.includes('`') &&
+      trimmed.length < 200
 
     if (isNavLink) {
       buffer.push(line)
@@ -217,7 +225,8 @@ function cleanMarkdown(raw) {
  * GitHub 互換のアンカースラッグ生成
  */
 function slugify(title) {
-  return title.toLowerCase()
+  return title
+    .toLowerCase()
     .replace(/`/g, '')
     .replace(/[^a-z0-9\s-]/g, '')
     .trim()
@@ -283,9 +292,9 @@ function splitDocIntoSections(pageName, markdown, sectionsDir) {
   if (current) rawSections.push(current)
 
   // 偽 H2 フィルタ（YAML キーワードやバッククォートで始まるもの）
-  const YAML_PATTERN = /^(description:|command:|model:|tools:|  -|disallowedTools:|allowed-tools:|context:|disable-)/
-  const realSections = rawSections.filter(s =>
-    !s.title.startsWith('`') && !YAML_PATTERN.test(s.title) && s.slug.length > 0
+  const YAML_PATTERN = /^(description:|command:|model:|tools:| {2}-|disallowedTools:|allowed-tools:|context:|disable-)/
+  const realSections = rawSections.filter(
+    (s) => !s.title.startsWith('`') && !YAML_PATTERN.test(s.title) && s.slug.length > 0
   )
 
   if (realSections.length === 0) return []
@@ -319,7 +328,7 @@ function splitDocIntoSections(pageName, markdown, sectionsDir) {
         level: 2,
         chars: bytes,
         h3Split: true,
-        h3Sections: h3Index.map(h => h.slug),
+        h3Sections: h3Index.map((h) => h.slug),
       })
     } else {
       writeFileSync(resolve(sectionsDir, section.slug + '.md'), content + '\n')
@@ -348,7 +357,9 @@ function readDocSections(docName, selection) {
   if (!existsSync(indexPath)) {
     const flatPath = resolve(DOCS_DIR, `${docName}.md`)
     if (existsSync(flatPath)) {
-      const content = readFileSync(flatPath, 'utf8').replace(/^<!--.*?-->\n/gm, '').trim()
+      const content = readFileSync(flatPath, 'utf8')
+        .replace(/^<!--.*?-->\n/gm, '')
+        .trim()
       parts.push(`--- ${docName} ---\n\n${content}`)
     }
     return parts
@@ -357,12 +368,10 @@ function readDocSections(docName, selection) {
   const index = JSON.parse(readFileSync(indexPath, 'utf8'))
 
   // 対象セクションを決定
-  const slugsToInclude = selection === 'ALL'
-    ? index.map(s => s.slug)
-    : selection
+  const slugsToInclude = selection === 'ALL' ? index.map((s) => s.slug) : selection
 
   for (const slug of slugsToInclude) {
-    const entry = index.find(s => s.slug === slug)
+    const entry = index.find((s) => s.slug === slug)
     if (!entry) continue
 
     if (entry.h3Split) {
@@ -445,7 +454,7 @@ function isCacheValid(filePath) {
   const stat = statSync(filePath)
   const size = stat.size
   // Must be non-trivial (> 1KB) and within TTL
-  return size > 1024 && (Date.now() - stat.mtimeMs) < CACHE_TTL_MS
+  return size > 1024 && Date.now() - stat.mtimeMs < CACHE_TTL_MS
 }
 
 /**
@@ -465,7 +474,7 @@ async function fetchPage(page, force = false) {
     try {
       const res = await fetch(jinaUrl, {
         headers: {
-          'Accept': 'text/plain',
+          Accept: 'text/plain',
         },
         signal: AbortSignal.timeout(60000),
       })
@@ -482,11 +491,7 @@ async function fetchPage(page, force = false) {
       }
 
       // Add metadata header
-      const header = [
-        `<!-- Cached: ${new Date().toISOString()} -->`,
-        `<!-- Source: ${page.url} -->`,
-        '',
-      ].join('\n')
+      const header = [`<!-- Cached: ${new Date().toISOString()} -->`, `<!-- Source: ${page.url} -->`, ''].join('\n')
 
       writeFileSync(outPath, header + markdown + '\n')
 
@@ -500,7 +505,7 @@ async function fetchPage(page, force = false) {
         return { name: page.name, status: 'error', error: err.message }
       }
       // Wait before retry (increasing backoff)
-      await new Promise(r => setTimeout(r, 2000 * attempt))
+      await new Promise((r) => setTimeout(r, 2000 * attempt))
     }
   }
 }
@@ -561,7 +566,9 @@ async function checkUpdates() {
     try {
       const state = JSON.parse(readFileSync(STATE_PATH, 'utf8'))
       storedHashes = state.docHashes || {}
-    } catch { /* ignore */ }
+    } catch {
+      /* ignore */
+    }
   }
 
   // Load quiz data for impact counting
@@ -586,11 +593,11 @@ async function checkUpdates() {
 
   for (let i = 0; i < DOC_PAGES.length; i += BATCH_SIZE) {
     const batch = DOC_PAGES.slice(i, i + BATCH_SIZE)
-    const batchResults = await Promise.all(batch.map(p => fetchPage(p, true)))
+    const batchResults = await Promise.all(batch.map((p) => fetchPage(p, true)))
     results.push(...batchResults)
     process.stdout.write(`\r  Progress: ${Math.min(i + BATCH_SIZE, DOC_PAGES.length)}/${DOC_PAGES.length}`)
     if (i + BATCH_SIZE < DOC_PAGES.length) {
-      await new Promise(r => setTimeout(r, 500))
+      await new Promise((r) => setTimeout(r, 500))
     }
   }
   console.log('\n')
@@ -599,7 +606,7 @@ async function checkUpdates() {
   const { createHash } = await import('crypto')
   const changed = []
   const unchanged = []
-  const errors = results.filter(r => r.status === 'error')
+  const errors = results.filter((r) => r.status === 'error')
 
   for (const r of results) {
     if (r.status === 'error') continue
@@ -626,7 +633,7 @@ async function checkUpdates() {
 
   for (const name of changed) {
     const cats = docCategories[name] || []
-    const affectedQuizzes = quizData.quizzes.filter(q => cats.includes(q.category))
+    const affectedQuizzes = quizData.quizzes.filter((q) => cats.includes(q.category))
     console.log(`  CHANGED: ${name} (affects ${affectedQuizzes.length} questions in: ${cats.join(', ') || 'none'})`)
   }
 
@@ -640,7 +647,7 @@ async function checkUpdates() {
     const totalAffected = new Set()
     for (const name of changed) {
       const cats = docCategories[name] || []
-      quizData.quizzes.filter(q => cats.includes(q.category)).forEach(q => totalAffected.add(q.id))
+      quizData.quizzes.filter((q) => cats.includes(q.category)).forEach((q) => totalAffected.add(q.id))
     }
     console.log(`\n  Total affected questions: ${totalAffected.size}`)
     console.log(`  Run \`/quiz-refine\` to verify affected questions.`)
@@ -672,7 +679,7 @@ async function main() {
         console.error('Usage: node scripts/fetch-docs.mjs --assemble --pages hooks,settings,mcp')
         process.exit(1)
       }
-      const pageNames = pagesStr.split(',').map(s => s.trim())
+      const pageNames = pagesStr.split(',').map((s) => s.trim())
       assembleDocContent(null, pageNames)
     } else {
       // カテゴリモード
@@ -701,7 +708,7 @@ async function main() {
       const markdown = content.replace(/^<!--.*?-->\n/gm, '').trim()
       const sectionsDir = resolve(DOCS_DIR, 'sections', page.name)
       const index = splitDocIntoSections(page.name, markdown, sectionsDir)
-      const h3Count = index.filter(s => s.h3Split).reduce((sum, s) => sum + s.h3Sections.length, 0)
+      const h3Count = index.filter((s) => s.h3Split).reduce((sum, s) => sum + s.h3Sections.length, 0)
       console.log(`  [SPLIT] ${page.name}: ${index.length} sections${h3Count ? ` (+${h3Count} H3)` : ''}`)
     }
     return
@@ -716,21 +723,24 @@ async function main() {
   const force = args.includes('--force')
 
   // --pages filter: only fetch specified pages (comma-separated)
-  const pagesArg = args.find(a => a.startsWith('--pages'))
+  const pagesArg = args.find((a) => a.startsWith('--pages'))
   let pagesToFetch = DOC_PAGES
   if (pagesArg) {
     // Support both --pages=a,b and --pages a,b
     let pageNames
     if (pagesArg.includes('=')) {
-      pageNames = pagesArg.split('=')[1].split(',').map(s => s.trim())
+      pageNames = pagesArg
+        .split('=')[1]
+        .split(',')
+        .map((s) => s.trim())
     } else {
       const idx = args.indexOf('--pages')
-      pageNames = (args[idx + 1] || '').split(',').map(s => s.trim())
+      pageNames = (args[idx + 1] || '').split(',').map((s) => s.trim())
     }
-    pagesToFetch = DOC_PAGES.filter(p => pageNames.includes(p.name))
+    pagesToFetch = DOC_PAGES.filter((p) => pageNames.includes(p.name))
     if (pagesToFetch.length === 0) {
       console.error(`No matching pages found for: ${pageNames.join(', ')}`)
-      console.error(`Available: ${DOC_PAGES.map(p => p.name).join(', ')}`)
+      console.error(`Available: ${DOC_PAGES.map((p) => p.name).join(', ')}`)
       process.exit(1)
     }
   }
@@ -739,7 +749,7 @@ async function main() {
 
   console.log(`Fetching ${pagesToFetch.length} documentation pages via Jina Reader...`)
   if (force) console.log('  (--force: ignoring cache)')
-  if (pagesArg) console.log(`  (--pages: ${pagesToFetch.map(p => p.name).join(', ')})`)
+  if (pagesArg) console.log(`  (--pages: ${pagesToFetch.map((p) => p.name).join(', ')})`)
   console.log()
 
   // Fetch in parallel batches of 5 (Jina rate limit: ~200 req/min)
@@ -748,7 +758,7 @@ async function main() {
 
   for (let i = 0; i < pagesToFetch.length; i += BATCH_SIZE) {
     const batch = pagesToFetch.slice(i, i + BATCH_SIZE)
-    const batchResults = await Promise.all(batch.map(p => fetchPage(p, force)))
+    const batchResults = await Promise.all(batch.map((p) => fetchPage(p, force)))
     results.push(...batchResults)
 
     // Progress indicator
@@ -757,15 +767,15 @@ async function main() {
 
     // Brief pause between batches
     if (i + BATCH_SIZE < pagesToFetch.length) {
-      await new Promise(r => setTimeout(r, 500))
+      await new Promise((r) => setTimeout(r, 500))
     }
   }
   console.log('\n')
 
   // Report results
-  const fetched = results.filter(r => r.status === 'fetched')
-  const cached = results.filter(r => r.status === 'cached')
-  const errors = results.filter(r => r.status === 'error')
+  const fetched = results.filter((r) => r.status === 'fetched')
+  const cached = results.filter((r) => r.status === 'cached')
+  const errors = results.filter((r) => r.status === 'error')
 
   console.log('Results:')
   for (const r of results) {
@@ -787,7 +797,7 @@ async function main() {
   }
 }
 
-main().catch(err => {
+main().catch((err) => {
   console.error('Fatal error:', err)
   process.exit(1)
 })

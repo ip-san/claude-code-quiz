@@ -18,12 +18,12 @@
  * - dev モードでは Vite サーバー起動後に Electron プロセスを自動起動
  */
 
-import { defineConfig, Plugin } from 'vite'
 import react from '@vitejs/plugin-react'
-import { resolve } from 'path'
+import { ChildProcess, spawn } from 'child_process'
 import { build } from 'esbuild'
-import { mkdirSync, existsSync } from 'fs'
-import { spawn, ChildProcess } from 'child_process'
+import { existsSync, mkdirSync } from 'fs'
+import { resolve } from 'path'
+import { defineConfig, Plugin } from 'vite'
 
 /**
  * Electron の main.ts と preload.ts を CJS 形式でビルドし、

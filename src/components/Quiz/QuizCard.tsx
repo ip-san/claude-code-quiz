@@ -8,6 +8,7 @@ import { haptics } from '@/lib/haptics'
 import { useSwipe } from '@/lib/useSwipe'
 import { useQuizStore } from '@/stores/quizStore'
 import { ChapterIndicator } from './ChapterIndicator'
+import { ChapterIntro } from './ChapterIntro'
 import { CorrectOverlay } from './CorrectOverlay'
 import { EncouragementToast } from './EncouragementToast'
 import { Feedback } from './Feedback'
@@ -59,7 +60,11 @@ export function QuizCard({ isModalOpen = false }: { isModalOpen?: boolean }) {
     const prevQuestion = sessionState.questions[sessionState.currentIndex - 1]
     return prevQuestion ? getChapterFromTags(prevQuestion.tags) : null
   }, [isOverviewMode, sessionState])
-  const showChapterIndicator = isOverviewMode && currentChapter && currentChapter.id !== previousChapter?.id
+  const isNewChapter = isOverviewMode && currentChapter && currentChapter.id !== previousChapter?.id
+  // Show full-page chapter intro instead of just a small indicator
+  const [dismissedIntros, setDismissedIntros] = useState<Set<number>>(new Set())
+  const showChapterIntro = isNewChapter && currentChapter && !dismissedIntros.has(currentChapter.id)
+  const showChapterIndicator = isNewChapter && !showChapterIntro
 
   // Keyboard navigation (extracted to custom hook)
   useQuizKeyboard({
@@ -159,6 +164,16 @@ export function QuizCard({ isModalOpen = false }: { isModalOpen?: boolean }) {
 
   const category = getCategoryById(quiz.category)
 
+  // Show full-page chapter intro before quiz content
+  if (showChapterIntro && currentChapter) {
+    return (
+      <ChapterIntro
+        chapter={currentChapter}
+        onStart={() => setDismissedIntros((prev) => new Set(prev).add(currentChapter.id))}
+      />
+    )
+  }
+
   return (
     <>
       {/* Correct answer overlay — big center check */}
@@ -170,7 +185,7 @@ export function QuizCard({ isModalOpen = false }: { isModalOpen?: boolean }) {
       {/* Encouragement toast on consecutive wrong answers */}
       {!deferFeedback && <EncouragementToast wrongStreak={consecutiveWrong} />}
 
-      {/* Chapter indicator for overview mode */}
+      {/* Compact chapter indicator (shown after intro was dismissed) */}
       {showChapterIndicator && currentChapter && (
         <ChapterIndicator chapter={currentChapter} totalChapters={OVERVIEW_CHAPTERS.length} />
       )}

@@ -18,8 +18,8 @@
  * - 新規ウィンドウの作成を禁止
  */
 
-import { app, BrowserWindow, ipcMain, dialog, shell, clipboard, nativeImage } from 'electron'
-import { readFile, writeFile, stat } from 'fs/promises'
+import { app, BrowserWindow, clipboard, dialog, ipcMain, nativeImage, shell } from 'electron'
+import { readFile, stat, writeFile } from 'fs/promises'
 import { join } from 'path'
 
 /**
@@ -220,33 +220,36 @@ ipcMain.handle('export-progress', async (_event, data: string): Promise<{ succes
  *
  * BOM 付き UTF-8 で書き出すことで、Excel での日本語文字化けを防ぐ。
  */
-ipcMain.handle('export-csv', async (_event, data: string, defaultFilename: string): Promise<{ success: boolean; error?: string }> => {
-  try {
-    if (!mainWindow) {
-      return { success: false, error: 'Window not available' }
-    }
+ipcMain.handle(
+  'export-csv',
+  async (_event, data: string, defaultFilename: string): Promise<{ success: boolean; error?: string }> => {
+    try {
+      if (!mainWindow) {
+        return { success: false, error: 'Window not available' }
+      }
 
-    const result = await dialog.showSaveDialog(mainWindow, {
-      title: 'CSV をエクスポート',
-      defaultPath: defaultFilename,
-      filters: [{ name: 'CSV Files', extensions: ['csv'] }],
-    })
+      const result = await dialog.showSaveDialog(mainWindow, {
+        title: 'CSV をエクスポート',
+        defaultPath: defaultFilename,
+        filters: [{ name: 'CSV Files', extensions: ['csv'] }],
+      })
 
-    if (result.canceled || !result.filePath) {
-      return { success: false, error: 'cancelled' }
-    }
+      if (result.canceled || !result.filePath) {
+        return { success: false, error: 'cancelled' }
+      }
 
-    // BOM 付き UTF-8 で Excel 互換性を確保
-    const bom = '\uFEFF'
-    await writeFile(result.filePath, bom + data, 'utf-8')
-    return { success: true }
-  } catch (error) {
-    return {
-      success: false,
-      error: error instanceof Error ? error.message : 'Unknown error',
+      // BOM 付き UTF-8 で Excel 互換性を確保
+      const bom = '\uFEFF'
+      await writeFile(result.filePath, bom + data, 'utf-8')
+      return { success: true }
+    } catch (error) {
+      return {
+        success: false,
+        error: error instanceof Error ? error.message : 'Unknown error',
+      }
     }
   }
-})
+)
 
 /**
  * 学習進捗データのインポート
@@ -275,7 +278,7 @@ ipcMain.handle('import-progress', async (): Promise<{ success: boolean; data?: s
     if (fileStats.size > MAX_PROGRESS_FILE_SIZE) {
       return {
         success: false,
-        error: `ファイルサイズが大きすぎます（最大1MB）。現在のサイズ: ${Math.round(fileStats.size / 1024 * 10) / 10}KB`,
+        error: `ファイルサイズが大きすぎます（最大1MB）。現在のサイズ: ${Math.round((fileStats.size / 1024) * 10) / 10}KB`,
       }
     }
 

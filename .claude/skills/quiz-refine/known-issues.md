@@ -61,6 +61,7 @@
   - `Notification`/`SessionStart`/`SessionEnd` 等 → ブロッキング不可
 - **各イベントセクションの decision control テーブルを個別確認すること。一般ルールで一括判定してはいけない**
 - ext-029 の explanation がブロッキング可能なイベントを9つ列挙していたが、`Elicitation` と `ElicitationResult` の2つが欠落していた（docs では11イベントがブロッキング可能） → known-issues.md のブロッキング対応イベントリストを9→11に更新（Elicitation, ElicitationResult を追加）
+- Hook イベントタイプが22種から25種に増加。`TaskCreated`、`CwdChanged`、`FileChanged` の3イベントが追加された → known-issues.md の Hook イベント総数を 22→25 に更新。ブロッキング対応イベントも 11→12 に更新（TaskCreated 追加）
 
 ## UserPromptSubmit の reason 送信先（v4.43.1 で確定）
 
@@ -115,6 +116,7 @@ v4.43.0 以前の known-issues では「exit code 2 の一般ルールで UserPr
 ## Memory ページのアンカー（2026-03-01 確認）
 
 - 有効アンカー: `#import-additional-files`, `#choose-where-to-put-claudemd-files`, `#view-and-edit-with-memory`, `#how-claudemd-files-load`, `#user-level-rules`, `#path-specific-rules`
+- Auto Memory の `MEMORY.md` 読み込み制限が「先頭200行」から「先頭200行または25KB（先に到達した方）」に変更されている → known-issues.md に「MEMORY.md の読み込み制限は 200 lines or 25KB, whichever comes first」を追加
 
 ## SDK・ライブラリの改名履歴
 
@@ -212,7 +214,9 @@ v4.43.0 以前の known-issues では「exit code 2 の一般ルールで UserPr
 
 ## Hook イベント総数
 
-- Hook event types は全 22 種（`InstructionsLoaded`、`PostCompact`、`PostToolUseFailure`、`StopFailure`、`Elicitation`、`ElicitationResult` を含む）。v4.44.0 時点では 18 種だったが、`PostCompact`、`Elicitation`、`ElicitationResult`、`PostToolUseFailure`、`StopFailure` が追加された
+- Hook event types は全 25 種（2026-03-27 確認）。v4.44.0 時点の 22 種から `TaskCreated`、`CwdChanged`、`FileChanged` の3イベントが追加された
+- 全25種: `SessionStart`, `SessionEnd`, `InstructionsLoaded`, `UserPromptSubmit`, `PreToolUse`, `PermissionRequest`, `PostToolUse`, `PostToolUseFailure`, `Notification`, `SubagentStart`, `SubagentStop`, `TaskCreated`, `TaskCompleted`, `Stop`, `StopFailure`, `TeammateIdle`, `ConfigChange`, `WorktreeCreate`, `WorktreeRemove`, `PreCompact`, `PostCompact`, `Elicitation`, `ElicitationResult`, `CwdChanged`, `FileChanged`
+- ブロッキング可能: 12 イベント（PreToolUse, UserPromptSubmit, PermissionRequest, Stop, SubagentStop, TeammateIdle, TaskCreated, TaskCompleted, ConfigChange, WorktreeCreate, Elicitation, ElicitationResult）
 
 ## 環境変数（追加）
 
@@ -296,3 +300,11 @@ v4.43.0 以前の known-issues では「exit code 2 の一般ルールで UserPr
 ## referenceUrl domain migration
 
 - 全630問のreferenceUrlが`/docs/ja/`を使用していたが、quiz-lintは`/docs/en/`を期待していた。テストコード（quizContentQuality.test.ts）も`/docs/ja/`を期待していたため、lintとtestで不整合があった → quiz-lint.mjsとquizContentQuality.test.tsのURL prefix定義を統一するチェックをCIに追加。言語切替が発生した場合の一括変換スクリプトも検討
+
+## CLAUDE.local.md removal from documentation
+
+- `CLAUDE.local.md` が公式ドキュメントから完全に削除されている。CLAUDE.md のスコープテーブルには Managed policy、Project instructions、User instructions の3つのみが記載されている。以前は4スコープ（Managed > Local > Project > User）だったが、現在は3スコープ（Managed > Project > User）に変更 → - SKILL.md の既知パターンに「CLAUDE.md スコープは3段階（Managed > Project > User）。settings.json は5段階（Managed > CLI > Local > Project > User）」を追加
+
+## @import does not support glob patterns
+
+- mem-046 が `@import` で glob パターンがサポートされていると主張していたが、docs には glob/wildcard の記載なし。docs は「Both relative and absolute paths are allowed」のみ → known-issues.md に「`@import` は個別ファイルパスのみ。glob パターン（`@docs/*.md`）は未ドキュメント」を追加

@@ -20,10 +20,10 @@
  *   .claude/tmp/verify-targets.json — 今回検証が必要な問題リスト
  */
 
-import { readFileSync, writeFileSync, existsSync, mkdirSync, statSync } from 'fs'
-import { resolve, dirname } from 'path'
-import { fileURLToPath } from 'url'
 import { createHash } from 'crypto'
+import { existsSync, mkdirSync, readFileSync, statSync, writeFileSync } from 'fs'
+import { dirname, resolve } from 'path'
+import { fileURLToPath } from 'url'
 import { CATEGORY_DOC_MAP, SUPPLEMENTARY_DOCS } from './quiz-constants.mjs'
 
 const __dirname = dirname(fileURLToPath(import.meta.url))
@@ -142,8 +142,10 @@ function computeDiff(categories, fullScan, forceScan) {
   // Current doc hashes
   const currentDocHashes = {}
   const allDocNames = new Set()
-  Object.values(CATEGORY_DOC_MAP).flat().forEach(d => allDocNames.add(d))
-  SUPPLEMENTARY_DOCS.forEach(d => allDocNames.add(d))
+  Object.values(CATEGORY_DOC_MAP)
+    .flat()
+    .forEach((d) => allDocNames.add(d))
+  SUPPLEMENTARY_DOCS.forEach((d) => allDocNames.add(d))
   for (const docName of allDocNames) {
     currentDocHashes[docName] = hashDocFile(docName)
   }
@@ -151,7 +153,7 @@ function computeDiff(categories, fullScan, forceScan) {
   // Build per-category combined doc hash for verifyResults comparison
   const categoryDocHashMap = {}
   for (const [cat, docs] of Object.entries(CATEGORY_DOC_MAP)) {
-    const combined = docs.map(d => currentDocHashes[d] || '').join(':')
+    const combined = docs.map((d) => currentDocHashes[d] || '').join(':')
     categoryDocHashMap[cat] = hashString(combined)
   }
 
@@ -164,11 +166,9 @@ function computeDiff(categories, fullScan, forceScan) {
   }
 
   // Filter quizzes by requested categories
-  const targetCategories = categories.length > 0
-    ? categories
-    : Object.keys(CATEGORY_DOC_MAP)
+  const targetCategories = categories.length > 0 ? categories : Object.keys(CATEGORY_DOC_MAP)
 
-  const quizzes = data.quizzes.filter(q => targetCategories.includes(q.category))
+  const quizzes = data.quizzes.filter((q) => targetCategories.includes(q.category))
 
   // Classify each quiz
   const needsVerification = []
@@ -187,9 +187,13 @@ function computeDiff(categories, fullScan, forceScan) {
     if (fullScan) {
       // --full: skip questions that are verified-ok with matching hashes
       const vr = state.verifyResults[quiz.id]
-      if (vr && vr.status === 'ok'
-        && previousHash && currentHash === previousHash
-        && vr.docHash === categoryDocHashMap[quiz.category]) {
+      if (
+        vr &&
+        vr.status === 'ok' &&
+        previousHash &&
+        currentHash === previousHash &&
+        vr.docHash === categoryDocHashMap[quiz.category]
+      ) {
         skippable.push({ ...quizRef(quiz), reason: 'verified-ok' })
         continue
       }
@@ -209,7 +213,7 @@ function computeDiff(categories, fullScan, forceScan) {
     }
 
     const categoryDocs = CATEGORY_DOC_MAP[quiz.category] || []
-    const hasDocChange = categoryDocs.some(doc => changedDocs.has(doc))
+    const hasDocChange = categoryDocs.some((doc) => changedDocs.has(doc))
     if (hasDocChange) {
       needsVerification.push({ ...quizRef(quiz), reason: 'doc-changed' })
       continue
@@ -239,7 +243,7 @@ function quizRef(quiz) {
 function cmdDiff(args) {
   const fullScan = args.includes('--full')
   const forceScan = args.includes('--force')
-  const categories = args.filter(a => !a.startsWith('--'))
+  const categories = args.filter((a) => !a.startsWith('--'))
 
   const result = computeDiff(categories, fullScan, forceScan)
 
@@ -270,7 +274,9 @@ function cmdDiff(args) {
   if (result.targets.length > 0) {
     // Reason breakdown
     const reasons = {}
-    result.targets.forEach(t => { reasons[t.reason] = (reasons[t.reason] || 0) + 1 })
+    result.targets.forEach((t) => {
+      reasons[t.reason] = (reasons[t.reason] || 0) + 1
+    })
     console.log('Reasons:')
     for (const [reason, count] of Object.entries(reasons)) {
       console.log(`  ${reason}: ${count}`)
@@ -278,7 +284,7 @@ function cmdDiff(args) {
 
     console.log('\nBy category:')
     for (const [cat, targets] of Object.entries(byCategory).sort()) {
-      console.log(`  ${cat}: ${targets.length} (${targets.map(t => t.id).join(', ')})`)
+      console.log(`  ${cat}: ${targets.length} (${targets.map((t) => t.id).join(', ')})`)
     }
   }
 
@@ -310,7 +316,7 @@ function cmdDiff(args) {
     if (byCategory[cat] && byCategory[cat].length > 0) {
       const docs = getDocsForCategory(cat, referencedPages)
       output.categoryDocMap[cat] = docs
-      docs.forEach(d => neededDocPages.add(d))
+      docs.forEach((d) => neededDocPages.add(d))
     }
   }
 
@@ -329,10 +335,14 @@ function cmdDiff(args) {
     let allCached = true
     for (const docName of neededDocPages) {
       const filePath = resolve(DOCS_DIR, `${docName}.md`)
-      if (!existsSync(filePath)) { allCached = false; break }
+      if (!existsSync(filePath)) {
+        allCached = false
+        break
+      }
       const stat = statSync(filePath)
-      if (stat.size <= 1024 || (Date.now() - stat.mtimeMs) >= CACHE_TTL_MS) {
-        allCached = false; break
+      if (stat.size <= 1024 || Date.now() - stat.mtimeMs >= CACHE_TTL_MS) {
+        allCached = false
+        break
       }
     }
     output.allDocsCached = allCached
@@ -360,15 +370,15 @@ function splitQuizzesByCategory(targets, byCategory) {
   const data = JSON.parse(readFileSync(QUIZ_PATH, 'utf8'))
   mkdirSync(QUIZ_SPLIT_DIR, { recursive: true })
 
-  const targetIds = new Set(targets.map(t => t.id))
+  const targetIds = new Set(targets.map((t) => t.id))
   let totalSplit = 0
 
   for (const [cat, catTargets] of Object.entries(byCategory)) {
-    const catTargetIds = new Set(catTargets.map(t => t.id))
-    const catQuizzes = data.quizzes.filter(q => q.category === cat)
+    const catTargetIds = new Set(catTargets.map((t) => t.id))
+    const catQuizzes = data.quizzes.filter((q) => q.category === cat)
 
     // Mark which questions need verification vs context-only
-    const output = catQuizzes.map(q => ({
+    const output = catQuizzes.map((q) => ({
       ...q,
       _needsVerification: catTargetIds.has(q.id),
     }))
@@ -377,7 +387,7 @@ function splitQuizzesByCategory(targets, byCategory) {
     writeFileSync(outPath, JSON.stringify(output, null, 2) + '\n')
 
     const sizeKB = (Buffer.byteLength(JSON.stringify(output, null, 2)) / 1024).toFixed(1)
-    const verifyCount = output.filter(q => q._needsVerification).length
+    const verifyCount = output.filter((q) => q._needsVerification).length
     console.log(`  Split: ${cat}.json (${output.length} questions, ${verifyCount} to verify, ${sizeKB}KB)`)
     totalSplit++
   }
@@ -394,8 +404,10 @@ function cmdSave() {
   if (existsSync(TARGETS_PATH)) {
     try {
       const targets = JSON.parse(readFileSync(TARGETS_PATH, 'utf8'))
-      previousTargetIds = new Set(targets.targets.map(t => t.id))
-    } catch { /* ignore parse errors */ }
+      previousTargetIds = new Set(targets.targets.map((t) => t.id))
+    } catch {
+      /* ignore parse errors */
+    }
   }
 
   // Compute current hashes for verifyResults
@@ -407,8 +419,10 @@ function cmdSave() {
   // Build per-category combined doc hash
   const currentDocHashes = {}
   const allDocNames = new Set()
-  Object.values(CATEGORY_DOC_MAP).flat().forEach(d => allDocNames.add(d))
-  SUPPLEMENTARY_DOCS.forEach(d => allDocNames.add(d))
+  Object.values(CATEGORY_DOC_MAP)
+    .flat()
+    .forEach((d) => allDocNames.add(d))
+  SUPPLEMENTARY_DOCS.forEach((d) => allDocNames.add(d))
   for (const docName of allDocNames) {
     const hash = hashDocFile(docName)
     if (hash) currentDocHashes[docName] = hash
@@ -416,7 +430,7 @@ function cmdSave() {
 
   const categoryDocHashMap = {}
   for (const [cat, docs] of Object.entries(CATEGORY_DOC_MAP)) {
-    const combined = docs.map(d => currentDocHashes[d] || '').join(':')
+    const combined = docs.map((d) => currentDocHashes[d] || '').join(':')
     categoryDocHashMap[cat] = hashString(combined)
   }
 
@@ -426,7 +440,7 @@ function cmdSave() {
   }
 
   // Remove hashes for deleted quizzes
-  const currentIds = new Set(data.quizzes.map(q => q.id))
+  const currentIds = new Set(data.quizzes.map((q) => q.id))
   for (const id of Object.keys(state.quizHashes)) {
     if (!currentIds.has(id)) {
       delete state.quizHashes[id]
@@ -475,7 +489,9 @@ function cmdSave() {
   console.log(`Verification state saved.`)
   console.log(`  Quizzes tracked: ${Object.keys(state.quizHashes).length}`)
   console.log(`  Doc pages tracked: ${Object.keys(state.docHashes).length}`)
-  console.log(`  Verify results: ${Object.keys(state.verifyResults).length} (${okCount} ok, ${fixedCount} fixed this round)`)
+  console.log(
+    `  Verify results: ${Object.keys(state.verifyResults).length} (${okCount} ok, ${fixedCount} fixed this round)`
+  )
   console.log(`  Timestamp: ${state.lastVerified}`)
 }
 
@@ -514,8 +530,10 @@ function cmdStatus() {
 
   // Doc changes
   const allDocNames = new Set()
-  Object.values(CATEGORY_DOC_MAP).flat().forEach(d => allDocNames.add(d))
-  SUPPLEMENTARY_DOCS.forEach(d => allDocNames.add(d))
+  Object.values(CATEGORY_DOC_MAP)
+    .flat()
+    .forEach((d) => allDocNames.add(d))
+  SUPPLEMENTARY_DOCS.forEach((d) => allDocNames.add(d))
 
   let docChangedCount = 0
   for (const docName of allDocNames) {
@@ -543,10 +561,18 @@ const args = process.argv.slice(2)
 const command = args[0] || 'diff'
 
 switch (command) {
-  case 'diff': cmdDiff(args.slice(1)); break
-  case 'save': cmdSave(); break
-  case 'status': cmdStatus(); break
-  case 'mapping': cmdMapping(); break
+  case 'diff':
+    cmdDiff(args.slice(1))
+    break
+  case 'save':
+    cmdSave()
+    break
+  case 'status':
+    cmdStatus()
+    break
+  case 'mapping':
+    cmdMapping()
+    break
   default:
     console.log('Usage: node scripts/verify-state.mjs <command>')
     console.log('Commands: diff, diff --full, diff --force, save, status, mapping')

@@ -12,8 +12,8 @@ import { join } from 'path'
 // 閾値（KB）
 const LIMITS = {
   totalInitial: 450, // 初期ロード合計（index.js + vendor.js + index.css、現在 ~395KB）
-  singleChunk: 250,  // 単一チャンク（quiz-data は除外）
-  totalAll: 2000,    // 全チャンク合計（quiz-data 込み）
+  singleChunk: 250, // 単一チャンク（quiz-data は除外）
+  totalAll: 2000, // 全チャンク合計（quiz-data 込み）
 }
 
 // quiz-data は遅延ロードされるため初期ロード・単一チャンクチェックから除外
@@ -34,7 +34,7 @@ const chunks = files
   .filter((f) => f.endsWith('.js') || f.endsWith('.css'))
   .map((f) => {
     const size = statSync(join(distDir, f)).size
-    return { name: f, sizeKB: Math.round(size / 1024 * 10) / 10 }
+    return { name: f, sizeKB: Math.round((size / 1024) * 10) / 10 }
   })
   .sort((a, b) => b.sizeKB - a.sizeKB)
 
@@ -44,7 +44,14 @@ const cssChunks = chunks.filter((c) => c.name.endsWith('.css'))
 const isExcluded = (name) => EXCLUDE_FROM_INITIAL.some((ex) => name.includes(ex))
 // Initial load = all JS/CSS chunks EXCEPT explicitly excluded (lazy-loaded) ones
 // This is more robust than matching specific chunk names
-const LAZY_CHUNK_PATTERNS = ['quiz-data', 'QuizResult', 'ProgressDashboard', 'ExplanationReader', 'PWAUpdatePrompt', 'trophy']
+const LAZY_CHUNK_PATTERNS = [
+  'quiz-data',
+  'QuizResult',
+  'ProgressDashboard',
+  'ExplanationReader',
+  'PWAUpdatePrompt',
+  'trophy',
+]
 const isLazy = (name) => LAZY_CHUNK_PATTERNS.some((p) => name.includes(p))
 const initialJS = jsChunks.filter((c) => !isExcluded(c.name) && !isLazy(c.name))
 const initialKB = initialJS.reduce((sum, c) => sum + c.sizeKB, 0) + cssChunks.reduce((sum, c) => sum + c.sizeKB, 0)
@@ -80,7 +87,9 @@ console.log(`  ${'Total CSS:'.padEnd(40)} ${String(cssChunks.reduce((s, c) => s 
 console.log(`  ${'Total:'.padEnd(40)} ${String(totalKB).padStart(6)}KB`)
 console.log(`  ${'Initial load (est):'.padEnd(40)} ${String(initialKB).padStart(6)}KB`)
 
-console.log(`\nLimits: initial < ${LIMITS.totalInitial}KB | chunk < ${LIMITS.singleChunk}KB | total < ${LIMITS.totalAll}KB`)
+console.log(
+  `\nLimits: initial < ${LIMITS.totalInitial}KB | chunk < ${LIMITS.singleChunk}KB | total < ${LIMITS.totalAll}KB`
+)
 
 if (warnings.length > 0) {
   console.log('\n⚠️  Warnings:')

@@ -18,8 +18,8 @@
  *   node scripts/quiz-lint.mjs all --dry-run       # 全チェック（修正なし）
  */
 
-import { readFileSync, writeFileSync, existsSync, readdirSync } from 'fs'
-import { resolve, dirname } from 'path'
+import { existsSync, readdirSync, readFileSync, writeFileSync } from 'fs'
+import { dirname, resolve } from 'path'
 import { fileURLToPath } from 'url'
 
 const __dirname = dirname(fileURLToPath(import.meta.url))
@@ -47,47 +47,86 @@ function saveQuizzes(data) {
  */
 
 // Environment variables: UPPER_SNAKE_CASE with common prefixes
-const ENV_VAR_PATTERN = /(?<!`)\b(CLAUDE_CODE_[A-Z_]+|CLAUDE_ENV_[A-Z_]+|CLAUDE_CONFIG_[A-Z_]+|MAX_[A-Z_]+|MCP_[A-Z_]+|BASH_[A-Z_]+|USE_[A-Z_]+|HTTP_PROXY|HTTPS_PROXY|NO_PROXY|ANTHROPIC_[A-Z_]+)\b(?!`)/g
+const ENV_VAR_PATTERN =
+  /(?<!`)\b(CLAUDE_CODE_[A-Z_]+|CLAUDE_ENV_[A-Z_]+|CLAUDE_CONFIG_[A-Z_]+|MAX_[A-Z_]+|MCP_[A-Z_]+|BASH_[A-Z_]+|USE_[A-Z_]+|HTTP_PROXY|HTTPS_PROXY|NO_PROXY|ANTHROPIC_[A-Z_]+)\b(?!`)/g
 
 // CLI flags: --flag-name or -x (single letter)
 const FLAG_PATTERN = /(?<!`|[-\w])(--[a-z][-a-z0-9]*(?:=\S+)?)(?!`|[-\w])/g
 
 // Slash commands: /command-name
-const SLASH_CMD_PATTERN = /(?<!`|[/\w])(\/(init|memory|compact|clear|rewind|status|model|config|hooks|login|logout|bug|review|terminal-setup|teleport|doctor|cost|vim|rename|todos|tasks|search|ide|project|help|mcp|diff|permissions|listen))(?![-\w]|`)/g
+const SLASH_CMD_PATTERN =
+  /(?<!`|[/\w])(\/(init|memory|compact|clear|rewind|status|model|config|hooks|login|logout|bug|review|terminal-setup|teleport|doctor|cost|vim|rename|todos|tasks|search|ide|project|help|mcp|diff|permissions|listen))(?![-\w]|`)/g
 
 // File paths & config files — sorted by length descending to match longer paths first
 // (prevents `CLAUDE.md` from matching inside `~/.claude/CLAUDE.md`)
 const FILE_PATH_TERMS = [
-  '~/.claude/settings.json', '~/.claude/CLAUDE.md',
-  '~/.claude/commands/', '~/.claude/skills/',
-  '.claude/settings.json', '.claude/commands/',
-  '.claude/rules/', '.claude/skills/', '.claude/tmp/',
-  'CLAUDE.local.md', 'CLAUDE.md',
-  'settings.json', 'package.json',
-  '.gitignore', '.clauderc', '.mcp.json',
+  '~/.claude/settings.json',
+  '~/.claude/CLAUDE.md',
+  '~/.claude/commands/',
+  '~/.claude/skills/',
+  '.claude/settings.json',
+  '.claude/commands/',
+  '.claude/rules/',
+  '.claude/skills/',
+  '.claude/tmp/',
+  'CLAUDE.local.md',
+  'CLAUDE.md',
+  'settings.json',
+  'package.json',
+  '.gitignore',
+  '.clauderc',
+  '.mcp.json',
 ].sort((a, b) => b.length - a.length)
 
 // Hook event names (PascalCase)
 const HOOK_EVENTS = [
-  'PreToolUse', 'PostToolUse', 'UserPromptSubmit', 'Stop', 'SubagentStop',
-  'SessionStart', 'SessionEnd', 'Notification', 'PermissionRequest',
-  'TeammateIdle', 'TaskCompleted', 'ConfigChange', 'WorktreeCreate',
+  'PreToolUse',
+  'PostToolUse',
+  'UserPromptSubmit',
+  'Stop',
+  'SubagentStop',
+  'SessionStart',
+  'SessionEnd',
+  'Notification',
+  'PermissionRequest',
+  'TeammateIdle',
+  'TaskCompleted',
+  'ConfigChange',
+  'WorktreeCreate',
 ]
 
 // Built-in tool names (Agent/Task excluded — too many false positives with "Agent SDK" etc.)
 const TOOL_NAMES = [
-  'Bash', 'Read', 'Write', 'Edit', 'Glob', 'Grep', 'WebFetch', 'WebSearch',
-  'NotebookEdit', 'TodoWrite',
+  'Bash',
+  'Read',
+  'Write',
+  'Edit',
+  'Glob',
+  'Grep',
+  'WebFetch',
+  'WebSearch',
+  'NotebookEdit',
+  'TodoWrite',
 ]
 
 // Config keys (camelCase / kebab-case identifiers from settings)
 // Sorted by length descending to match compound keys first (e.g., `spinnerVerbs.mode` before `spinnerVerbs`)
 const CONFIG_KEYS = [
-  'allowed-tools', 'allowedTools', 'context: fork', 'defaultMode',
-  'allowManagedHooksOnly', 'permissions.deny', 'permissions.allow',
-  'spinnerVerbs.mode', 'spinnerVerbs.verbs', 'spinnerVerbs',
-  'deniedMcpServers', 'allowedMcpServers',
-  'alwaysThinkingEnabled', 'availableModels', 'hookSpecificOutput',
+  'allowed-tools',
+  'allowedTools',
+  'context: fork',
+  'defaultMode',
+  'allowManagedHooksOnly',
+  'permissions.deny',
+  'permissions.allow',
+  'spinnerVerbs.mode',
+  'spinnerVerbs.verbs',
+  'spinnerVerbs',
+  'deniedMcpServers',
+  'allowedMcpServers',
+  'alwaysThinkingEnabled',
+  'availableModels',
+  'hookSpecificOutput',
 ].sort((a, b) => b.length - a.length)
 
 // Keyboard shortcuts
@@ -95,12 +134,23 @@ const KEYBOARD_PATTERN = /(?<!`)((?:Ctrl|Shift|Alt|Option|Cmd|Meta)\+[A-Za-z0-9]
 
 // CLI commands (full invocations) — longer patterns first to match greedily
 const CLI_COMMANDS = [
-  'git reset --hard', 'git worktree remove',
+  'git reset --hard',
+  'git worktree remove',
   'brew install --cask claude-code',
-  'npm test', 'npm install', 'npm run', 'git commit', 'git push',
-  'git stash', 'git reset', 'git worktree', 'claude --resume',
-  'claude --continue', 'claude --review', 'claude --teleport',
-  'claude install-mcp', 'nvm use',
+  'npm test',
+  'npm install',
+  'npm run',
+  'git commit',
+  'git push',
+  'git stash',
+  'git reset',
+  'git worktree',
+  'claude --resume',
+  'claude --continue',
+  'claude --review',
+  'claude --teleport',
+  'claude install-mcp',
+  'nvm use',
 ]
 
 /**
@@ -292,7 +342,7 @@ function extractDocAnchors() {
     return anchors
   }
 
-  const files = readdirSync(DOCS_DIR).filter(f => f.endsWith('.md'))
+  const files = readdirSync(DOCS_DIR).filter((f) => f.endsWith('.md'))
   for (const file of files) {
     const page = file.replace('.md', '')
     const content = readFileSync(resolve(DOCS_DIR, file), 'utf8')
@@ -319,10 +369,10 @@ function extractDocAnchors() {
 function slugify(text) {
   return text
     .toLowerCase()
-    .replace(/[^\w\s-]/g, '')  // remove non-word chars except spaces and hyphens
-    .replace(/\s+/g, '-')      // spaces to hyphens
-    .replace(/-+/g, '-')       // collapse multiple hyphens
-    .replace(/^-|-$/g, '')     // trim leading/trailing hyphens
+    .replace(/[^\w\s-]/g, '') // remove non-word chars except spaces and hyphens
+    .replace(/\s+/g, '-') // spaces to hyphens
+    .replace(/-+/g, '-') // collapse multiple hyphens
+    .replace(/^-|-$/g, '') // trim leading/trailing hyphens
 }
 
 function lintUrls(quizzes) {
@@ -340,8 +390,12 @@ function lintUrls(quizzes) {
     }
 
     // Validate domain (code.claude.com for Claude Code docs, platform.claude.com for Agent SDK docs)
-    const isCodeDocs = quiz.referenceUrl.startsWith('https://code.claude.com/docs/ja/') || quiz.referenceUrl.startsWith('https://code.claude.com/docs/en/')
-    const isPlatformDocs = quiz.referenceUrl.startsWith('https://platform.claude.com/docs/ja/') || quiz.referenceUrl.startsWith('https://platform.claude.com/docs/en/')
+    const isCodeDocs =
+      quiz.referenceUrl.startsWith('https://code.claude.com/docs/ja/') ||
+      quiz.referenceUrl.startsWith('https://code.claude.com/docs/en/')
+    const isPlatformDocs =
+      quiz.referenceUrl.startsWith('https://platform.claude.com/docs/ja/') ||
+      quiz.referenceUrl.startsWith('https://platform.claude.com/docs/en/')
     if (!isCodeDocs && !isPlatformDocs) {
       issues.push({
         id: quiz.id,
@@ -379,7 +433,7 @@ function lintUrls(quizzes) {
     if (anchor && !docAnchors[page].has(anchor)) {
       // Try fuzzy match to suggest corrections
       const suggestions = [...docAnchors[page]]
-        .filter(a => a.includes(anchor.split('-')[0]) || anchor.includes(a.split('-')[0]))
+        .filter((a) => a.includes(anchor.split('-')[0]) || anchor.includes(a.split('-')[0]))
         .slice(0, 3)
 
       issues.push({
@@ -409,14 +463,28 @@ const TERMINOLOGY_DICT = [
   // "Claude Code SDK" — skip if context is clearly historical (e.g., "旧称", "以前は")
   { wrong: 'Claude Code SDK', correct: 'Claude Agent SDK', caseInsensitive: false, skipIfHistorical: true },
   // Non-existent commands/features (only flag in explanation, not in wrong-answer options)
-  { wrong: 'claude commit', correct: null, message: '`claude commit` サブコマンドは存在しません', skipWrongOptions: true },
-  { wrong: /(?<!`)\/teleport(?!`)/, correct: null, message: '`/teleport` はスラッシュコマンドではなく `claude --teleport` CLIフラグです', skipWrongOptions: true },
+  {
+    wrong: 'claude commit',
+    correct: null,
+    message: '`claude commit` サブコマンドは存在しません',
+    skipWrongOptions: true,
+  },
+  {
+    wrong: /(?<!`)\/teleport(?!`)/,
+    correct: null,
+    message: '`/teleport` はスラッシュコマンドではなく `claude --teleport` CLIフラグです',
+    skipWrongOptions: true,
+  },
   // Terminology precision
   { wrong: 'allowed_tools', correct: 'allowed-tools', caseInsensitive: false },
   // Common misspellings in Japanese context
   { wrong: 'Exntended Thinking', correct: 'Extended Thinking', caseInsensitive: false },
   // Deprecated terminology
-  { wrong: /(?<!\w)Task\s+tool(?!\w)/i, correct: null, message: 'CLI では Agent ツールに改名済み（SDK の allowedTools では Task を使用）' },
+  {
+    wrong: /(?<!\w)Task\s+tool(?!\w)/i,
+    correct: null,
+    message: 'CLI では Agent ツールに改名済み（SDK の allowedTools では Task を使用）',
+  },
 ]
 
 function lintTerminology(quizzes) {
@@ -426,20 +494,34 @@ function lintTerminology(quizzes) {
     // Determine which option indices are wrong answers
     const wrongOptionIndices = new Set()
     if (quiz.type === 'multi' && quiz.correctIndices) {
-      quiz.options.forEach((_, i) => { if (!quiz.correctIndices.includes(i)) wrongOptionIndices.add(i) })
+      quiz.options.forEach((_, i) => {
+        if (!quiz.correctIndices.includes(i)) wrongOptionIndices.add(i)
+      })
     } else {
-      quiz.options.forEach((_, i) => { if (i !== quiz.correctIndex) wrongOptionIndices.add(i) })
+      quiz.options.forEach((_, i) => {
+        if (i !== quiz.correctIndex) wrongOptionIndices.add(i)
+      })
     }
 
     const textFields = [
       { key: 'question', value: quiz.question, isWrongOption: false },
       { key: 'explanation', value: quiz.explanation, isWrongOption: false },
       ...quiz.options.map((opt, i) => ({
-        key: `options[${i}].text`, value: opt.text, isWrongOption: wrongOptionIndices.has(i),
+        key: `options[${i}].text`,
+        value: opt.text,
+        isWrongOption: wrongOptionIndices.has(i),
       })),
-      ...quiz.options.map((opt, i) => opt.wrongFeedback ? ({
-        key: `options[${i}].wrongFeedback`, value: opt.wrongFeedback, isWrongOption: wrongOptionIndices.has(i),
-      }) : null).filter(Boolean),
+      ...quiz.options
+        .map((opt, i) =>
+          opt.wrongFeedback
+            ? {
+                key: `options[${i}].wrongFeedback`,
+                value: opt.wrongFeedback,
+                isWrongOption: wrongOptionIndices.has(i),
+              }
+            : null
+        )
+        .filter(Boolean),
     ]
 
     for (const field of textFields) {
@@ -462,12 +544,8 @@ function lintTerminology(quizzes) {
             matchedText = match[0]
           }
         } else {
-          const searchText = entry.caseInsensitive === false
-            ? field.value
-            : field.value.toLowerCase()
-          const searchTerm = entry.caseInsensitive === false
-            ? entry.wrong
-            : entry.wrong.toLowerCase()
+          const searchText = entry.caseInsensitive === false ? field.value : field.value.toLowerCase()
+          const searchTerm = entry.caseInsensitive === false ? entry.wrong : entry.wrong.toLowerCase()
 
           if (searchText.includes(searchTerm)) {
             found = true
@@ -529,7 +607,7 @@ function filterReport(reportPath) {
   }
 
   const before = report.issues.length
-  report.issues = report.issues.filter(issue => {
+  report.issues = report.issues.filter((issue) => {
     const text = JSON.stringify(issue)
     for (const fp of KNOWN_FALSE_POSITIVES) {
       if (fp.pattern.test(text)) {
@@ -559,7 +637,7 @@ function filterReport(reportPath) {
  */
 
 const WEAK_WRONG_FEEDBACK_PATTERNS = [
-  /^.{1,15}$/,  // 15 chars or less (e.g., "正しくありません")
+  /^.{1,15}$/, // 15 chars or less (e.g., "正しくありません")
   /^この選択肢は正しくありません/,
   /^正解の解説を参照/,
   /^サポートされています。$/,
@@ -580,9 +658,7 @@ function lintQuality(quizzes) {
 
   for (const quiz of quizzes) {
     // Check wrongFeedback quality
-    const correctSet = quiz.type === 'multi'
-      ? new Set(quiz.correctIndices || [])
-      : new Set([quiz.correctIndex])
+    const correctSet = quiz.type === 'multi' ? new Set(quiz.correctIndices || []) : new Set([quiz.correctIndex])
 
     quiz.options.forEach((opt, i) => {
       if (correctSet.has(i) || !opt.wrongFeedback) return
@@ -654,7 +730,7 @@ function lintDistractors(quizzes) {
 
     const correctLen = quiz.options[ci].text.length
     const wrongOpts = quiz.options.filter((_, i) => i !== ci)
-    const wrongLens = wrongOpts.map(o => o.text.length)
+    const wrongLens = wrongOpts.map((o) => o.text.length)
     const avgWrongLen = wrongLens.reduce((s, v) => s + v, 0) / wrongLens.length
 
     // Rule 1: Correct answer conspicuously longer than wrong options
@@ -680,7 +756,7 @@ function lintDistractors(quizzes) {
 
     // Rule 3: Only correct answer has backtick-formatted terms
     const correctHasBacktick = /`[^`]+`/.test(quiz.options[ci].text)
-    const wrongsWithBacktick = wrongOpts.filter(o => /`[^`]+`/.test(o.text))
+    const wrongsWithBacktick = wrongOpts.filter((o) => /`[^`]+`/.test(o.text))
     if (correctHasBacktick && wrongsWithBacktick.length === 0) {
       issues.push({
         id: quiz.id,
@@ -741,12 +817,12 @@ const BEGINNER_SIGNALS = [
 ]
 
 const ADVANCED_SIGNALS = [
-  /ない(もの|こと)?は(どれ|どの)/,   // NOT-type questions
-  /以下.*すべて/,                      // "all of the following"
-  /組み合わせ/,                        // combination
-  /かつ.*場合/,                        // multi-condition
-  /exit\s*(code\s*)?\d+/i,            // specific exit codes
-  /(\d+)つ.*条件/,                     // N conditions
+  /ない(もの|こと)?は(どれ|どの)/, // NOT-type questions
+  /以下.*すべて/, // "all of the following"
+  /組み合わせ/, // combination
+  /かつ.*場合/, // multi-condition
+  /exit\s*(code\s*)?\d+/i, // specific exit codes
+  /(\d+)つ.*条件/, // N conditions
 ]
 
 function assessComplexity(quiz) {
@@ -763,12 +839,18 @@ function assessComplexity(quiz) {
 
   // Beginner signals
   for (const p of BEGINNER_SIGNALS) {
-    if (p.test(q)) { score -= 1; break }
+    if (p.test(q)) {
+      score -= 1
+      break
+    }
   }
 
   // Advanced signals
   for (const p of ADVANCED_SIGNALS) {
-    if (p.test(q)) { score += 1; break }
+    if (p.test(q)) {
+      score += 1
+      break
+    }
   }
 
   // Technical density: backtick term count
@@ -789,9 +871,11 @@ function lintDifficulty(quizzes) {
     const labeledLevel = LEVEL_MAP[labeled] ?? 1
 
     let expectedLevel
-    if (score <= -1) expectedLevel = 0      // beginner
-    else if (score >= 2) expectedLevel = 2  // advanced
-    else expectedLevel = 1                  // intermediate
+    if (score <= -1)
+      expectedLevel = 0 // beginner
+    else if (score >= 2)
+      expectedLevel = 2 // advanced
+    else expectedLevel = 1 // intermediate
 
     const gap = Math.abs(labeledLevel - expectedLevel)
     if (gap >= 2) {
@@ -865,7 +949,7 @@ function printUrlReport(issues) {
   for (const issue of issues) {
     console.log(`  ${issue.id}: [${issue.type}] ${issue.message}`)
     if (issue.suggestions) {
-      console.log(`    Suggestions: ${issue.suggestions.map(s => '#' + s).join(', ')}`)
+      console.log(`    Suggestions: ${issue.suggestions.map((s) => '#' + s).join(', ')}`)
     }
   }
 }
@@ -890,7 +974,9 @@ const args = process.argv.slice(2)
 const command = args[0] || 'all'
 const dryRun = args.includes('--dry-run')
 
-if (!['backtick', 'url', 'terminology', 'quality', 'distractor', 'difficulty', 'filter-report', 'all'].includes(command)) {
+if (
+  !['backtick', 'url', 'terminology', 'quality', 'distractor', 'difficulty', 'filter-report', 'all'].includes(command)
+) {
   console.log('Usage: node scripts/quiz-lint.mjs <command> [--dry-run]')
   console.log('Commands: backtick, url, terminology, quality, distractor, difficulty, filter-report <path>, all')
   process.exit(1)

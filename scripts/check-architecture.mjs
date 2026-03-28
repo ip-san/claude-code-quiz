@@ -17,9 +17,9 @@ const warnings = []
 // Allowed: components → stores → domain, infrastructure → domain
 // Forbidden: domain → stores, domain → components, domain → infrastructure
 const LAYER_RULES = {
-  'domain': { forbidden: ['stores', 'components', 'infrastructure', 'lib'] },
-  'infrastructure': { forbidden: ['stores', 'components'] },
-  'stores': { forbidden: ['components'] },
+  domain: { forbidden: ['stores', 'components', 'infrastructure', 'lib'] },
+  infrastructure: { forbidden: ['stores', 'components'] },
+  stores: { forbidden: ['components'] },
 }
 
 // Known exceptions (tech debt, tracked for future refactoring)
@@ -39,7 +39,9 @@ function getAllFiles(dir, ext) {
         results.push(fullPath)
       }
     }
-  } catch { /* ignore */ }
+  } catch {
+    /* ignore */
+  }
   return results
 }
 
@@ -111,7 +113,8 @@ for (const file of storeFiles) {
 
   // Count store actions: lines matching "actionName: (" or "actionName: () =>"
   // inside the create() block (exclude interface definitions and comments)
-  const createBlock = content.match(/create(?:<[^>]+>)?\(\s*\((?:set|get|\.\.\.)[^)]*\)\s*=>\s*\(\{([\s\S]*)\}\)\s*\)/)?.[1] ?? ''
+  const createBlock =
+    content.match(/create(?:<[^>]+>)?\(\s*\((?:set|get|\.\.\.)[^)]*\)\s*=>\s*\(\{([\s\S]*)\}\)\s*\)/)?.[1] ?? ''
   const actionMatches = createBlock.match(/^\s+\w+:\s*(?:async\s*)?\(/gm) || []
   if (actionMatches.length > STORE_ACTION_LIMIT) {
     warnings.push(`Store bloat: ${rel} has ${actionMatches.length} actions (limit: ${STORE_ACTION_LIMIT})`)

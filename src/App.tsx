@@ -15,6 +15,9 @@ const ExplanationReader = lazy(() =>
 )
 const ScenarioList = lazy(() => import('@/components/Quiz/ScenarioView').then((m) => ({ default: m.ScenarioList })))
 const ScenarioView = lazy(() => import('@/components/Quiz/ScenarioView').then((m) => ({ default: m.ScenarioView })))
+const StudyFirstView = lazy(() =>
+  import('@/components/Menu/StudyFirstView').then((m) => ({ default: m.StudyFirstView }))
+)
 
 import { ArrowLeft, XCircle } from 'lucide-react'
 import { SCENARIOS } from '@/data/scenarios'
@@ -39,6 +42,7 @@ function setThemeColor(color: string) {
 import { lazy, Suspense, useRef } from 'react'
 import { InstallPrompt } from '@/components/Layout/InstallPrompt'
 import { OfflineIndicator } from '@/components/Layout/OfflineIndicator'
+import { hasSeenTutorial, markTutorialSeen, TutorialScreen } from '@/components/Layout/TutorialScreen'
 import { hasSeenWelcome, WelcomeScreen } from '@/components/Layout/WelcomeScreen'
 
 // Lazy-load PWA update prompt only in web builds (avoids virtual:pwa-register error in Electron)
@@ -49,6 +53,7 @@ const PWAUpdatePrompt = !isElectron
 export default function App() {
   const { viewState, getProgress, sessionState, isLoading, initialize, endSession, suspendSession } = useQuizStore()
   const [showWelcome, setShowWelcome] = useState(() => !hasSeenWelcome())
+  const [showTutorial, setShowTutorial] = useState(() => !hasSeenTutorial())
 
   // Initialize store on mount
   useEffect(() => {
@@ -115,6 +120,21 @@ export default function App() {
     )
   }
 
+  // Show tutorial for users who haven't seen it yet (after welcome, before menu)
+  if (showTutorial && !hasSeenTutorial() && !isLoading) {
+    return (
+      <>
+        <TutorialScreen
+          onComplete={() => {
+            markTutorialSeen()
+            setShowTutorial(false)
+          }}
+        />
+        {pwaOverlays}
+      </>
+    )
+  }
+
   // Show branded loading screen
   if (isLoading) {
     return (
@@ -159,6 +179,12 @@ export default function App() {
             <QuizResult />
           </Suspense>
         )
+      case 'studyFirst':
+        return (
+          <Suspense fallback={<LoadingSpinner />}>
+            <StudyFirstViewWrapper />
+          </Suspense>
+        )
       default:
         return null
     }
@@ -172,6 +198,7 @@ export default function App() {
       reader: '#FAF9F5',
       result: '#FAF9F5',
       scenarioSelect: '#FAF9F5',
+      studyFirst: '#FAF9F5',
     }
     setThemeColor(themeColors[viewState] ?? '#FAF9F5')
 
@@ -231,6 +258,19 @@ function ScenarioSelectView() {
         </Suspense>
       </div>
     </div>
+  )
+}
+
+/** Study First view wrapper — connects store to StudyFirstView */
+function StudyFirstViewWrapper() {
+  const { allQuestions, userProgress, endSession, startSession } = useQuizStore()
+  return (
+    <StudyFirstView
+      allQuestions={allQuestions}
+      userProgress={userProgress}
+      onBack={endSession}
+      onStartQuiz={(_chapterId, startIndex) => startSession({ mode: 'overview' }, { startIndex })}
+    />
   )
 }
 

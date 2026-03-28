@@ -1,4 +1,5 @@
 #!/usr/bin/env node
+import { execSync } from 'child_process'
 /**
  * CLAUDE.md の統計値が実装と一致しているか自動検証
  * npm run docs:validate で実行
@@ -11,8 +12,7 @@
  * - referenceUrl の言語チェック
  * - クイズモード数
  */
-import { readFileSync, readdirSync, statSync } from 'fs'
-import { execSync } from 'child_process'
+import { readdirSync, readFileSync, statSync } from 'fs'
 import { join } from 'path'
 
 const claudeMd = readFileSync('CLAUDE.md', 'utf8')
@@ -50,22 +50,28 @@ const quizCount = quizData.quizzes.length
 checkCount('Quiz count', quizCount, /クイズデータ:\*\* (\d+)問/)
 
 // ── Diagram count ───────────────────────────────────────────
-const diagramCount = quizData.quizzes.filter(q => q.diagram).length
+const diagramCount = quizData.quizzes.filter((q) => q.diagram).length
 checkCount('Diagram count', diagramCount, /ダイアグラム:\*\* (\d+)問/)
 
 // ── Overview questions ──────────────────────────────────────
-const overviewCount = quizData.quizzes.filter(q => q.tags?.includes('overview')).length
+const overviewCount = quizData.quizzes.filter((q) => q.tags?.includes('overview')).length
 checkCount('Overview count', overviewCount, /(\d+)問の学習パス/)
 
 // ── Doc page count ──────────────────────────────────────────
-const docPages = new Set(quizData.quizzes.map(q => q.referenceUrl).filter(Boolean).map(url => {
-  const match = url.match(/\/docs\/(?:ja|en)\/(.+?)(?:#.*)?$/)
-  return match ? match[1] : null
-}).filter(Boolean))
+const docPages = new Set(
+  quizData.quizzes
+    .map((q) => q.referenceUrl)
+    .filter(Boolean)
+    .map((url) => {
+      const match = url.match(/\/docs\/(?:ja|en)\/(.+?)(?:#.*)?$/)
+      return match ? match[1] : null
+    })
+    .filter(Boolean)
+)
 checkCount('Doc page count', docPages.size, /(\d+)ドキュメントページ/)
 
 // ── Category count ──────────────────────────────────────────
-const categories = new Set(quizData.quizzes.map(q => q.category))
+const categories = new Set(quizData.quizzes.map((q) => q.category))
 checkCount('Category count', categories.size, /(\d+) categories/)
 
 // ── Component file count ────────────────────────────────────
@@ -113,11 +119,11 @@ try {
   const testOutput2 = execSync('npx vitest run --reporter=json 2>/dev/null || true', { encoding: 'utf8' })
   const testResult2 = JSON.parse(testOutput2)
   const layerCounts = { domain: 0, infrastructure: 0, stores: 0 }
-  testResult2.testResults.forEach(r => {
+  testResult2.testResults.forEach((r) => {
     const m = r.name.match(/src\/(\w+)/)
     const key = m ? m[1] : 'other'
     if (layerCounts[key] !== undefined) {
-      layerCounts[key] += r.assertionResults.filter(a => a.status === 'passed').length
+      layerCounts[key] += r.assertionResults.filter((a) => a.status === 'passed').length
     }
   })
   checkCount('Domain test count (table)', layerCounts.domain, /\| Domain \| (\d+) \|/)
@@ -140,7 +146,7 @@ if (totalModes < 9) {
 const storeContent = readFileSync('src/stores/quizStore.ts', 'utf8')
 const viewStateMatch = storeContent.match(/type ViewState = (.+)/)
 if (viewStateMatch) {
-  const states = viewStateMatch[1].match(/'(\w+)'/g)?.map(s => s.replace(/'/g, '')) ?? []
+  const states = viewStateMatch[1].match(/'(\w+)'/g)?.map((s) => s.replace(/'/g, '')) ?? []
   for (const state of states) {
     if (state === 'menu' || state === 'quiz' || state === 'result') continue // core states, not features
     if (!claudeMd.toLowerCase().includes(state.toLowerCase())) {
@@ -152,8 +158,8 @@ if (viewStateMatch) {
 // ── Skills check ────────────────────────────────────────────
 try {
   const skillDirs = readdirSync('.claude/skills', { withFileTypes: true })
-    .filter(d => d.isDirectory())
-    .map(d => d.name)
+    .filter((d) => d.isDirectory())
+    .map((d) => d.name)
   for (const skill of skillDirs) {
     if (!claudeMd.includes(skill)) {
       errors.push(`Skill '${skill}' exists in .claude/skills/ but is not mentioned in CLAUDE.md`)
@@ -164,7 +170,7 @@ try {
 }
 
 // ── Reference URL language ──────────────────────────────────
-const enUrls = quizData.quizzes.filter(q => q.referenceUrl?.includes('/docs/en/')).length
+const enUrls = quizData.quizzes.filter((q) => q.referenceUrl?.includes('/docs/en/')).length
 if (enUrls > 0) {
   errors.push(`${enUrls} questions still use /docs/en/ URLs (should be /docs/ja/)`)
 }
@@ -183,17 +189,19 @@ if (process.argv.includes('--fix') && autoFixes.length > 0) {
   const { writeFileSync } = await import('fs')
   writeFileSync('CLAUDE.md', content)
   console.log(`✓ Auto-fixed ${autoFixes.length} values in CLAUDE.md:`)
-  autoFixes.forEach(f => console.log(`  ${f.label}: ${f.old} → ${f.new}`))
+  autoFixes.forEach((f) => console.log(`  ${f.label}: ${f.old} → ${f.new}`))
   process.exit(0)
 }
 
 // ── Report ──────────────────────────────────────────────────
 if (errors.length === 0) {
-  const jaUrls = quizData.quizzes.filter(q => q.referenceUrl?.includes('/docs/ja/')).length
-  console.log(`✓ CLAUDE.md is accurate (${quizCount} questions, ${diagramCount} diagrams, ${componentCount} components, ${docPages.size} doc pages, ${jaUrls} ja URLs)`)
+  const jaUrls = quizData.quizzes.filter((q) => q.referenceUrl?.includes('/docs/ja/')).length
+  console.log(
+    `✓ CLAUDE.md is accurate (${quizCount} questions, ${diagramCount} diagrams, ${componentCount} components, ${docPages.size} doc pages, ${jaUrls} ja URLs)`
+  )
 } else {
   console.error('✗ CLAUDE.md discrepancies found:')
-  errors.forEach(e => console.error(`  - ${e}`))
+  errors.forEach((e) => console.error(`  - ${e}`))
   if (autoFixes.length > 0) {
     console.error(`\n  Run "npm run docs:validate -- --fix" to auto-fix ${autoFixes.length} values`)
   }
