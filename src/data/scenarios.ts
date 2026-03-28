@@ -41,10 +41,10 @@ export const SCENARIOS: readonly ScenarioData[] = [
       { type: 'question', questionId: 'mem-003' },
       {
         type: 'narrative',
-        text: 'CLAUDE.mdの準備ができた。Claude Codeを起動して、認証機能のコードを書いてもらおう。ファイルの読み書きやBashコマンドの実行…どんなツールが裏で動いているんだろう？',
+        text: 'CLAUDE.mdの準備ができた。Claude Codeを起動して、認証機能のコードを書いてもらおう。いきなり「認証機能作って」と言うのは効率が悪い。まずAIにコードベースを理解させてから、段階的に依頼するのがプロの使い方だ。',
       },
-      { type: 'question', questionId: 'tool-029' },
-      { type: 'question', questionId: 'tool-001' },
+      { type: 'question', questionId: 'bp-029' },
+      { type: 'question', questionId: 'bp-002' },
       {
         type: 'narrative',
         text: '認証機能のPRが完成した。後輩の田中さんが「Claude Code初めてなんですけど、何から始めればいいですか？」と聞いてきた。ベストプラクティスを教えてあげよう。',
@@ -72,9 +72,9 @@ export const SCENARIOS: readonly ScenarioData[] = [
       { type: 'question', questionId: 'ses-006' },
       {
         type: 'narrative',
-        text: '「決済処理の周辺でタイムアウトしてるっぽい。エラーログを見て原因を特定してくれ」とClaudeに指示した。ここでのコツは「エラーログを見て」だけでなく「原因を特定して」まで伝えること。AI は指示が具体的なほど的確に動く。Claudeがログを読み始めた。大量の出力が返ってくるが——',
+        text: '「決済処理の周辺でタイムアウトしてるっぽい。エラーログを見て原因を特定してくれ」とClaudeに指示した。ここでのコツは「エラーログを見て」だけでなく「原因を特定して」まで伝えること。AIに修正を任せるなら、検証手段も一緒に渡すのが鉄則だ。',
       },
-      { type: 'question', questionId: 'tool-027' },
+      { type: 'question', questionId: 'bp-007' },
       { type: 'question', questionId: 'bp-021' },
       {
         type: 'narrative',
@@ -104,10 +104,10 @@ export const SCENARIOS: readonly ScenarioData[] = [
       { type: 'question', questionId: 'ext-001' },
       {
         type: 'narrative',
-        text: '社内DBへのアクセスにはMCPサーバーが使えそうだ。PostgreSQLのMCPサーバーを設定して、Claudeから直接クエリを叩けるようにしよう。',
+        text: '社内DBやSlackとの連携にはMCPが使えそうだ。まずMCPとは何か理解して、ファイル編集後の自動lintも設定しよう。',
       },
-      { type: 'question', questionId: 'ext-009' },
-      { type: 'question', questionId: 'ext-013' },
+      { type: 'question', questionId: 'ext-095' },
+      { type: 'question', questionId: 'ext-003' },
       {
         type: 'narrative',
         text: 'DBアクセスは完成。次は「PRレビューを自動化するスキル」を作って、全チームに配布する。/review-prと打つだけでClaudeがPRをレビューしてくれる仕組みだ。',
@@ -219,35 +219,34 @@ export const SCENARIOS: readonly ScenarioData[] = [
   },
   {
     id: 'scenario-tools',
-    title: 'Claudeの「手足」を理解する',
-    description: '500行の設定ファイル変更からWeb調査まで、ツールの使い分け',
-    icon: '🔧',
+    title: 'AI への頼み方で結果が変わる',
+    description: '同じタスクでも、依頼の仕方で出力品質が劇的に変わる',
+    icon: '🎯',
     difficulty: 'beginner',
     steps: [
       {
         type: 'narrative',
-        text: '「あれ、Claudeってファイルの1行だけ変えるのと全部書き直すの、どっちもできるの？」——同僚の質問に答えられなかった。Claude Codeのツールを正しく理解しよう。まずはBashツールの使い方から。',
+        text: '同僚が「Claude Code 使ってみたけど、出てくるコードがイマイチで...」と愚痴をこぼしている。聞くと、「ログイン機能作って」とだけ伝えたらしい。それじゃ AI も困る。効果的な依頼の仕方を教えてあげよう。',
       },
-      { type: 'question', questionId: 'tool-004' },
-      { type: 'question', questionId: 'tool-003' },
+      { type: 'question', questionId: 'bp-001' },
+      { type: 'question', questionId: 'bp-026' },
       {
         type: 'narrative',
-        text: '500行の設定ファイルの1行を変えるならEdit、新規ファイルを作るならWrite。使い分けがわかった。次に「Claudeってネットも調べられるの？」と聞かれた。',
+        text: '「なるほど、要件を箇条書きにすればいいのか！」と同僚。でもまだ問題がある。AI が見当違いの方向に進み始めたとき、どう軌道修正するか？',
       },
-      { type: 'question', questionId: 'tool-007' },
-      { type: 'question', questionId: 'tool-006' },
+      { type: 'question', questionId: 'bp-016' },
+      { type: 'question', questionId: 'bp-014' },
       {
         type: 'narrative',
-        text: 'ReadもWebFetchもある。さらにMCPで外部ツールを追加すれば、SlackやJIRAとも連携できるらしい。',
+        text: '「コンテキストの渡し方も大事だよ」と伝える。AI に十分な情報を渡せば、驚くほど的確な出力が返ってくる。',
       },
-      { type: 'question', questionId: 'tool-010' },
+      { type: 'question', questionId: 'bp-013' },
       {
         type: 'narrative',
-        text: '翌日、同僚から「Claude って JIRA のチケットも読めるの？」と聞かれた。「MCP で連携すればね」と即答できた。もう慌てない。',
+        text: '翌週、同僚から「Claude Code が神ツールになった」とメッセージが来た。同じツールでも、使い方を知っているだけでこんなに変わる。',
       },
     ],
-    completionMessage:
-      'Claudeの「手足」であるツール群を一通り理解した。同僚の質問にも自信を持って答えられるようになった。',
+    completionMessage: 'AI への依頼テクニックをマスターした。「ツールの性能」ではなく「使い方」が成果を決める。',
   },
   {
     id: 'scenario-security',
@@ -263,10 +262,10 @@ export const SCENARIOS: readonly ScenarioData[] = [
       { type: 'question', questionId: 'ext-007' },
       {
         type: 'narrative',
-        text: '機密情報のブロックはPreToolUseフックで対応した。次に情シスから「パーミッション設定はどうなってますか？開発者が自由にスキップできる状態じゃ困ります」と追加の指摘。',
+        text: '機密情報のブロックはフックで対応した。次に情シスから「コードレビューの品質はどう担保しますか？」と追加の質問。AI にレビューを任せるときのベストプラクティスを示そう。',
       },
       { type: 'question', questionId: 'bp-012' },
-      { type: 'question', questionId: 'ext-010' },
+      { type: 'question', questionId: 'bp-004' },
       {
         type: 'narrative',
         text: 'パーミッション設計も完了した。最後の質問。「開発者が複数のClaudeを同時に動かした場合、コンフリクトしませんか？並列作業の安全性は？」',
