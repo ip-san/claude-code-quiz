@@ -51,6 +51,10 @@ export function ScenarioView({ scenario, isModalOpen }: { scenario: ScenarioData
         qIdx++
       }
     }
+    // Epilogue: narratives after the last question (shown at qIdx = total questions)
+    if (pending.length > 0) {
+      map[qIdx] = [...pending]
+    }
     return map
   }, [scenario])
 
