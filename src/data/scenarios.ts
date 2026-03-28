@@ -36,12 +36,12 @@ export const SCENARIOS: readonly ScenarioData[] = [
       { type: 'question', questionId: 'mem-001' },
       {
         type: 'narrative',
-        text: 'CLAUDE.mdを書いた。Next.js + Prisma + PostgreSQLの構成、テストの実行方法、コーディング規約を記載した。次は実際にClaude Codeを起動して、最初のタスク「ユーザー認証機能の雛形作成」に取り掛かろう。',
+        text: 'CLAUDE.mdを用意したいが、ゼロから書くのは大変だ。プロジェクト構成を自動検出して雛形を作る方法はないだろうか？',
       },
-      { type: 'question', questionId: 'cmd-004' },
+      { type: 'question', questionId: 'mem-003' },
       {
         type: 'narrative',
-        text: 'Claude Codeが動き始めた。Claudeが認証機能のコードを書き始めている。ファイルの読み書きやBashコマンドの実行…どんなツールが裏で動いているんだろう？',
+        text: 'CLAUDE.mdの準備ができた。Claude Codeを起動して、認証機能のコードを書いてもらおう。ファイルの読み書きやBashコマンドの実行…どんなツールが裏で動いているんだろう？',
       },
       { type: 'question', questionId: 'tool-029' },
       { type: 'question', questionId: 'tool-001' },
@@ -50,6 +50,10 @@ export const SCENARIOS: readonly ScenarioData[] = [
         text: '認証機能のPRが完成した。後輩の田中さんが「Claude Code初めてなんですけど、何から始めればいいですか？」と聞いてきた。ベストプラクティスを教えてあげよう。',
       },
       { type: 'question', questionId: 'bp-001' },
+      {
+        type: 'narrative',
+        text: '18時。認証機能のPRがマージされ、田中さんも自分のClaude Codeを起動して最初のコードを書き始めた。プロジェクト初日、いいスタートだ。',
+      },
     ],
     completionMessage:
       'プロジェクトの初日が終了！CLAUDE.mdのセットアップから最初のPR作成まで、チームでClaude Codeを使い始める流れを体験しました。',
@@ -78,6 +82,10 @@ export const SCENARIOS: readonly ScenarioData[] = [
       },
       { type: 'question', questionId: 'key-001' },
       { type: 'question', questionId: 'bp-002' },
+      {
+        type: 'narrative',
+        text: '17:47。修正パッチがデプロイされ、ダッシュボードのエラー率が0%に戻った。「お疲れさまです、週末楽しんでください」——Slackにそう打って、今度こそ帰路についた。',
+      },
     ],
     completionMessage:
       '17:47、修正パッチがデプロイされ、エラー率が0%に戻った。Claude Codeがなければ1時間以上かかっていたかもしれない。',
@@ -106,6 +114,10 @@ export const SCENARIOS: readonly ScenarioData[] = [
       },
       { type: 'question', questionId: 'skill-002' },
       { type: 'question', questionId: 'ext-084' },
+      {
+        type: 'narrative',
+        text: 'CTOに報告。「DB連携、PRレビュー自動化、デプロイ前チェック、全部できました」——「素晴らしい。来週から段階的にチーム展開を始めよう」。',
+      },
     ],
     completionMessage:
       '全社展開の準備が整った。MCPでDB連携、スキルでPRレビュー自動化、フックでデプロイ前チェック。CTOも満足そうだ。',
@@ -125,15 +137,19 @@ export const SCENARIOS: readonly ScenarioData[] = [
       { type: 'question', questionId: 'mem-005' },
       {
         type: 'narrative',
-        text: '管理方針が決まった。次に「新メンバーが/onboardと打てばプロジェクト構成を全部教えてくれるスキル」を用意しよう。プロジェクト共有と個人用、どこに置くべきか。',
+        text: '管理方針が決まった。次に「新メンバーが/onboardと打てばプロジェクト構成を全部教えてくれるスキル」を用意しよう。スキルを呼び出す方法を確認しておこう。',
       },
-      { type: 'question', questionId: 'skill-007' },
+      { type: 'question', questionId: 'skill-004' },
       {
         type: 'narrative',
         text: 'スキルも配置した。最後に、チーム全員が従うべきCLAUDE.mdの書き方ルールを決めておこう。「クリーンに書け」じゃダメで、Claudeが従える具体的な指示が必要だ。',
       },
       { type: 'question', questionId: 'bp-003' },
       { type: 'question', questionId: 'bp-006' },
+      {
+        type: 'narrative',
+        text: '金曜夕方。オンボーディング用のドキュメントをSlackに投稿した。「月曜、/onboard って打ってみてください。あとは Claude が教えてくれます」——新メンバーが迷わず始められる環境が整った。',
+      },
     ],
     completionMessage:
       'オンボーディング環境の準備完了。メモリの使い分け、共有スキル、具体的なルール——新メンバーが月曜から迷わず使い始められる。',
@@ -162,6 +178,10 @@ export const SCENARIOS: readonly ScenarioData[] = [
         text: '「最後にこれ。長いプロンプトを書くとき、改行の入れ方を知らないと地味に困るよ」と佐藤さん。',
       },
       { type: 'question', questionId: 'key-007' },
+      {
+        type: 'narrative',
+        text: '「ありがとうございます、佐藤さん」——翌日、自分もマウスに触らずClaude Codeを操作している自分に気づいた。隣で佐藤さんがニヤリとしている。',
+      },
     ],
     completionMessage: '佐藤さんに教わったショートカットを一通り覚えた。明日から自分も「手が速い人」の仲間入りだ。',
   },
@@ -189,6 +209,10 @@ export const SCENARIOS: readonly ScenarioData[] = [
       },
       { type: 'question', questionId: 'ses-005' },
       { type: 'question', questionId: 'ses-008' },
+      {
+        type: 'narrative',
+        text: '3日目の夕方。全42ファイルの修正が完了し、200件のテストが全てグリーンに変わった。「あの長丁場を乗り切れたのはセッション管理のおかげだな」と実感する。',
+      },
     ],
     completionMessage:
       '3日がかりのリファクタが完了。コンテキスト管理のテクニックがなければ、途中で何度も同じ説明を繰り返すハメになっていた。',
@@ -217,6 +241,10 @@ export const SCENARIOS: readonly ScenarioData[] = [
         text: 'ReadもWebFetchもある。さらにMCPで外部ツールを追加すれば、SlackやJIRAとも連携できるらしい。',
       },
       { type: 'question', questionId: 'tool-010' },
+      {
+        type: 'narrative',
+        text: '翌日、同僚から「Claude って JIRA のチケットも読めるの？」と聞かれた。「MCP で連携すればね」と即答できた。もう慌てない。',
+      },
     ],
     completionMessage:
       'Claudeの「手足」であるツール群を一通り理解した。同僚の質問にも自信を持って答えられるようになった。',
@@ -245,6 +273,10 @@ export const SCENARIOS: readonly ScenarioData[] = [
       },
       { type: 'question', questionId: 'bp-011' },
       { type: 'question', questionId: 'bp-041' },
+      {
+        type: 'narrative',
+        text: '情シス部長に審査資料を提出した。フックによる制御、パーミッション設計、並列作業の安全策——「問題ありません、導入を承認します」。全社展開にまた一歩近づいた。',
+      },
     ],
     completionMessage:
       'セキュリティ審査の資料が完成。フックによる制御、パーミッション設計、並列作業の安全策——情シスも納得の回答ができた。',
