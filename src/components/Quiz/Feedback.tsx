@@ -11,7 +11,7 @@ import {
   Sparkles,
   XCircle,
 } from 'lucide-react'
-import { useEffect, useMemo, useState } from 'react'
+import { useEffect, useState } from 'react'
 import { locale } from '@/config/locale'
 import type { Question } from '@/domain/entities/Question'
 import { platformAPI } from '@/lib/platformAPI'
@@ -20,6 +20,9 @@ import { DiagramRenderer } from './diagrams/DiagramRenderer'
 import { QuizText } from './QuizText'
 
 type PromptType = 'explain' | 'practical' | 'compare'
+
+const prefersReducedMotion =
+  typeof window !== 'undefined' && window.matchMedia('(prefers-reduced-motion: reduce)').matches
 
 const PROMPT_TYPES: Array<{ type: PromptType; label: string; icon: typeof BookOpen; description: string }> = [
   {
@@ -86,7 +89,7 @@ export function Feedback({ quiz, isCorrect }: FeedbackProps) {
   const isReviewMode = sessionState?.isReviewMode ?? false
   const isMultiSelect = quiz.isMultiSelect
 
-  const noMotion = useMemo(() => window.matchMedia('(prefers-reduced-motion: reduce)').matches, [])
+  const noMotion = prefersReducedMotion
 
   // Trigger animations after mount
   useEffect(() => {

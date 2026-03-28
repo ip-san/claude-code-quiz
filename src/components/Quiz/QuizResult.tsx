@@ -18,6 +18,7 @@ import { TeamShareGuide } from './TeamShareGuide'
 // Star visualization constants
 const STAR_COUNT = 5
 const STAR_PERCENTAGE_DIVISOR = 20
+const prefersReducedMotion = typeof window !== 'undefined' && window.matchMedia('(prefers-reduced-motion: reduce)').matches
 
 export function QuizResult() {
   const {
@@ -47,7 +48,7 @@ export function QuizResult() {
   const percentage = answeredCount > 0 ? Math.round((score / answeredCount) * 100) : 0
   const isPassing = percentage >= APP_CONFIG.passingScore
 
-  const noMotion = useMemo(() => window.matchMedia('(prefers-reduced-motion: reduce)').matches, [])
+  const noMotion = prefersReducedMotion
 
   // Count-up animation
   useEffect(() => {
