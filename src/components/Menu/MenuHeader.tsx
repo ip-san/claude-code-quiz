@@ -41,7 +41,13 @@ interface MenuHeaderProps {
  * メニュー画面のヘッダー
  * タイトル + ストリーク/ゴールバッジ + ハンバーガーメニュー
  */
-export function MenuHeader({ totalQuestions, answeredCount, hasProgress, openWithModes, onMenuOpened }: MenuHeaderProps) {
+export function MenuHeader({
+  totalQuestions,
+  answeredCount,
+  hasProgress,
+  openWithModes,
+  onMenuOpened,
+}: MenuHeaderProps) {
   const { setViewState, userProgress, startSession, getBookmarkedCount } = useQuizStore()
   const bookmarkedCount = getBookmarkedCount()
   const [currentTheme, setCurrentTheme] = useState<Theme>(() => getStoredTheme())
@@ -107,7 +113,11 @@ export function MenuHeader({ totalQuestions, answeredCount, hasProgress, openWit
       {/* Header bar */}
       <div className="mb-5">
         <div className="mb-2 flex items-center justify-between">
-          <button onClick={() => setMenuOpen(true)} className="tap-highlight rounded-full p-2 text-stone-500" aria-label="メニューを開く">
+          <button
+            onClick={() => setMenuOpen(true)}
+            className="tap-highlight rounded-full p-2 text-stone-500"
+            aria-label="メニューを開く"
+          >
             <Menu className="h-5 w-5" />
           </button>
           <div className="flex items-center gap-2">
@@ -123,13 +133,19 @@ export function MenuHeader({ totalQuestions, answeredCount, hasProgress, openWit
         </div>
         <div className="text-center">
           <h1 className="mb-1 text-2xl font-bold">
-            <span className="bg-gradient-to-r from-claude-orange to-orange-400 bg-clip-text text-transparent">{theme.appName}</span>
+            <span className="bg-gradient-to-r from-claude-orange to-orange-400 bg-clip-text text-transparent">
+              {theme.appName}
+            </span>
           </h1>
           <p className="text-sm text-claude-gray">
             {hasProgress ? (
-              <><AnimatedCounter target={totalQuestions} suffix="問" /> | {answeredCount}問 解答済み</>
+              <>
+                <AnimatedCounter target={totalQuestions} suffix="問" /> | {answeredCount}問 解答済み
+              </>
             ) : (
-              <><AnimatedCounter target={totalQuestions} suffix="問" /> | {theme.categories.length}カテゴリ</>
+              <>
+                <AnimatedCounter target={totalQuestions} suffix="問" /> | {theme.categories.length}カテゴリ
+              </>
             )}
           </p>
         </div>
@@ -142,7 +158,11 @@ export function MenuHeader({ totalQuestions, answeredCount, hasProgress, openWit
           <div className="relative z-10 flex h-full w-72 flex-col bg-claude-cream shadow-2xl animate-slide-in-left dark:bg-stone-900">
             <div className="flex items-center justify-between border-b border-stone-200 px-4 py-3 dark:border-stone-700">
               <span className="text-sm font-bold text-claude-dark dark:text-stone-200">{theme.appName}</span>
-              <button onClick={() => setMenuOpen(false)} className="tap-highlight rounded-full p-1.5 text-stone-400" aria-label="メニューを閉じる">
+              <button
+                onClick={() => setMenuOpen(false)}
+                className="tap-highlight rounded-full p-1.5 text-stone-400"
+                aria-label="メニューを閉じる"
+              >
                 <X className="h-5 w-5" />
               </button>
             </div>
@@ -150,19 +170,33 @@ export function MenuHeader({ totalQuestions, answeredCount, hasProgress, openWit
             <nav className="flex-1 overflow-y-auto py-2">
               {/* About */}
               <MenuSection>
-                <MenuItem icon={<GraduationCap className="h-4.5 w-4.5" />} label="Claude Code とは" sublabel="基本を4画面で紹介" onClick={() => handleMenuAction(() => setViewState('tutorial'))} />
+                <MenuItem
+                  icon={<GraduationCap className="h-4.5 w-4.5" />}
+                  label="Claude Code とは"
+                  sublabel="基本を4画面で紹介"
+                  onClick={() => handleMenuAction(() => setViewState('tutorial'))}
+                />
               </MenuSection>
 
               {/* Quiz modes */}
               <MenuSection>
-                <button onClick={() => setModesExpanded(!modesExpanded)} className="tap-highlight flex w-full items-center gap-3 px-4 py-3 text-left text-sm text-claude-dark dark:text-stone-200">
+                <button
+                  onClick={() => setModesExpanded(!modesExpanded)}
+                  className="tap-highlight flex w-full items-center gap-3 px-4 py-3 text-left text-sm text-claude-dark dark:text-stone-200"
+                >
                   <span className="text-stone-400">🎮</span>
                   <span className="flex-1 font-medium">クイズモード</span>
-                  {modesExpanded ? <ChevronUp className="h-4 w-4 text-stone-400" /> : <ChevronDown className="h-4 w-4 text-stone-400" />}
+                  {modesExpanded ? (
+                    <ChevronUp className="h-4 w-4 text-stone-400" />
+                  ) : (
+                    <ChevronDown className="h-4 w-4 text-stone-400" />
+                  )}
                 </button>
                 {modesExpanded && (
                   <div className="pb-1">
-                    {PREDEFINED_QUIZ_MODES.filter((m) => m.id !== 'review' && m.id !== 'bookmark' && m.id !== 'scenario' && m.id !== 'quick').map((mode) => (
+                    {PREDEFINED_QUIZ_MODES.filter(
+                      (m) => m.id !== 'review' && m.id !== 'bookmark' && m.id !== 'scenario' && m.id !== 'quick'
+                    ).map((mode) => (
                       <button
                         key={mode.id}
                         onClick={() => {
@@ -190,38 +224,86 @@ export function MenuHeader({ totalQuestions, answeredCount, hasProgress, openWit
               {/* Resources */}
               <MenuSection>
                 {bookmarkedCount > 0 ? (
-                  <MenuItem icon={<Bookmark className="h-4.5 w-4.5" />} label="後で学ぶ" sublabel={`${bookmarkedCount}問を保存中`} onClick={() => handleMenuAction(() => startSession({ mode: 'bookmark' }))} />
+                  <MenuItem
+                    icon={<Bookmark className="h-4.5 w-4.5" />}
+                    label="後で学ぶ"
+                    sublabel={`${bookmarkedCount}問を保存中`}
+                    onClick={() => handleMenuAction(() => startSession({ mode: 'bookmark' }))}
+                  />
                 ) : (
                   <div className="flex items-center gap-3 px-4 py-3 text-sm">
-                    <span className="text-stone-300 dark:text-stone-600"><Bookmark className="h-4.5 w-4.5" /></span>
+                    <span className="text-stone-300 dark:text-stone-600">
+                      <Bookmark className="h-4.5 w-4.5" />
+                    </span>
                     <div>
                       <span className="font-medium text-stone-300 dark:text-stone-600">後で学ぶ</span>
                       <p className="text-xs text-stone-300 dark:text-stone-600">クイズ中に🔖をタップで保存できます</p>
                     </div>
                   </div>
                 )}
-                {hasProgress && <MenuItem icon={<BarChart3 className="h-4.5 w-4.5" />} label={locale.progress.title} sublabel="統計・推移・AI活用レベル" onClick={() => handleMenuAction(() => setViewState('progress'))} />}
-                <MenuItem icon={<BookOpen className="h-4.5 w-4.5" />} label={locale.reader.title} sublabel={`${totalQuestions}問の${locale.reader.subtitle}`} onClick={() => handleMenuAction(() => setViewState('reader'))} />
-                <MenuItem icon={<BookOpenCheck className="h-4.5 w-4.5" />} label="読んでから解く" sublabel="解説を読んでからクイズに挑戦" onClick={() => handleMenuAction(() => setViewState('studyFirst'))} />
+                {hasProgress && (
+                  <MenuItem
+                    icon={<BarChart3 className="h-4.5 w-4.5" />}
+                    label={locale.progress.title}
+                    sublabel="統計・推移・AI活用レベル"
+                    onClick={() => handleMenuAction(() => setViewState('progress'))}
+                  />
+                )}
+                <MenuItem
+                  icon={<BookOpen className="h-4.5 w-4.5" />}
+                  label={locale.reader.title}
+                  sublabel={`${totalQuestions}問の${locale.reader.subtitle}`}
+                  onClick={() => handleMenuAction(() => setViewState('reader'))}
+                />
+                <MenuItem
+                  icon={<BookOpenCheck className="h-4.5 w-4.5" />}
+                  label="読んでから解く"
+                  sublabel="解説を読んでからクイズに挑戦"
+                  onClick={() => handleMenuAction(() => setViewState('studyFirst'))}
+                />
               </MenuSection>
 
               {/* Learning tools */}
               <MenuSection>
-                <MenuItem icon={<Layers className="h-4.5 w-4.5" />} label="実践シナリオ" sublabel="実務に沿ったストーリーで学ぶ" onClick={() => handleMenuAction(() => setViewState('scenarioSelect'))} />
+                <MenuItem
+                  icon={<Layers className="h-4.5 w-4.5" />}
+                  label="実践シナリオ"
+                  sublabel="実務に沿ったストーリーで学ぶ"
+                  onClick={() => handleMenuAction(() => setViewState('scenarioSelect'))}
+                />
               </MenuSection>
 
               {/* Settings */}
               <div className="py-2">
-                <MenuItem icon={currentTheme === 'dark' ? <Sun className="h-4.5 w-4.5" /> : <Moon className="h-4.5 w-4.5" />} label={currentTheme === 'dark' ? 'ライトモード' : 'ダークモード'} onClick={() => { haptics.light(); toggleTheme() }} />
+                <MenuItem
+                  icon={currentTheme === 'dark' ? <Sun className="h-4.5 w-4.5" /> : <Moon className="h-4.5 w-4.5" />}
+                  label={currentTheme === 'dark' ? 'ライトモード' : 'ダークモード'}
+                  onClick={() => {
+                    haptics.light()
+                    toggleTheme()
+                  }}
+                />
                 {!isElectron && (
                   <div className="hidden sm:block">
-                    <MenuItem icon={<HelpCircle className="h-4.5 w-4.5" />} label="キーボードショートカット" onClick={() => handleMenuAction(() => setShowShortcuts(true))} />
+                    <MenuItem
+                      icon={<HelpCircle className="h-4.5 w-4.5" />}
+                      label="キーボードショートカット"
+                      onClick={() => handleMenuAction(() => setShowShortcuts(true))}
+                    />
                   </div>
                 )}
                 {!isElectron && (
                   <MenuItem
                     icon={<RefreshCw className={`h-4.5 w-4.5 ${updateStatus === 'checking' ? 'animate-spin' : ''}`} />}
-                    label={updateStatus === 'checking' ? '確認中...' : updateStatus === 'latest' ? '✓ 最新版です' : updateStatus === 'error' ? '確認に失敗しました' : '更新を確認'}
+                    label={
+                      updateStatus === 'checking'
+                        ? '確認中...'
+                        : updateStatus === 'latest'
+                          ? '✓ 最新版です'
+                          : updateStatus === 'error'
+                            ? '確認に失敗しました'
+                            : '更新を確認'
+                    }
                     onClick={handleUpdateCheck}
                   />
                 )}
@@ -231,7 +313,9 @@ export function MenuHeader({ totalQuestions, answeredCount, hasProgress, openWit
             {/* Footer */}
             {hasProgress && streak > 0 && (
               <div className="border-t border-stone-200 px-4 py-3 dark:border-stone-700">
-                <p className="text-xs text-stone-400">🔥 {streak}日連続学習 | 今日 {todayCount}/{dailyGoal}問</p>
+                <p className="text-xs text-stone-400">
+                  🔥 {streak}日連続学習 | 今日 {todayCount}/{dailyGoal}問
+                </p>
               </div>
             )}
           </div>
@@ -250,12 +334,40 @@ function MenuSection({ children }: { children: React.ReactNode }) {
 }
 
 /** デイリーゴールの円形プログレス */
-function DailyGoalRing({ progress, achieved, count, goal }: { progress: number; achieved: boolean; count: number; goal: number }) {
+function DailyGoalRing({
+  progress,
+  achieved,
+  count,
+  goal,
+}: {
+  progress: number
+  achieved: boolean
+  count: number
+  goal: number
+}) {
   return (
     <div className="relative flex h-8 w-8 items-center justify-center" aria-label={`今日の目標 ${count}/${goal}問`}>
       <svg className="h-8 w-8 -rotate-90" viewBox="0 0 32 32">
-        <circle cx="16" cy="16" r="13" fill="none" stroke="currentColor" strokeWidth="2.5" className="text-stone-200 dark:text-stone-700" />
-        <circle cx="16" cy="16" r="13" fill="none" strokeWidth="2.5" strokeDasharray={`${progress * 0.817} 100`} strokeLinecap="round" className={achieved ? 'text-green-500' : 'text-claude-orange'} stroke="currentColor" />
+        <circle
+          cx="16"
+          cy="16"
+          r="13"
+          fill="none"
+          stroke="currentColor"
+          strokeWidth="2.5"
+          className="text-stone-200 dark:text-stone-700"
+        />
+        <circle
+          cx="16"
+          cy="16"
+          r="13"
+          fill="none"
+          strokeWidth="2.5"
+          strokeDasharray={`${progress * 0.817} 100`}
+          strokeLinecap="round"
+          className={achieved ? 'text-green-500' : 'text-claude-orange'}
+          stroke="currentColor"
+        />
       </svg>
       <span className="absolute text-[9px] font-bold text-stone-500 dark:text-stone-400">{achieved ? '✓' : count}</span>
     </div>

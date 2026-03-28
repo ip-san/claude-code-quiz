@@ -1,4 +1,4 @@
-import { BookOpen, ChevronRight, Map } from 'lucide-react'
+import { BookOpen, ChevronRight, Map as MapIcon } from 'lucide-react'
 import { haptics } from '@/lib/haptics'
 import { useQuizStore } from '@/stores/quizStore'
 
@@ -35,7 +35,7 @@ export function FirstTimeGuide({ onOpenModes }: FirstTimeGuideProps) {
             }}
             className="tap-highlight flex w-full items-center gap-3 rounded-2xl bg-claude-orange px-4 py-3 text-left shadow-sm"
           >
-            <Map className="h-5 w-5 flex-shrink-0 text-white/80" />
+            <MapIcon className="h-5 w-5 flex-shrink-0 text-white/80" />
             <div>
               <p className="text-sm font-semibold text-white">クイズで学ぶ</p>
               <p className="text-xs text-white/70">問題を解きながら覚える（6チャプター構成）</p>

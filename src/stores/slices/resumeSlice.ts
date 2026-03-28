@@ -3,9 +3,14 @@
  */
 
 import { Question } from '@/domain/entities/Question'
-import { type AnswerRecord, type QuizSessionConfig, QuizSessionService, type QuizSessionState } from '@/domain/services/QuizSessionService'
+import {
+  type AnswerRecord,
+  type QuizSessionConfig,
+  QuizSessionService,
+  type QuizSessionState,
+} from '@/domain/services/QuizSessionService'
 import { getSessionRepository, type SavedSessionData } from '@/infrastructure/persistence/SessionRepository'
-import { saveSessionSnapshot, type StoreGet, type StoreSet } from '../utils'
+import { type StoreGet, type StoreSet, saveSessionSnapshot } from '../utils'
 
 export interface ResumeSlice {
   savedSession: SavedSessionData | null

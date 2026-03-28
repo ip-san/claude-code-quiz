@@ -190,11 +190,13 @@ export function QuizCard({ isModalOpen = false }: { isModalOpen?: boolean }) {
         <ChapterIndicator
           chapter={currentChapter}
           totalChapters={OVERVIEW_CHAPTERS.length}
-          onShowIntro={() => setDismissedIntros((prev) => {
-            const next = new Set(prev)
-            next.delete(currentChapter.id)
-            return next
-          })}
+          onShowIntro={() =>
+            setDismissedIntros((prev) => {
+              const next = new Set(prev)
+              next.delete(currentChapter.id)
+              return next
+            })
+          }
         />
       )}
 

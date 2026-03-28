@@ -21,9 +21,7 @@ function getDocSlug(url: string | undefined): string | null {
 
 /** スラッグを人間が読みやすいラベルに変換 */
 function slugToLabel(slug: string): string {
-  return slug
-    .replace(/-/g, ' ')
-    .replace(/\b\w/g, (c) => c.toUpperCase())
+  return slug.replace(/-/g, ' ').replace(/\b\w/g, (c) => c.toUpperCase())
 }
 
 interface SubtopicStat {
@@ -109,11 +107,12 @@ export function WeakPointInsight({ allQuestions, userProgress, categoryStats, on
                       {wp.wrongCount}問 間違い · 正答率 {wp.accuracy}%
                     </p>
                   </div>
-                  {wp.subtopics.length > 0 && (
-                    isExpanded
-                      ? <ChevronUp className="h-4 w-4 text-stone-400" />
-                      : <ChevronDown className="h-4 w-4 text-stone-400" />
-                  )}
+                  {wp.subtopics.length > 0 &&
+                    (isExpanded ? (
+                      <ChevronUp className="h-4 w-4 text-stone-400" />
+                    ) : (
+                      <ChevronDown className="h-4 w-4 text-stone-400" />
+                    ))}
                 </button>
                 <button
                   onClick={() => onStartSession({ mode: 'category', categoryFilter: wp.id })}
@@ -135,7 +134,8 @@ export function WeakPointInsight({ allQuestions, userProgress, categoryStats, on
                             <div
                               className="h-1.5 w-1.5 rounded-full"
                               style={{
-                                backgroundColor: st.accuracy < 30 ? '#ef4444' : st.accuracy < 50 ? '#f59e0b' : '#eab308',
+                                backgroundColor:
+                                  st.accuracy < 30 ? '#ef4444' : st.accuracy < 50 ? '#f59e0b' : '#eab308',
                               }}
                             />
                             <span className="text-xs text-claude-dark dark:text-stone-300">{st.label}</span>
@@ -146,7 +146,8 @@ export function WeakPointInsight({ allQuestions, userProgress, categoryStats, on
                               className="h-full rounded-full"
                               style={{
                                 width: `${st.accuracy}%`,
-                                backgroundColor: st.accuracy < 30 ? '#ef4444' : st.accuracy < 50 ? '#f59e0b' : '#eab308',
+                                backgroundColor:
+                                  st.accuracy < 30 ? '#ef4444' : st.accuracy < 50 ? '#f59e0b' : '#eab308',
                               }}
                             />
                           </div>

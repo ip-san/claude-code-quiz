@@ -15,7 +15,7 @@ import { getQuizModeById } from '@/domain/valueObjects/QuizMode'
 import { getProgressRepository } from '@/infrastructure'
 import { getSessionRepository } from '@/infrastructure/persistence/SessionRepository'
 import { trackQuizStart } from '@/lib/analytics'
-import { APP_CONFIG, recordCompletedSession, saveSessionSnapshot, type StoreGet, type StoreSet } from '../utils'
+import { APP_CONFIG, recordCompletedSession, type StoreGet, type StoreSet, saveSessionSnapshot } from '../utils'
 
 export interface SessionSlice {
   sessionConfig: QuizSessionConfig

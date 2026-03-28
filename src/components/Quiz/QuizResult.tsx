@@ -18,7 +18,8 @@ import { TeamShareGuide } from './result/TeamShareGuide'
 // Star visualization constants
 const STAR_COUNT = 5
 const STAR_PERCENTAGE_DIVISOR = 20
-const prefersReducedMotion = typeof window !== 'undefined' && window.matchMedia('(prefers-reduced-motion: reduce)').matches
+const prefersReducedMotion =
+  typeof window !== 'undefined' && window.matchMedia('(prefers-reduced-motion: reduce)').matches
 
 export function QuizResult() {
   const {

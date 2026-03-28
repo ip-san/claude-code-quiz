@@ -2,13 +2,17 @@
  * Store utilities - Helper functions and shared types for quiz store slices
  */
 
+import { theme } from '@/config/theme'
 import type { Question } from '@/domain/entities/Question'
 import type { UserProgress } from '@/domain/entities/UserProgress'
 import { type QuizSessionConfig, type QuizSessionState } from '@/domain/services/QuizSessionService'
-import { theme } from '@/config/theme'
 import type { QuizModeId } from '@/domain/valueObjects/QuizMode'
 import { getProgressRepository } from '@/infrastructure'
-import { getSessionRepository, type SavedAnswerRecord, type SavedSessionData } from '@/infrastructure/persistence/SessionRepository'
+import {
+  getSessionRepository,
+  type SavedAnswerRecord,
+  type SavedSessionData,
+} from '@/infrastructure/persistence/SessionRepository'
 import { trackQuizComplete } from '@/lib/analytics'
 
 // ============================================================
@@ -24,7 +28,15 @@ import { trackQuizComplete } from '@/lib/analytics'
  *   ├────────────(showProgress)────────────> progress
  *   └────────────(setViewState)────────────> reader
  */
-export type ViewState = 'menu' | 'quiz' | 'result' | 'progress' | 'reader' | 'scenarioSelect' | 'studyFirst' | 'tutorial'
+export type ViewState =
+  | 'menu'
+  | 'quiz'
+  | 'result'
+  | 'progress'
+  | 'reader'
+  | 'scenarioSelect'
+  | 'studyFirst'
+  | 'tutorial'
 
 // ============================================================
 // App Configuration

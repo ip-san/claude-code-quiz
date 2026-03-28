@@ -31,6 +31,12 @@ export function StreakToast({ streak }: StreakToastProps) {
   }, [streak, lastShown, trigger])
 
   return (
-    <Toast phase={phase} style={style} icon={<Flame className="h-5 w-5" />} message={message} gradient="from-orange-500 to-red-500" />
+    <Toast
+      phase={phase}
+      style={style}
+      icon={<Flame className="h-5 w-5" />}
+      message={message}
+      gradient="from-orange-500 to-red-500"
+    />
   )
 }
