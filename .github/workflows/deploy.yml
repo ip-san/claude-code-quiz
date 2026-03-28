@@ -25,6 +25,8 @@ jobs:
       - run: bun install --frozen-lockfile
       - run: bun run check:all
       - run: bun run build:web
+        env:
+          VITE_GTM_ID: ${{ secrets.VITE_GTM_ID }}
       - uses: actions/upload-pages-artifact@v3
         with:
           path: dist-web
