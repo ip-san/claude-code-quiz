@@ -57,7 +57,7 @@ npm run build:web      # Web版プロダクションビルド
 npm run preview:web    # Web版プレビュー
 
 # 品質チェック
-npm run check         # 型チェック + lint + 378テスト + 638問チェック（一括）
+npm run check         # 型チェック + lint + 378テスト + 658問チェック（一括）
 npm test              # ユニット + Store テスト（378テスト、Vitest）
 npm run test:e2e      # E2E + Visual Regression テスト（18テスト、Playwright）
 npm run test:e2e:ui   # E2E をビジュアルUIで実行（デバッグ用）
@@ -196,8 +196,8 @@ npm run check:all      # check + docs:validate（CI用フルチェック）
 ### 学習支援
 
 - **実践シナリオ（scenarioSelect）:** 実務に即したストーリー形式で既存問題を出題（3シナリオ）
-- **キーワード検索（QuizSearch）:** 638問から検索、解説をその場で展開可能。10件超は全件表示画面
-- **解説リーダー（ExplanationReader）:** 638問の解説をクイズなしで閲覧。カテゴリ・難易度・ステータスフィルタ + ドキュメントページ別サブフィルタ
+- **キーワード検索（QuizSearch）:** 658問から検索、解説をその場で展開可能。10件超は全件表示画面
+- **解説リーダー（ExplanationReader）:** 658問の解説をクイズなしで閲覧。カテゴリ・難易度・ステータスフィルタ + ドキュメントページ別サブフィルタ
 - **「後で学ぶ」ブックマーク:** 検索結果・解説リーダーから1タップで保存 → ハンバーガーメニューからまとめて学習
 - 身につけたスキル表示（SkillsAcquired）: 正解カテゴリ→実務能力変換
 - チーム共有ガイド（TeamShareGuide）: Slack提案メッセージのワンタップコピー
@@ -232,7 +232,7 @@ npm run check:all      # check + docs:validate（CI用フルチェック）
 | Visual Regression | 8 | Playwright | スクリーンショット比較（ライト/ダーク × 4画面） |
 
 ```bash
-npm run check         # 型 + lint + 378テスト + 638問（~5秒）
+npm run check         # 型 + lint + 378テスト + 658問（~5秒）
 npm test              # Unit + Store（378テスト、~2秒）
 npm run test:e2e      # E2E + Visual（18テスト、~16秒）
 ```

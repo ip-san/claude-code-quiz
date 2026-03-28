@@ -169,6 +169,59 @@ try {
   // .claude/skills may not exist
 }
 
+// ── README.md validation ────────────────────────────────────
+const readmeMd = readFileSync('README.md', 'utf8')
+
+// Total quiz count in README
+const readmeTotalMatch = readmeMd.match(/8つのカテゴリ（(\d+)問）/)
+if (readmeTotalMatch) {
+  const readmeTotal = parseInt(readmeTotalMatch[1])
+  if (readmeTotal !== quizCount) {
+    errors.push(`README.md total quiz count: actual ${quizCount}, README says ${readmeTotal}`)
+    autoFixes.push({
+      label: 'README quiz count',
+      pattern: /8つのカテゴリ（(\d+)問）/,
+      old: readmeTotal,
+      new: quizCount,
+      file: 'README.md',
+    })
+  }
+}
+
+// Per-category counts in README
+const categoryCountMap = {}
+for (const q of quizData.quizzes) {
+  categoryCountMap[q.category] = (categoryCountMap[q.category] || 0) + 1
+}
+const readmeCategoryNames = {
+  memory: 'Memory',
+  skills: 'Skills',
+  tools: 'Tools',
+  commands: 'Commands',
+  extensions: 'Extensions',
+  session: 'Session',
+  keyboard: 'Keyboard',
+  bestpractices: 'Best Practices',
+}
+for (const [catId, catName] of Object.entries(readmeCategoryNames)) {
+  const actual = categoryCountMap[catId] || 0
+  const catPattern = new RegExp(`\\| ${catName} \\| (\\d+)問`)
+  const catMatch = readmeMd.match(catPattern)
+  if (catMatch) {
+    const readmeCount = parseInt(catMatch[1])
+    if (readmeCount !== actual) {
+      errors.push(`README.md ${catName} count: actual ${actual}, README says ${readmeCount}`)
+      autoFixes.push({
+        label: `README ${catName} count`,
+        pattern: catPattern,
+        old: readmeCount,
+        new: actual,
+        file: 'README.md',
+      })
+    }
+  }
+}
+
 // ── Reference URL language ──────────────────────────────────
 const enUrls = quizData.quizzes.filter((q) => q.referenceUrl?.includes('/docs/en/')).length
 if (enUrls > 0) {
@@ -177,19 +230,31 @@ if (enUrls > 0) {
 
 // ── Auto-fix mode ───────────────────────────────────────────
 if (process.argv.includes('--fix') && autoFixes.length > 0) {
-  let content = readFileSync('CLAUDE.md', 'utf8')
-  for (const fix of autoFixes) {
-    const regex = new RegExp(fix.pattern.source.replace('(\\d+)', String(fix.old)))
-    const replacement = fix.pattern.source
-      .replace('(\\d+)', String(fix.new))
-      .replace(/\\/g, '')
-      .replace(/\.\*\*/g, '**')
-    content = content.replace(regex, replacement)
-  }
   const { writeFileSync } = await import('fs')
-  writeFileSync('CLAUDE.md', content)
-  console.log(`✓ Auto-fixed ${autoFixes.length} values in CLAUDE.md:`)
-  autoFixes.forEach((f) => console.log(`  ${f.label}: ${f.old} → ${f.new}`))
+
+  // Group fixes by file
+  const fixesByFile = {}
+  for (const fix of autoFixes) {
+    const file = fix.file || 'CLAUDE.md'
+    if (!fixesByFile[file]) fixesByFile[file] = []
+    fixesByFile[file].push(fix)
+  }
+
+  for (const [file, fixes] of Object.entries(fixesByFile)) {
+    let content = readFileSync(file, 'utf8')
+    for (const fix of fixes) {
+      const regex = new RegExp(fix.pattern.source.replace('(\\d+)', String(fix.old)))
+      const replacement = fix.pattern.source
+        .replace('(\\d+)', String(fix.new))
+        .replace(/\\/g, '')
+        .replace(/\.\*\*/g, '**')
+      content = content.replace(regex, replacement)
+    }
+    writeFileSync(file, content)
+  }
+
+  console.log(`✓ Auto-fixed ${autoFixes.length} values:`)
+  autoFixes.forEach((f) => console.log(`  ${f.file || 'CLAUDE.md'} — ${f.label}: ${f.old} → ${f.new}`))
   process.exit(0)
 }
 

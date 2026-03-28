@@ -1,7 +1,7 @@
 # Claude Code Quiz
 
-Claude Code の機能と使い方を効率的に学習するためのクイズアプリケーションです。
-デスクトップ（Electron）とスマホ（PWA）の両方で利用できます。
+Claude Code の機能と使い方を学習するためのクイズアプリケーション。
+PWA でスマホ・ブラウザからいつでも学習でき、Electron デスクトップ版もあります。
 
 **PWA:** https://ip-san.github.io/claude-code-quiz/
 
@@ -23,91 +23,114 @@ Claude Code を勉強しています。
 
 | モード | 説明 |
 |--------|------|
-| 全問チャレンジ | 100問を60分で解く本格モード |
+| 全体像モード | 6チャプター構成の初心者向け学習パス（修了証あり） |
+| 実力テスト | 100問を60分で解く本格モード |
 | カテゴリ別 | 特定のカテゴリに絞って学習 |
 | ランダム20問 | 手軽に復習したい時に |
-| 苦手問題 | 正答率の低い問題を重点的に出題 |
-| カスタム | カテゴリと難易度を自由に組み合わせ |
+| 60秒チェック | SRS期限到来の3問を即確認 |
+| 苦手克服 | 正答率の低い問題を重点的に出題 |
+| 読んでから解く | 解説を先に読んでからクイズに挑戦（初心者向け） |
+| 実践シナリオ | 実務シナリオに沿ってClaude Codeを学ぶ |
 
-### 8つのカテゴリ（448問）
+### 8つのカテゴリ（658問）
 
 | カテゴリ | 問題数 | 内容 |
 |---------|--------|------|
-| Memory | 31問 | CLAUDE.md、メモリシステム |
-| Skills | 34問 | カスタムスキル、スラッシュコマンド |
-| Tools | 46問 | Read, Edit, Bash, Glob, Grep |
-| Commands | 63問 | CLI コマンド、フラグ |
-| Extensions | 110問 | MCP、Hooks、サブエージェント |
-| Session | 93問 | セッション管理、履歴 |
-| Keyboard | 26問 | ショートカット、Vim モード |
-| Best Practices | 45問 | 効果的な使い方 |
+| Memory | 46問 | CLAUDE.md、@import、メモリシステム |
+| Skills | 56問 | カスタムスキル、スラッシュコマンド |
+| Tools | 60問 | Read, Edit, Bash, Glob, Grep |
+| Commands | 91問 | CLI コマンド、フラグ |
+| Extensions | 152問 | MCP、Hooks、サブエージェント、プラグイン |
+| Session | 146問 | セッション管理、コンテキスト、履歴 |
+| Keyboard | 43問 | ショートカット、Vim モード |
+| Best Practices | 64問 | 効果的な使い方、プロンプト設計 |
+
+### 初心者サポート
+
+- **チュートリアル:** Claude Code の基本を4画面で紹介（初回表示、いつでも再閲覧可能）
+- **チャプター導入画面:** 各チャプター開始時に学ぶ内容・実例を表示
+- **読んでから解く:** 解説を先に読んでからクイズに挑戦できるモード
 
 ### その他
 
-- 進捗トラッキング（回答履歴、正答率、連続学習日数）
-- エクスポート/インポート
-- タイマー表示
-- キーボード操作対応
-- AI プロンプト生成機能
+- 進捗トラッキング（回答履歴、正答率、連続学習日数、AI活用レベル）
+- SRS（間隔反復）による効率的な復習
+- 250問にアニメーション付き解説図
+- キーワード検索、ブックマーク、解説リーダー
+- エクスポート/インポート、修了証発行
+- ダークモード、キーボード操作、スマホ最適化
 
 ## クイックスタート
 
-### インストール
+### PWA（推奨）
+
+https://ip-san.github.io/claude-code-quiz/ にアクセスするだけ。スマホのホーム画面に追加でアプリとして使えます。
+
+### 開発
 
 ```bash
 git clone git@github.com:ip-san/claude-code-quiz.git
 cd claude-code-quiz
-npm install
+bun install
+
+# PWA 開発サーバー
+bun run dev:web
+
+# Electron 開発サーバー
+bun run dev
 ```
 
-### 開発モード
+### ビルド
 
 ```bash
-npm run dev
+# PWA ビルド（dist-web/ に出力）
+bun run build:web
+
+# Electron ビルド（release/ に出力）
+bun run build
 ```
 
-### アプリのビルド
+## 技術スタック
 
-```bash
-npm run build
+| 領域 | 技術 |
+|------|------|
+| フロントエンド | React + TypeScript + Vite + Tailwind CSS + Zustand |
+| 配信 | PWA / GitHub Pages（メイン）+ Electron（デスクトップ） |
+| アナリティクス | GTM + GA4 + MCP サーバー |
+| テスト | Vitest（378テスト）+ Playwright E2E（18テスト） |
+| バリデーション | Zod スキーマ |
+| CI/CD | GitHub Actions → GitHub Pages 自動デプロイ |
+
+## 品質の自動化
+
+Claude Code のスキル機能を使って、品質改善を自動化しています。
+
+```
+GA4（PWAユーザーの行動データ）
+  ↓ MCP 経由で取得
+/analytics-insight（ユーザー行動分析）
+  ↓
+/code-review（コード品質レビュー）
+  ↓
+/generate-quiz-data（不足カテゴリの問題を自動生成）
+  ↓
+/quiz-refine（公式ドキュメントと照合・修正）
+  ↓
+GitHub Actions → GitHub Pages → PWA 自動配信
 ```
 
-`release/` フォルダにインストーラーが生成されます。
+`/quality-loop` で一括実行。`/loop 1h /quality-loop` で定期実行も可能。
 
-詳しいインストール手順は **[docs/INSTALLATION.md](docs/INSTALLATION.md)** を参照してください。
+詳細は [docs/quality-loop.md](docs/quality-loop.md) を参照。
 
 ## ドキュメント
 
 | ドキュメント | 内容 |
 |-------------|------|
-| [インストールガイド](docs/INSTALLATION.md) | ビルド、インストール、トラブルシューティング |
-| [開発ガイド](docs/DEVELOPMENT.md) | 開発環境、ワークフロー、テスト |
-| [アーキテクチャ](docs/ARCHITECTURE.md) | 設計思想、技術スタック、セキュリティ |
-| [クイズ管理](docs/QUIZ_MANAGEMENT.md) | 問題の追加・編集、Claude Code スキル |
-
-## 技術スタック
-
-- **Electron** - デスクトップアプリケーション
-- **React** + **TypeScript** - UI
-- **Vite** - ビルドツール
-- **Tailwind CSS** - スタイリング
-- **Zustand** - 状態管理
-- **Zod** - バリデーション
-- **Vitest** - テスト
-
-## Claude Code スキル
-
-Claude Code ユーザー向けに、問題の自動生成・検証スキルを用意しています。
-
-```bash
-# 問題を自動生成
-/generate-quiz-data 100
-
-# 問題を公式ドキュメントと照合・修正
-/quiz-refine
-```
-
-詳細は [docs/QUIZ_MANAGEMENT.md](docs/QUIZ_MANAGEMENT.md) を参照してください。
+| [アナリティクス セットアップ](docs/analytics-setup.md) | GTM + GA4 + GCP の設定手順 |
+| [イベント定義](docs/analytics-events.md) | 計測イベントとデータフロー |
+| [品質改善ループ](docs/quality-loop.md) | 自動化された改善サイクルの仕組み |
+| [自動化ツール一覧](docs/automation.md) | スクリプト・MCP・CI/CD の全体像 |
 
 ## ライセンス
 
