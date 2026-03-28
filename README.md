@@ -114,14 +114,47 @@ bun run build
 
 ## 技術スタック
 
-| 領域 | 技術 |
+### アプリケーション
+
+| パッケージ | 用途 |
+|-----------|------|
+| [React](https://react.dev/) 18 | UI フレームワーク |
+| [TypeScript](https://www.typescriptlang.org/) 5 | 型安全な開発 |
+| [Vite](https://vite.dev/) 5 | ビルドツール + 開発サーバー |
+| [Tailwind CSS](https://tailwindcss.com/) 3 | ユーティリティファーストの CSS |
+| [Zustand](https://zustand.docs.pmnd.rs/) 4 | 軽量な状態管理 |
+| [Zod](https://zod.dev/) 3 | スキーマバリデーション |
+| [Lucide React](https://lucide.dev/) | アイコンライブラリ |
+| [vite-plugin-pwa](https://vite-pwa-org.netlify.app/) | PWA / Service Worker 生成 |
+
+### 配信
+
+| 技術 | 用途 |
 |------|------|
-| フロントエンド | React + TypeScript + Vite + Tailwind CSS + Zustand |
-| 配信 | PWA / GitHub Pages（メイン）+ Electron（デスクトップ） |
-| アナリティクス | GTM + GA4 + MCP サーバー |
-| テスト | Vitest（378テスト）+ Playwright E2E（18テスト） |
-| バリデーション | Zod スキーマ |
-| CI/CD | GitHub Actions → GitHub Pages 自動デプロイ |
+| GitHub Pages | PWA ホスティング（メイン） |
+| [Electron](https://www.electronjs.org/) 31 | デスクトップアプリ |
+| GitHub Actions | CI/CD（自動ビルド・デプロイ） |
+
+### アナリティクス
+
+| パッケージ / サービス | 用途 |
+|---------------------|------|
+| Google Tag Manager | タグ管理（イベント → GA4 ルーティング） |
+| Google Analytics 4 | ユーザー行動データの収集・分析 |
+| [@google-analytics/data](https://www.npmjs.com/package/@google-analytics/data) | GA4 Data API（MCP サーバーから利用） |
+| [@google-analytics/admin](https://www.npmjs.com/package/@google-analytics/admin) | GA4 カスタムディメンション自動登録 |
+| [google-auth-library](https://www.npmjs.com/package/google-auth-library) | GCP サービスアカウント認証（GTM API） |
+
+### テスト・品質
+
+| パッケージ | 用途 |
+|-----------|------|
+| [Vitest](https://vitest.dev/) 4 | ユニットテスト（378テスト） |
+| [Playwright](https://playwright.dev/) | E2E + Visual Regression テスト（18テスト） |
+| [Biome](https://biomejs.dev/) | Lint + フォーマッター |
+| [type-coverage](https://github.com/nicolo-ribaudo/type-coverage) | TypeScript 型カバレッジ（99.5%） |
+| [knip](https://knip.dev/) | 未使用コード・依存の検出 |
+| [jscpd](https://github.com/kucherenko/jscpd) | コードクローン検出 |
 
 ## 品質の自動化
 

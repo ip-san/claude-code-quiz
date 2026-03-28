@@ -151,6 +151,46 @@ Claude Code から GA4 Data API に直接クエリできる MCP サーバー。
 | `npm run quiz:post-add` | 問題追加後の一括処理 |
 | `npm run docs:validate` | CLAUDE.md の統計値検証 |
 
+## 主要パッケージ
+
+### ランタイム依存（5パッケージ）
+
+| パッケージ | 用途 |
+|-----------|------|
+| React 18 + ReactDOM | UI フレームワーク |
+| Zustand 4 | 軽量な状態管理（Redux の代替） |
+| Zod 3 | クイズデータのスキーマバリデーション |
+| Lucide React | SVG アイコン（tree-shakable） |
+
+### ビルド・開発
+
+| パッケージ | 用途 |
+|-----------|------|
+| Vite 5 | ビルド + HMR 開発サーバー |
+| vite-plugin-pwa | Service Worker 生成、PWA マニフェスト |
+| Tailwind CSS 3 | ユーティリティファーストの CSS |
+| TypeScript 5 | 型安全な開発 |
+| Electron 31 | デスクトップアプリ（オプション） |
+
+### テスト・品質チェック
+
+| パッケージ | 用途 |
+|-----------|------|
+| Vitest 4 | ユニットテスト（jsdom 環境） |
+| Playwright | E2E テスト + Visual Regression |
+| Biome | Lint + フォーマッター（ESLint + Prettier の代替） |
+| type-coverage | TypeScript 型カバレッジ測定（99.5%） |
+| knip | 未使用コード・未使用依存の検出 |
+| jscpd | コードクローン（コピペ）検出 |
+
+### アナリティクス・API
+
+| パッケージ | 用途 |
+|-----------|------|
+| @google-analytics/data | GA4 Data API（MCP サーバーで使用） |
+| @google-analytics/admin | GA4 カスタムディメンション自動登録 |
+| google-auth-library | GCP サービスアカウント認証（GTM API デプロイ） |
+
 ## CI/CD
 
 ### GitHub Actions → GitHub Pages
