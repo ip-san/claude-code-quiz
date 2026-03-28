@@ -19,14 +19,9 @@
       <!-- Pre-render splash: shown until React mounts (prevents blank flash) -->
       <div id="splash" style="display:flex;align-items:center;justify-content:center;min-height:100vh;min-height:100dvh">
         <div style="text-align:center">
-          <svg viewBox="0 0 512 512" width="96" height="96" style="margin:0 auto 16px;display:block">
-            <defs><linearGradient id="s" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" style="stop-color:#F09070"/><stop offset="100%" style="stop-color:#C4644A"/></linearGradient></defs>
-            <rect width="512" height="512" rx="112" fill="url(#s)"/>
-            <path d="M120 180 L60 256 L120 332" stroke="white" stroke-width="40" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
-            <path d="M392 180 L452 256 L392 332" stroke="white" stroke-width="40" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
-            <path d="M222 195 Q222 150 256 150 Q290 150 290 195 Q290 240 256 255 L256 280" stroke="white" stroke-width="30" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
-            <circle cx="256" cy="330" r="17" fill="white"/>
-          </svg>
+          <!-- SPLASH-ICON-START -->
+          <svg width="96" height="96" style="margin:0 auto 16px;display:block" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><defs><linearGradient id="bg" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" style="stop-color:#F09070"/><stop offset="100%" style="stop-color:#C4644A"/></linearGradient></defs><!-- Rounded square background --><rect width="512" height="512" rx="112" fill="url(#bg)"/><!-- Stylized </> with ? replacing / --><path d="M120 180 L60 256 L120 332" stroke="white" stroke-width="40" stroke-linecap="round" stroke-linejoin="round" fill="none"/><path d="M392 180 L452 256 L392 332" stroke="white" stroke-width="40" stroke-linecap="round" stroke-linejoin="round" fill="none"/><!-- ? in the center (replacing the / in </>) --><path d="M222 195 Q222 150 256 150 Q290 150 290 195 Q290 240 256 255 L256 280" stroke="white" stroke-width="30" stroke-linecap="round" stroke-linejoin="round" fill="none"/><circle cx="256" cy="330" r="17" fill="white"/></svg>
+          <!-- SPLASH-ICON-END -->
           <div style="font-size:14px;color:#6B6B6B">読み込み中...</div>
         </div>
       </div>
