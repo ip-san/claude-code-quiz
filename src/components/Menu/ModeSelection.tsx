@@ -1,6 +1,5 @@
 import { ChevronRight } from 'lucide-react'
 import { useMemo, useState } from 'react'
-import { AppLogo } from '@/components/Layout/AppLogo'
 import { haptics } from '@/lib/haptics'
 import { useQuizStore } from '@/stores/quizStore'
 import { ChapterProgressMap } from './ChapterProgressMap'
@@ -64,7 +63,7 @@ export function ModeSelection() {
               }}
               className="tap-highlight mb-5 flex w-full items-center gap-3 rounded-2xl border border-stone-200 bg-white px-4 py-3 text-left dark:border-stone-700 dark:bg-stone-800"
             >
-              <AppLogo size={32} />
+              <span className="text-xl">🎮</span>
               <div className="flex-1">
                 <span className="text-sm font-medium text-claude-dark dark:text-stone-200">クイズモード</span>
                 <p className="text-xs text-stone-400">全体像・実力テスト・カテゴリ別など</p>
