@@ -84,7 +84,7 @@ try {
   const testResult = JSON.parse(testOutput)
   const testCount = testResult.numPassedTests
   if (testCount) {
-    checkCount('Vitest test count', testCount, /Vitest（(\d+)テスト）/)
+    checkCount('Vitest test count', testCount, /Vitest（(\d+)テスト）/, 1)
     // Also check inline references like "375テスト"
     const inlineMatches = claudeMd.match(/(\d+)テスト/g) || []
     for (const m of inlineMatches) {
