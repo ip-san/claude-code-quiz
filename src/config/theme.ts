@@ -89,7 +89,7 @@ const claudeCodeTheme: ThemeConfig = {
   logoText: 'CC',
   subject: 'Claude Code',
   tagline: 'AI 時代のスキルを、今日から身につける',
-  subtitle: '経験不問 | 638問 | スマホでいつでも',
+  subtitle: '経験不問 | 658問 | スマホでいつでも',
   certificateTitle: 'Claude Code Quiz Master Certification',
   certificateFooter: 'Powered by Claude Code Quiz',
   certificateDescOverview: 'Claude Code の全体像を習得したことを証明します',

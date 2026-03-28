@@ -27,7 +27,7 @@ export function WelcomeScreen({ onComplete }: WelcomeScreenProps) {
     <div className="flex min-h-dvh flex-col items-center justify-center bg-claude-cream px-6">
       <div className="w-full max-w-sm animate-view-enter text-center">
         {/* Logo */}
-        <div className="mx-auto mb-6">
+        <div className="mb-6 flex justify-center">
           <AppLogo size={96} />
         </div>
 

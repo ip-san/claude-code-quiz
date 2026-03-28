@@ -138,7 +138,7 @@ export default function App() {
     return (
       <div className="flex min-h-dvh flex-col items-center justify-center bg-claude-cream">
         <div className="animate-bounce-in text-center">
-          <div className="mx-auto mb-4">
+          <div className="mb-4 flex justify-center">
             <AppLogo size={96} />
           </div>
           <h1 className="mb-1 text-xl font-bold text-claude-dark">Claude Code Quiz</h1>
