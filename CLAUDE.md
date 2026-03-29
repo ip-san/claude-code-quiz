@@ -228,6 +228,7 @@ npm run check:all      # check + docs:validate（CI用フルチェック）
 | Domain | 303 | Vitest | entities, services, valueObjects |
 | Infrastructure | 61 | Vitest | validation（Zod スキーマ、コンテンツ品質） |
 | Store | 15 | Vitest | initialize, startSession, submitAnswer, navigation |
+| Data | 15 | Vitest | scenarios（シナリオ構造・問題参照の整合性） |
 | E2E | 10 | Playwright | ユーザーフロー（ウェルカム→クイズ→結果） |
 | Visual Regression | 8 | Playwright | スクリーンショット比較（ライト/ダーク × 4画面） |
 
