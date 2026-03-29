@@ -86,7 +86,10 @@ try {
   if (testCount) {
     checkCount('Vitest test count', testCount, /Vitest（(\d+)テスト）/)
     // Check all inline "Nテスト" in CLAUDE.md AND README.md
-    for (const [file, content] of [['CLAUDE.md', claudeMd], ['README.md', readmeMd]]) {
+    for (const [file, content] of [
+      ['CLAUDE.md', claudeMd],
+      ['README.md', readmeMd],
+    ]) {
       const inlineMatches = content.match(/(\d+)テスト/g) || []
       for (const m of inlineMatches) {
         const n = parseInt(m)
@@ -123,7 +126,7 @@ try {
 try {
   const testOutput2 = execSync('npx vitest run --reporter=json 2>/dev/null || true', { encoding: 'utf8' })
   const testResult2 = JSON.parse(testOutput2)
-  const layerCounts = { domain: 0, infrastructure: 0, stores: 0 }
+  const layerCounts = { domain: 0, infrastructure: 0, stores: 0, data: 0 }
   testResult2.testResults.forEach((r) => {
     const m = r.name.match(/src\/(\w+)/)
     const key = m ? m[1] : 'other'
@@ -134,6 +137,22 @@ try {
   checkCount('Domain test count (table)', layerCounts.domain, /\| Domain \| (\d+) \|/)
   checkCount('Infrastructure test count (table)', layerCounts.infrastructure, /\| Infrastructure \| (\d+) \|/)
   checkCount('Store test count (table)', layerCounts.stores, /\| Store \| (\d+) \|/, 1)
+  checkCount('Data test count (table)', layerCounts.data, /\| Data \| (\d+) \|/)
+} catch {
+  // skip
+}
+
+// ── Test strategy table (E2E / Visual) ──────────────────────
+try {
+  const countTestCalls = (filePath) => {
+    const content = readFileSync(filePath, 'utf8')
+    const matches = content.match(/\btest\s*\(/g) || []
+    return matches.length
+  }
+  const e2eTestCount = countTestCalls('e2e/quiz-flow.spec.ts')
+  const visualTestCount = countTestCalls('e2e/visual.spec.ts')
+  checkCount('E2E test count (table)', e2eTestCount, /\| E2E \| (\d+) \|/)
+  checkCount('Visual Regression test count (table)', visualTestCount, /\| Visual Regression \| (\d+) \|/)
 } catch {
   // skip
 }
@@ -231,7 +250,7 @@ for (const [catId, catName] of Object.entries(readmeCategoryNames)) {
 // Instead of pattern-by-pattern checks, detect ALL stale numbers
 // for key metrics and auto-replace them globally.
 
-const knownCounts = {
+const _knownCounts = {
   quizCount, // 658 etc.
   diagramCount, // 250 etc.
   overviewCount, // 39 etc.
@@ -256,7 +275,14 @@ function scanStaleNumbers(content, file, label) {
   }
   for (const stale of staleQuizCounts) {
     errors.push(`${label}: stale quiz count "${stale}問" found, actual ${quizCount}`)
-    autoFixes.push({ label: `${label} quiz count ${stale}`, old: stale, new: quizCount, file, _replaceAll: true, _suffix: '問' })
+    autoFixes.push({
+      label: `${label} quiz count ${stale}`,
+      old: stale,
+      new: quizCount,
+      file,
+      _replaceAll: true,
+      _suffix: '問',
+    })
   }
 }
 

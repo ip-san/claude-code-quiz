@@ -13,17 +13,17 @@
     "preview": "vite preview",
     "preview:web": "vite preview --config vite.config.web.ts",
     "typecheck": "tsc --noEmit",
-    "format": "biome format --write src/",
-    "format:check": "biome format src/",
-    "lint": "biome lint src/",
+    "format": "biome format --write src/ mcp/ scripts/",
+    "format:check": "biome format src/ mcp/ scripts/",
+    "lint": "biome lint src/ mcp/ scripts/",
     "knip": "knip",
     "circular": "npx madge --circular --extensions ts,tsx src/",
     "check:bundle": "node scripts/check-bundle-size.mjs",
     "check:arch": "node scripts/check-architecture.mjs",
     "cpd": "jscpd src --min-lines 5 --min-tokens 50 --ignore \"**/data/**\"",
     "type-coverage": "type-coverage --strict --at-least 99",
-    "check": "tsc --noEmit && biome check src/ && vitest run && type-coverage --strict --at-least 99 && node scripts/quiz-utils.mjs check",
-    "check:all": "tsc --noEmit && biome check src/ && vitest run && type-coverage --strict --at-least 99 && node scripts/quiz-utils.mjs check && node scripts/validate-docs.mjs",
+    "check": "tsc --noEmit && biome check src/ mcp/ scripts/ && vitest run && type-coverage --strict --at-least 99 && node scripts/quiz-utils.mjs check",
+    "check:all": "tsc --noEmit && biome check src/ mcp/ scripts/ && vitest run && type-coverage --strict --at-least 99 && node scripts/quiz-utils.mjs check && node scripts/validate-docs.mjs",
     "docs:validate": "node scripts/validate-docs.mjs",
     "quiz:post-add": "node scripts/quiz-utils.mjs randomize && node scripts/quiz-utils.mjs check && vitest run && node scripts/quiz-utils.mjs stats",
     "test": "vitest run",
@@ -126,7 +126,7 @@
     }
   },
   "lint-staged": {
-    "*.{ts,tsx}": "biome check --write --no-errors-on-unmatched"
+    "*.{ts,tsx,mjs}": "biome check --write --no-errors-on-unmatched"
   },
   "type": "module"
 }

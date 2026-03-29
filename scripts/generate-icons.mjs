@@ -34,7 +34,10 @@ async function generateIcons() {
   console.log('Electron:')
   const electronSizes = [16, 32, 48, 64, 128, 256, 512, 1024]
   for (const size of electronSizes) {
-    await sharp(svgBuffer).resize(size, size).png().toFile(join(buildDir, `icon-${size}.png`))
+    await sharp(svgBuffer)
+      .resize(size, size)
+      .png()
+      .toFile(join(buildDir, `icon-${size}.png`))
     console.log(`  ✓ ${size}x${size}`)
   }
   await sharp(svgBuffer).resize(512, 512).png().toFile(join(buildDir, 'icon.png'))

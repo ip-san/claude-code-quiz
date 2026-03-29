@@ -80,31 +80,37 @@ function extractTermsFromQuizzes(quizzes) {
 
       let match
       ENV_RE.lastIndex = 0
+      // biome-ignore lint/suspicious/noAssignInExpressions: idiomatic regex exec loop
       while ((match = ENV_RE.exec(text)) !== null) {
         addTerm(terms.envVars, match[1], quiz.id)
       }
 
       SLASH_RE.lastIndex = 0
+      // biome-ignore lint/suspicious/noAssignInExpressions: idiomatic regex exec loop
       while ((match = SLASH_RE.exec(text)) !== null) {
         addTerm(terms.slashCmds, '/' + match[1], quiz.id)
       }
 
       FLAG_RE.lastIndex = 0
+      // biome-ignore lint/suspicious/noAssignInExpressions: idiomatic regex exec loop
       while ((match = FLAG_RE.exec(text)) !== null) {
         addTerm(terms.cliFlags, match[1], quiz.id)
       }
 
       HOOK_RE.lastIndex = 0
+      // biome-ignore lint/suspicious/noAssignInExpressions: idiomatic regex exec loop
       while ((match = HOOK_RE.exec(text)) !== null) {
         addTerm(terms.hookEvents, match[1], quiz.id)
       }
 
       TOOL_RE.lastIndex = 0
+      // biome-ignore lint/suspicious/noAssignInExpressions: idiomatic regex exec loop
       while ((match = TOOL_RE.exec(text)) !== null) {
         addTerm(terms.toolNames, match[1], quiz.id)
       }
 
       CONFIG_RE.lastIndex = 0
+      // biome-ignore lint/suspicious/noAssignInExpressions: idiomatic regex exec loop
       while ((match = CONFIG_RE.exec(text)) !== null) {
         addTerm(terms.configKeys, match[1].trim(), quiz.id)
       }

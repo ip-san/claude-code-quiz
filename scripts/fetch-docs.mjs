@@ -152,6 +152,7 @@ function cleanMarkdown(raw) {
 
   // === Phase 2: Remove remaining UI artifacts ===
   text = text.replace(/!\[Image \d+:.*?\]\(.*?\)/g, '')
+  // biome-ignore lint/suspicious/noMisleadingCharacterClass: zero-width chars intentionally matched as class
   text = text.replace(/\[[\u200B\u200C\u200D\uFEFF]*\]\([^)]+\)\s*/g, '')
   text = text.replace(/^Copy page\s*$/gm, '')
   text = text.replace(/^Report incorrect code\s*$/gm, '')

@@ -351,6 +351,7 @@ function extractDocAnchors() {
     // Extract headings and convert to slugs
     const headingRegex = /^#{1,4}\s+(.+)$/gm
     let match
+    // biome-ignore lint/suspicious/noAssignInExpressions: idiomatic regex exec loop
     while ((match = headingRegex.exec(content)) !== null) {
       const heading = match[1].trim()
       const slug = slugify(heading)

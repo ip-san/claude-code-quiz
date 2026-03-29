@@ -370,7 +370,7 @@ function splitQuizzesByCategory(targets, byCategory) {
   const data = JSON.parse(readFileSync(QUIZ_PATH, 'utf8'))
   mkdirSync(QUIZ_SPLIT_DIR, { recursive: true })
 
-  const targetIds = new Set(targets.map((t) => t.id))
+  const _targetIds = new Set(targets.map((t) => t.id))
   let totalSplit = 0
 
   for (const [cat, catTargets] of Object.entries(byCategory)) {

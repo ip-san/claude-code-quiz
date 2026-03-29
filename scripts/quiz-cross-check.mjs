@@ -65,6 +65,7 @@ function buildTopicClusters(quizzes) {
     for (const pattern of TOPIC_PATTERNS) {
       pattern.lastIndex = 0
       let match
+      // biome-ignore lint/suspicious/noAssignInExpressions: idiomatic regex exec loop
       while ((match = pattern.exec(fullText)) !== null) {
         const topic = match[1].trim()
         if (!clusters.has(topic)) clusters.set(topic, [])
@@ -110,6 +111,7 @@ function detectContradictions(clusters) {
       for (const pattern of NUMBER_CLAIM_PATTERNS) {
         pattern.lastIndex = 0
         let match
+        // biome-ignore lint/suspicious/noAssignInExpressions: idiomatic regex exec loop
         while ((match = pattern.exec(entry.text)) !== null) {
           // Only count if the topic is nearby (within 100 chars)
           const topicIdx = entry.text.indexOf(topic)
@@ -130,7 +132,7 @@ function detectContradictions(clusters) {
     }
 
     // Report numeric contradictions
-    for (const [claimKey, claims] of numericClaims.entries()) {
+    for (const [_claimKey, claims] of numericClaims.entries()) {
       const numbers = new Set(claims.map((c) => c.number))
       if (numbers.size > 1) {
         issues.push({
@@ -148,6 +150,7 @@ function detectContradictions(clusters) {
       for (const pattern of FACTUAL_CLAIM_PATTERNS) {
         pattern.lastIndex = 0
         let match
+        // biome-ignore lint/suspicious/noAssignInExpressions: idiomatic regex exec loop
         while ((match = pattern.exec(entry.text)) !== null) {
           const topicIdx = entry.text.indexOf(topic)
           if (topicIdx !== -1 && Math.abs(match.index - topicIdx) < 150) {

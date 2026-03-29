@@ -49,8 +49,7 @@ async function getClient() {
 const TOOLS = [
   {
     name: 'ga4_report',
-    description:
-      'GA4 カスタムレポートを実行する。ディメンション・指標・日付範囲・フィルタを指定して分析データを取得。',
+    description: 'GA4 カスタムレポートを実行する。ディメンション・指標・日付範囲・フィルタを指定して分析データを取得。',
     inputSchema: {
       type: 'object',
       properties: {
@@ -116,8 +115,7 @@ const TOOLS = [
   },
   {
     name: 'ga4_summary',
-    description:
-      '直近N日間の主要KPIサマリーを取得する。モード別利用状況、完了率、プラットフォーム別ユーザー数など。',
+    description: '直近N日間の主要KPIサマリーを取得する。モード別利用状況、完了率、プラットフォーム別ユーザー数など。',
     inputSchema: {
       type: 'object',
       properties: {
@@ -198,21 +196,14 @@ async function runSummary(client, args) {
     client.runReport({
       property,
       dimensions: [],
-      metrics: [
-        { name: 'activeUsers' },
-        { name: 'sessions' },
-        { name: 'eventCount' },
-      ],
+      metrics: [{ name: 'activeUsers' }, { name: 'sessions' }, { name: 'eventCount' }],
       dateRanges: [{ startDate, endDate: 'today' }],
     }),
     // 2. モード別クイズ完了
     client.runReport({
       property,
       dimensions: [{ name: 'customEvent:quiz_mode' }],
-      metrics: [
-        { name: 'eventCount' },
-        { name: 'customEvent:accuracy' },
-      ],
+      metrics: [{ name: 'eventCount' }, { name: 'customEvent:accuracy' }],
       dateRanges: [{ startDate, endDate: 'today' }],
       dimensionFilter: {
         filter: {
@@ -226,10 +217,7 @@ async function runSummary(client, args) {
     client.runReport({
       property,
       dimensions: [{ name: 'customEvent:platform' }],
-      metrics: [
-        { name: 'activeUsers' },
-        { name: 'eventCount' },
-      ],
+      metrics: [{ name: 'activeUsers' }, { name: 'eventCount' }],
       dateRanges: [{ startDate, endDate: 'today' }],
       limit: 10,
     }),
