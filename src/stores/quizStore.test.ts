@@ -22,9 +22,9 @@ describe('quizStore', () => {
       expect(state.allQuestions.length).toBeGreaterThan(0)
     })
 
-    it('should load 658 questions', async () => {
+    it('should load 668 questions', async () => {
       await useQuizStore.getState().initialize()
-      expect(useQuizStore.getState().allQuestions.length).toBe(658)
+      expect(useQuizStore.getState().allQuestions.length).toBe(668)
     })
   })
 
