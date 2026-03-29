@@ -37,6 +37,9 @@ dist-electron-types/
 # Test coverage
 coverage/
 
+# MCP local config
+.mcp.json
+
 # Claude Code local settings
 .claude/settings.json
 .claude/settings.local.json
