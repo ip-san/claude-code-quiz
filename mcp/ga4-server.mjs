@@ -15,7 +15,6 @@ import { readFileSync } from 'fs'
 import { homedir } from 'os'
 import { dirname, resolve } from 'path'
 import { fileURLToPath } from 'url'
-import { createInterface } from 'readline'
 
 const __dirname = dirname(fileURLToPath(import.meta.url))
 const rootDir = resolve(__dirname, '..')
