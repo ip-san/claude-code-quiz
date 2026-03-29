@@ -25,7 +25,7 @@ const envPath = resolve(rootDir, '.env')
 try {
   const envContent = readFileSync(envPath, 'utf-8')
   for (const line of envContent.split('\n')) {
-    const match = line.match(/^([A-Z_]+)=(.+)$/)
+    const match = line.match(/^([A-Z0-9_]+)=(.+)$/)
     if (match) process.env[match[1]] = match[2].trim().replace(/^~/, homedir())
   }
 } catch {
@@ -280,12 +280,12 @@ function formatReport(response) {
 // MCP JSON-RPC over stdio
 // ============================================================
 
-const rl = createInterface({ input: process.stdin })
-let buffer = ''
+let inputBuffer = Buffer.alloc(0)
 
 function send(response) {
   const json = JSON.stringify(response)
-  process.stdout.write(`Content-Length: ${Buffer.byteLength(json)}\r\n\r\n${json}`)
+  const header = `Content-Length: ${Buffer.byteLength(json)}\r\n\r\n`
+  process.stdout.write(header + json)
 }
 
 function handleMessage(message) {
@@ -355,65 +355,43 @@ function handleMessage(message) {
   }
 }
 
-// Content-Length based message parsing
-rl.on('line', (line) => {
-  buffer += line + '\n'
+// Content-Length based message parsing (raw stdin, not readline)
+process.stdin.on('data', (chunk) => {
+  inputBuffer = Buffer.concat([inputBuffer, chunk])
+  processBuffer()
+})
 
-  // Try to parse complete messages
+function processBuffer() {
   while (true) {
-    const headerEnd = buffer.indexOf('\r\n\r\n')
-    if (headerEnd === -1) {
-      // Also try \n\n
-      const altEnd = buffer.indexOf('\n\n')
-      if (altEnd === -1) break
+    const bufStr = inputBuffer.toString('utf-8')
 
-      const header = buffer.slice(0, altEnd)
-      const lengthMatch = header.match(/Content-Length:\s*(\d+)/i)
-      if (!lengthMatch) {
-        // No content-length header, try parsing as raw JSON
-        try {
-          const msg = JSON.parse(buffer.trim())
-          buffer = ''
-          handleMessage(msg)
-        } catch {
-          // Not yet complete
-        }
-        break
-      }
+    // Look for Content-Length header
+    const headerEnd = bufStr.indexOf('\r\n\r\n')
+    if (headerEnd === -1) break
 
-      const contentLength = parseInt(lengthMatch[1], 10)
-      const bodyStart = altEnd + 2
-      const body = buffer.slice(bodyStart, bodyStart + contentLength)
-
-      if (Buffer.byteLength(body) < contentLength) break
-
-      buffer = buffer.slice(bodyStart + contentLength)
-      try {
-        handleMessage(JSON.parse(body))
-      } catch {
-        // skip malformed messages
-      }
+    const header = bufStr.slice(0, headerEnd)
+    const lengthMatch = header.match(/Content-Length:\s*(\d+)/i)
+    if (!lengthMatch) {
+      // Malformed header — skip past it
+      inputBuffer = Buffer.from(bufStr.slice(headerEnd + 4), 'utf-8')
       continue
     }
 
-    const header = buffer.slice(0, headerEnd)
-    const lengthMatch = header.match(/Content-Length:\s*(\d+)/i)
-    if (!lengthMatch) break
-
     const contentLength = parseInt(lengthMatch[1], 10)
-    const bodyStart = headerEnd + 4
-    const body = buffer.slice(bodyStart, bodyStart + contentLength)
+    const bodyStartOffset = Buffer.byteLength(header + '\r\n\r\n', 'utf-8')
 
-    if (Buffer.byteLength(body) < contentLength) break
+    if (inputBuffer.length < bodyStartOffset + contentLength) break // wait for more data
 
-    buffer = buffer.slice(bodyStart + contentLength)
+    const body = inputBuffer.slice(bodyStartOffset, bodyStartOffset + contentLength).toString('utf-8')
+    inputBuffer = inputBuffer.slice(bodyStartOffset + contentLength)
+
     try {
       handleMessage(JSON.parse(body))
     } catch {
       // skip malformed messages
     }
   }
-})
+}
 
 // Keep process alive
 process.stdin.resume()

@@ -1,0 +1,8 @@
+{
+  "mcpServers": {
+    "ga4-analytics": {
+      "command": "node",
+      "args": ["/Users/sesoko/Desktop/workspace/claude-code-quiz-desktop/mcp/ga4-server.mjs"]
+    }
+  }
+}
