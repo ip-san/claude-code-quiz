@@ -8,6 +8,7 @@ import { platformAPI } from '@/lib/platformAPI'
 import { buttonStyles, cardStyles, headerStyles, pageStyles } from '@/lib/styles'
 import { useQuizStore } from '@/stores/quizStore'
 import { CategoryTrendChart } from './CategoryTrendChart'
+import { CertificateHistory } from './CertificateHistory'
 import { LearningRecommendation } from './LearningRecommendation'
 import { MasteryLevel } from './MasteryLevel'
 import { SessionHistoryChart } from './SessionHistoryChart'
@@ -130,6 +131,16 @@ export function ProgressDashboard() {
           {/* AI Mastery Level — always visible */}
           {!hasNoProgress && (
             <MasteryLevel
+              overallAccuracy={overallAccuracy}
+              totalAttempts={userProgress.totalAttempts}
+              categoryStats={categoryStats}
+            />
+          )}
+
+          {/* Certificate History — always visible */}
+          {!hasNoProgress && (
+            <CertificateHistory
+              sessionHistory={userProgress.sessionHistory}
               overallAccuracy={overallAccuracy}
               totalAttempts={userProgress.totalAttempts}
               categoryStats={categoryStats}
