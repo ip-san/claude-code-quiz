@@ -56,6 +56,7 @@ export function MenuHeader({
   const [modesExpanded, setModesExpanded] = useState(false)
   const [updateStatus, setUpdateStatus] = useState<'checking' | 'latest' | 'error' | null>(null)
   const [showCategoryPicker, setShowCategoryPicker] = useState(false)
+  const [showUnansweredPicker, setShowUnansweredPicker] = useState(false)
 
   // 外部からメニューを開く（クイズモード展開状態）
   useEffect(() => {
@@ -257,6 +258,16 @@ export function MenuHeader({
                   onClick={() => handleMenuAction(() => setViewState('scenarioSelect'))}
                 />
                 <MenuItem
+                  icon={<HelpCircle className="h-4.5 w-4.5" />}
+                  label="未回答に挑戦"
+                  sublabel="まだ解いていない問題をカテゴリ別に"
+                  onClick={() => {
+                    haptics.light()
+                    setMenuOpen(false)
+                    setShowUnansweredPicker(true)
+                  }}
+                />
+                <MenuItem
                   icon={<BookOpenCheck className="h-4.5 w-4.5" />}
                   label={locale.menuHeader.readFirstLabel}
                   sublabel={locale.menuHeader.readFirstDesc}
@@ -353,6 +364,9 @@ export function MenuHeader({
 
       <KeyboardShortcutHelp isOpen={showShortcuts} onClose={() => setShowShortcuts(false)} />
       {showCategoryPicker && <CategoryPicker onClose={() => setShowCategoryPicker(false)} />}
+      {showUnansweredPicker && (
+        <CategoryPicker onClose={() => setShowUnansweredPicker(false)} mode="unanswered" title="未回答に挑戦" />
+      )}
     </>
   )
 }

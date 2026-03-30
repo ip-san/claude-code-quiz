@@ -1,20 +1,26 @@
 import { useEffect } from 'react'
 import { locale } from '@/config/locale'
 import { PREDEFINED_CATEGORIES } from '@/domain/valueObjects/Category'
+import type { QuizModeId } from '@/domain/valueObjects/QuizMode'
 import { haptics } from '@/lib/haptics'
 import { useQuizStore } from '@/stores/quizStore'
 
 interface CategoryPickerProps {
   onClose: () => void
+  /** Quiz mode to start (default: 'category') */
+  mode?: QuizModeId
+  /** Dialog title override */
+  title?: string
 }
 
 /**
  * カテゴリ選択ダイアログ（ボトムシート）
- * ハンバーガーメニューのカテゴリ別学習から表示される
+ * カテゴリ別学習 / 未回答モードで共有
  */
-export function CategoryPicker({ onClose }: CategoryPickerProps) {
-  const { startSession, getCategoryStats } = useQuizStore()
+export function CategoryPicker({ onClose, mode = 'category', title }: CategoryPickerProps) {
+  const { startSession, getCategoryStats, allQuestions, userProgress } = useQuizStore()
   const categoryStats = getCategoryStats()
+  const isUnanswered = mode === 'unanswered'
 
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
@@ -32,7 +38,7 @@ export function CategoryPicker({ onClose }: CategoryPickerProps) {
       className="fixed inset-0 z-50 flex items-end justify-center sm:items-center"
       role="dialog"
       aria-modal="true"
-      aria-label={locale.categoryPicker.dialogLabel}
+      aria-label={title ?? locale.categoryPicker.dialogLabel}
       onClick={(e) => {
         if (e.target === e.currentTarget) onClose()
       }}
@@ -42,32 +48,52 @@ export function CategoryPicker({ onClose }: CategoryPickerProps) {
     >
       <div className="absolute inset-0 bg-black/40" />
       <div className="relative mx-2 mb-2 w-full max-w-sm animate-slide-down rounded-2xl bg-white p-5 shadow-2xl dark:bg-stone-800 sm:mx-4 sm:mb-0 sm:animate-none">
-        <h3 className="mb-4 text-center text-lg font-semibold text-claude-dark">{locale.categoryPicker.title}</h3>
+        <h3 className="mb-4 text-center text-lg font-semibold text-claude-dark">
+          {title ?? locale.categoryPicker.title}
+        </h3>
         <div className="flex max-h-80 flex-col gap-1.5 overflow-y-auto">
           {PREDEFINED_CATEGORIES.map((cat) => {
             const catStats = categoryStats[cat.id]
             const accuracy = catStats?.accuracy ?? 0
             const attempted = (catStats?.attemptedQuestions ?? 0) > 0
+
+            // Count unanswered for this category
+            const unansweredCount = isUnanswered
+              ? allQuestions.filter((q) => q.category === cat.id && !userProgress.hasAttempted(q.id)).length
+              : 0
+
+            const disabled = isUnanswered && unansweredCount === 0
+
             return (
               <button
                 key={cat.id}
                 onClick={() => {
+                  if (disabled) return
                   onClose()
                   haptics.light()
-                  startSession({ mode: 'category', categoryFilter: cat.id })
+                  startSession({ mode, categoryFilter: cat.id })
                 }}
-                className="tap-highlight flex items-center gap-3 rounded-xl px-3 py-3 text-left transition-colors hover:bg-stone-50 active:bg-stone-100 dark:hover:bg-stone-700 dark:active:bg-stone-600"
+                disabled={disabled}
+                className="tap-highlight flex items-center gap-3 rounded-xl px-3 py-3 text-left transition-colors hover:bg-stone-50 active:bg-stone-100 disabled:opacity-40 dark:hover:bg-stone-700 dark:active:bg-stone-600"
               >
                 <span className="text-xl">{cat.icon}</span>
                 <div className="flex-1">
                   <span className="text-sm font-medium text-claude-dark">{cat.name}</span>
+                  {isUnanswered && (
+                    <p className="text-xs text-stone-400">
+                      {unansweredCount > 0 ? `${unansweredCount}問` : '全問回答済み'}
+                    </p>
+                  )}
                 </div>
-                {attempted && (
+                {!isUnanswered && attempted && (
                   <span
                     className={`text-xs font-medium ${accuracy >= 80 ? 'text-emerald-500' : accuracy >= 50 ? 'text-amber-500' : 'text-red-500'}`}
                   >
                     {accuracy}%
                   </span>
+                )}
+                {isUnanswered && unansweredCount > 0 && (
+                  <span className="text-xs font-medium text-claude-orange">{unansweredCount}問</span>
                 )}
               </button>
             )
