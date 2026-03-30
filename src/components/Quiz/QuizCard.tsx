@@ -191,11 +191,13 @@ export function QuizCard({
       {/* Correct answer overlay — big center check */}
       {showCorrectOverlay && <CorrectOverlay />}
 
-      {/* Consecutive correct streak toast */}
-      {!deferFeedback && <StreakToast streak={consecutiveCorrect} />}
+      {/* Consecutive correct streak toast (hidden in scenario mode) */}
+      {!deferFeedback && sessionState?.config.mode !== 'scenario' && <StreakToast streak={consecutiveCorrect} />}
 
-      {/* Encouragement toast on consecutive wrong answers */}
-      {!deferFeedback && <EncouragementToast wrongStreak={consecutiveWrong} />}
+      {/* Encouragement toast on consecutive wrong answers (hidden in scenario mode) */}
+      {!deferFeedback && sessionState?.config.mode !== 'scenario' && (
+        <EncouragementToast wrongStreak={consecutiveWrong} />
+      )}
 
       {/* Compact chapter indicator (shown after intro was dismissed) */}
       {showChapterIndicator && currentChapter && (
@@ -351,8 +353,8 @@ export function QuizCard({
         {isAnswered && !deferFeedback && (
           <div className="mt-3 sm:mt-6">
             <Feedback quiz={quiz} isCorrect={isCorrect ?? false} />
-            {/* Related questions for deeper learning (correct answers only) */}
-            {isCorrect === true && !isReviewMode && (
+            {/* Related questions for deeper learning (correct answers only, not in scenario mode) */}
+            {isCorrect === true && !isReviewMode && sessionState?.config.mode !== 'scenario' && (
               <RelatedQuestions currentQuestion={quiz} allQuestions={useQuizStore.getState().allQuestions} />
             )}
             {isCorrect === false && (
