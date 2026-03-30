@@ -78,6 +78,9 @@ checkCount('Category count', categories.size, /(\d+) categories/)
 const componentCount = countFiles('src/components')
 checkCount('Component file count', componentCount, /コンポーネント（(\d+)ファイル）/)
 
+// ── README.md (load early — also needed by Vitest inline check below) ──
+const readmeMd = readFileSync('README.md', 'utf8')
+
 // ── Vitest test count ───────────────────────────────────────
 try {
   const testOutput = execSync('npx vitest run --reporter=json 2>/dev/null || true', { encoding: 'utf8' })
@@ -194,7 +197,6 @@ try {
 }
 
 // ── README.md validation ────────────────────────────────────
-const readmeMd = readFileSync('README.md', 'utf8')
 
 // Total quiz count in README
 const readmeTotalMatch = readmeMd.match(/8つのカテゴリ（(\d+)問）/)
