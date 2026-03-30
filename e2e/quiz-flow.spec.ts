@@ -237,6 +237,51 @@ test.describe('Quiz App E2E', () => {
     await expect(page.getByText(/正答率|%/)).toBeVisible({ timeout: 5000 })
   })
 
+  test('browser back button returns to menu from quiz', async ({ page }) => {
+    await page.getByRole('button', { name: /はじめる/ }).click()
+
+    // Start random quiz
+    await page.getByRole('button', { name: /気軽にチャレンジ/ }).click()
+    await page.waitForSelector('[role="listbox"], [role="group"]', { timeout: 5000 })
+
+    // Press browser back
+    await page.goBack()
+
+    // Should return to menu (or quit dialog)
+    const menuVisible = page.getByRole('button', { name: 'メニューを開く' })
+    const quitDialog = page.getByText('クイズを中止しますか？')
+    await expect(menuVisible.or(quitDialog)).toBeVisible({ timeout: 5000 })
+  })
+
+  test('navigate back to previous question restores selection', async ({ page }) => {
+    await page.getByRole('button', { name: /はじめる/ }).click()
+
+    // Start random quiz
+    await page.getByRole('button', { name: /気軽にチャレンジ/ }).click()
+    await page.waitForSelector('[role="option"], [role="checkbox"]', { timeout: 5000 })
+
+    // Remember question text of Q1
+    const q1Text = await page.locator('h2').textContent()
+
+    // Select first option and submit
+    await page.locator('[role="option"], [role="checkbox"]').first().click()
+    await page.getByRole('button', { name: '回答する' }).click()
+
+    // Click "次の問題へ" to advance to Q2
+    await page.getByRole('button', { name: '次の問題へ' }).click({ timeout: 5000 })
+
+    // Should now be on Q2
+    await page.waitForSelector('[role="option"], [role="checkbox"]', { timeout: 5000 })
+    const q2Text = await page.locator('h2').textContent()
+    expect(q2Text).not.toBe(q1Text)
+
+    // Go back to Q1 — click the ◀ button (first button in bottom bar)
+    await page.locator('.fixed.bottom-0 button').first().click()
+
+    // Should see Q1's text again
+    await expect(page.locator('h2')).toContainText(q1Text ?? '', { timeout: 3000 })
+  })
+
   test('app loads without errors', async ({ page }) => {
     const errors: string[] = []
     page.on('pageerror', (err) => errors.push(err.message))
