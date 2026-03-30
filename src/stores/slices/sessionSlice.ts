@@ -153,7 +153,7 @@ export const createSessionSlice = (set: StoreSet, get: StoreGet): SessionSlice =
 
     const state = get()
     const questionMap = new Map(state.allQuestions.map((q) => [q.id, q]))
-    const questionIds = scenario.steps.filter((s) => s.type === 'question').map((s) => s.questionId!)
+    const questionIds = scenario.steps.flatMap((s) => (s.type === 'question' && s.questionId ? [s.questionId] : []))
     const questions = questionIds.map((id) => questionMap.get(id)).filter((q): q is Question => q !== undefined)
 
     if (questions.length === 0) return

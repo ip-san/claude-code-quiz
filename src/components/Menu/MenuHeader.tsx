@@ -66,6 +66,19 @@ export function MenuHeader({
     }
   }, [openWithModes, onMenuOpened])
 
+  // Escape キーでメニューを閉じる
+  useEffect(() => {
+    if (!menuOpen) return
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') {
+        e.preventDefault()
+        setMenuOpen(false)
+      }
+    }
+    window.addEventListener('keydown', handleKeyDown)
+    return () => window.removeEventListener('keydown', handleKeyDown)
+  }, [menuOpen])
+
   const streak = userProgress.streakDays
   const today = DailyGoalService.getTodayString()
   const todayCount = userProgress.getDailyCount(today)
@@ -165,7 +178,14 @@ export function MenuHeader({
           aria-modal="true"
           aria-label={locale.menuHeader.menuLabel}
         >
-          <div className="absolute inset-0 bg-black/40" onClick={() => setMenuOpen(false)} />
+          <div
+            className="absolute inset-0 bg-black/40"
+            onClick={() => setMenuOpen(false)}
+            onKeyDown={(e) => {
+              if (e.key === 'Escape') setMenuOpen(false)
+            }}
+            role="presentation"
+          />
           <div className="relative z-10 flex h-full w-72 flex-col bg-claude-cream shadow-2xl animate-slide-in-left dark:bg-stone-900">
             <div className="flex items-center justify-between border-b border-stone-200 px-4 py-3 dark:border-stone-700">
               <span className="text-sm font-bold text-claude-dark dark:text-stone-200">{theme.appName}</span>

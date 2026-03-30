@@ -70,12 +70,16 @@ export function KeyboardShortcutHelp({ isOpen, onClose }: KeyboardShortcutHelpPr
       aria-modal="true"
       aria-label="キーボードショートカット"
       onClick={onClose}
+      onKeyDown={(e) => {
+        if (e.key === 'Escape') onClose()
+      }}
     >
       <div className="absolute inset-0 bg-black/40" />
       <div
         ref={dialogRef}
         className="relative mx-4 w-full max-w-sm animate-bounce-in rounded-2xl bg-white p-6 shadow-2xl dark:bg-stone-800"
         onClick={(e) => e.stopPropagation()}
+        onKeyDown={(e) => e.stopPropagation()}
       >
         <div className="mb-4 flex items-center justify-between">
           <div className="flex items-center gap-2">

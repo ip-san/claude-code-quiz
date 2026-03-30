@@ -60,7 +60,7 @@ export function WeakPointInsight({ allQuestions, userProgress, categoryStats, on
         const qp = userProgress.questionProgress[q.id]
         if (!qp || qp.attempts === 0) continue
 
-        const existing = subtopics.get(slug) ?? { slug, url: q.referenceUrl!, attempted: 0, correct: 0 }
+        const existing = subtopics.get(slug) ?? { slug, url: q.referenceUrl ?? '', attempted: 0, correct: 0 }
         existing.attempted += qp.attempts
         existing.correct += qp.correctCount
         subtopics.set(slug, existing)

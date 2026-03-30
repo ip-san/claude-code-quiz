@@ -52,6 +52,7 @@ export function QuizResult() {
   const noMotion = prefersReducedMotion
 
   // Count-up animation
+  // biome-ignore lint/correctness/useExhaustiveDependencies: re-run when noMotion preference changes
   useEffect(() => {
     if (noMotion) {
       setDisplayPercent(percentage)

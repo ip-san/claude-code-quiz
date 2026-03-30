@@ -96,6 +96,7 @@ export function QuizCard({
   const prevIsAnsweredRef = useRef(false)
 
   // Scroll to top on question change
+  // biome-ignore lint/correctness/useExhaustiveDependencies: currentIndex change is the intentional trigger
   useEffect(() => {
     window.scrollTo(0, 0)
   }, [currentIndex])

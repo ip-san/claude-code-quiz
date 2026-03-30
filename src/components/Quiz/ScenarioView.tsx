@@ -72,6 +72,7 @@ export function ScenarioView({ scenario, isModalOpen }: { scenario: ScenarioData
   const [showEpilogue, setShowEpilogue] = useState(false)
 
   // Reset narrative page when question changes
+  // biome-ignore lint/correctness/useExhaustiveDependencies: currentQuestionIndex change is the intentional trigger
   useEffect(() => {
     setNarrativePageIndex(0)
   }, [currentQuestionIndex])
@@ -139,7 +140,7 @@ export function ScenarioList({ onSelect }: { onSelect: (scenarioId: string) => v
   return (
     <div className="space-y-3">
       {SCENARIOS.map((sc) => {
-        const questionIds = sc.steps.filter((s) => s.type === 'question').map((s) => s.questionId!)
+        const questionIds = sc.steps.flatMap((s) => (s.type === 'question' && s.questionId ? [s.questionId] : []))
         const validIds = questionIds.filter((id) => allQuestions.some((q) => q.id === id))
         const answeredCount = validIds.filter((id) => userProgress.hasAttempted(id)).length
         const difficultyColors = {

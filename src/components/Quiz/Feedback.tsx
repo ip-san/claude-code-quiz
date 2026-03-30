@@ -92,6 +92,7 @@ export function Feedback({ quiz, isCorrect }: FeedbackProps) {
   const noMotion = prefersReducedMotion
 
   // Trigger animations after mount
+  // biome-ignore lint/correctness/useExhaustiveDependencies: re-run when noMotion preference changes
   useEffect(() => {
     if (noMotion) {
       setAnimate(true)
@@ -325,6 +326,7 @@ export function Feedback({ quiz, isCorrect }: FeedbackProps) {
   // 5: Action buttons
   sections.push(
     <AnimatedSection key="actions" order={sections.length} animate={animate} noMotion={noMotion}>
+      {/* biome-ignore lint/a11y/useSemanticElements: role="group" is correct for action buttons, not <fieldset> */}
       <div
         className="flex flex-col gap-2 sm:flex-row sm:flex-wrap"
         role="group"

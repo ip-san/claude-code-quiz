@@ -60,6 +60,7 @@ export default function App() {
   }, [initialize])
 
   // Scroll to top on view change
+  // biome-ignore lint/correctness/useExhaustiveDependencies: viewState change is the intentional trigger
   useEffect(() => {
     window.scrollTo(0, 0)
   }, [viewState])
@@ -430,6 +431,9 @@ function QuizView({
           onClick={(e) => {
             if (e.target === e.currentTarget) handleCancelQuit()
           }}
+          onKeyDown={(e) => {
+            if (e.key === 'Escape') handleCancelQuit()
+          }}
         >
           {/* Backdrop */}
           <div className="absolute inset-0 bg-black/40" />
@@ -437,6 +441,7 @@ function QuizView({
           <div
             className="relative mx-2 mb-2 w-full max-w-sm animate-slide-down rounded-2xl bg-white p-6 shadow-2xl dark:bg-stone-800 sm:mx-4 sm:mb-0 sm:animate-none"
             onClick={(e) => e.stopPropagation()}
+            onKeyDown={(e) => e.stopPropagation()}
             ref={(el) => {
               dialogRef.current = el
               if (el) {

@@ -1,3 +1,4 @@
+import { useEffect } from 'react'
 import { locale } from '@/config/locale'
 import { PREDEFINED_CATEGORIES } from '@/domain/valueObjects/Category'
 import { haptics } from '@/lib/haptics'
@@ -15,6 +16,17 @@ export function CategoryPicker({ onClose }: CategoryPickerProps) {
   const { startSession, getCategoryStats } = useQuizStore()
   const categoryStats = getCategoryStats()
 
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') {
+        e.preventDefault()
+        onClose()
+      }
+    }
+    window.addEventListener('keydown', handleKeyDown)
+    return () => window.removeEventListener('keydown', handleKeyDown)
+  }, [onClose])
+
   return (
     <div
       className="fixed inset-0 z-50 flex items-end justify-center sm:items-center"
@@ -23,6 +35,9 @@ export function CategoryPicker({ onClose }: CategoryPickerProps) {
       aria-label={locale.categoryPicker.dialogLabel}
       onClick={(e) => {
         if (e.target === e.currentTarget) onClose()
+      }}
+      onKeyDown={(e) => {
+        if (e.key === 'Escape') onClose()
       }}
     >
       <div className="absolute inset-0 bg-black/40" />
