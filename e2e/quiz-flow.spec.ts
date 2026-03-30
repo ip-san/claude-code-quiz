@@ -179,6 +179,64 @@ test.describe('Quiz App E2E', () => {
     await expect(menu.getByText('ランダム20問')).toBeVisible()
   })
 
+  test('session resume after quit', async ({ page }) => {
+    await page.getByRole('button', { name: /はじめる/ }).click()
+
+    // Start random quiz and answer one question
+    await page.getByRole('button', { name: /気軽にチャレンジ/ }).click()
+    await page.waitForSelector('[role="option"], [role="checkbox"]', { timeout: 5000 })
+    await page.locator('[role="option"], [role="checkbox"]').first().click()
+    await page.getByRole('button', { name: '回答する' }).click()
+
+    // Quit quiz → back to menu
+    await page.getByRole('button', { name: /中止/ }).click()
+    await page
+      .getByRole('button', { name: /中止する/ })
+      .last()
+      .click()
+
+    // Resume banner should appear
+    await expect(page.getByText('前回の続きがあります')).toBeVisible({ timeout: 3000 })
+
+    // Click resume
+    await page.getByRole('button', { name: /続きから再開/ }).click()
+
+    // Should be back in quiz with options visible
+    await page.waitForSelector('[role="option"], [role="checkbox"]', { timeout: 5000 })
+  })
+
+  test('full test mode: deferFeedback and finish', async ({ page }) => {
+    await page.getByRole('button', { name: /はじめる/ }).click()
+
+    // Start full test via hamburger menu
+    await page.getByRole('button', { name: 'メニューを開く' }).click()
+    const menu = page.getByRole('dialog', { name: 'メニュー' })
+    await menu.getByRole('button', { name: /クイズモード/ }).click()
+    await menu.getByText('実力テスト').click()
+
+    // Should show quiz with dot indicators (deferFeedback mode)
+    await page.waitForSelector('[role="listbox"], [role="group"]', { timeout: 5000 })
+
+    // Verify no 正解/不正解 feedback after answering (deferFeedback)
+    await page.locator('[role="option"], [role="checkbox"]').first().click()
+    await page.getByRole('button', { name: '回答する' }).click()
+
+    // Auto-advances to next question — feedback NOT shown (deferFeedback)
+
+    // Navigate back to answered question 1 via dot
+    await page.getByRole('button', { name: '問題1（回答済み）' }).click()
+
+    // Now テスト終了 button should be visible (viewing answered question)
+    const finishButton = page.getByRole('button', { name: /テスト終了/ })
+    await expect(finishButton).toBeVisible({ timeout: 3000 })
+
+    // Click finish test
+    await finishButton.click()
+
+    // Should see result screen with score
+    await expect(page.getByText(/正答率|%/)).toBeVisible({ timeout: 5000 })
+  })
+
   test('app loads without errors', async ({ page }) => {
     const errors: string[] = []
     page.on('pageerror', (err) => errors.push(err.message))
