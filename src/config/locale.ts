@@ -394,7 +394,7 @@ const ja: LocaleConfig = {
     markdownCopied: 'Markdownをコピーしました',
     copyExplanation: '解説をコピー',
     aiLearnMore: 'AIにもっと教えてもらう',
-    promptCopied: 'プロンプトをコピーしました — Claude に貼り付けて聞いてみましょう',
+    promptCopied: `プロンプトをコピーしました — ${theme.subject} に貼り付けて聞いてみましょう`,
     actionButtons: 'アクションボタン',
     prompts: {
       explain: { label: '噛み砕いて解説', description: '例え話で初心者にもわかりやすく' },

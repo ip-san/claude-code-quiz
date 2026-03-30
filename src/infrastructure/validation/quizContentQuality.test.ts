@@ -39,7 +39,7 @@ const ID_PREFIX_TO_CATEGORY: Record<string, string> = {
   bp: 'bestpractices',
 }
 
-/** 有効なドキュメントページパス */
+/** 有効なドキュメントページパス — トピック差し替え時は quizzes.json と一緒に更新すること */
 const VALID_DOC_PAGES = [
   // code.claude.com pages — Core
   'overview',
@@ -317,6 +317,7 @@ describe('Quiz Content Quality', () => {
     })
 
     it('referenceUrl が公式ドキュメントURLであること', () => {
+      // トピック差し替え時は quizzes.json の referenceUrl ドメインに合わせて更新すること
       const validPrefixes = ['https://code.claude.com/docs/ja/', 'https://platform.claude.com/docs/ja/']
       const invalid = quizzes.filter((q) => q.referenceUrl && !validPrefixes.some((p) => q.referenceUrl.startsWith(p)))
       const details = invalid.map((q) => `${q.id}: "${q.referenceUrl}"`)

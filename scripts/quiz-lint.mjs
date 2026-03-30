@@ -21,7 +21,7 @@
 import { existsSync, readdirSync, readFileSync, writeFileSync } from 'fs'
 import { dirname, resolve } from 'path'
 import { fileURLToPath } from 'url'
-import { BACKTICK_TERMS, DOC_URL_PREFIX, TERMINOLOGY_DICT } from './topic-config.mjs'
+import { ADDITIONAL_DOC_PREFIXES, BACKTICK_TERMS, DOC_URL_PREFIX, TERMINOLOGY_DICT } from './topic-config.mjs'
 
 const __dirname = dirname(fileURLToPath(import.meta.url))
 const ROOT = resolve(__dirname, '..')
@@ -295,13 +295,13 @@ function lintUrls(quizzes) {
       continue
     }
 
-    // Validate domain (code.claude.com for Claude Code docs, platform.claude.com for Agent SDK docs)
+    // Validate domain against topic-config prefixes
     const isCodeDocs =
       quiz.referenceUrl.startsWith(`${DOC_URL_PREFIX}ja/`) || quiz.referenceUrl.startsWith(`${DOC_URL_PREFIX}en/`)
-    const isPlatformDocs =
-      quiz.referenceUrl.startsWith('https://platform.claude.com/docs/ja/') ||
-      quiz.referenceUrl.startsWith('https://platform.claude.com/docs/en/')
-    if (!isCodeDocs && !isPlatformDocs) {
+    const isAdditionalDocs = ADDITIONAL_DOC_PREFIXES.some(
+      (prefix) => quiz.referenceUrl.startsWith(`${prefix}ja/`) || quiz.referenceUrl.startsWith(`${prefix}en/`)
+    )
+    if (!isCodeDocs && !isAdditionalDocs) {
       issues.push({
         id: quiz.id,
         type: 'invalid-domain',
@@ -310,8 +310,8 @@ function lintUrls(quizzes) {
       continue
     }
 
-    // platform.claude.com URLs are valid but we can't check anchors (no local cache)
-    if (isPlatformDocs) continue
+    // Additional doc prefixes are valid but we can't check anchors (no local cache)
+    if (isAdditionalDocs) continue
 
     // Extract page and anchor
     const urlMatch = quiz.referenceUrl.match(/\/docs\/(?:en|ja)\/([^#?]+)(?:#(.+))?/)

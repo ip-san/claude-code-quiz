@@ -147,8 +147,11 @@ export const SUPPLEMENTARY_DOCS = [
 // URL Validation
 // ============================================================
 
-/** Domain prefix for referenceUrl validation in quiz-lint. */
+/** Primary domain prefix for referenceUrl validation in quiz-lint. */
 export const DOC_URL_PREFIX = 'https://code.claude.com/docs/'
+
+/** Additional valid domain prefixes for referenceUrl (e.g. related docs sites). */
+export const ADDITIONAL_DOC_PREFIXES = ['https://platform.claude.com/docs/']
 
 // ============================================================
 // Backtick-Lint Term Lists
