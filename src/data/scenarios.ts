@@ -339,7 +339,7 @@ export const SCENARIOS: readonly ScenarioData[] = [
         text: 'まずはチーム全員が同じ MCP サーバーを使えるようにした。次は実際にサーバーを追加する。\n\nGA4 のデータを Claude から直接クエリできるようにしたい。MCP サーバーは stdio トランスポートで動く Node.js スクリプトだ。`claude mcp add` コマンドで登録するが、引数の渡し方にコツがある。',
       },
       { type: 'question', questionId: 'ext-013' },
-      { type: 'question', questionId: 'ext-031' },
+      { type: 'question', questionId: 'ext-036' },
       {
         type: 'narrative',
         text: 'MCP サーバーが動き始めた。Claude に「先週のアクティブユーザー数は？」と聞くと、GA4 のデータを取得して答えてくれる。\n\nしかし、登録した MCP サーバーが増えてくると管理が面倒になる。「あれ、このサーバーまだ使ってたっけ？」——CLI で一覧を確認して不要なものを削除する方法も知っておこう。',
@@ -347,15 +347,19 @@ export const SCENARIOS: readonly ScenarioData[] = [
       { type: 'question', questionId: 'ext-045' },
       {
         type: 'narrative',
-        text: 'MCP の整理が終わった。ふと「MCP で提供できるのはツールだけ？」と疑問に思う。\n\n実は MCP はツール以外にも「リソース」を提供できる。ファイルやデータベースのスキーマなど、Claude が参照できる読み取り専用のデータソースだ。これを使えば、DB のテーブル定義を Claude に渡して「このスキーマに合うクエリを書いて」と頼めるようになる。',
+        text: 'MCP の整理ができた。ところで、MCP はツールだけでなく「リソース」も提供できる。DB のテーブル定義やファイルの内容など、Claude が @メンションで参照できる読み取り専用のデータソースだ。これを使えば「このスキーマに合うクエリを書いて」と頼めるようになる。',
       },
-      { type: 'question', questionId: 'ext-011' },
       { type: 'question', questionId: 'ext-023' },
       {
         type: 'narrative',
-        text: '夕方。ふと Claude に「今登録されてる MCP ツール、全部で何個ある？」と聞いたら、20個以上になっていた。しかし全部を毎回読み込むのは非効率だ。必要な時だけ検索して使う仕組みはないのか？',
+        text: '社内の Jira にある MCP サーバーを追加しようとしたところ、OAuth 認証が必要だった。API キーをベタ書きするのはセキュリティ的に NG だ。Claude Code が認証をどう処理するか知っておく必要がある。',
       },
-      { type: 'question', questionId: 'ext-024' },
+      { type: 'question', questionId: 'ext-035' },
+      {
+        type: 'narrative',
+        text: 'MCP サーバーが増えてきた。ところが、あるサーバーがプラグインを更新してツールの一覧が変わった。Claude は古いツールリストを使い続けるのか、それとも自動で追従するのか？',
+      },
+      { type: 'question', questionId: 'ext-006' },
       {
         type: 'narrative',
         text: '退社前にチームの Slack に投稿した。「Claude Code から直接 GA4 クエリ、DB スキーマ参照、Slack 通知が全部できるようになった。ウィンドウの行き来が激減。設定は .mcp.json をプルすれば全員同じ環境になる」\n\n後輩から即レスが来た。「マジですか、明日セットアップ手伝ってください！」',
@@ -423,7 +427,7 @@ export const SCENARIOS: readonly ScenarioData[] = [
         text: 'ファイル一覧が取れた。テストファイルは 47 個しかない。次はコードの中身を探る。\n\n「決済処理のエントリーポイントはどこだ？」——巨大リポジトリで関数やクラスの呼び出し箇所を探すのは、Grep の出番だ。ただし Grep と Glob は用途が違う。ファイル名のパターンマッチと、ファイル内容の正規表現検索を使い分ける必要がある。',
       },
       { type: 'question', questionId: 'tool-001' },
-      { type: 'question', questionId: 'tool-024' },
+      { type: 'question', questionId: 'tool-048' },
       {
         type: 'narrative',
         text: '決済処理の主要ファイルを特定できた。次は中身を読む。\n\n500 行のコントローラファイルを発見した。全部読む必要はない——特定のメソッドだけ読めばいい。さらに、設定ファイルの 1 行だけ変更したい場面もある。Read と Edit の使い分けを正確に知っておこう。',
@@ -472,13 +476,18 @@ export const SCENARIOS: readonly ScenarioData[] = [
         text: 'フロントマターの設定ができた。ところが問題が発生した。\n\nこのレビュースキルはファイルの読み取りとテスト実行だけで十分なのに、Bash で任意のコマンドを実行できてしまう。デプロイスクリプトや DB マイグレーションを誤って実行されたら大事故だ。スキルに許可するツールを制限する方法を知る必要がある。',
       },
       { type: 'question', questionId: 'skill-002' },
-      { type: 'question', questionId: 'skill-023' },
+      { type: 'question', questionId: 'skill-014' },
       {
         type: 'narrative',
-        text: 'ツール制限ができた。次はスキルの中で動的にデータを取り込みたい。\n\nレビュー対象の PR 番号は毎回変わる。スキルに引数を渡す仕組み、さらにスキルの中から Git の最新情報を動的に埋め込む仕組みがある。',
+        text: 'ツール制限ができた。ここでもう一つ工夫したい。レビューは差分を読むだけなので、最高性能のモデルを使う必要はない。速くて安い Haiku モデルを指定すれば、大量の PR を高速に処理できる。',
+      },
+      { type: 'question', questionId: 'skill-014' },
+      {
+        type: 'narrative',
+        text: 'モデルの設定も終わった。次はスキルに動的なデータを渡す方法だ。レビュー対象の PR 番号は毎回変わる。引数を渡す仕組みを知っておこう。さらに、完成したスキルをチームメンバーが実際にどう使うかも確認しておく。',
       },
       { type: 'question', questionId: 'skill-058' },
-      { type: 'question', questionId: 'skill-033' },
+      { type: 'question', questionId: 'skill-004' },
       {
         type: 'narrative',
         text: 'スキルが完成した。チームに共有する前に、もう一つ考えておくべきことがある。\n\nこのスキルは「プロジェクト固有」だから `.claude/skills/` に置く。だが、コードフォーマットのような「全プロジェクト共通」のスキルは `~/.claude/skills/` に置くべきだ。もし同じ名前のスキルが両方にあったらどうなる？',
