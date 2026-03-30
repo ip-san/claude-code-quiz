@@ -119,9 +119,9 @@ export const SCENARIOS: readonly ScenarioData[] = [
       { type: 'question', questionId: 'ext-001' },
       {
         type: 'narrative',
-        text: '全体像がわかった。まずDB連携から着手。MCPサーバーで社内DBにクエリを投げられるようにした——が、テスト中にヒヤリとする出来事が。開発環境のつもりが、本番DBに接続されていた。設定をバージョン管理してチーム全員で共有する仕組みがないと、50人展開時に同じ事故が起きる。\n\nフックの仕組みも把握しておこう。CTOの要件「デプロイ前に必ずテスト通す」には、フックが鍵になる。ただし「ツール実行前」と「ツール実行後」の2種類があり、間違えると「テスト通ってないのにデプロイされた」事故が起きる。',
+        text: '全体像がわかった。まずDB連携から着手。MCPサーバーで社内DBにクエリを投げられるようにした——が、テスト中にヒヤリとする出来事が。開発環境のつもりが、本番DBに接続されていた。\n\nCTOの要件「デプロイ前に必ずテスト通す」には、フックが鍵になる。セッション開始時に Git の最新情報や担当 Issue を自動で読み込ませることもできる。さらに、ファイル編集後に自動で lint を走らせれば「フォーマット崩れ」のレビューコメントが不要になる。',
       },
-      { type: 'question', questionId: 'ext-010' },
+      { type: 'question', questionId: 'ext-020' },
       { type: 'question', questionId: 'ext-003' },
       {
         type: 'narrative',
@@ -382,9 +382,9 @@ export const SCENARIOS: readonly ScenarioData[] = [
       { type: 'question', questionId: 'cmd-080' },
       {
         type: 'narrative',
-        text: 'GitHub Actions のセットアップができた。次は Claude Code を「非対話モード」で動かす方法を理解する必要がある。\n\nCI の中では人間がプロンプトを入力できない。ファイルの内容やコマンドの出力を「パイプ」で渡し、結果を受け取る。この仕組みを使いこなせれば、レビューだけでなくテスト生成やドキュメント更新も自動化できる。',
+        text: 'GitHub Actions のセットアップができた。まずはシンプルなタスクから始めよう。\n\nCI の中で Claude にリントエラーを自動修正させる。これだけでも、PR のたびに「フォーマットが崩れてます」というレビューコメントを書く手間がなくなる。さらに `-p` フラグで非対話実行し、結果をスクリプトで受け取る方法も押さえておこう。',
       },
-      { type: 'question', questionId: 'cmd-031' },
+      { type: 'question', questionId: 'cmd-016' },
       { type: 'question', questionId: 'cmd-052' },
       {
         type: 'narrative',
@@ -438,13 +438,13 @@ export const SCENARIOS: readonly ScenarioData[] = [
         type: 'narrative',
         text: 'コードの構造が見えてきた。ここで Claude に「このリポジトリの決済フローを図にして、リファクタリング計画を立てて」と大きなタスクを投げてみる。\n\nClaude は複数のツールを自律的に組み合わせる。Glob でファイルを探し、Read で中身を読み、Grep で参照を追い、最後に Edit で修正する——この一連の流れを「エージェント」と呼ぶ。',
       },
-      { type: 'question', questionId: 'tool-029' },
+      { type: 'question', questionId: 'tool-055' },
       { type: 'question', questionId: 'tool-005' },
       {
         type: 'narrative',
-        text: 'Claude が作ったリファクタ計画をレビューしている。Edit ツールでファイルを修正する前に、Claude は自動的にある操作を行う。これを知らないと「なぜ余分な Read が入るんだ？」と混乱するので押さえておこう。',
+        text: 'リファクタリングが進んできた。新しい共通モジュールを作る必要がある。まだ存在しないファイルを作成するには、どのツールが適切か？さらに、編集したファイルを誤って Bash で削除してしまった場合のリカバリー方法も知っておこう。',
       },
-      { type: 'question', questionId: 'tool-008' },
+      { type: 'question', questionId: 'tool-065' },
       {
         type: 'narrative',
         text: '金曜。5 日間でコードベースの全体像を把握し、テストを 30 本追加し、デッドコードを 8,000 行削除した。前任者が 3 ヶ月かけても作れなかった「コードベースの地図」が手元にある。\n\n上司に報告すると「え、もう改修計画まで出来てるの？」と驚かれた。秘密兵器は Grep/Glob/Read/Edit——4 つのツールの正しい使い分けだ。',
@@ -479,12 +479,12 @@ export const SCENARIOS: readonly ScenarioData[] = [
       { type: 'question', questionId: 'skill-014' },
       {
         type: 'narrative',
-        text: 'ツール制限ができた。ここでもう一つ工夫したい。レビューは差分を読むだけなので、最高性能のモデルを使う必要はない。速くて安い Haiku モデルを指定すれば、大量の PR を高速に処理できる。',
+        text: 'ツール制限ができた。ここでスキルの名前を決める。`/review-pr` のようにハイフン区切りにするのか、`/reviewPr` のようにキャメルケースにするのか。チームメンバーが覚えやすい命名規則を採用しよう。',
       },
-      { type: 'question', questionId: 'skill-014' },
+      { type: 'question', questionId: 'skill-053' },
       {
         type: 'narrative',
-        text: 'モデルの設定も終わった。次はスキルに動的なデータを渡す方法だ。レビュー対象の PR 番号は毎回変わる。引数を渡す仕組みを知っておこう。さらに、完成したスキルをチームメンバーが実際にどう使うかも確認しておく。',
+        text: '命名も決まった。次はスキルに動的なデータを渡す方法だ。レビュー対象の PR 番号は毎回変わる。引数を渡す仕組みを知っておこう。さらに、完成したスキルをチームメンバーが実際にどう使うかも確認しておく。',
       },
       { type: 'question', questionId: 'skill-058' },
       { type: 'question', questionId: 'skill-004' },
