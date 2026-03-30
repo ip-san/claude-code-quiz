@@ -25,7 +25,7 @@ export function OfflineIndicator() {
 
   return (
     <div
-      className="fixed left-0 right-0 top-0 z-50 flex items-center justify-center gap-2 bg-stone-700 px-4 py-1.5 text-xs text-white"
+      className="fixed left-0 right-0 top-0 z-50 flex items-center justify-center gap-2 bg-stone-200 px-4 py-1.5 text-xs text-stone-700 dark:bg-stone-700 dark:text-white"
       style={{ paddingTop: `calc(env(safe-area-inset-top, 0px) + 6px)` }}
     >
       <WifiOff className="h-3.5 w-3.5" />
