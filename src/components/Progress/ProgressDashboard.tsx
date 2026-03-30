@@ -138,14 +138,7 @@ export function ProgressDashboard() {
           )}
 
           {/* Certificate History — always visible */}
-          {!hasNoProgress && (
-            <CertificateHistory
-              sessionHistory={userProgress.sessionHistory}
-              overallAccuracy={overallAccuracy}
-              totalAttempts={userProgress.totalAttempts}
-              categoryStats={categoryStats}
-            />
-          )}
+          {!hasNoProgress && <CertificateHistory sessionHistory={userProgress.sessionHistory} />}
 
           {/* Learning Recommendation — always visible */}
           {!hasNoProgress && (

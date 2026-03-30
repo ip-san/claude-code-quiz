@@ -1,13 +1,9 @@
 import { Award } from 'lucide-react'
 import { theme } from '@/config/theme'
 import type { SessionRecord } from '@/domain/entities/UserProgress'
-import { getMasteryLevel } from '@/domain/services/MasteryLevelService'
 
 interface CertificateHistoryProps {
   sessionHistory: readonly SessionRecord[]
-  overallAccuracy: number
-  totalAttempts: number
-  categoryStats: Record<string, { attemptedQuestions: number; totalQuestions: number }>
 }
 
 interface EarnedCertificate {
@@ -29,19 +25,20 @@ const CERT_BG = [
   'bg-amber-50 dark:bg-amber-950',
 ]
 
-export function CertificateHistory({
-  sessionHistory,
-  overallAccuracy,
-  totalAttempts,
-  categoryStats,
-}: CertificateHistoryProps) {
-  const mastery = getMasteryLevel(overallAccuracy, totalAttempts, categoryStats)
+/** Estimate level from session percentage (best effort without full category data) */
+function estimateLevelFromScore(percentage: number): number {
+  if (percentage >= 85) return 4
+  if (percentage >= 80) return 3
+  if (percentage >= 70) return 2
+  return 1
+}
 
+export function CertificateHistory({ sessionHistory }: CertificateHistoryProps) {
   // Filter sessions that qualify for certificates
   const earned: EarnedCertificate[] = sessionHistory
     .filter((s) => (s.mode === 'full' && s.percentage >= 80) || (s.mode === 'overview' && s.percentage >= 70))
     .map((session) => {
-      const levelIndex = Math.max(mastery.index, 1)
+      const levelIndex = estimateLevelFromScore(session.percentage)
       return {
         session,
         levelIndex,
