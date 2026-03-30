@@ -29,49 +29,52 @@ src/
 ├── infrastructure/   # インフラ層（永続化、バリデーション）
 │   ├── validation/   # Zod スキーマ、品質テスト
 │   └── persistence/  # localStorage リポジトリ
-├── stores/           # Zustand 状態管理（quizStore + テスト）
+├── stores/           # Zustand 状態管理
+│   ├── quizStore.ts  # メインストア（facade）
+│   └── slices/       # bookmarkSlice, progressSlice, resumeSlice, sessionSlice, viewSlice
+├── config/           # アプリ設定（locale, theme, locales/）
 ├── components/       # React UIコンポーネント（60ファイル）
-│   ├── Quiz/         # QuizCard, ChapterIntro, Feedback, QuizResult, ScoreRing, etc.
-│   ├── Menu/         # ModeSelection, StudyFirstView, ChapterProgressMap, etc.
-│   ├── Progress/     # ProgressDashboard, LearningRecommendation, WeakPointInsight
+│   ├── Quiz/         # QuizCard, Feedback, QuizResult + chapter/, diagrams/, hooks/, overlays/, result/
+│   ├── Menu/         # ModeSelection, StudyFirstView, ChapterProgressMap, DailySnapshot, QuizSearch
+│   ├── Progress/     # ProgressDashboard, LearningRecommendation, WeakPointInsight, CategoryTrendChart
 │   ├── Reader/       # ExplanationReader, ReaderCard, ReaderFilters
 │   └── Layout/       # WelcomeScreen, TutorialScreen, PWAUpdatePrompt, ErrorBoundary
 ├── lib/              # ユーティリティ（platformAPI, analytics, haptics, useSwipe, theme）
-└── data/             # クイズデータ（JSON、668問）
+└── data/             # クイズデータ（JSON、668問）+ scenarios.ts
 e2e/                  # E2E + Visual Regression テスト（Playwright）
 gtm/                  # GTM/GA4 自動化（events.json, deploy-gtm.mjs, setup-ga4.mjs）
 mcp/                  # MCP サーバー（ga4-server.mjs — GA4 Data API 接続）
-docs/                 # ドキュメント（セットアップ、イベント定義、品質ループ、自動化）
+docs/                 # ドキュメント（設計判断、アーキテクチャ、セットアップ、品質ループ等）
 ```
 
 ## 開発コマンド
 
 ```bash
 # Electron（デスクトップ）
-npm run dev           # 開発サーバー起動
-npm run build         # プロダクションビルド
+bun run dev           # 開発サーバー起動
+bun run build         # プロダクションビルド
 
 # PWA（Web版）
-npm run dev:web        # Web版開発サーバー起動
-npm run build:web      # Web版プロダクションビルド
-npm run preview:web    # Web版プレビュー
+bun run dev:web        # Web版開発サーバー起動
+bun run build:web      # Web版プロダクションビルド
+bun run preview:web    # Web版プレビュー
 
 # 品質チェック
-npm run check         # 型チェック + lint + 394テスト + 668問チェック（一括）
-npm test              # ユニット + Store テスト（394テスト、Vitest）
-npm run test:e2e      # E2E + Visual Regression テスト（18テスト、Playwright）
-npm run test:e2e:ui   # E2E をビジュアルUIで実行（デバッグ用）
+bun run check         # 型チェック + lint + 394テスト + 668問チェック（一括）
+bun test              # ユニット + Store テスト（394テスト、Vitest）
+bun run test:e2e      # E2E + Visual Regression テスト（18テスト、Playwright）
+bun run test:e2e:ui   # E2E をビジュアルUIで実行（デバッグ用）
 
 # クイズ管理
-npm run quiz:stats    # クイズ統計（カテゴリ・難易度・correctIndex分布）
-npm run quiz:coverage # ドキュメントページ別カバレッジ
-npm run quiz:check    # クイズ品質チェック（ID重複、偏り、構造）
-npm run quiz:randomize # correctIndex ランダム化
-npm run quiz:post-add  # 問題追加後の一括処理（randomize → check → test → stats）
+bun run quiz:stats    # クイズ統計（カテゴリ・難易度・correctIndex分布）
+bun run quiz:coverage # ドキュメントページ別カバレッジ
+bun run quiz:check    # クイズ品質チェック（ID重複、偏り、構造）
+bun run quiz:randomize # correctIndex ランダム化
+bun run quiz:post-add  # 問題追加後の一括処理（randomize → check → test → stats）
 
 # ドキュメント検証
-npm run docs:validate  # CLAUDE.md の統計値が実装と一致しているか自動検証
-npm run check:all      # check + docs:validate（CI用フルチェック）
+bun run docs:validate  # CLAUDE.md の統計値が実装と一致しているか自動検証
+bun run check:all      # check + docs:validate（CI用フルチェック）
 ```
 
 ## PWA / GitHub Pages
@@ -131,7 +134,8 @@ npm run check:all      # check + docs:validate（CI用フルチェック）
 | 後で学ぶ | ブックマーク済み問題 | 毎問表示 |
 | 間違い復習 | 間違えた問題を解説付きで復習 | 毎問表示 |
 | 実践シナリオ | 実務シナリオに沿ってClaude Codeを学ぶ | 毎問表示 |
-| 読んでから解く（studyFirst） | 解説を先に読んでからクイズに挑戦 | 毎問表示 |
+
+**読んでから解く（studyFirst）:** クイズモードではなく UI フロー。解説を先に読んでからクイズに挑戦する学習パス。メニューの「読んでから解く」から開始し、内部的には全体像モードのクイズセッションを起動する。
 
 ### 実力テスト（deferFeedback モード）
 
@@ -143,8 +147,8 @@ npm run check:all      # check + docs:validate（CI用フルチェック）
 
 ### ナビゲーション
 
-- **◀▶ ボタン:** 常時表示。回答前でもスキップ可能
-- **スワイプ:** 左=次、右=前（回答前でもスキップ可能）
+- **◀▶ ボタン:** 常時表示。回答前でもスキップ可能（最終問題のみ回答後に次へ進む）
+- **スワイプ:** 左=次、右=前（回答前でもスキップ可能。最終問題は回答後に次へ）
 - **前の問題に戻る:** 選択状態を復元（解説は非表示）
 - **再回答:** スコアは差分計算（二重カウントなし）
 - **ブラウザ戻るボタン:** メニューに直帰（進捗自動保存）
