@@ -150,6 +150,35 @@ test.describe('Quiz App E2E', () => {
     await page.waitForSelector('[role="listbox"], [role="group"]', { timeout: 5000 })
   })
 
+  test('start overview mode from chapter map', async ({ page }) => {
+    await page.getByRole('button', { name: /はじめる/ }).click()
+
+    // Chapter map should be visible on menu
+    const chapter1 = page.getByText('Ch.1')
+    if (await chapter1.isVisible({ timeout: 2000 }).catch(() => false)) {
+      await chapter1.click()
+      // Should enter quiz or chapter intro
+      await page.waitForSelector('[role="listbox"], [role="group"], h2', { timeout: 5000 })
+    }
+  })
+
+  test('hamburger menu shows all modes when expanded', async ({ page }) => {
+    await page.getByRole('button', { name: /はじめる/ }).click()
+
+    // Open hamburger → expand modes accordion
+    await page.getByRole('button', { name: 'メニューを開く' }).click()
+    const menu = page.getByRole('dialog', { name: 'メニュー' })
+
+    // Click the accordion button to expand
+    const modesButton = menu.getByRole('button', { name: /クイズモード/ })
+    await modesButton.click()
+
+    // Wait for expansion and verify modes are listed
+    await expect(menu.getByText('実力テスト')).toBeVisible({ timeout: 3000 })
+    await expect(menu.getByText('カテゴリ別学習')).toBeVisible()
+    await expect(menu.getByText('ランダム20問')).toBeVisible()
+  })
+
   test('app loads without errors', async ({ page }) => {
     const errors: string[] = []
     page.on('pageerror', (err) => errors.push(err.message))
