@@ -1,21 +1,23 @@
 import { Award } from 'lucide-react'
 import { theme } from '@/config/theme'
 import type { SessionRecord } from '@/domain/entities/UserProgress'
+import { LEVEL_DESIGNS } from '@/lib/certificateCanvas'
 
 interface CertificateHistoryProps {
   sessionHistory: readonly SessionRecord[]
+  masteryIndex: number
 }
 
-interface EarnedCertificate {
-  readonly session: SessionRecord
+interface CertEntry {
+  readonly key: string
   readonly levelIndex: number
-  readonly levelName: string
-  readonly levelIcon: string
+  readonly icon: string
   readonly title: string
   readonly color: string
+  readonly description: string
+  readonly date?: string
 }
 
-const CERT_TITLES = ['', '基礎修了証', '実践者認定証', '推進者認定証', 'マスター認定証']
 const CERT_COLORS = ['', 'text-blue-600', 'text-green-600', 'text-purple-600', 'text-amber-600']
 const CERT_BG = [
   '',
@@ -25,7 +27,6 @@ const CERT_BG = [
   'bg-amber-50 dark:bg-amber-950',
 ]
 
-/** Estimate level from session percentage (best effort without full category data) */
 function estimateLevelFromScore(percentage: number): number {
   if (percentage >= 85) return 4
   if (percentage >= 80) return 3
@@ -33,33 +34,50 @@ function estimateLevelFromScore(percentage: number): number {
   return 1
 }
 
-export function CertificateHistory({ sessionHistory }: CertificateHistoryProps) {
-  // Filter sessions that qualify for certificates
-  const earned: EarnedCertificate[] = sessionHistory
-    .filter((s) => (s.mode === 'full' && s.percentage >= 80) || (s.mode === 'overview' && s.percentage >= 70))
-    .map((session) => {
-      const levelIndex = estimateLevelFromScore(session.percentage)
-      return {
-        session,
-        levelIndex,
-        levelName: theme.masteryLevels[levelIndex].name,
-        levelIcon: theme.masteryLevels[levelIndex].icon,
-        title: CERT_TITLES[levelIndex],
-        color: CERT_COLORS[levelIndex],
-      }
+export function CertificateHistory({ sessionHistory, masteryIndex }: CertificateHistoryProps) {
+  const entries: CertEntry[] = []
+
+  // 1. Mastery level certificates (current level and all below)
+  for (let i = masteryIndex; i >= 1; i--) {
+    const level = theme.masteryLevels[i]
+    entries.push({
+      key: `mastery-${i}`,
+      levelIndex: i,
+      icon: level.icon,
+      title: LEVEL_DESIGNS[i].title,
+      color: CERT_COLORS[i],
+      description: `${level.name}レベル到達（${level.req ?? '学習開始'}）`,
     })
-    .reverse()
+  }
 
+  // 2. Session-based certificates (overview 70%+, full 80%+)
   const modeLabel = (mode: string) => (mode === 'overview' ? '全体像モード' : '実力テスト')
+  sessionHistory
+    .filter((s) => (s.mode === 'full' && s.percentage >= 80) || (s.mode === 'overview' && s.percentage >= 70))
+    .reverse()
+    .forEach((session) => {
+      const levelIndex = estimateLevelFromScore(session.percentage)
+      entries.push({
+        key: `session-${session.id}`,
+        levelIndex,
+        icon: theme.masteryLevels[levelIndex].icon,
+        title: LEVEL_DESIGNS[levelIndex].title,
+        color: CERT_COLORS[levelIndex],
+        description: `${modeLabel(session.mode)} — ${session.percentage}%（${session.score}/${session.totalQuestions}問）`,
+        date: new Date(session.completedAt).toLocaleDateString('ja-JP', { month: 'short', day: 'numeric' }),
+      })
+    })
 
-  if (earned.length === 0) {
+  if (entries.length === 0) {
     return (
       <div className="mb-4 rounded-2xl border border-stone-200 bg-white p-4 dark:border-stone-700 dark:bg-stone-800">
         <div className="flex items-center gap-3">
           <Award className="h-6 w-6 text-stone-300 dark:text-stone-600" />
           <div>
             <p className="text-sm font-medium text-stone-500">修了証はまだありません</p>
-            <p className="text-xs text-stone-400">全体像モード 70%+ / 実力テスト 80%+ で発行されます</p>
+            <p className="text-xs text-stone-400">
+              AI活用レベルが学習者以上に到達、または全体像モード 70%+ / 実力テスト 80%+ で発行されます
+            </p>
           </div>
         </div>
       </div>
@@ -70,25 +88,17 @@ export function CertificateHistory({ sessionHistory }: CertificateHistoryProps) 
     <div className="mb-4">
       <div className="mb-2 flex items-center gap-2">
         <Award className="h-4 w-4 text-amber-500" />
-        <h3 className="text-sm font-bold text-claude-dark">獲得した修了証（{earned.length}件）</h3>
+        <h3 className="text-sm font-bold text-claude-dark">獲得した修了証（{entries.length}件）</h3>
       </div>
       <div className="flex flex-col gap-2">
-        {earned.map((cert) => (
-          <div key={cert.session.id} className={`flex items-center gap-3 rounded-xl p-3 ${CERT_BG[cert.levelIndex]}`}>
-            <span className="text-2xl">{cert.levelIcon}</span>
+        {entries.map((cert) => (
+          <div key={cert.key} className={`flex items-center gap-3 rounded-xl p-3 ${CERT_BG[cert.levelIndex]}`}>
+            <span className="text-2xl">{cert.icon}</span>
             <div className="flex-1 min-w-0">
               <p className={`text-sm font-bold ${cert.color}`}>{cert.title}</p>
-              <p className="text-xs text-stone-500">
-                {modeLabel(cert.session.mode)} — {cert.session.percentage}%（
-                {cert.session.score}/{cert.session.totalQuestions}問）
-              </p>
+              <p className="text-xs text-stone-500">{cert.description}</p>
             </div>
-            <p className="text-xs text-stone-400 shrink-0">
-              {new Date(cert.session.completedAt).toLocaleDateString('ja-JP', {
-                month: 'short',
-                day: 'numeric',
-              })}
-            </p>
+            {cert.date && <p className="text-xs text-stone-400 shrink-0">{cert.date}</p>}
           </div>
         ))}
       </div>

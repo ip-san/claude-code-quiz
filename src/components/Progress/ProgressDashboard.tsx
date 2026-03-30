@@ -1,5 +1,6 @@
 import { ChevronDown, ChevronUp } from 'lucide-react'
 import { useCallback, useEffect, useRef, useState } from 'react'
+import { getMasteryLevel } from '@/domain/services/MasteryLevelService'
 import { SessionInsightService } from '@/domain/services/SessionInsightService'
 import { type Category, PREDEFINED_CATEGORIES } from '@/domain/valueObjects/Category'
 import { getProgressRepository } from '@/infrastructure/persistence/LocalStorageProgressRepository'
@@ -138,7 +139,12 @@ export function ProgressDashboard() {
           )}
 
           {/* Certificate History — always visible */}
-          {!hasNoProgress && <CertificateHistory sessionHistory={userProgress.sessionHistory} />}
+          {!hasNoProgress && (
+            <CertificateHistory
+              sessionHistory={userProgress.sessionHistory}
+              masteryIndex={getMasteryLevel(overallAccuracy, userProgress.totalAttempts, categoryStats).index}
+            />
+          )}
 
           {/* Learning Recommendation — always visible */}
           {!hasNoProgress && (

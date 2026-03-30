@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { theme } from '@/config/theme'
 import { getMasteryLevel } from '@/domain/services/MasteryLevelService'
+import { generateCertificate, LEVEL_DESIGNS } from '@/lib/certificateCanvas'
 import { useQuizStore } from '@/stores/quizStore'
 
 interface CertificateGeneratorProps {
@@ -10,127 +11,40 @@ interface CertificateGeneratorProps {
   mode: string
 }
 
-/** Level-specific certificate design */
-const LEVEL_DESIGNS = [
-  // 0: 入門者 — not eligible
-  { title: '', border: '', accent: '', bg: '' },
-  // 1: 学習者 — blue
-  { title: '基礎修了証', border: '#3B82F6', accent: '#2563EB', bg: '#EFF6FF' },
-  // 2: 実践者 — green
-  { title: '実践者認定証', border: '#22C55E', accent: '#16A34A', bg: '#F0FDF4' },
-  // 3: 推進者 — purple
-  { title: '推進者認定証', border: '#A855F7', accent: '#9333EA', bg: '#FAF5FF' },
-  // 4: 牽引役 — gold
-  { title: 'マスター認定証', border: '#EAB308', accent: '#CA8A04', bg: '#FEFCE8' },
-]
-
 /**
- * 合格証を Canvas で生成してダウンロード
- * AI 活用レベルに応じてデザインが変わる
+ * クイズ結果画面の修了証ダウンロード
+ * 全体像モード 70%+ / 実力テスト 80%+ で表示
  */
 export function CertificateGenerator({ score, total, percentage, mode }: CertificateGeneratorProps) {
   const [name, setName] = useState('')
   const [generating, setGenerating] = useState(false)
   const { userProgress, getCategoryStats } = useQuizStore()
 
-  // Show certificate for: 実力テスト 80%+ or 全体像モード 70%+
   const isEligible = (mode === 'full' && percentage >= 80) || (mode === 'overview' && percentage >= 70)
   if (!isEligible) return null
 
   const categoryStats = getCategoryStats()
   const overallAccuracy = userProgress.getOverallAccuracy()
   const mastery = getMasteryLevel(overallAccuracy, userProgress.totalAttempts, categoryStats)
-  const levelIndex = Math.max(mastery.index, 1) // At least level 1 if eligible
+  const levelIndex = Math.max(mastery.index, 1)
   const design = LEVEL_DESIGNS[levelIndex]
 
   const handleGenerate = () => {
     setGenerating(true)
-    const canvas = document.createElement('canvas')
-    canvas.width = 800
-    canvas.height = 560
-    const ctx = canvas.getContext('2d')
-    if (!ctx) return
-
-    // Background
-    ctx.fillStyle = design.bg
-    ctx.fillRect(0, 0, 800, 560)
-
-    // Outer border
-    ctx.strokeStyle = design.border
-    ctx.lineWidth = 4
-    ctx.strokeRect(20, 20, 760, 520)
-    // Inner border
-    ctx.strokeStyle = `${design.border}40`
-    ctx.lineWidth = 2
-    ctx.strokeRect(30, 30, 740, 500)
-
-    // Level icon (top-left corner accent)
-    ctx.font = '40px -apple-system, sans-serif'
-    ctx.textAlign = 'center'
-    ctx.fillText(mastery.icon, 70, 70)
-
-    // Certificate title (level-specific)
-    ctx.fillStyle = design.accent
-    ctx.font = 'bold 36px -apple-system, sans-serif'
-    ctx.textAlign = 'center'
-    ctx.fillText(design.title, 400, 90)
-
-    // Subtitle
-    ctx.fillStyle = '#6B6B6B'
-    ctx.font = '16px -apple-system, sans-serif'
-    ctx.fillText(theme.certificateTitle, 400, 120)
-
-    // Mastery level badge
-    ctx.fillStyle = design.accent
-    ctx.font = 'bold 18px -apple-system, sans-serif'
-    ctx.fillText(`${mastery.icon} ${mastery.name}`, 400, 160)
-
-    // Name
-    ctx.fillStyle = '#1A1A1A'
-    ctx.font = 'bold 32px -apple-system, sans-serif'
-    ctx.fillText(name || 'Anonymous', 400, 220)
-
-    // Score
-    ctx.fillStyle = design.accent
-    ctx.font = 'bold 48px -apple-system, sans-serif'
-    ctx.fillText(`${percentage}%`, 400, 300)
-
-    ctx.fillStyle = '#6B6B6B'
-    ctx.font = '18px -apple-system, sans-serif'
-    ctx.fillText(`${score} / ${total} 問正解`, 400, 330)
-
-    // Overall accuracy
-    ctx.fillStyle = '#9CA3AF'
-    ctx.font = '14px -apple-system, sans-serif'
-    ctx.fillText(`総合正答率: ${overallAccuracy}%`, 400, 360)
-
-    // Description
-    ctx.fillStyle = '#1A1A1A'
-    ctx.font = '16px -apple-system, sans-serif'
     const certDesc = mode === 'overview' ? theme.certificateDescOverview : theme.certificateDescFull
-    ctx.fillText(certDesc, 400, 410)
-
-    // Date
-    ctx.fillStyle = '#6B6B6B'
-    ctx.font = '14px -apple-system, sans-serif'
-    const date = new Date().toLocaleDateString('ja-JP', { year: 'numeric', month: 'long', day: 'numeric' })
-    ctx.fillText(date, 400, 460)
-
-    // Footer
-    ctx.fillStyle = `${design.border}40`
-    ctx.font = '12px -apple-system, sans-serif'
-    ctx.fillText(theme.certificateFooter, 400, 520)
-
-    // Download
-    const link = document.createElement('a')
-    link.download = `${theme.storagePrefix}-certificate-${Date.now()}.png`
-    link.href = canvas.toDataURL('image/png')
-    link.click()
-
+    generateCertificate({
+      levelIndex,
+      levelIcon: mastery.icon,
+      levelName: mastery.name,
+      name,
+      scoreLine: `${percentage}%`,
+      subScoreLine: `${score} / ${total} 問正解`,
+      description: certDesc,
+      overallAccuracy,
+    })
     setGenerating(false)
   }
 
-  // UI color based on level
   const uiColors = [
     '',
     'border-blue-200 from-blue-50 to-sky-50 dark:from-blue-950 dark:to-sky-950 dark:border-blue-800',
