@@ -275,8 +275,8 @@ server.tool(
       .describe('ディメンション。例: ["eventName", "customEvent:platform"]'),
     metrics: z
       .array(z.string())
-      .default(['activeUsers', 'eventCount'])
-      .describe('指標。例: ["activeUsers", "eventCount"]'),
+      .default(['eventCount'])
+      .describe('指標。例: ["eventCount"]。注意: activeUsers は dimensions 指定なしの時のみ使用可能'),
   },
   async (args) => {
     const result = await runRealtime(args)
