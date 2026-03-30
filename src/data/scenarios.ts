@@ -242,7 +242,7 @@ export const SCENARIOS: readonly ScenarioData[] = [
       { type: 'question', questionId: 'ses-017' },
       {
         type: 'narrative',
-        text: '3日目の夕方。緊急修正は worktree で隔離して対応し、リファクタ本体にも影響なし。全42ファイルの修正が完了し、200件のテストが全てグリーンに変わった。PRの差分は+2,400行、-1,800行。\n\n「初日にコンテキスト溢れで焦ったときはどうなるかと思ったけど、管理テクニックを覚えてからは快適だったな」——長丁場を乗り切る自信がついた。',
+        text: '3日目の夕方。パーミッションの再承認も手早く済ませ、全42ファイルの修正が完了した。200件のテストが全てグリーンに変わった。PRの差分は+2,400行、-1,800行。\n\n「初日にコンテキスト溢れで焦ったときはどうなるかと思ったけど、管理テクニックを覚えてからは快適だったな」——長丁場を乗り切る自信がついた。',
       },
     ],
     completionMessage:
@@ -366,7 +366,7 @@ export const SCENARIOS: readonly ScenarioData[] = [
       },
     ],
     completionMessage:
-      'MCP で外部ツール連携を構築！チーム共有設定、stdio トランスポート、リソース参照、Tool Search——Claude Code の能力を「プラグイン」で自在に拡張する方法を体験しました。',
+      'MCP で外部ツール連携を構築！接続方式の選択、サーバー管理、リソース参照、OAuth 認証——Claude Code の能力を「プラグイン」で自在に拡張する方法を体験しました。',
   },
   {
     id: 'scenario-cicd',
@@ -436,7 +436,7 @@ export const SCENARIOS: readonly ScenarioData[] = [
       { type: 'question', questionId: 'tool-003' },
       {
         type: 'narrative',
-        text: 'コードの構造が見えてきた。ここで Claude に「このリポジトリの決済フローを図にして、リファクタリング計画を立てて」と大きなタスクを投げてみる。\n\nClaude は複数のツールを自律的に組み合わせる。Glob でファイルを探し、Read で中身を読み、Grep で参照を追い、最後に Edit で修正する——この一連の流れを「エージェント」と呼ぶ。',
+        text: 'コードの構造が見えてきた。ここで Claude に「このリポジトリの決済フローを図にして、リファクタリング計画を立てて」と大きなタスクを投げてみる。\n\nClaude は複数のツールを自律的に組み合わせる。Glob でファイルを探し、Read で中身を読み、Grep で参照を追い、最後に Edit で修正する。どんなツールが使われるかを把握しておこう。',
       },
       { type: 'question', questionId: 'tool-055' },
       { type: 'question', questionId: 'tool-005' },
@@ -473,25 +473,25 @@ export const SCENARIOS: readonly ScenarioData[] = [
       { type: 'question', questionId: 'skill-005' },
       {
         type: 'narrative',
-        text: 'フロントマターの設定ができた。早速テストしてみると、テスト実行結果の大量出力がスキルのコンテキストを圧迫して、肝心のレビューコメントが途中で切れてしまった。出力を効率的に扱う設計が必要だ。',
+        text: 'フロントマターの設定ができた。早速テストしてみると、テスト実行結果の大量出力がスキルのコンテキストを圧迫して、肝心のレビューコメントが途中で切れてしまった。出力を効率的に扱う設計が必要だ。\n\nさらに、レビューは差分を読むだけなので最高性能のモデルは不要。速くて安い Haiku を指定すれば、大量の PR を高速に捌ける。',
       },
       { type: 'question', questionId: 'skill-006' },
       { type: 'question', questionId: 'skill-014' },
       {
         type: 'narrative',
-        text: 'ツール制限ができた。ここでスキルの名前を決める。`/review-pr` のようにハイフン区切りにするのか、`/reviewPr` のようにキャメルケースにするのか。チームメンバーが覚えやすい命名規則を採用しよう。',
+        text: '出力とモデルの最適化ができた。次はスキルの名前だ。`/review-pr` のようにハイフン区切りにするのか、`/reviewPr` のようにキャメルケースにするのか。チームメンバーが覚えやすい命名規則を採用しよう。',
       },
       { type: 'question', questionId: 'skill-053' },
       {
         type: 'narrative',
-        text: '命名も決まった。次はスキルに動的なデータを渡す方法だ。レビュー対象の PR 番号は毎回変わる。引数を渡す仕組みを知っておこう。\n\nさらに、プロジェクト固有のスキルとユーザー個人のスキルをどこに配置するかも決めておく必要がある。',
+        text: '命名も決まった。次はスキルに動的なデータを渡す方法だ。レビュー対象の PR 番号は毎回変わる。引数を渡す仕組みを知っておこう。',
       },
       { type: 'question', questionId: 'skill-058' },
-      { type: 'question', questionId: 'skill-007' },
       {
         type: 'narrative',
-        text: 'スキルが完成した。チームに共有する前に、もう一つ考えておくべきことがある。\n\nこのスキルは「プロジェクト固有」だから `.claude/skills/` に置く。だが、コードフォーマットのような「全プロジェクト共通」のスキルは `~/.claude/skills/` に置くべきだ。もし同じ名前のスキルが両方にあったらどうなる？',
+        text: 'スキルが完成した。チームに共有する方法を決めよう。\n\nこのレビュースキルは「プロジェクト固有」だから `.claude/skills/` に置く。だが、コードフォーマットのような「全プロジェクト共通」のスキルは別の場所が適切だ。さらに、もし同じ名前のスキルが複数の場所にあったらどうなる？',
       },
+      { type: 'question', questionId: 'skill-007' },
       { type: 'question', questionId: 'skill-059' },
       {
         type: 'narrative',
