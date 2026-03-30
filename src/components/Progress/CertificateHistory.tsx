@@ -1,11 +1,13 @@
-import { Award } from 'lucide-react'
+import { Award, Download } from 'lucide-react'
+import { useState } from 'react'
 import { theme } from '@/config/theme'
 import type { SessionRecord } from '@/domain/entities/UserProgress'
-import { LEVEL_DESIGNS } from '@/lib/certificateCanvas'
+import { generateCertificate, LEVEL_DESIGNS } from '@/lib/certificateCanvas'
 
 interface CertificateHistoryProps {
   sessionHistory: readonly SessionRecord[]
   masteryIndex: number
+  overallAccuracy: number
 }
 
 interface CertEntry {
@@ -15,6 +17,7 @@ interface CertEntry {
   readonly title: string
   readonly color: string
   readonly description: string
+  readonly scoreLine: string
   readonly date?: string
 }
 
@@ -34,10 +37,11 @@ function estimateLevelFromScore(percentage: number): number {
   return 1
 }
 
-export function CertificateHistory({ sessionHistory, masteryIndex }: CertificateHistoryProps) {
+export function CertificateHistory({ sessionHistory, masteryIndex, overallAccuracy }: CertificateHistoryProps) {
+  const [name, setName] = useState('')
   const entries: CertEntry[] = []
 
-  // 1. Mastery level certificates (current level and all below)
+  // 1. Mastery level certificates
   for (let i = masteryIndex; i >= 1; i--) {
     const level = theme.masteryLevels[i]
     entries.push({
@@ -47,10 +51,11 @@ export function CertificateHistory({ sessionHistory, masteryIndex }: Certificate
       title: LEVEL_DESIGNS[i].title,
       color: CERT_COLORS[i],
       description: `${level.name}レベル到達（${level.req ?? '学習開始'}）`,
+      scoreLine: `総合正答率 ${overallAccuracy}%`,
     })
   }
 
-  // 2. Session-based certificates (overview 70%+, full 80%+)
+  // 2. Session-based certificates
   const modeLabel = (mode: string) => (mode === 'overview' ? '全体像モード' : '実力テスト')
   sessionHistory
     .filter((s) => (s.mode === 'full' && s.percentage >= 80) || (s.mode === 'overview' && s.percentage >= 70))
@@ -64,9 +69,21 @@ export function CertificateHistory({ sessionHistory, masteryIndex }: Certificate
         title: LEVEL_DESIGNS[levelIndex].title,
         color: CERT_COLORS[levelIndex],
         description: `${modeLabel(session.mode)} — ${session.percentage}%（${session.score}/${session.totalQuestions}問）`,
+        scoreLine: `${session.percentage}%`,
         date: new Date(session.completedAt).toLocaleDateString('ja-JP', { month: 'short', day: 'numeric' }),
       })
     })
+
+  const handleDownload = (cert: CertEntry) => {
+    generateCertificate({
+      levelIndex: cert.levelIndex,
+      levelIcon: cert.icon,
+      levelName: theme.masteryLevels[cert.levelIndex].name,
+      name,
+      scoreLine: cert.scoreLine,
+      description: cert.description,
+    })
+  }
 
   if (entries.length === 0) {
     return (
@@ -90,6 +107,14 @@ export function CertificateHistory({ sessionHistory, masteryIndex }: Certificate
         <Award className="h-4 w-4 text-amber-500" />
         <h3 className="text-sm font-bold text-claude-dark">獲得した修了証（{entries.length}件）</h3>
       </div>
+      <input
+        type="text"
+        value={name}
+        onChange={(e) => setName(e.target.value)}
+        placeholder="お名前を入力（修了証に記載）"
+        aria-label="証明書に記載するお名前"
+        className="mb-2 w-full rounded-xl border border-stone-200 bg-stone-50 px-3 py-2 text-center text-sm dark:bg-stone-700 dark:border-stone-600 dark:text-white"
+      />
       <div className="flex flex-col gap-2">
         {entries.map((cert) => (
           <div key={cert.key} className={`flex items-center gap-3 rounded-xl p-3 ${CERT_BG[cert.levelIndex]}`}>
@@ -98,7 +123,14 @@ export function CertificateHistory({ sessionHistory, masteryIndex }: Certificate
               <p className={`text-sm font-bold ${cert.color}`}>{cert.title}</p>
               <p className="text-xs text-stone-500">{cert.description}</p>
             </div>
-            {cert.date && <p className="text-xs text-stone-400 shrink-0">{cert.date}</p>}
+            {cert.date && <p className="mr-1 text-xs text-stone-400 shrink-0">{cert.date}</p>}
+            <button
+              onClick={() => handleDownload(cert)}
+              className="tap-highlight shrink-0 rounded-full p-2 text-stone-400 hover:text-claude-orange"
+              aria-label={`${cert.title}をダウンロード`}
+            >
+              <Download className="h-4 w-4" />
+            </button>
           </div>
         ))}
       </div>

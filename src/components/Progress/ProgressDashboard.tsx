@@ -143,6 +143,7 @@ export function ProgressDashboard() {
             <CertificateHistory
               sessionHistory={userProgress.sessionHistory}
               masteryIndex={getMasteryLevel(overallAccuracy, userProgress.totalAttempts, categoryStats).index}
+              overallAccuracy={overallAccuracy}
             />
           )}
 
