@@ -9,6 +9,7 @@ import { buttonStyles, cardStyles, headerStyles, pageStyles } from '@/lib/styles
 import { useQuizStore } from '@/stores/quizStore'
 import { CategoryTrendChart } from './CategoryTrendChart'
 import { LearningRecommendation } from './LearningRecommendation'
+import { MasteryLevel } from './MasteryLevel'
 import { SessionHistoryChart } from './SessionHistoryChart'
 import { SessionHistoryList } from './SessionHistoryList'
 import { WeakPointInsight } from './WeakPointInsight'
@@ -125,6 +126,15 @@ export function ProgressDashboard() {
             <StatCard label="正答率" value={`${overallAccuracy}%`} icon="📊" />
             <StatCard label="セッション数" value={`${userProgress.sessionHistory.length}回`} icon="📚" />
           </div>
+
+          {/* AI Mastery Level — always visible */}
+          {!hasNoProgress && (
+            <MasteryLevel
+              overallAccuracy={overallAccuracy}
+              totalAttempts={userProgress.totalAttempts}
+              categoryStats={categoryStats}
+            />
+          )}
 
           {/* Learning Recommendation — always visible */}
           {!hasNoProgress && (

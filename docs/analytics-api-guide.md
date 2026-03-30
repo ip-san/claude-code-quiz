@@ -37,16 +37,7 @@ flowchart TD
 
 ## 前提条件
 
-- GCP サービスアカウントキー（[セットアップ手順](analytics-setup.md#step-7-gcp-サービスアカウントapi-自動化用)）
-- `.env` に環境変数を設定済み（`.env.example` を参照）
-
-```bash
-# .env の必要な変数
-VITE_GTM_ID=GTM-XXXXXXX                              # GTM コンテナ ID
-GA4_MEASUREMENT_ID=G-XXXXXXXXXX                       # GA4 測定 ID
-GA4_PROPERTY_ID=123456789                             # GA4 プロパティ ID
-GOOGLE_APPLICATION_CREDENTIALS=~/.config/gcloud/sa.json  # サービスアカウントキー
-```
+- GCP サービスアカウントキーと `.env` の設定が必要。詳細は [analytics-setup.md の Step 6〜7](analytics-setup.md#step-6-環境変数を設定) を参照
 
 ---
 

@@ -7,6 +7,7 @@
 
 import { theme } from '@/config/theme'
 import type { QuizSessionConfig } from '../../domain/services/QuizSessionService'
+import { migrateQuestionIds as migrateSessionIds } from './idMigration'
 
 const STORAGE_KEY = `${theme.storagePrefix}-session`
 
@@ -47,7 +48,11 @@ export class SessionRepository {
       const stored = localStorage.getItem(STORAGE_KEY)
       if (!stored) return null
 
-      const data = JSON.parse(stored) as SavedSessionData
+      const migrated = stored.includes('"gs-') ? migrateSessionIds(stored) : stored
+      if (migrated !== stored) {
+        localStorage.setItem(STORAGE_KEY, migrated)
+      }
+      const data = JSON.parse(migrated) as SavedSessionData
       // Validate required fields and types
       if (
         !data.sessionConfig ||

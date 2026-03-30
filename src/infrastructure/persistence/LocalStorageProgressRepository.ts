@@ -3,6 +3,8 @@ import { UserProgress } from '../../domain/entities/UserProgress'
 import type { IProgressRepository } from '../../domain/repositories/IProgressRepository'
 import { validateUserProgress } from '../validation/QuizValidator'
 
+import { migrateQuestionIds } from './idMigration'
+
 const STORAGE_KEY = `${theme.storagePrefix}-progress`
 
 /**
@@ -20,7 +22,13 @@ export class LocalStorageProgressRepository implements IProgressRepository {
         return UserProgress.empty()
       }
 
-      const result = validateUserProgress(stored)
+      const needsMigration = stored.includes('"gs-')
+      const data = needsMigration ? migrateQuestionIds(stored) : stored
+      if (needsMigration) {
+        localStorage.setItem(STORAGE_KEY, data)
+      }
+
+      const result = validateUserProgress(data)
       if (!result.success || !result.data) {
         console.warn('Invalid progress data, clearing corrupted data:', result.errors)
         localStorage.removeItem(STORAGE_KEY)

@@ -13371,7 +13371,7 @@
       "referenceUrl": "https://code.claude.com/docs/ja/how-claude-code-works"
     },
     {
-      "id": "gs-001",
+      "id": "bp-082",
       "category": "bestpractices",
       "difficulty": "beginner",
       "question": "Claude Codeとは何ですか？",
@@ -13402,7 +13402,7 @@
       ]
     },
     {
-      "id": "gs-002",
+      "id": "bp-083",
       "category": "bestpractices",
       "difficulty": "beginner",
       "question": "Claude Codeの「エージェント型」とは、従来のAIチャットツールとどう違いますか？",
@@ -13433,7 +13433,7 @@
       ]
     },
     {
-      "id": "gs-003",
+      "id": "ses-166",
       "category": "session",
       "difficulty": "beginner",
       "question": "Claude Codeのターミナル版を使い始めるために、事前に用意しておく必要があるものは何ですか？",
@@ -13459,7 +13459,7 @@
       "referenceUrl": "https://code.claude.com/docs/ja/quickstart"
     },
     {
-      "id": "gs-005",
+      "id": "ses-167",
       "category": "session",
       "difficulty": "beginner",
       "question": "Claude Codeの認証方法として正しいものはどれですか？",
@@ -13512,7 +13512,7 @@
       }
     },
     {
-      "id": "gs-006",
+      "id": "ses-168",
       "category": "session",
       "difficulty": "beginner",
       "question": "Claude Codeが利用できる環境として正しいものはどれですか？",
@@ -13538,7 +13538,7 @@
       "referenceUrl": "https://code.claude.com/docs/ja/overview"
     },
     {
-      "id": "gs-007",
+      "id": "bp-084",
       "category": "bestpractices",
       "difficulty": "beginner",
       "question": "Claude Codeをインストールした後、プロジェクトで最初に実行すべきコマンドは何ですか？",
@@ -13569,7 +13569,7 @@
       ]
     },
     {
-      "id": "gs-008",
+      "id": "bp-085",
       "category": "bestpractices",
       "difficulty": "beginner",
       "question": "Claude Codeでコードを変更する際の基本的な流れとして正しいものはどれですか？",
@@ -13622,7 +13622,7 @@
       ]
     },
     {
-      "id": "gs-009",
+      "id": "bp-086",
       "category": "bestpractices",
       "difficulty": "beginner",
       "question": "Claude Codeのパーミッション（権限）システムについて正しい説明はどれですか？",
@@ -13653,7 +13653,7 @@
       ]
     },
     {
-      "id": "gs-010",
+      "id": "cmd-103",
       "category": "commands",
       "difficulty": "beginner",
       "question": "Claude Codeのインタラクティブモードで、利用可能なコマンドの一覧を確認する方法はどれですか？",
@@ -13679,7 +13679,7 @@
       "referenceUrl": "https://code.claude.com/docs/ja/interactive-mode"
     },
     {
-      "id": "gs-011",
+      "id": "mem-053",
       "category": "memory",
       "difficulty": "beginner",
       "question": "`CLAUDE.md`ファイルの役割として最も適切な説明はどれですか？",
