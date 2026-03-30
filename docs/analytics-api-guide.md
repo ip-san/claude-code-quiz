@@ -5,35 +5,28 @@ GA4 と GTM をコマンドラインと MCP 経由で管理・分析する方法
 
 ## 全体アーキテクチャ
 
-```
-┌─────────────────────────────────────────────────────────────────┐
-│  データ収集（フロントエンド → クラウド）                              │
-│                                                                 │
-│  ユーザー操作                                                     │
-│    ↓                                                            │
-│  React コンポーネント → analytics.ts → dataLayer.push()           │
-│    ↓                                                            │
-│  GTM（タグ発火）→ GA4（データ蓄積）                                │
-│                                                                 │
-├─────────────────────────────────────────────────────────────────┤
-│  管理・メンテナンス（API 経由）                                     │
-│                                                                 │
-│  events.json (SSOT)                                             │
-│    ├─→ deploy-gtm.mjs ──→ GTM API（タグ・トリガー同期）            │
-│    ├─→ build-container.mjs → container-import.json（手動用）      │
-│    └─→ setup-ga4.mjs ──→ GA4 Admin API（ディメンション登録）        │
-│                                                                 │
-├─────────────────────────────────────────────────────────────────┤
-│  分析・活用（MCP 経由）                                            │
-│                                                                 │
-│  Claude Code                                                    │
-│    ↓ MCP プロトコル（stdio）                                      │
-│  ga4-server.mjs                                                 │
-│    ↓ GA4 Data API                                               │
-│  GA4 → レポート・リアルタイム・サマリー                               │
-│    ↓                                                            │
-│  /analytics-insight → /quality-loop                              │
-└─────────────────────────────────────────────────────────────────┘
+```mermaid
+flowchart TD
+  subgraph collect["1. データ収集（フロントエンド → クラウド）"]
+    A[ユーザー操作] --> B["React → analytics.ts → dataLayer.push()"]
+    B --> C["GTM（タグ発火）→ GA4（データ蓄積）"]
+  end
+
+  subgraph manage["2. 管理・メンテナンス（API 経由）"]
+    D["events.json (SSOT)"]
+    D --> E["deploy-gtm.mjs → GTM API"]
+    D --> F["build-container.mjs → インポート JSON"]
+    D --> G["setup-ga4.mjs → GA4 Admin API"]
+  end
+
+  subgraph analyze["3. 分析・活用（MCP 経由）"]
+    H[Claude Code] -->|"MCP (stdio)"| I[ga4-server.mjs]
+    I -->|GA4 Data API| J["レポート・リアルタイム・サマリー"]
+    J --> K["/analytics-insight → /quality-loop"]
+  end
+
+  collect ~~~ manage
+  manage ~~~ analyze
 ```
 
 3 つの層に分かれている:
