@@ -406,4 +406,90 @@ export const SCENARIOS: readonly ScenarioData[] = [
     completionMessage:
       'CI/CD に Claude Code を統合！GitHub Actions セットアップ、非対話モード、パーミッション管理、構造化出力——PR レビューの自動化で、チームのレビューボトルネックを解消する方法を体験しました。',
   },
+  {
+    id: 'scenario-legacy',
+    title: '100万行のレガシーコード、地図を作れ',
+    description: 'Grep/Glob/Read/Edit を駆使して巨大リポジトリの全体像を把握し、リファクタ計画を立てる',
+    icon: '🗺️',
+    difficulty: 'intermediate',
+    steps: [
+      {
+        type: 'narrative',
+        text: '月曜の朝。異動先のチームで、前任者が退職済みの決済マイクロサービスを引き継ぐことになった。ドキュメントはほぼゼロ。テストカバレッジ 12%。コード量は約 10 万行。\n\n「とりあえず全部読んで」は無理だ。Claude Code のツールを使って、効率的にコードベースの地図を作る。まず最初の一手——ファイルの全体像を掴もう。',
+      },
+      { type: 'question', questionId: 'tool-002' },
+      {
+        type: 'narrative',
+        text: 'ファイル一覧が取れた。テストファイルは 47 個しかない。次はコードの中身を探る。\n\n「決済処理のエントリーポイントはどこだ？」——巨大リポジトリで関数やクラスの呼び出し箇所を探すのは、Grep の出番だ。ただし Grep と Glob は用途が違う。ファイル名のパターンマッチと、ファイル内容の正規表現検索を使い分ける必要がある。',
+      },
+      { type: 'question', questionId: 'tool-001' },
+      { type: 'question', questionId: 'tool-024' },
+      {
+        type: 'narrative',
+        text: '決済処理の主要ファイルを特定できた。次は中身を読む。\n\n500 行のコントローラファイルを発見した。全部読む必要はない——特定のメソッドだけ読めばいい。さらに、設定ファイルの 1 行だけ変更したい場面もある。Read と Edit の使い分けを正確に知っておこう。',
+      },
+      { type: 'question', questionId: 'tool-007' },
+      { type: 'question', questionId: 'tool-003' },
+      {
+        type: 'narrative',
+        text: 'コードの構造が見えてきた。ここで Claude に「このリポジトリの決済フローを図にして、リファクタリング計画を立てて」と大きなタスクを投げてみる。\n\nClaude は複数のツールを自律的に組み合わせる。Glob でファイルを探し、Read で中身を読み、Grep で参照を追い、最後に Edit で修正する——この一連の流れを「エージェント」と呼ぶ。',
+      },
+      { type: 'question', questionId: 'tool-029' },
+      { type: 'question', questionId: 'tool-005' },
+      {
+        type: 'narrative',
+        text: 'Claude が作ったリファクタ計画をレビューしている。Edit ツールでファイルを修正する前に、Claude は自動的にある操作を行う。これを知らないと「なぜ余分な Read が入るんだ？」と混乱するので押さえておこう。',
+      },
+      { type: 'question', questionId: 'tool-008' },
+      {
+        type: 'narrative',
+        text: '金曜。5 日間でコードベースの全体像を把握し、テストを 30 本追加し、デッドコードを 8,000 行削除した。前任者が 3 ヶ月かけても作れなかった「コードベースの地図」が手元にある。\n\n上司に報告すると「え、もう改修計画まで出来てるの？」と驚かれた。秘密兵器は Grep/Glob/Read/Edit——4 つのツールの正しい使い分けだ。',
+      },
+    ],
+    completionMessage:
+      'レガシーコードの地図作りが完了！Grep/Glob でファイル探索、Read/Edit で精密な読み書き、エージェントの自律的なツール連携——巨大リポジトリを効率的に攻略する技術を体験しました。',
+  },
+  {
+    id: 'scenario-skills',
+    title: 'チーム専用コマンドを作りたい',
+    description: 'カスタムスキルを作成して、チームの定型作業をスラッシュコマンドで自動化する',
+    icon: '✨',
+    difficulty: 'intermediate',
+    steps: [
+      {
+        type: 'narrative',
+        text: '水曜の昼。チームで毎週やっている作業がある。\n\n1. PR の差分を読む\n2. テストが網羅されているか確認する\n3. パフォーマンスへの影響をチェックする\n4. レビューコメントを定型フォーマットで書く\n\n毎回同じプロンプトを書くのが面倒だ。これを `/review-pr` 一発で実行できるようにしたい。Claude Code には「スキル」という仕組みがある。',
+      },
+      { type: 'question', questionId: 'skill-001' },
+      {
+        type: 'narrative',
+        text: 'SKILL.md を作成した。次は細かい設定だ。\n\nスキルの先頭に YAML フロントマターを書く。名前、説明、引数のヒント——これらを設定すると、`/` を入力した時にオートコンプリートで表示される。ちゃんと設定しないと、チームメンバーが「このスキルどうやって使うの？」と迷子になる。',
+      },
+      { type: 'question', questionId: 'skill-021' },
+      { type: 'question', questionId: 'skill-005' },
+      {
+        type: 'narrative',
+        text: 'フロントマターの設定ができた。ところが問題が発生した。\n\nこのレビュースキルはファイルの読み取りとテスト実行だけで十分なのに、Bash で任意のコマンドを実行できてしまう。デプロイスクリプトや DB マイグレーションを誤って実行されたら大事故だ。スキルに許可するツールを制限する方法を知る必要がある。',
+      },
+      { type: 'question', questionId: 'skill-002' },
+      { type: 'question', questionId: 'skill-023' },
+      {
+        type: 'narrative',
+        text: 'ツール制限ができた。次はスキルの中で動的にデータを取り込みたい。\n\nレビュー対象の PR 番号は毎回変わる。スキルに引数を渡す仕組み、さらにスキルの中から Git の最新情報を動的に埋め込む仕組みがある。',
+      },
+      { type: 'question', questionId: 'skill-058' },
+      { type: 'question', questionId: 'skill-033' },
+      {
+        type: 'narrative',
+        text: 'スキルが完成した。チームに共有する前に、もう一つ考えておくべきことがある。\n\nこのスキルは「プロジェクト固有」だから `.claude/skills/` に置く。だが、コードフォーマットのような「全プロジェクト共通」のスキルは `~/.claude/skills/` に置くべきだ。もし同じ名前のスキルが両方にあったらどうなる？',
+      },
+      { type: 'question', questionId: 'skill-059' },
+      {
+        type: 'narrative',
+        text: '木曜の朝。Slack で `/review-pr` スキルを共有した。30 分後、後輩の山田さんから「これ最高です。毎回同じこと書くの苦痛だったんです」とメッセージが来た。\n\n「スキル = 再利用可能なプロンプト」。一度作ったら、チーム全員の毎日の作業が 1 コマンドに変わる。次は何を自動化しようか？',
+      },
+    ],
+    completionMessage:
+      'カスタムスキルの作成が完了！SKILL.md の構造、フロントマター設定、ツール制限、動的引数、バッククォート構文、スコープの優先順位——チームの定型作業をスラッシュコマンドで自動化する技術を体験しました。',
+  },
 ]
