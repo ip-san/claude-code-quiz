@@ -297,6 +297,22 @@ npm run quiz:post-add   # randomize → check → test → stats を一括実行
 2. `.claude/tmp/skill-proposals.md` を確認
 3. 汎用性の高い提案のみスキルファイルに反映
 
+### /self-review
+
+プロジェクト固有の過去ミスパターンを自動検出するセルフレビュースキル。
+
+**使用方法:**
+```
+/self-review          # チェックのみ（報告）
+/self-review --fix    # 検出した問題を自動修正
+```
+
+**チェック項目:** ダークモード `dark:` 漏れ、ハードコード残存、未使用 import、正規表現文字クラス、TDZ 前方参照、クイズ ID 重複、ドキュメント整合性
+
+**`/code-review` との棲み分け:**
+- `/code-review`: ユーザーレベルスキル（`~/.claude/skills/`）。汎用的なコード品質レビュー
+- `/self-review`: プロジェクトスキル（`.claude/skills/`）。このプロジェクト固有の教訓に基づくチェック
+
 ### /spec-audit
 
 CLAUDE.md の仕様記述と実装の意味的な整合性を監査するスキル。
