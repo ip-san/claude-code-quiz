@@ -86,7 +86,7 @@ export const SCENARIOS: readonly ScenarioData[] = [
         text: '原因がわかった。外部決済APIのレスポンス形式が変わり、リトライロジックが無限ループに陥っていた。修正パッチを書いてもらうが——Claudeが的外れな方向に修正を始めた。リトライ上限を増やそうとしている。違う、レスポンスのパース部分が原因だ。間違った修正が走り続ける前に、すぐ止めないと。',
       },
       { type: 'question', questionId: 'key-001' },
-      { type: 'question', questionId: 'bp-002' },
+      { type: 'question', questionId: 'bp-023' },
       {
         type: 'narrative',
         text: '正しい修正方針で再出発。Claudeが5つのファイルを修正してくれたが——テストを走らせると、修正3〜5が余計だった。決済ロジックは直ったが、関連するバリデーションまで変えてしまっている。\n\n全部やり直し？いや、Claude Code にはファイル変更を部分的に巻き戻す方法がある。3ファイル分だけ元に戻して、正しい2ファイルは残す。',
@@ -259,7 +259,7 @@ export const SCENARIOS: readonly ScenarioData[] = [
         type: 'narrative',
         text: '同僚の鈴木さんが「Claude Code 使ってみたけど、出てくるコードがイマイチで...」と愚痴をこぼしている。聞くと、「ログイン機能作って」とだけ伝えたらしい。\n\nそれじゃ AI も困る。人間の同僚に「ログイン機能作って」と丸投げしたら怒られるのと同じだ。効果的な依頼の仕方を教えてあげよう。',
       },
-      { type: 'question', questionId: 'bp-001' },
+      { type: 'question', questionId: 'bp-020' },
       { type: 'question', questionId: 'bp-026' },
       {
         type: 'narrative',
@@ -331,12 +331,12 @@ export const SCENARIOS: readonly ScenarioData[] = [
     steps: [
       {
         type: 'narrative',
-        text: '水曜の午後。チームの開発フローに不満がある。\n\n障害発生 → Slackで報告 → GA4でユーザー影響を確認 → DBでデータを調べる → エディタに戻って修正——毎回5つのウィンドウを行き来する。「全部ターミナルで完結すればいいのに」\n\nそこで思い出す。Claude Codeには MCP（Model Context Protocol）という仕組みがある。外部ツールを「プラグイン」のように接続して、Claude が直接 Slack を読んだり、DB にクエリを投げたりできるようにする仕組みだ。',
+        text: '水曜の午後。チームの開発フローに不満がある。\n\n障害発生 → Slackで報告 → GA4でユーザー影響を確認 → DBでデータを調べる → エディタに戻って修正——毎回5つのウィンドウを行き来する。「全部ターミナルで完結すればいいのに」\n\nそこで思い出す。Claude Codeには MCP（Model Context Protocol）という仕組みがある。外部ツールを「プラグイン」のように接続して、Claude が直接 Slack を読んだり、DB にクエリを投げたりできるようにする仕組みだ。\n\nまずは GA4 のデータを Claude から直接クエリできるようにしたい。MCP サーバーの接続方式を選ぶところから始めよう。',
       },
-      { type: 'question', questionId: 'ext-001' },
+      { type: 'question', questionId: 'ext-009' },
       {
         type: 'narrative',
-        text: 'まずはチーム全員が同じ MCP サーバーを使えるようにした。次は実際にサーバーを追加する。\n\nGA4 のデータを Claude から直接クエリできるようにしたい。MCP サーバーは stdio トランスポートで動く Node.js スクリプトだ。`claude mcp add` コマンドで登録するが、引数の渡し方にコツがある。',
+        text: '接続方式がわかった。実際にサーバーを追加する。MCP サーバーは stdio トランスポートで動く Node.js スクリプトだ。`claude mcp add` コマンドで登録するが、引数の渡し方にコツがある。',
       },
       { type: 'question', questionId: 'ext-013' },
       { type: 'question', questionId: 'ext-036' },
@@ -473,9 +473,9 @@ export const SCENARIOS: readonly ScenarioData[] = [
       { type: 'question', questionId: 'skill-005' },
       {
         type: 'narrative',
-        text: 'フロントマターの設定ができた。ところが問題が発生した。\n\nこのレビュースキルはファイルの読み取りとテスト実行だけで十分なのに、Bash で任意のコマンドを実行できてしまう。デプロイスクリプトや DB マイグレーションを誤って実行されたら大事故だ。スキルに許可するツールを制限する方法を知る必要がある。',
+        text: 'フロントマターの設定ができた。早速テストしてみると、テスト実行結果の大量出力がスキルのコンテキストを圧迫して、肝心のレビューコメントが途中で切れてしまった。出力を効率的に扱う設計が必要だ。',
       },
-      { type: 'question', questionId: 'skill-002' },
+      { type: 'question', questionId: 'skill-006' },
       { type: 'question', questionId: 'skill-014' },
       {
         type: 'narrative',
@@ -484,10 +484,10 @@ export const SCENARIOS: readonly ScenarioData[] = [
       { type: 'question', questionId: 'skill-053' },
       {
         type: 'narrative',
-        text: '命名も決まった。次はスキルに動的なデータを渡す方法だ。レビュー対象の PR 番号は毎回変わる。引数を渡す仕組みを知っておこう。さらに、完成したスキルをチームメンバーが実際にどう使うかも確認しておく。',
+        text: '命名も決まった。次はスキルに動的なデータを渡す方法だ。レビュー対象の PR 番号は毎回変わる。引数を渡す仕組みを知っておこう。\n\nさらに、プロジェクト固有のスキルとユーザー個人のスキルをどこに配置するかも決めておく必要がある。',
       },
       { type: 'question', questionId: 'skill-058' },
-      { type: 'question', questionId: 'skill-004' },
+      { type: 'question', questionId: 'skill-007' },
       {
         type: 'narrative',
         text: 'スキルが完成した。チームに共有する前に、もう一つ考えておくべきことがある。\n\nこのスキルは「プロジェクト固有」だから `.claude/skills/` に置く。だが、コードフォーマットのような「全プロジェクト共通」のスキルは `~/.claude/skills/` に置くべきだ。もし同じ名前のスキルが両方にあったらどうなる？',
