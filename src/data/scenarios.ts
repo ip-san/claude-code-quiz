@@ -322,4 +322,88 @@ export const SCENARIOS: readonly ScenarioData[] = [
     completionMessage:
       'セキュリティ審査に合格。.env漏洩、AIレビューの限界、並列コンフリクト——実際の失敗体験から学んだ対策だからこそ、情シスの信頼を勝ち取れました。',
   },
+  {
+    id: 'scenario-mcp',
+    title: 'Slackの通知、DB確認、全部ターミナルで完結させたい',
+    description: 'MCP サーバーで外部ツールを接続し、Claude Code の能力を拡張する',
+    icon: '🔌',
+    difficulty: 'intermediate',
+    steps: [
+      {
+        type: 'narrative',
+        text: '水曜の午後。チームの開発フローに不満がある。\n\n障害発生 → Slackで報告 → GA4でユーザー影響を確認 → DBでデータを調べる → エディタに戻って修正——毎回5つのウィンドウを行き来する。「全部ターミナルで完結すればいいのに」\n\nそこで思い出す。Claude Codeには MCP（Model Context Protocol）という仕組みがある。外部ツールを「プラグイン」のように接続して、Claude が直接 Slack を読んだり、DB にクエリを投げたりできるようにする仕組みだ。',
+      },
+      { type: 'question', questionId: 'ext-001' },
+      {
+        type: 'narrative',
+        text: 'まずはチーム全員が同じ MCP サーバーを使えるようにした。次は実際にサーバーを追加する。\n\nGA4 のデータを Claude から直接クエリできるようにしたい。MCP サーバーは stdio トランスポートで動く Node.js スクリプトだ。`claude mcp add` コマンドで登録するが、引数の渡し方にコツがある。',
+      },
+      { type: 'question', questionId: 'ext-013' },
+      { type: 'question', questionId: 'ext-031' },
+      {
+        type: 'narrative',
+        text: 'MCP サーバーが動き始めた。Claude に「先週のアクティブユーザー数は？」と聞くと、GA4 のデータを取得して答えてくれる。\n\nしかし、登録した MCP サーバーが増えてくると管理が面倒になる。「あれ、このサーバーまだ使ってたっけ？」——CLI で一覧を確認して不要なものを削除する方法も知っておこう。',
+      },
+      { type: 'question', questionId: 'ext-045' },
+      {
+        type: 'narrative',
+        text: 'MCP の整理が終わった。ふと「MCP で提供できるのはツールだけ？」と疑問に思う。\n\n実は MCP はツール以外にも「リソース」を提供できる。ファイルやデータベースのスキーマなど、Claude が参照できる読み取り専用のデータソースだ。これを使えば、DB のテーブル定義を Claude に渡して「このスキーマに合うクエリを書いて」と頼めるようになる。',
+      },
+      { type: 'question', questionId: 'ext-011' },
+      { type: 'question', questionId: 'ext-023' },
+      {
+        type: 'narrative',
+        text: '夕方。ふと Claude に「今登録されてる MCP ツール、全部で何個ある？」と聞いたら、20個以上になっていた。しかし全部を毎回読み込むのは非効率だ。必要な時だけ検索して使う仕組みはないのか？',
+      },
+      { type: 'question', questionId: 'ext-024' },
+      {
+        type: 'narrative',
+        text: '退社前にチームの Slack に投稿した。「Claude Code から直接 GA4 クエリ、DB スキーマ参照、Slack 通知が全部できるようになった。ウィンドウの行き来が激減。設定は .mcp.json をプルすれば全員同じ環境になる」\n\n後輩から即レスが来た。「マジですか、明日セットアップ手伝ってください！」',
+      },
+    ],
+    completionMessage:
+      'MCP で外部ツール連携を構築！チーム共有設定、stdio トランスポート、リソース参照、Tool Search——Claude Code の能力を「プラグイン」で自在に拡張する方法を体験しました。',
+  },
+  {
+    id: 'scenario-cicd',
+    title: 'PR レビュー、もう人間だけでやらなくていい',
+    description: 'GitHub Actions に Claude Code を組み込んで PR の自動レビューとコード修正を実現する',
+    icon: '⚙️',
+    difficulty: 'intermediate',
+    steps: [
+      {
+        type: 'narrative',
+        text: '木曜の朝。チームの PR がレビュー待ちで 8 本溜まっている。リードエンジニアは自分一人。全部目を通すのに半日かかる。\n\n「Claude Code でレビュー自動化できないの？」とメンバーに聞かれた。実は Claude Code はターミナルだけでなく、CI/CD パイプラインの中でも動く。GitHub Actions に組み込めば、PR が作られるたびに自動でコードをレビューし、修正提案まで出してくれる。',
+      },
+      { type: 'question', questionId: 'cmd-080' },
+      {
+        type: 'narrative',
+        text: 'GitHub Actions のセットアップができた。次は Claude Code を「非対話モード」で動かす方法を理解する必要がある。\n\nCI の中では人間がプロンプトを入力できない。ファイルの内容やコマンドの出力を「パイプ」で渡し、結果を受け取る。この仕組みを使いこなせれば、レビューだけでなくテスト生成やドキュメント更新も自動化できる。',
+      },
+      { type: 'question', questionId: 'cmd-031' },
+      { type: 'question', questionId: 'cmd-052' },
+      {
+        type: 'narrative',
+        text: 'パイプで入力を渡し、`-p` フラグで非対話実行する基本がわかった。\n\nだが本番の CI では「Claude にどこまでの権限を与えるか」が重要になる。テストの実行は OK だが、本番 DB への接続は絶対に NG。CI 環境でのパーミッション管理を正しく設定しないと、事故の元だ。',
+      },
+      { type: 'question', questionId: 'cmd-041' },
+      {
+        type: 'narrative',
+        text: 'パーミッションの設定ができた。次は実際のレビューワークフローを組む。\n\n理想は「PR が作られたら Claude が差分を読み、問題点をコメントし、可能なら修正コミットまで作る」という流れ。既存のテンプレートを使えば、PR のレビューコメント生成はすぐに始められる。',
+      },
+      { type: 'question', questionId: 'cmd-058' },
+      { type: 'question', questionId: 'cmd-048' },
+      {
+        type: 'narrative',
+        text: 'レビューが JSON で返ってくるが、このデータをどう活用するかが次の課題だ。結果を Slack に通知する、GitHub のコメントとして投稿する——出力形式を制御する方法を知っておこう。',
+      },
+      { type: 'question', questionId: 'cmd-072' },
+      {
+        type: 'narrative',
+        text: '金曜の朝。昨夜マージされた 3 本の PR には、全て Claude のレビューコメントが付いていた。1 本は Claude が型エラーを見つけて修正コミットまで作っていた。\n\nメンバーの佐藤さんが言った。「レビュー待ち 8 本がゼロになるの、初めて見ました」\n\n人間のレビューが不要になったわけではない。だが「明らかなミス」を AI が先に潰してくれるおかげで、人間は「設計の妥当性」に集中できるようになった。',
+      },
+    ],
+    completionMessage:
+      'CI/CD に Claude Code を統合！GitHub Actions セットアップ、非対話モード、パーミッション管理、構造化出力——PR レビューの自動化で、チームのレビューボトルネックを解消する方法を体験しました。',
+  },
 ]
