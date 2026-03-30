@@ -139,6 +139,10 @@ export interface ThemeConfig {
   readonly aboutDesc: string
   /** 「読んでから解く」学習の進め方の本文 */
   readonly studyFirstHowToLearnBody: string
+  /** 検索プレースホルダー（トピック固有のキーワード例） */
+  readonly searchPlaceholder: string
+  /** 最高レベル到達時のメッセージ */
+  readonly masteryMaxMessage: string
 }
 
 // ============================================================
@@ -521,6 +525,8 @@ const claudeCodeTheme: ThemeConfig = {
   aboutDesc: '基本を4画面で紹介',
   studyFirstHowToLearnBody:
     'チャプターを選んで、基礎的な解説を読みましょう。やさしい内容だけに絞っているので、 Claude Code を知らなくても読み進められます。',
+  searchPlaceholder: '例: CLAUDE.md, MCP, hooks',
+  masteryMaxMessage: '最高レベル到達。あなたはチームのAI駆動開発を牽引できます。',
 }
 
 // ============================================================
