@@ -58,13 +58,15 @@ grep -rn '"Claude Code"\|Claude Code' src/ --include='*.ts' --include='*.tsx' | 
 
 **判定:** `theme.ts`、`scenarios.ts`、`quizzes.json`、テスト、コメント内は OK。それ以外は `theme.subject` や `theme.appName` を参照すべき。
 
-### 3. 未使用 import / dead code
+### 3. Biome lint（errors + warnings）
 
 ```bash
-npx biome check src/ mcp/ scripts/ 2>&1 | grep '×'
+npx biome check src/ mcp/ scripts/ 2>&1
 ```
 
-**判定:** エラー（×）があれば修正が必要。`mcp/` と `scripts/` も対象範囲に含めること。
+**判定:** errors（×）も warnings も 0 が目標。warnings を見逃さないこと。許容する場合は `biome-ignore` + 理由を明記。
+
+**過去の事例:** errors のみ grep して 15 件の warnings を見逃した。
 
 ### 4. 正規表現の文字クラス不足
 
@@ -93,6 +95,16 @@ npm run quiz:check 2>&1 | grep -i 'duplicate\|FAIL'
 ```bash
 npm run docs:validate 2>&1
 ```
+
+### 7b. docs 内の古いツール参照
+
+```bash
+grep -rn 'npm \|ESLint\|Prettier' docs/ --include='*.md' | grep -v '不使用\|ではなく\|instead'
+```
+
+**判定:** bun/Biome 移行済みなのに旧ツール名が残っていたら修正。
+
+**過去の事例:** DEVELOPMENT.md に ESLint/Prettier/npm が残留していた。
 
 ### 8. アクセシビリティ（プロジェクト固有）
 
@@ -131,11 +143,12 @@ npm run docs:validate 2>&1
 |---|------------|------|------|
 | 1 | ダークモード | OK / NG (N件) | ファイル:行 |
 | 2 | ハードコード | OK / NG (N件) | ファイル:行 |
-| 3 | 未使用 import | OK / NG (N件) | |
+| 3 | Biome lint | OK / NG (E件 errors, W件 warnings) | 0 warnings が目標 |
 | 4 | 正規表現 | OK / 要確認 | |
 | 5 | TDZ | OK / 要確認 | |
 | 6 | クイズ ID | OK / NG | |
 | 7 | ドキュメント整合 | OK / NG | |
+| 7b | ドキュメントリンク・鮮度 | OK / NG (N件) | 孤児・リンク切れ・古いツール参照 |
 | 8 | アクセシビリティ | OK / 要確認 | |
 | 9 | パフォーマンス | OK / 要確認 | |
 | 10 | State Management | OK / 要確認 | |
