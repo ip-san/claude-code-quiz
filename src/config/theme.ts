@@ -24,6 +24,44 @@ export interface ThemeMasteryLevel {
   readonly req: string | null
 }
 
+export interface ThemeScoreMessage {
+  readonly title: string
+  readonly message: string
+  readonly color: string
+  readonly bgColor: string
+  readonly borderColor: string
+}
+
+export interface ThemeScoreThreshold {
+  readonly min: number
+  readonly result: ThemeScoreMessage
+}
+
+export interface ThemeChapterDetail {
+  readonly learningPoints: readonly string[]
+  readonly encouragement: string
+  readonly realWorldExample: string
+}
+
+export interface ThemeTutorialSlide {
+  readonly title: string
+  readonly description: string
+  readonly tip?: string
+}
+
+export interface ThemeTutorialTerminal {
+  readonly youLabel: string
+  readonly aiLabel: string
+  readonly prompt: string
+  readonly reply: string
+  readonly replyCont: string
+}
+
+export interface ThemeTutorialPathStep {
+  readonly label: string
+  readonly desc: string
+}
+
 export interface ThemeConfig {
   /** アプリ名（フル） */
   readonly appName: string
@@ -79,6 +117,28 @@ export interface ThemeConfig {
     /** 「読んでから解く」モードで表示する導入読み物 */
     readonly introContent?: readonly string[]
   }[]
+  /** スコアに基づく結果メッセージ（閾値降順） */
+  readonly scoreMessages: readonly ThemeScoreThreshold[]
+  /** チャプター導入画面の詳細（learningPoints, encouragement, realWorldExample） */
+  readonly chapterDetails: Readonly<Record<number, ThemeChapterDetail>>
+  /** 実践シナリオモードの説明文 */
+  readonly scenarioModeDescription: string
+  /** チュートリアルスライド（4枚） */
+  readonly tutorialSlides: readonly ThemeTutorialSlide[]
+  /** チュートリアルのターミナルデモテキスト */
+  readonly tutorialTerminal: ThemeTutorialTerminal
+  /** チュートリアルの吹き出し例 */
+  readonly tutorialBubbles: readonly string[]
+  /** チュートリアルの能力ラベル */
+  readonly tutorialCapabilities: readonly { readonly label: string }[]
+  /** チュートリアルの学習パスステップ */
+  readonly tutorialPathSteps: readonly ThemeTutorialPathStep[]
+  /** 「〜とは」ラベル（メニューヘッダー用） */
+  readonly aboutLabel: string
+  /** 「〜とは」説明文 */
+  readonly aboutDesc: string
+  /** 「読んでから解く」学習の進め方の本文 */
+  readonly studyFirstHowToLearnBody: string
 }
 
 // ============================================================
@@ -307,6 +367,160 @@ const claudeCodeTheme: ThemeConfig = {
       ],
     },
   ],
+  scoreMessages: [
+    {
+      min: 100,
+      result: {
+        title: 'パーフェクト！',
+        message: '全問正解。あなたは Claude Code を完全に理解しています。',
+        color: 'text-yellow-600',
+        bgColor: 'bg-yellow-50',
+        borderColor: 'border-yellow-200',
+      },
+    },
+    {
+      min: 80,
+      result: {
+        title: '素晴らしい！',
+        message: 'ここまで来たあなたなら、実務でも活躍できます。',
+        color: 'text-green-600',
+        bgColor: 'bg-green-50',
+        borderColor: 'border-green-200',
+      },
+    },
+    {
+      min: 70,
+      result: {
+        title: '着実に成長しています',
+        message: '基礎は身についています。復習で更に自信をつけましょう。',
+        color: 'text-blue-600',
+        bgColor: 'bg-blue-50',
+        borderColor: 'border-blue-200',
+      },
+    },
+    {
+      min: 50,
+      result: {
+        title: 'いい線いってます',
+        message: 'あと少しです。間違えた問題を見直すだけで、大きく伸びます。',
+        color: 'text-orange-600',
+        bgColor: 'bg-orange-50',
+        borderColor: 'border-orange-200',
+      },
+    },
+    {
+      min: 0,
+      result: {
+        title: '最初の一歩を踏み出しました',
+        message: 'ここから始まります。繰り返すほど必ず伸びます。',
+        color: 'text-red-600',
+        bgColor: 'bg-red-50',
+        borderColor: 'border-red-200',
+      },
+    },
+  ],
+  chapterDetails: {
+    1: {
+      learningPoints: [
+        'Claude Code がどんなツールなのか',
+        'ターミナルから AI に話しかける仕組み',
+        '最初の一言で何ができるか',
+      ],
+      encouragement:
+        'プログラミング経験やAIの知識は一切不要です。「こんなツールがあるんだ」くらいの気持ちで進めましょう。',
+      realWorldExample:
+        '例: ターミナルで「このプロジェクトの構成を教えて」と聞くだけで、AIがコード全体を分析してくれます',
+    },
+    2: {
+      learningPoints: [
+        'CLAUDE.md ファイルの役割と書き方',
+        'AI にプロジェクトのルールを覚えさせる方法',
+        '記憶の仕組み（永続メモリ）',
+      ],
+      encouragement: '「設定ファイル」と聞くと難しそうですが、実はメモ帳に箇条書きするだけです。',
+      realWorldExample: '例:「テストは必ず書いて」と CLAUDE.md に書くだけで、AI が毎回テストを書いてくれます',
+    },
+    3: {
+      learningPoints: [
+        'ファイルの読み書き・編集を AI に任せる方法',
+        'コマンド実行の仕組みと安全性',
+        'どこまで自動化できるか',
+      ],
+      encouragement: 'AI に任せるのが怖い？大丈夫、実行前に必ず確認があります。まずは仕組みを知りましょう。',
+      realWorldExample: '例:「この関数名を全部キャメルケースに変えて」→ AI が関連ファイルを一括修正',
+    },
+    4: {
+      learningPoints: [
+        '権限設定で AI にできることを制限する方法',
+        'サンドボックスの仕組み',
+        'チームで安全に使うためのルール',
+      ],
+      encouragement: 'セキュリティの専門知識は不要です。「どんな安全装置があるか」を知るだけで十分です。',
+      realWorldExample: '例: settings.json で「npm test は自動実行OK」「git push は毎回確認」と設定できます',
+    },
+    5: {
+      learningPoints: [
+        'MCP サーバーで AI の能力を拡張する方法',
+        'Hooks で自動化パイプラインを作る方法',
+        'スキル（スラッシュコマンド）の作り方',
+      ],
+      encouragement: 'ここからは応用編です。全部覚える必要はありません。「こんなことができるんだ」と把握できればOK。',
+      realWorldExample: '例: /deploy というスキルを作れば、デプロイ手順を毎回 AI に説明する必要がなくなります',
+    },
+    6: {
+      learningPoints: ['効果的なプロンプトの書き方', 'AI との協働ワークフロー', 'チーム導入のベストプラクティス'],
+      encouragement: '最終チャプターです！ここまでの知識を実務でどう活かすかを学びます。',
+      realWorldExample: '例:「要件を箇条書きで伝える」だけで、AI の出力品質が劇的に向上します',
+    },
+  },
+  scenarioModeDescription: '実務シナリオに沿ってClaude Codeを学ぶ',
+  tutorialSlides: [
+    {
+      title: 'Claude Code って何？',
+      description:
+        'ターミナル（黒い画面）で動く AI アシスタントです。日本語で話しかけるだけで、コードを書いたり、ファイルを編集したり、コマンドを実行してくれます。',
+      tip: 'プログラミング経験がなくても使えます',
+    },
+    {
+      title: '日本語で指示するだけ',
+      description:
+        '難しいコマンドを覚える必要はありません。やりたいことを日本語で伝えるだけで、AI が最適な方法を考えて実行してくれます。',
+    },
+    {
+      title: 'AI ができること',
+      description:
+        'ファイルの読み書き、コード生成、バグ修正、テスト作成、ドキュメント生成など、開発作業の多くを AI がサポートしてくれます。',
+      tip: '実行前に必ず確認があるので安心です',
+    },
+    {
+      title: 'このクイズで学べること',
+      description:
+        'Claude Code の基本操作から応用テクニックまで、クイズ形式で楽しく学べます。間違えても解説付きなので、確実に知識が身につきます。',
+    },
+  ],
+  tutorialTerminal: {
+    youLabel: 'あなた:',
+    aiLabel: 'Claude:',
+    prompt: 'このプロジェクトの構成を教えて',
+    reply: 'このプロジェクトは React + TypeScript で',
+    replyCont: '構成されています。主なディレクトリは...',
+  },
+  tutorialBubbles: ['ログイン機能を追加して', 'このバグを直して', 'テストを書いて', 'コードをリファクタリングして'],
+  tutorialCapabilities: [
+    { label: 'コード生成' },
+    { label: 'ファイル編集' },
+    { label: 'コマンド実行' },
+    { label: '安全性チェック' },
+  ],
+  tutorialPathSteps: [
+    { label: '基本操作を知る', desc: '全体像モード 6チャプター' },
+    { label: '知識を確認する', desc: 'カテゴリ別・ランダム問題' },
+    { label: '実力を試す', desc: '100問の実力テスト' },
+  ],
+  aboutLabel: 'Claude Code とは',
+  aboutDesc: '基本を4画面で紹介',
+  studyFirstHowToLearnBody:
+    'チャプターを選んで、基礎的な解説を読みましょう。やさしい内容だけに絞っているので、 Claude Code を知らなくても読み進められます。',
 }
 
 // ============================================================

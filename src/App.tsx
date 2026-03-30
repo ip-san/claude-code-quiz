@@ -8,6 +8,7 @@ import { hasSeenWelcome, WelcomeScreen } from '@/components/Layout/WelcomeScreen
 import { ModeSelection } from '@/components/Menu/ModeSelection'
 import { Timer } from '@/components/Quiz/chapter/Timer'
 import { QuizCard } from '@/components/Quiz/QuizCard'
+import { theme } from '@/config/theme'
 import { SCENARIOS } from '@/data/scenarios'
 import { getChapterFromTags } from '@/domain/valueObjects/OverviewChapter'
 import { isElectron } from '@/lib/platformAPI'
@@ -141,7 +142,7 @@ export default function App() {
           <div className="mb-4 flex justify-center">
             <AppLogo size={96} />
           </div>
-          <h1 className="mb-1 text-xl font-bold text-claude-dark">Claude Code Quiz</h1>
+          <h1 className="mb-1 text-xl font-bold text-claude-dark">{theme.appName}</h1>
           <p className="text-sm text-claude-gray">読み込み中...</p>
         </div>
       </div>

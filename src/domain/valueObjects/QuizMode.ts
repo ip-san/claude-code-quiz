@@ -188,7 +188,7 @@ export const PREDEFINED_QUIZ_MODES: QuizMode[] = [
   QuizMode.create({
     id: 'scenario',
     name: '実践シナリオ',
-    description: '実務シナリオに沿ってClaude Codeを学ぶ',
+    description: theme.scenarioModeDescription,
     icon: '📖',
     questionCount: null,
     timeLimit: null,

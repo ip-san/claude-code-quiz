@@ -22,88 +22,14 @@
 import { existsSync, mkdirSync, readFileSync, rmSync, statSync, writeFileSync } from 'fs'
 import { dirname, resolve } from 'path'
 import { fileURLToPath } from 'url'
-import { CATEGORY_DOC_MAP } from './quiz-constants.mjs'
+import { CATEGORY_DOC_MAP, DOC_PAGES } from './topic-config.mjs'
 
 const __dirname = dirname(fileURLToPath(import.meta.url))
 const ROOT = resolve(__dirname, '..')
-const DOCS_DIR = resolve(ROOT, '.claude/tmp/docs')
 
 // Jina Reader API base URL
 const JINA_READER_BASE = 'https://r.jina.ai/'
-
-// All official doc pages
-const DOC_PAGES = [
-  // Core
-  { name: 'overview', url: 'https://code.claude.com/docs/en/overview' },
-  { name: 'quickstart', url: 'https://code.claude.com/docs/en/quickstart' },
-  { name: 'settings', url: 'https://code.claude.com/docs/en/settings' },
-  { name: 'memory', url: 'https://code.claude.com/docs/en/memory' },
-  // Interactive & Tools
-  { name: 'interactive-mode', url: 'https://code.claude.com/docs/en/interactive-mode' },
-  { name: 'how-claude-code-works', url: 'https://code.claude.com/docs/en/how-claude-code-works' },
-  // Extensions & Integration
-  { name: 'mcp', url: 'https://code.claude.com/docs/en/mcp' },
-  { name: 'hooks', url: 'https://code.claude.com/docs/en/hooks' },
-  { name: 'hooks-guide', url: 'https://code.claude.com/docs/en/hooks-guide' },
-  { name: 'discover-plugins', url: 'https://code.claude.com/docs/en/discover-plugins' },
-  { name: 'plugins', url: 'https://code.claude.com/docs/en/plugins' },
-  { name: 'plugins-reference', url: 'https://code.claude.com/docs/en/plugins-reference' },
-  { name: 'plugin-marketplaces', url: 'https://code.claude.com/docs/en/plugin-marketplaces' },
-  { name: 'sub-agents', url: 'https://code.claude.com/docs/en/sub-agents' },
-  { name: 'agent-teams', url: 'https://code.claude.com/docs/en/agent-teams' },
-  { name: 'skills', url: 'https://code.claude.com/docs/en/skills' },
-  // Advanced
-  { name: 'common-workflows', url: 'https://code.claude.com/docs/en/common-workflows' },
-  { name: 'checkpointing', url: 'https://code.claude.com/docs/en/checkpointing' },
-  { name: 'best-practices', url: 'https://code.claude.com/docs/en/best-practices' },
-  { name: 'model-config', url: 'https://code.claude.com/docs/en/model-config' },
-  { name: 'sandboxing', url: 'https://code.claude.com/docs/en/sandboxing' },
-  { name: 'headless', url: 'https://code.claude.com/docs/en/headless' },
-  // Customization & UI
-  { name: 'keybindings', url: 'https://code.claude.com/docs/en/keybindings' },
-  { name: 'output-styles', url: 'https://code.claude.com/docs/en/output-styles' },
-  { name: 'statusline', url: 'https://code.claude.com/docs/en/statusline' },
-  { name: 'terminal-config', url: 'https://code.claude.com/docs/en/terminal-config' },
-  { name: 'fast-mode', url: 'https://code.claude.com/docs/en/fast-mode' },
-  // Platforms & IDE
-  { name: 'vs-code', url: 'https://code.claude.com/docs/en/vs-code' },
-  { name: 'jetbrains', url: 'https://code.claude.com/docs/en/jetbrains' },
-  { name: 'desktop', url: 'https://code.claude.com/docs/en/desktop' },
-  { name: 'chrome', url: 'https://code.claude.com/docs/en/chrome' },
-  { name: 'slack', url: 'https://code.claude.com/docs/en/slack' },
-  // CI/CD & Automation
-  { name: 'github-actions', url: 'https://code.claude.com/docs/en/github-actions' },
-  { name: 'gitlab-ci-cd', url: 'https://code.claude.com/docs/en/gitlab-ci-cd' },
-  { name: 'scheduled-tasks', url: 'https://code.claude.com/docs/en/scheduled-tasks' },
-  { name: 'remote-control', url: 'https://code.claude.com/docs/en/remote-control' },
-  // Enterprise & Configuration
-  { name: 'server-managed-settings', url: 'https://code.claude.com/docs/en/server-managed-settings' },
-  { name: 'devcontainer', url: 'https://code.claude.com/docs/en/devcontainer' },
-  // Supplementary (not for referenceUrl but useful for fact-checking)
-  { name: 'permissions', url: 'https://code.claude.com/docs/en/permissions' },
-  { name: 'cli-reference', url: 'https://code.claude.com/docs/en/cli-reference' },
-  { name: 'setup', url: 'https://code.claude.com/docs/en/setup' },
-  { name: 'features-overview', url: 'https://code.claude.com/docs/en/features-overview' },
-  { name: 'desktop-quickstart', url: 'https://code.claude.com/docs/en/desktop-quickstart' },
-  { name: 'authentication', url: 'https://code.claude.com/docs/en/authentication' },
-  // Cloud & Provider
-  { name: 'claude-code-on-the-web', url: 'https://code.claude.com/docs/en/claude-code-on-the-web' },
-  { name: 'amazon-bedrock', url: 'https://code.claude.com/docs/en/amazon-bedrock' },
-  { name: 'google-vertex-ai', url: 'https://code.claude.com/docs/en/google-vertex-ai' },
-  { name: 'microsoft-foundry', url: 'https://code.claude.com/docs/en/microsoft-foundry' },
-  { name: 'llm-gateway', url: 'https://code.claude.com/docs/en/llm-gateway' },
-  // Enterprise & Security
-  { name: 'network-config', url: 'https://code.claude.com/docs/en/network-config' },
-  { name: 'third-party-integrations', url: 'https://code.claude.com/docs/en/third-party-integrations' },
-  { name: 'analytics', url: 'https://code.claude.com/docs/en/analytics' },
-  { name: 'monitoring-usage', url: 'https://code.claude.com/docs/en/monitoring-usage' },
-  { name: 'security', url: 'https://code.claude.com/docs/en/security' },
-  // Features
-  { name: 'code-review', url: 'https://code.claude.com/docs/en/code-review' },
-  { name: 'troubleshooting', url: 'https://code.claude.com/docs/en/troubleshooting' },
-  // Agent SDK (different domain)
-  { name: 'agent-sdk-overview', url: 'https://platform.claude.com/docs/en/agent-sdk/overview' },
-]
+const DOCS_DIR = resolve(ROOT, '.claude/tmp/docs')
 
 // Cache validity: 24 hours
 const CACHE_TTL_MS = 24 * 60 * 60 * 1000

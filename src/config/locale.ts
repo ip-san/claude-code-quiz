@@ -6,6 +6,8 @@
  * 汎用UIテキスト（ボタンラベル、フィードバック等）はこのファイルが管理する。
  */
 
+import { theme } from '@/config/theme'
+
 export interface LocaleConfig {
   // === Common ===
   readonly common: {
@@ -593,47 +595,15 @@ const ja: LocaleConfig = {
     skip: 'スキップ',
     slideLabel: (i) => `スライド ${i}`,
     prevLabel: '前へ',
-    slides: [
-      {
-        title: 'Claude Code って何？',
-        description:
-          'ターミナル（黒い画面）で動く AI アシスタントです。日本語で話しかけるだけで、コードを書いたり、ファイルを編集したり、コマンドを実行してくれます。',
-        tip: 'プログラミング経験がなくても使えます',
-      },
-      {
-        title: '日本語で指示するだけ',
-        description:
-          '難しいコマンドを覚える必要はありません。やりたいことを日本語で伝えるだけで、AI が最適な方法を考えて実行してくれます。',
-      },
-      {
-        title: 'AI ができること',
-        description:
-          'ファイルの読み書き、コード生成、バグ修正、テスト作成、ドキュメント生成など、開発作業の多くを AI がサポートしてくれます。',
-        tip: '実行前に必ず確認があるので安心です',
-      },
-      {
-        title: 'このクイズで学べること',
-        description:
-          'Claude Code の基本操作から応用テクニックまで、クイズ形式で楽しく学べます。間違えても解説付きなので、確実に知識が身につきます。',
-      },
-    ],
-    terminalYou: 'あなた:',
-    terminalClaude: 'Claude:',
-    terminalPrompt: 'このプロジェクトの構成を教えて',
-    terminalReply: 'このプロジェクトは React + TypeScript で',
-    terminalReplyCont: '構成されています。主なディレクトリは...',
-    bubbles: ['ログイン機能を追加して', 'このバグを直して', 'テストを書いて', 'コードをリファクタリングして'],
-    capabilities: [
-      { label: 'コード生成' },
-      { label: 'ファイル編集' },
-      { label: 'コマンド実行' },
-      { label: '安全性チェック' },
-    ],
-    pathSteps: [
-      { label: '基本操作を知る', desc: '全体像モード 6チャプター' },
-      { label: '知識を確認する', desc: 'カテゴリ別・ランダム問題' },
-      { label: '実力を試す', desc: '100問の実力テスト' },
-    ],
+    slides: theme.tutorialSlides,
+    terminalYou: theme.tutorialTerminal.youLabel,
+    terminalClaude: theme.tutorialTerminal.aiLabel,
+    terminalPrompt: theme.tutorialTerminal.prompt,
+    terminalReply: theme.tutorialTerminal.reply,
+    terminalReplyCont: theme.tutorialTerminal.replyCont,
+    bubbles: theme.tutorialBubbles,
+    capabilities: theme.tutorialCapabilities,
+    pathSteps: theme.tutorialPathSteps,
   },
 
   chapterIntro: {
@@ -649,8 +619,7 @@ const ja: LocaleConfig = {
     title: '読んでから解く',
     subtitle: '解説を読んでからクイズに挑戦',
     howToLearnTitle: '学習の進め方',
-    howToLearnBody:
-      'チャプターを選んで、基礎的な解説を読みましょう。やさしい内容だけに絞っているので、 Claude Code を知らなくても読み進められます。',
+    howToLearnBody: theme.studyFirstHowToLearnBody,
     afterLearning: 'このチャプターを学んだら...',
     doneReading: '読み終えた',
     readingDoneTitle: '解説を読み終えました！',
@@ -676,8 +645,8 @@ const ja: LocaleConfig = {
     openMenu: 'メニューを開く',
     closeMenu: 'メニューを閉じる',
     menuLabel: 'メニュー',
-    aboutClaude: 'Claude Code とは',
-    aboutClaudeDesc: '基本を4画面で紹介',
+    aboutClaude: theme.aboutLabel,
+    aboutClaudeDesc: theme.aboutDesc,
     quizModes: 'クイズモード',
     scenarioLabel: '実践シナリオ',
     scenarioDesc: '実務に沿ったストーリーで学ぶ',

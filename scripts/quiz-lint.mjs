@@ -21,6 +21,7 @@
 import { existsSync, readdirSync, readFileSync, writeFileSync } from 'fs'
 import { dirname, resolve } from 'path'
 import { fileURLToPath } from 'url'
+import { BACKTICK_TERMS, DOC_URL_PREFIX, TERMINOLOGY_DICT } from './topic-config.mjs'
 
 const __dirname = dirname(fileURLToPath(import.meta.url))
 const ROOT = resolve(__dirname, '..')
@@ -39,12 +40,13 @@ function saveQuizzes(data) {
 // 1. Backtick Auto-Lint
 // ============================================================
 
-/**
- * Terms that should ALWAYS be wrapped in backticks when appearing
- * outside of an existing backtick span.
- *
- * Order matters: longer patterns are checked first to avoid partial matches.
- */
+// Unpack centralized term lists from topic-config
+const FILE_PATH_TERMS = BACKTICK_TERMS.filePaths
+const SLASH_CMD_PATTERN = BACKTICK_TERMS.slashCommands
+const HOOK_EVENTS = BACKTICK_TERMS.hookEvents
+const TOOL_NAMES = BACKTICK_TERMS.toolNames
+const CONFIG_KEYS = BACKTICK_TERMS.configKeys
+const CLI_COMMANDS = BACKTICK_TERMS.cliCommands
 
 // Environment variables: UPPER_SNAKE_CASE with common prefixes
 const ENV_VAR_PATTERN =
@@ -53,105 +55,8 @@ const ENV_VAR_PATTERN =
 // CLI flags: --flag-name or -x (single letter)
 const FLAG_PATTERN = /(?<!`|[-\w])(--[a-z][-a-z0-9]*(?:=\S+)?)(?!`|[-\w])/g
 
-// Slash commands: /command-name
-const SLASH_CMD_PATTERN =
-  /(?<!`|[/\w])(\/(init|memory|compact|clear|rewind|status|model|config|hooks|login|logout|bug|review|terminal-setup|teleport|doctor|cost|vim|rename|todos|tasks|search|ide|project|help|mcp|diff|permissions|listen))(?![-\w]|`)/g
-
-// File paths & config files — sorted by length descending to match longer paths first
-// (prevents `CLAUDE.md` from matching inside `~/.claude/CLAUDE.md`)
-const FILE_PATH_TERMS = [
-  '~/.claude/settings.json',
-  '~/.claude/CLAUDE.md',
-  '~/.claude/commands/',
-  '~/.claude/skills/',
-  '.claude/settings.json',
-  '.claude/commands/',
-  '.claude/rules/',
-  '.claude/skills/',
-  '.claude/tmp/',
-  'CLAUDE.local.md',
-  'CLAUDE.md',
-  'settings.json',
-  'package.json',
-  '.gitignore',
-  '.clauderc',
-  '.mcp.json',
-].sort((a, b) => b.length - a.length)
-
-// Hook event names (PascalCase)
-const HOOK_EVENTS = [
-  'PreToolUse',
-  'PostToolUse',
-  'UserPromptSubmit',
-  'Stop',
-  'SubagentStop',
-  'SessionStart',
-  'SessionEnd',
-  'Notification',
-  'PermissionRequest',
-  'TeammateIdle',
-  'TaskCompleted',
-  'ConfigChange',
-  'WorktreeCreate',
-]
-
-// Built-in tool names (Agent/Task excluded — too many false positives with "Agent SDK" etc.)
-const TOOL_NAMES = [
-  'Bash',
-  'Read',
-  'Write',
-  'Edit',
-  'Glob',
-  'Grep',
-  'WebFetch',
-  'WebSearch',
-  'NotebookEdit',
-  'TodoWrite',
-]
-
-// Config keys (camelCase / kebab-case identifiers from settings)
-// Sorted by length descending to match compound keys first (e.g., `spinnerVerbs.mode` before `spinnerVerbs`)
-const CONFIG_KEYS = [
-  'allowed-tools',
-  'allowedTools',
-  'context: fork',
-  'defaultMode',
-  'allowManagedHooksOnly',
-  'permissions.deny',
-  'permissions.allow',
-  'spinnerVerbs.mode',
-  'spinnerVerbs.verbs',
-  'spinnerVerbs',
-  'deniedMcpServers',
-  'allowedMcpServers',
-  'alwaysThinkingEnabled',
-  'availableModels',
-  'hookSpecificOutput',
-].sort((a, b) => b.length - a.length)
-
 // Keyboard shortcuts
 const KEYBOARD_PATTERN = /(?<!`)((?:Ctrl|Shift|Alt|Option|Cmd|Meta)\+[A-Za-z0-9]+(?:\+[A-Za-z0-9]+)*)(?!`)/g
-
-// CLI commands (full invocations) — longer patterns first to match greedily
-const CLI_COMMANDS = [
-  'git reset --hard',
-  'git worktree remove',
-  'brew install --cask claude-code',
-  'npm test',
-  'npm install',
-  'npm run',
-  'git commit',
-  'git push',
-  'git stash',
-  'git reset',
-  'git worktree',
-  'claude --resume',
-  'claude --continue',
-  'claude --review',
-  'claude --teleport',
-  'claude install-mcp',
-  'nvm use',
-]
 
 /**
  * Check if a position is inside an existing backtick span.
@@ -392,8 +297,7 @@ function lintUrls(quizzes) {
 
     // Validate domain (code.claude.com for Claude Code docs, platform.claude.com for Agent SDK docs)
     const isCodeDocs =
-      quiz.referenceUrl.startsWith('https://code.claude.com/docs/ja/') ||
-      quiz.referenceUrl.startsWith('https://code.claude.com/docs/en/')
+      quiz.referenceUrl.startsWith(`${DOC_URL_PREFIX}ja/`) || quiz.referenceUrl.startsWith(`${DOC_URL_PREFIX}en/`)
     const isPlatformDocs =
       quiz.referenceUrl.startsWith('https://platform.claude.com/docs/ja/') ||
       quiz.referenceUrl.startsWith('https://platform.claude.com/docs/en/')
@@ -454,39 +358,7 @@ function lintUrls(quizzes) {
 // 3. Terminology Dictionary Check
 // ============================================================
 
-/**
- * Known incorrect terms → correct terms.
- * Built from known-issues.md and verified facts in MEMORY.md.
- */
-const TERMINOLOGY_DICT = [
-  // Official names
-  { wrong: 'Azure Foundry', correct: 'Microsoft Foundry', caseInsensitive: false },
-  // "Claude Code SDK" — skip if context is clearly historical (e.g., "旧称", "以前は")
-  { wrong: 'Claude Code SDK', correct: 'Claude Agent SDK', caseInsensitive: false, skipIfHistorical: true },
-  // Non-existent commands/features (only flag in explanation, not in wrong-answer options)
-  {
-    wrong: 'claude commit',
-    correct: null,
-    message: '`claude commit` サブコマンドは存在しません',
-    skipWrongOptions: true,
-  },
-  {
-    wrong: /(?<!`)\/teleport(?!`)/,
-    correct: null,
-    message: '`/teleport` はスラッシュコマンドではなく `claude --teleport` CLIフラグです',
-    skipWrongOptions: true,
-  },
-  // Terminology precision
-  { wrong: 'allowed_tools', correct: 'allowed-tools', caseInsensitive: false },
-  // Common misspellings in Japanese context
-  { wrong: 'Exntended Thinking', correct: 'Extended Thinking', caseInsensitive: false },
-  // Deprecated terminology
-  {
-    wrong: /(?<!\w)Task\s+tool(?!\w)/i,
-    correct: null,
-    message: 'CLI では Agent ツールに改名済み（SDK の allowedTools では Task を使用）',
-  },
-]
+// TERMINOLOGY_DICT is imported from topic-config.mjs
 
 function lintTerminology(quizzes) {
   const issues = []
