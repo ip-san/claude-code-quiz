@@ -3,7 +3,7 @@
  * GA4 Analytics MCP Server
  *
  * Claude Code から GA4 の分析データを直接クエリできる MCP サーバー。
- * stdin/stdout で JSON-RPC メッセージをやり取りする（MCP stdio transport）。
+ * 公式 @modelcontextprotocol/sdk を使用した stdio transport。
  *
  * 提供するツール:
  *   - ga4_report: カスタムレポートを実行（ディメンション・指標・日付範囲を指定）
@@ -11,13 +11,53 @@
  *   - ga4_summary: 直近N日間のサマリー（よく使うレポートのプリセット）
  */
 
+import { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js'
+import { StdioServerTransport } from '@modelcontextprotocol/sdk/server/stdio.js'
 import { readFileSync } from 'fs'
 import { homedir } from 'os'
 import { dirname, resolve } from 'path'
 import { fileURLToPath } from 'url'
+import { z } from 'zod'
 
 const __dirname = dirname(fileURLToPath(import.meta.url))
 const rootDir = resolve(__dirname, '..')
+
+// ============================================================
+// Event Parameter Type Registry
+// ============================================================
+// GA4 では数値パラメータは metric としてのみ、文字列パラメータは dimension としてのみ使用可能。
+// customEvent: プレフィックス付きで指定する場合のバリデーションに使用。
+
+const NUMERIC_PARAMS = new Set([
+  'accuracy',
+  'score',
+  'total',
+  'duration_sec',
+  'question_count',
+  'result_count',
+  'slide_index',
+])
+
+const STRING_PARAMS = new Set(['action', 'quiz_mode', 'category', 'platform', 'chapter_id', 'method'])
+
+function validateCustomEventUsage(dimensions, metrics) {
+  const errors = []
+  for (const dim of dimensions ?? []) {
+    const match = dim.match(/^customEvent:(.+)$/)
+    if (match && NUMERIC_PARAMS.has(match[1])) {
+      errors.push(`"${dim}" は数値パラメータのため dimension に指定できません。metrics に移動してください`)
+    }
+  }
+  for (const met of metrics ?? []) {
+    const match = met.match(/^customEvent:(.+)$/)
+    if (match && STRING_PARAMS.has(match[1])) {
+      errors.push(`"${met}" は文字列パラメータのため metrics に指定できません。dimensions に移動してください`)
+    }
+  }
+  if (errors.length > 0) {
+    throw new Error(`パラメータ型エラー:\n${errors.join('\n')}`)
+  }
+}
 
 // .env 読み込み
 const envPath = resolve(rootDir, '.env')
@@ -43,113 +83,16 @@ async function getClient() {
 }
 
 // ============================================================
-// MCP Protocol
+// GA4 Report Functions
 // ============================================================
 
-const TOOLS = [
-  {
-    name: 'ga4_report',
-    description: 'GA4 カスタムレポートを実行する。ディメンション・指標・日付範囲・フィルタを指定して分析データを取得。',
-    inputSchema: {
-      type: 'object',
-      properties: {
-        dimensions: {
-          type: 'array',
-          items: { type: 'string' },
-          description:
-            'ディメンション名の配列。例: ["eventName", "customEvent:quiz_mode", "customEvent:platform", "date", "city", "deviceCategory"]',
-        },
-        metrics: {
-          type: 'array',
-          items: { type: 'string' },
-          description:
-            '指標名の配列。例: ["eventCount", "activeUsers", "sessions", "customEvent:accuracy", "customEvent:score"]',
-        },
-        startDate: {
-          type: 'string',
-          description: '開始日（YYYY-MM-DD or "7daysAgo", "30daysAgo", "yesterday", "today"）',
-          default: '7daysAgo',
-        },
-        endDate: {
-          type: 'string',
-          description: '終了日（YYYY-MM-DD or "today", "yesterday"）',
-          default: 'today',
-        },
-        dimensionFilter: {
-          type: 'object',
-          description: 'ディメンションフィルタ。例: {"dimension": "eventName", "value": "quiz_complete"}',
-          properties: {
-            dimension: { type: 'string' },
-            value: { type: 'string' },
-          },
-        },
-        limit: {
-          type: 'number',
-          description: '結果の最大行数（デフォルト: 100）',
-          default: 100,
-        },
-      },
-      required: ['dimensions', 'metrics'],
-    },
-  },
-  {
-    name: 'ga4_realtime',
-    description: 'GA4 リアルタイムレポートを取得する。過去30分間のアクティブユーザーとイベントを表示。',
-    inputSchema: {
-      type: 'object',
-      properties: {
-        dimensions: {
-          type: 'array',
-          items: { type: 'string' },
-          description: 'ディメンション。例: ["eventName", "customEvent:platform"]',
-          default: ['eventName'],
-        },
-        metrics: {
-          type: 'array',
-          items: { type: 'string' },
-          description: '指標。例: ["activeUsers", "eventCount"]',
-          default: ['activeUsers', 'eventCount'],
-        },
-      },
-    },
-  },
-  {
-    name: 'ga4_summary',
-    description: '直近N日間の主要KPIサマリーを取得する。モード別利用状況、完了率、プラットフォーム別ユーザー数など。',
-    inputSchema: {
-      type: 'object',
-      properties: {
-        days: {
-          type: 'number',
-          description: '集計日数（デフォルト: 7）',
-          default: 7,
-        },
-      },
-    },
-  },
-]
+async function runReport(args) {
+  if (!PROPERTY_ID) throw new Error('GA4_PROPERTY_ID が .env に設定されていません')
 
-// ツール実行
-async function handleToolCall(name, args) {
-  if (!PROPERTY_ID) {
-    return { error: 'GA4_PROPERTY_ID が .env に設定されていません' }
-  }
+  validateCustomEventUsage(args.dimensions, args.metrics)
 
   const client = await getClient()
 
-  switch (name) {
-    case 'ga4_report':
-      return await runReport(client, args)
-    case 'ga4_realtime':
-      return await runRealtime(client, args)
-    case 'ga4_summary':
-      return await runSummary(client, args)
-    default:
-      return { error: `Unknown tool: ${name}` }
-  }
-}
-
-async function runReport(client, args) {
   const request = {
     property: `properties/${PROPERTY_ID}`,
     dimensions: (args.dimensions ?? []).map((name) => ({ name })),
@@ -172,11 +115,27 @@ async function runReport(client, args) {
     }
   }
 
-  const [response] = await client.runReport(request)
-  return formatReport(response)
+  try {
+    const [response] = await client.runReport(request)
+    return formatReport(response)
+  } catch (err) {
+    if (err.code === 3 || err.message?.includes('INVALID_ARGUMENT')) {
+      throw new Error(
+        `GA4 API エラー: リクエストが不正です。\n` +
+          `dimensions: ${JSON.stringify(args.dimensions)}\n` +
+          `metrics: ${JSON.stringify(args.metrics)}\n` +
+          `ヒント: 数値パラメータ（accuracy, score 等）は metrics に、文字列パラメータ（quiz_mode, platform 等）は dimensions に指定してください。\n` +
+          `原因: ${err.message}`
+      )
+    }
+    throw err
+  }
 }
 
-async function runRealtime(client, args) {
+async function runRealtime(args) {
+  if (!PROPERTY_ID) throw new Error('GA4_PROPERTY_ID が .env に設定されていません')
+  const client = await getClient()
+
   const [response] = await client.runRealtimeReport({
     property: `properties/${PROPERTY_ID}`,
     dimensions: (args.dimensions ?? ['eventName']).map((name) => ({ name })),
@@ -185,21 +144,21 @@ async function runRealtime(client, args) {
   return formatReport(response)
 }
 
-async function runSummary(client, args) {
+async function runSummary(args) {
+  if (!PROPERTY_ID) throw new Error('GA4_PROPERTY_ID が .env に設定されていません')
+  const client = await getClient()
+
   const days = args.days ?? 7
   const startDate = `${days}daysAgo`
   const property = `properties/${PROPERTY_ID}`
 
-  // 並列で複数レポートを実行
   const [overview, modeBreakdown, platformBreakdown, eventCounts] = await Promise.all([
-    // 1. 全体概要
     client.runReport({
       property,
       dimensions: [],
       metrics: [{ name: 'activeUsers' }, { name: 'sessions' }, { name: 'eventCount' }],
       dateRanges: [{ startDate, endDate: 'today' }],
     }),
-    // 2. モード別クイズ完了
     client.runReport({
       property,
       dimensions: [{ name: 'customEvent:quiz_mode' }],
@@ -213,7 +172,6 @@ async function runSummary(client, args) {
       },
       limit: 20,
     }),
-    // 3. プラットフォーム別
     client.runReport({
       property,
       dimensions: [{ name: 'customEvent:platform' }],
@@ -221,7 +179,6 @@ async function runSummary(client, args) {
       dateRanges: [{ startDate, endDate: 'today' }],
       limit: 10,
     }),
-    // 4. イベント別カウント
     client.runReport({
       property,
       dimensions: [{ name: 'eventName' }],
@@ -264,121 +221,85 @@ function formatReport(response) {
 }
 
 // ============================================================
-// MCP JSON-RPC over stdio
+// MCP Server Setup (official SDK)
 // ============================================================
 
-let inputBuffer = Buffer.alloc(0)
-
-function send(response) {
-  const json = JSON.stringify(response)
-  const header = `Content-Length: ${Buffer.byteLength(json)}\r\n\r\n`
-  process.stdout.write(header + json)
-}
-
-function handleMessage(message) {
-  const { id, method, params } = message
-
-  switch (method) {
-    case 'initialize':
-      send({
-        jsonrpc: '2.0',
-        id,
-        result: {
-          protocolVersion: '2024-11-05',
-          capabilities: { tools: {} },
-          serverInfo: { name: 'ga4-analytics', version: '1.0.0' },
-        },
-      })
-      break
-
-    case 'notifications/initialized':
-      // No response needed for notifications
-      break
-
-    case 'tools/list':
-      send({
-        jsonrpc: '2.0',
-        id,
-        result: { tools: TOOLS },
-      })
-      break
-
-    case 'tools/call':
-      handleToolCall(params.name, params.arguments ?? {})
-        .then((result) => {
-          send({
-            jsonrpc: '2.0',
-            id,
-            result: {
-              content: [
-                {
-                  type: 'text',
-                  text: typeof result === 'string' ? result : JSON.stringify(result, null, 2),
-                },
-              ],
-            },
-          })
-        })
-        .catch((err) => {
-          send({
-            jsonrpc: '2.0',
-            id,
-            result: {
-              content: [{ type: 'text', text: `Error: ${err.message}` }],
-              isError: true,
-            },
-          })
-        })
-      break
-
-    default:
-      if (id) {
-        send({
-          jsonrpc: '2.0',
-          id,
-          error: { code: -32601, message: `Method not found: ${method}` },
-        })
-      }
-  }
-}
-
-// Content-Length based message parsing (raw stdin, not readline)
-process.stdin.on('data', (chunk) => {
-  inputBuffer = Buffer.concat([inputBuffer, chunk])
-  processBuffer()
+const server = new McpServer({
+  name: 'ga4-analytics',
+  version: '1.0.0',
 })
 
-function processBuffer() {
-  while (true) {
-    const bufStr = inputBuffer.toString('utf-8')
-
-    // Look for Content-Length header
-    const headerEnd = bufStr.indexOf('\r\n\r\n')
-    if (headerEnd === -1) break
-
-    const header = bufStr.slice(0, headerEnd)
-    const lengthMatch = header.match(/Content-Length:\s*(\d+)/i)
-    if (!lengthMatch) {
-      // Malformed header — skip past it
-      inputBuffer = Buffer.from(bufStr.slice(headerEnd + 4), 'utf-8')
-      continue
-    }
-
-    const contentLength = parseInt(lengthMatch[1], 10)
-    const bodyStartOffset = Buffer.byteLength(header + '\r\n\r\n', 'utf-8')
-
-    if (inputBuffer.length < bodyStartOffset + contentLength) break // wait for more data
-
-    const body = inputBuffer.slice(bodyStartOffset, bodyStartOffset + contentLength).toString('utf-8')
-    inputBuffer = inputBuffer.slice(bodyStartOffset + contentLength)
-
-    try {
-      handleMessage(JSON.parse(body))
-    } catch {
-      // skip malformed messages
+server.tool(
+  'ga4_report',
+  'GA4 カスタムレポートを実行する。ディメンション・指標・日付範囲・フィルタを指定して分析データを取得。',
+  {
+    dimensions: z
+      .array(z.string())
+      .describe(
+        'ディメンション名の配列（文字列パラメータのみ）。例: ["eventName", "customEvent:quiz_mode", "customEvent:platform", "date", "city", "deviceCategory"]。注意: 数値パラメータ（accuracy, score, total, duration_sec 等）は dimensions に指定不可、metrics に指定すること'
+      ),
+    metrics: z
+      .array(z.string())
+      .describe(
+        '指標名の配列（数値パラメータ可）。例: ["eventCount", "activeUsers", "sessions", "customEvent:accuracy", "customEvent:score"]。注意: 文字列パラメータ（quiz_mode, platform, action 等）は metrics に指定不可、dimensions に指定すること'
+      ),
+    startDate: z
+      .string()
+      .default('7daysAgo')
+      .describe('開始日（YYYY-MM-DD or "7daysAgo", "30daysAgo", "yesterday", "today"）'),
+    endDate: z.string().default('today').describe('終了日（YYYY-MM-DD or "today", "yesterday"）'),
+    dimensionFilter: z
+      .object({
+        dimension: z.string(),
+        value: z.string(),
+      })
+      .optional()
+      .describe('ディメンションフィルタ。例: {"dimension": "eventName", "value": "quiz_complete"}'),
+    limit: z.number().default(100).describe('結果の最大行数（デフォルト: 100）'),
+  },
+  async (args) => {
+    const result = await runReport(args)
+    return {
+      content: [{ type: 'text', text: JSON.stringify(result, null, 2) }],
     }
   }
-}
+)
 
-// Keep process alive
-process.stdin.resume()
+server.tool(
+  'ga4_realtime',
+  'GA4 リアルタイムレポートを取得する。過去30分間のアクティブユーザーとイベントを表示。',
+  {
+    dimensions: z
+      .array(z.string())
+      .default(['eventName'])
+      .describe('ディメンション。例: ["eventName", "customEvent:platform"]'),
+    metrics: z
+      .array(z.string())
+      .default(['activeUsers', 'eventCount'])
+      .describe('指標。例: ["activeUsers", "eventCount"]'),
+  },
+  async (args) => {
+    const result = await runRealtime(args)
+    return {
+      content: [{ type: 'text', text: JSON.stringify(result, null, 2) }],
+    }
+  }
+)
+
+server.tool(
+  'ga4_summary',
+  '直近N日間の主要KPIサマリーを取得する。モード別利用状況、完了率、プラットフォーム別ユーザー数など。',
+  {
+    days: z.number().default(7).describe('集計日数（デフォルト: 7）'),
+  },
+  async (args) => {
+    const result = await runSummary(args)
+    return {
+      content: [{ type: 'text', text: JSON.stringify(result, null, 2) }],
+    }
+  }
+)
+
+// Start
+const transport = new StdioServerTransport()
+await server.connect(transport)

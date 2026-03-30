@@ -145,7 +145,7 @@ v4.43.0 以前の known-issues では「exit code 2 の一般ルールで UserPr
 
 ## 外部知識の混入（具体例）
 
-- 「think」「think hard」「ultrathink」という記述が思考トークンを増やすという知識は、Claude Code docs に記載がないまま Claude Code 固有の動作として断言してはいけない
+- 「ultrathink」は model-config ページに "include 'ultrathink' in your prompt to trigger high effort for that turn" と記載済み（2026-03-30 確認）。ただし「think hard」は未ドキュメント。「think」「think hard」を Claude Code 固有の動作として断言してはいけない
 - `CLAUDE_CODE_SHELL_PREFIX` の用途例として「nix-shell」「Docker exec」を記載 → ドキュメントは "for logging or auditing" のみ。ドキュメントに記載のない用途例を追加しない
 
 ## ドキュメントの例示を完全リストと誤認

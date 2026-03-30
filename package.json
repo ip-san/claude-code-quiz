@@ -74,6 +74,7 @@
     "@biomejs/biome": "^2.4.8",
     "@google-analytics/admin": "^9.0.1",
     "@google-analytics/data": "^5.2.1",
+    "@modelcontextprotocol/sdk": "^1.28.0",
     "@playwright/test": "^1.58.2",
     "@testing-library/jest-dom": "^6.9.1",
     "@testing-library/react": "^16.3.2",
