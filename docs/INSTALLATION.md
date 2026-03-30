@@ -12,7 +12,7 @@ Claude Code Quiz のインストール方法を説明します。
 ## 必要環境
 
 - **Node.js**: 18.0.0 以上
-- **npm**: 9.0.0 以上（Node.js に同梱）
+- **[bun](https://bun.sh/)**: パッケージマネージャー兼ランタイム
 - **OS**: macOS 10.12 以上 / Windows 10 以上 / Ubuntu 18.04 以上
 
 ### Node.js のインストール
@@ -31,7 +31,7 @@ brew install node
 
 ```bash
 node --version  # v18.0.0 以上
-npm --version   # 9.0.0 以上
+bun --version   # 1.0.0 以上
 ```
 
 ## ソースからビルド
@@ -46,7 +46,7 @@ cd claude-code-quiz
 ### 2. 依存パッケージのインストール
 
 ```bash
-npm install
+bun install
 ```
 
 初回は数分かかる場合があります。
@@ -54,7 +54,7 @@ npm install
 ### 3. アプリのビルド
 
 ```bash
-npm run build
+bun run build
 ```
 
 ビルドが完了すると、`release/` フォルダにインストーラーが生成されます：
@@ -120,10 +120,10 @@ chmod +x "Claude Code Quiz-x.x.x.AppImage"
 git pull origin main
 
 # 依存パッケージを更新
-npm install
+bun install
 
 # 再ビルド
-npm run build
+bun run build
 ```
 
 生成された新しい DMG/インストーラーから再インストールしてください。
@@ -150,14 +150,14 @@ AppImage ファイルを削除するだけです。
 
 ### ビルドが失敗する
 
-**症状**: `npm run build` でエラーが発生
+**症状**: `bun run build` でエラーが発生
 
 **解決方法**:
 ```bash
 # node_modules を削除して再インストール
 rm -rf node_modules package-lock.json
-npm install
-npm run build
+bun install
+bun run build
 ```
 
 ### アプリが起動しない / 白い画面のまま
@@ -179,10 +179,10 @@ npm run build
 **解決方法**:
 ```bash
 # アイコンを再生成
-npm run generate-icons
+bun run generate-icons
 
 # 再ビルド
-npm run build
+bun run build
 ```
 
 ---

@@ -163,7 +163,7 @@ PWA は GitHub Pages にデプロイされるため、ビルド時に GTM ID を
 ### ローカルで確認
 
 ```bash
-npm run dev:web
+bun run dev:web
 # http://localhost:5174/claude-code-quiz/ を開く
 ```
 

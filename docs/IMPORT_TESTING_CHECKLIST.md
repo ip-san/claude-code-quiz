@@ -24,7 +24,7 @@
 
 ### アプリの起動
 ```bash
-npm run dev
+bun run dev
 ```
 
 ---
