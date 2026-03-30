@@ -1,6 +1,7 @@
 # 開発ガイド
 
 Claude Code Quiz の開発環境セットアップと開発ワークフローについて説明します。
+アーキテクチャの全体像は [ARCHITECTURE.md](ARCHITECTURE.md)、技術選定の背景は [decisions.md](decisions.md) を参照。
 
 ## 目次
 
@@ -17,7 +18,7 @@ Claude Code Quiz の開発環境セットアップと開発ワークフローに
 ### 必要なツール
 
 - Node.js 18+
-- npm 9+
+- [bun](https://bun.sh/)（パッケージマネージャー兼ランタイム）
 - Git
 - お好みのエディタ（VSCode 推奨）
 
@@ -29,25 +30,31 @@ git clone git@github.com:ip-san/claude-code-quiz.git
 cd claude-code-quiz
 
 # 依存パッケージをインストール
-npm install
+bun install
 ```
 
 ### VSCode 推奨拡張機能
 
-- ESLint
-- Prettier
-- Tailwind CSS IntelliSense
+- [Biome](https://marketplace.visualstudio.com/items?itemName=biomejs.biome) — Lint + フォーマッター
+- [Tailwind CSS IntelliSense](https://marketplace.visualstudio.com/items?itemName=bradlc.vscode-tailwindcss)
 
 ## 開発サーバーの起動
 
+### PWA（推奨）
+
 ```bash
-npm run dev
+bun run dev:web
 ```
 
-これにより：
-1. Vite 開発サーバーが `http://localhost:5173` で起動
-2. Electron ウィンドウが自動的に開く
-3. DevTools が別ウィンドウで開く
+`http://localhost:5174/claude-code-quiz/` で PWA 版の開発サーバーが起動。ブラウザで開発・デバッグする場合はこちら。
+
+### Electron
+
+```bash
+bun run dev
+```
+
+Vite 開発サーバー（`http://localhost:5173`）が起動し、Electron ウィンドウが自動的に開く。
 
 ### ホットリロード
 
@@ -96,7 +103,8 @@ claude-code-quiz/
 
 2. **開発サーバー起動**
    ```bash
-   npm run dev
+   bun run dev:web   # PWA（推奨）
+   bun run dev       # Electron
    ```
 
 3. **実装とテスト**
@@ -134,14 +142,20 @@ claude-code-quiz/
 ### テストの実行
 
 ```bash
-# 全テスト実行
-npm test
+# 全テスト実行（394テスト、約2秒）
+bun test
+
+# 型チェック + lint + テスト + クイズチェック（一括、約5秒）
+bun run check
 
 # ウォッチモード（ファイル変更時に自動実行）
-npm run test:watch
+bun run test:watch
+
+# E2E テスト（Playwright、18テスト）
+bun run test:e2e
 
 # カバレッジレポート生成
-npm run test:coverage
+bun run test:coverage
 ```
 
 ### テスト構成
@@ -190,27 +204,35 @@ describe('Question', () => {
 
 ## コードスタイル
 
-### Linting
+### Lint + フォーマット（Biome）
 
 ```bash
-npm run lint
+# チェック
+npx biome check src/
+
+# 自動修正
+npx biome check --write src/
 ```
+
+Biome が lint とフォーマットの両方を担当する（ESLint / Prettier は不使用）。設定は `biome.json` に集約。
 
 ### TypeScript
 
 - strict モード有効
 - 明示的な型注釈を推奨
 - `any` の使用は避ける
+- 型カバレッジ: 99.5%（`npx type-coverage` で計測）
 
 ### Tailwind CSS
 
 - ユーティリティクラスを優先
 - カスタムスタイルは `tailwind.config.js` で定義
 - Claude ブランドカラーは `claude-*` プレフィックス
+- ダークモード: `dark:` プレフィックスで全画面対応
 
 ```tsx
 // Good
-<div className="bg-claude-cream text-claude-orange p-4 rounded-lg">
+<div className="bg-claude-cream dark:bg-stone-900 text-claude-orange p-4 rounded-lg">
 
 // Avoid
 <div style={{ backgroundColor: '#FAF9F5' }}>
@@ -252,7 +274,7 @@ ipcMain.handle('some-channel', async (event, data) => {
 
 ```bash
 # 詳細なビルドログ
-DEBUG=electron-builder npm run build
+DEBUG=electron-builder bun run build
 
 # Vite ビルドのみ
 npx vite build
@@ -269,6 +291,8 @@ npx electron-builder --config
 npx vite build --report
 ```
 
+初期ロードは 189KB（コード分割: quiz-data / vendor / 画面別チャンク）。
+
 ### 最適化のポイント
 
 1. **遅延ロード**: 大きなコンポーネントは動的インポート
@@ -277,4 +301,6 @@ npx vite build --report
 
 ---
 
-詳細なアーキテクチャについては [ARCHITECTURE.md](./ARCHITECTURE.md) を参照してください。
+- アーキテクチャの詳細は [ARCHITECTURE.md](./ARCHITECTURE.md) を参照
+- 技術選定の背景は [decisions.md](./decisions.md) を参照
+- 全ドキュメントの一覧は [docs/README.md](./README.md) を参照

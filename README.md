@@ -180,12 +180,18 @@ GitHub Actions → GitHub Pages → PWA 自動配信
 
 ## ドキュメント
 
+**[docs/README.md](docs/README.md) — 全ドキュメントの目次と読書ガイド**
+
 | ドキュメント | 内容 |
 |-------------|------|
-| [アナリティクス セットアップ](docs/analytics-setup.md) | GTM + GA4 + GCP の設定手順 |
-| [イベント定義](docs/analytics-events.md) | 計測イベントとデータフロー |
+| [設計判断の記録](docs/decisions.md) | なぜ PWA か、なぜ DDD か、なぜ GTM 経由か（8 つの ADR） |
+| [アーキテクチャ](docs/ARCHITECTURE.md) | DDD レイヤー構成、PWA / Electron、状態管理 |
+| [開発ガイド](docs/DEVELOPMENT.md) | セットアップ、テスト、コードスタイル |
+| [クイズ管理](docs/QUIZ_MANAGEMENT.md) | 問題の追加・編集・検証手順 |
+| [アナリティクス セットアップ](docs/analytics-setup.md) | GTM + GA4 + GCP の初期設定 |
+| [API・MCP 運用ガイド](docs/analytics-api-guide.md) | GTM/GA4 の API 管理と MCP サーバー |
 | [品質改善ループ](docs/quality-loop.md) | 自動化された改善サイクルの仕組み |
-| [自動化ツール一覧](docs/automation.md) | スクリプト・MCP・CI/CD の全体像 |
+| [自動化ツール一覧](docs/automation.md) | スキル・スクリプト・CI/CD の全体像 |
 
 ## ライセンス
 
