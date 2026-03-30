@@ -94,12 +94,29 @@ npm run quiz:check 2>&1 | grep -i 'duplicate\|FAIL'
 npm run docs:validate 2>&1
 ```
 
-### 8. パフォーマンス（プロジェクト固有）
+### 8. アクセシビリティ（プロジェクト固有）
 
-このプロジェクトで特に重要な項目:
+このプロジェクトで特に重要な項目（汎用 `/code-review` の a11y チェックに加えて）:
+- フォーカス管理（モーダル、クイズ遷移時）
+- カラーコントラスト（ダークモード含む）
+- `aria-live` によるスコア・フィードバック通知
+- タップターゲットサイズ（48px 以上）— モバイルファースト PWA のため必須
+- キーボードナビゲーション（クイズ選択肢、ナビゲーション）
+
+### 9. パフォーマンス（プロジェクト固有）
+
+このプロジェクトで特に重要な項目（汎用 `/code-review` の perf チェックに加えて）:
 - バンドルサイズへの影響（新しい import が chunk を肥大化させないか）
 - Service Worker キャッシュへの影響
 - 不要な re-render（Zustand store の肥大化に注意）
+- `content-visibility` や仮想スクロールの適用余地（668問リスト表示時）
+
+### 10. State Management（プロジェクト固有）
+
+このプロジェクトは Zustand を使用:
+- サーバーデータをローカル state にコピーしていないか
+- Zustand store の肥大化（1 store に機能詰め込みすぎ）
+- slice パターン（viewSlice, sessionSlice, progressSlice 等）の整合性
 
 ## 出力フォーマット
 
@@ -119,7 +136,9 @@ npm run docs:validate 2>&1
 | 5 | TDZ | OK / 要確認 | |
 | 6 | クイズ ID | OK / NG | |
 | 7 | ドキュメント整合 | OK / NG | |
-| 8 | パフォーマンス | OK / 要確認 | |
+| 8 | アクセシビリティ | OK / 要確認 | |
+| 9 | パフォーマンス | OK / 要確認 | |
+| 10 | State Management | OK / 要確認 | |
 ```
 
 `--fix` 指定時は NG 項目を自動修正し、修正内容を報告する。
