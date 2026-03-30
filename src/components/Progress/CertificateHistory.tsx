@@ -50,9 +50,21 @@ export function CertificateHistory({ sessionHistory }: CertificateHistoryProps) 
     })
     .reverse()
 
-  if (earned.length === 0) return null
-
   const modeLabel = (mode: string) => (mode === 'overview' ? '全体像モード' : '実力テスト')
+
+  if (earned.length === 0) {
+    return (
+      <div className="mb-4 rounded-2xl border border-stone-200 bg-white p-4 dark:border-stone-700 dark:bg-stone-800">
+        <div className="flex items-center gap-3">
+          <Award className="h-6 w-6 text-stone-300 dark:text-stone-600" />
+          <div>
+            <p className="text-sm font-medium text-stone-500">修了証はまだありません</p>
+            <p className="text-xs text-stone-400">全体像モード 70%+ / 実力テスト 80%+ で発行されます</p>
+          </div>
+        </div>
+      </div>
+    )
+  }
 
   return (
     <div className="mb-4">
