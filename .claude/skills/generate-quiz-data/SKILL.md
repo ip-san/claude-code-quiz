@@ -23,12 +23,19 @@ node scripts/quiz-utils.mjs stats
 node scripts/quiz-utils.mjs coverage
 ```
 
-現在のIDの最大値を確認：
-```
-Read src/data/quizzes.json
+現在のIDの最大値をカテゴリごとに確認：
+```bash
+node -e "
+const q = require('./src/data/quizzes.json').quizzes;
+const prefixes = { memory:'mem', skills:'skill', tools:'tool', commands:'cmd', extensions:'ext', session:'ses', keyboard:'key', bestpractices:'bp' };
+for (const [cat, prefix] of Object.entries(prefixes)) {
+  const ids = q.filter(x=>x.id.startsWith(prefix+'-')).map(x=>parseInt(x.id.split('-')[1])).sort((a,b)=>b-a);
+  console.log(prefix + '-' + String(ids[0]+1).padStart(3,'0') + ' (next available for ' + cat + ')');
+}
+"
 ```
 
-IDは既存の最大番号の続きから採番してください。
+**ID 重複防止:** 必ず上記コマンドで次の空き ID を確認してから採番すること。既存 ID と重複すると `npm run quiz:check` が FAIL する。
 
 ## Input Source
 
