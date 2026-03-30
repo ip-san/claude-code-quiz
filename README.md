@@ -149,7 +149,7 @@ bun run build
 
 | パッケージ | 用途 |
 |-----------|------|
-| [Vitest](https://vitest.dev/) 4 | ユニットテスト（399テスト） |
+| [Vitest](https://vitest.dev/) 4 | ユニットテスト（408テスト） |
 | [Playwright](https://playwright.dev/) | E2E + Visual Regression テスト（24テスト） |
 | [Biome](https://biomejs.dev/) | Lint + フォーマッター |
 | [type-coverage](https://github.com/nicolo-ribaudo/type-coverage) | TypeScript 型カバレッジ（99.5%） |
