@@ -150,15 +150,30 @@ test.describe('Quiz App E2E', () => {
     await page.waitForSelector('[role="listbox"], [role="group"]', { timeout: 5000 })
   })
 
-  test('start overview mode from chapter map', async ({ page }) => {
+  test('start overview mode and verify scroll after chapter intro', async ({ page }) => {
     await page.getByRole('button', { name: /はじめる/ }).click()
 
-    // Chapter map should be visible on menu
+    // Click chapter from map
     const chapter1 = page.getByText('Ch.1')
     if (await chapter1.isVisible({ timeout: 2000 }).catch(() => false)) {
       await chapter1.click()
-      // Should enter quiz or chapter intro
-      await page.waitForSelector('[role="listbox"], [role="group"], h2', { timeout: 5000 })
+
+      // Chapter intro should appear
+      const startBtn = page.getByRole('button', { name: /学習をはじめる|はじめる/ })
+      if (await startBtn.isVisible({ timeout: 3000 }).catch(() => false)) {
+        // Scroll down to simulate user reading the intro
+        await page.evaluate(() => window.scrollTo(0, 500))
+
+        // Dismiss chapter intro
+        await startBtn.click()
+
+        // Scroll should reset to top after dismissing intro
+        const scrollY = await page.evaluate(() => window.scrollY)
+        expect(scrollY).toBe(0)
+      }
+
+      // Quiz should be visible
+      await page.waitForSelector('[role="listbox"], [role="group"]', { timeout: 5000 })
     }
   })
 
