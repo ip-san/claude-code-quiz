@@ -139,6 +139,21 @@ Web Share API によるクイズ結果のシェア。
 
 **送信元:** 未接続（将来実装）
 
+### app_error
+
+アプリエラー（未処理例外・レンダリングエラー）。
+
+| パラメータ | 型 | 値 |
+|-----------|-----|-----|
+| `error_message` | string | エラーメッセージ（200文字以内） |
+| `error_source` | string | `react_boundary` / `window_error` / `unhandled_rejection` |
+
+**送信元:**
+- `src/components/Layout/ErrorBoundary.tsx`（React レンダリングエラー）
+- `src/main.tsx`（グローバル `window.onerror` + `unhandledrejection`）
+
+**分析用途:** 頻出エラーの検出とバグ修正の優先度判断。`/quality-loop` のステップ 0 で最優先チェック。
+
 ## GA4 カスタム定義
 
 ### カスタムディメンション
@@ -150,6 +165,8 @@ Web Share API によるクイズ結果のシェア。
 | カテゴリ | `category` | イベント | カテゴリ別の学習傾向 |
 | アクション | `action` | イベント | 完了/スキップ等の区分 |
 | チャプター | `chapter_id` | イベント | チャプター別の進捗・離脱 |
+| エラーメッセージ | `error_message` | イベント | エラー内容の分類 |
+| エラーソース | `error_source` | イベント | 発生箇所の特定 |
 
 ### カスタム指標
 
