@@ -28,7 +28,7 @@ export function PWAUpdatePrompt() {
         <p className="flex-1 text-sm text-stone-800 dark:text-white">更新されました</p>
         <button
           onClick={() => window.location.reload()}
-          className="tap-highlight flex-shrink-0 rounded-full bg-claude-orange px-4 py-1.5 text-sm font-semibold text-white"
+          className="tap-highlight flex-shrink-0 rounded-full bg-claude-orange px-4 py-2.5 text-sm font-semibold text-white"
         >
           再読込
         </button>
