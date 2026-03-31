@@ -48,9 +48,10 @@ export function CategoryPicker({ onClose, mode = 'category', title }: CategoryPi
     >
       <div className="absolute inset-0 bg-black/40" />
       <div className="relative mx-2 mb-2 w-full max-w-sm animate-slide-down rounded-2xl bg-white p-5 shadow-2xl dark:bg-stone-800 sm:mx-4 sm:mb-0 sm:animate-none">
-        <h3 className="mb-4 text-center text-lg font-semibold text-claude-dark">
+        <h3 className="mb-2 text-center text-lg font-semibold text-claude-dark">
           {title ?? locale.categoryPicker.title}
         </h3>
+        {isUnanswered && <UnansweredProgress allQuestions={allQuestions} userProgress={userProgress} />}
         <div className="flex max-h-80 flex-col gap-1.5 overflow-y-auto">
           {PREDEFINED_CATEGORIES.map((cat) => {
             const catStats = categoryStats[cat.id]
@@ -105,6 +106,32 @@ export function CategoryPicker({ onClose, mode = 'category', title }: CategoryPi
         >
           {locale.categoryPicker.cancel}
         </button>
+      </div>
+    </div>
+  )
+}
+
+function UnansweredProgress({
+  allQuestions,
+  userProgress,
+}: {
+  allQuestions: readonly { id: string }[]
+  userProgress: { hasAttempted: (id: string) => boolean }
+}) {
+  const total = allQuestions.length
+  const answered = allQuestions.filter((q) => userProgress.hasAttempted(q.id)).length
+  const pct = total > 0 ? Math.round((answered / total) * 100) : 0
+
+  return (
+    <div className="mb-3">
+      <div className="mb-1 flex justify-between text-xs text-stone-500">
+        <span>
+          {answered} / {total} 問 回答済み
+        </span>
+        <span>{pct}%</span>
+      </div>
+      <div className="h-2 overflow-hidden rounded-full bg-stone-200 dark:bg-stone-700">
+        <div className="h-full rounded-full bg-claude-orange transition-all" style={{ width: `${pct}%` }} />
       </div>
     </div>
   )
