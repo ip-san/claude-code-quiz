@@ -100,7 +100,14 @@ export function CategoryPicker({ onClose, mode = 'category', title }: CategoryPi
                             </span>
                             <span>{catPct}%</span>
                           </div>
-                          <div className="mt-0.5 h-1.5 overflow-hidden rounded-full bg-stone-200 dark:bg-stone-600">
+                          <div
+                            className="mt-0.5 h-1.5 overflow-hidden rounded-full bg-stone-200 dark:bg-stone-600"
+                            role="progressbar"
+                            aria-valuenow={catPct}
+                            aria-valuemin={0}
+                            aria-valuemax={100}
+                            aria-label={`${cat.name}: ${catAnswered}/${catTotal}問`}
+                          >
                             <div
                               className={`h-full rounded-full transition-all ${catPct >= 100 ? 'bg-emerald-500' : 'bg-claude-orange'}`}
                               style={{ width: `${catPct}%` }}
@@ -151,7 +158,14 @@ function UnansweredProgress({
         </span>
         <span>{pct}%</span>
       </div>
-      <div className="h-2 overflow-hidden rounded-full bg-stone-200 dark:bg-stone-700">
+      <div
+        className="h-2 overflow-hidden rounded-full bg-stone-200 dark:bg-stone-700"
+        role="progressbar"
+        aria-valuenow={pct}
+        aria-valuemin={0}
+        aria-valuemax={100}
+        aria-label={`${answered}/${total}問 回答済み`}
+      >
         <div className="h-full rounded-full bg-claude-orange transition-all" style={{ width: `${pct}%` }} />
       </div>
     </div>

@@ -40,7 +40,7 @@ export function MasteryLevel({ overallAccuracy, totalAttempts, categoryStats }: 
         <div className="flex-1">
           <div className="flex items-center gap-2">
             <span className={`text-sm font-bold ${current.color}`}>{current.name}</span>
-            <div className="flex gap-1">
+            <div className="flex gap-1" role="img" aria-label={`レベル ${currentIndex + 1} / ${levels.length}`}>
               {levels.map((level, i) => (
                 <div
                   key={level.name}
