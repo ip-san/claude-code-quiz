@@ -177,9 +177,12 @@ Claude Code から GA4 Data API に直接クエリできる MCP サーバー。
 | パッケージ | 用途 |
 |-----------|------|
 | Vitest 4 | ユニットテスト（jsdom 環境） |
-| Playwright | E2E テスト + Visual Regression |
+| Playwright | E2E テスト + Visual Regression（7 デバイス） |
+| @axe-core/playwright | WCAG 2.1 AA 自動アクセシビリティテスト |
 | Biome | Lint + フォーマッター（ESLint + Prettier の代替） |
 | type-coverage | TypeScript 型カバレッジ測定（99.5%） |
+| size-limit | バンドルサイズ上限チェック |
+| Lighthouse CI | Performance / Accessibility / SEO / Best Practices スコア監視 |
 | knip | 未使用コード・未使用依存の検出 |
 | jscpd | コードクローン（コピペ）検出 |
 
