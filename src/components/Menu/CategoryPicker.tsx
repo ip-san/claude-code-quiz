@@ -78,13 +78,30 @@ export function CategoryPicker({ onClose, mode = 'category', title }: CategoryPi
                 className="tap-highlight flex items-center gap-3 rounded-xl px-3 py-3 text-left transition-colors hover:bg-stone-50 active:bg-stone-100 disabled:opacity-40 dark:hover:bg-stone-700 dark:active:bg-stone-600"
               >
                 <span className="text-xl">{cat.icon}</span>
-                <div className="flex-1">
+                <div className="flex-1 min-w-0">
                   <span className="text-sm font-medium text-claude-dark">{cat.name}</span>
-                  {isUnanswered && (
-                    <p className="text-xs text-stone-400">
-                      {unansweredCount > 0 ? `${unansweredCount}問` : '全問回答済み'}
-                    </p>
-                  )}
+                  {isUnanswered &&
+                    (() => {
+                      const catTotal = allQuestions.filter((q) => q.category === cat.id).length
+                      const catAnswered = catTotal - unansweredCount
+                      const catPct = catTotal > 0 ? Math.round((catAnswered / catTotal) * 100) : 0
+                      return (
+                        <div className="mt-1">
+                          <div className="flex justify-between text-[10px] text-stone-400">
+                            <span>
+                              {catAnswered}/{catTotal}問
+                            </span>
+                            <span>{catPct}%</span>
+                          </div>
+                          <div className="mt-0.5 h-1.5 overflow-hidden rounded-full bg-stone-200 dark:bg-stone-600">
+                            <div
+                              className={`h-full rounded-full transition-all ${catPct >= 100 ? 'bg-emerald-500' : 'bg-claude-orange'}`}
+                              style={{ width: `${catPct}%` }}
+                            />
+                          </div>
+                        </div>
+                      )
+                    })()}
                 </div>
                 {!isUnanswered && attempted && (
                   <span
@@ -92,9 +109,6 @@ export function CategoryPicker({ onClose, mode = 'category', title }: CategoryPi
                   >
                     {accuracy}%
                   </span>
-                )}
-                {isUnanswered && unansweredCount > 0 && (
-                  <span className="text-xs font-medium text-claude-orange">{unansweredCount}問</span>
                 )}
               </button>
             )
