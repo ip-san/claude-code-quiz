@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { theme } from '@/config/theme'
 import { getMasteryLevel } from '@/domain/services/MasteryLevelService'
 import { generateCertificate, LEVEL_DESIGNS } from '@/lib/certificateCanvas'
+import { useCertificateName } from '@/lib/useCertificateName'
 import { useQuizStore } from '@/stores/quizStore'
 
 interface CertificateGeneratorProps {
@@ -16,7 +17,7 @@ interface CertificateGeneratorProps {
  * 全体像モード 70%+ / 実力テスト 80%+ で表示
  */
 export function CertificateGenerator({ score, total, percentage, mode }: CertificateGeneratorProps) {
-  const [name, setName] = useState('')
+  const [name, setName] = useCertificateName()
   const [generating, setGenerating] = useState(false)
   const { userProgress, getCategoryStats } = useQuizStore()
 

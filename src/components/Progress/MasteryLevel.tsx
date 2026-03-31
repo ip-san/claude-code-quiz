@@ -3,6 +3,7 @@ import { useState } from 'react'
 import { theme } from '@/config/theme'
 import { getMasteryLevel } from '@/domain/services/MasteryLevelService'
 import { generateCertificate, LEVEL_DESIGNS } from '@/lib/certificateCanvas'
+import { useCertificateName } from '@/lib/useCertificateName'
 
 interface MasteryLevelProps {
   overallAccuracy: number
@@ -18,7 +19,7 @@ export function MasteryLevel({ overallAccuracy, totalAttempts, categoryStats }: 
   const next = currentIndex < levels.length - 1 ? levels[currentIndex + 1] : null
   const canDownload = currentIndex >= 1
 
-  const [name, setName] = useState('')
+  const [name, setName] = useCertificateName()
   const [showDownload, setShowDownload] = useState(false)
 
   const handleDownload = () => {

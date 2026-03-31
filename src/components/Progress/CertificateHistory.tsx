@@ -1,8 +1,8 @@
 import { Award, Download } from 'lucide-react'
-import { useState } from 'react'
 import { theme } from '@/config/theme'
 import type { SessionRecord } from '@/domain/entities/UserProgress'
 import { generateCertificate, LEVEL_DESIGNS } from '@/lib/certificateCanvas'
+import { useCertificateName } from '@/lib/useCertificateName'
 
 interface CertificateHistoryProps {
   sessionHistory: readonly SessionRecord[]
@@ -38,7 +38,7 @@ function estimateLevelFromScore(percentage: number): number {
 }
 
 export function CertificateHistory({ sessionHistory, masteryIndex, overallAccuracy }: CertificateHistoryProps) {
-  const [name, setName] = useState('')
+  const [name, setName] = useCertificateName()
   const entries: CertEntry[] = []
 
   // 1. Mastery level certificates
