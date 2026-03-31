@@ -10,6 +10,7 @@ import { CategoryBreakthroughBadge } from './overlays/CategoryBreakthroughBadge'
 import { ConfettiEffect } from './overlays/ConfettiEffect'
 import { DailyGoalBadge, StreakMilestoneBadge } from './overlays/StreakMilestoneBadge'
 import { CertificateGenerator } from './result/CertificateGenerator'
+import { NextRecommendation } from './result/NextRecommendation'
 import { PersonalBest } from './result/PersonalBest'
 import { ScoreRing } from './result/ScoreRing'
 import { SkillsAcquired } from './result/SkillsAcquired'
@@ -259,6 +260,9 @@ export function QuizResult() {
 
           {/* Certificate */}
           <CertificateGenerator score={score} total={answeredCount} percentage={percentage} mode={sessionConfig.mode} />
+
+          {/* Next recommendation */}
+          {!isReviewMode && <NextRecommendation mode={sessionConfig.mode} percentage={percentage} />}
 
           {/* Action buttons */}
           <div className="flex flex-col gap-3">
