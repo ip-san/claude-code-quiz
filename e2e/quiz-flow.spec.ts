@@ -282,6 +282,28 @@ test.describe('Quiz App E2E', () => {
     await expect(page.locator('h2')).toContainText(q1Text ?? '', { timeout: 3000 })
   })
 
+  test('unanswered mode shows category picker with progress', async ({ page }) => {
+    await page.getByRole('button', { name: /はじめる/ }).click()
+
+    // Skip tutorial if shown
+    const skipBtn = page.getByRole('button', { name: 'スキップ' })
+    if (await skipBtn.isVisible({ timeout: 1000 }).catch(() => false)) {
+      await skipBtn.click()
+    }
+
+    // Open hamburger → find unanswered item
+    await page.getByRole('button', { name: 'メニューを開く' }).click()
+    const menu = page.getByRole('dialog', { name: 'メニュー' })
+
+    // Scroll down if needed and click unanswered
+    const unansweredItem = menu.getByRole('button', { name: /未回答に挑戦/ })
+    await expect(unansweredItem).toBeVisible({ timeout: 3000 })
+    await unansweredItem.click()
+
+    // Category picker should show with progress info
+    await expect(page.getByText(/回答済み/)).toBeVisible({ timeout: 3000 })
+  })
+
   test('app loads without errors', async ({ page }) => {
     const errors: string[] = []
     page.on('pageerror', (err) => errors.push(err.message))
