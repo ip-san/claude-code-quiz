@@ -11,7 +11,7 @@ import { expect, test } from '@playwright/test'
 
 test.describe('Visual Regression', () => {
   test.beforeEach(async ({ page }) => {
-    await page.setViewportSize({ width: 375, height: 812 }) // iPhone 13
+    // Viewport is set by device config in playwright.config.ts — don't override here
     await page.goto('/')
     await page.evaluate(() => localStorage.clear())
     await page.reload()
@@ -54,6 +54,8 @@ test.describe('Visual Regression', () => {
 
   test('quiz screen — light mode', async ({ page }) => {
     await page.getByRole('button', { name: /はじめる/ }).click()
+    const skip = page.getByRole('button', { name: 'スキップ' })
+    if (await skip.isVisible({ timeout: 1000 }).catch(() => false)) await skip.click()
     await page.getByRole('button', { name: /気軽にチャレンジ/ }).click()
     await page.waitForSelector('[role="listbox"], [role="group"]', { timeout: 5000 })
     await page.waitForTimeout(500)
@@ -64,6 +66,8 @@ test.describe('Visual Regression', () => {
 
   test('quiz screen — dark mode', async ({ page }) => {
     await page.getByRole('button', { name: /はじめる/ }).click()
+    const skip = page.getByRole('button', { name: 'スキップ' })
+    if (await skip.isVisible({ timeout: 1000 }).catch(() => false)) await skip.click()
     await page.getByRole('button', { name: /気軽にチャレンジ/ }).click()
     await page.waitForSelector('[role="listbox"], [role="group"]', { timeout: 5000 })
     await page.evaluate(() => {
@@ -77,6 +81,8 @@ test.describe('Visual Regression', () => {
 
   test('reader screen — light mode', async ({ page }) => {
     await page.getByRole('button', { name: /はじめる/ }).click()
+    const skip3 = page.getByRole('button', { name: 'スキップ' })
+    if (await skip3.isVisible({ timeout: 1000 }).catch(() => false)) await skip3.click()
     await page.getByText('解説リーダー').first().click()
     await page.waitForTimeout(500)
     await expect(page).toHaveScreenshot('reader-light.png', {
@@ -86,6 +92,8 @@ test.describe('Visual Regression', () => {
 
   test('reader screen — dark mode', async ({ page }) => {
     await page.getByRole('button', { name: /はじめる/ }).click()
+    const skip4 = page.getByRole('button', { name: 'スキップ' })
+    if (await skip4.isVisible({ timeout: 1000 }).catch(() => false)) await skip4.click()
     await page.getByText('解説リーダー').first().click()
     await page.evaluate(() => {
       document.documentElement.classList.add('dark')

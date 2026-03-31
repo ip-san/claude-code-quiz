@@ -3,12 +3,11 @@ import { defineConfig, devices } from '@playwright/test'
 /**
  * Multi-device E2E configuration
  *
- * Functional tests run on desktop chromium only (fast).
- * Visual regression runs on 7 device viewports covering all major screen widths:
- *   320px → 360px → 412px → 430px → 640px → 768px → 810px
+ * - quiz-flow: functional tests on desktop chromium (17 tests)
+ * - visual: layout regression on 7 devices × 4 screens × 2 themes
  *
- * All use Chromium engine (WebKit not installed).
- * Device configs provide viewport size + user agent + touch simulation.
+ * Screens: welcome, menu (fixed layout — good for regression)
+ *          quiz, reader (variable content — desktop only)
  */
 export default defineConfig({
   testDir: './e2e',
@@ -20,19 +19,18 @@ export default defineConfig({
     trace: 'on-first-retry',
   },
   projects: [
-    // Functional tests — desktop chromium
+    // Functional tests
     {
       name: 'chromium',
       use: { browserName: 'chromium' },
       testMatch: /quiz-flow/,
     },
-    // Visual regression — desktop
+    // Visual regression — all devices (welcome + menu)
     {
       name: 'visual-desktop',
       use: { browserName: 'chromium' },
       testMatch: /visual/,
     },
-    // Visual regression — mobile/tablet viewports (all Chromium)
     {
       name: 'visual-iPhone-SE',
       use: { ...devices['iPhone SE'], defaultBrowserType: undefined, browserName: 'chromium' },
