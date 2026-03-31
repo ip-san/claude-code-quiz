@@ -181,7 +181,10 @@ export function QuizCard({
     return (
       <ChapterIntro
         chapter={currentChapter}
-        onStart={() => setDismissedIntros((prev) => new Set(prev).add(currentChapter.id))}
+        onStart={() => {
+          setDismissedIntros((prev) => new Set(prev).add(currentChapter.id))
+          window.scrollTo(0, 0)
+        }}
       />
     )
   }
