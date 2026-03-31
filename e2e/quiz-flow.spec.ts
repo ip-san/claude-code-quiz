@@ -1,4 +1,16 @@
-import { expect, test } from '@playwright/test'
+import { expect, type Page, test } from '@playwright/test'
+
+/** Skip welcome + tutorial to reach menu screen */
+async function goToMenu(page: Page) {
+  const welcome = page.getByRole('button', { name: /はじめる/ })
+  if (await welcome.isVisible({ timeout: 2000 }).catch(() => false)) {
+    await welcome.click()
+  }
+  const skip = page.getByRole('button', { name: 'スキップ' })
+  if (await skip.isVisible({ timeout: 1000 }).catch(() => false)) {
+    await skip.click()
+  }
+}
 
 test.describe('Quiz App E2E', () => {
   test.beforeEach(async ({ page }) => {
@@ -25,7 +37,7 @@ test.describe('Quiz App E2E', () => {
 
   test('start random quiz and answer a question', async ({ page }) => {
     // Skip welcome
-    await page.getByRole('button', { name: /はじめる/ }).click()
+    await goToMenu(page)
 
     // Click random quiz button
     await page.getByRole('button', { name: /気軽にチャレンジ/ }).click()
@@ -47,7 +59,7 @@ test.describe('Quiz App E2E', () => {
   })
 
   test('dark mode toggle works', async ({ page }) => {
-    await page.getByRole('button', { name: /はじめる/ }).click()
+    await goToMenu(page)
 
     // Open hamburger menu
     await page.getByRole('button', { name: 'メニューを開く' }).click()
@@ -67,7 +79,7 @@ test.describe('Quiz App E2E', () => {
   })
 
   test('search finds questions and shows results', async ({ page }) => {
-    await page.getByRole('button', { name: /はじめる/ }).click()
+    await goToMenu(page)
 
     // Open search
     await page.getByText('検索・リファレンス').click()
@@ -80,8 +92,8 @@ test.describe('Quiz App E2E', () => {
   })
 
   test('progress dashboard opens and closes', async ({ page }) => {
-    // Skip welcome, do a quick quiz first to have progress
-    await page.getByRole('button', { name: /はじめる/ }).click()
+    // Skip welcome + tutorial, do a quick quiz first to have progress
+    await goToMenu(page)
     await page.getByRole('button', { name: /気軽にチャレンジ/ }).click()
 
     // Answer one question
@@ -108,7 +120,7 @@ test.describe('Quiz App E2E', () => {
   })
 
   test('hamburger menu opens and lists quiz modes', async ({ page }) => {
-    await page.getByRole('button', { name: /はじめる/ }).click()
+    await goToMenu(page)
 
     // Open hamburger
     await page.getByRole('button', { name: 'メニューを開く' }).click()
@@ -124,7 +136,7 @@ test.describe('Quiz App E2E', () => {
   })
 
   test('explanation reader opens and shows questions', async ({ page }) => {
-    await page.getByRole('button', { name: /はじめる/ }).click()
+    await goToMenu(page)
 
     // Click reader shortcut on main screen
     await page.getByText('解説リーダー').first().click()
@@ -138,7 +150,7 @@ test.describe('Quiz App E2E', () => {
   })
 
   test('start quiz from hamburger menu', async ({ page }) => {
-    await page.getByRole('button', { name: /はじめる/ }).click()
+    await goToMenu(page)
 
     // Open hamburger → expand modes → start random
     await page.getByRole('button', { name: 'メニューを開く' }).click()
@@ -151,7 +163,7 @@ test.describe('Quiz App E2E', () => {
   })
 
   test('start overview mode and verify scroll after chapter intro', async ({ page }) => {
-    await page.getByRole('button', { name: /はじめる/ }).click()
+    await goToMenu(page)
 
     // Click chapter from map
     const chapter1 = page.getByText('Ch.1')
@@ -178,7 +190,7 @@ test.describe('Quiz App E2E', () => {
   })
 
   test('hamburger menu shows all modes when expanded', async ({ page }) => {
-    await page.getByRole('button', { name: /はじめる/ }).click()
+    await goToMenu(page)
 
     // Open hamburger → expand modes accordion
     await page.getByRole('button', { name: 'メニューを開く' }).click()
@@ -195,7 +207,7 @@ test.describe('Quiz App E2E', () => {
   })
 
   test('session resume after quit', async ({ page }) => {
-    await page.getByRole('button', { name: /はじめる/ }).click()
+    await goToMenu(page)
 
     // Start random quiz and answer one question
     await page.getByRole('button', { name: /気軽にチャレンジ/ }).click()
@@ -221,7 +233,7 @@ test.describe('Quiz App E2E', () => {
   })
 
   test('full test mode: deferFeedback and finish', async ({ page }) => {
-    await page.getByRole('button', { name: /はじめる/ }).click()
+    await goToMenu(page)
 
     // Start full test via hamburger menu
     await page.getByRole('button', { name: 'メニューを開く' }).click()
@@ -253,7 +265,7 @@ test.describe('Quiz App E2E', () => {
   })
 
   test('browser back button returns to menu from quiz', async ({ page }) => {
-    await page.getByRole('button', { name: /はじめる/ }).click()
+    await goToMenu(page)
 
     // Start random quiz
     await page.getByRole('button', { name: /気軽にチャレンジ/ }).click()
@@ -269,7 +281,7 @@ test.describe('Quiz App E2E', () => {
   })
 
   test('navigate back to previous question restores selection', async ({ page }) => {
-    await page.getByRole('button', { name: /はじめる/ }).click()
+    await goToMenu(page)
 
     // Start random quiz
     await page.getByRole('button', { name: /気軽にチャレンジ/ }).click()
@@ -298,13 +310,7 @@ test.describe('Quiz App E2E', () => {
   })
 
   test('unanswered mode shows category picker with progress', async ({ page }) => {
-    await page.getByRole('button', { name: /はじめる/ }).click()
-
-    // Skip tutorial if shown
-    const skipBtn = page.getByRole('button', { name: 'スキップ' })
-    if (await skipBtn.isVisible({ timeout: 1000 }).catch(() => false)) {
-      await skipBtn.click()
-    }
+    await goToMenu(page)
 
     // Open hamburger → find unanswered item
     await page.getByRole('button', { name: 'メニューを開く' }).click()
