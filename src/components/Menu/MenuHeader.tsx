@@ -211,7 +211,7 @@ export function MenuHeader({
               </MenuSection>
 
               {/* Quiz modes */}
-              <MenuSection>
+              <MenuSection title="学習">
                 <button
                   onClick={() => setModesExpanded(!modesExpanded)}
                   className="tap-highlight flex w-full items-center gap-3 px-4 py-3 text-left text-sm text-claude-dark dark:text-stone-200"
@@ -276,7 +276,7 @@ export function MenuHeader({
               </MenuSection>
 
               {/* Resources */}
-              <MenuSection>
+              <MenuSection title="リファレンス">
                 {bookmarkedCount > 0 ? (
                   <MenuItem
                     icon={<Bookmark className="h-4.5 w-4.5" />}
@@ -314,7 +314,7 @@ export function MenuHeader({
               </MenuSection>
 
               {/* Settings */}
-              <div className="py-2">
+              <MenuSection title="設定">
                 <MenuItem
                   icon={currentTheme === 'dark' ? <Sun className="h-4.5 w-4.5" /> : <Moon className="h-4.5 w-4.5" />}
                   label={currentTheme === 'dark' ? locale.menuHeader.lightMode : locale.menuHeader.darkMode}
@@ -347,7 +347,7 @@ export function MenuHeader({
                     onClick={handleUpdateCheck}
                   />
                 )}
-              </div>
+              </MenuSection>
             </nav>
 
             {/* Footer */}
@@ -372,8 +372,17 @@ export function MenuHeader({
 }
 
 /** メニューセクション区切り */
-function MenuSection({ children }: { children: React.ReactNode }) {
-  return <div className="border-b border-stone-100 py-2 dark:border-stone-800">{children}</div>
+function MenuSection({ children, title }: { children: React.ReactNode; title?: string }) {
+  return (
+    <div className="border-b border-stone-100 py-2 dark:border-stone-800">
+      {title && (
+        <p className="px-4 pb-1 pt-2 text-[10px] font-bold uppercase tracking-wider text-stone-400 dark:text-stone-500">
+          {title}
+        </p>
+      )}
+      {children}
+    </div>
+  )
 }
 
 /** デイリーゴールの円形プログレス */
