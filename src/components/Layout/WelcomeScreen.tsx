@@ -36,7 +36,7 @@ export function WelcomeScreen({ onComplete }: WelcomeScreenProps) {
 
         <h1 className="mb-2 text-3xl font-bold text-claude-dark sm:text-2xl">{theme.appName}</h1>
         <p className="mb-2 text-sm text-claude-gray">{theme.tagline}</p>
-        <p className="mb-6 text-xs text-stone-400">{getSubtitle(questionCount)}</p>
+        <p className="mb-6 text-xs text-stone-500">{getSubtitle(questionCount)}</p>
 
         {/* Features */}
         <div className="mb-8 space-y-3 text-left">
@@ -66,7 +66,7 @@ export function WelcomeScreen({ onComplete }: WelcomeScreenProps) {
           className="tap-highlight inline-flex w-full items-center justify-center gap-2 rounded-2xl bg-claude-orange px-8 py-3.5 text-lg font-semibold text-white shadow-lg"
         >
           <span>はじめる</span>
-          <span className="text-xs opacity-75">約5分</span>
+          <span className="text-xs opacity-90">約5分</span>
           <ArrowRight className="h-5 w-5" />
         </button>
       </div>
