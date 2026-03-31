@@ -3,7 +3,7 @@ import ReactDOM from 'react-dom/client'
 import App from './App'
 import { ErrorBoundary } from './components/Layout/ErrorBoundary'
 import { theme } from './config/theme'
-import { initGTM } from './lib/analytics'
+import { initGTM, trackError } from './lib/analytics'
 import { initTheme } from './lib/theme'
 import './index.css'
 
@@ -15,6 +15,14 @@ document.title = theme.appName
 
 // Initialize GTM (no-op if VITE_GTM_ID is unset or in Electron)
 initGTM()
+
+// Global error tracking
+window.addEventListener('error', (e) => {
+  trackError(e.message, 'window_error')
+})
+window.addEventListener('unhandledrejection', (e) => {
+  trackError(String(e.reason), 'unhandled_rejection')
+})
 
 const root = document.getElementById('root')
 if (!root) throw new Error('Root element not found')

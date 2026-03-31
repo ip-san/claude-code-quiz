@@ -51,6 +51,11 @@
       "name": "certificate_download",
       "description": "修了証ダウンロード",
       "params": ["quiz_mode", "platform"]
+    },
+    {
+      "name": "app_error",
+      "description": "アプリエラー（未処理例外・レンダリングエラー）",
+      "params": ["error_message", "error_source", "platform"]
     }
   ]
 }

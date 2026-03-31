@@ -1,4 +1,5 @@
 import { Component, type ReactNode } from 'react'
+import { trackError } from '@/lib/analytics'
 
 interface Props {
   children: ReactNode
@@ -23,6 +24,7 @@ export class ErrorBoundary extends Component<Props, State> {
 
   componentDidCatch(error: Error) {
     console.error('Quiz app error:', error)
+    trackError(error.message, 'react_boundary')
   }
 
   render() {

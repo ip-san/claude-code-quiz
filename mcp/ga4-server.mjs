@@ -38,7 +38,16 @@ const NUMERIC_PARAMS = new Set([
   'slide_index',
 ])
 
-const STRING_PARAMS = new Set(['action', 'quiz_mode', 'category', 'platform', 'chapter_id', 'method'])
+const STRING_PARAMS = new Set([
+  'action',
+  'quiz_mode',
+  'category',
+  'platform',
+  'chapter_id',
+  'method',
+  'error_message',
+  'error_source',
+])
 
 function validateCustomEventUsage(dimensions, metrics) {
   const errors = []

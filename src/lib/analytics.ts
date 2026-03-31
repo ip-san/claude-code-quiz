@@ -135,3 +135,11 @@ export function trackShare(method: string): void {
 export function trackCertificate(mode: string): void {
   pushEvent('certificate_download', { quiz_mode: mode })
 }
+
+/** アプリエラー */
+export function trackError(message: string, source: string): void {
+  pushEvent('app_error', {
+    error_message: message.substring(0, 200),
+    error_source: source,
+  })
+}
