@@ -40,6 +40,7 @@ MCP ツールを使って GA4 からデータを取得する。
 | reader_open | 解説リーダー利用 | platform |
 | share_result | 結果シェア | method, platform |
 | certificate_download | 修了証ダウンロード | quiz_mode, platform |
+| app_error | アプリエラー | error_message, error_source, platform |
 
 GA4 組み込みディメンション（`customEvent:` 不要）: `eventName`, `date`, `deviceCategory`, `city`
 
@@ -51,6 +52,7 @@ GA4 組み込みディメンション（`customEvent:` 不要）: `eventName`, `
    - チャプター別の離脱率
    - 「読んでから解く」モードの利用率
    - 検索利用頻度とブックマーク率
+   - **エラー発生状況（error_source 別、頻出 error_message）**
 
 ### Step 2: 分析と洞察
 
@@ -77,12 +79,21 @@ GA4 組み込みディメンション（`customEvent:` 不要）: `eventName`, `
 - Electron vs PWA のユーザー数・行動差異
 - プラットフォーム固有の問題がないか
 
+#### エラー分析
+- **app_error イベントの有無を必ず確認する**
+- `ga4_report(dimensions: ["customEvent:error_source", "customEvent:error_message"], metrics: ["eventCount"], dimensionFilter: {dimension: "eventName", value: "app_error"})` で取得
+- **頻出エラー** → 即時修正が必要なバグ
+- **error_source 別の傾向** → react_boundary（レンダリング）vs window_error（JS例外）vs unhandled_rejection（非同期）
+- **プラットフォーム別** → PWA 固有のエラーがないか
+- エラーが 0 件の場合は「エラーなし」と報告
+
 ### Step 3: アクション提案
 
 分析結果を以下のカテゴリに分類して提案する:
 
 | 優先度 | カテゴリ | 例 |
 |--------|---------|-----|
+| **最高** | **バグ修正** | **app_error で検出されたエラーの修正** |
 | 高 | クイズ品質 | 正答率が低すぎるカテゴリの問題を見直し |
 | 高 | UX改善 | 離脱率が高いステップの UI 改善 |
 | 中 | コンテンツ追加 | 利用率の高いモードに問題を追加 |
@@ -107,14 +118,19 @@ GA4 組み込みディメンション（`customEvent:` 不要）: `eventName`, `
 | クイズ開始 | X | X% |
 | クイズ完了 | X | X% |
 
+### エラー状況
+- app_error: N件（または「エラーなし ✅」）
+- 頻出: `error_message` (N回, source)
+
 ### 注目ポイント
 - [ポジティブ] ...
 - [要改善] ...
 
 ### アクション提案
-1. **[高]** ...
-2. **[中]** ...
-3. **[低]** ...
+1. **[最高]** （app_error があれば最優先で修正提案）
+2. **[高]** ...
+3. **[中]** ...
+4. **[低]** ...
 
 ### quality-loop への入力
 以下の情報をクイズ追加判定（ステップ2）に渡す:
