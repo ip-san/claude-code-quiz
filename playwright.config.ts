@@ -25,6 +25,12 @@ export default defineConfig({
       use: { browserName: 'chromium' },
       testMatch: /quiz-flow/,
     },
+    // Accessibility tests — desktop chromium
+    {
+      name: 'a11y',
+      use: { browserName: 'chromium' },
+      testMatch: /a11y/,
+    },
     // Visual regression — all devices (welcome + menu)
     {
       name: 'visual-desktop',
