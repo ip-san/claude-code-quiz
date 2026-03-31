@@ -46,7 +46,14 @@ export function CategoryPicker({ onClose, mode = 'category', title }: CategoryPi
         if (e.key === 'Escape') onClose()
       }}
     >
-      <div className="absolute inset-0 bg-black/40" />
+      <div
+        className="absolute inset-0 bg-black/40"
+        onClick={onClose}
+        onKeyDown={(e) => {
+          if (e.key === 'Escape') onClose()
+        }}
+        role="presentation"
+      />
       <div className="relative mx-2 mb-2 w-full max-w-sm animate-slide-down rounded-2xl bg-white p-5 shadow-2xl dark:bg-stone-800 sm:mx-4 sm:mb-0 sm:animate-none">
         <h3 className="mb-2 text-center text-lg font-semibold text-claude-dark">
           {title ?? locale.categoryPicker.title}
