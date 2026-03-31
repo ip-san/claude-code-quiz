@@ -27,15 +27,8 @@ test.describe('Accessibility (axe-core)', () => {
     await page.waitForLoadState('networkidle')
   })
 
-  // color-contrast may still flag edge cases in deeply nested components.
-  // Main issues fixed: stone-400→500, orange buttons→bold text, opacity-75→90.
-  const KNOWN_RULES_TO_SKIP = ['color-contrast']
-
-  test('welcome screen has no critical a11y violations', async ({ page }) => {
-    const results = await new AxeBuilder({ page })
-      .withTags(['wcag2a', 'wcag2aa', 'wcag21aa'])
-      .disableRules(KNOWN_RULES_TO_SKIP)
-      .analyze()
+  test('welcome screen has no a11y violations', async ({ page }) => {
+    const results = await new AxeBuilder({ page }).withTags(['wcag2a', 'wcag2aa', 'wcag21aa']).analyze()
 
     expect(results.violations).toEqual([])
   })
