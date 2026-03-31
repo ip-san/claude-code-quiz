@@ -49,3 +49,4 @@ playwright-report/
 .claude/worktrees/
 .claude/scheduled_tasks.lock
 build/icon.ico
+.lighthouseci/

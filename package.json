@@ -61,8 +61,23 @@
     "quiz:fact-check": "node scripts/quiz-fact-check.mjs",
     "quiz:cross-check": "node scripts/quiz-cross-check.mjs",
     "generate-icons": "node scripts/generate-icons.mjs",
-    "prepare": "husky"
+    "prepare": "husky",
+    "size": "size-limit",
+    "size:check": "size-limit --limit",
+    "lighthouse": "lhci autorun --config=lighthouserc.cjs"
   },
+  "size-limit": [
+    {
+      "path": "dist-web/assets/index-*.js",
+      "name": "Initial JS",
+      "limit": "270 kB"
+    },
+    {
+      "path": "dist-web/assets/vendor-*.js",
+      "name": "Vendor",
+      "limit": "150 kB"
+    }
+  ],
   "dependencies": {
     "lucide-react": "^0.400.0",
     "react": "^18.3.1",
@@ -75,8 +90,10 @@
     "@biomejs/biome": "^2.4.8",
     "@google-analytics/admin": "^9.0.1",
     "@google-analytics/data": "^5.2.1",
+    "@lhci/cli": "^0.15.1",
     "@modelcontextprotocol/sdk": "^1.28.0",
     "@playwright/test": "^1.58.2",
+    "@size-limit/preset-app": "^12.0.1",
     "@testing-library/jest-dom": "^6.9.1",
     "@testing-library/react": "^16.3.2",
     "@types/node": "^25.0.10",
@@ -95,6 +112,7 @@
     "lint-staged": "^16.2.7",
     "postcss": "^8.4.38",
     "sharp": "^0.34.5",
+    "size-limit": "^12.0.1",
     "tailwindcss": "^3.4.4",
     "type-coverage": "^2.29.7",
     "typescript": "^5.5.2",
