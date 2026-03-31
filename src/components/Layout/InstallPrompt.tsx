@@ -1,5 +1,6 @@
 import { Download, Share, X } from 'lucide-react'
 import { useEffect, useState } from 'react'
+import { hasSeenWelcome } from './WelcomeScreen'
 
 interface BeforeInstallPromptEvent extends Event {
   prompt: () => Promise<void>
@@ -70,8 +71,8 @@ export function InstallPrompt() {
     }
   }
 
-  // Don't show if dismissed or already installed
-  if (dismissed || isStandalone) return null
+  // Don't show if dismissed, already installed, or welcome screen is still showing
+  if (dismissed || isStandalone || !hasSeenWelcome()) return null
 
   // iOS guide
   if (isIOS && showIOSGuide) {
