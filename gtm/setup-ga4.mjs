@@ -51,6 +51,12 @@ const DIMENSIONS = [
   { parameterName: 'category', displayName: 'カテゴリ', description: 'memory, tools, skills, etc.' },
   { parameterName: 'action', displayName: 'アクション', description: 'start, complete, skip, etc.' },
   { parameterName: 'chapter_id', displayName: 'チャプター', description: 'チャプター番号 (1-6)' },
+  { parameterName: 'error_message', displayName: 'エラーメッセージ', description: 'アプリエラーの内容（200文字以内）' },
+  {
+    parameterName: 'error_source',
+    displayName: 'エラーソース',
+    description: 'react_boundary / window_error / unhandled_rejection',
+  },
 ]
 
 // カスタム指標定義
