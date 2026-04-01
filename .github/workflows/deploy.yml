@@ -30,6 +30,10 @@ jobs:
       - uses: actions/upload-pages-artifact@v3
         with:
           path: dist-web
+      # On failure, annotate the commit so it's visible in GitHub UI
+      - name: Annotate failure
+        if: failure()
+        run: echo "::error::check:all or build:web failed. Check logs above."
 
   deploy:
     needs: build
