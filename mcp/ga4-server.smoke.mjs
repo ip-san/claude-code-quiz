@@ -2,7 +2,7 @@
 /**
  * Smoke test for GA4 MCP Server
  *
- * Run: node mcp/ga4-server.test.mjs
+ * Run: node mcp/ga4-server.smoke.mjs
  *
  * Tests the env parser regex, MCP protocol handshake, tool listing,
  * and missing-PROPERTY_ID error path. No actual GA4 API calls are made.
