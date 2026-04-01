@@ -46,7 +46,7 @@
 ### クイズの品質維持
 
 ```
-/quiz-refine             → 公式ドキュメントと 668 問を照合
+/quiz-refine             → 公式ドキュメントと全問を照合
 /quiz-refine --dry-run   → 報告のみ（修正しない）
 /quiz-refine --full      → 差分ではなく全問スキャン
 ```

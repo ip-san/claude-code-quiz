@@ -291,6 +291,53 @@ function scanStaleNumbers(content, file, label) {
 scanStaleNumbers(claudeMd, 'CLAUDE.md', 'CLAUDE.md')
 scanStaleNumbers(readmeMd, 'README.md', 'README.md')
 
+// ── docs/ directory stale number scan ──────────────────────
+// Scan all markdown files in docs/ for stale quiz counts
+try {
+  const docsDir = 'docs'
+  for (const entry of readdirSync(docsDir)) {
+    if (!entry.endsWith('.md')) continue
+    const filePath = join(docsDir, entry)
+    const content = readFileSync(filePath, 'utf8')
+    scanStaleNumbers(content, filePath, filePath)
+  }
+} catch {
+  // docs/ may not exist
+}
+
+// ── Stale test count in docs/ ──────────────────────────────
+// Detect "N テスト" or "Nテスト" patterns in docs/ that don't match actual test counts
+try {
+  const testOutput = execSync('npx vitest run --reporter=json 2>/dev/null || true', { encoding: 'utf8' })
+  const testResult = JSON.parse(testOutput)
+  const actualTestCount = testResult.numPassedTests
+  if (actualTestCount) {
+    const docsDir = 'docs'
+    for (const entry of readdirSync(docsDir)) {
+      if (!entry.endsWith('.md')) continue
+      const filePath = join(docsDir, entry)
+      const content = readFileSync(filePath, 'utf8')
+      const testMatches = content.match(/(\d+) ?テスト/g) || []
+      for (const m of testMatches) {
+        const n = parseInt(m)
+        // Only flag numbers that look like they were a total test count (> 350, close to actual)
+        if (n > 350 && n !== actualTestCount && Math.abs(n - actualTestCount) < 50) {
+          errors.push(`${filePath}: stale test count "${m}", actual ${actualTestCount}`)
+          autoFixes.push({
+            label: `${filePath} test count ${n}`,
+            old: n,
+            new: actualTestCount,
+            file: filePath,
+            _replaceAll: true,
+          })
+        }
+      }
+    }
+  }
+} catch {
+  // skip
+}
+
 // ── theme.ts subtitle check ─────────────────────────────────
 const themeContent = readFileSync('src/config/theme.ts', 'utf8')
 const subtitleHardcoded = themeContent.match(/subtitle:.*?(\d{3,})問/)

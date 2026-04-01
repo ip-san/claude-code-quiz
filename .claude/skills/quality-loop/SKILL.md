@@ -137,6 +137,6 @@ bun run test:e2e     # Playwright E2E + Visual Regression
 | 1. code-review | 完了/スキップ | Critical N件, High N件 修正 |
 | 2. クイズ追加 | 追加不要/追加済み(N問)/スキップ | 対象カテゴリ: ... |
 | 3. quiz-refine | 完了/スキップ | N問スキャン, N件修正 |
-| 4. 統計同期 | 更新あり/変更なし/スキップ | CLAUDE.md: 問題数 668→678 等 |
+| 4. 統計同期 | 更新あり/変更なし/スキップ | CLAUDE.md: 問題数 N→M 等 |
 | 5. 最終ゲート | ✅ ALL PASS / ❌ NG | check:all ✅, size ✅(+2KB), E2E ✅ |
 ```
