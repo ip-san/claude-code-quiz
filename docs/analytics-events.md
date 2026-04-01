@@ -1,6 +1,7 @@
 # アナリティクス イベント定義
 
 PWA のユーザー操作から GA4 に送信されるイベントの一覧と、データの流れ。
+API/MCP 経由でこのデータをクエリする方法は [analytics-api-guide.md](analytics-api-guide.md) を参照。
 
 ## データフロー
 

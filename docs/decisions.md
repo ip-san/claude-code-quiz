@@ -216,3 +216,5 @@ flowchart TD
 - `/analytics-insight` が GA4 の実データから「正答率が低すぎるカテゴリ」を特定し、問題の追加・修正の判断材料を自動で提供
 - `/loop 1h /quality-loop` で定期実行すれば、ドキュメント更新への追従が自動化される
 - スキルの棲み分け: 汎用スキル（`~/.claude/skills/`）にプロジェクト固有の記述を入れず、プロジェクトスキル（`.claude/skills/`）が汎用スキルを呼び出す構成で拡張性を維持
+
+日常的にこれらのスキルをどう使っているかは [Claude Code 活用ワークフロー](claude-code-workflow.md) を参照。

@@ -303,4 +303,5 @@ npx vite build --report
 
 - アーキテクチャの詳細は [ARCHITECTURE.md](./ARCHITECTURE.md) を参照
 - 技術選定の背景は [decisions.md](./decisions.md) を参照
+- Claude Code の活用方法は [claude-code-workflow.md](./claude-code-workflow.md) を参照
 - 全ドキュメントの一覧は [docs/README.md](./README.md) を参照
