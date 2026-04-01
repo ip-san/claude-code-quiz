@@ -30,10 +30,10 @@ interface SlideData {
 }
 
 const SLIDE_DATA: SlideData[] = locale.tutorial.slides.map((slide, i) => ({
-  iconType: (['terminal', 'message', 'zap', 'logo'] as const)[i],
+  iconType: (['terminal', 'logo'] as const)[i],
   title: slide.title,
   description: slide.description,
-  visualType: (['terminal', 'bubbles', 'capabilities', 'path'] as const)[i],
+  visualType: (['terminal', 'path'] as const)[i],
   tip: slide.tip,
 }))
 
