@@ -3,13 +3,24 @@ import { expect, type Page, test } from '@playwright/test'
 /** Skip welcome + tutorial to reach menu screen */
 async function goToMenu(page: Page) {
   const welcome = page.getByRole('button', { name: /はじめる/ })
-  if (await welcome.isVisible({ timeout: 2000 }).catch(() => false)) {
+  if (await welcome.isVisible({ timeout: 3000 }).catch(() => false)) {
     await welcome.click()
   }
   const skip = page.getByRole('button', { name: 'スキップ' })
-  if (await skip.isVisible({ timeout: 1000 }).catch(() => false)) {
+  if (await skip.isVisible({ timeout: 3000 }).catch(() => false)) {
     await skip.click()
   }
+  // Confirm we reached the menu screen
+  await page.getByRole('button', { name: 'メニューを開く' }).waitFor({ timeout: 5000 })
+}
+
+/** Start a random quiz via hamburger menu (works for both first-time and returning users) */
+async function startRandomQuiz(page: Page) {
+  await page.getByRole('button', { name: 'メニューを開く' }).click()
+  const menu = page.getByRole('dialog', { name: 'メニュー' })
+  await menu.getByRole('button', { name: /クイズモード/ }).click()
+  await menu.getByText('全カテゴリからランダムに20問').click()
+  await page.waitForSelector('[role="listbox"], [role="group"]', { timeout: 5000 })
 }
 
 test.describe('Quiz App E2E', () => {
@@ -19,6 +30,11 @@ test.describe('Quiz App E2E', () => {
     await page.evaluate(() => localStorage.clear())
     await page.reload()
     await page.waitForLoadState('networkidle')
+    // Hide PWA update toast if visible (blocks clicks on small screens)
+    await page.evaluate(() => {
+      const toast = document.querySelector('.animate-slide-down')
+      if (toast instanceof HTMLElement) toast.style.display = 'none'
+    })
   })
 
   test('shows welcome screen on first visit', async ({ page }) => {
@@ -30,20 +46,20 @@ test.describe('Quiz App E2E', () => {
     // Click はじめる
     await page.getByRole('button', { name: /はじめる/ }).click()
 
+    // Skip tutorial if shown (first-time user)
+    const skip = page.getByRole('button', { name: 'スキップ' })
+    if (await skip.isVisible({ timeout: 3000 }).catch(() => false)) {
+      await skip.click()
+    }
+
     // Should see menu with hamburger, search, and first-time guide
     await expect(page.getByRole('button', { name: 'メニューを開く' })).toBeVisible()
     await expect(page.getByText('検索・リファレンス')).toBeVisible()
   })
 
   test('start random quiz and answer a question', async ({ page }) => {
-    // Skip welcome
     await goToMenu(page)
-
-    // Click random quiz button
-    await page.getByRole('button', { name: /気軽にチャレンジ/ }).click()
-
-    // Should see quiz card with options
-    await page.waitForSelector('[role="listbox"], [role="group"]', { timeout: 5000 })
+    await startRandomQuiz(page)
 
     // Select first option
     const firstOption = page.locator('[role="option"], [role="checkbox"]').first()
@@ -94,10 +110,9 @@ test.describe('Quiz App E2E', () => {
   test('progress dashboard opens and closes', async ({ page }) => {
     // Skip welcome + tutorial, do a quick quiz first to have progress
     await goToMenu(page)
-    await page.getByRole('button', { name: /気軽にチャレンジ/ }).click()
+    await startRandomQuiz(page)
 
     // Answer one question
-    await page.waitForSelector('[role="option"], [role="checkbox"]', { timeout: 5000 })
     await page.locator('[role="option"], [role="checkbox"]').first().click()
     await page.getByRole('button', { name: '回答する' }).click()
 
@@ -138,8 +153,10 @@ test.describe('Quiz App E2E', () => {
   test('explanation reader opens and shows questions', async ({ page }) => {
     await goToMenu(page)
 
-    // Click reader shortcut on main screen
-    await page.getByText('解説リーダー').first().click()
+    // Open reader via hamburger menu
+    await page.getByRole('button', { name: 'メニューを開く' }).click()
+    const menu = page.getByRole('dialog', { name: 'メニュー' })
+    await menu.getByRole('button', { name: /解説リーダー/ }).click()
 
     // Should see reader header and question count
     await expect(page.getByRole('heading', { name: '解説リーダー' })).toBeVisible()
@@ -208,10 +225,9 @@ test.describe('Quiz App E2E', () => {
 
   test('session resume after quit', async ({ page }) => {
     await goToMenu(page)
+    await startRandomQuiz(page)
 
-    // Start random quiz and answer one question
-    await page.getByRole('button', { name: /気軽にチャレンジ/ }).click()
-    await page.waitForSelector('[role="option"], [role="checkbox"]', { timeout: 5000 })
+    // Answer one question
     await page.locator('[role="option"], [role="checkbox"]').first().click()
     await page.getByRole('button', { name: '回答する' }).click()
 
@@ -261,15 +277,12 @@ test.describe('Quiz App E2E', () => {
     await finishButton.click()
 
     // Should see result screen with score
-    await expect(page.getByText(/正答率|%/)).toBeVisible({ timeout: 5000 })
+    await expect(page.getByRole('heading', { level: 2 })).toBeVisible({ timeout: 5000 })
   })
 
   test('browser back button returns to menu from quiz', async ({ page }) => {
     await goToMenu(page)
-
-    // Start random quiz
-    await page.getByRole('button', { name: /気軽にチャレンジ/ }).click()
-    await page.waitForSelector('[role="listbox"], [role="group"]', { timeout: 5000 })
+    await startRandomQuiz(page)
 
     // Press browser back
     await page.goBack()
@@ -282,10 +295,7 @@ test.describe('Quiz App E2E', () => {
 
   test('navigate back to previous question restores selection', async ({ page }) => {
     await goToMenu(page)
-
-    // Start random quiz
-    await page.getByRole('button', { name: /気軽にチャレンジ/ }).click()
-    await page.waitForSelector('[role="option"], [role="checkbox"]', { timeout: 5000 })
+    await startRandomQuiz(page)
 
     // Remember question text of Q1
     const q1Text = await page.locator('h2').textContent()

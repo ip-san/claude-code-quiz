@@ -7,23 +7,49 @@ interface Props {
 
 interface State {
   hasError: boolean
+  retryCount: number
 }
 
+/** DOM mismatch errors caused by browser extensions/translation modifying React-managed nodes */
+const DOM_MISMATCH_PATTERNS = [
+  'insertBefore',
+  'removeChild',
+  'appendChild',
+  'The node to be removed is not a child',
+  'The node before which the new node',
+]
+
+function isDOMMismatchError(error: Error): boolean {
+  return DOM_MISMATCH_PATTERNS.some((p) => error.message.includes(p))
+}
+
+const MAX_AUTO_RETRIES = 1
+
 /**
- * React Error Boundary — catches render errors and shows fallback UI
+ * React Error Boundary — catches render errors and shows fallback UI.
+ *
+ * DOM mismatch errors (from browser translation/extensions modifying the DOM)
+ * are auto-retried once, since a fresh render usually resolves them.
  */
 export class ErrorBoundary extends Component<Props, State> {
   constructor(props: Props) {
     super(props)
-    this.state = { hasError: false }
+    this.state = { hasError: false, retryCount: 0 }
   }
 
-  static getDerivedStateFromError(): State {
+  static getDerivedStateFromError(): Partial<State> {
     return { hasError: true }
   }
 
   componentDidCatch(error: Error) {
     console.error('Quiz app error:', error)
+
+    if (isDOMMismatchError(error) && this.state.retryCount < MAX_AUTO_RETRIES) {
+      // Auto-retry: DOM mismatch from browser extensions/translation is transient
+      this.setState((prev) => ({ hasError: false, retryCount: prev.retryCount + 1 }))
+      return
+    }
+
     trackError(error.message, 'react_boundary')
   }
 
