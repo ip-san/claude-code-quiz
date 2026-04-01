@@ -52,6 +52,7 @@ Claude Code Quiz プロジェクトのドキュメント一覧。
 |-------------|------|
 | [クイズ管理](QUIZ_MANAGEMENT.md) | データ構造、追加・編集手順、自動生成・検証スキル |
 | [インポートテスト](IMPORT_TESTING_CHECKLIST.md) | インポート機能の手動テストチェックリスト |
+| [クイズ生成プロンプト](QUIZ_GENERATOR_PROMPT.md) | Claude にコピペしてクイズを生成するプロンプト |
 
 ### アナリティクス
 
