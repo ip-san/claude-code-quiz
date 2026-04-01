@@ -16,6 +16,7 @@ Claude Code Quiz プロジェクトのドキュメント一覧。
 
 1. [設計判断の記録](decisions.md) — なぜ DDD か、なぜ GTM 経由か、なぜ MCP か（8 つの ADR）
 2. [アーキテクチャ](ARCHITECTURE.md) — 構成図とコード例
+3. [Claude Code 活用ワークフロー](claude-code-workflow.md) — CLAUDE.md の書き方、スキル設計、日常の開発フロー
 
 ### クイズを追加・編集する人
 
@@ -41,6 +42,7 @@ Claude Code Quiz プロジェクトのドキュメント一覧。
 |-------------|------|
 | [設計判断の記録](decisions.md) | 主要な技術選定・アーキテクチャ判断の背景と理由 |
 | [アーキテクチャ](ARCHITECTURE.md) | DDD レイヤー構成、PWA / Electron、状態管理、セキュリティ |
+| [Claude Code 活用ワークフロー](claude-code-workflow.md) | CLAUDE.md の書き方、スキル設計、日常の開発フロー、教訓の取り込み方 |
 | [開発ガイド](DEVELOPMENT.md) | セットアップ、開発サーバー、テスト、デバッグ |
 | [インストールガイド](INSTALLATION.md) | Electron デスクトップアプリのビルドとインストール |
 
