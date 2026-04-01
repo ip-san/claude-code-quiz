@@ -73,6 +73,12 @@
       "params": ["quiz_mode", "questions_remaining", "platform"]
     },
     {
+      "name": "set_user_properties",
+      "description": "ユーザープロパティ設定（セグメント分析用）",
+      "params": ["platform"],
+      "userProperties": ["mastery_level", "total_quizzes"]
+    },
+    {
       "name": "app_error",
       "description": "アプリエラー（未処理例外・レンダリングエラー）",
       "params": ["error_message", "error_source", "platform"]

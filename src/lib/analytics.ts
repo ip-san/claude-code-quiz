@@ -57,6 +57,24 @@ function pushEvent(event: string, params?: Record<string, unknown>): void {
 }
 
 // ============================================================
+// ユーザープロパティ
+// ============================================================
+
+/**
+ * GA4 ユーザープロパティを設定する。
+ * セッション開始時やレベル変動時に呼び出し、ユーザーセグメント分析を可能にする。
+ */
+export function setUserProperties(props: {
+  mastery_level?: string
+  total_quizzes?: number
+  preferred_mode?: string
+}): void {
+  if (!isAnalyticsEnabled) return
+  window.dataLayer = window.dataLayer ?? []
+  window.dataLayer.push({ event: 'set_user_properties', user_properties: { platform: PLATFORM, ...props } })
+}
+
+// ============================================================
 // イベント定義
 // ============================================================
 

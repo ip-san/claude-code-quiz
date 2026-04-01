@@ -53,6 +53,7 @@ const GTM_API = 'https://tagmanager.googleapis.com/tagmanager/v2'
 // events.json 読み込み
 const events = JSON.parse(readFileSync(resolve(__dirname, 'events.json'), 'utf-8'))
 const allParams = [...new Set(events.events.flatMap((e) => e.params))]
+const allUserProps = [...new Set(events.events.flatMap((e) => e.userProperties ?? []))]
 
 // GTM アカウント・コンテナを検索
 async function findContainer() {
@@ -164,24 +165,41 @@ async function syncTrigger(workspacePath, eventName, existing) {
 async function syncEventTag(workspacePath, event, triggerId, configTagName, existing) {
   const name = `GA4 Event - ${event.name}`
   const found = existing.find((t) => t.name === name)
+  const parameters = [
+    { type: 'TEMPLATE', key: 'eventName', value: event.name },
+    { type: 'TAG_REFERENCE', key: 'measurementId', value: configTagName },
+    {
+      type: 'LIST',
+      key: 'eventParameters',
+      list: event.params.map((param) => ({
+        type: 'MAP',
+        map: [
+          { type: 'TEMPLATE', key: 'name', value: param },
+          { type: 'TEMPLATE', key: 'value', value: `{{DLV - ${param}}}` },
+        ],
+      })),
+    },
+  ]
+
+  // ユーザープロパティがある場合は追加
+  if (event.userProperties?.length > 0) {
+    parameters.push({
+      type: 'LIST',
+      key: 'userProperties',
+      list: event.userProperties.map((prop) => ({
+        type: 'MAP',
+        map: [
+          { type: 'TEMPLATE', key: 'name', value: prop },
+          { type: 'TEMPLATE', key: 'value', value: `{{DLV - user_properties.${prop}}}` },
+        ],
+      })),
+    })
+  }
+
   const body = {
     name,
     type: 'gaawe',
-    parameter: [
-      { type: 'TEMPLATE', key: 'eventName', value: event.name },
-      { type: 'TAG_REFERENCE', key: 'measurementId', value: configTagName },
-      {
-        type: 'LIST',
-        key: 'eventParameters',
-        list: event.params.map((param) => ({
-          type: 'MAP',
-          map: [
-            { type: 'TEMPLATE', key: 'name', value: param },
-            { type: 'TEMPLATE', key: 'value', value: `{{DLV - ${param}}}` },
-          ],
-        })),
-      },
-    ],
+    parameter: parameters,
     firingTriggerId: [triggerId],
     tagFiringOption: 'ONCE_PER_EVENT',
     monitoringMetadata: { type: 'MAP' },
@@ -190,11 +208,12 @@ async function syncEventTag(workspacePath, event, triggerId, configTagName, exis
 
   if (found) {
     // パラメータが変わっている場合は更新
-    const existingParams = found.parameter
-      ?.find((p) => p.key === 'eventParameters')
-      ?.list?.map((item) => item.map?.find((m) => m.key === 'name')?.value)
-      ?.filter(Boolean)
-      ?.sort() ?? []
+    const existingParams =
+      found.parameter
+        ?.find((p) => p.key === 'eventParameters')
+        ?.list?.map((item) => item.map?.find((m) => m.key === 'name')?.value)
+        ?.filter(Boolean)
+        ?.sort() ?? []
     const newParams = [...event.params].sort()
 
     if (JSON.stringify(existingParams) === JSON.stringify(newParams)) {
@@ -267,6 +286,9 @@ async function main() {
   for (const param of allParams) {
     await syncVariable(workspace.path, param, existing.variables)
   }
+  for (const prop of allUserProps) {
+    await syncVariable(workspace.path, `user_properties.${prop}`, existing.variables)
+  }
 
   // トリガーの同期
   console.log('\n=== Triggers ===')
@@ -287,7 +309,9 @@ async function main() {
     await publishVersion(workspace.path)
   }
 
-  console.log(apply ? '\nDone! GTM container updated and published.' : '\nDry run complete. Use --apply to make changes.')
+  console.log(
+    apply ? '\nDone! GTM container updated and published.' : '\nDry run complete. Use --apply to make changes.'
+  )
 }
 
 main().catch((err) => {

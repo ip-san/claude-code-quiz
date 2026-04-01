@@ -45,6 +45,7 @@ import { create } from 'zustand'
 // Infrastructure imports
 import { getProgressRepository, getQuizRepository } from '@/infrastructure'
 import { getSessionRepository } from '@/infrastructure/persistence/SessionRepository'
+import { setUserProperties } from '@/lib/analytics'
 // Slices
 import { createBookmarkSlice } from './slices/bookmarkSlice'
 import { createProgressSlice } from './slices/progressSlice'
@@ -104,6 +105,11 @@ export const useQuizStore = create<QuizStore>((set, get) => ({
         userProgress: progress,
         savedSession,
         isLoading: false,
+      })
+
+      // GA4 ユーザープロパティ設定（セグメント分析用）
+      setUserProperties({
+        total_quizzes: progress.sessionHistory.length,
       })
     } catch (error) {
       console.error('Failed to initialize:', error)

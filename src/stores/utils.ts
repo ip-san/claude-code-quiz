@@ -13,7 +13,7 @@ import {
   type SavedAnswerRecord,
   type SavedSessionData,
 } from '@/infrastructure/persistence/SessionRepository'
-import { trackQuizComplete } from '@/lib/analytics'
+import { setUserProperties, trackQuizComplete } from '@/lib/analytics'
 
 // ============================================================
 // View State
@@ -236,4 +236,9 @@ export function recordCompletedSession(
     sessionState.answeredCount > 0 ? Math.round((sessionState.score / sessionState.answeredCount) * 100) : 0
   const durationSec = sessionState.startedAt ? Math.round((Date.now() - sessionState.startedAt) / 1000) : 0
   trackQuizComplete(sessionState.config.mode, sessionState.score, sessionState.answeredCount, accuracy, durationSec)
+
+  // ユーザープロパティを更新（セグメント分析用）
+  setUserProperties({
+    total_quizzes: updatedProgress.sessionHistory.length,
+  })
 }

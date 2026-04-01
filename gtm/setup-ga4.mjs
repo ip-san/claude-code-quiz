@@ -57,6 +57,11 @@ const DIMENSIONS = [
     displayName: 'エラーソース',
     description: 'react_boundary / window_error / unhandled_rejection',
   },
+  { parameterName: 'question_id', displayName: '問題ID', description: '個別問題の識別子（例: mem-001）' },
+  { parameterName: 'difficulty', displayName: '難易度', description: 'beginner / intermediate / advanced' },
+  { parameterName: 'is_correct', displayName: '正誤', description: '正解: true / 不正解: false' },
+  { parameterName: 'theme', displayName: 'テーマ', description: 'dark / light / system' },
+  { parameterName: 'method', displayName: 'シェア方法', description: 'native (Web Share API)' },
 ]
 
 // カスタム指標定義
@@ -65,6 +70,11 @@ const METRICS = [
   { parameterName: 'score', displayName: 'スコア', measurementUnit: 'STANDARD' },
   { parameterName: 'duration_sec', displayName: '所要時間', measurementUnit: 'SECONDS' },
   { parameterName: 'question_count', displayName: '問題数', measurementUnit: 'STANDARD' },
+  { parameterName: 'answered_count', displayName: '回答済み数', measurementUnit: 'STANDARD' },
+  { parameterName: 'total_questions', displayName: '総問題数', measurementUnit: 'STANDARD' },
+  { parameterName: 'questions_remaining', displayName: '残り問題数', measurementUnit: 'STANDARD' },
+  { parameterName: 'result_count', displayName: '検索結果件数', measurementUnit: 'STANDARD' },
+  { parameterName: 'slide_index', displayName: 'スライド番号', measurementUnit: 'STANDARD' },
 ]
 
 // プロパティ一覧表示
@@ -154,6 +164,38 @@ for (const met of METRICS) {
     console.log(`  CREATED: ${met.displayName} (${met.parameterName})`)
   } catch (err) {
     console.error(`  ERROR: ${met.displayName} — ${err.message}`)
+  }
+}
+
+// ユーザースコープのカスタムディメンション（ユーザープロパティ）
+const USER_DIMENSIONS = [
+  { parameterName: 'mastery_level', displayName: 'AI活用レベル', description: '入門者/学習者/実践者/推進者/牽引役' },
+  { parameterName: 'total_quizzes', displayName: '累計クイズ数', description: '完了したクイズセッション数' },
+]
+
+console.log('\n=== ユーザースコープ ディメンション ===')
+for (const dim of USER_DIMENSIONS) {
+  if (existingDimensions.includes(dim.parameterName)) {
+    console.log(`  SKIP (既存): ${dim.displayName} (${dim.parameterName})`)
+    continue
+  }
+  if (dryRun) {
+    console.log(`  WOULD CREATE: ${dim.displayName} (${dim.parameterName})`)
+    continue
+  }
+  try {
+    await client.createCustomDimension({
+      parent,
+      customDimension: {
+        parameterName: dim.parameterName,
+        displayName: dim.displayName,
+        description: dim.description,
+        scope: 'USER',
+      },
+    })
+    console.log(`  CREATED: ${dim.displayName} (${dim.parameterName})`)
+  } catch (err) {
+    console.error(`  ERROR: ${dim.displayName} — ${err.message}`)
   }
 }
 
