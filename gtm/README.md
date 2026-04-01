@@ -25,10 +25,13 @@ node gtm/deploy-gtm.mjs          # ドライラン
 node gtm/deploy-gtm.mjs --apply  # 適用 & 公開
 ```
 
-### GA4 ディメンションを追加する
+### GA4 設定を一括登録する
+
+ディメンション、指標、ユーザープロパティ、コンバージョン、データ保持、Enhanced Measurement を全て冪等に設定:
 
 ```bash
-node gtm/setup-ga4.mjs <property-id>
+node gtm/setup-ga4.mjs <property-id>          # 適用
+node gtm/setup-ga4.mjs <property-id> --dry-run # プレビュー
 ```
 
 ### 環境変数

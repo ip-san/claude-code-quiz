@@ -136,15 +136,31 @@ GOOGLE_APPLICATION_CREDENTIALS=~/.config/gcloud/claude-code-quiz-sa.json
 5. GA4 管理画面でサービスアカウントに「編集者」権限を付与
 6. GTM 管理画面でサービスアカウントに「公開」権限を付与
 
-## Step 8: GA4 カスタムディメンション登録
+## Step 8: GA4 設定の自動登録
+
+`setup-ga4.mjs` が以下を全て冪等に設定する（既存はスキップ、不足分のみ作成）:
 
 ```bash
 # プロパティ一覧を表示
 node gtm/setup-ga4.mjs
 
-# ディメンション・指標を自動登録
+# ドライラン（変更内容のプレビュー）
+node gtm/setup-ga4.mjs <property-id> --dry-run
+
+# 全設定を適用
 node gtm/setup-ga4.mjs <property-id>
 ```
+
+**設定される内容:**
+
+| カテゴリ | 内容 |
+|---------|------|
+| カスタムディメンション（イベント） | 12個 — platform, quiz_mode, category, action, chapter_id, error_message, error_source, question_id, difficulty, is_correct, theme, method |
+| カスタムディメンション（ユーザー） | 2個 — mastery_level, total_quizzes |
+| カスタム指標 | 9個 — accuracy, score, duration_sec, question_count, answered_count, total_questions, questions_remaining, result_count, slide_index |
+| コンバージョンイベント | 2個 — quiz_complete, certificate_download |
+| データ保持期間 | 14ヶ月（デフォルト2ヶ月から延長） |
+| Enhanced Measurement | 全項目 ON（スクロール、離脱クリック、サイト検索、ページ遷移、フォーム） |
 
 ## Step 9: GitHub Actions に Secret 設定
 
