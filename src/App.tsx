@@ -50,7 +50,8 @@ const PWAUpdatePrompt = !isElectron
   : null
 
 export default function App() {
-  const { viewState, getProgress, sessionState, isLoading, initialize, endSession, suspendSession } = useQuizStore()
+  const { viewState, getProgress, sessionState, isLoading, initialize, endSession, suspendSession, startSession } =
+    useQuizStore()
   const [showWelcome, setShowWelcome] = useState(() => !hasSeenWelcome())
   const [showTutorial, setShowTutorial] = useState(() => !hasSeenTutorial())
 
@@ -125,9 +126,14 @@ export default function App() {
     return (
       <>
         <TutorialScreen
-          onComplete={() => {
+          onComplete={(action) => {
             markTutorialSeen()
             setShowTutorial(false)
+            if (action === 'complete') {
+              // チュートリアル完了 → overview モードを自動開始（初心者の離脱防止）
+              startSession({ mode: 'overview' })
+            }
+            // スキップ → メニューへ（自分で選べるユーザー）
           }}
         />
         {pwaOverlays}
@@ -186,7 +192,7 @@ export default function App() {
           </Suspense>
         )
       case 'tutorial':
-        return <TutorialScreen onComplete={endSession} />
+        return <TutorialScreen onComplete={() => endSession()} />
       default:
         return null
     }

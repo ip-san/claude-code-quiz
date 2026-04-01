@@ -18,7 +18,7 @@ import { haptics } from '@/lib/haptics'
 import { hasSeenFlag, setSeenFlag } from '@/lib/storage'
 
 interface TutorialScreenProps {
-  onComplete: () => void
+  onComplete: (action: 'complete' | 'skip') => void
 }
 
 interface SlideData {
@@ -145,7 +145,7 @@ export function TutorialScreen({ onComplete }: TutorialScreenProps) {
     haptics.light()
     if (isLast) {
       trackTutorial('complete')
-      onComplete()
+      onComplete('complete')
     } else {
       setCurrentSlide((prev) => prev + 1)
     }
@@ -166,7 +166,7 @@ export function TutorialScreen({ onComplete }: TutorialScreenProps) {
           onClick={() => {
             haptics.light()
             trackTutorial('skip', currentSlide)
-            onComplete()
+            onComplete('skip')
           }}
           className="tap-highlight flex items-center gap-1 rounded-full px-3 py-1.5 text-xs font-medium text-stone-400 hover:text-stone-600 dark:hover:text-stone-300"
         >

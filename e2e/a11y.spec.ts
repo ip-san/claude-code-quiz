@@ -26,21 +26,9 @@ test.describe('Accessibility (axe-core)', () => {
     await page.evaluate(() => localStorage.clear())
     await page.reload()
     await page.waitForLoadState('networkidle')
-    // Hide PWA update toast if visible (causes a11y violations in test env)
-    await page.evaluate(() => {
-      const toast = document.querySelector('.animate-slide-down')
-      if (toast instanceof HTMLElement) toast.style.display = 'none'
-    })
   })
 
   test('welcome screen has no a11y violations', async ({ page }) => {
-    // Wait briefly then hide any late-appearing PWA toast (Service Worker timing)
-    await page.waitForTimeout(500)
-    await page.evaluate(() => {
-      const toast = document.querySelector('.animate-slide-down')
-      if (toast instanceof HTMLElement) toast.style.display = 'none'
-    })
-
     const results = await new AxeBuilder({ page }).withTags(['wcag2a', 'wcag2aa', 'wcag21aa']).analyze()
 
     expect(results.violations).toEqual([])

@@ -2,6 +2,7 @@ import { Bookmark, ExternalLink, Lightbulb, RotateCcw } from 'lucide-react'
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { getCategoryById } from '@/domain/valueObjects/Category'
 import { getChapterFromTags, OVERVIEW_CHAPTERS } from '@/domain/valueObjects/OverviewChapter'
+import { trackChapterProgress } from '@/lib/analytics'
 import { getDifficultyLabel, getDifficultyStyle } from '@/lib/badgeStyles'
 import { getColorHex } from '@/lib/colors'
 import { haptics } from '@/lib/haptics'
@@ -68,6 +69,27 @@ export function QuizCard({
     return prevQuestion ? getChapterFromTags(prevQuestion.tags) : null
   }, [isOverviewMode, sessionState])
   const isNewChapter = isOverviewMode && currentChapter && currentChapter.id !== previousChapter?.id
+
+  // Track chapter completion when transitioning to a new chapter
+  useEffect(() => {
+    if (isNewChapter && previousChapter && sessionState) {
+      const chapterQuestions = sessionState.questions.filter((q) => {
+        const ch = getChapterFromTags(q.tags)
+        return ch?.id === previousChapter.id
+      })
+      const answered = chapterQuestions.filter((_, i) => {
+        const globalIndex = sessionState.questions.indexOf(chapterQuestions[i])
+        return sessionState.answerHistory.has(globalIndex)
+      })
+      const correct = answered.filter((_, i) => {
+        const globalIndex = sessionState.questions.indexOf(chapterQuestions[i])
+        return sessionState.answerHistory.get(globalIndex)?.isCorrect
+      })
+      const accuracy = answered.length > 0 ? Math.round((correct.length / answered.length) * 100) : 0
+      trackChapterProgress(previousChapter.id, 'complete', accuracy)
+    }
+  }, [isNewChapter, previousChapter, sessionState])
+
   // Show full-page chapter intro instead of just a small indicator
   const [dismissedIntros, setDismissedIntros] = useState<Set<number>>(new Set())
   const showChapterIntro = isNewChapter && currentChapter && !dismissedIntros.has(currentChapter.id)

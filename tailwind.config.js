@@ -9,7 +9,7 @@ export default {
           orange: '#D97757',
           cream: '#FAF9F5',
           dark: '#1A1A1A',
-          gray: '#6B6B6B',
+          gray: '#595959',
         },
       },
       animation: {

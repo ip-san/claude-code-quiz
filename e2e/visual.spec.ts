@@ -26,11 +26,6 @@ test.describe('Visual Regression', () => {
     await page.evaluate(() => localStorage.clear())
     await page.reload()
     await page.waitForLoadState('networkidle')
-    // Hide PWA update toast if visible (blocks clicks on small screens)
-    await page.evaluate(() => {
-      const toast = document.querySelector('.animate-slide-down')
-      if (toast instanceof HTMLElement) toast.style.display = 'none'
-    })
   })
 
   test('welcome screen — light mode', async ({ page }) => {
