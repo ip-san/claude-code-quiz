@@ -199,4 +199,129 @@ for (const dim of USER_DIMENSIONS) {
   }
 }
 
+// ============================================================
+// コンバージョンイベント設定
+// ============================================================
+
+const CONVERSION_EVENTS = ['quiz_complete', 'certificate_download']
+
+console.log('\n=== コンバージョンイベント ===')
+try {
+  const [existingConversions] = await client.listConversionEvents({ parent })
+  const existingConversionNames = (existingConversions ?? []).map((c) => c.eventName)
+
+  for (const eventName of CONVERSION_EVENTS) {
+    if (existingConversionNames.includes(eventName)) {
+      console.log(`  SKIP (既存): ${eventName}`)
+      continue
+    }
+    if (dryRun) {
+      console.log(`  WOULD CREATE: ${eventName}`)
+      continue
+    }
+    try {
+      await client.createConversionEvent({
+        parent,
+        conversionEvent: { eventName },
+      })
+      console.log(`  CREATED: ${eventName}`)
+    } catch (err) {
+      console.error(`  ERROR: ${eventName} — ${err.message}`)
+    }
+  }
+} catch (err) {
+  console.error(`  ERROR: コンバージョン取得失敗 — ${err.message}`)
+}
+
+// ============================================================
+// データ保持期間設定（14ヶ月）
+// ============================================================
+
+console.log('\n=== データ保持期間 ===')
+try {
+  const [retention] = await client.getDataRetentionSettings({ name: `${parent}/dataRetentionSettings` })
+  const current = retention.eventDataRetention
+
+  if (current === 'FOURTEEN_MONTHS') {
+    console.log('  SKIP (既に14ヶ月)')
+  } else if (dryRun) {
+    console.log(`  WOULD UPDATE: ${current} → FOURTEEN_MONTHS`)
+  } else {
+    await client.updateDataRetentionSettings({
+      dataRetentionSettings: {
+        name: `${parent}/dataRetentionSettings`,
+        eventDataRetention: 'FOURTEEN_MONTHS',
+        resetUserDataOnNewActivity: true,
+      },
+      updateMask: { paths: ['event_data_retention', 'reset_user_data_on_new_activity'] },
+    })
+    console.log(`  UPDATED: ${current} → FOURTEEN_MONTHS`)
+  }
+} catch (err) {
+  console.error(`  ERROR: データ保持期間 — ${err.message}`)
+}
+
+// ============================================================
+// Enhanced Measurement 確認・設定
+// ============================================================
+
+console.log('\n=== Enhanced Measurement ===')
+try {
+  const [streams] = await client.listDataStreams({ parent })
+  const webStream = (streams ?? []).find((s) => s.type === 'WEB_DATA_STREAM')
+
+  if (!webStream) {
+    console.log('  SKIP: Web データストリームが見つかりません')
+  } else {
+    const [settings] = await client.getEnhancedMeasurementSettings({
+      name: `${webStream.name}/enhancedMeasurementSettings`,
+    })
+
+    const checks = [
+      ['scrollsEnabled', settings.scrollsEnabled],
+      ['outboundClicksEnabled', settings.outboundClicksEnabled],
+      ['siteSearchEnabled', settings.siteSearchEnabled],
+      ['pageChangesEnabled', settings.pageChangesEnabled],
+      ['formInteractionsEnabled', settings.formInteractionsEnabled],
+    ]
+
+    let needsUpdate = false
+    for (const [key, value] of checks) {
+      if (value) {
+        console.log(`  OK: ${key}`)
+      } else {
+        console.log(`  ${dryRun ? 'WOULD ENABLE' : 'ENABLING'}: ${key}`)
+        needsUpdate = true
+      }
+    }
+
+    if (needsUpdate && !dryRun) {
+      await client.updateEnhancedMeasurementSettings({
+        enhancedMeasurementSettings: {
+          name: `${webStream.name}/enhancedMeasurementSettings`,
+          streamEnabled: true,
+          scrollsEnabled: true,
+          outboundClicksEnabled: true,
+          siteSearchEnabled: true,
+          pageChangesEnabled: true,
+          formInteractionsEnabled: true,
+        },
+        updateMask: {
+          paths: [
+            'stream_enabled',
+            'scrolls_enabled',
+            'outbound_clicks_enabled',
+            'site_search_enabled',
+            'page_changes_enabled',
+            'form_interactions_enabled',
+          ],
+        },
+      })
+      console.log('  Updated!')
+    }
+  }
+} catch (err) {
+  console.error(`  ERROR: Enhanced Measurement — ${err.message}`)
+}
+
 console.log('\n完了!')
