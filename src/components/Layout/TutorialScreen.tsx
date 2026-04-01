@@ -134,7 +134,7 @@ function SlideVisual({ type }: { type: SlideData['visualType'] }) {
  * Claude Code 紹介チュートリアル
  *
  * ウェルカム画面の後、初回ユーザー向けに表示。
- * スワイプ or ボタンで4画面を進む形式。
+ * スワイプ or ボタンで2画面を進む形式。
  */
 export function TutorialScreen({ onComplete }: TutorialScreenProps) {
   const [currentSlide, setCurrentSlide] = useState(0)

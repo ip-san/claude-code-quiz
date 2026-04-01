@@ -123,7 +123,7 @@ export interface ThemeConfig {
   readonly chapterDetails: Readonly<Record<number, ThemeChapterDetail>>
   /** 実践シナリオモードの説明文 */
   readonly scenarioModeDescription: string
-  /** チュートリアルスライド（4枚） */
+  /** チュートリアルスライド */
   readonly tutorialSlides: readonly ThemeTutorialSlide[]
   /** チュートリアルのターミナルデモテキスト */
   readonly tutorialTerminal: ThemeTutorialTerminal
@@ -511,7 +511,7 @@ const claudeCodeTheme: ThemeConfig = {
     { label: '実力を試す', desc: '100問の実力テスト' },
   ],
   aboutLabel: 'Claude Code とは',
-  aboutDesc: '基本を4画面で紹介',
+  aboutDesc: '基本を2画面で紹介',
   studyFirstHowToLearnBody:
     'チャプターを選んで、基礎的な解説を読みましょう。やさしい内容だけに絞っているので、 Claude Code を知らなくても読み進められます。',
   searchPlaceholder: '例: CLAUDE.md, MCP, hooks',
