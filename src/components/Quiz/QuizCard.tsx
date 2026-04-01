@@ -8,6 +8,7 @@ import { getColorHex } from '@/lib/colors'
 import { haptics } from '@/lib/haptics'
 import { useSwipe } from '@/lib/useSwipe'
 import { useQuizStore } from '@/stores/quizStore'
+import { ChapterComplete } from './chapter/ChapterComplete'
 import { ChapterIndicator } from './chapter/ChapterIndicator'
 import { ChapterIntro } from './chapter/ChapterIntro'
 import { Feedback } from './Feedback'
@@ -89,6 +90,41 @@ export function QuizCard({
       trackChapterProgress(previousChapter.id, 'complete', accuracy)
     }
   }, [isNewChapter, previousChapter, sessionState])
+
+  // Chapter complete overlay: show when current question is the last in its chapter and answered
+  const [dismissedCompletes, setDismissedCompletes] = useState<Set<number>>(new Set())
+  const nextChapter = useMemo(() => {
+    if (!isOverviewMode || !sessionState || sessionState.currentIndex >= sessionState.questions.length - 1) return null
+    const nextQ = sessionState.questions[sessionState.currentIndex + 1]
+    return nextQ ? getChapterFromTags(nextQ.tags) : null
+  }, [isOverviewMode, sessionState])
+  const isChapterLastQuestion = isOverviewMode && currentChapter && nextChapter && currentChapter.id !== nextChapter.id
+  const showChapterComplete =
+    isChapterLastQuestion &&
+    currentChapter &&
+    isAnswered &&
+    !deferFeedback &&
+    !dismissedCompletes.has(currentChapter.id)
+
+  // Compute chapter score for the complete overlay
+  const chapterScore = useMemo(() => {
+    if (!showChapterComplete || !currentChapter || !sessionState) return { score: 0, total: 0 }
+    const chapterQs = sessionState.questions.filter((q) => {
+      const ch = getChapterFromTags(q.tags)
+      return ch?.id === currentChapter.id
+    })
+    let correct = 0
+    let answered = 0
+    for (const q of chapterQs) {
+      const idx = sessionState.questions.indexOf(q)
+      const record = sessionState.answerHistory.get(idx)
+      if (record) {
+        answered++
+        if (record.isCorrect) correct++
+      }
+    }
+    return { score: correct, total: answered }
+  }, [showChapterComplete, currentChapter, sessionState])
 
   // Show full-page chapter intro instead of just a small indicator
   const [dismissedIntros, setDismissedIntros] = useState<Set<number>>(new Set())
@@ -207,6 +243,24 @@ export function QuizCard({
           setDismissedIntros((prev) => new Set(prev).add(currentChapter.id))
           window.scrollTo(0, 0)
         }}
+      />
+    )
+  }
+
+  // Show chapter complete overlay after answering the last question of a chapter
+  if (showChapterComplete && currentChapter) {
+    return (
+      <ChapterComplete
+        chapter={currentChapter}
+        score={chapterScore.score}
+        total={chapterScore.total}
+        isLastChapter={currentChapter.id === OVERVIEW_CHAPTERS[OVERVIEW_CHAPTERS.length - 1]?.id}
+        onContinue={() => {
+          setDismissedCompletes((prev) => new Set(prev).add(currentChapter.id))
+          nextQuestion()
+          window.scrollTo(0, 0)
+        }}
+        onQuit={endSession}
       />
     )
   }

@@ -161,7 +161,7 @@ async function runSummary(args) {
   const startDate = `${days}daysAgo`
   const property = `properties/${PROPERTY_ID}`
 
-  const [overview, modeBreakdown, platformBreakdown, eventCounts] = await Promise.all([
+  const [overview, modeBreakdown, platformBreakdown, eventCounts, engagedUsers] = await Promise.all([
     client.runReport({
       property,
       dimensions: [],
@@ -195,11 +195,25 @@ async function runSummary(args) {
       dateRanges: [{ startDate, endDate: 'today' }],
       limit: 20,
     }),
+    // 実質アクティブユーザー: quiz_start 以上のアクションを起こしたユーザー（ボット除外）
+    client.runReport({
+      property,
+      dimensions: [],
+      metrics: [{ name: 'activeUsers' }],
+      dateRanges: [{ startDate, endDate: 'today' }],
+      dimensionFilter: {
+        filter: {
+          fieldName: 'eventName',
+          stringFilter: { value: 'quiz_start' },
+        },
+      },
+    }),
   ])
 
   return {
     period: `${startDate} ~ today`,
     overview: formatReport(overview[0]),
+    engaged_users: formatReport(engagedUsers[0]),
     quiz_completion_by_mode: formatReport(modeBreakdown[0]),
     users_by_platform: formatReport(platformBreakdown[0]),
     event_counts: formatReport(eventCounts[0]),

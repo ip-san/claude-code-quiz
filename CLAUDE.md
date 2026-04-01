@@ -33,7 +33,7 @@ src/
 │   ├── quizStore.ts  # メインストア（facade）
 │   └── slices/       # bookmarkSlice, progressSlice, resumeSlice, sessionSlice, viewSlice
 ├── config/           # アプリ設定（locale, theme, locales/）
-├── components/       # React UIコンポーネント（63ファイル）
+├── components/       # React UIコンポーネント（64ファイル）
 │   ├── Quiz/         # QuizCard, Feedback, QuizResult + chapter/, diagrams/, hooks/, overlays/, result/
 │   ├── Menu/         # ModeSelection, StudyFirstView, ChapterProgressMap, DailySnapshot, QuizSearch
 │   ├── Progress/     # ProgressDashboard, LearningRecommendation, WeakPointInsight, CategoryTrendChart
