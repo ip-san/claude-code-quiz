@@ -53,6 +53,26 @@
       "params": ["quiz_mode", "platform"]
     },
     {
+      "name": "quiz_answer",
+      "description": "個別問題の回答",
+      "params": ["question_id", "category", "difficulty", "is_correct", "platform"]
+    },
+    {
+      "name": "quiz_quit",
+      "description": "クイズ途中離脱",
+      "params": ["quiz_mode", "answered_count", "total_questions", "platform"]
+    },
+    {
+      "name": "theme_change",
+      "description": "テーマ切替（ダーク/ライト）",
+      "params": ["theme", "platform"]
+    },
+    {
+      "name": "session_resume",
+      "description": "セッション復帰",
+      "params": ["quiz_mode", "questions_remaining", "platform"]
+    },
+    {
       "name": "app_error",
       "description": "アプリエラー（未処理例外・レンダリングエラー）",
       "params": ["error_message", "error_source", "platform"]

@@ -136,6 +136,38 @@ export function trackCertificate(mode: string): void {
   pushEvent('certificate_download', { quiz_mode: mode })
 }
 
+/** 個別問題の回答 */
+export function trackAnswer(questionId: string, category: string, difficulty: string, isCorrect: boolean): void {
+  pushEvent('quiz_answer', {
+    question_id: questionId,
+    category,
+    difficulty,
+    is_correct: isCorrect,
+  })
+}
+
+/** クイズ途中離脱 */
+export function trackQuizQuit(mode: string, answeredCount: number, totalQuestions: number): void {
+  pushEvent('quiz_quit', {
+    quiz_mode: mode,
+    answered_count: answeredCount,
+    total_questions: totalQuestions,
+  })
+}
+
+/** テーマ切替 */
+export function trackThemeChange(newTheme: string): void {
+  pushEvent('theme_change', { theme: newTheme })
+}
+
+/** セッション復帰 */
+export function trackSessionResume(mode: string, questionsRemaining: number): void {
+  pushEvent('session_resume', {
+    quiz_mode: mode,
+    questions_remaining: questionsRemaining,
+  })
+}
+
 /** アプリエラー */
 export function trackError(message: string, source: string): void {
   pushEvent('app_error', {

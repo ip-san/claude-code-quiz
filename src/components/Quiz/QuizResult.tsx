@@ -5,6 +5,7 @@ import { DailyGoalService } from '@/domain/services/DailyGoalService'
 import { getOverviewRecommendation } from '@/domain/services/RecommendationService'
 import { getScoreMessage } from '@/domain/services/ScoreMessageService'
 import { getChapterFromTags } from '@/domain/valueObjects/OverviewChapter'
+import { trackShare } from '@/lib/analytics'
 import { APP_CONFIG, useQuizStore } from '@/stores/quizStore'
 import { CategoryBreakthroughBadge } from './overlays/CategoryBreakthroughBadge'
 import { ConfettiEffect } from './overlays/ConfettiEffect'
@@ -300,6 +301,7 @@ export function QuizResult() {
                       text: `${stars}\n${theme.appName}: ${score}/${answeredCount}問正解 (${percentage}%)\n${isPassing ? '✅ 合格！' : '📚 もう少し！'}\n${theme.shareHashtags}`,
                       url: window.location.href,
                     })
+                    .then(() => trackShare('native'))
                     .catch(() => {
                       /* user cancelled share */
                     })

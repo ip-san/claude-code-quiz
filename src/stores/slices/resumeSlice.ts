@@ -10,6 +10,7 @@ import {
   type QuizSessionState,
 } from '@/domain/services/QuizSessionService'
 import { getSessionRepository, type SavedSessionData } from '@/infrastructure/persistence/SessionRepository'
+import { trackSessionResume } from '@/lib/analytics'
 import { type StoreGet, type StoreSet, saveSessionSnapshot } from '../utils'
 
 export interface ResumeSlice {
@@ -87,6 +88,8 @@ export const createResumeSlice = (set: StoreSet, get: StoreGet): ResumeSlice => 
       selectedAnswer: currentRecord?.selectedAnswer ?? null,
       selectedAnswers: currentRecord?.selectedAnswers ?? Object.freeze([]),
     }
+
+    trackSessionResume(saved.sessionConfig.mode, questions.length - saved.answeredCount)
 
     set({
       sessionConfig: saved.sessionConfig,

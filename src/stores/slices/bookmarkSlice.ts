@@ -3,6 +3,7 @@
  */
 
 import { getProgressRepository } from '@/infrastructure'
+import { trackBookmark } from '@/lib/analytics'
 import type { StoreGet, StoreSet } from '../utils'
 
 export interface BookmarkSlice {
@@ -13,8 +14,10 @@ export interface BookmarkSlice {
 export const createBookmarkSlice = (set: StoreSet, get: StoreGet): BookmarkSlice => ({
   toggleBookmark: (questionId) => {
     const state = get()
+    const wasBookmarked = state.userProgress.isBookmarked(questionId)
     const updatedProgress = state.userProgress.toggleBookmark(questionId)
     set({ userProgress: updatedProgress })
+    trackBookmark(wasBookmarked ? 'remove' : 'add')
     getProgressRepository()
       .save(updatedProgress)
       .catch((error) => {

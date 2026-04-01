@@ -14,7 +14,7 @@ import { type QuizSessionConfig, QuizSessionService, type QuizSessionState } fro
 import { getQuizModeById } from '@/domain/valueObjects/QuizMode'
 import { getProgressRepository } from '@/infrastructure'
 import { getSessionRepository } from '@/infrastructure/persistence/SessionRepository'
-import { trackQuizStart } from '@/lib/analytics'
+import { trackAnswer, trackQuizQuit, trackQuizStart, trackSearch } from '@/lib/analytics'
 import { APP_CONFIG, recordCompletedSession, type StoreGet, type StoreSet, saveSessionSnapshot } from '../utils'
 
 export interface SessionSlice {
@@ -116,6 +116,7 @@ export const createSessionSlice = (set: StoreSet, get: StoreGet): SessionSlice =
     const questions = questionIds.map((id) => questionMap.get(id)).filter((q): q is Question => q !== undefined)
 
     if (questions.length === 0) return
+    trackSearch(questions.length)
 
     const config: QuizSessionConfig = {
       mode: 'custom',
@@ -256,6 +257,8 @@ export const createSessionSlice = (set: StoreSet, get: StoreGet): SessionSlice =
     const currentQuestion = QuizSessionService.getCurrentQuestion(state.sessionState)
 
     if (currentQuestion) {
+      trackAnswer(currentQuestion.id, currentQuestion.category, currentQuestion.difficulty, isCorrect)
+
       if (state.sessionState.isReviewMode) {
         set({ sessionState: newState })
         return
@@ -504,6 +507,10 @@ export const createSessionSlice = (set: StoreSet, get: StoreGet): SessionSlice =
   },
 
   endSession: () => {
+    const state = get()
+    if (state.sessionState && state.sessionConfig && !state.sessionState.isCompleted) {
+      trackQuizQuit(state.sessionConfig.mode, state.sessionState.answeredCount, state.sessionState.questions.length)
+    }
     getSessionRepository().clear()
     set({
       viewState: 'menu',

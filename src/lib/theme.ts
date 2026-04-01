@@ -4,6 +4,7 @@
  */
 
 import { theme as appTheme } from '@/config/theme'
+import { trackThemeChange } from '@/lib/analytics'
 
 const STORAGE_KEY = `${appTheme.storagePrefix}-theme`
 const LEGACY_STORAGE_KEY = 'claude-quiz-theme'
@@ -23,6 +24,7 @@ export function getStoredTheme(): Theme {
 export function setStoredTheme(theme: Theme): void {
   try {
     localStorage.setItem(STORAGE_KEY, theme)
+    trackThemeChange(theme)
   } catch {
     /* ignore */
   }

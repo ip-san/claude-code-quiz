@@ -2,6 +2,7 @@
  * View Slice - ViewState management
  */
 
+import { trackReaderOpen } from '@/lib/analytics'
 import type { StoreGet, StoreSet, ViewState } from '../utils'
 
 export interface ViewSlice {
@@ -11,5 +12,8 @@ export interface ViewSlice {
 
 export const createViewSlice = (_set: StoreSet, _get: StoreGet): ViewSlice => ({
   viewState: 'menu',
-  setViewState: (state) => _set({ viewState: state }),
+  setViewState: (state) => {
+    if (state === 'reader') trackReaderOpen()
+    _set({ viewState: state })
+  },
 })

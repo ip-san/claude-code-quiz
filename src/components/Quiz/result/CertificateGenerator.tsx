@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { theme } from '@/config/theme'
 import { getMasteryLevel } from '@/domain/services/MasteryLevelService'
+import { trackCertificate } from '@/lib/analytics'
 import { generateCertificate, LEVEL_DESIGNS } from '@/lib/certificateCanvas'
 import { useCertificateName } from '@/lib/useCertificateName'
 import { useQuizStore } from '@/stores/quizStore'
@@ -43,6 +44,7 @@ export function CertificateGenerator({ score, total, percentage, mode }: Certifi
       description: certDesc,
       overallAccuracy,
     })
+    trackCertificate(mode)
     setGenerating(false)
   }
 

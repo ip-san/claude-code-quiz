@@ -8,10 +8,15 @@ PWA のユーザー行動を GTM + GA4 で計測する仕組み。
 
 ### イベントを追加する
 
-1. `gtm/events.json` にイベントを追加
-2. `src/lib/analytics.ts` に送信関数を追加
-3. コンポーネントから呼び出し
+1. `gtm/events.json` にイベント定義を追加
+2. `src/lib/analytics.ts` に `dataLayer.push` ラッパー関数を追加
+3. **store/service 層から呼び出す**（コンポーネントの onClick に直接書かない）
 4. `node gtm/deploy-gtm.mjs --apply` で GTM に反映
+
+**配置の原則:**
+- ビジネスロジック系（bookmark, answer, quit, resume）→ Zustand store slice
+- ユーティリティ系（theme）→ lib 関数内
+- 非同期完了系（share）→ Promise の `.then()` コールバック
 
 ### GTM タグを更新する
 
