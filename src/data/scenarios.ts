@@ -622,27 +622,37 @@ export const SCENARIOS: readonly ScenarioData[] = [
     steps: [
       {
         type: 'narrative',
-        text: '「認証機能を追加して」と一言で指示したら、Claude が既存のコードを壊してしまった。\n\n先輩エンジニアが「大きなタスクは Plan モードで設計してからコードを書かせるといいよ」とアドバイスしてくれた。Plan → Setup → Build のフローを試してみよう。',
+        text: '水曜の午後。「認証機能を追加して」と一言で指示したら、Claude が既存のルーティングを壊してしまった。git reset --hard で元に戻して仕切り直し。\n\n隣の席の佐藤さんが「大きなタスクは Plan モードで設計してからコードを書かせるといいよ。私もこの間やらかして学んだ」と教えてくれた。',
       },
       { type: 'question', questionId: 'cmd-035' },
       {
         type: 'narrative',
-        text: 'Plan モードで設計書を確認した。次は実装フェーズ。大きな変更は一度に頼むと品質が下がる。段階的に依頼するのがコツだ。',
+        text: 'Plan モードに切り替えると、Claude はファイルを変更せず設計案だけを返してくれた。\n\n「認証には JWT を使い、ミドルウェアは src/middleware/ に配置、テストは __tests__/ に」——この設計を確認してから実装に進もう。ところで、コンテキストウィンドウには何が入っているのだろう？',
+      },
+      { type: 'question', questionId: 'ses-172' },
+      {
+        type: 'narrative',
+        text: '設計が決まった。次は実装フェーズ。大きな変更は一度に頼むと品質が下がる。段階的に依頼するのがコツだ。',
       },
       { type: 'question', questionId: 'bp-002' },
       { type: 'question', questionId: 'bp-029' },
       {
         type: 'narrative',
-        text: '実装が完了した。PR を作る前にテストを書いて確認しよう。Claude に「テスト駆動」で進めてもらう方法がある。',
+        text: '実装が8割完了。しかし会話が長くなってきた。コンテキストを整理してから最後の仕上げに入ろう。',
+      },
+      { type: 'question', questionId: 'ses-174' },
+      {
+        type: 'narrative',
+        text: 'コンテキストを圧縮して仕上げのテストを書いた。PR を作る前に、Claude に「テスト駆動」で残りを進めてもらう。',
       },
       { type: 'question', questionId: 'bp-001' },
       {
         type: 'narrative',
-        text: 'Plan → Build のワークフローで認証機能が完成した。「いきなりコードを書かない」——この原則を守るだけで、手戻りが激減し、チーム全員が安心して Claude Code を使えるようになる。',
+        text: 'Plan → Build のワークフローで認証機能が完成した。佐藤さんにも「今度からこのやり方でやるわ」と共有。「いきなりコードを書かない」——この原則を守るだけで、手戻りが激減する。',
       },
     ],
     completionMessage:
-      'Plan → Build のワークフローを体験しました！設計フェーズを挟むだけで、コードの品質が劇的に上がります。',
+      'Plan → Build のワークフローを体験しました！設計フェーズを挟むだけで、コードの品質が劇的に上がります。コンテキスト管理も忘れずに。',
   },
   {
     id: 'scenario-workflow',
@@ -653,27 +663,33 @@ export const SCENARIOS: readonly ScenarioData[] = [
     steps: [
       {
         type: 'narrative',
-        text: '営業チームの山田さん。プログラミングは未経験だが、Claude Code で日常業務を自動化できると聞いた。\n\n「ターミナルって何？」というレベルからのスタート。でも大丈夫——Claude Code は日本語で話しかけるだけで動く。まずは基本を押さえよう。',
+        text: '営業チームの山田さん（28歳）。Excel と Slack は使えるが、プログラミングは未経験。\n\n毎週金曜に3時間かけて作っている売上レポート。「Claude Code を使えば自動化できるらしい」と同僚に聞いた。「ターミナルって何？」というレベルだが、試してみることにした。',
       },
       { type: 'question', questionId: 'cmd-001' },
       {
         type: 'narrative',
-        text: 'Claude Code が起動した。「週次レポートの集計を自動化したい」と日本語で伝えたら、スクリプトを書いてくれた。\n\n実行する前に確認画面が出る。これが Claude Code の安全装置だ。',
+        text: 'claude と打ってEnter。画面に「Claude Code へようこそ」と出た。\n\n「週次レポートの集計を自動化したい」と日本語で伝えたら、Python スクリプトを書いてくれた。だが実行する前に確認画面が出る。これが Claude Code の安全装置だ。',
       },
       { type: 'question', questionId: 'cmd-021' },
-      { type: 'question', questionId: 'bp-012' },
       {
         type: 'narrative',
-        text: '自動化スクリプトができた。毎週手動で実行するのは面倒だ。定期実行する方法はないだろうか？',
+        text: '確認画面で「Allow」を押した。スクリプトが動いて、Excel ファイルから自動集計された。すごい！\n\nだが「毎回 Allow を押すのが面倒」と思った山田さん。パーミッション設定を調べてみる。',
       },
+      { type: 'question', questionId: 'bp-012' },
+      { type: 'question', questionId: 'ext-163' },
+      {
+        type: 'narrative',
+        text: 'スクリプトができた。毎週手動で実行するのは面倒だ。定期実行する方法はないだろうか？\n\nちなみに Claude Code のコストも気になる。月いくらかかるのだろう？',
+      },
+      { type: 'question', questionId: 'ses-175' },
       { type: 'question', questionId: 'cmd-016' },
       {
         type: 'narrative',
-        text: '週次レポートの自動化が完了した。「日本語で指示するだけ」が Claude Code の魅力。プログラミングの知識がなくても、日常業務を効率化できる。次は他の定型作業も自動化してみよう。',
+        text: '金曜の売上レポート、3時間 → 5分に短縮された。山田さんは浮いた時間で顧客対応に集中できるようになった。\n\n「日本語で指示するだけ」——プログラミングの知識がなくても、日常業務を効率化できることを体験した。',
       },
     ],
     completionMessage:
-      'プログラミング未経験でも Claude Code で業務自動化ができることを体験しました！日本語で指示するだけ、あとは AI が考えてくれます。',
+      'プログラミング未経験でも Claude Code で業務自動化ができることを体験しました！日本語で指示するだけ、コスト管理も忘れずに。',
   },
   {
     id: 'scenario-mcp-setup',
@@ -684,27 +700,33 @@ export const SCENARIOS: readonly ScenarioData[] = [
     steps: [
       {
         type: 'narrative',
-        text: 'プロジェクトで Slack 通知と DB クエリを Claude Code から実行したい。MCP（Model Context Protocol）を使えば外部ツールと連携できる。',
+        text: '木曜のスプリントレビュー。PM から「Claude Code からデプロイ通知を Slack に飛ばせないの？」と言われた。\n\n調べてみると MCP（Model Context Protocol）を使えば外部ツールと連携できるらしい。まずは MCP の基本を理解しよう。',
       },
       { type: 'question', questionId: 'ext-001' },
       {
         type: 'narrative',
-        text: 'MCP サーバーの設定ファイルを書いた。接続がうまくいかない——タイムアウトの設定や認証の確認が必要だ。',
+        text: '`.mcp.json` に Slack MCP サーバーの設定を書いた。しかし `claude` を起動しても「サーバーに接続できません」とエラーが出る。\n\nタイムアウトの設定や環境変数の確認が必要だ。',
       },
       { type: 'question', questionId: 'ext-025' },
-      { type: 'question', questionId: 'ext-086' },
       {
         type: 'narrative',
-        text: 'MCP サーバーが動いた！しかしセキュリティを考えると、どのツールに何の権限を与えるか慎重に設定する必要がある。',
+        text: 'タイムアウトを延ばしたら接続できた！次に DB クエリ用の MCP サーバーも追加する。MCP サーバーが増えるとツールが大量になり、コンテキストを圧迫する可能性がある。',
+      },
+      { type: 'question', questionId: 'ext-086' },
+      { type: 'question', questionId: 'ses-176' },
+      {
+        type: 'narrative',
+        text: '2つの MCP サーバーが動いた。しかしセキュリティを考えると、どのツールに何の権限を与えるか慎重に設定する必要がある。CI 環境で使う場合はさらに制限を強めたい。',
       },
       { type: 'question', questionId: 'ses-069' },
+      { type: 'question', questionId: 'ext-166' },
       {
         type: 'narrative',
-        text: 'MCP サーバーが稼働し、Slack 通知と DB クエリが Claude Code から実行できるようになった。MCP は Claude Code を「ただのコーディングツール」から「業務プラットフォーム」に進化させる鍵だ。',
+        text: 'Slack 通知と DB クエリが Claude Code から実行できるようになった。PM に見せたら「これはすごい！全チームに展開しよう」と大喜び。MCP は Claude Code を「業務プラットフォーム」に進化させる鍵だ。',
       },
     ],
     completionMessage:
-      'MCP サーバーの接続と設定を体験しました！Slack、DB、API など、外部ツールとの連携で Claude Code の可能性が広がります。',
+      'MCP サーバーの接続・設定・セキュリティを体験しました！外部ツールとの連携で Claude Code の可能性が広がります。',
   },
   {
     id: 'scenario-cicd-setup',
@@ -715,23 +737,33 @@ export const SCENARIOS: readonly ScenarioData[] = [
     steps: [
       {
         type: 'narrative',
-        text: 'チームの PR レビューが追いつかない。Claude Code を CI に組み込んで、自動レビューとイシュートリアージを実現しよう。',
+        text: '金曜のレトロスペクティブ。「PR レビューのボトルネックで今週3回リリースが遅れた」とメンバーから指摘された。\n\nTech Lead の鈴木さんが「Claude Code を GitHub Actions に組み込めば、最初のパスのレビューを自動化できる」と提案。週末に検証することにした。',
       },
       { type: 'question', questionId: 'cmd-025' },
-      { type: 'question', questionId: 'cmd-032' },
       {
         type: 'narrative',
-        text: 'GitHub Actions のワークフローを設定した。しかし CI 環境では対話的な操作ができない。ヘッドレスモードの設定が必要だ。',
+        text: 'GitHub Actions のワークフロー YAML を書いた。PR が作成されたら Claude Code を起動してコードレビューを実行する。\n\nだが CI 環境では対話的な操作ができない。Claude Code をどうやって非対話モードで動かす？',
       },
       { type: 'question', questionId: 'cmd-053' },
       { type: 'question', questionId: 'ses-041' },
       {
         type: 'narrative',
-        text: 'CI パイプラインに Claude Code が組み込まれた。PR が作成されるたびに自動レビューが走り、イシューも自動トリアージされる。チームのレビュー負荷が劇的に軽減された。',
+        text: 'ヘッドレスモードで動いた！しかし CI で自由にコマンドを実行されるのはセキュリティリスクだ。許可するツールを制限しよう。',
+      },
+      { type: 'question', questionId: 'ext-166' },
+      {
+        type: 'narrative',
+        text: 'セキュリティ設定も完了。さらに定期的なタスク——毎朝のイシュートリアージや依存関係チェック——もスケジュール実行したい。',
+      },
+      { type: 'question', questionId: 'cmd-108' },
+      { type: 'question', questionId: 'cmd-032' },
+      {
+        type: 'narrative',
+        text: '月曜のスタンドアップ。PR が作成されるたびに自動レビューが走り、イシューも毎朝トリアージ済み。鈴木さんが「レビュー待ちが1日から2時間に短縮された」と報告。チームから拍手が起きた。',
       },
     ],
     completionMessage:
-      'CI/CD パイプラインへの Claude Code 統合を体験しました！PR レビューの自動化で、チームの開発サイクルが加速します。',
+      'CI/CD パイプラインへの Claude Code 統合を体験しました！自動レビュー、セキュリティ制限、スケジュール実行でチームの開発サイクルが加速します。',
   },
   {
     id: 'scenario-dotclaude',
@@ -742,24 +774,34 @@ export const SCENARIOS: readonly ScenarioData[] = [
     steps: [
       {
         type: 'narrative',
-        text: 'Claude Code を使い込んでいくと、プロジェクトに `.claude` フォルダが自動生成される。中には設定ファイルがたくさん。「どれが何の役割？」を理解しよう。',
+        text: '入社2週間目の新人エンジニア。先輩のリポジトリを clone したら `.claude/` フォルダがあった。中には `CLAUDE.md`、`settings.json`、`rules/`、`skills/` と見慣れないファイルがたくさん。\n\n「これ全部何ですか？」と先輩に聞いたら「Claude Code の設定一式だよ」と言われた。一つずつ理解しよう。',
+      },
+      { type: 'question', questionId: 'mem-062' },
+      {
+        type: 'narrative',
+        text: 'どのファイルを Git にコミットして、どれを `.gitignore` に入れるか理解した。次は CLAUDE.md の中身を見てみよう。「プロジェクトルートの CLAUDE.md」と「`.claude/` 内の CLAUDE.md」の違いは？',
       },
       { type: 'question', questionId: 'mem-016' },
       {
         type: 'narrative',
-        text: 'CLAUDE.md はプロジェクトルートに置く指示ファイル。`.claude/rules/` はより詳細なルールをモジュール化するディレクトリ。使い分けのポイントは？',
+        text: 'CLAUDE.md の配置場所を理解した。次に `.claude/rules/` ディレクトリ。先輩は「ルールが多くなったらファイルを分割して管理する」と言っていた。',
       },
       { type: 'question', questionId: 'mem-010' },
       { type: 'question', questionId: 'mem-044' },
       {
         type: 'narrative',
-        text: 'ルールは理解した。次は Skills と Hooks。似ているようで全く違う概念だ。',
+        text: 'ルールは理解した。次は Skills と Hooks。先輩は「どちらも自動化だけど、目的が全然違う」と言っていた。',
       },
       { type: 'question', questionId: 'skill-001' },
       { type: 'question', questionId: 'ext-041' },
       {
         type: 'narrative',
-        text: '.claude フォルダの全体像が見えた。CLAUDE.md は「指示」、rules は「ルールのモジュール化」、skills は「再利用可能なコマンド」、hooks は「自動化トリガー」。この 4 つの使い分けが Claude Code マスターへの第一歩だ。',
+        text: '最後に、今のセッションでどのファイルが実際に読み込まれているか確認してみよう。',
+      },
+      { type: 'question', questionId: 'mem-063' },
+      {
+        type: 'narrative',
+        text: '.claude フォルダの全体像が見えた。先輩に「理解できました！」と報告したら「じゃあ次は自分でルールファイルを追加してみて」と課題をもらった。成長の第一歩だ。',
       },
     ],
     completionMessage:
