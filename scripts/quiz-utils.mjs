@@ -139,25 +139,46 @@ function stats() {
 }
 
 // === Coverage by doc page ===
-function coverage() {
+async function coverage() {
   const data = loadQuizzes()
   const quizzes = data.quizzes
 
+  // Count questions per doc page from referenceUrl
   const pages = {}
   quizzes.forEach((q) => {
     if (q.referenceUrl) {
-      const page = q.referenceUrl.replace(/.*docs\/en\//, '').replace(/#.*/, '')
+      const page = q.referenceUrl.replace(/.*docs\/(?:en|ja)\//, '').replace(/#.*/, '')
       pages[page] = (pages[page] || 0) + 1
     }
   })
 
-  console.log(`=== Documentation Page Coverage (${quizzes.length} total) ===\n`)
-  Object.entries(pages)
-    .sort((a, b) => b[1] - a[1])
-    .forEach(([page, count]) => {
+  // Include all known doc pages from topic-config (show 0-coverage pages)
+  try {
+    const { DOC_PAGES } = await import('./topic-config.mjs')
+    for (const p of DOC_PAGES) {
+      if (!(p.name in pages)) {
+        pages[p.name] = 0
+      }
+    }
+  } catch {
+    // topic-config not available, use referenceUrl only
+  }
+
+  const entries = Object.entries(pages).sort((a, b) => b[1] - a[1])
+  const covered = entries.filter(([, c]) => c > 0).length
+  const uncovered = entries.filter(([, c]) => c === 0).length
+
+  console.log(`=== Documentation Page Coverage (${quizzes.length} questions, ${entries.length} pages) ===`)
+  console.log(`    ${covered} covered, ${uncovered} uncovered (0 questions)\n`)
+
+  entries.forEach(([page, count]) => {
+    if (count > 0) {
       const bar = '█'.repeat(Math.round(count / 2))
-      console.log(`  ${page.padEnd(25)} ${String(count).padStart(3)} ${bar}`)
-    })
+      console.log(`  ${page.padEnd(30)} ${String(count).padStart(3)} ${bar}`)
+    } else {
+      console.log(`  ${page.padEnd(30)}   0 ⚠️  NO COVERAGE`)
+    }
+  })
 }
 
 // === Quick quality check ===
@@ -642,7 +663,7 @@ switch (command) {
     stats()
     break
   case 'coverage':
-    coverage()
+    await coverage()
     break
   case 'check':
     check()
