@@ -22,9 +22,10 @@ describe('quizStore', () => {
       expect(state.allQuestions.length).toBeGreaterThan(0)
     })
 
-    it('should load 732 questions', async () => {
+    it('should load all questions from quizzes.json', async () => {
       await useQuizStore.getState().initialize()
-      expect(useQuizStore.getState().allQuestions.length).toBe(732)
+      const { quizzes } = await import('@/data/quizzes.json')
+      expect(useQuizStore.getState().allQuestions.length).toBe(quizzes.length)
     })
   })
 
