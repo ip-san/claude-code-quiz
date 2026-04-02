@@ -1,0 +1,29 @@
+{
+  "hooks": {
+    "SessionStart": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "result=$(gh run list --limit 1 --json status,conclusion,name,headBranch 2>/dev/null | jq -r '.[0] | \"\\(.conclusion // .status) \\(.name)\"' 2>/dev/null); if echo \"$result\" | grep -q 'failure'; then echo \"⚠️ CI FAILURE: $result — 確認して修正してください\"; else echo \"OK\"; fi",
+            "timeout": 10,
+            "statusMessage": "CI状態を確認中..."
+          }
+        ]
+      }
+    ],
+    "PostToolUse": [
+      {
+        "matcher": "Write|Edit",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "jq -r '.tool_input.file_path // .tool_response.filePath' | grep -qE '^src/' && { npx tsc --noEmit 2>&1 | tail -5; npx vitest run 2>&1 | tail -8; } || true",
+            "timeout": 120,
+            "statusMessage": "型チェック+テスト実行中..."
+          }
+        ]
+      }
+    ]
+  }
+}

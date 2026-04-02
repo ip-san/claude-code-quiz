@@ -40,8 +40,7 @@ coverage/
 # MCP local config
 .mcp.json
 
-# Claude Code local settings
-.claude/settings.json
+# Claude Code local settings (settings.json is team-shared, settings.local.json is personal)
 .claude/settings.local.json
 .claude/tmp/
 test-results/
