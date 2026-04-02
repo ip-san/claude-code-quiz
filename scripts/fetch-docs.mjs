@@ -485,6 +485,63 @@ function showStatus() {
  * Check for doc updates by comparing cached hashes with live content.
  * Reports which pages changed and how many quiz questions are affected.
  */
+
+/**
+ * Discover new doc pages by fetching llms.txt and comparing with DOC_PAGES.
+ * Detects pages added to the official docs site and auto-adds them to topic-config.mjs.
+ */
+async function discoverNewPages() {
+  const LLMS_URL = 'https://code.claude.com/docs/llms.txt'
+  console.log(`Fetching ${LLMS_URL}...\n`)
+
+  const resp = await fetch(LLMS_URL)
+  if (!resp.ok) {
+    console.error(`Failed to fetch llms.txt: ${resp.status}`)
+    process.exit(1)
+  }
+
+  const text = await resp.text()
+  // Extract page names from markdown links: [title](https://...docs/en/page-name.md)
+  const livePages = [...text.matchAll(/https:\/\/code\.claude\.com\/docs\/en\/([a-z0-9-]+)\.md/g)]
+    .map((m) => m[1])
+    .filter((v, i, a) => a.indexOf(v) === i)
+
+  const knownNames = new Set(DOC_PAGES.map((p) => p.name))
+  const newPages = livePages.filter((name) => !knownNames.has(name))
+
+  if (newPages.length === 0) {
+    console.log(`All ${livePages.length} pages are already tracked. No new pages found.`)
+    return
+  }
+
+  console.log(`Found ${newPages.length} new page(s) not in DOC_PAGES:\n`)
+  for (const name of newPages) {
+    console.log(`  + ${name}  (https://code.claude.com/docs/en/${name})`)
+  }
+
+  const configPath = resolve(ROOT, 'scripts/topic-config.mjs')
+  let config = readFileSync(configPath, 'utf8')
+
+  const insertionPoint = '  // Agent SDK (different domain)'
+  if (!config.includes(insertionPoint)) {
+    console.error('\nCould not find insertion point in topic-config.mjs. Add manually.')
+    process.exit(1)
+  }
+
+  const newEntries = newPages
+    .map((name) => `  { name: '${name}', url: 'https://code.claude.com/docs/en/${name}' },`)
+    .join('\n')
+
+  config = config.replace(
+    insertionPoint,
+    `  // Auto-discovered from llms.txt (${new Date().toISOString().split('T')[0]})\n${newEntries}\n${insertionPoint}`
+  )
+
+  writeFileSync(configPath, config)
+  console.log(`\nAdded ${newPages.length} page(s) to scripts/topic-config.mjs`)
+  console.log(`Run \`bun run docs:fetch\` to cache the new pages.`)
+}
+
 async function checkUpdates() {
   // Load verify-state for stored doc hashes
   const STATE_PATH = resolve(ROOT, '.claude/tmp/verify-state.json')
@@ -644,6 +701,12 @@ async function main() {
   // --check-updates: compare cached docs against live versions
   if (args.includes('--check-updates')) {
     await checkUpdates()
+    return
+  }
+
+  // --discover: detect new doc pages from llms.txt and add to topic-config.mjs
+  if (args.includes('--discover')) {
+    await discoverNewPages()
     return
   }
 

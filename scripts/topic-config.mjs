@@ -81,6 +81,26 @@ export const DOC_PAGES = [
   // Features
   { name: 'code-review', url: 'https://code.claude.com/docs/en/code-review' },
   { name: 'troubleshooting', url: 'https://code.claude.com/docs/en/troubleshooting' },
+  // New pages discovered from llms.txt
+  { name: 'changelog', url: 'https://code.claude.com/docs/en/changelog' },
+  { name: 'channels', url: 'https://code.claude.com/docs/en/channels' },
+  { name: 'channels-reference', url: 'https://code.claude.com/docs/en/channels-reference' },
+  { name: 'claude-directory', url: 'https://code.claude.com/docs/en/claude-directory' },
+  { name: 'commands', url: 'https://code.claude.com/docs/en/commands' },
+  { name: 'computer-use', url: 'https://code.claude.com/docs/en/computer-use' },
+  { name: 'context-window', url: 'https://code.claude.com/docs/en/context-window' },
+  { name: 'costs', url: 'https://code.claude.com/docs/en/costs' },
+  { name: 'data-usage', url: 'https://code.claude.com/docs/en/data-usage' },
+  { name: 'env-vars', url: 'https://code.claude.com/docs/en/env-vars' },
+  { name: 'fullscreen', url: 'https://code.claude.com/docs/en/fullscreen' },
+  { name: 'github-enterprise-server', url: 'https://code.claude.com/docs/en/github-enterprise-server' },
+  { name: 'legal-and-compliance', url: 'https://code.claude.com/docs/en/legal-and-compliance' },
+  { name: 'permission-modes', url: 'https://code.claude.com/docs/en/permission-modes' },
+  { name: 'platforms', url: 'https://code.claude.com/docs/en/platforms' },
+  { name: 'tools-reference', url: 'https://code.claude.com/docs/en/tools-reference' },
+  { name: 'voice-dictation', url: 'https://code.claude.com/docs/en/voice-dictation' },
+  { name: 'web-scheduled-tasks', url: 'https://code.claude.com/docs/en/web-scheduled-tasks' },
+  { name: 'zero-data-retention', url: 'https://code.claude.com/docs/en/zero-data-retention' },
   // Agent SDK (different domain)
   { name: 'agent-sdk-overview', url: 'https://platform.claude.com/docs/en/agent-sdk/overview' },
 ]

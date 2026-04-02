@@ -44,6 +44,7 @@
     "docs:assemble": "node scripts/fetch-docs.mjs --assemble",
     "docs:status": "node scripts/fetch-docs.mjs --status",
     "docs:check-updates": "node scripts/fetch-docs.mjs --check-updates",
+    "docs:discover": "node scripts/fetch-docs.mjs --discover",
     "verify:diff": "node scripts/verify-state.mjs diff",
     "verify:diff:full": "node scripts/verify-state.mjs diff --full",
     "verify:diff:force": "node scripts/verify-state.mjs diff --force",
