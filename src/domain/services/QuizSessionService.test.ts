@@ -954,3 +954,88 @@ describe('Re-answer score handling', () => {
     expect(r2.newState.answeredCount).toBe(1)
   })
 })
+
+describe('weightedSampleByCategory', () => {
+  it('should sample questions proportional to category weights', () => {
+    // Create test questions: 50 each for 3 categories with different weights
+    const questions: Question[] = []
+    const cats = [
+      { id: 'memory', weight: 15 }, // should get ~15/35 * 30 ≈ 13
+      { id: 'session', weight: 10 }, // should get ~10/35 * 30 ≈ 9
+      { id: 'keyboard', weight: 10 }, // should get ~10/35 * 30 ≈ 9
+    ]
+    for (const cat of cats) {
+      for (let i = 0; i < 50; i++) {
+        questions.push(
+          Question.create({
+            id: `${cat.id}-${i}`,
+            category: cat.id,
+            difficulty: 'beginner',
+            question: `Q ${cat.id} ${i}`,
+            options: [{ text: 'A' }, { text: 'B' }, { text: 'C' }, { text: 'D' }],
+            correctIndex: 0,
+            explanation: 'test',
+          })
+        )
+      }
+    }
+
+    const result = QuizSessionService.weightedSampleByCategory(questions, 30)
+    expect(result).toHaveLength(30)
+
+    // Count by category
+    const counts: Record<string, number> = {}
+    for (const q of result) {
+      counts[q.category] = (counts[q.category] ?? 0) + 1
+    }
+
+    // memory (weight 15) should get more than session/keyboard (weight 10)
+    expect(counts.memory).toBeGreaterThan(counts.session ?? 0)
+    expect(counts.memory).toBeGreaterThan(counts.keyboard ?? 0)
+    // All categories should be represented
+    expect(Object.keys(counts)).toHaveLength(3)
+  })
+
+  it('should handle category with fewer questions than target', () => {
+    const questions: Question[] = []
+    // memory: only 3 questions but high weight
+    for (let i = 0; i < 3; i++) {
+      questions.push(
+        Question.create({
+          id: `mem-${i}`,
+          category: 'memory',
+          difficulty: 'beginner',
+          question: `Q mem ${i}`,
+          options: [{ text: 'A' }, { text: 'B' }, { text: 'C' }, { text: 'D' }],
+          correctIndex: 0,
+          explanation: 'test',
+        })
+      )
+    }
+    // session: 50 questions
+    for (let i = 0; i < 50; i++) {
+      questions.push(
+        Question.create({
+          id: `ses-${i}`,
+          category: 'session',
+          difficulty: 'beginner',
+          question: `Q ses ${i}`,
+          options: [{ text: 'A' }, { text: 'B' }, { text: 'C' }, { text: 'D' }],
+          correctIndex: 0,
+          explanation: 'test',
+        })
+      )
+    }
+
+    const result = QuizSessionService.weightedSampleByCategory(questions, 20)
+    expect(result).toHaveLength(20)
+
+    const counts: Record<string, number> = {}
+    for (const q of result) {
+      counts[q.category] = (counts[q.category] ?? 0) + 1
+    }
+    // memory should use all 3 available, rest goes to session
+    expect(counts.memory).toBe(3)
+    expect(counts.session).toBe(17)
+  })
+})

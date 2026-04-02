@@ -24,6 +24,7 @@
 
 import { Question } from '../entities/Question'
 import { UserProgress } from '../entities/UserProgress'
+import { PREDEFINED_CATEGORIES } from '../valueObjects/Category'
 import type { DifficultyLevel } from '../valueObjects/Difficulty'
 import type { QuizModeId } from '../valueObjects/QuizMode'
 import { SpacedRepetitionService } from './SpacedRepetitionService'
@@ -111,6 +112,76 @@ export class QuizSessionService {
       ;[shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]]
     }
     return shuffled
+  }
+
+  /**
+   * カテゴリの weight に基づいて、指定数の問題をバランスよく抽出する。
+   * 各カテゴリから weight 比率に応じた問題数を割り当て、カテゴリ内はシャッフル。
+   * 端数は weight の大きいカテゴリから優先的に割り当てる。
+   */
+  static weightedSampleByCategory(questions: Question[], count: number): Question[] {
+    const categoryWeights = new Map<string, number>()
+    for (const cat of PREDEFINED_CATEGORIES) {
+      categoryWeights.set(cat.id, cat.weight)
+    }
+
+    // Group questions by category
+    const byCategory = new Map<string, Question[]>()
+    for (const q of questions) {
+      const list = byCategory.get(q.category) ?? []
+      list.push(q)
+      byCategory.set(q.category, list)
+    }
+
+    // Calculate allocation per category based on weight
+    const totalWeight = [...byCategory.keys()].reduce((sum, id) => sum + (categoryWeights.get(id) ?? 10), 0)
+    const allocations: { id: string; target: number; available: number; fraction: number }[] = []
+    for (const [id, qs] of byCategory) {
+      const weight = categoryWeights.get(id) ?? 10
+      const exact = (weight / totalWeight) * count
+      allocations.push({ id, target: Math.floor(exact), available: qs.length, fraction: exact - Math.floor(exact) })
+    }
+
+    // Distribute remainder to categories with largest fractional parts (respecting available count)
+    let remaining = count - allocations.reduce((s, a) => s + a.target, 0)
+    allocations.sort((a, b) => b.fraction - a.fraction)
+    for (const alloc of allocations) {
+      if (remaining <= 0) break
+      if (alloc.target < alloc.available) {
+        alloc.target++
+        remaining--
+      }
+    }
+
+    // If a category doesn't have enough questions, redistribute excess to others
+    let excess = 0
+    for (const alloc of allocations) {
+      if (alloc.target > alloc.available) {
+        excess += alloc.target - alloc.available
+        alloc.target = alloc.available
+      }
+    }
+    // Distribute excess to categories that have room, sorted by weight desc
+    allocations.sort((a, b) => (categoryWeights.get(b.id) ?? 10) - (categoryWeights.get(a.id) ?? 10))
+    for (const alloc of allocations) {
+      if (excess <= 0) break
+      const room = alloc.available - alloc.target
+      if (room > 0) {
+        const add = Math.min(room, excess)
+        alloc.target += add
+        excess -= add
+      }
+    }
+
+    // Pick shuffled questions from each category
+    const result: Question[] = []
+    for (const alloc of allocations) {
+      const pool = byCategory.get(alloc.id) ?? []
+      const shuffled = this.shuffleArray(pool)
+      result.push(...shuffled.slice(0, alloc.target))
+    }
+
+    return this.shuffleArray(result)
   }
 
   /**
@@ -266,8 +337,10 @@ export class QuizSessionService {
       questions = this.shuffleArray(questions)
     }
 
-    // Limit question count
-    if (config.questionCount && config.questionCount < questions.length) {
+    // For full (実力テスト) mode: use weighted sampling by category
+    if (config.mode === 'full' && config.questionCount && config.questionCount < questions.length) {
+      questions = this.weightedSampleByCategory(questions, config.questionCount)
+    } else if (config.questionCount && config.questionCount < questions.length) {
       questions = questions.slice(0, config.questionCount)
     }
 
