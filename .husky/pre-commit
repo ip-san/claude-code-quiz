@@ -1,6 +1,13 @@
 bunx lint-staged
 bunx vitest run --changed --reporter=dot
-node scripts/validate-docs.mjs
+
+# Auto-fix stale doc stats and re-stage if needed
+if ! node scripts/validate-docs.mjs 2>/dev/null; then
+  node scripts/validate-docs.mjs --fix
+  git add CLAUDE.md README.md docs/ index.html 2>/dev/null
+  # Verify fix was successful
+  node scripts/validate-docs.mjs
+fi
 
 # Prevent banned patterns in staged files
 if git diff --cached --name-only | grep -q '\.tsx$'; then

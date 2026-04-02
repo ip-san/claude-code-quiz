@@ -291,6 +291,14 @@ function scanStaleNumbers(content, file, label) {
 scanStaleNumbers(claudeMd, 'CLAUDE.md', 'CLAUDE.md')
 scanStaleNumbers(readmeMd, 'README.md', 'README.md')
 
+// ── index.html stale numbers ──────────────────────────────
+try {
+  const indexHtml = readFileSync('index.html', 'utf8')
+  scanStaleNumbers(indexHtml, 'index.html', 'index.html')
+} catch {
+  // index.html may not exist
+}
+
 // ── docs/ directory stale number scan ──────────────────────
 // Scan all markdown files in docs/ for stale quiz counts
 try {
