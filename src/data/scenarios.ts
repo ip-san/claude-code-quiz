@@ -576,4 +576,193 @@ export const SCENARIOS: readonly ScenarioData[] = [
     completionMessage:
       'コンテキスト管理をマスター！使用量の確認、圧縮と焦点指定、サブエージェントへの委任、自動コンパクション——Claude Code と長時間作業するための必須知識を体験しました。',
   },
+  {
+    id: 'scenario-claudemd',
+    title: 'CLAUDE.mdをゼロから育てる',
+    description: '効果的なCLAUDE.mdの書き方を実践で学ぶ',
+    icon: '📝',
+    difficulty: 'beginner',
+    steps: [
+      {
+        type: 'narrative',
+        text: '新しい React プロジェクトを引き継いだ。ドキュメントは少なく、ビルド方法すらREADMEに書いていない。\n\n先輩が「CLAUDE.md を用意しておくと、Claudeが毎回プロジェクトのルールを覚えてくれるよ」と教えてくれた。まずは CLAUDE.md がどういうファイルなのか理解しよう。',
+      },
+      { type: 'question', questionId: 'mem-001' },
+      {
+        type: 'narrative',
+        text: 'ゼロから CLAUDE.md を書くのは大変だ。実はプロジェクトを解析して雛形を自動生成する方法がある。',
+      },
+      { type: 'question', questionId: 'mem-003' },
+      {
+        type: 'narrative',
+        text: '雛形ができた。しかし「コードはきれいに書いて」のような曖昧な指示では Claude は従ってくれないことがある。効果的な書き方にはコツがある。',
+      },
+      { type: 'question', questionId: 'mem-038' },
+      { type: 'question', questionId: 'bp-020' },
+      {
+        type: 'narrative',
+        text: 'CLAUDE.md が 300 行を超えてきた。全部を1ファイルに書くと読みにくい。ルールをモジュール化する方法を学ぼう。',
+      },
+      { type: 'question', questionId: 'mem-010' },
+      { type: 'question', questionId: 'mem-021' },
+      {
+        type: 'narrative',
+        text: 'CLAUDE.md が完成した。自動生成から始めて、具体的な指示を書き、ルールをモジュール化する——この流れを覚えておけば、どんなプロジェクトでも Claude Code の力を最大限引き出せる。',
+      },
+    ],
+    completionMessage:
+      'CLAUDE.md マスターへの第一歩！雛形の自動生成、効果的な書き方、ルールのモジュール化を学びました。プロジェクトに合わせて育てていきましょう。',
+  },
+  {
+    id: 'scenario-planmode',
+    title: 'Plan モードで設計してから実装',
+    description: 'いきなりコードを書かず、計画を立ててから実装するワークフロー',
+    icon: '📐',
+    difficulty: 'intermediate',
+    steps: [
+      {
+        type: 'narrative',
+        text: '「認証機能を追加して」と一言で指示したら、Claude が既存のコードを壊してしまった。\n\n先輩エンジニアが「大きなタスクは Plan モードで設計してからコードを書かせるといいよ」とアドバイスしてくれた。Plan → Setup → Build のフローを試してみよう。',
+      },
+      { type: 'question', questionId: 'cmd-035' },
+      {
+        type: 'narrative',
+        text: 'Plan モードで設計書を確認した。次は実装フェーズ。大きな変更は一度に頼むと品質が下がる。段階的に依頼するのがコツだ。',
+      },
+      { type: 'question', questionId: 'bp-002' },
+      { type: 'question', questionId: 'bp-029' },
+      {
+        type: 'narrative',
+        text: '実装が完了した。PR を作る前にテストを書いて確認しよう。Claude に「テスト駆動」で進めてもらう方法がある。',
+      },
+      { type: 'question', questionId: 'bp-001' },
+      {
+        type: 'narrative',
+        text: 'Plan → Build のワークフローで認証機能が完成した。「いきなりコードを書かない」——この原則を守るだけで、手戻りが激減し、チーム全員が安心して Claude Code を使えるようになる。',
+      },
+    ],
+    completionMessage:
+      'Plan → Build のワークフローを体験しました！設計フェーズを挟むだけで、コードの品質が劇的に上がります。',
+  },
+  {
+    id: 'scenario-workflow',
+    title: '非エンジニアの業務自動化',
+    description: 'プログラミング未経験でもClaude Codeで業務を効率化',
+    icon: '💼',
+    difficulty: 'beginner',
+    steps: [
+      {
+        type: 'narrative',
+        text: '営業チームの山田さん。プログラミングは未経験だが、Claude Code で日常業務を自動化できると聞いた。\n\n「ターミナルって何？」というレベルからのスタート。でも大丈夫——Claude Code は日本語で話しかけるだけで動く。まずは基本を押さえよう。',
+      },
+      { type: 'question', questionId: 'cmd-001' },
+      {
+        type: 'narrative',
+        text: 'Claude Code が起動した。「週次レポートの集計を自動化したい」と日本語で伝えたら、スクリプトを書いてくれた。\n\n実行する前に確認画面が出る。これが Claude Code の安全装置だ。',
+      },
+      { type: 'question', questionId: 'cmd-021' },
+      { type: 'question', questionId: 'bp-012' },
+      {
+        type: 'narrative',
+        text: '自動化スクリプトができた。毎週手動で実行するのは面倒だ。定期実行する方法はないだろうか？',
+      },
+      { type: 'question', questionId: 'cmd-016' },
+      {
+        type: 'narrative',
+        text: '週次レポートの自動化が完了した。「日本語で指示するだけ」が Claude Code の魅力。プログラミングの知識がなくても、日常業務を効率化できる。次は他の定型作業も自動化してみよう。',
+      },
+    ],
+    completionMessage:
+      'プログラミング未経験でも Claude Code で業務自動化ができることを体験しました！日本語で指示するだけ、あとは AI が考えてくれます。',
+  },
+  {
+    id: 'scenario-mcp-setup',
+    title: 'MCP サーバーで外部ツール連携',
+    description: 'Slack・DB・API と Claude Code をつなぐ',
+    icon: '🔌',
+    difficulty: 'intermediate',
+    steps: [
+      {
+        type: 'narrative',
+        text: 'プロジェクトで Slack 通知と DB クエリを Claude Code から実行したい。MCP（Model Context Protocol）を使えば外部ツールと連携できる。',
+      },
+      { type: 'question', questionId: 'ext-001' },
+      {
+        type: 'narrative',
+        text: 'MCP サーバーの設定ファイルを書いた。接続がうまくいかない——タイムアウトの設定や認証の確認が必要だ。',
+      },
+      { type: 'question', questionId: 'ext-025' },
+      { type: 'question', questionId: 'ext-086' },
+      {
+        type: 'narrative',
+        text: 'MCP サーバーが動いた！しかしセキュリティを考えると、どのツールに何の権限を与えるか慎重に設定する必要がある。',
+      },
+      { type: 'question', questionId: 'ses-069' },
+      {
+        type: 'narrative',
+        text: 'MCP サーバーが稼働し、Slack 通知と DB クエリが Claude Code から実行できるようになった。MCP は Claude Code を「ただのコーディングツール」から「業務プラットフォーム」に進化させる鍵だ。',
+      },
+    ],
+    completionMessage:
+      'MCP サーバーの接続と設定を体験しました！Slack、DB、API など、外部ツールとの連携で Claude Code の可能性が広がります。',
+  },
+  {
+    id: 'scenario-cicd-setup',
+    title: 'CI/CD に Claude Code を組み込む',
+    description: 'GitHub Actions で PR レビューとイシュー対応を自動化',
+    icon: '⚙️',
+    difficulty: 'advanced',
+    steps: [
+      {
+        type: 'narrative',
+        text: 'チームの PR レビューが追いつかない。Claude Code を CI に組み込んで、自動レビューとイシュートリアージを実現しよう。',
+      },
+      { type: 'question', questionId: 'cmd-025' },
+      { type: 'question', questionId: 'cmd-032' },
+      {
+        type: 'narrative',
+        text: 'GitHub Actions のワークフローを設定した。しかし CI 環境では対話的な操作ができない。ヘッドレスモードの設定が必要だ。',
+      },
+      { type: 'question', questionId: 'cmd-053' },
+      { type: 'question', questionId: 'ses-041' },
+      {
+        type: 'narrative',
+        text: 'CI パイプラインに Claude Code が組み込まれた。PR が作成されるたびに自動レビューが走り、イシューも自動トリアージされる。チームのレビュー負荷が劇的に軽減された。',
+      },
+    ],
+    completionMessage:
+      'CI/CD パイプラインへの Claude Code 統合を体験しました！PR レビューの自動化で、チームの開発サイクルが加速します。',
+  },
+  {
+    id: 'scenario-dotclaude',
+    title: '.claude フォルダを理解する',
+    description: 'CLAUDE.md、rules、skills、hooks、settings の全体像',
+    icon: '📁',
+    difficulty: 'beginner',
+    steps: [
+      {
+        type: 'narrative',
+        text: 'Claude Code を使い込んでいくと、プロジェクトに `.claude` フォルダが自動生成される。中には設定ファイルがたくさん。「どれが何の役割？」を理解しよう。',
+      },
+      { type: 'question', questionId: 'mem-016' },
+      {
+        type: 'narrative',
+        text: 'CLAUDE.md はプロジェクトルートに置く指示ファイル。`.claude/rules/` はより詳細なルールをモジュール化するディレクトリ。使い分けのポイントは？',
+      },
+      { type: 'question', questionId: 'mem-010' },
+      { type: 'question', questionId: 'mem-044' },
+      {
+        type: 'narrative',
+        text: 'ルールは理解した。次は Skills と Hooks。似ているようで全く違う概念だ。',
+      },
+      { type: 'question', questionId: 'skill-001' },
+      { type: 'question', questionId: 'ext-041' },
+      {
+        type: 'narrative',
+        text: '.claude フォルダの全体像が見えた。CLAUDE.md は「指示」、rules は「ルールのモジュール化」、skills は「再利用可能なコマンド」、hooks は「自動化トリガー」。この 4 つの使い分けが Claude Code マスターへの第一歩だ。',
+      },
+    ],
+    completionMessage:
+      '.claude フォルダの全体像を理解しました！CLAUDE.md、rules、skills、hooks、settings——それぞれの役割と使い分けがわかれば、Claude Code のポテンシャルを最大限引き出せます。',
+  },
 ]

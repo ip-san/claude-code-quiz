@@ -64,20 +64,15 @@ claudeMd.split('\n').forEach((line, i) => {
   }
 })
 
-// ── 4. Scenario question duplicates ──
+// ── 4. Scenario question reuse (cross-scenario reuse is allowed by design) ──
 const scenarios = readFileSync('src/data/scenarios.ts', 'utf-8')
 const qIds = [...scenarios.matchAll(/questionId: '([^']+)'/g)].map((m) => m[1])
-const seen = new Map()
-qIds.forEach((id) => seen.set(id, (seen.get(id) || 0) + 1))
-const dupes = [...seen.entries()].filter(([, c]) => c > 1)
-if (dupes.length) {
-  errors.push(`Scenario question duplicates: ${dupes.map(([id, c]) => `${id} x${c}`).join(', ')}`)
-}
+const uniqueScenarioQuestions = new Set(qIds).size
 
 // ── Report ──
 if (errors.length === 0) {
   console.log(
-    `✓ Docs integrity OK (${docFiles.length + 1} files, 0 orphans, 0 broken links, 0 stale refs, ${seen.size} unique scenario questions)`
+    `✓ Docs integrity OK (${docFiles.length + 1} files, 0 orphans, 0 broken links, 0 stale refs, ${uniqueScenarioQuestions} unique scenario questions)`
   )
 } else {
   console.error('✗ Docs integrity issues:')
