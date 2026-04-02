@@ -306,80 +306,9 @@ node scripts/quiz-utils.mjs merge-proposals
 
 ## 出力形式
 
-### fix mode — 最終サマリー
+**fix mode:** `## Quiz Refine Complete` サマリー（iterations, fixes, test result）+ 修正一覧（ID, OLD→NEW, 理由）+ パターン別・カテゴリ別件数
 
-```
-## Quiz Refine Complete
-- Iterations: N
-- Categories processed: [list]
-- Mode: fix (incremental|full)
-- Scope: X verified + Y skipped (verified-ok) = Z total
-- Fixes applied: X (critical: N, major: N, minor: N)
-- Skipped (info): N
-- Test result: PASS/FAIL
-- Proposals: N items (high: N, medium: N, low: N)
-- Proposals file: .claude/tmp/skill-proposals.md
-```
-
-### fix mode — 修正レポート（必須）
-
-修正を行った場合、最終サマリーの後に修正した問題の一覧と解説を出力する:
-
-```markdown
-## 修正一覧
-
-### [category] ID: question（先頭70文字）
-
-**修正フィールド:** wrongFeedback / explanation / question / options
-**修正種別:** 事実誤り修正 / wrongFeedback品質改善 / 用語修正 / バッククォート追加
-
-- **OLD:** 修正前の内容（100文字まで）
-- **NEW:** 修正後の内容（100文字まで）
-- **理由:** なぜこの修正が必要だったかの簡潔な説明
-```
-
-**パターン別サマリー** も付記する:
-
-```markdown
-## パターン別サマリー
-
-| パターン | 説明 | 件数 |
-|---------|------|------|
-| wrongFeedback品質改善 | 短すぎる説明を具体的情報に拡充 | N |
-| 事実誤り修正 | ドキュメントと不一致の記述を修正 | N |
-
-## カテゴリ別件数
-
-| カテゴリ | 件数 |
-|---------|------|
-| session | N |
-| extensions | N |
-```
-
-修正0件の場合は「修正なし - 全問題がドキュメントと一致」と出力する。
-
-### dry-run mode — レポート
-
-```markdown
-## 検証結果サマリー
-
-- Mode: dry-run (incremental|full)
-- 検証対象: X問 (スキップ: Y問)
-
-### Critical Issues (修正必須)
-
-| Quiz ID | 問題内容 | 現在の内容 | 正しい内容 | 参照元 |
-|---------|---------|-----------|-----------|--------|
-
-### Major Issues
-### Minor Issues
-### Info（品質改善提案）
-```
-
-問題なしの場合:
-```
-✅ 全 [N] 問の検証が完了しました。重大な問題は見つかりませんでした。
-```
+**dry-run mode:** `## 検証結果サマリー` + Critical/Major/Minor/Info の4段階テーブル（Quiz ID, 問題内容, 現在→正しい内容, 参照元）
 
 ---
 

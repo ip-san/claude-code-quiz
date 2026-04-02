@@ -1,6 +1,6 @@
 ---
 name: spec-audit
-description: CLAUDE.md の仕様記述と実装の意味的な整合性を監査する。仕様バグ検出、spec audit、仕様チェック、ドキュメント整合性。数値チェックは `npm run docs:validate` で自動化済みなので、このスキルではコードを読んで意味的な不一致を検出する。
+description: CLAUDE.md の仕様記述と実装の意味的な整合性を監査する。仕様バグ検出、spec audit、仕様チェック、ドキュメント整合性
 disable-model-invocation: true
 allowed-tools: Read, Grep, Glob, Bash(npm run docs:validate*), Bash(npx vitest*), Bash(npx playwright*), Bash(node scripts/*), Bash(ls *), Bash(find *), Bash(wc *)
 argument-hint: "[section]"
