@@ -489,19 +489,25 @@ function showStatus() {
 /**
  * Discover new doc pages by fetching llms.txt and comparing with DOC_PAGES.
  * Detects pages added to the official docs site and auto-adds them to topic-config.mjs.
+ * Returns the new page objects (name + url) so the caller can include them in the fetch.
  */
-async function discoverNewPages() {
+async function discoverNewPages({ silent = false } = {}) {
   const LLMS_URL = 'https://code.claude.com/docs/llms.txt'
-  console.log(`Fetching ${LLMS_URL}...\n`)
+  if (!silent) console.log(`Fetching ${LLMS_URL}...\n`)
 
-  const resp = await fetch(LLMS_URL)
-  if (!resp.ok) {
-    console.error(`Failed to fetch llms.txt: ${resp.status}`)
-    process.exit(1)
+  let text
+  try {
+    const resp = await fetch(LLMS_URL)
+    if (!resp.ok) {
+      if (!silent) console.error(`Failed to fetch llms.txt: ${resp.status}`)
+      return []
+    }
+    text = await resp.text()
+  } catch (err) {
+    if (!silent) console.error(`Failed to fetch llms.txt: ${err.message}`)
+    return []
   }
 
-  const text = await resp.text()
-  // Extract page names from markdown links: [title](https://...docs/en/page-name.md)
   const livePages = [...text.matchAll(/https:\/\/code\.claude\.com\/docs\/en\/([a-z0-9-]+)\.md/g)]
     .map((m) => m[1])
     .filter((v, i, a) => a.indexOf(v) === i)
@@ -510,13 +516,15 @@ async function discoverNewPages() {
   const newPages = livePages.filter((name) => !knownNames.has(name))
 
   if (newPages.length === 0) {
-    console.log(`All ${livePages.length} pages are already tracked. No new pages found.`)
-    return
+    if (!silent) console.log(`All ${livePages.length} pages are already tracked. No new pages found.`)
+    return []
   }
 
-  console.log(`Found ${newPages.length} new page(s) not in DOC_PAGES:\n`)
-  for (const name of newPages) {
-    console.log(`  + ${name}  (https://code.claude.com/docs/en/${name})`)
+  if (!silent) {
+    console.log(`Found ${newPages.length} new page(s) not in DOC_PAGES:\n`)
+    for (const name of newPages) {
+      console.log(`  + ${name}  (https://code.claude.com/docs/en/${name})`)
+    }
   }
 
   const configPath = resolve(ROOT, 'scripts/topic-config.mjs')
@@ -524,8 +532,8 @@ async function discoverNewPages() {
 
   const insertionPoint = '  // Agent SDK (different domain)'
   if (!config.includes(insertionPoint)) {
-    console.error('\nCould not find insertion point in topic-config.mjs. Add manually.')
-    process.exit(1)
+    if (!silent) console.error('\nCould not find insertion point in topic-config.mjs. Add manually.')
+    return []
   }
 
   const newEntries = newPages
@@ -538,8 +546,11 @@ async function discoverNewPages() {
   )
 
   writeFileSync(configPath, config)
-  console.log(`\nAdded ${newPages.length} page(s) to scripts/topic-config.mjs`)
-  console.log(`Run \`bun run docs:fetch\` to cache the new pages.`)
+  if (!silent) {
+    console.log(`\nAdded ${newPages.length} page(s) to scripts/topic-config.mjs`)
+  }
+
+  return newPages.map((name) => ({ name, url: `https://code.claude.com/docs/en/${name}` }))
 }
 
 async function checkUpdates() {
@@ -711,6 +722,16 @@ async function main() {
   }
 
   const force = args.includes('--force')
+
+  // Auto-discover new pages from llms.txt before fetching
+  if (!args.includes('--pages')) {
+    const discovered = await discoverNewPages({ silent: false })
+    if (discovered.length > 0) {
+      // Add newly discovered pages to the fetch list
+      DOC_PAGES.push(...discovered)
+      console.log()
+    }
+  }
 
   // --pages filter: only fetch specified pages (comma-separated)
   const pagesArg = args.find((a) => a.startsWith('--pages'))
