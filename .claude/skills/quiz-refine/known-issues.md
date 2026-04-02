@@ -246,6 +246,14 @@ v4.43.0 以前の known-issues では「exit code 2 の一般ルールで UserPr
 
 ---
 
+## `.claude/rules/` フロントマターフィールド
+
+- `.claude/rules/` のYAMLフロントマターで文書化されているフィールドは `paths` のみ（globパターンで適用対象ファイルを指定）
+- `description` フィールドは **Skills** のフロントマターフィールドであり、rules には存在しない
+- mem-044, mem-047 が `description` を rules のフロントマターとして参照していたため修正（v4.45.0）
+
+---
+
 ## エージェントチームのプラットフォーム制限
 
 - エージェントチームは CLI と Agent SDK でのみ利用可能。デスクトップアプリでは利用不可（docs: "Agent teams: multi-agent orchestration is available via the CLI and Agent SDK, not in Desktop"）
