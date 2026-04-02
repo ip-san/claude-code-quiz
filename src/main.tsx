@@ -3,7 +3,7 @@ import ReactDOM from 'react-dom/client'
 import App from './App'
 import { ErrorBoundary } from './components/Layout/ErrorBoundary'
 import { theme } from './config/theme'
-import { initGTM, trackError } from './lib/analytics'
+import { initGTM, initRealUserDetection, trackError } from './lib/analytics'
 import { initTheme } from './lib/theme'
 import './index.css'
 
@@ -15,6 +15,9 @@ document.title = theme.appName
 
 // Initialize GTM (no-op if VITE_GTM_ID is unset or in Electron)
 initGTM()
+
+// Detect real users vs bots (fires real_user event after 5s + interaction)
+initRealUserDetection()
 
 // Global error tracking
 window.addEventListener('error', (e) => {

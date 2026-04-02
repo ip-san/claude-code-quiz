@@ -57,6 +57,49 @@ function pushEvent(event: string, params?: Record<string, unknown>): void {
 }
 
 // ============================================================
+// Real User Detection (bot filtering)
+// ============================================================
+
+/**
+ * ボットと実ユーザーを分離するための検出ロジック。
+ * 条件: 5秒以上滞在 AND (スクロール OR クリック) → real_user イベントを1回だけ発火。
+ * GA4 側でこのイベントの有無でセグメント分離が可能。
+ */
+export function initRealUserDetection(): void {
+  if (!isAnalyticsEnabled) return
+
+  let interacted = false
+  let fired = false
+
+  const onInteraction = () => {
+    interacted = true
+  }
+
+  window.addEventListener('scroll', onInteraction, { once: true, passive: true })
+  window.addEventListener('click', onInteraction, { once: true })
+  window.addEventListener('touchstart', onInteraction, { once: true, passive: true })
+
+  setTimeout(() => {
+    if (interacted && !fired) {
+      fired = true
+      pushEvent('real_user', { detection: 'interaction_5s' })
+    }
+    // Clean up if not yet fired
+    if (!fired) {
+      const checkLater = () => {
+        if (interacted && !fired) {
+          fired = true
+          pushEvent('real_user', { detection: 'interaction_delayed' })
+        }
+      }
+      window.addEventListener('scroll', checkLater, { once: true, passive: true })
+      window.addEventListener('click', checkLater, { once: true })
+      window.addEventListener('touchstart', checkLater, { once: true, passive: true })
+    }
+  }, 5000)
+}
+
+// ============================================================
 // ユーザープロパティ
 // ============================================================
 

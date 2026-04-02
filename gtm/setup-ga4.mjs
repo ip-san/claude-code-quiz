@@ -57,6 +57,11 @@ const DIMENSIONS = [
     displayName: 'エラーソース',
     description: 'react_boundary / window_error / unhandled_rejection',
   },
+  {
+    parameterName: 'detection',
+    displayName: '検出方法',
+    description: 'real_user 判定方法（interaction_5s / interaction_delayed）',
+  },
   { parameterName: 'question_id', displayName: '問題ID', description: '個別問題の識別子（例: mem-001）' },
   { parameterName: 'difficulty', displayName: '難易度', description: 'beginner / intermediate / advanced' },
   { parameterName: 'is_correct', displayName: '正誤', description: '正解: true / 不正解: false' },

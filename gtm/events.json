@@ -79,6 +79,11 @@
       "userProperties": ["mastery_level", "total_quizzes"]
     },
     {
+      "name": "real_user",
+      "description": "実ユーザー検出（5秒以上滞在+操作あり。ボットフィルタリング用）",
+      "params": ["detection", "platform"]
+    },
+    {
       "name": "app_error",
       "description": "アプリエラー（未処理例外・レンダリングエラー）",
       "params": ["error_message", "error_source", "platform"]
