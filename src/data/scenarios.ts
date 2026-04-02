@@ -565,16 +565,26 @@ export const SCENARIOS: readonly ScenarioData[] = [
       { type: 'question', questionId: 'ses-025' },
       {
         type: 'narrative',
-        text: 'コンテキスト管理の戦略が見えてきた。最後に、もしコンテキストを使い切ってしまった場合の自動的な動作も知っておこう。Claude Code は黙って壊れるのではなく、自動的に対処する仕組みがある。',
+        text: 'コンテキスト管理の戦略が見えてきた。ところで、さっきリファクタの途中で後輩から「CI の設定も見てほしい」と頼まれた。ここでリファクタの会話に CI の話を混ぜると、コンテキストがごちゃごちゃになる。これには名前がある——',
+      },
+      { type: 'question', questionId: 'bp-037' },
+      {
+        type: 'narrative',
+        text: '「Kitchen sink」を避けるには、タスクを切り替える前に `/clear` する。CI の質問は別セッションで片付けてからリファクタに戻ろう。\n\nさて、リファクタに戻ったが、型エラーの修正を 2 回指示しても直らない。同じ修正を何度も頼むのは時間の無駄だ。こういうときの最善手は？',
+      },
+      { type: 'question', questionId: 'bp-008' },
+      {
+        type: 'narrative',
+        text: '2 回失敗したら `/clear` して、学んだことを含めた良いプロンプトで再出発——これが鉄則だ。最後に、もしコンテキストを使い切ってしまった場合の自動的な動作も知っておこう。Claude Code は黙って壊れるのではなく、自動的に対処する仕組みがある。',
       },
       { type: 'question', questionId: 'ses-106' },
       {
         type: 'narrative',
-        text: '木曜。コンテキスト管理を意識しながらリファクタリングを再開。今度は「大タスク → サブタスクに分割 → それぞれ別セッション or サブエージェント」で進めた。\n\n昨日は 2 時間で行き詰まったのに、今日は 1 日通してスムーズに作業できた。コンテキストは「見えない資源」——意識して管理するかどうかで、生産性が段違いになる。',
+        text: '木曜。コンテキスト管理を意識しながらリファクタリングを再開。今度は「大タスク → サブタスクに分割 → それぞれ別セッション or サブエージェント」で進めた。タスク切替時は `/clear`。2 回失敗したらリセット。\n\n昨日は 2 時間で行き詰まったのに、今日は 1 日通してスムーズに作業できた。コンテキストは「見えない資源」——意識して管理するかどうかで、生産性が段違いになる。',
       },
     ],
     completionMessage:
-      'コンテキスト管理をマスター！使用量の確認、圧縮と焦点指定、サブエージェントへの委任、自動コンパクション——Claude Code と長時間作業するための必須知識を体験しました。',
+      'コンテキスト管理をマスター！使用量の確認、圧縮と焦点指定、サブエージェントへの委任、タスク切替時の /clear、2回失敗したらリセット、自動コンパクション——Claude Code と長時間作業するための必須知識を体験しました。',
   },
   {
     id: 'scenario-claudemd',
@@ -806,5 +816,96 @@ export const SCENARIOS: readonly ScenarioData[] = [
     ],
     completionMessage:
       '.claude フォルダの全体像を理解しました！CLAUDE.md、rules、skills、hooks、settings——それぞれの役割と使い分けがわかれば、Claude Code のポテンシャルを最大限引き出せます。',
+  },
+  {
+    id: 'scenario-claudemd-pruning',
+    title: 'CLAUDE.mdダイエット作戦',
+    description: '肥大化したCLAUDE.mdを公式ベストプラクティスに沿って刈り込む',
+    icon: '✂️',
+    difficulty: 'intermediate',
+    steps: [
+      {
+        type: 'narrative',
+        text: '木曜の午後。チームの CLAUDE.md が 400 行を超えた。最近「書いたルールを Claude が無視する」という報告が増えている。\n\nテックリードの田中さんが「肥大化した CLAUDE.md はアンチパターンだよ。刈り込もう」と言い出した。まず、公式が何をアンチパターンとしているか確認しよう。',
+      },
+      { type: 'question', questionId: 'mem-067' },
+      {
+        type: 'narrative',
+        text: '公式推奨は「1ファイル 200 行以下」。今の 400 行は倍だ。まずは不要な記述を見つけて削る。\n\n田中さんが「TypeScript で書かれています」「src/ にソースコードがあります」という行を指さした。「これ、要る？」',
+      },
+      { type: 'question', questionId: 'mem-065' },
+      { type: 'question', questionId: 'mem-070' },
+      {
+        type: 'narrative',
+        text: 'コードから推論できる記述を削除して 280 行に。まだ多い。次に田中さんが気づいたのは、「インデントは 2 スペース」と「インデントは 4 スペース」が別の場所に書かれている矛盾だった。',
+      },
+      { type: 'question', questionId: 'mem-071' },
+      {
+        type: 'narrative',
+        text: '矛盾を解消して 250 行に。残りの記述を見ると「テストは必ず書くこと」「コードはきれいに」のような曖昧なルールが多い。これでは Claude は従いにくい。',
+      },
+      { type: 'question', questionId: 'mem-069' },
+      {
+        type: 'narrative',
+        text: '曖昧な指示を具体的に書き直した。ところで「全ての関数に JSDoc を書くこと」「全ファイルにヘッダーコメントを付けること」——こういう一般的ルールの羅列はどうだろう？',
+      },
+      { type: 'question', questionId: 'mem-074' },
+      {
+        type: 'narrative',
+        text: '刈り込み完了！400 行 → 180 行に。翌日から「Claude がルールを無視する」という報告がゼロに。\n\nしかし1週間後、新メンバーの鈴木さんから「CLAUDE.md に書いたはずのルールが守られない」と相談があった。まず何を確認すべき？',
+      },
+      { type: 'question', questionId: 'mem-075' },
+      {
+        type: 'narrative',
+        text: '`/memory` で確認したら、鈴木さんのルールファイルがロードされていなかった。パスの設定ミスだった。「まず読み込まれているか確認」——基本だけど大事なステップだ。',
+      },
+    ],
+    completionMessage:
+      'CLAUDE.md ダイエット完了！「コードから推論できる情報は書かない」「矛盾を除去」「具体的・検証可能に」「過剰なルールを刈り込む」——この4原則で、簡潔で効果的な CLAUDE.md を維持しましょう。',
+  },
+  {
+    id: 'scenario-hidden-gems',
+    title: 'まだ知らないパワー機能',
+    description: 'Claude Code 作成者も推す、多くの人が見落としている機能を体験する',
+    icon: '💎',
+    difficulty: 'intermediate',
+    steps: [
+      {
+        type: 'narrative',
+        text: '金曜の午後。Claude Code を3ヶ月使い込んだあなた。基本操作は完璧——だが、社内勉強会で発表者が見せた機能の半分を知らなかった。\n\n「Claude Code の作成者が "ほとんどの人が知らない" と言うパワー機能が15個あるらしい」。まずは、会話の途中で「別の方向も試してみたい」と思った時に使える機能から。',
+      },
+      { type: 'question', questionId: 'cmd-112' },
+      {
+        type: 'narrative',
+        text: '`/branch` でセッションを分岐できるのか。Git ブランチではなく「会話のブランチ」——面白い。\n\nところで先日、React から Solid への移行が必要になった。100ファイル超。1つずつ手で直していたら日が暮れる。「大規模な変更を一気に並列処理するコマンドがある」と聞いたが——',
+      },
+      { type: 'question', questionId: 'cmd-113' },
+      {
+        type: 'narrative',
+        text: '`/batch` でタスクを5〜30に分解して並列実行。各エージェントが独立した git worktree で動く。これは強力だ。\n\n次に、CI パイプラインから Claude Code を呼び出すスクリプトを書いている同僚がいた。「起動が遅い」と嘆いていたが、Skills も Hooks も MCP も要らないなら——',
+      },
+      { type: 'question', questionId: 'cmd-114' },
+      {
+        type: 'narrative',
+        text: '`--bare` で拡張を全スキップ。スクリプトからの自動実行なら十分だ。\n\n次は開発中のWebアプリ。実装した UI を確認するために、ブラウザとターミナルを行き来するのが面倒だった。Desktop アプリにはもっとスマートな方法がある。',
+      },
+      { type: 'question', questionId: 'ext-172' },
+      {
+        type: 'narrative',
+        text: 'Desktop アプリの埋め込みブラウザで dev サーバーをプレビュー。スクリーンショットも DOM 検査もアプリ内で完結する。\n\nさらに、Chrome 拡張機能を使えば CLI からもブラウザ操作ができるらしい。どんなことができるのか？',
+      },
+      { type: 'question', questionId: 'ext-170' },
+      {
+        type: 'narrative',
+        text: 'コンソールエラーの読み取り、フォームテスト、Web ページからのデータ抽出——ブラウザ連携で自動化の幅が大きく広がる。\n\n最後に。長時間のコーディングで手が疲れた金曜の夕方。タイピングせずにプロンプトを入力する方法がある。',
+      },
+      { type: 'question', questionId: 'cmd-115' },
+      {
+        type: 'narrative',
+        text: '`/voice` でスペースバーを押しながら話すだけ。手が疲れた夕方には最高だ。\n\n6つのパワー機能を知った。「知っている」と「使いこなせる」は違う——週末に1つずつ試してみよう。月曜にはチームの誰よりも速くなっているはずだ。',
+      },
+    ],
+    completionMessage:
+      'パワー機能を6つ発見！/branch（会話の分岐）、/batch（大規模並列処理）、--bare（最小モード）、Desktop ブラウザ、Chrome 拡張、/voice（音声入力）——これらを使い分けると、Claude Code の生産性が一段上がります。',
   },
 ]
