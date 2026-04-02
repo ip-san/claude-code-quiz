@@ -13,7 +13,7 @@ export interface ViewSlice {
 export const createViewSlice = (_set: StoreSet, _get: StoreGet): ViewSlice => ({
   viewState: 'menu',
   setViewState: (state) => {
-    if (state === 'reader') trackReaderOpen()
+    if (state === 'reader') trackReaderOpen() // GA4: track reader usage via GTM dataLayer push
     _set({ viewState: state })
   },
 })

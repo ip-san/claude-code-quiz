@@ -84,7 +84,7 @@ export function initRealUserDetection(): void {
       fired = true
       pushEvent('real_user', { detection: 'interaction_5s' })
     }
-    // Clean up if not yet fired
+    // If no interaction by 5s, keep listening — covers slower users who interact after the timer
     if (!fired) {
       const checkLater = () => {
         if (interacted && !fired) {

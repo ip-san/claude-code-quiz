@@ -14,6 +14,7 @@ export interface BookmarkSlice {
 export const createBookmarkSlice = (set: StoreSet, get: StoreGet): BookmarkSlice => ({
   toggleBookmark: (questionId) => {
     const state = get()
+    // Check state BEFORE toggle to determine the correct analytics action
     const wasBookmarked = state.userProgress.isBookmarked(questionId)
     const updatedProgress = state.userProgress.toggleBookmark(questionId)
     set({ userProgress: updatedProgress })

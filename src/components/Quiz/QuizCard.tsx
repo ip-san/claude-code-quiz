@@ -71,7 +71,8 @@ export function QuizCard({
   }, [isOverviewMode, sessionState])
   const isNewChapter = isOverviewMode && currentChapter && currentChapter.id !== previousChapter?.id
 
-  // Track chapter completion when transitioning to a new chapter
+  // Track chapter completion when transitioning to a new chapter.
+  // Compute accuracy by mapping chapter questions back to their global indices in answerHistory.
   useEffect(() => {
     if (isNewChapter && previousChapter && sessionState) {
       const chapterQuestions = sessionState.questions.filter((q) => {

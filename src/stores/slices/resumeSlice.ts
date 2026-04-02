@@ -60,6 +60,7 @@ export const createResumeSlice = (set: StoreSet, get: StoreGet): ResumeSlice => 
       return
     }
 
+    // Rebuild answer history Map from saved records for O(1) question state lookup
     const answerHistory = new Map<number, AnswerRecord>()
     if (saved.answerRecords) {
       for (const r of saved.answerRecords) {
@@ -89,6 +90,7 @@ export const createResumeSlice = (set: StoreSet, get: StoreGet): ResumeSlice => 
       selectedAnswers: currentRecord?.selectedAnswers ?? Object.freeze([]),
     }
 
+    // GA4: remaining = total questions minus already answered
     trackSessionResume(saved.sessionConfig.mode, questions.length - saved.answeredCount)
 
     set({

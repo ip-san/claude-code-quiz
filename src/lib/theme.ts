@@ -24,7 +24,7 @@ export function getStoredTheme(): Theme {
 export function setStoredTheme(theme: Theme): void {
   try {
     localStorage.setItem(STORAGE_KEY, theme)
-    trackThemeChange(theme)
+    trackThemeChange(theme) // GA4: track user-initiated theme changes (not called on init)
   } catch {
     /* ignore */
   }

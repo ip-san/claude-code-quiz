@@ -301,6 +301,7 @@ export const createSessionSlice = (set: StoreSet, get: StoreGet): SessionSlice =
         sessionLabel: get().sessionLabel,
       }))
 
+      // In defer mode (実力テスト), auto-advance to next unanswered question after submission
       if (newState.deferFeedback) {
         let nextIdx = newState.currentIndex + 1
         while (nextIdx < newState.questions.length && newState.answerHistory.has(nextIdx)) {
