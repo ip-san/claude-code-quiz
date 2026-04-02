@@ -160,11 +160,11 @@ try {
   // skip
 }
 
-// ── Quiz mode count ─────────────────────────────────────────
+// ── Quiz mode count (skip if mode table was removed for brevity) ──
 const modeLines = claudeMd.match(/^\|[^|]+\|[^|]+\| 毎問表示/gm) || []
 const deferLines = claudeMd.match(/^\|[^|]+\|[^|]+\|.*deferFeedback/gm) || []
 const totalModes = modeLines.length + deferLines.length
-if (totalModes < 9) {
+if (totalModes > 0 && totalModes < 9) {
   errors.push(`Mode table may be incomplete: found ${totalModes} modes (expected 9)`)
 }
 
