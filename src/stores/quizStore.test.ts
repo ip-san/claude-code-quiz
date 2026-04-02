@@ -108,10 +108,12 @@ describe('quizStore', () => {
 
     it('should record answer and update score', () => {
       const state = useQuizStore.getState()
-      const correctIndex = state.sessionState!.questions[0].correctIndex
+      // Find a single-select question to avoid multi-select complexity
+      const q = state.sessionState!.questions[0]
+      const ci = q.correctIndex
 
-      // Select correct answer
-      state.selectAnswer(correctIndex)
+      // Select correct answer (handle both single and multi-select)
+      state.selectAnswer(Array.isArray(ci) ? ci : ci)
       state.submitAnswer()
 
       const updated = useQuizStore.getState()
@@ -122,8 +124,11 @@ describe('quizStore', () => {
 
     it('should handle wrong answer', () => {
       const state = useQuizStore.getState()
-      const correctIndex = state.sessionState!.questions[0].correctIndex
-      const wrongIndex = correctIndex === 0 ? 1 : 0
+      const q = state.sessionState!.questions[0]
+      const ci = q.correctIndex
+      // Pick an index that is definitely wrong
+      const correctSet = new Set(Array.isArray(ci) ? ci : [ci])
+      const wrongIndex = q.options.findIndex((_, i) => !correctSet.has(i))
 
       state.selectAnswer(wrongIndex)
       state.submitAnswer()
