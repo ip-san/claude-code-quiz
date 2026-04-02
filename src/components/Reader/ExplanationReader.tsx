@@ -19,13 +19,15 @@ function getDocPage(url: string | undefined): string | null {
 }
 
 export function ExplanationReader() {
-  const { allQuestions, userProgress, toggleBookmark, setViewState } = useQuizStore()
+  const { allQuestions, userProgress, toggleBookmark, setViewState, readerInitialFilter } = useQuizStore()
 
   const [searchQuery, setSearchQuery] = useState('')
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null)
   const [selectedDocPage, setSelectedDocPage] = useState<string | null>(null)
   const [selectedDifficulty, setSelectedDifficulty] = useState<DifficultyLevel | null>(null)
-  const [statusFilter, setStatusFilter] = useState<StatusFilter>('all')
+  const [statusFilter, setStatusFilter] = useState<StatusFilter>(
+    readerInitialFilter === 'bookmarked' ? 'bookmarked' : 'all'
+  )
   const [expandedId, setExpandedId] = useState<string | null>(null)
   const [displayCount, setDisplayCount] = useState(INITIAL_DISPLAY_COUNT)
 

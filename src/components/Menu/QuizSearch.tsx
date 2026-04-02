@@ -1,7 +1,7 @@
-import { Bookmark, ChevronDown, ChevronUp, ExternalLink, Play, Search, X } from 'lucide-react'
+import { Bookmark, ChevronDown, ChevronUp, ExternalLink, Filter, Play, Search, X } from 'lucide-react'
 import { useMemo, useState } from 'react'
 import { QuizText } from '@/components/Quiz/QuizText'
-import { getCategoryById } from '@/domain/valueObjects/Category'
+import { getCategoryById, PREDEFINED_CATEGORIES } from '@/domain/valueObjects/Category'
 import { haptics } from '@/lib/haptics'
 import { useQuizStore } from '@/stores/quizStore'
 
@@ -11,6 +11,8 @@ import { useQuizStore } from '@/stores/quizStore'
  * 2つの使い方を提供：
  * 1. クイズモード: 検索結果の問題に挑戦する
  * 2. リファレンスモード: 解説をその場で読む（業務中のクイックリファレンス）
+ *
+ * カテゴリフィルタでテキスト検索を絞り込める。
  */
 export function QuizSearch() {
   const { allQuestions, startSessionWithIds, toggleBookmark, userProgress } = useQuizStore()
@@ -18,17 +20,26 @@ export function QuizSearch() {
   const [isOpen, setIsOpen] = useState(false)
   const [expandedId, setExpandedId] = useState<string | null>(null)
   const [showAll, setShowAll] = useState(false)
+  const [categoryFilter, setCategoryFilter] = useState<string | null>(null)
+  const [showFilters, setShowFilters] = useState(false)
 
   const allResults = useMemo(() => {
-    if (query.length < 2) return []
-    const q = query.toLowerCase()
-    return allQuestions.filter(
-      (quiz) =>
-        quiz.question.toLowerCase().includes(q) ||
-        quiz.explanation.toLowerCase().includes(q) ||
-        quiz.options.some((opt) => opt.text.toLowerCase().includes(q))
-    )
-  }, [allQuestions, query])
+    if (query.length < 2 && !categoryFilter) return []
+    let results = allQuestions
+    if (categoryFilter) {
+      results = results.filter((quiz) => quiz.category === categoryFilter)
+    }
+    if (query.length >= 2) {
+      const q = query.toLowerCase()
+      results = results.filter(
+        (quiz) =>
+          quiz.question.toLowerCase().includes(q) ||
+          quiz.explanation.toLowerCase().includes(q) ||
+          quiz.options.some((opt) => opt.text.toLowerCase().includes(q))
+      )
+    }
+    return results
+  }, [allQuestions, query, categoryFilter])
 
   // Display limit for the list, but quiz launch uses ALL results
   const displayResults = allResults.slice(0, 10)
@@ -163,8 +174,17 @@ export function QuizSearch() {
           aria-label="問題を検索"
         />
         <button
+          onClick={() => setShowFilters(!showFilters)}
+          className={`tap-highlight rounded-full p-2 ${categoryFilter ? 'text-claude-orange' : 'text-stone-400'}`}
+          aria-label="カテゴリフィルタ"
+        >
+          <Filter className="h-4 w-4" />
+        </button>
+        <button
           onClick={() => {
             setQuery('')
+            setCategoryFilter(null)
+            setShowFilters(false)
             setIsOpen(false)
             setExpandedId(null)
           }}
@@ -175,7 +195,36 @@ export function QuizSearch() {
         </button>
       </div>
 
-      {query.length >= 2 && (
+      {/* Category filter pills */}
+      {showFilters && (
+        <div className="-mx-1 mt-2 flex flex-wrap gap-1.5">
+          <button
+            onClick={() => setCategoryFilter(null)}
+            className={`tap-highlight rounded-full px-3 py-1 text-xs font-medium transition-colors ${
+              categoryFilter === null
+                ? 'bg-claude-orange text-white'
+                : 'bg-stone-100 text-stone-600 dark:bg-stone-700 dark:text-stone-300'
+            }`}
+          >
+            全て
+          </button>
+          {PREDEFINED_CATEGORIES.map((cat) => (
+            <button
+              key={cat.id}
+              onClick={() => setCategoryFilter(categoryFilter === cat.id ? null : cat.id)}
+              className={`tap-highlight rounded-full px-3 py-1 text-xs font-medium transition-colors ${
+                categoryFilter === cat.id
+                  ? 'bg-claude-orange text-white'
+                  : 'bg-stone-100 text-stone-600 dark:bg-stone-700 dark:text-stone-300'
+              }`}
+            >
+              {cat.icon} {cat.name}
+            </button>
+          ))}
+        </div>
+      )}
+
+      {(query.length >= 2 || categoryFilter) && (
         <div className="mt-2 rounded-2xl border border-stone-200 bg-white dark:border-stone-700 dark:bg-stone-800">
           {allResults.length === 0 ? (
             <p className="p-4 text-center text-sm text-stone-400">該当する問題が見つかりません</p>

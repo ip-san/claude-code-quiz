@@ -8,6 +8,7 @@ import {
   GraduationCap,
   HelpCircle,
   Layers,
+  List,
   Menu,
   Moon,
   RefreshCw,
@@ -48,7 +49,7 @@ export function MenuHeader({
   openWithModes,
   onMenuOpened,
 }: MenuHeaderProps) {
-  const { setViewState, userProgress, startSession, getBookmarkedCount } = useQuizStore()
+  const { setViewState, openReaderWithFilter, userProgress, startSession, getBookmarkedCount } = useQuizStore()
   const bookmarkedCount = getBookmarkedCount()
   const [currentTheme, setCurrentTheme] = useState<Theme>(() => getStoredTheme())
   const [showShortcuts, setShowShortcuts] = useState(false)
@@ -278,12 +279,20 @@ export function MenuHeader({
               {/* Resources */}
               <MenuSection title="リファレンス">
                 {bookmarkedCount > 0 ? (
-                  <MenuItem
-                    icon={<Bookmark className="h-4.5 w-4.5" />}
-                    label={locale.menuHeader.bookmarkLabel}
-                    sublabel={locale.menuHeader.bookmarkSaving(bookmarkedCount)}
-                    onClick={() => handleMenuAction(() => startSession({ mode: 'bookmark' }))}
-                  />
+                  <>
+                    <MenuItem
+                      icon={<Bookmark className="h-4.5 w-4.5" />}
+                      label={locale.menuHeader.bookmarkLabel}
+                      sublabel={locale.menuHeader.bookmarkSaving(bookmarkedCount)}
+                      onClick={() => handleMenuAction(() => startSession({ mode: 'bookmark' }))}
+                    />
+                    <MenuItem
+                      icon={<List className="h-4.5 w-4.5" />}
+                      label="ブックマーク一覧"
+                      sublabel="保存した問題の解説を確認"
+                      onClick={() => handleMenuAction(() => openReaderWithFilter('bookmarked'))}
+                    />
+                  </>
                 ) : (
                   <div className="flex items-center gap-3 px-4 py-3 text-sm">
                     <span className="text-stone-300 dark:text-stone-600">

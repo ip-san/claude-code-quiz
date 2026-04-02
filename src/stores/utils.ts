@@ -66,6 +66,7 @@ import type { DifficultyLevel } from '@/domain/valueObjects/Difficulty'
 export interface QuizStore {
   // View state
   viewState: ViewState
+  readerInitialFilter: string | null
 
   // Quiz data (using domain entities)
   allQuestions: Question[]
@@ -85,6 +86,7 @@ export interface QuizStore {
 
   // View actions
   setViewState: (state: ViewState) => void
+  openReaderWithFilter: (filter: string) => void
 
   // Initialization
   initialize: () => Promise<void>

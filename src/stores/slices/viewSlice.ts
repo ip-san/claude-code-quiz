@@ -7,13 +7,20 @@ import type { StoreGet, StoreSet, ViewState } from '../utils'
 
 export interface ViewSlice {
   viewState: ViewState
+  readerInitialFilter: string | null
   setViewState: (state: ViewState) => void
+  openReaderWithFilter: (filter: string) => void
 }
 
 export const createViewSlice = (_set: StoreSet, _get: StoreGet): ViewSlice => ({
   viewState: 'menu',
+  readerInitialFilter: null,
   setViewState: (state) => {
-    if (state === 'reader') trackReaderOpen() // GA4: track reader usage via GTM dataLayer push
-    _set({ viewState: state })
+    if (state === 'reader') trackReaderOpen()
+    _set({ viewState: state, readerInitialFilter: null })
+  },
+  openReaderWithFilter: (filter) => {
+    trackReaderOpen()
+    _set({ viewState: 'reader', readerInitialFilter: filter })
   },
 })
