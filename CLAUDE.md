@@ -59,6 +59,7 @@ bun run lighthouse     # Lighthouse CI
 - ユーザーレベルスキルにプロジェクト固有の記述を追加しない
 - `/self-review` は内部で `/code-review`（汎用）を呼び出した後、プロジェクト固有チェックを実行
 - `/quality-loop` で GA4分析 → レビュー → クイズ生成 → 検証 → 統計同期 → 最終ゲートを一括実行。詳細は [docs/quality-loop.md](docs/quality-loop.md)
+- `/recommend` で利用履歴からAIが問題を選定。詳細は [docs/usage-recommend.md](docs/usage-recommend.md)
 - その他: `/generate-quiz-data`（問題自動生成）、`/quiz-refine`（検証・修正）、`/analytics-insight`（GA4分析）、`/spec-audit`（仕様整合性監査）
 
 ## クイズデータ形式
