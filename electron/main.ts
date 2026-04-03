@@ -531,6 +531,7 @@ ipcMain.handle(
     ids: string[]
     topCategories: string[]
     topics: { topic: string; hits: number }[]
+    promptSamples: string[]
   } | null> => {
     try {
       const filePath = join(homedir(), '.claude-quiz-recommend', 'latest-recommend.json')

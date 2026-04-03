@@ -27,6 +27,7 @@ interface ElectronAPI {
     ids: string[]
     topCategories: string[]
     topics: { topic: string; hits: number }[]
+    promptSamples: string[]
   } | null>
 }
 

@@ -187,8 +187,22 @@ function analyzeTranscript(filePath) {
 
   // Prompt samples (human-readable context)
   const promptSamples = prompts
-    .filter((p) => p.length > 10 && p.length < 200 && !p.startsWith('node ') && !p.startsWith('git '))
-    .slice(-5) // last 5 prompts (most recent context)
+    .filter(
+      (p) =>
+        p.length > 10 &&
+        p.length < 200 &&
+        !p.startsWith('node ') &&
+        !p.startsWith('git ') &&
+        !p.startsWith('ls ') &&
+        !p.startsWith('cat ') &&
+        !p.startsWith('grep ') &&
+        !p.includes('<command-') &&
+        !p.includes('<local-command') &&
+        !p.includes('</') &&
+        !/^[!/]/.test(p) // skip !commands and /slash-commands
+    )
+    .map((p) => p.trim())
+    .slice(-5)
 
   return { tools, categoryScores, topics, promptSamples, promptCount: prompts.length }
 }
@@ -297,6 +311,7 @@ try {
           url,
           topCategories: sorted.slice(0, 3).map(([c]) => c),
           topics: daily.merged.topics.slice(0, 5),
+          promptSamples: daily.merged.promptSamples.slice(-5),
         },
         null,
         2

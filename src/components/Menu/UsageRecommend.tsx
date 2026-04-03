@@ -90,7 +90,7 @@ export function UsageRecommend() {
           categoryScores: Object.fromEntries(cached.topCategories.map((c, i) => [c, 100 - i * 10])),
           recommendedIds: cached.ids,
           sessionCount: cached.sessionCount,
-          promptSamples: [],
+          promptSamples: cached.promptSamples ?? [],
         })
       }
     })
