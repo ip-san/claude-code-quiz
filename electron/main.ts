@@ -438,6 +438,87 @@ ipcMain.handle('analyze-usage', async (_event, daysBack: number): Promise<UsageA
 })
 
 // ============================================================
+// Hook Setup (global ~/.claude/settings.json)
+// ============================================================
+
+ipcMain.handle('setup-global-hooks', async (_event, remove: boolean): Promise<{ success: boolean; error?: string }> => {
+  try {
+    const claudeDir = join(homedir(), '.claude')
+    const settingsPath = join(claudeDir, 'settings.json')
+    const scriptPath = join(app.getAppPath(), 'scripts', 'collect-session.mjs')
+    const MARKER = 'claude-quiz-recommend'
+
+    // Ensure .claude dir exists
+    const { mkdirSync: mkdir } = await import('fs')
+    mkdir(claudeDir, { recursive: true })
+
+    let settings: Record<string, unknown> = {}
+    if (existsSync(settingsPath)) {
+      settings = JSON.parse(readFileSync(settingsPath, 'utf8'))
+    }
+
+    const hooks = (settings.hooks ?? {}) as Record<string, unknown[]>
+
+    const filterOurs = (arr: unknown[]) =>
+      (arr ?? [])
+        .map((entry: unknown) => {
+          const e = entry as { hooks?: { _marker?: string }[] }
+          if (e.hooks) {
+            e.hooks = e.hooks.filter((h) => h._marker !== MARKER)
+            return e.hooks.length > 0 ? e : null
+          }
+          return entry
+        })
+        .filter(Boolean)
+
+    // Remove existing
+    if (hooks.SessionStart) hooks.SessionStart = filterOurs(hooks.SessionStart)
+    if (hooks.SessionEnd) hooks.SessionEnd = filterOurs(hooks.SessionEnd)
+
+    if (!remove) {
+      // Add hooks
+      const startHook = {
+        type: 'command',
+        command: `node ${scriptPath} --scan-all-today`,
+        timeout: 30,
+        async: true,
+        _marker: MARKER,
+      }
+      const endHook = { type: 'command', command: `node ${scriptPath}`, timeout: 30, async: true, _marker: MARKER }
+
+      if (!hooks.SessionStart) hooks.SessionStart = []
+      hooks.SessionStart.push({ hooks: [startHook] })
+      if (!hooks.SessionEnd) hooks.SessionEnd = []
+      hooks.SessionEnd.push({ hooks: [endHook] })
+    }
+
+    // Clean up empty arrays
+    for (const key of Object.keys(hooks)) {
+      if (Array.isArray(hooks[key]) && hooks[key].length === 0) delete hooks[key]
+    }
+    settings.hooks = Object.keys(hooks).length > 0 ? hooks : undefined
+    if (!settings.hooks) delete settings.hooks
+
+    const { writeFileSync: writeSync } = await import('fs')
+    writeSync(settingsPath, JSON.stringify(settings, null, 2) + '\n')
+
+    return { success: true }
+  } catch (error) {
+    return { success: false, error: error instanceof Error ? error.message : 'Unknown error' }
+  }
+})
+
+ipcMain.handle('check-global-hooks', async (): Promise<boolean> => {
+  try {
+    const settingsPath = join(homedir(), '.claude', 'settings.json')
+    const content = readFileSync(settingsPath, 'utf8')
+    return content.includes('claude-quiz-recommend')
+  } catch {
+    return false
+  }
+})
+
+// ============================================================
 // Cached Recommendations (from SessionEnd hook)
 // ============================================================
 

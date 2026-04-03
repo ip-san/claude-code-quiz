@@ -110,6 +110,20 @@ const electronAPI = {
     return ipcRenderer.invoke('analyze-usage', daysBack)
   },
   /**
+   * グローバルフックの設定/削除
+   */
+  setupGlobalHooks: (remove: boolean): Promise<{ success: boolean; error?: string }> => {
+    return ipcRenderer.invoke('setup-global-hooks', remove)
+  },
+
+  /**
+   * グローバルフックが設定済みか確認
+   */
+  checkGlobalHooks: (): Promise<boolean> => {
+    return ipcRenderer.invoke('check-global-hooks')
+  },
+
+  /**
    * SessionEnd フックが蓄積した今日のレコメンドデータを取得する
    */
   getCachedRecommend: (): Promise<{

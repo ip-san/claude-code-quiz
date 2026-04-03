@@ -27,6 +27,8 @@ export function UsageRecommend() {
   const [loading, setLoading] = useState(false)
   const [showDetail, setShowDetail] = useState(false)
   const [showQuestions, setShowQuestions] = useState(false)
+  const [hooksInstalled, setHooksInstalled] = useState<boolean | null>(null)
+  const [setupDone, setSetupDone] = useState(false)
 
   const analyze = useCallback(async () => {
     if (!window.electronAPI) return
@@ -94,7 +96,55 @@ export function UsageRecommend() {
     })
   }, [allQuestions])
 
+  // Check if global hooks are installed
+  useEffect(() => {
+    if (!window.electronAPI?.checkGlobalHooks) return
+    window.electronAPI.checkGlobalHooks().then(setHooksInstalled)
+  }, [setupDone])
+
   if (!isElectron) return null
+
+  // Show setup banner if hooks not installed (and no cached data)
+  if (hooksInstalled === false && !analysis) {
+    return (
+      <div className="mb-5 rounded-2xl border border-blue-200 bg-blue-50 px-4 py-3 dark:border-blue-900/50 dark:bg-blue-950/30">
+        <div className="flex items-start gap-3">
+          <Sparkles className="mt-0.5 h-5 w-5 flex-shrink-0 text-blue-500" />
+          <div className="flex-1">
+            <p className="text-sm font-medium text-blue-800 dark:text-blue-200">自動レコメンドを有効にしますか？</p>
+            <p className="mt-1 text-xs text-blue-600 dark:text-blue-400">
+              Claude Code の全セッション終了時にログを収集し、その日の作業に合ったクイズを自動で提案します
+            </p>
+            <div className="mt-2 flex gap-2">
+              <button
+                onClick={async () => {
+                  const result = await window.electronAPI?.setupGlobalHooks(false)
+                  if (result?.success) {
+                    setSetupDone(true)
+                    haptics.medium()
+                  }
+                }}
+                className="tap-highlight rounded-lg bg-blue-500 px-3 py-1.5 text-xs font-medium text-white"
+              >
+                有効にする
+              </button>
+              <button
+                onClick={() => setHooksInstalled(true)}
+                className="tap-highlight rounded-lg px-3 py-1.5 text-xs text-blue-500"
+              >
+                後で
+              </button>
+            </div>
+            {setupDone && (
+              <p className="mt-2 text-xs font-medium text-green-600 dark:text-green-400">
+                設定完了。次回の Claude Code セッションから自動収集が始まります。
+              </p>
+            )}
+          </div>
+        </div>
+      </div>
+    )
+  }
 
   if (!analysis) {
     return (
