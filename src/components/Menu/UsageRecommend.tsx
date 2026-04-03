@@ -25,7 +25,6 @@ export function UsageRecommend() {
   const [recommendations, setRecommendations] = useState<RecommendedQuestion[]>([])
   const [unusedCategories, setUnusedCategories] = useState<string[]>([])
   const [loading, setLoading] = useState(false)
-  const [showDetail, setShowDetail] = useState(false)
   const [showQuestions, setShowQuestions] = useState(false)
   const [hooksInstalled, setHooksInstalled] = useState<boolean | null>(null)
   const [setupDone, setSetupDone] = useState(false)
@@ -200,7 +199,27 @@ export function UsageRecommend() {
         </button>
       </div>
 
-      {/* Topics */}
+      {/* Your prompts — what you actually worked on */}
+      {analysis.promptSamples.length > 0 && (
+        <div className="mx-4 mb-2 rounded-lg bg-white/70 p-3 dark:bg-stone-900/50">
+          <p className="mb-1.5 text-[10px] font-medium uppercase tracking-wider text-amber-500">
+            あなたが入力したプロンプト
+          </p>
+          {analysis.promptSamples.slice(0, 4).map((p: string, i: number) => (
+            <p
+              key={i}
+              className="truncate border-l-2 border-amber-300 py-0.5 pl-2 text-xs text-stone-600 dark:border-amber-700 dark:text-stone-300"
+            >
+              {p}
+            </p>
+          ))}
+          {analysis.sessionCount > 1 && (
+            <p className="mt-1.5 text-[10px] text-stone-400">{analysis.sessionCount}個のセッションから分析</p>
+          )}
+        </div>
+      )}
+
+      {/* Topics as context */}
       {topTopics.length > 0 && (
         <div className="flex flex-wrap gap-1.5 px-4 pb-2">
           {topTopics.map((t: { topic: string; hits: number }) => (
@@ -214,7 +233,7 @@ export function UsageRecommend() {
         </div>
       )}
 
-      {/* Unused category feedback */}
+      {/* Discovery suggestion */}
       {unusedCategories.length > 0 && (
         <div className="mx-4 mb-2 rounded-lg bg-blue-50 p-2.5 dark:bg-blue-950/30">
           <p className="text-xs font-medium text-blue-700 dark:text-blue-300">
@@ -231,24 +250,6 @@ export function UsageRecommend() {
               })
               .join(' / ')}
           </p>
-        </div>
-      )}
-
-      {/* Prompt samples */}
-      {analysis.promptSamples.length > 0 && (
-        <button onClick={() => setShowDetail(!showDetail)} className="tap-highlight w-full px-4 pb-1 text-left">
-          <p className="text-xs text-amber-600 dark:text-amber-400">
-            {showDetail ? '▾ 今日の作業内容' : '▸ 今日の作業内容を表示...'}
-          </p>
-        </button>
-      )}
-      {showDetail && (
-        <div className="mx-4 mb-2 rounded-lg bg-white/60 p-2 dark:bg-stone-900/40">
-          {analysis.promptSamples.map((p: string, i: number) => (
-            <p key={i} className="truncate text-xs text-stone-500 dark:text-stone-400">
-              {p}
-            </p>
-          ))}
         </div>
       )}
 
