@@ -1,7 +1,7 @@
 import { ChevronDown, ChevronUp, Lightbulb, Play, Sparkles, X } from 'lucide-react'
 import { useCallback, useEffect, useState } from 'react'
 import type { Question } from '@/domain/entities/Question'
-import { getCategoryById, PREDEFINED_CATEGORIES } from '@/domain/valueObjects/Category'
+import { getCategoryById } from '@/domain/valueObjects/Category'
 import { trackRecommend } from '@/lib/analytics'
 import { haptics } from '@/lib/haptics'
 import { isElectron } from '@/lib/platformAPI'
@@ -69,29 +69,20 @@ export function UsageRecommend() {
     if (!window.electronAPI?.getCachedRecommend) return
     window.electronAPI.getCachedRecommend().then((cached) => {
       if (!cached || cached.ids.length === 0) return
-      // Build recommendations from cached IDs
-      const recs: RecommendedQuestion[] = []
-      for (const id of cached.ids) {
-        const q = allQuestions.find((q) => q.id === id)
-        if (!q) continue
-        const topicMatch = cached.topics[0]
-        const reason = topicMatch
-          ? `${topicMatch.topic}に取り組んでいたようです。関連知識を確認しましょう`
-          : (CATEGORY_REASONS[q.category]?.used ?? '今日の作業に関連')
-        recs.push({ id: q.id, question: q.question, category: q.category, reason })
+      // Reconstruct analysis and use computeRecommendations for consistent reason generation
+      const cachedAnalysis: AnalysisResult = {
+        tools: {},
+        topics: cached.topics,
+        categoryScores: Object.fromEntries(cached.topCategories.map((c, i) => [c, 100 - i * 10])),
+        recommendedIds: cached.ids,
+        sessionCount: cached.sessionCount,
+        promptSamples: cached.promptSamples ?? [],
       }
+      const { recs, unused } = computeRecommendations(cachedAnalysis, allQuestions)
       if (recs.length > 0) {
         setRecommendations(recs)
-        const unused = PREDEFINED_CATEGORIES.map((c) => c.id).filter((cat) => !cached.topCategories.includes(cat))
         setUnusedCategories(unused)
-        setAnalysis({
-          tools: {},
-          topics: cached.topics,
-          categoryScores: Object.fromEntries(cached.topCategories.map((c, i) => [c, 100 - i * 10])),
-          recommendedIds: cached.ids,
-          sessionCount: cached.sessionCount,
-          promptSamples: cached.promptSamples ?? [],
-        })
+        setAnalysis(cachedAnalysis)
       }
     })
   }, [allQuestions])
