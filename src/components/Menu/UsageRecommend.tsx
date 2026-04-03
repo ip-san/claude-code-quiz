@@ -66,7 +66,13 @@ export function UsageRecommend() {
         }
       }
     } else {
-      setAiError(skillResult.error ?? '分析に失敗しました')
+      const err = skillResult.error ?? '分析に失敗しました'
+      // If no session data, show friendly message instead of error
+      if (err.includes('ENOENT') || err.includes('not found') || err.includes('timeout')) {
+        setAiError(err)
+      } else {
+        setAiError('分析できませんでした。Claude Code で作業をしてからもう一度お試しください')
+      }
       haptics.light()
     }
     setLoading(false)
@@ -173,7 +179,12 @@ export function UsageRecommend() {
   if (analysis.sessionCount === 0) {
     return (
       <div className="mb-5 rounded-2xl border border-stone-200 bg-white px-4 py-3 dark:border-stone-700 dark:bg-stone-800">
-        <p className="text-sm text-stone-400">今日の Claude Code セッションが見つかりませんでした</p>
+        <p className="text-sm font-medium text-claude-dark dark:text-stone-200">
+          Claude Code の利用履歴がまだありません
+        </p>
+        <p className="mt-1 text-xs text-stone-500 dark:text-stone-400">
+          Claude Code でいくつか作業をしてから、もう一度お試しください。セッション終了時に自動でログが蓄積されます。
+        </p>
       </div>
     )
   }
