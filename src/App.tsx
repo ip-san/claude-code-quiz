@@ -58,7 +58,6 @@ export default function App() {
     initialize,
     endSession,
     suspendSession,
-    startSession,
     startSessionWithIds,
   } = useQuizStore()
   const [showWelcome, setShowWelcome] = useState(() => !hasSeenWelcome())
@@ -146,14 +145,10 @@ export default function App() {
     return (
       <>
         <TutorialScreen
-          onComplete={(action) => {
+          onComplete={(_action) => {
             markTutorialSeen()
             setShowTutorial(false)
-            if (action === 'complete') {
-              // チュートリアル完了 → overview モードを自動開始（初心者の離脱防止）
-              startSession({ mode: 'overview' })
-            }
-            // スキップ → メニューへ（自分で選べるユーザー）
+            // チュートリアル後はメニュー画面へ（アプリの全体像を把握してから学習開始）
           }}
         />
         {pwaOverlays}
