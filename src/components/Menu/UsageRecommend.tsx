@@ -351,20 +351,24 @@ const CATEGORY_REASONS: Record<string, { used: string; unused: string }> = {
   },
 }
 
-/** トピックからより具体的な理由を生成する */
-function getTopicReason(analysis: AnalysisResult, category: string): string | null {
-  const topicMap: Record<string, string[]> = {
-    memory: ['CLAUDE.mdの書き方'],
-    extensions: ['MCP', 'Hooks', 'サブエージェント'],
-    skills: ['Skills'],
-    session: ['コンテキスト管理'],
-    bestpractices: ['デバッグ', 'テスト'],
-    commands: ['CI/CD'],
+/** カテゴリに関連するキーワードでプロンプトを検索し、最も関連性の高いものを返す */
+function findRelatedPrompt(prompts: string[], category: string): string | null {
+  const categoryTerms: Record<string, string[]> = {
+    memory: ['CLAUDE.md', 'ルール', '指示', 'メモリ', '/init', 'rules'],
+    skills: ['スキル', 'skill', 'コマンド', '/batch', '/loop'],
+    tools: ['ファイル', 'Read', 'Edit', 'Bash', 'Grep', '検索', '書き換え'],
+    commands: ['/compact', '/clear', '/model', '/branch', 'コマンド'],
+    extensions: ['MCP', 'hook', 'フック', 'プラグイン', 'サブエージェント', 'Agent'],
+    session: ['コンテキスト', 'セッション', 'トークン', '圧縮', '復帰'],
+    keyboard: ['ショートカット', 'Ctrl', 'Shift', 'キー'],
+    bestpractices: ['テスト', 'レビュー', 'デバッグ', 'Plan', '設計', 'エラー'],
   }
-  const relatedTopics = topicMap[category] ?? []
-  const matched = analysis.topics.filter((t) => relatedTopics.includes(t.topic))
-  if (matched.length > 0) {
-    return `${matched[0].topic}に取り組んでいたようです。関連知識を確認しましょう`
+  const terms = categoryTerms[category] ?? []
+  for (const p of prompts) {
+    if (terms.some((t) => p.toLowerCase().includes(t.toLowerCase()))) {
+      const truncated = p.length > 40 ? p.slice(0, 40) + '...' : p
+      return truncated
+    }
   }
   return null
 }
@@ -375,6 +379,7 @@ function computeRecommendations(
 ): { recs: RecommendedQuestion[]; unused: string[] } {
   const recs: RecommendedQuestion[] = []
   const used = new Set<string>()
+  const prompts = analysis.promptSamples ?? []
 
   const sorted = Object.entries(analysis.categoryScores)
     .filter(([, s]) => s > 0)
@@ -382,8 +387,9 @@ function computeRecommendations(
 
   // Top 3 used categories → 5 questions each
   for (const [cat] of sorted.slice(0, 3)) {
-    const reason =
-      getTopicReason(analysis, cat) ?? CATEGORY_REASONS[cat]?.used ?? `今日 ${cat} に関連する作業をしていました`
+    const relatedPrompt = findRelatedPrompt(prompts, cat)
+    const fallback = CATEGORY_REASONS[cat]?.used ?? '関連する作業をしていました'
+    const reason = relatedPrompt ? `「${relatedPrompt}」に関連 — ${fallback}` : fallback
     const pool = allQuestions.filter((q) => q.category === cat && !used.has(q.id))
     const sampled = pool.sort(() => Math.random() - 0.5).slice(0, 5)
     for (const q of sampled) {
