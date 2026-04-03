@@ -27,6 +27,7 @@
     "docs:links": "node scripts/validate-docs-links.mjs",
     "docs:validate": "node scripts/validate-docs.mjs",
     "quiz:post-add": "node scripts/quiz-utils.mjs randomize && node scripts/quiz-utils.mjs check && vitest run && node scripts/quiz-utils.mjs stats",
+    "recommend": "node scripts/recommend.mjs",
     "test": "vitest run",
     "test:watch": "vitest",
     "test:coverage": "vitest run --coverage",

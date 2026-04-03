@@ -50,15 +50,35 @@ const PWAUpdatePrompt = !isElectron
   : null
 
 export default function App() {
-  const { viewState, getProgress, sessionState, isLoading, initialize, endSession, suspendSession, startSession } =
-    useQuizStore()
+  const {
+    viewState,
+    getProgress,
+    sessionState,
+    isLoading,
+    initialize,
+    endSession,
+    suspendSession,
+    startSession,
+    startSessionWithIds,
+  } = useQuizStore()
   const [showWelcome, setShowWelcome] = useState(() => !hasSeenWelcome())
   const [showTutorial, setShowTutorial] = useState(() => !hasSeenTutorial())
 
-  // Initialize store on mount
+  // Initialize store on mount + handle ?ids= URL parameter
   useEffect(() => {
-    initialize()
-  }, [initialize])
+    initialize().then(() => {
+      const params = new URLSearchParams(window.location.search)
+      const ids = params.get('ids')
+      if (ids) {
+        const idList = ids.split(',').filter(Boolean)
+        if (idList.length > 0) {
+          startSessionWithIds(idList, 'レコメンド')
+          // Clean URL without reload
+          window.history.replaceState({}, '', window.location.pathname)
+        }
+      }
+    })
+  }, [initialize, startSessionWithIds])
 
   // Scroll to top on view change
   // biome-ignore lint/correctness/useExhaustiveDependencies: viewState change is the intentional trigger
