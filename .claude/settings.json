@@ -8,24 +8,6 @@
             "command": "result=$(gh run list --limit 1 --json status,conclusion,name,headBranch 2>/dev/null | jq -r '.[0] | \"\\(.conclusion // .status) \\(.name)\"' 2>/dev/null); if echo \"$result\" | grep -q 'failure'; then echo \"⚠️ CI FAILURE: $result — 確認して修正してください\"; else echo \"OK\"; fi",
             "timeout": 10,
             "statusMessage": "CI状態を確認中..."
-          },
-          {
-            "type": "command",
-            "command": "node scripts/collect-session.mjs --scan-all-today",
-            "timeout": 30,
-            "async": true
-          }
-        ]
-      }
-    ],
-    "SessionEnd": [
-      {
-        "hooks": [
-          {
-            "type": "command",
-            "command": "node scripts/collect-session.mjs",
-            "timeout": 30,
-            "async": true
           }
         ]
       }
