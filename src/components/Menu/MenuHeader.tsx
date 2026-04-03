@@ -341,7 +341,13 @@ export function MenuHeader({
                     />
                   </div>
                 )}
-                {!isElectron && (
+                {isElectron ? (
+                  <MenuItem
+                    icon={<RefreshCw className="h-4.5 w-4.5" />}
+                    label="アプリをリロード"
+                    onClick={() => handleMenuAction(() => window.location.reload())}
+                  />
+                ) : (
                   <MenuItem
                     icon={<RefreshCw className={`h-4.5 w-4.5 ${updateStatus === 'checking' ? 'animate-spin' : ''}`} />}
                     label={
