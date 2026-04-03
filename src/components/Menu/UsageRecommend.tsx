@@ -29,40 +29,46 @@ export function UsageRecommend() {
   const [hooksInstalled, setHooksInstalled] = useState<boolean | null>(null)
   const [setupDone, setSetupDone] = useState(false)
 
+  const [aiError, setAiError] = useState<string | null>(null)
+
   const analyze = useCallback(async () => {
     if (!window.electronAPI) return
     setLoading(true)
+    setAiError(null)
     haptics.light()
-    // Try today first; if too few prompts, expand to 7 days
-    let result = await window.electronAPI.analyzeUsage(1)
-    if (result && (result.promptSamples?.length ?? 0) < 5) {
-      result = await window.electronAPI.analyzeUsage(7)
-    }
-    if (result) {
-      const { recs, unused } = computeRecommendations(result, allQuestions)
-      result.recommendedIds = recs.map((r) => r.id)
-      setRecommendations(recs)
-      setUnusedCategories(unused)
-      const topCats = Object.entries(result.categoryScores)
-        .filter(([, s]) => s > 0)
-        .sort((a, b) => b[1] - a[1])
-        .slice(0, 3)
-        .map(([cat]) => cat)
-      trackRecommend('analyze', topCats, recs.length)
-      haptics.medium()
-      if ('Notification' in window && Notification.permission === 'granted') {
-        const topTopic = result.topics[0]?.topic
-        new Notification(topTopic ? `${topTopic}の復習を用意しました` : 'あなたの利用履歴を分析しました', {
-          body: `${recs.length}問の復習問題を見つけました`,
-          icon: '/icons/icon-192.png',
-        })
-      } else if ('Notification' in window && Notification.permission === 'default') {
-        Notification.requestPermission()
+
+    // Run /recommend skill via Claude CLI (AI analyzes intent, not keyword match)
+    const skillResult = await window.electronAPI.runRecommendSkill()
+
+    if (skillResult.success) {
+      // Skill wrote to latest-recommend.json — reload it
+      const cached = await window.electronAPI.getCachedRecommend?.()
+      if (cached && cached.ids.length > 0) {
+        const cachedAnalysis: AnalysisResult = {
+          tools: {},
+          topics: cached.topics,
+          categoryScores: Object.fromEntries(cached.topCategories.map((c, i) => [c, 100 - i * 10])),
+          recommendedIds: cached.ids,
+          sessionCount: cached.sessionCount,
+          promptSamples: cached.promptSamples ?? [],
+        }
+        const { recs, unused } = computeRecommendations(cachedAnalysis, allQuestions)
+        setRecommendations(recs)
+        setUnusedCategories(unused)
+        setAnalysis(cachedAnalysis)
+        trackRecommend('analyze', cached.topCategories, recs.length)
+        haptics.medium()
+        if ('Notification' in window && Notification.permission === 'granted') {
+          new Notification('あなたの利用履歴を分析しました', {
+            body: `${recs.length}問の復習問題を見つけました`,
+            icon: '/icons/icon-192.png',
+          })
+        }
       }
     } else {
+      setAiError(skillResult.error ?? '分析に失敗しました')
       haptics.light()
     }
-    setAnalysis(result)
     setLoading(false)
   }, [allQuestions])
 
@@ -144,16 +150,21 @@ export function UsageRecommend() {
         disabled={loading}
         className="tap-highlight mb-5 flex w-full items-center gap-3 rounded-2xl border border-stone-200 bg-white px-4 py-3 text-left dark:border-stone-700 dark:bg-stone-800"
       >
-        <Sparkles className={`h-5 w-5 text-claude-orange ${loading ? 'animate-spin' : ''}`} />
+        {loading ? (
+          <div className="h-5 w-5 animate-spin rounded-full border-2 border-stone-200 border-t-claude-orange" />
+        ) : (
+          <Sparkles className="h-5 w-5 text-claude-orange" />
+        )}
         <div className="flex-1">
           <div className="text-sm font-medium text-claude-dark dark:text-stone-200">
-            {loading ? '利用履歴を解析中...' : 'あなたの利用履歴からレコメンド'}
+            {loading ? 'AI が利用履歴を分析中...' : 'あなたの利用履歴からレコメンド'}
           </div>
           <div className="text-xs text-stone-500 dark:text-stone-400">
             {loading
-              ? 'セッション履歴を読み込んでいます。完了したら通知します'
-              : '実際に使った機能を分析し、復習すべき問題を提案します'}
+              ? 'Claude が作業内容を理解して問題を選んでいます（30〜60秒）'
+              : 'AI があなたの作業意図を理解し、最適な復習問題を選びます'}
           </div>
+          {aiError && <p className="mt-1 text-xs text-red-500">{aiError}</p>}
         </div>
       </button>
     )

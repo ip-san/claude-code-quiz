@@ -438,6 +438,40 @@ ipcMain.handle('analyze-usage', async (_event, daysBack: number): Promise<UsageA
 })
 
 // ============================================================
+// AI-powered Recommendation (runs /recommend skill via Claude CLI)
+// ============================================================
+
+ipcMain.handle('run-recommend-skill', async (): Promise<{ success: boolean; error?: string }> => {
+  try {
+    const { execFile } = await import('child_process')
+    const { promisify } = await import('util')
+    const execFileAsync = promisify(execFile)
+
+    const skillPath = join(app.getAppPath(), '.claude', 'skills', 'recommend', 'SKILL.md')
+    const projectDir = app.getAppPath()
+
+    // Run claude CLI with the recommend skill
+    await execFileAsync('claude', ['-p', '/recommend', '--no-input'], {
+      cwd: projectDir,
+      timeout: 120_000,
+      env: { ...process.env, CLAUDE_PROJECT_DIR: projectDir },
+    })
+
+    return { success: true }
+  } catch (error) {
+    const msg = error instanceof Error ? error.message : 'Unknown error'
+    // Check if claude CLI is not found
+    if (msg.includes('ENOENT') || msg.includes('not found')) {
+      return { success: false, error: 'Claude Code CLI が見つかりません。インストールしてください。' }
+    }
+    if (msg.includes('timeout') || msg.includes('TIMEOUT')) {
+      return { success: false, error: 'タイムアウトしました。もう一度お試しください。' }
+    }
+    return { success: false, error: msg }
+  }
+})
+
+// ============================================================
 // Hook Setup (global ~/.claude/settings.json)
 // ============================================================
 

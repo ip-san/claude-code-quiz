@@ -110,6 +110,13 @@ const electronAPI = {
     return ipcRenderer.invoke('analyze-usage', daysBack)
   },
   /**
+   * /recommend スキルを Claude CLI 経由で実行する
+   */
+  runRecommendSkill: (): Promise<{ success: boolean; error?: string }> => {
+    return ipcRenderer.invoke('run-recommend-skill')
+  },
+
+  /**
    * グローバルフックの設定/削除
    */
   setupGlobalHooks: (remove: boolean): Promise<{ success: boolean; error?: string }> => {

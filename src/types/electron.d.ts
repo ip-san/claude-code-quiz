@@ -18,6 +18,7 @@ interface ElectronAPI {
   importProgress: () => Promise<{ success: boolean; data?: string; error?: string }>
   exportCsv: (data: string, defaultFilename: string) => Promise<{ success: boolean; error?: string }>
   analyzeUsage: (daysBack: number) => Promise<UsageAnalysis | null>
+  runRecommendSkill: () => Promise<{ success: boolean; error?: string }>
   setupGlobalHooks: (remove: boolean) => Promise<{ success: boolean; error?: string }>
   checkGlobalHooks: () => Promise<boolean>
   getCachedRecommend: () => Promise<{
