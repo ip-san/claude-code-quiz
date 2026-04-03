@@ -2,6 +2,7 @@ import { ChevronRight } from 'lucide-react'
 import { useMemo, useState } from 'react'
 import { locale } from '@/config/locale'
 import { haptics } from '@/lib/haptics'
+import { isElectron } from '@/lib/platformAPI'
 import { useQuizStore } from '@/stores/quizStore'
 import { ChapterProgressMap } from './ChapterProgressMap'
 import { DailySnapshot, hasSeenSnapshotToday } from './DailySnapshot'
@@ -53,8 +54,10 @@ export function ModeSelection() {
             />
           )}
 
-          {/* First-time user: simplified entry point */}
-          {userProgress.totalAttempts === 0 && <FirstTimeGuide onOpenModes={() => setOpenMenuWithModes(true)} />}
+          {/* First-time user: simplified entry point (hidden when recommendation is showing) */}
+          {userProgress.totalAttempts === 0 && !isElectron && (
+            <FirstTimeGuide onOpenModes={() => setOpenMenuWithModes(true)} />
+          )}
 
           {/* Quiz mode launcher — for returning users */}
           {userProgress.totalAttempts > 0 && (
