@@ -140,8 +140,10 @@ const TOPIC_KEYWORDS = {
 function analyzeTranscript(filePath) {
   const lines = readFileSync(filePath, 'utf8').split('\n').filter(Boolean)
   const tools = {}
-  const prompts = []
+  const prompts = [] // flat strings for keyword scoring
+  const conversations = [] // structured: ordered prompts with sequence number
 
+  let promptIndex = 0
   for (const line of lines) {
     try {
       const j = JSON.parse(line)
@@ -153,7 +155,11 @@ function analyzeTranscript(filePath) {
                 .filter((c) => c.type === 'text')
                 .map((c) => c.text)
                 .join(' ')
-        if (text.length > 5) prompts.push(text)
+        if (text.length > 5) {
+          prompts.push(text)
+          promptIndex++
+          conversations.push({ seq: promptIndex, text })
+        }
       }
       if (j.message?.content && Array.isArray(j.message.content)) {
         for (const c of j.message.content) {
@@ -204,7 +210,7 @@ function analyzeTranscript(filePath) {
     .map((p) => p.trim())
     .slice(-20)
 
-  return { tools, categoryScores, topics, promptSamples, promptCount: prompts.length }
+  return { tools, categoryScores, topics, promptSamples, promptCount: prompts.length, conversations }
 }
 
 // ── Analyze sessions ───────────────────────────────────────
@@ -274,7 +280,7 @@ writeFileSync(dailyFile, JSON.stringify(daily, null, 2))
 
 // ── Build rolling 7-day cache ──────────────────────────────
 const ROLLING_DAYS = 7
-const rollingCache = { prompts: [], topics: {}, categoryScores: {}, sessionCount: 0, days: [] }
+const rollingCache = { prompts: [], conversationFlows: [], topics: {}, categoryScores: {}, sessionCount: 0, days: [] }
 
 for (let d = 0; d < ROLLING_DAYS; d++) {
   const dateStr = new Date(Date.now() - d * 24 * 60 * 60 * 1000).toISOString().slice(0, 10)
@@ -288,6 +294,16 @@ for (let d = 0; d < ROLLING_DAYS; d++) {
     // Prompts: more recent = more entries
     const maxPrompts = d === 0 ? 20 : Math.max(5, 15 - d * 2)
     rollingCache.prompts.push(...(dayData.merged.promptSamples || []).slice(-maxPrompts))
+    // Collect conversation flows (ordered prompts per session)
+    for (const sess of dayData.sessions) {
+      if (sess.conversations && sess.conversations.length > 0) {
+        rollingCache.conversationFlows.push({
+          date: dateStr,
+          sessionId: sess.id,
+          prompts: sess.conversations.slice(-15).map((c) => c.text),
+        })
+      }
+    }
     // Category scores (weighted)
     for (const [cat, score] of Object.entries(dayData.merged.categoryScores)) {
       rollingCache.categoryScores[cat] = (rollingCache.categoryScores[cat] || 0) + Math.round(Number(score) * weight)
@@ -315,6 +331,7 @@ writeFileSync(
       sessionCount: rollingCache.sessionCount,
       promptCount: rollingCache.prompts.length,
       prompts: rollingCache.prompts.slice(-50),
+      conversationFlows: rollingCache.conversationFlows.slice(-10),
       topics: rollingTopics.slice(0, 10),
       categoryScores: rollingCache.categoryScores,
     },
