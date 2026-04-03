@@ -9,62 +9,94 @@
  * - 解析完了時にレコメンド URL を生成し、デスクトップ通知
  */
 
-import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'fs'
+import { existsSync, mkdirSync, readdirSync, readFileSync, statSync, writeFileSync } from 'fs'
 import { basename, join } from 'path'
 
 const STORE_DIR = join(process.env.HOME || '', '.claude-quiz-recommend')
 const SESSIONS_DIR = join(STORE_DIR, 'sessions')
+const scanAllToday = process.argv.includes('--scan-all-today')
 
 // Ensure directories exist
 mkdirSync(SESSIONS_DIR, { recursive: true })
 
-// ── Read stdin (SessionEnd JSON) ───────────────────────────
-let stdinData = ''
-try {
-  stdinData = readFileSync('/dev/stdin', 'utf8')
-} catch {
-  // No stdin — run as standalone (for testing)
-}
+// ── Collect session file paths ─────────────────────────────
+const transcriptPaths = []
 
-let transcriptPath = ''
-let sessionId = ''
-
-if (stdinData) {
-  try {
-    const hook = JSON.parse(stdinData)
-    transcriptPath = hook.transcript_path || ''
-    sessionId = hook.session_id || ''
-  } catch {
-    // Invalid JSON from stdin
-  }
-}
-
-// ── If no transcript, try to find the most recent session ──
-if (!transcriptPath) {
+if (scanAllToday) {
+  // --scan-all-today: Find ALL session files modified today across all projects
+  // This catches sessions that are still open (never triggered SessionEnd)
   const projectsDir = join(process.env.HOME || '', '.claude', 'projects')
+  const todayStart = new Date()
+  todayStart.setHours(0, 0, 0, 0)
+  const cutoff = todayStart.getTime()
+
   try {
-    const { readdirSync, statSync } = await import('fs')
-    let newest = { path: '', mtime: 0 }
     for (const projDir of readdirSync(projectsDir)) {
       const projPath = join(projectsDir, projDir)
       try {
         for (const f of readdirSync(projPath)) {
           if (!f.endsWith('.jsonl')) continue
           const fPath = join(projPath, f)
-          const mt = statSync(fPath).mtimeMs
-          if (mt > newest.mtime) newest = { path: fPath, mtime: mt }
+          if (statSync(fPath).mtimeMs > cutoff) {
+            transcriptPaths.push(fPath)
+          }
         }
       } catch {
         /* skip */
       }
     }
-    transcriptPath = newest.path
   } catch {
     /* skip */
   }
+} else {
+  // Single session mode: Read from stdin (SessionEnd) or find most recent
+  let stdinData = ''
+  try {
+    stdinData = readFileSync('/dev/stdin', 'utf8')
+  } catch {
+    /* no stdin */
+  }
+
+  let transcriptPath = ''
+
+  if (stdinData) {
+    try {
+      const hook = JSON.parse(stdinData)
+      transcriptPath = hook.transcript_path || ''
+    } catch {
+      /* invalid JSON */
+    }
+  }
+
+  if (!transcriptPath) {
+    const projectsDir = join(process.env.HOME || '', '.claude', 'projects')
+    try {
+      let newest = { path: '', mtime: 0 }
+      for (const projDir of readdirSync(projectsDir)) {
+        const projPath = join(projectsDir, projDir)
+        try {
+          for (const f of readdirSync(projPath)) {
+            if (!f.endsWith('.jsonl')) continue
+            const fPath = join(projPath, f)
+            const mt = statSync(fPath).mtimeMs
+            if (mt > newest.mtime) newest = { path: fPath, mtime: mt }
+          }
+        } catch {
+          /* skip */
+        }
+      }
+      transcriptPath = newest.path
+    } catch {
+      /* skip */
+    }
+  }
+
+  if (transcriptPath && existsSync(transcriptPath)) {
+    transcriptPaths.push(transcriptPath)
+  }
 }
 
-if (!transcriptPath || !existsSync(transcriptPath)) {
+if (transcriptPaths.length === 0) {
   process.exit(0)
 }
 
@@ -161,29 +193,38 @@ function analyzeTranscript(filePath) {
   return { tools, categoryScores, topics, promptSamples, promptCount: prompts.length }
 }
 
-// ── Analyze this session ───────────────────────────────────
-const result = analyzeTranscript(transcriptPath)
-
-// ── Save to daily file (merge with existing) ───────────────
-const today = new Date().toISOString().slice(0, 10) // YYYY-MM-DD
+// ── Analyze sessions ───────────────────────────────────────
+const today = new Date().toISOString().slice(0, 10)
 const dailyFile = join(SESSIONS_DIR, `${today}.json`)
 
 let daily = { date: today, sessions: [], merged: { tools: {}, categoryScores: {}, topics: [], promptSamples: [] } }
 
-if (existsSync(dailyFile)) {
-  try {
-    daily = JSON.parse(readFileSync(dailyFile, 'utf8'))
-  } catch {
-    /* reset */
+if (scanAllToday) {
+  // Full scan: rebuild from all today's session files
+  const knownIds = new Set()
+  for (const tp of transcriptPaths) {
+    const id = basename(tp, '.jsonl')
+    if (knownIds.has(id)) continue
+    knownIds.add(id)
+    const result = analyzeTranscript(tp)
+    daily.sessions.push({ id, timestamp: new Date().toISOString(), ...result })
   }
+} else {
+  // Single session: append to existing daily file
+  if (existsSync(dailyFile)) {
+    try {
+      daily = JSON.parse(readFileSync(dailyFile, 'utf8'))
+    } catch {
+      /* reset */
+    }
+  }
+  const tp = transcriptPaths[0]
+  const result = analyzeTranscript(tp)
+  const id = basename(tp, '.jsonl')
+  // Avoid duplicate: replace if same session ID exists (re-analyzed open session)
+  daily.sessions = daily.sessions.filter((s) => s.id !== id)
+  daily.sessions.push({ id, timestamp: new Date().toISOString(), ...result })
 }
-
-// Add this session
-daily.sessions.push({
-  id: sessionId || basename(transcriptPath, '.jsonl'),
-  timestamp: new Date().toISOString(),
-  ...result,
-})
 
 // Merge all sessions for the day
 const merged = { tools: {}, categoryScores: {}, topics: {}, promptSamples: [] }
