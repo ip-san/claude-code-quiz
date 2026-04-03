@@ -202,7 +202,7 @@ function analyzeTranscript(filePath) {
         !/^[!/]/.test(p) // skip !commands and /slash-commands
     )
     .map((p) => p.trim())
-    .slice(-5)
+    .slice(-20)
 
   return { tools, categoryScores, topics, promptSamples, promptCount: prompts.length }
 }
@@ -257,7 +257,7 @@ for (const sess of daily.sessions) {
     merged.topics[t.topic] = Math.max(merged.topics[t.topic] || 0, t.hits)
   }
   // Collect prompt samples (last 3 from each session)
-  merged.promptSamples.push(...(sess.promptSamples || []).slice(-3))
+  merged.promptSamples.push(...(sess.promptSamples || []).slice(-10))
 }
 
 // Convert topics back to array
@@ -267,10 +267,42 @@ daily.merged = {
   topics: Object.entries(merged.topics)
     .map(([topic, hits]) => ({ topic, hits }))
     .sort((a, b) => b.hits - a.hits),
-  promptSamples: merged.promptSamples.slice(-10),
+  promptSamples: merged.promptSamples.slice(-30),
 }
 
 writeFileSync(dailyFile, JSON.stringify(daily, null, 2))
+
+// ── Backfill from past days if today's data is thin ─────────
+const MIN_PROMPTS = 5
+const BACKFILL_DAYS = 7
+
+if (daily.merged.promptSamples.length < MIN_PROMPTS) {
+  for (let d = 1; d <= BACKFILL_DAYS; d++) {
+    const pastDate = new Date(Date.now() - d * 24 * 60 * 60 * 1000).toISOString().slice(0, 10)
+    const pastFile = join(SESSIONS_DIR, `${pastDate}.json`)
+    if (!existsSync(pastFile)) continue
+    try {
+      const pastDaily = JSON.parse(readFileSync(pastFile, 'utf8'))
+      // Merge past category scores (lower weight)
+      for (const [cat, score] of Object.entries(pastDaily.merged.categoryScores)) {
+        daily.merged.categoryScores[cat] = (daily.merged.categoryScores[cat] || 0) + Math.round(Number(score) * 0.5)
+      }
+      // Merge past topics
+      for (const t of pastDaily.merged.topics) {
+        const existing = daily.merged.topics.find((e) => e.topic === t.topic)
+        if (existing) existing.hits = Math.max(existing.hits, Math.round(t.hits * 0.5))
+        else daily.merged.topics.push({ topic: t.topic, hits: Math.round(t.hits * 0.5) })
+      }
+      // Backfill prompt samples
+      const pastPrompts = (pastDaily.merged.promptSamples || []).slice(-5)
+      daily.merged.promptSamples.push(...pastPrompts)
+      if (daily.merged.promptSamples.length >= MIN_PROMPTS * 2) break
+    } catch {
+      /* skip corrupt file */
+    }
+  }
+  daily.merged.topics.sort((a, b) => b.hits - a.hits)
+}
 
 // ── Generate recommendation URL ────────────────────────────
 // Top 3 categories → pick 5 question IDs each
@@ -311,7 +343,7 @@ try {
           url,
           topCategories: sorted.slice(0, 3).map(([c]) => c),
           topics: daily.merged.topics.slice(0, 5),
-          promptSamples: daily.merged.promptSamples.slice(-5),
+          promptSamples: daily.merged.promptSamples.slice(-15),
         },
         null,
         2

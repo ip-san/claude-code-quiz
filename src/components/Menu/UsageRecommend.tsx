@@ -33,7 +33,11 @@ export function UsageRecommend() {
     if (!window.electronAPI) return
     setLoading(true)
     haptics.light()
-    const result = await window.electronAPI.analyzeUsage(1)
+    // Try today first; if too few prompts, expand to 7 days
+    let result = await window.electronAPI.analyzeUsage(1)
+    if (result && (result.promptSamples?.length ?? 0) < 5) {
+      result = await window.electronAPI.analyzeUsage(7)
+    }
     if (result) {
       const { recs, unused } = computeRecommendations(result, allQuestions)
       result.recommendedIds = recs.map((r) => r.id)
