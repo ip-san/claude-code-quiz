@@ -19,8 +19,10 @@
  */
 
 import { app, BrowserWindow, clipboard, dialog, ipcMain, nativeImage, shell } from 'electron'
+import { readdirSync, readFileSync, statSync } from 'fs'
 import { readFile, stat, writeFile } from 'fs/promises'
-import { join } from 'path'
+import { homedir } from 'os'
+import { basename, join } from 'path'
 
 /**
  * 【ハードウェアアクセラレーション無効化】
@@ -290,6 +292,148 @@ ipcMain.handle('import-progress', async (): Promise<{ success: boolean; data?: s
       success: false,
       error: error instanceof Error ? error.message : 'Unknown error',
     }
+  }
+})
+
+// ============================================================
+// Usage Analysis (Electron-only feature)
+// ============================================================
+
+interface UsageAnalysis {
+  tools: Record<string, number>
+  topics: { topic: string; hits: number }[]
+  categoryScores: Record<string, number>
+  recommendedIds: string[]
+  sessionCount: number
+  promptSamples: string[]
+}
+
+const CATEGORY_KEYWORDS: Record<string, string[]> = {
+  memory: ['CLAUDE.md', 'claude.md', 'memory', 'MEMORY.md', '/memory', '/init', 'rules/', '@import'],
+  skills: ['skill', 'SKILL.md', '/batch', '/loop', '/schedule', 'context: fork', 'frontmatter'],
+  tools: ['Read', 'Write', 'Edit', 'Bash', 'Grep', 'Glob', 'WebFetch', 'tool_use'],
+  commands: [
+    '/compact',
+    '/clear',
+    '/resume',
+    '/model',
+    '/context',
+    '/branch',
+    '/voice',
+    '/rewind',
+    'claude -p',
+    '--bare',
+  ],
+  extensions: ['MCP', 'mcp', 'hook', 'Hook', 'plugin', 'subagent', 'Agent', 'Chrome', 'Slack'],
+  session: ['コンテキスト', 'token', 'compact', 'checkpoint', 'resume', 'session', 'fork', 'worktree', 'effort'],
+  keyboard: ['Ctrl+', 'Shift+', 'Alt+', 'Esc', 'Tab', 'shortcut', 'vim', 'keybind'],
+  bestpractices: ['plan mode', 'Plan', 'verify', 'test', 'review', 'IMPORTANT', 'best practice'],
+}
+
+const TOPIC_KEYWORDS: Record<string, string[]> = {
+  'CLAUDE.mdの書き方': ['CLAUDE.md', '/init', 'ルール', '指示'],
+  コンテキスト管理: ['コンテキスト', '/compact', '/clear', 'context', '圧縮'],
+  MCP: ['MCP', 'mcp', 'ツール連携', 'stdio'],
+  Hooks: ['hook', 'Hook', 'フック', 'PreToolUse', 'PostToolUse'],
+  サブエージェント: ['subagent', 'サブエージェント', 'Agent', 'worktree', '並列'],
+  Skills: ['skill', 'SKILL.md', 'スキル', 'frontmatter'],
+  デバッグ: ['debug', 'デバッグ', 'エラー', 'error', 'バグ'],
+  テスト: ['test', 'テスト', 'vitest', 'playwright'],
+  'CI/CD': ['CI', 'GitHub Actions', 'deploy', 'デプロイ'],
+  セキュリティ: ['security', 'セキュリティ', 'permission', 'sandbox'],
+  コスト管理: ['cost', 'コスト', '料金', 'effort'],
+}
+
+ipcMain.handle('analyze-usage', async (_event, daysBack: number): Promise<UsageAnalysis | null> => {
+  try {
+    const projectsDir = join(homedir(), '.claude', 'projects')
+    const cutoff = Date.now() - daysBack * 24 * 60 * 60 * 1000
+
+    // Find recent session files across all projects
+    const sessionFiles: string[] = []
+    for (const projDir of readdirSync(projectsDir)) {
+      const projPath = join(projectsDir, projDir)
+      try {
+        for (const f of readdirSync(projPath)) {
+          if (!f.endsWith('.jsonl')) continue
+          const fPath = join(projPath, f)
+          if (statSync(fPath).mtimeMs > cutoff) sessionFiles.push(fPath)
+        }
+      } catch {
+        /* skip */
+      }
+    }
+
+    if (sessionFiles.length === 0) return null
+
+    // Parse sessions
+    const tools: Record<string, number> = {}
+    const prompts: string[] = []
+    const files = new Set<string>()
+
+    for (const file of sessionFiles) {
+      const lines = readFileSync(file, 'utf8').split('\n').filter(Boolean)
+      for (const line of lines) {
+        try {
+          const j = JSON.parse(line)
+          if (j.type === 'user' && j.message?.content) {
+            const text =
+              typeof j.message.content === 'string'
+                ? j.message.content
+                : j.message.content
+                    .filter((c: { type: string }) => c.type === 'text')
+                    .map((c: { text: string }) => c.text)
+                    .join(' ')
+            if (text.length > 5) prompts.push(text)
+          }
+          if (j.message?.content && Array.isArray(j.message.content)) {
+            for (const c of j.message.content) {
+              if (c.type === 'tool_use') {
+                tools[c.name] = (tools[c.name] || 0) + 1
+                if (c.input?.file_path) files.add(basename(c.input.file_path))
+                if (c.input?.command) prompts.push(c.input.command)
+              }
+            }
+          }
+        } catch {
+          /* skip */
+        }
+      }
+    }
+
+    // Score categories
+    const allText = [...prompts, ...files, ...Object.keys(tools)].join(' ')
+    const categoryScores: Record<string, number> = {}
+    for (const [cat, keywords] of Object.entries(CATEGORY_KEYWORDS)) {
+      categoryScores[cat] = keywords.reduce((score, kw) => {
+        const regex = new RegExp(kw.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), 'gi')
+        return score + (allText.match(regex) || []).length
+      }, 0)
+    }
+
+    // Detect topics
+    const topics: { topic: string; hits: number }[] = []
+    for (const [topic, keywords] of Object.entries(TOPIC_KEYWORDS)) {
+      const hits = keywords.filter((kw) => allText.toLowerCase().includes(kw.toLowerCase())).length
+      if (hits >= 1) topics.push({ topic, hits })
+    }
+    topics.sort((a, b) => b.hits - a.hits)
+
+    // Sample prompts for display
+    const promptSamples = prompts
+      .filter((p) => p.length > 10 && p.length < 200 && !p.startsWith('node ') && !p.startsWith('git '))
+      .slice(0, 5)
+
+    return {
+      tools,
+      topics,
+      categoryScores,
+      recommendedIds: [], // Renderer will compute based on quiz data
+      sessionCount: sessionFiles.length,
+      promptSamples,
+    }
+  } catch {
+    return null
   }
 })
 

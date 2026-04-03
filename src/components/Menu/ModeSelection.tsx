@@ -10,6 +10,7 @@ import { MenuHeader } from './MenuHeader'
 import { QuickActions } from './QuickActions'
 import { QuizSearch } from './QuizSearch'
 import { ResumeSessionBanner } from './ResumeSessionBanner'
+import { UsageRecommend } from './UsageRecommend'
 
 export function ModeSelection() {
   const { allQuestions, startSession, userProgress } = useQuizStore()
@@ -74,6 +75,9 @@ export function ModeSelection() {
               <ChevronRight className="h-4 w-4 text-stone-300 dark:text-stone-600" />
             </button>
           )}
+
+          {/* Usage-based recommendation (Electron only) */}
+          <UsageRecommend />
 
           {/* Search */}
           <QuizSearch />

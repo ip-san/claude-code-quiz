@@ -2,12 +2,22 @@
  * Type declarations for Electron preload API
  */
 
+interface UsageAnalysis {
+  tools: Record<string, number>
+  topics: { topic: string; hits: number }[]
+  categoryScores: Record<string, number>
+  recommendedIds: string[]
+  sessionCount: number
+  promptSamples: string[]
+}
+
 interface ElectronAPI {
   openExternal: (url: string) => Promise<boolean>
   copyToClipboard: (text: string) => Promise<boolean>
   exportProgress: (data: string) => Promise<{ success: boolean; error?: string }>
   importProgress: () => Promise<{ success: boolean; data?: string; error?: string }>
   exportCsv: (data: string, defaultFilename: string) => Promise<{ success: boolean; error?: string }>
+  analyzeUsage: (daysBack: number) => Promise<UsageAnalysis | null>
 }
 
 declare global {

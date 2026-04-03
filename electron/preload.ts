@@ -94,6 +94,21 @@ const electronAPI = {
   exportCsv: (data: string, defaultFilename: string): Promise<{ success: boolean; error?: string }> => {
     return ipcRenderer.invoke('export-csv', data, defaultFilename)
   },
+  /**
+   * Claude Code 利用履歴を解析してレコメンド用データを返す（Electron限定）
+   */
+  analyzeUsage: (
+    daysBack: number
+  ): Promise<{
+    tools: Record<string, number>
+    topics: { topic: string; hits: number }[]
+    categoryScores: Record<string, number>
+    recommendedIds: string[]
+    sessionCount: number
+    promptSamples: string[]
+  } | null> => {
+    return ipcRenderer.invoke('analyze-usage', daysBack)
+  },
 } as const
 
 /**
