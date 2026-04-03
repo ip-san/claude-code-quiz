@@ -2,6 +2,7 @@ import { ChevronDown, ChevronUp, Lightbulb, Play, Sparkles, X } from 'lucide-rea
 import { useCallback, useState } from 'react'
 import type { Question } from '@/domain/entities/Question'
 import { getCategoryById } from '@/domain/valueObjects/Category'
+import { trackRecommend } from '@/lib/analytics'
 import { haptics } from '@/lib/haptics'
 import { isElectron } from '@/lib/platformAPI'
 import { useQuizStore } from '@/stores/quizStore'
@@ -37,6 +38,12 @@ export function UsageRecommend() {
       result.recommendedIds = recs.map((r) => r.id)
       setRecommendations(recs)
       setUnusedCategories(unused)
+      const topCats = Object.entries(result.categoryScores)
+        .filter(([, s]) => s > 0)
+        .sort((a, b) => b[1] - a[1])
+        .slice(0, 3)
+        .map(([cat]) => cat)
+      trackRecommend('analyze', topCats, recs.length)
     }
     setAnalysis(result)
     setLoading(false)
@@ -143,7 +150,10 @@ export function UsageRecommend() {
       {/* Question list (expandable) */}
       {recCount > 0 && (
         <button
-          onClick={() => setShowQuestions(!showQuestions)}
+          onClick={() => {
+            if (!showQuestions) trackRecommend('view_list', [], recCount)
+            setShowQuestions(!showQuestions)
+          }}
           className="tap-highlight flex w-full items-center justify-between px-4 pb-1"
         >
           <p className="text-xs font-medium text-amber-700 dark:text-amber-300">問題一覧と選定理由</p>
@@ -181,6 +191,8 @@ export function UsageRecommend() {
           <button
             onClick={() => {
               haptics.medium()
+              const topCats = [...new Set(recommendations.map((r) => r.category))].slice(0, 3)
+              trackRecommend('start_quiz', topCats, recommendations.length)
               startSessionWithIds(
                 recommendations.map((r) => r.id),
                 '今日のレコメンド'

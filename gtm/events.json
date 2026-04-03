@@ -87,6 +87,11 @@
       "name": "app_error",
       "description": "アプリエラー（未処理例外・レンダリングエラー）",
       "params": ["error_message", "error_source", "platform"]
+    },
+    {
+      "name": "usage_recommend",
+      "description": "利用履歴レコメンド（Electron限定）。analyze=解析実行、view_list=問題一覧展開、start_quiz=クイズ開始",
+      "params": ["recommend_action", "top_categories", "question_count", "platform"]
     }
   ]
 }

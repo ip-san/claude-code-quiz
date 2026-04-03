@@ -229,6 +229,19 @@ export function trackSessionResume(mode: string, questionsRemaining: number): vo
   })
 }
 
+/** 利用履歴レコメンド（Electron限定） */
+export function trackRecommend(
+  action: 'analyze' | 'view_list' | 'start_quiz',
+  topCategories: string[],
+  questionCount: number
+): void {
+  pushEvent('usage_recommend', {
+    recommend_action: action,
+    top_categories: topCategories.join(','),
+    question_count: questionCount,
+  })
+}
+
 /** アプリエラー */
 export function trackError(message: string, source: string): void {
   pushEvent('app_error', {
