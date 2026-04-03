@@ -44,6 +44,19 @@ export function UsageRecommend() {
         .slice(0, 3)
         .map(([cat]) => cat)
       trackRecommend('analyze', topCats, recs.length)
+
+      // Notify user when analysis is done (useful if they scrolled away)
+      haptics.medium()
+      if ('Notification' in window && Notification.permission === 'granted') {
+        new Notification('今日のレコメンド準備完了', {
+          body: `${recs.length}問の復習問題を見つけました`,
+          icon: '/icons/icon-192.png',
+        })
+      } else if ('Notification' in window && Notification.permission === 'default') {
+        Notification.requestPermission()
+      }
+    } else {
+      haptics.light()
     }
     setAnalysis(result)
     setLoading(false)
@@ -61,10 +74,12 @@ export function UsageRecommend() {
         <Sparkles className={`h-5 w-5 text-amber-500 ${loading ? 'animate-spin' : ''}`} />
         <div className="flex-1">
           <div className="text-sm font-medium text-amber-800 dark:text-amber-200">
-            {loading ? '解析中...' : '今日の作業からレコメンド'}
+            {loading ? '解析中... しばらくお待ちください' : '今日の作業からレコメンド'}
           </div>
           <div className="text-xs text-amber-600 dark:text-amber-400">
-            Claude Code の利用履歴を解析して復習問題を提案
+            {loading
+              ? 'セッション履歴を読み込んでいます。完了したら通知します'
+              : 'Claude Code の利用履歴を解析して復習問題を提案'}
           </div>
         </div>
       </button>
