@@ -18,20 +18,24 @@ argument-hint: "[days]"
 
 ### Step 1: 利用履歴の収集
 
+まずセッションを収集し、7日分のローリングキャッシュを更新する:
+
 ```bash
 node scripts/collect-session.mjs --scan-all-today
 ```
 
-次に、収集されたデータを読む:
+次に、7日分の統合データを読む（**こちらをメインで使う**）:
+
+```bash
+cat ~/.claude-quiz-recommend/rolling-7d.json
+```
+
+このファイルには直近7日分のプロンプト（最大50件）、トピック、カテゴリスコアが日ごとの重み付きで集約されている。今日のデータが少なくても、過去の作業文脈が含まれる。
+
+今日だけのデータが必要な場合:
 
 ```bash
 cat ~/.claude-quiz-recommend/sessions/$(date +%Y-%m-%d).json
-```
-
-データが少なければ過去7日分も確認:
-
-```bash
-ls -t ~/.claude-quiz-recommend/sessions/ | head -7
 ```
 
 ### Step 2: 作業意図の分析

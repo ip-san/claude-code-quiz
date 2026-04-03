@@ -272,6 +272,57 @@ daily.merged = {
 
 writeFileSync(dailyFile, JSON.stringify(daily, null, 2))
 
+// ── Build rolling 7-day cache ──────────────────────────────
+const ROLLING_DAYS = 7
+const rollingCache = { prompts: [], topics: {}, categoryScores: {}, sessionCount: 0, days: [] }
+
+for (let d = 0; d < ROLLING_DAYS; d++) {
+  const dateStr = new Date(Date.now() - d * 24 * 60 * 60 * 1000).toISOString().slice(0, 10)
+  const dayFile = join(SESSIONS_DIR, `${dateStr}.json`)
+  if (!existsSync(dayFile)) continue
+  try {
+    const dayData = JSON.parse(readFileSync(dayFile, 'utf8'))
+    const weight = d === 0 ? 1.0 : 0.7 - d * 0.08 // today=1.0, yesterday=0.62, 2d=0.54...
+    rollingCache.days.push(dateStr)
+    rollingCache.sessionCount += dayData.sessions.length
+    // Prompts: more recent = more entries
+    const maxPrompts = d === 0 ? 20 : Math.max(5, 15 - d * 2)
+    rollingCache.prompts.push(...(dayData.merged.promptSamples || []).slice(-maxPrompts))
+    // Category scores (weighted)
+    for (const [cat, score] of Object.entries(dayData.merged.categoryScores)) {
+      rollingCache.categoryScores[cat] = (rollingCache.categoryScores[cat] || 0) + Math.round(Number(score) * weight)
+    }
+    // Topics (max hits, weighted)
+    for (const t of dayData.merged.topics) {
+      rollingCache.topics[t.topic] = Math.max(rollingCache.topics[t.topic] || 0, Math.round(t.hits * weight))
+    }
+  } catch {
+    /* skip */
+  }
+}
+
+// Convert topics to sorted array
+const rollingTopics = Object.entries(rollingCache.topics)
+  .map(([topic, hits]) => ({ topic, hits }))
+  .sort((a, b) => b.hits - a.hits)
+
+writeFileSync(
+  join(STORE_DIR, 'rolling-7d.json'),
+  JSON.stringify(
+    {
+      generatedAt: new Date().toISOString(),
+      days: rollingCache.days,
+      sessionCount: rollingCache.sessionCount,
+      promptCount: rollingCache.prompts.length,
+      prompts: rollingCache.prompts.slice(-50),
+      topics: rollingTopics.slice(0, 10),
+      categoryScores: rollingCache.categoryScores,
+    },
+    null,
+    2
+  )
+)
+
 // ── Backfill from past days if today's data is thin ─────────
 const MIN_PROMPTS = 5
 const BACKFILL_DAYS = 7
