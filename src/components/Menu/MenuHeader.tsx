@@ -147,6 +147,18 @@ export function MenuHeader({
             {hasProgress && (
               <DailyGoalRing progress={goalProgress} achieved={goalAchieved} count={todayCount} goal={dailyGoal} />
             )}
+            {isElectron && (
+              <button
+                onClick={() => {
+                  haptics.light()
+                  window.location.reload()
+                }}
+                className="tap-highlight rounded-full p-2 text-stone-400 hover:text-stone-600 dark:hover:text-stone-300"
+                aria-label="リロード"
+              >
+                <RefreshCw className="h-4 w-4" />
+              </button>
+            )}
           </div>
         </div>
         <div className="text-center">
