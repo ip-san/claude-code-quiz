@@ -62,6 +62,12 @@ Claude Code Quiz プロジェクトのドキュメント一覧。
 | [イベント定義](analytics-events.md) | 全イベントのパラメータ、送信元、分析用途 |
 | [API・MCP 運用](analytics-api-guide.md) | GTM API デプロイ、GA4 ディメンション登録、MCP サーバーの使い方 |
 
+### Desktop アプリ限定機能
+
+| ドキュメント | 内容 |
+|-------------|------|
+| [利用履歴レコメンド](usage-recommend.md) | Claude Code の作業履歴を AI が分析し、最適な復習問題を自動選定する仕組み |
+
 ### 品質自動化
 
 | ドキュメント | 内容 |
