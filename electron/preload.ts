@@ -109,6 +109,19 @@ const electronAPI = {
   } | null> => {
     return ipcRenderer.invoke('analyze-usage', daysBack)
   },
+  /**
+   * SessionEnd フックが蓄積した今日のレコメンドデータを取得する
+   */
+  getCachedRecommend: (): Promise<{
+    date: string
+    sessionCount: number
+    questionCount: number
+    ids: string[]
+    topCategories: string[]
+    topics: { topic: string; hits: number }[]
+  } | null> => {
+    return ipcRenderer.invoke('get-cached-recommend')
+  },
 } as const
 
 /**

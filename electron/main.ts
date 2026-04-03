@@ -438,6 +438,34 @@ ipcMain.handle('analyze-usage', async (_event, daysBack: number): Promise<UsageA
 })
 
 // ============================================================
+// Cached Recommendations (from SessionEnd hook)
+// ============================================================
+
+ipcMain.handle(
+  'get-cached-recommend',
+  async (): Promise<{
+    date: string
+    sessionCount: number
+    questionCount: number
+    ids: string[]
+    topCategories: string[]
+    topics: { topic: string; hits: number }[]
+  } | null> => {
+    try {
+      const filePath = join(homedir(), '.claude-quiz-recommend', 'latest-recommend.json')
+      const content = readFileSync(filePath, 'utf8')
+      const data = JSON.parse(content)
+      // Only return if from today
+      const today = new Date().toISOString().slice(0, 10)
+      if (data.date !== today) return null
+      return data
+    } catch {
+      return null
+    }
+  }
+)
+
+// ============================================================
 // App Lifecycle
 // ============================================================
 
