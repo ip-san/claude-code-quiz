@@ -278,11 +278,11 @@ export function UsageRecommend() {
               <div key={rec.id} className="border-b border-amber-100 px-3 py-2 last:border-0 dark:border-amber-900/30">
                 <div className="flex items-start gap-2">
                   <span className="mt-0.5 flex-shrink-0 text-xs">{cat?.icon}</span>
-                  <div className="flex-1 min-w-0">
-                    <p className="text-xs leading-snug text-stone-700 dark:text-stone-300">
+                  <div className="min-w-0 flex-1">
+                    <p className="text-[10px] text-amber-600 dark:text-amber-400">{rec.reason}</p>
+                    <p className="mt-0.5 text-xs leading-snug text-stone-700 dark:text-stone-300">
                       {i + 1}. {rec.question.length > 60 ? rec.question.slice(0, 60) + '...' : rec.question}
                     </p>
-                    <p className="mt-0.5 text-[10px] text-amber-600 dark:text-amber-400">{rec.reason}</p>
                   </div>
                 </div>
               </div>
