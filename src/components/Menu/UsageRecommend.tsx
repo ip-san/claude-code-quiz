@@ -50,7 +50,8 @@ export function UsageRecommend() {
       // Notify user when analysis is done (useful if they scrolled away)
       haptics.medium()
       if ('Notification' in window && Notification.permission === 'granted') {
-        new Notification('今日のレコメンド準備完了', {
+        const topTopic = result.topics[0]?.topic
+        new Notification(topTopic ? `${topTopic}の復習を用意しました` : 'あなたの利用履歴を分析しました', {
           body: `${recs.length}問の復習問題を見つけました`,
           icon: '/icons/icon-192.png',
         })
@@ -156,12 +157,12 @@ export function UsageRecommend() {
         <Sparkles className={`h-5 w-5 text-amber-500 ${loading ? 'animate-spin' : ''}`} />
         <div className="flex-1">
           <div className="text-sm font-medium text-amber-800 dark:text-amber-200">
-            {loading ? '解析中... しばらくお待ちください' : '今日の作業からレコメンド'}
+            {loading ? '利用履歴を解析中...' : 'あなたの利用履歴からレコメンド'}
           </div>
           <div className="text-xs text-amber-600 dark:text-amber-400">
             {loading
               ? 'セッション履歴を読み込んでいます。完了したら通知します'
-              : 'Claude Code の利用履歴を解析して復習問題を提案'}
+              : '実際に使った機能を分析し、復習すべき問題を提案します'}
           </div>
         </div>
       </button>
@@ -185,7 +186,7 @@ export function UsageRecommend() {
       <div className="flex items-center justify-between px-4 pt-3 pb-2">
         <div className="flex items-center gap-2">
           <Sparkles className="h-4 w-4 text-amber-500" />
-          <span className="text-sm font-medium text-amber-800 dark:text-amber-200">今日のレコメンド</span>
+          <span className="text-sm font-medium text-amber-800 dark:text-amber-200">あなたへのレコメンド</span>
           <span className="rounded-full bg-amber-200 px-2 py-0.5 text-xs font-medium text-amber-700 dark:bg-amber-800 dark:text-amber-200">
             {recCount}問
           </span>
@@ -299,7 +300,7 @@ export function UsageRecommend() {
               trackRecommend('start_quiz', topCats, recommendations.length)
               startSessionWithIds(
                 recommendations.map((r) => r.id),
-                '今日のレコメンド'
+                'あなたへのレコメンド'
               )
             }}
             className="tap-highlight flex w-full items-center justify-center gap-2 rounded-xl bg-amber-500 px-4 py-2.5 text-sm font-medium text-white"
