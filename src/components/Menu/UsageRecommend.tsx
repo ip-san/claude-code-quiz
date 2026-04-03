@@ -121,10 +121,17 @@ export function UsageRecommend() {
         <div className="mx-4 mb-2 rounded-lg bg-blue-50 p-2.5 dark:bg-blue-950/30">
           <p className="text-xs font-medium text-blue-700 dark:text-blue-300">
             <Lightbulb className="mr-1 inline h-3 w-3" />
-            今日使わなかった機能
+            もっと効率的にできるかも
           </p>
           <p className="mt-1 text-xs text-blue-600 dark:text-blue-400">
-            {unusedCategories.map((cat) => getCategoryById(cat)?.name ?? cat).join('、')}— 知ると効率が上がるかも？
+            {unusedCategories
+              .slice(0, 3)
+              .map((cat) => {
+                const reason = CATEGORY_REASONS[cat]?.unused
+                const name = getCategoryById(cat)?.name ?? cat
+                return reason ? `${name}: ${reason}` : name
+              })
+              .join(' / ')}
           </p>
         </div>
       )}
@@ -209,6 +216,60 @@ export function UsageRecommend() {
   )
 }
 
+/** カテゴリごとに、今日の作業文脈から理由を生成する */
+const CATEGORY_REASONS: Record<string, { used: string; unused: string }> = {
+  memory: {
+    used: 'CLAUDE.md やルール設定に触れていました。効果的な書き方を復習しましょう',
+    unused: 'CLAUDE.md を活用すると、Claude への指示が毎回自動で伝わります',
+  },
+  skills: {
+    used: 'スキルやワークフローを使っていました。もっと便利な使い方があるかも',
+    unused: 'スキルを作ると、よく使う作業を一言で呼び出せるようになります',
+  },
+  tools: {
+    used: 'ファイル操作やコマンド実行をたくさんしていました。ツールの使い分けを確認',
+    unused: 'Read / Edit / Grep などのツールを知ると、Claude への依頼がもっと的確に',
+  },
+  commands: {
+    used: 'コマンド操作をしていました。知っておくと便利なコマンドがまだあるかも',
+    unused: '/compact や /branch など、作業効率を上げるコマンドがあります',
+  },
+  extensions: {
+    used: 'MCP やフックなど拡張機能に触れていました。より深い使い方を学びましょう',
+    unused: 'MCP サーバーやフックで、Claude Code の機能を大幅に拡張できます',
+  },
+  session: {
+    used: 'セッション管理やコンテキストに関わる作業をしていました',
+    unused: 'コンテキストウィンドウの管理を知ると、長時間作業がスムーズに',
+  },
+  keyboard: {
+    used: 'ショートカットを活用していました。まだ知らないキーがあるかも',
+    unused: 'ショートカットを覚えると、マウスなしで爆速操作ができます',
+  },
+  bestpractices: {
+    used: 'ベストプラクティスに関わる作業をしていました。知識を固めましょう',
+    unused: '効果的な使い方のコツを知ると、Claude の回答品質が上がります',
+  },
+}
+
+/** トピックからより具体的な理由を生成する */
+function getTopicReason(analysis: AnalysisResult, category: string): string | null {
+  const topicMap: Record<string, string[]> = {
+    memory: ['CLAUDE.mdの書き方'],
+    extensions: ['MCP', 'Hooks', 'サブエージェント'],
+    skills: ['Skills'],
+    session: ['コンテキスト管理'],
+    bestpractices: ['デバッグ', 'テスト'],
+    commands: ['CI/CD'],
+  }
+  const relatedTopics = topicMap[category] ?? []
+  const matched = analysis.topics.filter((t) => relatedTopics.includes(t.topic))
+  if (matched.length > 0) {
+    return `${matched[0].topic}に取り組んでいたようです。関連知識を確認しましょう`
+  }
+  return null
+}
+
 function computeRecommendations(
   analysis: AnalysisResult,
   allQuestions: Question[]
@@ -222,11 +283,12 @@ function computeRecommendations(
 
   // Top 3 used categories → 5 questions each
   for (const [cat] of sorted.slice(0, 3)) {
-    const catName = getCategoryById(cat)?.name ?? cat
+    const reason =
+      getTopicReason(analysis, cat) ?? CATEGORY_REASONS[cat]?.used ?? `今日 ${cat} に関連する作業をしていました`
     const pool = allQuestions.filter((q) => q.category === cat && !used.has(q.id))
     const sampled = pool.sort(() => Math.random() - 0.5).slice(0, 5)
     for (const q of sampled) {
-      recs.push({ id: q.id, question: q.question, category: q.category, reason: `今日 ${catName} を使ったため` })
+      recs.push({ id: q.id, question: q.question, category: q.category, reason })
       used.add(q.id)
     }
   }
@@ -237,16 +299,11 @@ function computeRecommendations(
     .map(([cat]) => cat)
 
   for (const cat of unused.slice(0, 2)) {
-    const catName = getCategoryById(cat)?.name ?? cat
+    const reason = CATEGORY_REASONS[cat]?.unused ?? `${getCategoryById(cat)?.name ?? cat} を知ると作業がもっと効率的に`
     const pool = allQuestions.filter((q) => q.category === cat && q.difficulty === 'beginner' && !used.has(q.id))
     const sampled = pool.sort(() => Math.random() - 0.5).slice(0, 3)
     for (const q of sampled) {
-      recs.push({
-        id: q.id,
-        question: q.question,
-        category: q.category,
-        reason: `${catName} を使っていない（発見のチャンス）`,
-      })
+      recs.push({ id: q.id, question: q.question, category: q.category, reason })
       used.add(q.id)
     }
   }
