@@ -23,6 +23,8 @@ export interface WorkPattern {
   savedMinutes: number
   /** The user's actual prompt that triggered this detection */
   evidence?: string
+  /** AI usage style detected (Anthropic research-based) */
+  aiStyle?: 'delegation' | 'debug-delegation' | 'inquiry' | 'efficiency'
 }
 
 // ── Constants ────────────────────────────────────────────────
@@ -215,6 +217,51 @@ export function detectWorkPatterns(prompts: string[]): WorkPattern[] {
     })
   }
 
+  // ── AI Usage Style Detection (Anthropic research-based) ──
+
+  // Delegation pattern: "お願いします" "全部やって" "まとめて" "作って"
+  const delegationPrompts = meaningful.filter((p) => /お願い|全部|まとめて|作って|やって|してください$/.test(p))
+  // Debug delegation: error paste → "直して" "修正して" pattern
+  const debugDelegation = meaningful.filter((p) =>
+    /直して|修正して|エラー.*なおし|fix|動かない.*して/.test(p.toLowerCase())
+  )
+  // Inquiry pattern (positive): "なぜ" "どう違う" "仕組み" "理由"
+  const inquiryPrompts = meaningful.filter((p) => /なぜ|どう違|仕組み|理由|どういう|メリット|デメリット|比較/.test(p))
+
+  const totalStyled = delegationPrompts.length + debugDelegation.length + inquiryPrompts.length
+  if (totalStyled >= 3) {
+    const delegationRatio = (delegationPrompts.length + debugDelegation.length) / totalStyled
+
+    if (delegationRatio > 0.7 && delegationPrompts.length >= 3) {
+      patterns.push({
+        pattern: 'AI への丸投げ傾向',
+        tip: '「なぜそうなるか」を質問すると理解が深まり、スキルが定着する（Anthropic 研究）',
+        category: 'bestpractices',
+        savedMinutes: 0,
+        evidence: delegationPrompts[0],
+        aiStyle: 'delegation',
+      })
+    } else if (debugDelegation.length >= 2) {
+      patterns.push({
+        pattern: 'デバッグを AI に委任する傾向',
+        tip: 'エラーの原因を「なぜ起きたか」と質問すると、次回から自力で解決できるようになる',
+        category: 'bestpractices',
+        savedMinutes: debugDelegation.length * 5,
+        evidence: debugDelegation[0],
+        aiStyle: 'debug-delegation',
+      })
+    } else if (inquiryPrompts.length >= 3) {
+      patterns.push({
+        pattern: '概念を理解しようとする質問が多い',
+        tip: '素晴らしいアプローチ！より高度な問題に挑戦してみましょう',
+        category: 'bestpractices',
+        savedMinutes: 0,
+        evidence: inquiryPrompts[0],
+        aiStyle: 'inquiry',
+      })
+    }
+  }
+
   return patterns
 }
 
@@ -308,6 +355,20 @@ export function computeRecommendations(
     }
   }
 
+  // AI usage style affects difficulty selection
+  const aiStyle = workPatterns.find((wp) => wp.aiStyle)?.aiStyle
+  const preferDifficulty: string | null =
+    aiStyle === 'delegation'
+      ? 'beginner'
+      : // 丸投げ型 → 基礎を固める
+        aiStyle === 'debug-delegation'
+        ? 'intermediate'
+        : // デバッグ委任 → 中級のなぜ問題
+          aiStyle === 'inquiry'
+          ? 'advanced'
+          : // 質問型 → 高度な問題に誘導
+            null
+
   for (const [cat] of sorted.slice(0, 3)) {
     const related = findRelatedPrompts(prompts, cat)
     const quote = related[0]
@@ -316,12 +377,22 @@ export function computeRecommendations(
     const catName = getCategoryById(cat)?.name ?? cat
     const rank = sorted.findIndex(([c]) => c === cat) + 1
     const pool = allQuestions.filter((q) => q.category === cat && !used.has(q.id))
-    const sampled = pool.sort(() => Math.random() - 0.5).slice(0, 5)
+    // Prefer questions matching AI usage style difficulty
+    const sorted2 = preferDifficulty
+      ? [...pool].sort((a, b) => {
+          const aMatch = a.difficulty === preferDifficulty ? 0 : 1
+          const bMatch = b.difficulty === preferDifficulty ? 0 : 1
+          return aMatch - bMatch || Math.random() - 0.5
+        })
+      : pool.sort(() => Math.random() - 0.5)
+    const sampled = sorted2.slice(0, 5)
     for (const q of sampled) {
       const signals: string[] = []
       const patternTip = patternsByCategory.get(cat)
       if (patternTip) signals.push(patternTip)
-      signals.push(`${catName}は作業関連度${rank}位`)
+      if (aiStyle === 'delegation') signals.push('🎯 基礎理解を固める問題')
+      else if (aiStyle === 'inquiry') signals.push('🚀 より高度な問題に挑戦')
+      else signals.push(`${catName}は作業関連度${rank}位`)
       if (quote) signals.push(`「${quote.length > 25 ? quote.slice(0, 25) + '...' : quote}」に関連`)
       recs.push({ id: q.id, question: q.question, category: q.category, reason, signals })
       used.add(q.id)

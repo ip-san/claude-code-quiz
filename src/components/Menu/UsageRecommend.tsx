@@ -192,6 +192,26 @@ export function UsageRecommend() {
             const p = patterns[0]
             return (
               <div className="mx-4 mb-1.5 space-y-1.5">
+                {/* AI usage style insight (Anthropic research) */}
+                {patterns.find((wp) => wp.aiStyle) &&
+                  (() => {
+                    const aiPattern = patterns.find((wp) => wp.aiStyle)!
+                    const colors =
+                      aiPattern.aiStyle === 'inquiry'
+                        ? 'bg-green-50 text-green-700 dark:bg-green-500/10 dark:text-green-400'
+                        : 'bg-amber-50 text-amber-700 dark:bg-amber-500/10 dark:text-amber-400'
+                    const icon =
+                      aiPattern.aiStyle === 'inquiry' ? '🌟' : aiPattern.aiStyle === 'delegation' ? '🪞' : '🔍'
+                    return (
+                      <div className={`flex items-start gap-2 rounded-lg px-3 py-1.5 ${colors}`}>
+                        <span className="text-base">{icon}</span>
+                        <div>
+                          <p className="text-xs font-medium">{aiPattern.pattern}</p>
+                          <p className="text-[11px] opacity-80">{aiPattern.tip}</p>
+                        </div>
+                      </div>
+                    )
+                  })()}
                 {/* Time savings banner */}
                 {totalSaved > 0 && (
                   <div className="flex items-center gap-2 rounded-lg bg-claude-orange/10 px-3 py-1.5 dark:bg-claude-orange/5">
