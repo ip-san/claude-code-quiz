@@ -31,43 +31,65 @@ export function UsageRecommend() {
 
   const [aiError, setAiError] = useState<string | null>(null)
 
+  const loadFromCache = useCallback(async (): Promise<boolean> => {
+    const cached = await window.electronAPI?.getCachedRecommend?.()
+    if (!cached || cached.ids.length === 0) return false
+    const cachedAnalysis: AnalysisResult = {
+      tools: {},
+      topics: cached.topics,
+      categoryScores: Object.fromEntries(cached.topCategories.map((c, i) => [c, 100 - i * 10])),
+      recommendedIds: cached.ids,
+      sessionCount: cached.sessionCount,
+      promptSamples: cached.promptSamples ?? [],
+    }
+    const aiReasons = (cached as Record<string, unknown>).reasons as Record<string, string> | undefined
+    if (aiReasons && Object.keys(aiReasons).length > 0) {
+      const recs: RecommendedQuestion[] = cached.ids
+        .map((id) => {
+          const q = allQuestions.find((q) => q.id === id)
+          if (!q) return null
+          return { id, question: q.question, category: q.category, reason: aiReasons[id] ?? '' }
+        })
+        .filter(Boolean) as RecommendedQuestion[]
+      setRecommendations(recs)
+      setUnusedCategories([])
+      setAnalysis(cachedAnalysis)
+    } else {
+      const { recs, unused } = computeRecommendations(cachedAnalysis, allQuestions)
+      setRecommendations(recs)
+      setUnusedCategories(unused)
+      setAnalysis(cachedAnalysis)
+    }
+    return true
+  }, [allQuestions])
+
   const analyze = useCallback(async () => {
     if (!window.electronAPI) return
     setLoading(true)
     setAiError(null)
     haptics.light()
 
-    // Run /recommend skill via Claude CLI (AI analyzes intent, not keyword match)
+    // First try cache (no notification, instant)
+    if (await loadFromCache()) {
+      setLoading(false)
+      return
+    }
+
+    // No cache — run /recommend skill via Claude CLI
     const skillResult = await window.electronAPI.runRecommendSkill()
 
     if (skillResult.success) {
-      // Skill wrote to latest-recommend.json — reload it
-      const cached = await window.electronAPI.getCachedRecommend?.()
-      if (cached && cached.ids.length > 0) {
-        const cachedAnalysis: AnalysisResult = {
-          tools: {},
-          topics: cached.topics,
-          categoryScores: Object.fromEntries(cached.topCategories.map((c, i) => [c, 100 - i * 10])),
-          recommendedIds: cached.ids,
-          sessionCount: cached.sessionCount,
-          promptSamples: cached.promptSamples ?? [],
-        }
-        const { recs, unused } = computeRecommendations(cachedAnalysis, allQuestions)
-        setRecommendations(recs)
-        setUnusedCategories(unused)
-        setAnalysis(cachedAnalysis)
-        trackRecommend('analyze', cached.topCategories, recs.length)
-        haptics.medium()
-        if ('Notification' in window && Notification.permission === 'granted') {
-          new Notification('あなたの利用履歴を分析しました', {
-            body: `${recs.length}問の復習問題を見つけました`,
-            icon: '/icons/icon-192.png',
-          })
-        }
+      await loadFromCache()
+      haptics.medium()
+      if ('Notification' in window && Notification.permission === 'granted') {
+        new Notification('あなたの利用履歴を分析しました', {
+          body: `${recommendations.length || 15}問の復習問題を見つけました`,
+          icon: '/icons/icon-192.png',
+        })
       }
+      trackRecommend('analyze', [], recommendations.length)
     } else {
       const err = skillResult.error ?? '分析に失敗しました'
-      // If no session data, show friendly message instead of error
       if (err.includes('ENOENT') || err.includes('not found') || err.includes('timeout')) {
         setAiError(err)
       } else {
@@ -76,43 +98,12 @@ export function UsageRecommend() {
       haptics.light()
     }
     setLoading(false)
-  }, [allQuestions])
+  }, [allQuestions, loadFromCache, recommendations.length])
 
+  // On mount, load from cache silently (no notification)
   useEffect(() => {
-    if (!window.electronAPI?.getCachedRecommend) return
-    window.electronAPI.getCachedRecommend().then((cached) => {
-      if (!cached || cached.ids.length === 0) return
-      const cachedAnalysis: AnalysisResult = {
-        tools: {},
-        topics: cached.topics,
-        categoryScores: Object.fromEntries(cached.topCategories.map((c, i) => [c, 100 - i * 10])),
-        recommendedIds: cached.ids,
-        sessionCount: cached.sessionCount,
-        promptSamples: cached.promptSamples ?? [],
-      }
-      // If /recommend skill provided per-question reasons, use them
-      const aiReasons = (cached as Record<string, unknown>).reasons as Record<string, string> | undefined
-      if (aiReasons && Object.keys(aiReasons).length > 0) {
-        const recs: RecommendedQuestion[] = cached.ids
-          .map((id) => {
-            const q = allQuestions.find((q) => q.id === id)
-            if (!q) return null
-            return { id, question: q.question, category: q.category, reason: aiReasons[id] ?? '' }
-          })
-          .filter(Boolean) as RecommendedQuestion[]
-        setRecommendations(recs)
-        setUnusedCategories([])
-        setAnalysis(cachedAnalysis)
-      } else {
-        const { recs, unused } = computeRecommendations(cachedAnalysis, allQuestions)
-        if (recs.length > 0) {
-          setRecommendations(recs)
-          setUnusedCategories(unused)
-          setAnalysis(cachedAnalysis)
-        }
-      }
-    })
-  }, [allQuestions])
+    loadFromCache()
+  }, [loadFromCache])
 
   useEffect(() => {
     if (!window.electronAPI?.checkGlobalHooks) return
