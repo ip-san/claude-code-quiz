@@ -116,6 +116,10 @@ const electronAPI = {
     return ipcRenderer.invoke('run-recommend-skill')
   },
 
+  isRecommendRunning: (): Promise<boolean> => {
+    return ipcRenderer.invoke('is-recommend-running')
+  },
+
   /**
    * グローバルフックの設定/削除
    */

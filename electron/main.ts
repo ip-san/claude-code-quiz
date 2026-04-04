@@ -461,13 +461,18 @@ ipcMain.handle('analyze-usage', async (_event, daysBack: number): Promise<UsageA
 // AI-powered Recommendation (runs /recommend skill via Claude CLI)
 // ============================================================
 
+import type { ChildProcess } from 'child_process'
+
+let recommendProc: ChildProcess | null = null
+
 ipcMain.handle('run-recommend-skill', async (): Promise<{ success: boolean; error?: string }> => {
   try {
-    const { execFile } = await import('child_process')
-    const { promisify } = await import('util')
-    const execFileAsync = promisify(execFile)
+    // Kill any existing recommend process (prevents duplicate runs on reload)
+    if (recommendProc && !recommendProc.killed) {
+      recommendProc.kill()
+      recommendProc = null
+    }
 
-    const skillPath = join(app.getAppPath(), '.claude', 'skills', 'recommend', 'SKILL.md')
     const projectDir = app.getAppPath()
 
     // Run claude CLI with the recommend skill
@@ -480,16 +485,21 @@ ipcMain.handle('run-recommend-skill', async (): Promise<{ success: boolean; erro
         env: { ...process.env, CLAUDE_PROJECT_DIR: projectDir },
         stdio: ['ignore', 'pipe', 'pipe'],
       })
+      recommendProc = proc
       let stderr = ''
       proc.stderr?.on('data', (d: Buffer) => {
         stderr += d.toString()
       })
       proc.on('close', (code) => {
+        if (proc === recommendProc) recommendProc = null
         if (code === 0) resolve()
         else if (code === 143 || code === null) reject(new Error('タイムアウトしました。もう一度お試しください。'))
         else reject(new Error(stderr || `claude exited with code ${code}`))
       })
-      proc.on('error', reject)
+      proc.on('error', (err) => {
+        if (proc === recommendProc) recommendProc = null
+        reject(err)
+      })
     })
 
     return { success: true }
@@ -504,6 +514,10 @@ ipcMain.handle('run-recommend-skill', async (): Promise<{ success: boolean; erro
     }
     return { success: false, error: msg }
   }
+})
+
+ipcMain.handle('is-recommend-running', (): boolean => {
+  return recommendProc !== null && !recommendProc.killed
 })
 
 // ============================================================

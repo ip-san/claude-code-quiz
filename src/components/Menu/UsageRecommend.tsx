@@ -100,9 +100,12 @@ export function UsageRecommend() {
     setLoading(false)
   }, [allQuestions, loadFromCache, recommendations.length])
 
-  // On mount, load from cache silently (no notification)
+  // On mount, load from cache + check if recommend is already running
   useEffect(() => {
     loadFromCache()
+    window.electronAPI?.isRecommendRunning?.().then((running) => {
+      if (running) setLoading(true)
+    })
   }, [loadFromCache])
 
   useEffect(() => {
