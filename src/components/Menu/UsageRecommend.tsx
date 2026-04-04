@@ -323,26 +323,19 @@ export function UsageRecommend() {
         </button>
       )}
       {showQuestions && (
-        <div className="mx-4 mb-2 max-h-72 overflow-y-auto">
+        <div className="mx-4 mb-2 space-y-1.5">
           {groupByCategory(recommendations).map(({ category, reason, questions }) => {
             const cat = getCategoryById(category)
             return (
-              <div key={category} className="mb-2 rounded-lg bg-stone-50 dark:bg-stone-900/50">
-                <div className="flex items-center gap-2 px-3 pt-2.5 pb-1">
+              <div key={category} className="rounded-lg bg-stone-50 px-3 py-2 dark:bg-stone-900/50">
+                <div className="flex items-center gap-2">
                   <span className="text-sm">{cat?.icon}</span>
                   <span className="text-xs font-medium text-claude-dark dark:text-stone-200">{cat?.name}</span>
                   <span className="rounded-full bg-stone-200 px-1.5 py-0.5 text-[10px] text-stone-500 dark:bg-stone-700 dark:text-stone-400">
                     {questions.length}問
                   </span>
                 </div>
-                <p className="px-3 pb-1.5 text-[11px] leading-relaxed text-stone-500 dark:text-stone-400">{reason}</p>
-                {questions.map((q, i) => (
-                  <div key={q.id} className="border-t border-stone-100 px-3 py-1.5 dark:border-stone-800">
-                    <p className="text-xs leading-snug text-stone-700 dark:text-stone-300">
-                      {i + 1}. {q.question.length > 80 ? q.question.slice(0, 80) + '...' : q.question}
-                    </p>
-                  </div>
-                ))}
+                <p className="mt-1 text-[11px] leading-relaxed text-stone-500 dark:text-stone-400">{reason}</p>
               </div>
             )
           })}
