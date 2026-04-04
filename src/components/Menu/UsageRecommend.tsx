@@ -1,5 +1,5 @@
 import { ChevronDown, ChevronUp, Lightbulb, Play, RefreshCw, Sparkles, X } from 'lucide-react'
-import { useCallback, useEffect, useRef, useState } from 'react'
+import { useCallback, useEffect, useState } from 'react'
 
 /** Progress text + dots — both pulse in color together */
 function ProgressLabel({ text }: { text: string }) {
@@ -66,33 +66,6 @@ export function UsageRecommend() {
 
   const [aiError, setAiError] = useState<string | null>(null)
   const [regenerated, setRegenerated] = useState(false)
-  const [elapsed, setElapsed] = useState(0)
-  const timerRef = useRef<ReturnType<typeof setInterval> | null>(null)
-
-  const PROGRESS_STEPS = [
-    { at: 0, text: 'セッションログを読み込み中' },
-    { at: 5, text: 'プロンプトの意図を解析中' },
-    { at: 15, text: '使用パターンを分析中' },
-    { at: 30, text: 'あなたに合った問題を選定中' },
-    { at: 60, text: '選定理由を生成中' },
-    { at: 90, text: 'もう少しで完了します' },
-  ]
-
-  const progressBase =
-    PROGRESS_STEPS.slice()
-      .reverse()
-      .find((s) => elapsed >= s.at)?.text ?? ''
-
-  const startTimer = useCallback(() => {
-    setElapsed(0)
-    timerRef.current = setInterval(() => setElapsed((t) => t + 1), 1000)
-  }, [])
-  const stopTimer = useCallback(() => {
-    if (timerRef.current) {
-      clearInterval(timerRef.current)
-      timerRef.current = null
-    }
-  }, [])
 
   const loadFromCache = useCallback(async (): Promise<boolean> => {
     const cached = await window.electronAPI?.getCachedRecommend?.()
@@ -126,60 +99,35 @@ export function UsageRecommend() {
     return true
   }, [allQuestions])
 
-  // biome-ignore lint/correctness/useExhaustiveDependencies: allQuestions needed to recompute recommendations after quiz data reload
   const analyze = useCallback(async () => {
     if (!window.electronAPI) return
     setLoading(true)
     setAiError(null)
     haptics.light()
 
-    // First try cache (no notification, instant)
+    // 1. Collect latest session data (fast, local)
+    try {
+      await window.electronAPI.runRecommendSkill()
+    } catch {
+      // Collect might fail — continue with cache
+    }
+
+    // 2. Try loading from cache (includes rolling-7d.json prompts)
     if (await loadFromCache()) {
+      haptics.medium()
       setLoading(false)
       return
     }
 
-    // No cache — run /recommend skill via Claude CLI
-    startTimer()
-    const skillResult = await window.electronAPI.runRecommendSkill()
-    stopTimer()
-
-    if (skillResult.success) {
-      await loadFromCache()
-      haptics.medium()
-      window.electronAPI?.showNotification?.(
-        'あなたの利用履歴を分析しました',
-        `${recommendations.length || 15}問の復習問題を見つけました`
-      )
-      trackRecommend('analyze', [], recommendations.length)
-    } else {
-      const err = skillResult.error ?? '分析に失敗しました'
-      if (
-        err.includes('ENOENT') ||
-        err.includes('not found') ||
-        err.includes('timeout') ||
-        err.includes('タイムアウト')
-      ) {
-        setAiError(err)
-      } else {
-        setAiError('分析できませんでした。Claude Code で作業をしてからもう一度お試しください')
-      }
-      haptics.light()
-    }
+    // 3. No cache at all — show error
+    setAiError('Claude Code の利用履歴がありません。いくつか作業をしてからお試しください')
     setLoading(false)
-  }, [allQuestions, loadFromCache, recommendations.length, startTimer, stopTimer])
+  }, [loadFromCache])
 
-  // On mount, load from cache + check if recommend is already running
+  // On mount, load from cache silently
   useEffect(() => {
     loadFromCache()
-    window.electronAPI?.isRecommendRunning?.().then((running) => {
-      if (running) {
-        setLoading(true)
-        startTimer()
-      }
-    })
-    return () => stopTimer()
-  }, [loadFromCache, startTimer, stopTimer])
+  }, [loadFromCache])
 
   // biome-ignore lint/correctness/useExhaustiveDependencies: re-check hooks status after setup completes
   useEffect(() => {
@@ -240,26 +188,20 @@ export function UsageRecommend() {
         onClick={analyze}
         disabled={loading}
         aria-label="利用履歴を分析してクイズをレコメンド"
-        className="tap-highlight relative mb-5 flex w-full items-center gap-3 overflow-hidden rounded-2xl border border-stone-200 bg-white px-4 py-3 text-left dark:border-stone-700 dark:bg-stone-800"
+        className="tap-highlight mb-5 flex w-full items-center gap-3 rounded-2xl border border-stone-200 bg-white px-4 py-3 text-left dark:border-stone-700 dark:bg-stone-800"
       >
-        {loading && (
-          <span
-            className="absolute inset-y-0 left-0 bg-claude-orange/10 transition-[width] duration-1000 ease-linear dark:bg-claude-orange/15"
-            style={{ width: `${Math.min((elapsed / 120) * 100, 100)}%` }}
-          />
-        )}
         {loading ? (
-          <div className="relative h-5 w-5 animate-spin rounded-full border-2 border-stone-200 border-t-claude-orange" />
+          <div className="h-5 w-5 animate-spin rounded-full border-2 border-stone-200 border-t-claude-orange" />
         ) : (
           <Sparkles className="h-5 w-5 text-claude-orange" />
         )}
-        <div className="relative flex-1">
+        <div className="flex-1">
           <div className="text-sm font-medium text-claude-dark dark:text-stone-200">
-            {loading ? `分析中...（${elapsed}秒）` : 'あなたの利用履歴からレコメンド'}
+            {loading ? '分析中...' : 'あなたの利用履歴からレコメンド'}
           </div>
           <div className="text-xs text-stone-500 dark:text-stone-400">
             {loading ? (
-              <ProgressLabel text={progressBase} />
+              <ProgressLabel text="利用履歴を分析中" />
             ) : (
               'AI があなたの作業意図を理解し、最適な復習問題を選びます'
             )}
@@ -303,10 +245,8 @@ export function UsageRecommend() {
         <div className="flex items-center gap-0.5">
           <button
             onClick={(e) => {
-              if (!analysis || loading) return
+              if (!analysis) return
               haptics.light()
-              setAiError(null)
-              setRegenerated(false)
               const icon = e.currentTarget.querySelector('svg')
               if (icon) {
                 icon.style.transition = 'transform 0.5s ease-out'
@@ -316,47 +256,18 @@ export function UsageRecommend() {
                   icon.style.transform = ''
                 }, 500)
               }
-              // 1. Instant shuffle for immediate feedback
+              // Instant shuffle — no AI call, zero tokens
               const shuffledSamples = [...analysis.promptSamples].sort(() => Math.random() - 0.5)
               const newAnalysis = { ...analysis, promptSamples: shuffledSamples }
               setAnalysis(newAnalysis)
-              // Exclude currently shown questions so user always sees new ones
               const prevIds = new Set(recommendations.map((r) => r.id))
               const { recs, unused } = computeRecommendations(newAnalysis, allQuestions, prevIds)
               setRecommendations(recs)
               setUnusedCategories(unused)
-              // 2. Clear cache + run AI re-analysis with progress
-              setLoading(true)
-              startTimer()
-              window.electronAPI?.clearRecommendCache?.()
-              window.electronAPI
-                ?.runRecommendSkill?.()
-                .then(async (result) => {
-                  stopTimer()
-                  setLoading(false)
-                  if (result?.success) {
-                    await loadFromCache()
-                    setRegenerated(true)
-                    haptics.medium()
-                    // Try native notification (requires app restart after preload changes)
-                    window.electronAPI?.showNotification?.(
-                      'レコメンドを更新しました',
-                      '最新の利用履歴から問題を再選定しました'
-                    )
-                  } else {
-                    setAiError(result?.error ?? '再生成に失敗しました')
-                  }
-                })
-                .catch(() => {
-                  stopTimer()
-                  setLoading(false)
-                  setAiError('再生成に失敗しました')
-                })
             }}
-            disabled={loading}
-            className={`tap-highlight rounded-full p-1.5 ${loading ? 'animate-spin text-claude-orange' : 'text-stone-400 active:text-claude-orange'}`}
-            aria-label={loading ? 'AI が再生成中...' : '問題を更新'}
-            title={loading ? '再生成中...' : '更新'}
+            className="tap-highlight rounded-full p-1.5 text-stone-400 active:text-claude-orange"
+            aria-label="問題をシャッフル"
+            title="シャッフル"
           >
             <RefreshCw className="h-3.5 w-3.5" />
           </button>
@@ -370,24 +281,6 @@ export function UsageRecommend() {
           </button>
         </div>
       </div>
-
-      {/* Background regeneration progress */}
-      {loading && (
-        <>
-          <div className="mx-4 mb-1 flex items-center gap-2">
-            <div className="h-1 flex-1 overflow-hidden rounded-full bg-stone-100 dark:bg-stone-700">
-              <div
-                className="h-full rounded-full bg-claude-orange transition-[width] duration-1000 ease-linear"
-                style={{ width: `${Math.min((elapsed / 120) * 100, 100)}%` }}
-              />
-            </div>
-            <span className="flex-shrink-0 text-[10px] text-stone-400 dark:text-stone-500">{elapsed}秒</span>
-          </div>
-          <p className="mx-4 mb-2 text-[11px] text-stone-500 dark:text-stone-400">
-            <ProgressLabel text={progressBase} />
-          </p>
-        </>
-      )}
 
       {/* Regeneration success banner — tap to dismiss */}
       {regenerated && (
@@ -578,24 +471,23 @@ function groupByCategory(
   return [...groups.entries()].map(([category, { reason, questions }]) => ({ category, reason, questions }))
 }
 
-function findRelatedPrompt(prompts: string[], category: string): string | null {
-  const categoryTerms: Record<string, string[]> = {
-    memory: ['CLAUDE.md', 'ルール', '指示', 'メモリ', '/init', 'rules'],
-    skills: ['スキル', 'skill', 'コマンド', '/batch', '/loop'],
-    tools: ['ファイル', 'Read', 'Edit', 'Bash', 'Grep', '検索', '書き換え'],
-    commands: ['/compact', '/clear', '/model', '/branch', 'コマンド'],
-    extensions: ['MCP', 'hook', 'フック', 'プラグイン', 'サブエージェント', 'Agent'],
-    session: ['コンテキスト', 'セッション', 'トークン', '圧縮', '復帰'],
-    keyboard: ['ショートカット', 'Ctrl', 'Shift', 'キー'],
-    bestpractices: ['テスト', 'レビュー', 'デバッグ', 'Plan', '設計', 'エラー'],
-  }
-  const terms = categoryTerms[category] ?? []
-  for (const p of prompts) {
-    if (terms.some((t) => p.toLowerCase().includes(t.toLowerCase()))) {
-      return p.length > 40 ? p.slice(0, 40) + '...' : p
-    }
-  }
-  return null
+const CATEGORY_TERMS: Record<string, string[]> = {
+  memory: ['CLAUDE.md', 'ルール', '指示', 'メモリ', '/init', 'rules', '設定'],
+  skills: ['スキル', 'skill', 'コマンド', '/batch', '/loop', 'ワークフロー'],
+  tools: ['ファイル', 'Read', 'Edit', 'Bash', 'Grep', '検索', '書き換え', '変更'],
+  commands: ['/compact', '/clear', '/model', '/branch', 'コマンド', 'CLI'],
+  extensions: ['MCP', 'hook', 'フック', 'プラグイン', 'サブエージェント', 'Agent', '拡張'],
+  session: ['コンテキスト', 'セッション', 'トークン', '圧縮', '復帰', 'モデル'],
+  keyboard: ['ショートカット', 'Ctrl', 'Shift', 'キー', '操作'],
+  bestpractices: ['テスト', 'レビュー', 'デバッグ', 'Plan', '設計', 'エラー', '影響', '確認'],
+}
+
+/** Find ALL matching prompts for a category, shuffled */
+function findRelatedPrompts(prompts: string[], category: string): string[] {
+  const terms = CATEGORY_TERMS[category] ?? []
+  return prompts
+    .filter((p) => p.length > 10 && terms.some((t) => p.toLowerCase().includes(t.toLowerCase())))
+    .sort(() => Math.random() - 0.5)
 }
 
 function computeRecommendations(
@@ -612,9 +504,10 @@ function computeRecommendations(
     .sort((a, b) => b[1] - a[1])
 
   for (const [cat] of sorted.slice(0, 3)) {
-    const relatedPrompt = findRelatedPrompt(prompts, cat)
+    const related = findRelatedPrompts(prompts, cat)
+    const quote = related[0]
     const fallback = CATEGORY_REASONS[cat]?.used ?? '関連する作業をしていました'
-    const reason = relatedPrompt ? `「${relatedPrompt}」に関連 — ${fallback}` : fallback
+    const reason = quote ? `「${quote.length > 35 ? quote.slice(0, 35) + '...' : quote}」— ${fallback}` : fallback
     const pool = allQuestions.filter((q) => q.category === cat && !used.has(q.id))
     const sampled = pool.sort(() => Math.random() - 0.5).slice(0, 5)
     for (const q of sampled) {

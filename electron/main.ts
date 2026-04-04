@@ -488,7 +488,7 @@ ipcMain.handle('run-recommend-skill', async (): Promise<{ success: boolean; erro
     // Use spawn to explicitly close stdin (avoids "no stdin data" warning)
     const { spawn } = await import('child_process')
     await new Promise<void>((resolve, reject) => {
-      const proc = spawn('claude', ['-p', '/recommend'], {
+      const proc = spawn('claude', ['-p', '/recommend', '--model', 'sonnet'], {
         cwd: projectDir,
         timeout: 300_000, // 5 minutes — skill needs time for AI analysis
         env: { ...process.env, CLAUDE_PROJECT_DIR: projectDir },
