@@ -301,12 +301,11 @@ export function UsageRecommend() {
             {recCount}問
           </span>
         </div>
-        <div className="flex items-center gap-1">
+        <div className="flex items-center gap-0.5">
           <button
             onClick={(e) => {
               if (!analysis) return
               haptics.light()
-              // Spin animation on the icon
               const icon = e.currentTarget.querySelector('svg')
               if (icon) {
                 icon.style.transition = 'transform 0.4s ease-out'
@@ -316,7 +315,6 @@ export function UsageRecommend() {
                   icon.style.transform = ''
                 }, 400)
               }
-              // Re-shuffle: pick different questions + different prompt samples
               const shuffledSamples = [...analysis.promptSamples].sort(() => Math.random() - 0.5)
               const newAnalysis = { ...analysis, promptSamples: shuffledSamples }
               setAnalysis(newAnalysis)
@@ -324,17 +322,34 @@ export function UsageRecommend() {
               setRecommendations(recs)
               setUnusedCategories(unused)
             }}
-            className="tap-highlight rounded-full p-2 text-stone-400 active:text-claude-orange"
+            className="tap-highlight rounded-full p-1.5 text-stone-400 active:text-claude-orange"
             aria-label="問題をシャッフル"
+            title="シャッフル"
           >
-            <RefreshCw className="h-4 w-4" />
+            <RefreshCw className="h-3.5 w-3.5" />
+          </button>
+          <button
+            onClick={() => {
+              haptics.light()
+              setAnalysis(null)
+              setRecommendations([])
+              setAiError(null)
+              // Trigger re-analysis on next tick (after state clears to show analyze button)
+              setTimeout(() => analyze(), 100)
+            }}
+            className="tap-highlight rounded-full p-1.5 text-stone-400 active:text-claude-orange"
+            aria-label="最新の履歴で再生成"
+            title="再生成"
+          >
+            <Sparkles className="h-3.5 w-3.5" />
           </button>
           <button
             onClick={() => setAnalysis(null)}
-            className="tap-highlight rounded-full p-2 text-stone-400"
+            className="tap-highlight rounded-full p-1.5 text-stone-400"
             aria-label="レコメンドを閉じる"
+            title="閉じる"
           >
-            <X className="h-4 w-4" />
+            <X className="h-3.5 w-3.5" />
           </button>
         </div>
       </div>
