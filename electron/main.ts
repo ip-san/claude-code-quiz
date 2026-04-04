@@ -469,7 +469,7 @@ ipcMain.handle('run-recommend-skill', async (): Promise<{ success: boolean; erro
     await new Promise<void>((resolve, reject) => {
       const proc = spawn('claude', ['-p', '/recommend'], {
         cwd: projectDir,
-        timeout: 120_000,
+        timeout: 300_000, // 5 minutes — skill needs time for AI analysis
         env: { ...process.env, CLAUDE_PROJECT_DIR: projectDir },
         stdio: ['ignore', 'pipe', 'pipe'],
       })
@@ -479,6 +479,7 @@ ipcMain.handle('run-recommend-skill', async (): Promise<{ success: boolean; erro
       })
       proc.on('close', (code) => {
         if (code === 0) resolve()
+        else if (code === 143 || code === null) reject(new Error('タイムアウトしました。もう一度お試しください。'))
         else reject(new Error(stderr || `claude exited with code ${code}`))
       })
       proc.on('error', reject)
