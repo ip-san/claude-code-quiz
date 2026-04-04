@@ -546,6 +546,76 @@ export function UsageRecommend() {
           )
         })()}
 
+      {/* Skill proficiency profile */}
+      {analysis &&
+        (() => {
+          const scores = Object.entries(analysis.categoryScores).filter(([, s]) => s > 0)
+          if (scores.length === 0) return null
+          const maxScore = Math.max(...scores.map(([, s]) => s))
+          const role = detectDeveloperRole(analysis.categoryScores)
+          return (
+            <div className="mx-4 mb-1.5 rounded-lg bg-stone-50 px-3 py-2 dark:bg-stone-900/50">
+              <p className="mb-1.5 text-[11px] font-medium text-stone-500 dark:text-stone-400">
+                あなたの活用プロフィール{role && <span className="ml-1 text-claude-orange">— {role}</span>}
+              </p>
+              <div className="space-y-1">
+                {scores
+                  .sort((a, b) => b[1] - a[1])
+                  .slice(0, 4)
+                  .map(([cat, score]) => {
+                    const catInfo = getCategoryById(cat)
+                    const pct = Math.round((score / maxScore) * 100)
+                    const level = pct > 70 ? '上級' : pct > 30 ? '中級' : '入門'
+                    return (
+                      <div key={cat} className="flex items-center gap-2">
+                        <span className="w-16 truncate text-[10px] text-stone-500 dark:text-stone-400">
+                          {catInfo?.name ?? cat}
+                        </span>
+                        <div className="h-1.5 flex-1 overflow-hidden rounded-full bg-stone-200 dark:bg-stone-700">
+                          <div
+                            className="h-full rounded-full bg-claude-orange transition-all"
+                            style={{ width: `${pct}%` }}
+                          />
+                        </div>
+                        <span className="w-6 text-right text-[10px] text-stone-500 dark:text-stone-400">{level}</span>
+                      </div>
+                    )
+                  })}
+              </div>
+            </div>
+          )
+        })()}
+
+      {/* Progressive disclosure nudge — untried categories */}
+      {analysis &&
+        unusedCategories.length > 0 &&
+        (() => {
+          const nudgeCat = unusedCategories[0]
+          const catInfo = getCategoryById(nudgeCat)
+          const nudgeReason = CATEGORY_REASONS[nudgeCat]?.unused
+          // Find one beginner question from this category
+          const nudgeQ = allQuestions.find((q) => q.category === nudgeCat && q.difficulty === 'beginner')
+          if (!nudgeQ || !catInfo) return null
+          return (
+            <div className="mx-4 mb-1.5 rounded-lg border border-dashed border-claude-orange/30 bg-orange-50/30 px-3 py-2 dark:border-claude-orange/15 dark:bg-orange-500/5">
+              <p className="text-[11px] text-stone-600 dark:text-stone-300">
+                まだ <span className="font-medium">{catInfo.name}</span> を試していません。
+                {nudgeReason && <span className="text-stone-500 dark:text-stone-400"> {nudgeReason}</span>}
+              </p>
+              <button
+                onClick={() => {
+                  haptics.light()
+                  startSessionWithIds([nudgeQ.id], `${catInfo.name} を1問だけ`)
+                }}
+                className="tap-highlight mt-1.5 flex items-center gap-1 rounded-md bg-claude-orange/10 px-2.5 py-1 text-[11px] font-medium text-claude-orange"
+              >
+                <Play className="h-3 w-3 fill-claude-orange" />
+                1問だけ試してみる
+              </button>
+            </div>
+          )
+        })()}
+
       {/* Step 4: Active Experimentation — クイズで確かめる */}
       {recCount > 0 && (
         <div className="px-4 pb-3 pt-1">
@@ -565,6 +635,18 @@ export function UsageRecommend() {
             <Play className="h-4 w-4 fill-white" />
             クイズで確かめる（{recCount}問）
           </button>
+          {/* Growth expectation message */}
+          {analysis &&
+            (() => {
+              const patterns = detectWorkPatterns(analysis.promptSamples ?? [])
+              if (patterns.length === 0) return null
+              const topPattern = patterns[0]
+              return (
+                <p className="mt-1.5 text-center text-[10px] text-stone-500 dark:text-stone-400">
+                  このクイズを解くと「{topPattern.pattern}」を改善するヒントが得られます
+                </p>
+              )
+            })()}
         </div>
       )}
     </div>
@@ -645,6 +727,29 @@ const SCENARIO_CATEGORY_MAP: Record<string, string[]> = {
   'scenario-cicd-setup': ['commands', 'extensions'],
   'scenario-security': ['extensions', 'session'],
   'scenario-extend': ['extensions', 'skills'],
+}
+
+/** Map category scores to a developer role label */
+export function detectDeveloperRole(categoryScores: Record<string, number>): string | null {
+  const top = Object.entries(categoryScores)
+    .filter(([, s]) => s > 0)
+    .sort((a, b) => b[1] - a[1])
+    .slice(0, 2)
+    .map(([cat]) => cat)
+  if (top.length === 0) return null
+
+  const has = (cat: string) => top.includes(cat)
+  if (has('tools') && has('bestpractices')) return 'コードレビュアー型'
+  if (has('extensions') && has('tools')) return 'インフラ自動化型'
+  if (has('memory') && has('bestpractices')) return 'チームリーダー型'
+  if (has('extensions') && has('skills')) return '拡張カスタマイズ型'
+  if (has('session') && has('tools')) return 'ヘビーユーザー型'
+  if (has('commands') && has('session')) return 'パワーユーザー型'
+  if (has('keyboard')) return 'ショートカットマスター型'
+  if (has('memory')) return 'ルール設計型'
+  if (has('tools')) return '実装者型'
+  if (has('bestpractices')) return '品質重視型'
+  return null
 }
 
 export function findRecommendedScenario(
