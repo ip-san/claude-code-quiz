@@ -90,11 +90,26 @@ export function UsageRecommend() {
         sessionCount: cached.sessionCount,
         promptSamples: cached.promptSamples ?? [],
       }
-      const { recs, unused } = computeRecommendations(cachedAnalysis, allQuestions)
-      if (recs.length > 0) {
+      // If /recommend skill provided per-question reasons, use them
+      const aiReasons = (cached as Record<string, unknown>).reasons as Record<string, string> | undefined
+      if (aiReasons && Object.keys(aiReasons).length > 0) {
+        const recs: RecommendedQuestion[] = cached.ids
+          .map((id) => {
+            const q = allQuestions.find((q) => q.id === id)
+            if (!q) return null
+            return { id, question: q.question, category: q.category, reason: aiReasons[id] ?? '' }
+          })
+          .filter(Boolean) as RecommendedQuestion[]
         setRecommendations(recs)
-        setUnusedCategories(unused)
+        setUnusedCategories([])
         setAnalysis(cachedAnalysis)
+      } else {
+        const { recs, unused } = computeRecommendations(cachedAnalysis, allQuestions)
+        if (recs.length > 0) {
+          setRecommendations(recs)
+          setUnusedCategories(unused)
+          setAnalysis(cachedAnalysis)
+        }
       }
     })
   }, [allQuestions])
@@ -126,13 +141,15 @@ export function UsageRecommend() {
                     haptics.medium()
                   }
                 }}
-                className="tap-highlight rounded-lg bg-claude-orange px-3 py-1.5 text-xs font-medium text-white"
+                className="tap-highlight rounded-lg bg-claude-orange px-4 py-2 text-xs font-medium text-white"
+                aria-label="自動レコメンドを有効にする"
               >
                 有効にする
               </button>
               <button
                 onClick={() => setHooksInstalled(true)}
-                className="tap-highlight rounded-lg px-3 py-1.5 text-xs text-stone-400"
+                className="tap-highlight rounded-lg px-4 py-2 text-xs text-stone-400"
+                aria-label="後で設定する"
               >
                 後で
               </button>
@@ -154,6 +171,7 @@ export function UsageRecommend() {
       <button
         onClick={analyze}
         disabled={loading}
+        aria-label="利用履歴を分析してクイズをレコメンド"
         className="tap-highlight mb-5 flex w-full items-center gap-3 rounded-2xl border border-stone-200 bg-white px-4 py-3 text-left dark:border-stone-700 dark:bg-stone-800"
       >
         {loading ? (
@@ -205,8 +223,8 @@ export function UsageRecommend() {
         </div>
         <button
           onClick={() => setAnalysis(null)}
-          className="tap-highlight rounded-full p-1 text-stone-400"
-          aria-label="閉じる"
+          className="tap-highlight rounded-full p-2 text-stone-400"
+          aria-label="レコメンドを閉じる"
         >
           <X className="h-4 w-4" />
         </button>
@@ -273,7 +291,9 @@ export function UsageRecommend() {
             if (!showQuestions) trackRecommend('view_list', [], recCount)
             setShowQuestions(!showQuestions)
           }}
-          className="tap-highlight flex w-full items-center justify-between px-4 pb-1"
+          className="tap-highlight flex w-full items-center justify-between px-4 py-2"
+          aria-label={showQuestions ? '問題一覧を閉じる' : '問題一覧と選定理由を表示'}
+          aria-expanded={showQuestions}
         >
           <p className="text-xs font-medium text-stone-600 dark:text-stone-300">問題一覧と選定理由</p>
           {showQuestions ? (
@@ -317,7 +337,8 @@ export function UsageRecommend() {
                 'あなたへのレコメンド'
               )
             }}
-            className="tap-highlight flex w-full items-center justify-center gap-2 rounded-xl bg-claude-orange px-4 py-2.5 text-sm font-medium text-white"
+            className="tap-highlight flex w-full items-center justify-center gap-2 rounded-xl bg-claude-orange px-4 py-3 text-sm font-medium text-white"
+            aria-label={`レコメンドされた${recCount}問のクイズを開始`}
           >
             <Play className="h-4 w-4 fill-white" />
             {recCount}問に挑戦

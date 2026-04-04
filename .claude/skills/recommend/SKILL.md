@@ -168,7 +168,9 @@ data.quizzes
 
 ### Step 5: 出力
 
-以下の形式で `~/.claude-quiz-recommend/latest-recommend.json` を更新する:
+以下の形式で `~/.claude-quiz-recommend/latest-recommend.json` を更新する。
+
+**IMPORTANT:** `reasons` フィールドに問題IDごとの選定理由を含めること。理由にはユーザーの実際のプロンプトを「」で引用し、なぜこの問題が選ばれたかを具体的に書く。
 
 ```bash
 node -e "
@@ -179,6 +181,11 @@ const data = {
   sessionCount: SESSION_COUNT,
   questionCount: IDS.length,
   ids: IDS,
+  reasons: {
+    // 問題IDごとの選定理由（ユーザーのプロンプトを引用）
+    // 例: 'bp-008': '「枠線の統一感」を5回修正指示していた → 修正ループの対処法',
+    // 例: 'ext-015': '型チェック・テスト・ビルドを順次実行していた → 並列化で時短'
+  },
   url: 'https://ip-san.github.io/claude-code-quiz/?ids=' + IDS.join(','),
   topCategories: TOP_CATEGORIES,
   topics: TOPICS,
