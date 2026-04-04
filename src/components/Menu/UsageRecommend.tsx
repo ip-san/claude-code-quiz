@@ -325,9 +325,10 @@ export function UsageRecommend() {
               const { recs, unused } = computeRecommendations(newAnalysis, allQuestions, prevIds)
               setRecommendations(recs)
               setUnusedCategories(unused)
-              // 2. Run AI re-analysis with progress
+              // 2. Clear cache + run AI re-analysis with progress
               setLoading(true)
               startTimer()
+              window.electronAPI?.clearRecommendCache?.()
               window.electronAPI
                 ?.runRecommendSkill?.()
                 .then(async (result) => {

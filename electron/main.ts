@@ -545,6 +545,16 @@ ipcMain.handle('cancel-recommend', (): boolean => {
   return false
 })
 
+ipcMain.handle('clear-recommend-cache', async (): Promise<void> => {
+  try {
+    const { unlink } = await import('fs/promises')
+    await unlink(join(homedir(), '.claude-quiz-recommend', 'latest-recommend.json'))
+    console.log('[recommend] cache cleared')
+  } catch {
+    // File doesn't exist — fine
+  }
+})
+
 ipcMain.handle('show-notification', (_event: unknown, title: string, body: string): void => {
   console.log(`[notification] isSupported=${ElectronNotification.isSupported()}, title="${title}"`)
   if (ElectronNotification.isSupported()) {

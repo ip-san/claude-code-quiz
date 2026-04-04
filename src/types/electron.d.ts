@@ -21,6 +21,7 @@ interface ElectronAPI {
   runRecommendSkill: () => Promise<{ success: boolean; error?: string }>
   isRecommendRunning: () => Promise<boolean>
   cancelRecommend: () => Promise<boolean>
+  clearRecommendCache: () => Promise<void>
   showNotification: (title: string, body: string) => Promise<void>
   setupGlobalHooks: (remove: boolean) => Promise<{ success: boolean; error?: string }>
   checkGlobalHooks: () => Promise<boolean>

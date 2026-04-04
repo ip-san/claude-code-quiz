@@ -124,6 +124,10 @@ const electronAPI = {
     return ipcRenderer.invoke('cancel-recommend')
   },
 
+  clearRecommendCache: (): Promise<void> => {
+    return ipcRenderer.invoke('clear-recommend-cache')
+  },
+
   showNotification: (title: string, body: string): Promise<void> => {
     return ipcRenderer.invoke('show-notification', title, body)
   },
