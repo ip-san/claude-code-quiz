@@ -134,7 +134,7 @@ export function ExplanationReader() {
               </button>
               <h1 className="text-base font-bold text-claude-dark dark:text-stone-200">{locale.reader.title}</h1>
             </div>
-            <span className="text-xs text-stone-400">
+            <span className="text-xs text-stone-500">
               {locale.reader.countLabel(filteredQuestions.length, allQuestions.length)}
             </span>
           </div>

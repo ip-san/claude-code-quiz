@@ -65,11 +65,11 @@ export function SessionHistoryList({ sessions, limit = 10 }: SessionHistoryListP
               className={`flex items-center justify-between px-4 py-2.5 ${isToday ? 'border-l-2 border-green-400 bg-green-50/30' : ''}`}
             >
               <div className="flex items-center gap-3">
-                <span className="text-xs text-stone-400">{formatDate(session.completedAt)}</span>
+                <span className="text-xs text-stone-500">{formatDate(session.completedAt)}</span>
                 <span className="rounded bg-stone-100 px-2 py-0.5 text-xs text-stone-600 dark:bg-stone-700 dark:text-stone-300">
                   {MODE_LABELS[session.mode] ?? session.mode}
                 </span>
-                {session.categoryFilter && <span className="text-xs text-stone-400">{session.categoryFilter}</span>}
+                {session.categoryFilter && <span className="text-xs text-stone-500">{session.categoryFilter}</span>}
               </div>
               <div className="flex items-center gap-2">
                 <span className="text-xs text-stone-500">

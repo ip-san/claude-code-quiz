@@ -81,7 +81,7 @@ export function ScoreRing({ percentage, score, total, color, noMotion }: ScoreRi
       {/* Center text */}
       <div className="absolute flex flex-col items-center">
         <span className="text-3xl font-bold text-claude-dark">{displayScore}</span>
-        <span className="text-sm text-stone-400">/ {total}</span>
+        <span className="text-sm text-stone-500">/ {total}</span>
       </div>
     </div>
   )

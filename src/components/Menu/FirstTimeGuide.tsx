@@ -52,7 +52,7 @@ export function FirstTimeGuide({ onOpenModes }: FirstTimeGuideProps) {
               <p className="text-sm font-semibold text-claude-dark dark:text-stone-200">
                 {locale.firstTimeGuide.readFirstLabel}
               </p>
-              <p className="text-xs text-stone-400">{locale.firstTimeGuide.readFirstDesc}</p>
+              <p className="text-xs text-stone-500">{locale.firstTimeGuide.readFirstDesc}</p>
             </div>
           </button>
         </div>
@@ -71,7 +71,7 @@ export function FirstTimeGuide({ onOpenModes }: FirstTimeGuideProps) {
           <p className="text-sm font-medium text-claude-dark dark:text-stone-200">
             {locale.firstTimeGuide.experiencedLabel}
           </p>
-          <p className="text-xs text-stone-400">{locale.firstTimeGuide.experiencedDesc}</p>
+          <p className="text-xs text-stone-500">{locale.firstTimeGuide.experiencedDesc}</p>
         </div>
         <ChevronRight className="h-4 w-4 text-stone-300 dark:text-stone-600" />
       </button>

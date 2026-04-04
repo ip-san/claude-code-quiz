@@ -119,7 +119,7 @@ export function DailySnapshot({ onDismiss }: DailySnapshotProps) {
         )}
         {snapshot.forecast.length > 0 && (
           <div className="mt-1 flex flex-wrap gap-x-3 gap-y-0.5">
-            <span className="text-xs text-stone-400">📅 復習予定:</span>
+            <span className="text-xs text-stone-500">📅 復習予定:</span>
             {snapshot.forecast.slice(0, 4).map((f) => (
               <span key={f.label} className="text-xs text-stone-500 dark:text-stone-400">
                 {f.label} <strong>{f.count}問</strong>

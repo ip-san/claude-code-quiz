@@ -62,7 +62,7 @@ export function CycleDiagram({ label, trigger, states }: CycleDiagramProps) {
             >
               <div className="text-[11px] font-semibold text-claude-dark">{state.text}</div>
               {state.sub && (
-                <div className="max-w-[80px] text-[9px] text-stone-400 dark:text-stone-500">{state.sub}</div>
+                <div className="max-w-[80px] text-[9px] text-stone-500 dark:text-stone-500">{state.sub}</div>
               )}
             </div>
           </div>
@@ -87,7 +87,7 @@ export function CycleDiagram({ label, trigger, states }: CycleDiagramProps) {
       </div>
 
       {trigger && (
-        <p className="mt-1 text-center text-[10px] text-stone-400 dark:text-stone-500">
+        <p className="mt-1 text-center text-[10px] text-stone-500 dark:text-stone-500">
           <code className="rounded bg-stone-100 px-1 py-0.5 font-mono text-stone-600 dark:bg-stone-700 dark:text-stone-300">
             {trigger}
           </code>{' '}

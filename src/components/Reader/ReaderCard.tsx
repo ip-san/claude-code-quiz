@@ -73,7 +73,7 @@ export function ReaderCard({ question, isExpanded, onToggle, userProgress, onTog
                 haptics.light()
                 onToggleBookmark(question.id)
               }}
-              className="inline-flex items-center gap-1 text-xs text-stone-400"
+              className="inline-flex items-center gap-1 text-xs text-stone-500"
             >
               <Bookmark className={`h-3 w-3 ${isBookmarked ? 'fill-yellow-500 text-yellow-500' : ''}`} />
               {isBookmarked ? locale.reader.bookmarked : locale.quizCard.bookmark}

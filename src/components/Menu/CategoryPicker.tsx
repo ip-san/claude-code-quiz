@@ -94,7 +94,7 @@ export function CategoryPicker({ onClose, mode = 'category', title }: CategoryPi
                       const catPct = catTotal > 0 ? Math.round((catAnswered / catTotal) * 100) : 0
                       return (
                         <div className="mt-1">
-                          <div className="flex justify-between text-[10px] text-stone-400">
+                          <div className="flex justify-between text-[10px] text-stone-500">
                             <span>
                               {catAnswered}/{catTotal}問
                             </span>

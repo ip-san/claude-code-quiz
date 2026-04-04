@@ -83,7 +83,7 @@ export function ChapterIntro({ chapter, onStart }: ChapterIntroProps) {
       )}
 
       {/* Encouragement message */}
-      {details && <p className="text-center text-xs text-stone-400 dark:text-stone-500">{details.encouragement}</p>}
+      {details && <p className="text-center text-xs text-stone-500 dark:text-stone-500">{details.encouragement}</p>}
 
       {/* Start button */}
       <div className="pt-2 text-center">

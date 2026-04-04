@@ -60,7 +60,7 @@ export function HierarchyDiagram({ label, items }: HierarchyDiagramProps) {
                 <span className={`text-xs font-semibold ${i === 0 ? 'text-claude-orange' : color.text}`}>
                   {item.text}
                 </span>
-                {item.sub && <span className="ml-1.5 text-[10px] text-stone-400 dark:text-stone-500">{item.sub}</span>}
+                {item.sub && <span className="ml-1.5 text-[10px] text-stone-500 dark:text-stone-500">{item.sub}</span>}
               </div>
             </div>
           )
@@ -68,7 +68,7 @@ export function HierarchyDiagram({ label, items }: HierarchyDiagramProps) {
       </div>
       {/* Priority indicator */}
       <div
-        className="mt-1.5 flex items-center justify-between text-[10px] text-stone-400 dark:text-stone-500"
+        className="mt-1.5 flex items-center justify-between text-[10px] text-stone-500 dark:text-stone-500"
         aria-hidden="true"
       >
         <span>▲ 高優先</span>

@@ -167,7 +167,7 @@ export function ScenarioList({ onSelect }: { onSelect: (scenarioId: string) => v
                 <span className={`rounded-full px-2 py-0.5 text-xs font-medium ${difficultyColors[sc.difficulty]}`}>
                   {locale.scenario.difficultyLabels[sc.difficulty]}
                 </span>
-                <span className="text-xs text-stone-400">
+                <span className="text-xs text-stone-500">
                   {locale.scenario.questionStats(validIds.length, answeredCount)}
                 </span>
               </div>

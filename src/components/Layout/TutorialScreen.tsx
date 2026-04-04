@@ -121,7 +121,7 @@ function SlideVisual({ type }: { type: SlideData['visualType'] }) {
               </div>
               <div>
                 <p className="text-sm font-semibold text-claude-dark dark:text-stone-200">{item.label}</p>
-                <p className="text-xs text-stone-400">{item.desc}</p>
+                <p className="text-xs text-stone-500">{item.desc}</p>
               </div>
             </div>
           ))}
@@ -168,7 +168,7 @@ export function TutorialScreen({ onComplete }: TutorialScreenProps) {
             trackTutorial('skip', currentSlide)
             onComplete('skip')
           }}
-          className="tap-highlight flex items-center gap-1 rounded-full px-3 py-1.5 text-xs font-medium text-stone-400 hover:text-stone-600 dark:hover:text-stone-300"
+          className="tap-highlight flex items-center gap-1 rounded-full px-3 py-1.5 text-xs font-medium text-stone-500 hover:text-stone-600 dark:hover:text-stone-300"
         >
           {locale.tutorial.skip}
           <ChevronRight className="h-3 w-3" />
@@ -188,7 +188,7 @@ export function TutorialScreen({ onComplete }: TutorialScreenProps) {
           <div className="mb-2">
             <SlideVisual type={slide.visualType} />
           </div>
-          {slide.tip && <p className="text-center text-xs text-stone-400 dark:text-stone-500">💡 {slide.tip}</p>}
+          {slide.tip && <p className="text-center text-xs text-stone-500 dark:text-stone-500">💡 {slide.tip}</p>}
         </div>
       </div>
 

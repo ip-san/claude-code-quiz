@@ -101,7 +101,7 @@ export function KeyboardShortcutHelp({ isOpen, onClose }: KeyboardShortcutHelpPr
               return (
                 <div
                   key={i}
-                  className={`${i > 0 ? 'mt-3' : ''} text-xs font-semibold uppercase tracking-wider text-stone-400`}
+                  className={`${i > 0 ? 'mt-3' : ''} text-xs font-semibold uppercase tracking-wider text-stone-500`}
                 >
                   {item.section}
                 </div>
@@ -130,7 +130,7 @@ export function KeyboardShortcutHelp({ isOpen, onClose }: KeyboardShortcutHelpPr
           })}
         </div>
 
-        <div className="mt-4 text-center text-xs text-stone-400">
+        <div className="mt-4 text-center text-xs text-stone-500">
           <kbd className="rounded border border-stone-300 bg-stone-50 px-1.5 py-0.5 text-xs dark:border-stone-600 dark:bg-stone-700">
             ?
           </kbd>{' '}

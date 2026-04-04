@@ -92,7 +92,7 @@ export function StudyFirstView({ allQuestions, userProgress, onBack, onStartQuiz
             </button>
             <div>
               <h1 className="text-lg font-bold text-claude-dark dark:text-stone-100">{locale.studyFirst.title}</h1>
-              <p className="text-xs text-stone-400">{locale.studyFirst.subtitle}</p>
+              <p className="text-xs text-stone-500">{locale.studyFirst.subtitle}</p>
             </div>
           </div>
         </div>
@@ -134,8 +134,8 @@ export function StudyFirstView({ allQuestions, userProgress, onBack, onStartQuiz
                   {ch.answered === ch.total && ch.total > 0 && <span className="text-xs">✅</span>}
                 </div>
                 <p className="text-sm font-semibold text-claude-dark dark:text-stone-200">{ch.name}</p>
-                <p className="text-xs text-stone-400">{ch.subtitle}</p>
-                <p className="mt-1 text-xs text-stone-400">
+                <p className="text-xs text-stone-500">{ch.subtitle}</p>
+                <p className="mt-1 text-xs text-stone-500">
                   {ch.total}
                   {locale.common.questionSuffix}
                 </p>
@@ -265,7 +265,7 @@ function ReadyToQuiz({
         <p className="mb-1 text-sm text-stone-500">
           {chapter.icon} Ch.{chapter.id}: {chapter.name}
         </p>
-        <p className="mb-6 text-xs text-stone-400">{locale.studyFirst.readingDoneBody(questionCount)}</p>
+        <p className="mb-6 text-xs text-stone-500">{locale.studyFirst.readingDoneBody(questionCount)}</p>
 
         <div className="space-y-3">
           <button

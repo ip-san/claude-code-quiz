@@ -270,7 +270,7 @@ export function ProgressDashboard() {
                           >
                             {progress}%
                           </span>
-                          <span className="text-xs text-stone-400">
+                          <span className="text-xs text-stone-500">
                             {attempted}/{total}
                           </span>
                         </div>

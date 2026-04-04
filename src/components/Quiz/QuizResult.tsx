@@ -169,7 +169,7 @@ export function QuizResult() {
 
         {/* Personal best + review mode note */}
         <PersonalBest sessionHistory={userProgress.sessionHistory} currentPercentage={percentage} />
-        {isReviewMode && <p className="mb-4 text-xs text-stone-400">復習モード — スコア非反映</p>}
+        {isReviewMode && <p className="mb-4 text-xs text-stone-500">復習モード — スコア非反映</p>}
 
         {/* Category breakthrough badges */}
         {showStars && !isReviewMode && sessionState && (
@@ -334,7 +334,7 @@ export function QuizResult() {
                     <div className="mt-6 rounded-2xl border border-green-300 bg-green-50 p-4 text-left dark:border-green-500/30 dark:bg-green-500/10">
                       <p className="mb-1 text-xs font-semibold text-green-600 dark:text-green-400">明日やること</p>
                       <p className="mb-3 text-sm text-claude-dark">{actionItem}</p>
-                      <p className="text-xs text-stone-400">
+                      <p className="text-xs text-stone-500">
                         知識を行動に変えるのは、今です。小さな一歩が未来を変えます。
                       </p>
                     </div>

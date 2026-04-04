@@ -65,7 +65,7 @@ export function FlowDiagram({ label, steps }: FlowDiagramProps) {
                 </span>
                 <div className="flex-1">
                   <div className="text-xs font-medium text-claude-dark">{step.text}</div>
-                  {step.sub && <div className="text-[10px] text-stone-400 dark:text-stone-500">{step.sub}</div>}
+                  {step.sub && <div className="text-[10px] text-stone-500 dark:text-stone-500">{step.sub}</div>}
                 </div>
               </div>
             </div>

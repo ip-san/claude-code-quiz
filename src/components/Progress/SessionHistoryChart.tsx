@@ -104,7 +104,7 @@ export function SessionHistoryChart({ sessions }: SessionHistoryChartProps) {
           </circle>
         ))}
       </svg>
-      <div className="mt-1 flex items-center justify-between text-xs text-stone-400">
+      <div className="mt-1 flex items-center justify-between text-xs text-stone-500">
         <span>過去</span>
         <span className="flex items-center gap-1">
           <span

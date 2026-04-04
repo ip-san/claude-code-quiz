@@ -109,7 +109,7 @@ export function QuickActions({ allQuestions, userProgress, onStart }: QuickActio
           >
             <span className="text-xl">{action.icon}</span>
             <span className="text-xs font-semibold text-claude-dark dark:text-stone-200">{action.label}</span>
-            <span className="text-[10px] text-stone-400">{action.sublabel}</span>
+            <span className="text-[10px] text-stone-500">{action.sublabel}</span>
           </button>
         ))}
       </div>

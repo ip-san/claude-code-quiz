@@ -386,7 +386,7 @@ export function QuizCard({
               href={quiz.referenceUrl}
               target="_blank"
               rel="noopener noreferrer"
-              className="inline-flex items-center gap-1 text-xs text-stone-400 hover:text-claude-orange"
+              className="inline-flex items-center gap-1 text-xs text-stone-500 hover:text-claude-orange"
             >
               <ExternalLink className="h-3 w-3" />
               公式ドキュメントで詳しく調べる

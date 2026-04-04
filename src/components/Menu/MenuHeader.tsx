@@ -258,7 +258,7 @@ export function MenuHeader({
                         <span className="text-sm">{mode.icon}</span>
                         <div className="flex-1">
                           <span className="text-sm text-claude-dark dark:text-stone-200">{mode.name}</span>
-                          <p className="text-[10px] text-stone-400">{mode.description}</p>
+                          <p className="text-[10px] text-stone-500">{mode.description}</p>
                         </div>
                       </button>
                     ))}
@@ -380,7 +380,7 @@ export function MenuHeader({
             {/* Footer */}
             {hasProgress && streak > 0 && (
               <div className="border-t border-stone-200 px-4 py-3 dark:border-stone-700">
-                <p className="text-xs text-stone-400">
+                <p className="text-xs text-stone-500">
                   {locale.menuHeader.streakFooter(streak, todayCount, dailyGoal)}
                 </p>
               </div>
@@ -403,7 +403,7 @@ function MenuSection({ children, title }: { children: React.ReactNode; title?: s
   return (
     <div className="border-b border-stone-100 py-2 dark:border-stone-800">
       {title && (
-        <p className="px-4 pb-1 pt-2 text-[10px] font-bold uppercase tracking-wider text-stone-400 dark:text-stone-500">
+        <p className="px-4 pb-1 pt-2 text-[10px] font-bold uppercase tracking-wider text-stone-500 dark:text-stone-500">
           {title}
         </p>
       )}

@@ -52,7 +52,7 @@ export function QuizSearch() {
         <div className="flex items-center justify-between border-b border-stone-200 px-4 py-3 dark:border-stone-700">
           <div>
             <h2 className="text-sm font-bold text-claude-dark dark:text-stone-200">「{query}」の検索結果</h2>
-            <p className="text-xs text-stone-400">{allResults.length}件</p>
+            <p className="text-xs text-stone-500">{allResults.length}件</p>
           </div>
           <div className="flex items-center gap-2">
             <button
@@ -127,7 +127,7 @@ export function QuizSearch() {
                           haptics.light()
                           toggleBookmark(r.id)
                         }}
-                        className="inline-flex items-center gap-1 text-xs text-stone-400"
+                        className="inline-flex items-center gap-1 text-xs text-stone-500"
                       >
                         <Bookmark
                           className={`h-3 w-3 ${userProgress.isBookmarked(r.id) ? 'fill-yellow-500 text-yellow-500' : ''}`}
@@ -232,7 +232,7 @@ export function QuizSearch() {
             <>
               {/* Header */}
               <div className="flex items-center justify-between border-b border-stone-100 px-4 py-2.5 dark:border-stone-700">
-                <span className="text-xs text-stone-400">{allResults.length}件</span>
+                <span className="text-xs text-stone-500">{allResults.length}件</span>
                 <button
                   onClick={() => {
                     haptics.light()
@@ -297,7 +297,7 @@ export function QuizSearch() {
                                 haptics.light()
                                 toggleBookmark(r.id)
                               }}
-                              className="inline-flex items-center gap-1 text-xs text-stone-400"
+                              className="inline-flex items-center gap-1 text-xs text-stone-500"
                             >
                               <Bookmark
                                 className={`h-3 w-3 ${userProgress.isBookmarked(r.id) ? 'fill-yellow-500 text-yellow-500' : ''}`}

@@ -34,7 +34,7 @@ test.describe('Accessibility (axe-core)', () => {
     expect(results.violations).toEqual([])
   })
 
-  test('menu screen has no a11y violations (excluding known color-contrast)', async ({ page }) => {
+  test('menu screen has no a11y violations (color-contrast partially fixed)', async ({ page }) => {
     await goToMenu(page)
     const results = await new AxeBuilder({ page })
       .withTags(['wcag2a', 'wcag2aa', 'wcag21aa'])

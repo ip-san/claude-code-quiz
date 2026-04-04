@@ -66,7 +66,7 @@ export function TeamShareGuide({ percentage, mode }: TeamShareGuideProps) {
         )}
       </button>
 
-      <p className="mt-2 text-center text-xs text-stone-400">Slack やメールにそのまま貼り付けられます</p>
+      <p className="mt-2 text-center text-xs text-stone-500">Slack やメールにそのまま貼り付けられます</p>
     </div>
   )
 }

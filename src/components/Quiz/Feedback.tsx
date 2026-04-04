@@ -394,7 +394,7 @@ export function Feedback({ quiz, isCorrect }: FeedbackProps) {
               <Icon className="mt-0.5 h-4 w-4 flex-shrink-0 text-blue-400" aria-hidden="true" />
               <div>
                 <p className="text-sm font-medium text-claude-dark">{label}</p>
-                <p className="text-[11px] text-stone-400 dark:text-stone-500">{description}</p>
+                <p className="text-[11px] text-stone-500 dark:text-stone-500">{description}</p>
               </div>
             </button>
           ))}

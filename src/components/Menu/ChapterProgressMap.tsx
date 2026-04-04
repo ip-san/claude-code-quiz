@@ -73,7 +73,7 @@ export function ChapterProgressMap({ allQuestions, userProgress, onStartChapter 
                   style={{ width: `${progressPct}%` }}
                 />
               </div>
-              <div className="flex items-center justify-between text-[10px] text-stone-400">
+              <div className="flex items-center justify-between text-[10px] text-stone-500">
                 <span>
                   {ch.answered}/{ch.total}問
                 </span>

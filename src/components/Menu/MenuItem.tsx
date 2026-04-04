@@ -23,7 +23,7 @@ export function MenuItem({ icon, label, sublabel, onClick, disabled }: MenuItemP
       <span className={disabled ? 'opacity-40' : 'text-stone-400'}>{icon}</span>
       <div className="flex-1">
         <span className="font-medium">{label}</span>
-        {sublabel && <p className="text-xs text-stone-400">{sublabel}</p>}
+        {sublabel && <p className="text-xs text-stone-500">{sublabel}</p>}
       </div>
     </button>
   )

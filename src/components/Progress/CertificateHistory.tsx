@@ -92,7 +92,7 @@ export function CertificateHistory({ sessionHistory, masteryIndex, overallAccura
           <Award className="h-6 w-6 text-stone-300 dark:text-stone-600" />
           <div>
             <p className="text-sm font-medium text-stone-500">修了証はまだありません</p>
-            <p className="text-xs text-stone-400">
+            <p className="text-xs text-stone-500">
               AI活用レベルが学習者以上に到達、または全体像モード 70%+ / 実力テスト 80%+ で発行されます
             </p>
           </div>
@@ -123,7 +123,7 @@ export function CertificateHistory({ sessionHistory, masteryIndex, overallAccura
               <p className={`text-sm font-bold ${cert.color}`}>{cert.title}</p>
               <p className="text-xs text-stone-500">{cert.description}</p>
             </div>
-            {cert.date && <p className="mr-1 text-xs text-stone-400 shrink-0">{cert.date}</p>}
+            {cert.date && <p className="mr-1 text-xs text-stone-500 shrink-0">{cert.date}</p>}
             <button
               onClick={() => handleDownload(cert)}
               className="tap-highlight shrink-0 rounded-full p-2 text-stone-400 hover:text-claude-orange"

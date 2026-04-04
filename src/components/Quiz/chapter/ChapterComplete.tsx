@@ -32,7 +32,7 @@ export function ChapterComplete({ chapter, score, total, onContinue, onQuit, isL
             <Trophy className="h-4 w-4 text-claude-orange" />
             <span className="text-2xl font-bold text-claude-dark dark:text-white">{percentage}%</span>
           </div>
-          <span className="text-sm text-stone-400">
+          <span className="text-sm text-stone-500">
             {score}/{total}問正解
           </span>
         </div>

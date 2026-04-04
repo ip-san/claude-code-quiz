@@ -130,7 +130,7 @@ export function CategoryTrendChart({ sessions }: CategoryTrendChartProps) {
       </div>
 
       {categoryLines.length === 0 ? (
-        <p className="py-4 text-center text-xs text-stone-400">選択したカテゴリにはまだ十分なデータがありません</p>
+        <p className="py-4 text-center text-xs text-stone-500">選択したカテゴリにはまだ十分なデータがありません</p>
       ) : (
         <>
           <svg
@@ -192,7 +192,7 @@ export function CategoryTrendChart({ sessions }: CategoryTrendChartProps) {
               )
             })}
           </svg>
-          <div className="mt-1 flex items-center justify-between text-xs text-stone-400">
+          <div className="mt-1 flex items-center justify-between text-xs text-stone-500">
             <span>過去</span>
             <span>最新</span>
           </div>

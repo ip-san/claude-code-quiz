@@ -73,7 +73,7 @@ export function ModeSelection() {
                 <span className="text-sm font-medium text-claude-dark dark:text-stone-200">
                   {locale.menuHeader.quizModesButton}
                 </span>
-                <p className="text-xs text-stone-400">{locale.menuHeader.quizModesDesc}</p>
+                <p className="text-xs text-stone-500">{locale.menuHeader.quizModesDesc}</p>
               </div>
               <ChevronRight className="h-4 w-4 text-stone-300 dark:text-stone-600" />
             </button>
