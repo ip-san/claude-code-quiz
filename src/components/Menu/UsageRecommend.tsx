@@ -526,7 +526,7 @@ const CATEGORY_REASONS: Record<string, { used: string; unused: string }> = {
   },
 }
 
-function groupByCategory(
+export function groupByCategory(
   recs: RecommendedQuestion[]
 ): { category: string; reason: string; questions: RecommendedQuestion[] }[] {
   const groups = new Map<string, { reason: string; questions: RecommendedQuestion[] }>()
@@ -553,14 +553,14 @@ const CATEGORY_TERMS: Record<string, string[]> = {
 }
 
 /** Find ALL matching prompts for a category, shuffled */
-function findRelatedPrompts(prompts: string[], category: string): string[] {
+export function findRelatedPrompts(prompts: string[], category: string): string[] {
   const terms = CATEGORY_TERMS[category] ?? []
   return prompts
     .filter((p) => p.length > 10 && terms.some((t) => p.toLowerCase().includes(t.toLowerCase())))
     .sort(() => Math.random() - 0.5)
 }
 
-function computeRecommendations(
+export function computeRecommendations(
   analysis: AnalysisResult,
   allQuestions: Question[],
   excludeIds?: Set<string>
