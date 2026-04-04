@@ -189,6 +189,9 @@ const data = {
   url: 'https://ip-san.github.io/claude-code-quiz/?ids=' + IDS.join(','),
   topCategories: TOP_CATEGORIES,
   topics: TOPICS,
+  // 全セッションからユニークで意味のあるプロンプトを最大30件
+  // docker/npm/bun/git/tail/sleep 等のコマンドは除外
+  // update_content 等の短い定型プロンプトも除外
   promptSamples: PROMPT_SAMPLES
 };
 fs.writeFileSync(

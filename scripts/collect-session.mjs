@@ -291,9 +291,12 @@ for (let d = 0; d < ROLLING_DAYS; d++) {
     const weight = d === 0 ? 1.0 : 0.7 - d * 0.08 // today=1.0, yesterday=0.62, 2d=0.54...
     rollingCache.days.push(dateStr)
     rollingCache.sessionCount += dayData.sessions.length
-    // Prompts: more recent = more entries
-    const maxPrompts = d === 0 ? 20 : Math.max(5, 15 - d * 2)
-    rollingCache.prompts.push(...(dayData.merged.promptSamples || []).slice(-maxPrompts))
+    // Prompts: collect from individual sessions (merged loses too many)
+    for (const sess of dayData.sessions) {
+      if (sess.promptSamples?.length > 0) {
+        rollingCache.prompts.push(...sess.promptSamples)
+      }
+    }
     // Collect conversation flows (ordered prompts per session)
     for (const sess of dayData.sessions) {
       if (sess.conversations && sess.conversations.length > 0) {
@@ -330,8 +333,8 @@ writeFileSync(
       days: rollingCache.days,
       sessionCount: rollingCache.sessionCount,
       promptCount: rollingCache.prompts.length,
-      prompts: rollingCache.prompts.slice(-50),
-      conversationFlows: rollingCache.conversationFlows.slice(-10),
+      prompts: [...new Set(rollingCache.prompts)].slice(-100),
+      conversationFlows: rollingCache.conversationFlows.slice(-15),
       topics: rollingTopics.slice(0, 10),
       categoryScores: rollingCache.categoryScores,
     },
