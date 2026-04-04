@@ -496,17 +496,10 @@ ipcMain.handle('run-recommend-skill', async (): Promise<{ success: boolean; erro
       })
       recommendProc = proc
       let stderr = ''
-      let stdout = ''
-      proc.stdout?.on('data', (d: Buffer) => {
-        stdout += d.toString()
-      })
       proc.stderr?.on('data', (d: Buffer) => {
         stderr += d.toString()
       })
       proc.on('close', (code) => {
-        console.log(`[recommend] claude exited with code ${code}`)
-        if (stdout.trim()) console.log(`[recommend] stdout: ${stdout.slice(0, 200)}`)
-        if (stderr.trim()) console.log(`[recommend] stderr: ${stderr.slice(0, 200)}`)
         if (proc === recommendProc) recommendProc = null
         if (code === 0) resolve()
         else if (code === 143 || code === null) reject(new Error('タイムアウトしました。もう一度お試しください。'))
@@ -549,21 +542,17 @@ ipcMain.handle('clear-recommend-cache', async (): Promise<void> => {
   try {
     const { unlink } = await import('fs/promises')
     await unlink(join(homedir(), '.claude-quiz-recommend', 'latest-recommend.json'))
-    console.log('[recommend] cache cleared')
   } catch {
     // File doesn't exist — fine
   }
 })
 
 ipcMain.handle('show-notification', (_event: unknown, title: string, body: string): void => {
-  console.log(`[notification] isSupported=${ElectronNotification.isSupported()}, title="${title}"`)
   if (ElectronNotification.isSupported()) {
-    const n = new ElectronNotification({ title, body })
-    n.show()
-    console.log('[notification] shown')
-  } else {
-    console.log('[notification] NOT supported')
+    new ElectronNotification({ title, body, silent: false }).show()
   }
+  // System beep as fallback (macOS notification center may suppress Electron notifications)
+  shell.beep()
 })
 
 // ============================================================
@@ -663,13 +652,23 @@ ipcMain.handle(
     promptSamples: string[]
   } | null> => {
     try {
-      const filePath = join(homedir(), '.claude-quiz-recommend', 'latest-recommend.json')
+      const storeDir = join(homedir(), '.claude-quiz-recommend')
+      const filePath = join(storeDir, 'latest-recommend.json')
       const content = readFileSync(filePath, 'utf8')
       const data = JSON.parse(content)
       // Return if within last 7 days
       const dataDate = new Date(data.date).getTime()
       const sevenDaysAgo = Date.now() - 7 * 24 * 60 * 60 * 1000
       if (dataDate < sevenDaysAgo) return null
+      // Enrich promptSamples from rolling-7d.json (has more variety)
+      try {
+        const rolling = JSON.parse(readFileSync(join(storeDir, 'rolling-7d.json'), 'utf8'))
+        if (rolling.prompts?.length > 0) {
+          data.promptSamples = rolling.prompts
+        }
+      } catch {
+        /* rolling not available — use recommend's own samples */
+      }
       return data
     } catch {
       return null
