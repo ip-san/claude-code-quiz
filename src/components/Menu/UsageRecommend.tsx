@@ -292,38 +292,13 @@ export function UsageRecommend() {
       {/* Error message */}
       {aiError && <p className="mx-4 mb-2 text-xs text-red-500 dark:text-red-400">{aiError}</p>}
 
-      {/* Your prompts */}
-      {analysis.promptSamples.length > 0 && (
-        <div className="mx-4 mb-2 rounded-lg bg-stone-50 p-3 dark:bg-stone-900/50">
-          <p className="mb-1.5 text-[10px] font-medium uppercase tracking-wider text-stone-400">
-            あなたが入力したプロンプト
-          </p>
-          {analysis.promptSamples.slice(0, 4).map((p: string, i: number) => (
-            <p
-              key={i}
-              className="truncate border-l-2 border-claude-orange/40 py-0.5 pl-2 text-xs text-stone-600 dark:border-claude-orange/30 dark:text-stone-300"
-            >
-              {p}
-            </p>
-          ))}
-          {analysis.sessionCount > 1 && (
-            <p className="mt-1.5 text-[10px] text-stone-400">{analysis.sessionCount}個のセッションから分析</p>
-          )}
-        </div>
-      )}
-
-      {/* Topics */}
-      {topTopics.length > 0 && (
-        <div className="flex flex-wrap gap-1.5 px-4 pb-2">
-          {topTopics.map((t: { topic: string; hits: number }) => (
-            <span
-              key={t.topic}
-              className="rounded-full bg-stone-100 px-2.5 py-0.5 text-xs text-stone-600 dark:bg-stone-700 dark:text-stone-300"
-            >
-              {t.topic}
-            </span>
-          ))}
-        </div>
+      {/* Work summary — connects analysis to action */}
+      {(topTopics.length > 0 || analysis.sessionCount > 1) && (
+        <p className="px-4 pb-2 text-xs text-stone-500 dark:text-stone-400">
+          {analysis.sessionCount > 1 ? `${analysis.sessionCount}セッションの作業から` : '直近の作業から'}
+          {topTopics.length > 0 && `「${topTopics.map((t: { topic: string }) => t.topic).join('・')}」に関連する`}
+          問題を選びました
+        </p>
       )}
 
       {/* Discovery suggestion */}
