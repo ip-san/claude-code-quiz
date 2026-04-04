@@ -217,11 +217,14 @@ export function UsageRecommend() {
             onClick={async () => {
               if (!window.electronAPI || loading) return
               setLoading(true)
+              setAiError(null)
               haptics.light()
               const result = await window.electronAPI.runRecommendSkill()
               if (result.success) {
                 await loadFromCache()
                 haptics.medium()
+              } else {
+                setAiError(result.error ?? '再生成に失敗しました')
               }
               setLoading(false)
             }}
@@ -240,6 +243,9 @@ export function UsageRecommend() {
           </button>
         </div>
       </div>
+
+      {/* Error message */}
+      {aiError && <p className="mx-4 mb-2 text-xs text-red-500 dark:text-red-400">{aiError}</p>}
 
       {/* Your prompts */}
       {analysis.promptSamples.length > 0 && (
