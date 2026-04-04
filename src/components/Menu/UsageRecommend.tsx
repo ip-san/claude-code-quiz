@@ -292,13 +292,23 @@ export function UsageRecommend() {
       {/* Error message */}
       {aiError && <p className="mx-4 mb-2 text-xs text-red-500 dark:text-red-400">{aiError}</p>}
 
-      {/* Work summary — connects analysis to action */}
-      {(topTopics.length > 0 || analysis.sessionCount > 1) && (
-        <p className="px-4 pb-2 text-xs text-stone-500 dark:text-stone-400">
-          {analysis.sessionCount > 1 ? `${analysis.sessionCount}セッションの作業から` : '直近の作業から'}
-          {topTopics.length > 0 && `「${topTopics.map((t: { topic: string }) => t.topic).join('・')}」に関連する`}
-          問題を選びました
-        </p>
+      {/* Work context → reason flow */}
+      {analysis.promptSamples.length > 0 && (
+        <div className="mx-4 mb-2 rounded-lg bg-stone-50 px-3 py-2.5 dark:bg-stone-900/50">
+          <p className="mb-1.5 text-[11px] font-medium text-stone-600 dark:text-stone-300">
+            {analysis.sessionCount > 1 ? `${analysis.sessionCount}セッション` : '直近のセッション'}での作業
+          </p>
+          {analysis.promptSamples.slice(0, 3).map((p: string, i: number) => (
+            <p key={i} className="truncate py-0.5 text-xs text-stone-500 dark:text-stone-400">
+              &gt; {p}
+            </p>
+          ))}
+          {topTopics.length > 0 && (
+            <p className="mt-2 text-[11px] text-claude-orange">
+              → {topTopics.map((t: { topic: string }) => t.topic).join('・')}に関連する問題を選定
+            </p>
+          )}
+        </div>
       )}
 
       {/* Discovery suggestion */}
