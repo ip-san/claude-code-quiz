@@ -46,6 +46,13 @@ let mainWindow: BrowserWindow | null = null
 // app.isPackaged が最も信頼性の高い判定方法
 const isDev = !app.isPackaged
 
+// 開発時のみ: CSP 警告を抑制（webRequest で CSP ヘッダーを設定済みだが、
+// Electron 内部の sandbox_bundle チェックが先に走るため警告が出る。
+// 本番ビルドでは自動的に表示されない）
+if (isDev) {
+  process.env.ELECTRON_DISABLE_SECURITY_WARNINGS = 'true'
+}
+
 function createWindow(): void {
   // アプリのルートパス（開発時は __dirname から、本番時は app.getAppPath() から）
   const appRoot = isDev ? join(__dirname, '..') : app.getAppPath()
