@@ -1,6 +1,7 @@
-import { ArrowRight, GraduationCap, Sparkles, TrendingUp } from 'lucide-react'
+import { ArrowRight, GraduationCap, Play, Sparkles, TrendingUp } from 'lucide-react'
 import { AppLogo } from '@/components/Layout/AppLogo'
 import { getSubtitle, theme } from '@/config/theme'
+import { haptics } from '@/lib/haptics'
 import { hasSeenFlag, setSeenFlag } from '@/lib/storage'
 import { useQuizStore } from '@/stores/quizStore'
 
@@ -20,10 +21,27 @@ const FEATURE_ICONS = [Sparkles, GraduationCap, TrendingUp] as const
  */
 export function WelcomeScreen({ onComplete }: WelcomeScreenProps) {
   const questionCount = useQuizStore((s) => s.allQuestions.length)
+  const allQuestions = useQuizStore((s) => s.allQuestions)
+  const startSessionWithIds = useQuizStore((s) => s.startSessionWithIds)
 
   const handleStart = () => {
     setSeenFlag(WELCOME_KEY)
     onComplete()
+  }
+
+  const handleTryOne = () => {
+    setSeenFlag(WELCOME_KEY)
+    haptics.light()
+    // Pick one random beginner question for instant value
+    const beginners = allQuestions.filter((q) => q.difficulty === 'beginner')
+    const pick = beginners[Math.floor(Math.random() * beginners.length)]
+    if (pick) {
+      onComplete()
+      // Start session after navigation completes
+      setTimeout(() => startSessionWithIds([pick.id], '今すぐ1問'), 100)
+    } else {
+      onComplete()
+    }
   }
 
   return (
@@ -68,7 +86,13 @@ export function WelcomeScreen({ onComplete }: WelcomeScreenProps) {
           <span>はじめる</span>
           <ArrowRight className="h-5 w-5" />
         </button>
-        <p className="mt-2 text-center text-xs text-stone-500">約5分</p>
+        <button
+          onClick={handleTryOne}
+          className="tap-highlight mt-3 inline-flex w-full items-center justify-center gap-1.5 rounded-2xl border border-stone-200 bg-white px-6 py-2.5 text-sm font-medium text-claude-dark dark:border-stone-700 dark:bg-stone-800"
+        >
+          <Play className="h-3.5 w-3.5 fill-claude-orange text-claude-orange" />
+          今すぐ1問だけ試す
+        </button>
       </div>
     </div>
   )
