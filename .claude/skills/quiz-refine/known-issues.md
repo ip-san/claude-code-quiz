@@ -180,7 +180,7 @@ v4.43.0 以前の known-issues では「exit code 2 の一般ルールで UserPr
 ## 存在しないスラッシュコマンド・機能の混同
 
 - `/summarize` はスラッシュコマンドとして存在しない。要約機能は `/rewind` メニュー内の「Summarize from here」オプションに統合済み
-- `CLAUDE_CODE_SIMPLE=1`: minimal prompt、Bash/file のみ、MCP/hooks/CLAUDE.md 無効。quiz で通常モードの機能として記述しないこと
+- `CLAUDE_CODE_SIMPLE=1`: minimal prompt、Bash/file のみ、MCP/hooks/CLAUDE.md 無効。ただし **`--mcp-config` 経由の MCP ツールは利用可能**（MEMORY confirmed）。quiz で通常モードの機能として記述しないこと
 
 ## UI 機能の名前混同
 

@@ -199,7 +199,12 @@ export function UsageRecommend() {
             >
               <span className="text-lg">{result.scenario.icon}</span>
               <div className="min-w-0 flex-1">
-                <p className="text-xs font-medium text-claude-dark dark:text-stone-200">{result.scenario.title}</p>
+                <p className="flex items-center gap-1.5 text-xs font-medium text-claude-dark dark:text-stone-200">
+                  {result.scenario.title}
+                  <span className="rounded-full bg-claude-orange/15 px-1.5 py-px text-[10px] font-semibold text-claude-orange dark:bg-claude-orange/20">
+                    実践シナリオ
+                  </span>
+                </p>
                 <p className="truncate text-[11px] text-stone-500 dark:text-stone-400">{result.reason}</p>
               </div>
               <Play className="h-3.5 w-3.5 flex-shrink-0 fill-claude-orange text-claude-orange" />
