@@ -301,24 +301,22 @@ export function UsageRecommend() {
         </div>
       )}
 
-      {/* Question list — grouped by category with shared reason */}
+      {/* Selection details — grouped by category with shared reason */}
       {recCount > 0 && (
         <button
           onClick={() => {
             if (!showQuestions) trackRecommend('view_list', [], recCount)
             setShowQuestions(!showQuestions)
           }}
-          className="tap-highlight flex w-full items-center justify-between px-4 py-2"
-          aria-label={showQuestions ? '選定内容を閉じる' : '選定内容を表示'}
+          className="tap-highlight mx-4 mb-2 flex w-[calc(100%-2rem)] items-center justify-center gap-1.5 rounded-lg border border-stone-200 py-1.5 dark:border-stone-700"
+          aria-label={showQuestions ? '選定理由を閉じる' : '選定理由を表示'}
           aria-expanded={showQuestions}
         >
-          <p className="text-xs font-medium text-stone-600 dark:text-stone-300">
-            {showQuestions ? '選定内容を閉じる' : '選定内容を見る'}
-          </p>
+          <p className="text-xs text-stone-400 dark:text-stone-500">{showQuestions ? '閉じる' : 'なぜこの問題？'}</p>
           {showQuestions ? (
-            <ChevronUp className="h-3.5 w-3.5 text-stone-400" />
+            <ChevronUp className="h-3 w-3 text-stone-400" />
           ) : (
-            <ChevronDown className="h-3.5 w-3.5 text-stone-400" />
+            <ChevronDown className="h-3 w-3 text-stone-400" />
           )}
         </button>
       )}
