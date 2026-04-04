@@ -571,9 +571,10 @@ ipcMain.handle(
       const filePath = join(homedir(), '.claude-quiz-recommend', 'latest-recommend.json')
       const content = readFileSync(filePath, 'utf8')
       const data = JSON.parse(content)
-      // Only return if from today
-      const today = new Date().toISOString().slice(0, 10)
-      if (data.date !== today) return null
+      // Return if within last 7 days
+      const dataDate = new Date(data.date).getTime()
+      const sevenDaysAgo = Date.now() - 7 * 24 * 60 * 60 * 1000
+      if (dataDate < sevenDaysAgo) return null
       return data
     } catch {
       return null
