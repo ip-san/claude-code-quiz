@@ -44,9 +44,13 @@ export class ErrorBoundary extends Component<Props, State> {
   componentDidCatch(error: Error) {
     console.error('Quiz app error:', error)
 
-    if (isDOMMismatchError(error) && this.state.retryCount < MAX_AUTO_RETRIES) {
-      // Auto-retry: DOM mismatch from browser extensions/translation is transient
-      this.setState((prev) => ({ hasError: false, retryCount: prev.retryCount + 1 }))
+    if (isDOMMismatchError(error)) {
+      if (this.state.retryCount < MAX_AUTO_RETRIES) {
+        // Auto-retry: DOM mismatch from browser extensions/translation is transient
+        this.setState((prev) => ({ hasError: false, retryCount: prev.retryCount + 1 }))
+        return
+      }
+      // DOM mismatch after retry — still not an app bug, skip GA4 tracking
       return
     }
 

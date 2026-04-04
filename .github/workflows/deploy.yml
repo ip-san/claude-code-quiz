@@ -15,7 +15,33 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
+  check:
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: true
+      matrix:
+        task: [typecheck, lint, test, validate]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: latest
+      - run: bun install --frozen-lockfile
+      - name: typecheck
+        if: matrix.task == 'typecheck'
+        run: tsc --noEmit && type-coverage --strict --at-least 99
+      - name: lint
+        if: matrix.task == 'lint'
+        run: biome check src/ mcp/ scripts/
+      - name: test
+        if: matrix.task == 'test'
+        run: vitest run
+      - name: validate
+        if: matrix.task == 'validate'
+        run: node scripts/quiz-utils.mjs check && node scripts/validate-docs.mjs && node scripts/validate-docs-links.mjs
+
   build:
+    needs: check
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -23,7 +49,6 @@ jobs:
         with:
           bun-version: latest
       - run: bun install --frozen-lockfile
-      - run: bun run check:all
       - run: bun run build:web
         env:
           VITE_GTM_ID: ${{ secrets.VITE_GTM_ID }}

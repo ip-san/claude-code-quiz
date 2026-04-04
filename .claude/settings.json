@@ -1,13 +1,16 @@
 {
+  "env": {
+    "CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS": "1"
+  },
   "hooks": {
     "SessionStart": [
       {
         "hooks": [
           {
             "type": "command",
-            "command": "result=$(gh run list --limit 1 --json status,conclusion,name,headBranch 2>/dev/null | jq -r '.[0] | \"\\(.conclusion // .status) \\(.name)\"' 2>/dev/null); if echo \"$result\" | grep -q 'failure'; then echo \"⚠️ CI FAILURE: $result — 確認して修正してください\"; else echo \"OK\"; fi",
-            "timeout": 10,
-            "statusMessage": "CI状態を確認中..."
+            "command": "{ ci=$(gh run list --limit 1 --json status,conclusion,name 2>/dev/null | jq -r '.[0] | \"\\(.conclusion // .status) \\(.name)\"' 2>/dev/null); conflict=$(git status --porcelain 2>/dev/null | grep -c '^UU\\|^AA\\|^DD'); tserr=$(tsc --noEmit 2>&1 | grep -c 'error TS' 2>/dev/null); msgs=''; [ \"$conflict\" -gt 0 ] && msgs=\"⚠️ マージ競合${conflict}件 \"; [ \"$tserr\" -gt 0 ] && msgs=\"${msgs}⚠️ 型エラー${tserr}件 \"; echo \"$ci\" | grep -q 'failure' && msgs=\"${msgs}⚠️ CI FAILURE: $ci \"; [ -z \"$msgs\" ] && echo 'OK' || echo \"$msgs\"; }",
+            "timeout": 15,
+            "statusMessage": "セッション初期チェック中..."
           }
         ]
       }
@@ -18,9 +21,9 @@
         "hooks": [
           {
             "type": "command",
-            "command": "jq -r '.tool_input.file_path // .tool_response.filePath' | grep -qE '^src/' && { npx tsc --noEmit 2>&1 | tail -5; npx vitest run 2>&1 | tail -8; } || true",
+            "command": "FILE=$(jq -r '.tool_input.file_path // .tool_response.filePath'); case \"$FILE\" in src/*) { npx tsc --noEmit 2>&1 | tail -5 & TSC=$!; npx vitest run 2>&1 | tail -8 & VIT=$!; wait $TSC $VIT; } ;; *.json) npx tsc --noEmit 2>&1 | tail -3 ;; docs/*|*.md) bun run docs:validate 2>&1 | tail -3 ;; *) true ;; esac",
             "timeout": 120,
-            "statusMessage": "型チェック+テスト実行中..."
+            "statusMessage": "品質チェック実行中..."
           }
         ]
       }

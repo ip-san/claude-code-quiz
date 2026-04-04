@@ -101,6 +101,9 @@ export const DOC_PAGES = [
   { name: 'voice-dictation', url: 'https://code.claude.com/docs/en/voice-dictation' },
   { name: 'web-scheduled-tasks', url: 'https://code.claude.com/docs/en/web-scheduled-tasks' },
   { name: 'zero-data-retention', url: 'https://code.claude.com/docs/en/zero-data-retention' },
+  // Auto-discovered from llms.txt (2026-04-04)
+  { name: 'desktop-scheduled-tasks', url: 'https://code.claude.com/docs/en/desktop-scheduled-tasks' },
+  { name: 'ultraplan', url: 'https://code.claude.com/docs/en/ultraplan' },
   // Agent SDK (different domain)
   { name: 'agent-sdk-overview', url: 'https://platform.claude.com/docs/en/agent-sdk/overview' },
 ]

@@ -127,6 +127,7 @@ const VALID_DOC_PAGES = [
   'github-enterprise-server',
   'legal-and-compliance',
   'voice-dictation',
+  'ultraplan',
   'zero-data-retention',
   'changelog',
   // platform.claude.com pages
@@ -338,14 +339,22 @@ describe('Quiz Content Quality', () => {
 
     it('referenceUrl が公式ドキュメントURLであること', () => {
       // トピック差し替え時は quizzes.json の referenceUrl ドメインに合わせて更新すること
-      const validPrefixes = ['https://code.claude.com/docs/ja/', 'https://platform.claude.com/docs/ja/']
+      const validPrefixes = [
+        'https://code.claude.com/docs/ja/',
+        'https://code.claude.com/docs/en/',
+        'https://platform.claude.com/docs/ja/',
+      ]
       const invalid = quizzes.filter((q) => q.referenceUrl && !validPrefixes.some((p) => q.referenceUrl.startsWith(p)))
       const details = invalid.map((q) => `${q.id}: "${q.referenceUrl}"`)
       expect(details, `無効なURL: ${details.join(', ')}`).toEqual([])
     })
 
     it('referenceUrl のパスが既知のドキュメントページであること', () => {
-      const prefixes = ['https://code.claude.com/docs/ja/', 'https://platform.claude.com/docs/ja/']
+      const prefixes = [
+        'https://code.claude.com/docs/ja/',
+        'https://code.claude.com/docs/en/',
+        'https://platform.claude.com/docs/ja/',
+      ]
       const violations: string[] = []
       quizzes.forEach((q) => {
         if (!q.referenceUrl) return

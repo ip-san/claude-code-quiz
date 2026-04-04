@@ -1,8 +1,8 @@
 ---
 name: self-review
 description: 汎用コードレビュー + プロジェクト固有チェックの統合レビュー。セルフレビュー、レビュー、チェック
-allowed-tools: Bash, Grep, Glob, Read, Skill
-argument-hint: "[--fix] [--skip-code-review]"
+allowed-tools: Bash, Grep, Glob, Read, Skill, Agent
+argument-hint: "[--fix] [--skip-code-review] [--team]"
 ---
 
 # Self-Review Skill
@@ -14,14 +14,31 @@ argument-hint: "[--fix] [--skip-code-review]"
 - なし: 汎用レビュー + プロジェクトチェック（報告のみ）
 - `--fix`: 検出した問題を自動修正する
 - `--skip-code-review`: 汎用レビューをスキップし、プロジェクトチェックのみ実行
+- `--team`: チームモード。Step 0 と Step 1 を並列実行し、Step 1 内の独立チェック項目もエージェントで並列化
 
 ## 構成
 
+### 逐次モード（デフォルト）
 ```
 /self-review
 ├── Step 0: /code-review を実行（汎用: コード品質, React/TS, a11y, perf）
-└── Step 1: プロジェクト固有チェック（7項目）
+└── Step 1: プロジェクト固有チェック（13項目を順次実行）
 ```
+
+### チームモード（`--team`）
+```
+/self-review --team
+├── 並列 Phase A:
+│   ├── Agent: /code-review（汎用レビュー）
+│   └── 並列 Phase B（プロジェクト固有チェック）:
+│       ├── Agent: lint-checks   → Biome + quiz:check + docs:validate
+│       ├── Agent: code-checks   → ダークモード + ハードコード + 正規表現 + TDZ
+│       └── Agent: meta-checks   → hooks旧参照 + テストハードコード + OGP鮮度 + docs旧参照
+└── 結果集約 → --fix なら修正実行
+```
+
+Phase A の `/code-review` と Phase B の3エージェントは全て `run_in_background: true` で同時起動する。
+全エージェント完了後に結果を集約し、`--fix` 指定時は検出された問題を修正する。
 
 **棲み分け:**
 - `/code-review`（`~/.claude/skills/`）: 汎用。全プロジェクト共通。カスタムしない
