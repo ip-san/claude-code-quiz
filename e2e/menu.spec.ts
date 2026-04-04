@@ -102,4 +102,24 @@ test.describe('Menu screen', () => {
 
     await expect(menu.getByText('クイズモード')).toBeVisible({ timeout: 3000 })
   })
+
+  test('クイズで学ぶ button starts overview mode', async ({ page }) => {
+    await goToMenu(page)
+
+    await page.getByRole('button', { name: /クイズで学ぶ/ }).click()
+
+    // Should navigate to quiz screen (question or chapter intro visible)
+    await expect(page.getByRole('button', { name: /次へ|回答|チャプター/ }).first()).toBeVisible({ timeout: 5000 })
+  })
+
+  test('すでに活用されている方へ opens hamburger menu with modes', async ({ page }) => {
+    await goToMenu(page)
+
+    await page.getByRole('button', { name: /すでに活用されている方へ/ }).click()
+
+    // Should open hamburger menu with mode list
+    const menu = page.getByRole('dialog', { name: 'メニュー' })
+    await expect(menu).toBeVisible({ timeout: 3000 })
+    await expect(menu.getByText('クイズモード')).toBeVisible({ timeout: 3000 })
+  })
 })

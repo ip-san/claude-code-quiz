@@ -291,10 +291,13 @@ for (let d = 0; d < ROLLING_DAYS; d++) {
     const weight = d === 0 ? 1.0 : 0.7 - d * 0.08 // today=1.0, yesterday=0.62, 2d=0.54...
     rollingCache.days.push(dateStr)
     rollingCache.sessionCount += dayData.sessions.length
-    // Prompts: collect from individual sessions (merged loses too many)
+    // Prompts: collect from individual sessions, filter out commands
+    const commandPrefixes =
+      /^(docker |npm |bun |node |npx |git |tail |sleep |rm |kill |pkill |cat |grep |ls |cd |mkdir |sed |awk |curl |wget |ssh )/
     for (const sess of dayData.sessions) {
       if (sess.promptSamples?.length > 0) {
-        rollingCache.prompts.push(...sess.promptSamples)
+        const meaningful = sess.promptSamples.filter((p) => p.length > 10 && !commandPrefixes.test(p))
+        rollingCache.prompts.push(...meaningful)
       }
     }
     // Collect conversation flows (ordered prompts per session)
