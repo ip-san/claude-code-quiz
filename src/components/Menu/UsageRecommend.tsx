@@ -53,7 +53,7 @@ export function UsageRecommend() {
       <div className="flex items-center justify-between px-4 pt-3 pb-2">
         <div className="flex items-center gap-2">
           <Sparkles className="h-4 w-4 text-claude-orange" />
-          <span className="text-sm font-medium text-claude-dark dark:text-stone-200">あなたへのレコメンド</span>
+          <span className="text-sm font-medium text-claude-dark dark:text-stone-200">利用履歴からのレコメンド</span>
           <span
             key={recommendations.map((r) => r.id).join(',')}
             className="animate-[fade-in_0.3s_ease-out] rounded-full bg-orange-50 px-2 py-0.5 text-xs font-medium text-claude-orange dark:bg-orange-500/10"
@@ -216,7 +216,7 @@ export function UsageRecommend() {
               trackRecommend('start_quiz', [...new Set(recommendations.map((r) => r.category))].slice(0, 3), recCount)
               startSessionWithIds(
                 recommendations.map((r) => r.id),
-                'あなたへのレコメンド'
+                '利用履歴からのレコメンド'
               )
             }}
             className="tap-highlight flex w-full items-center justify-center gap-2 rounded-xl bg-claude-orange px-4 py-3 text-sm font-medium text-white"
