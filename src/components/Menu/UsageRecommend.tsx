@@ -256,7 +256,7 @@ export function UsageRecommend() {
                   icon.style.transform = ''
                 }, 500)
               }
-              // Instant shuffle — no AI call, zero tokens
+              // 1. Instant shuffle for immediate feedback (0 tokens)
               const shuffledSamples = [...analysis.promptSamples].sort(() => Math.random() - 0.5)
               const newAnalysis = { ...analysis, promptSamples: shuffledSamples }
               setAnalysis(newAnalysis)
@@ -264,10 +264,20 @@ export function UsageRecommend() {
               const { recs, unused } = computeRecommendations(newAnalysis, allQuestions, prevIds)
               setRecommendations(recs)
               setUnusedCategories(unused)
+              // 2. Background AI regeneration with Sonnet (cheap)
+              setRegenerated(false)
+              window.electronAPI?.clearRecommendCache?.()
+              window.electronAPI?.runRecommendSkill?.().then(async (result) => {
+                if (result?.success) {
+                  await loadFromCache()
+                  setRegenerated(true)
+                  haptics.medium()
+                }
+              })
             }}
             className="tap-highlight rounded-full p-1.5 text-stone-400 active:text-claude-orange"
-            aria-label="問題をシャッフル"
-            title="シャッフル"
+            aria-label="問題を更新"
+            title="更新"
           >
             <RefreshCw className="h-3.5 w-3.5" />
           </button>
