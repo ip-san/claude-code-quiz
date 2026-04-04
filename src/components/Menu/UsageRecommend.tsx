@@ -470,8 +470,9 @@ export function UsageRecommend() {
       {/* Scenario suggestion */}
       {analysis &&
         (() => {
-          const scenario = findRecommendedScenario(analysis.categoryScores)
-          if (!scenario) return null
+          const result = findRecommendedScenario(analysis.categoryScores, analysis.promptSamples)
+          if (!result) return null
+          const { scenario, reason } = result
           return (
             <div className="mx-4 mb-1.5 rounded-lg border border-claude-orange/20 bg-orange-50/30 px-3 py-2 dark:border-claude-orange/10 dark:bg-orange-500/5">
               <p className="mb-1 text-[11px] font-medium text-stone-500 dark:text-stone-400">
@@ -488,7 +489,7 @@ export function UsageRecommend() {
                 <span className="text-lg">{scenario.icon}</span>
                 <div className="min-w-0 flex-1">
                   <p className="text-xs font-medium text-claude-dark dark:text-stone-200">{scenario.title}</p>
-                  <p className="truncate text-[11px] text-stone-500 dark:text-stone-400">{scenario.description}</p>
+                  <p className="truncate text-[11px] text-stone-500 dark:text-stone-400">{reason}</p>
                 </div>
                 <Play className="h-3.5 w-3.5 flex-shrink-0 fill-claude-orange text-claude-orange" />
               </button>
@@ -597,7 +598,10 @@ const SCENARIO_CATEGORY_MAP: Record<string, string[]> = {
   'scenario-extend': ['extensions', 'skills'],
 }
 
-export function findRecommendedScenario(categoryScores: Record<string, number>): ScenarioData | null {
+export function findRecommendedScenario(
+  categoryScores: Record<string, number>,
+  promptSamples: string[] = []
+): { scenario: ScenarioData; reason: string } | null {
   const topCategories = Object.entries(categoryScores)
     .filter(([, s]) => s > 0)
     .sort((a, b) => b[1] - a[1])
@@ -609,8 +613,8 @@ export function findRecommendedScenario(categoryScores: Record<string, number>):
   // Score each scenario by how many of its categories match user's top categories
   const scored = SCENARIOS.map((s) => {
     const cats = SCENARIO_CATEGORY_MAP[s.id] ?? []
-    const score = cats.filter((c) => topCategories.includes(c)).length
-    return { scenario: s, score }
+    const matched = cats.filter((c) => topCategories.includes(c))
+    return { scenario: s, score: matched.length, matched }
   })
     .filter((s) => s.score > 0)
     .sort((a, b) => b.score - a.score)
@@ -620,7 +624,16 @@ export function findRecommendedScenario(categoryScores: Record<string, number>):
   // Pick randomly from top matches for variety
   const topScore = scored[0].score
   const topMatches = scored.filter((s) => s.score === topScore)
-  return topMatches[Math.floor(Math.random() * topMatches.length)].scenario
+  const pick = topMatches[Math.floor(Math.random() * topMatches.length)]
+
+  // Build reason from matched categories + related prompt
+  const catNames = pick.matched.map((c) => getCategoryById(c)?.name ?? c).join('・')
+  const relatedPrompt = pick.matched.flatMap((c) => findRelatedPrompts(promptSamples, c)).find((p) => p.length > 0)
+  const reason = relatedPrompt
+    ? `「${relatedPrompt.length > 30 ? relatedPrompt.slice(0, 30) + '...' : relatedPrompt}」の作業に関連`
+    : `${catNames}の作業に関連したシナリオです`
+
+  return { scenario: pick.scenario, reason }
 }
 
 const CATEGORY_TERMS: Record<string, string[]> = {
