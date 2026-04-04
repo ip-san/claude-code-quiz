@@ -120,6 +120,10 @@ const electronAPI = {
     return ipcRenderer.invoke('is-recommend-running')
   },
 
+  cancelRecommend: (): Promise<boolean> => {
+    return ipcRenderer.invoke('cancel-recommend')
+  },
+
   /**
    * グローバルフックの設定/削除
    */

@@ -1,5 +1,5 @@
-import { ChevronDown, ChevronUp, Lightbulb, Play, RefreshCw, Sparkles, X } from 'lucide-react'
-import { useCallback, useEffect, useState } from 'react'
+import { ChevronDown, ChevronUp, Lightbulb, Play, RefreshCw, Sparkles, Square, X } from 'lucide-react'
+import { useCallback, useEffect, useRef, useState } from 'react'
 import type { Question } from '@/domain/entities/Question'
 import { getCategoryById } from '@/domain/valueObjects/Category'
 import { trackRecommend } from '@/lib/analytics'
@@ -30,6 +30,19 @@ export function UsageRecommend() {
   const [setupDone, setSetupDone] = useState(false)
 
   const [aiError, setAiError] = useState<string | null>(null)
+  const [elapsed, setElapsed] = useState(0)
+  const timerRef = useRef<ReturnType<typeof setInterval> | null>(null)
+
+  const startTimer = () => {
+    setElapsed(0)
+    timerRef.current = setInterval(() => setElapsed((t) => t + 1), 1000)
+  }
+  const stopTimer = () => {
+    if (timerRef.current) {
+      clearInterval(timerRef.current)
+      timerRef.current = null
+    }
+  }
 
   const loadFromCache = useCallback(async (): Promise<boolean> => {
     const cached = await window.electronAPI?.getCachedRecommend?.()
@@ -76,7 +89,9 @@ export function UsageRecommend() {
     }
 
     // No cache — run /recommend skill via Claude CLI
+    startTimer()
     const skillResult = await window.electronAPI.runRecommendSkill()
+    stopTimer()
 
     if (skillResult.success) {
       await loadFromCache()
@@ -90,7 +105,12 @@ export function UsageRecommend() {
       trackRecommend('analyze', [], recommendations.length)
     } else {
       const err = skillResult.error ?? '分析に失敗しました'
-      if (err.includes('ENOENT') || err.includes('not found') || err.includes('timeout')) {
+      if (
+        err.includes('ENOENT') ||
+        err.includes('not found') ||
+        err.includes('timeout') ||
+        err.includes('タイムアウト')
+      ) {
         setAiError(err)
       } else {
         setAiError('分析できませんでした。Claude Code で作業をしてからもう一度お試しください')
@@ -104,8 +124,12 @@ export function UsageRecommend() {
   useEffect(() => {
     loadFromCache()
     window.electronAPI?.isRecommendRunning?.().then((running) => {
-      if (running) setLoading(true)
+      if (running) {
+        setLoading(true)
+        startTimer()
+      }
     })
+    return () => stopTimer()
   }, [loadFromCache])
 
   useEffect(() => {
@@ -179,7 +203,7 @@ export function UsageRecommend() {
           </div>
           <div className="text-xs text-stone-500 dark:text-stone-400">
             {loading
-              ? 'Claude が作業内容を理解して問題を選んでいます（30〜60秒）'
+              ? `Claude が作業内容を理解して問題を選んでいます（${elapsed}秒）`
               : 'AI があなたの作業意図を理解し、最適な復習問題を選びます'}
           </div>
           {aiError && <p className="mt-1 text-xs text-red-500">{aiError}</p>}
@@ -212,17 +236,25 @@ export function UsageRecommend() {
           <Sparkles className="h-4 w-4 text-claude-orange" />
           <span className="text-sm font-medium text-claude-dark dark:text-stone-200">あなたへのレコメンド</span>
           <span className="rounded-full bg-orange-50 px-2 py-0.5 text-xs font-medium text-claude-orange dark:bg-orange-500/10">
-            {recCount}問
+            {loading ? `更新中 ${elapsed}秒` : `${recCount}問`}
           </span>
         </div>
         <div className="flex items-center gap-1">
           <button
             onClick={async () => {
-              if (!window.electronAPI || loading) return
+              if (!window.electronAPI) return
+              if (loading) {
+                await window.electronAPI.cancelRecommend?.()
+                stopTimer()
+                setLoading(false)
+                return
+              }
               setLoading(true)
               setAiError(null)
               haptics.light()
+              startTimer()
               const result = await window.electronAPI.runRecommendSkill()
+              stopTimer()
               if (result.success) {
                 await loadFromCache()
                 haptics.medium()
@@ -239,9 +271,13 @@ export function UsageRecommend() {
             }}
             disabled={loading}
             className="tap-highlight rounded-full p-2 text-stone-400"
-            aria-label="レコメンドを再生成"
+            aria-label={loading ? '分析をキャンセル' : 'レコメンドを再生成'}
           >
-            <RefreshCw className={`h-4 w-4 ${loading ? 'animate-spin' : ''}`} />
+            {loading ? (
+              <Square className="h-3.5 w-3.5 fill-stone-400 text-stone-400" />
+            ) : (
+              <RefreshCw className="h-4 w-4" />
+            )}
           </button>
           <button
             onClick={() => setAnalysis(null)}

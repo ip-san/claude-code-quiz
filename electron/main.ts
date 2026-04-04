@@ -520,6 +520,15 @@ ipcMain.handle('is-recommend-running', (): boolean => {
   return recommendProc !== null && !recommendProc.killed
 })
 
+ipcMain.handle('cancel-recommend', (): boolean => {
+  if (recommendProc && !recommendProc.killed) {
+    recommendProc.kill()
+    recommendProc = null
+    return true
+  }
+  return false
+})
+
 // ============================================================
 // Hook Setup (global ~/.claude/settings.json)
 // ============================================================
