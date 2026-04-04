@@ -295,7 +295,7 @@ export function UsageRecommend() {
         </div>
       )}
 
-      {/* Question list */}
+      {/* Question list — grouped by category with shared reason */}
       {recCount > 0 && (
         <button
           onClick={() => {
@@ -303,10 +303,12 @@ export function UsageRecommend() {
             setShowQuestions(!showQuestions)
           }}
           className="tap-highlight flex w-full items-center justify-between px-4 py-2"
-          aria-label={showQuestions ? '問題一覧を閉じる' : '問題一覧と選定理由を表示'}
+          aria-label={showQuestions ? '選定内容を閉じる' : '選定内容を表示'}
           aria-expanded={showQuestions}
         >
-          <p className="text-xs font-medium text-stone-600 dark:text-stone-300">問題一覧と選定理由</p>
+          <p className="text-xs font-medium text-stone-600 dark:text-stone-300">
+            {showQuestions ? '選定内容を閉じる' : '選定内容を見る'}
+          </p>
           {showQuestions ? (
             <ChevronUp className="h-3.5 w-3.5 text-stone-400" />
           ) : (
@@ -315,20 +317,26 @@ export function UsageRecommend() {
         </button>
       )}
       {showQuestions && (
-        <div className="mx-4 mb-2 max-h-60 overflow-y-auto rounded-lg bg-stone-50 dark:bg-stone-900/50">
-          {recommendations.map((rec, i) => {
-            const cat = getCategoryById(rec.category)
+        <div className="mx-4 mb-2 max-h-72 overflow-y-auto">
+          {groupByCategory(recommendations).map(({ category, reason, questions }) => {
+            const cat = getCategoryById(category)
             return (
-              <div key={rec.id} className="border-b border-stone-100 px-3 py-2 last:border-0 dark:border-stone-800">
-                <div className="flex items-start gap-2">
-                  <span className="mt-0.5 flex-shrink-0 text-xs">{cat?.icon}</span>
-                  <div className="min-w-0 flex-1">
-                    <p className="text-[10px] text-stone-500 dark:text-stone-400">{rec.reason}</p>
-                    <p className="mt-0.5 text-xs leading-snug text-stone-700 dark:text-stone-300">
-                      {i + 1}. {rec.question.length > 60 ? rec.question.slice(0, 60) + '...' : rec.question}
+              <div key={category} className="mb-2 rounded-lg bg-stone-50 dark:bg-stone-900/50">
+                <div className="flex items-center gap-2 px-3 pt-2.5 pb-1">
+                  <span className="text-sm">{cat?.icon}</span>
+                  <span className="text-xs font-medium text-claude-dark dark:text-stone-200">{cat?.name}</span>
+                  <span className="rounded-full bg-stone-200 px-1.5 py-0.5 text-[10px] text-stone-500 dark:bg-stone-700 dark:text-stone-400">
+                    {questions.length}問
+                  </span>
+                </div>
+                <p className="px-3 pb-1.5 text-[11px] leading-relaxed text-stone-500 dark:text-stone-400">{reason}</p>
+                {questions.map((q, i) => (
+                  <div key={q.id} className="border-t border-stone-100 px-3 py-1.5 dark:border-stone-800">
+                    <p className="text-xs leading-snug text-stone-700 dark:text-stone-300">
+                      {i + 1}. {q.question.length > 80 ? q.question.slice(0, 80) + '...' : q.question}
                     </p>
                   </div>
-                </div>
+                ))}
               </div>
             )
           })}
@@ -393,6 +401,21 @@ const CATEGORY_REASONS: Record<string, { used: string; unused: string }> = {
     used: 'ベストプラクティスに関わる作業をしていました。知識を固めましょう',
     unused: '効果的な使い方のコツを知ると、Claude の回答品質が上がります',
   },
+}
+
+function groupByCategory(
+  recs: RecommendedQuestion[]
+): { category: string; reason: string; questions: RecommendedQuestion[] }[] {
+  const groups = new Map<string, { reason: string; questions: RecommendedQuestion[] }>()
+  for (const rec of recs) {
+    const existing = groups.get(rec.category)
+    if (existing) {
+      existing.questions.push(rec)
+    } else {
+      groups.set(rec.category, { reason: rec.reason, questions: [rec] })
+    }
+  }
+  return [...groups.entries()].map(([category, { reason, questions }]) => ({ category, reason, questions }))
 }
 
 function findRelatedPrompt(prompts: string[], category: string): string | null {

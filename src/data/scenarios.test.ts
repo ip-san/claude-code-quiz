@@ -5,7 +5,6 @@ import quizzesData from './quizzes.json'
 import { SCENARIOS } from './scenarios'
 
 const quizIds = new Set(quizzesData.quizzes.map((q: { id: string }) => q.id))
-const quizMap = new Map(quizzesData.quizzes.map((q: { id: string; difficulty: string }) => [q.id, q]))
 
 describe('Scenarios', () => {
   it('all scenarios have at least one question', () => {
