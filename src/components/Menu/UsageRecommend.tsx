@@ -294,22 +294,34 @@ export function UsageRecommend() {
         <div className="flex items-center gap-2">
           <Sparkles className="h-4 w-4 text-claude-orange" />
           <span className="text-sm font-medium text-claude-dark dark:text-stone-200">あなたへのレコメンド</span>
-          <span className="rounded-full bg-orange-50 px-2 py-0.5 text-xs font-medium text-claude-orange dark:bg-orange-500/10">
+          <span
+            key={recommendations.map((r) => r.id).join(',')}
+            className="animate-[fade-in_0.3s_ease-out] rounded-full bg-orange-50 px-2 py-0.5 text-xs font-medium text-claude-orange dark:bg-orange-500/10"
+          >
             {recCount}問
           </span>
         </div>
         <div className="flex items-center gap-1">
           <button
-            onClick={() => {
+            onClick={(e) => {
               if (!analysis) return
               haptics.light()
+              // Spin animation on the icon
+              const icon = e.currentTarget.querySelector('svg')
+              if (icon) {
+                icon.style.transition = 'transform 0.4s ease-out'
+                icon.style.transform = 'rotate(360deg)'
+                setTimeout(() => {
+                  icon.style.transition = 'none'
+                  icon.style.transform = ''
+                }, 400)
+              }
               // Re-shuffle: pick different questions from the same analysis
               const { recs, unused } = computeRecommendations({ ...analysis }, allQuestions)
               setRecommendations(recs)
               setUnusedCategories(unused)
-              trackRecommend('view_list', [], recs.length)
             }}
-            className="tap-highlight rounded-full p-2 text-stone-400"
+            className="tap-highlight rounded-full p-2 text-stone-400 active:text-claude-orange"
             aria-label="問題をシャッフル"
           >
             <RefreshCw className="h-4 w-4" />
