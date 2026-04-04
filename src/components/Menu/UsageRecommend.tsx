@@ -1,4 +1,4 @@
-import { ChevronDown, ChevronUp, Lightbulb, Play, RefreshCw, Sparkles, Square, X } from 'lucide-react'
+import { ChevronDown, ChevronUp, Lightbulb, Play, RefreshCw, Sparkles, X } from 'lucide-react'
 import { useCallback, useEffect, useRef, useState } from 'react'
 
 /** Progress text + dots — both pulse in color together */
@@ -118,7 +118,7 @@ export function UsageRecommend() {
       setUnusedCategories([])
       setAnalysis(cachedAnalysis)
     } else {
-      const { recs, unused } = computeRecommendations(cachedAnalysis, allQuestions)
+      const { recs, unused } = computeRecommendations({ ...cachedAnalysis }, allQuestions)
       setRecommendations(recs)
       setUnusedCategories(unused)
       setAnalysis(cachedAnalysis)
@@ -294,57 +294,25 @@ export function UsageRecommend() {
         <div className="flex items-center gap-2">
           <Sparkles className="h-4 w-4 text-claude-orange" />
           <span className="text-sm font-medium text-claude-dark dark:text-stone-200">あなたへのレコメンド</span>
-          {loading ? (
-            <span className="relative overflow-hidden rounded-full bg-orange-50 px-2 py-0.5 text-xs font-medium text-claude-orange dark:bg-orange-500/10">
-              <span
-                className="absolute inset-0 bg-claude-orange/15 transition-[width] duration-1000 ease-linear dark:bg-claude-orange/20"
-                style={{ width: `${Math.min((elapsed / 120) * 100, 100)}%` }}
-              />
-              <span className="relative">{elapsed}秒</span>
-            </span>
-          ) : (
-            <span className="rounded-full bg-orange-50 px-2 py-0.5 text-xs font-medium text-claude-orange dark:bg-orange-500/10">
-              {recCount}問
-            </span>
-          )}
+          <span className="rounded-full bg-orange-50 px-2 py-0.5 text-xs font-medium text-claude-orange dark:bg-orange-500/10">
+            {recCount}問
+          </span>
         </div>
         <div className="flex items-center gap-1">
           <button
-            onClick={async () => {
-              if (!window.electronAPI) return
-              if (loading) {
-                await window.electronAPI.cancelRecommend?.()
-                stopTimer()
-                setLoading(false)
-                return
-              }
-              setLoading(true)
-              setAiError(null)
+            onClick={() => {
+              if (!analysis) return
               haptics.light()
-              startTimer()
-              const result = await window.electronAPI.runRecommendSkill()
-              stopTimer()
-              if (result.success) {
-                await loadFromCache()
-                haptics.medium()
-                window.electronAPI?.showNotification?.(
-                  'レコメンドを更新しました',
-                  '最新の利用履歴から問題を再選定しました'
-                )
-              } else {
-                setAiError(result.error ?? '再生成に失敗しました')
-              }
-              setLoading(false)
+              // Re-shuffle: pick different questions from the same analysis
+              const { recs, unused } = computeRecommendations({ ...analysis }, allQuestions)
+              setRecommendations(recs)
+              setUnusedCategories(unused)
+              trackRecommend('view_list', [], recs.length)
             }}
-            disabled={loading}
             className="tap-highlight rounded-full p-2 text-stone-400"
-            aria-label={loading ? '分析をキャンセル' : 'レコメンドを再生成'}
+            aria-label="問題をシャッフル"
           >
-            {loading ? (
-              <Square className="h-3.5 w-3.5 fill-stone-400 text-stone-400" />
-            ) : (
-              <RefreshCw className="h-4 w-4" />
-            )}
+            <RefreshCw className="h-4 w-4" />
           </button>
           <button
             onClick={() => setAnalysis(null)}
@@ -356,45 +324,32 @@ export function UsageRecommend() {
         </div>
       </div>
 
-      {/* Progress step text */}
-      {loading && (
-        <div className="mx-4 mb-1.5 flex items-center gap-2">
-          <div className="h-1 flex-1 overflow-hidden rounded-full bg-stone-100 dark:bg-stone-700">
-            <div
-              className="h-full rounded-full bg-claude-orange transition-[width] duration-1000 ease-linear"
-              style={{ width: `${Math.min((elapsed / 120) * 100, 100)}%` }}
-            />
-          </div>
-          <span className="flex-shrink-0 text-[11px] text-stone-400 dark:text-stone-500">{elapsed}秒</span>
-        </div>
-      )}
-      {loading && (
-        <p className="mx-4 mb-2 text-xs text-stone-500 dark:text-stone-400">
-          <ProgressLabel text={progressBase} />
-        </p>
-      )}
-
       {/* Error message */}
       {aiError && <p className="mx-4 mb-2 text-xs text-red-500 dark:text-red-400">{aiError}</p>}
 
       {/* ── Kolb Cycle: Experience → Reflection → Conceptualization → Experimentation ── */}
 
       {/* Step 1: Concrete Experience — あなたがやったこと */}
-      {analysis.promptSamples.length > 0 && (
-        <div className="mx-4 mb-1.5">
-          <p className="mb-1 text-[11px] font-medium text-stone-500 dark:text-stone-400">あなたの作業</p>
-          <div className="space-y-1">
-            {analysis.promptSamples.slice(0, 3).map((p: string, i: number) => (
-              <p
-                key={i}
-                className="truncate rounded bg-stone-50 px-2.5 py-1 text-xs text-stone-600 dark:bg-stone-900/50 dark:text-stone-300"
-              >
-                {p}
-              </p>
-            ))}
-          </div>
-        </div>
-      )}
+      {analysis.promptSamples.length > 0 &&
+        (() => {
+          const unique = [...new Set(analysis.promptSamples)].filter((p: string) => p.length > 5).slice(0, 3)
+          if (unique.length === 0) return null
+          return (
+            <div className="mx-4 mb-1.5">
+              <p className="mb-1 text-[11px] font-medium text-stone-500 dark:text-stone-400">あなたの作業</p>
+              <div className="space-y-1">
+                {unique.map((p: string, i: number) => (
+                  <p
+                    key={i}
+                    className="truncate rounded bg-stone-50 px-2.5 py-1 text-xs text-stone-600 dark:bg-stone-900/50 dark:text-stone-300"
+                  >
+                    {p}
+                  </p>
+                ))}
+              </div>
+            </div>
+          )
+        })()}
 
       {/* Step 2: Reflective Observation — 振り返りの問いかけ */}
       {topTopics.length > 0 && (
