@@ -1,5 +1,5 @@
 import { BookOpen, ChevronDown, ChevronUp, Lightbulb, Play, RefreshCw, Sparkles, X } from 'lucide-react'
-import { useCallback, useEffect, useRef, useState } from 'react'
+import { useState } from 'react'
 import { getCategoryById } from '@/domain/valueObjects/Category'
 import { trackRecommend } from '@/lib/analytics'
 import { haptics } from '@/lib/haptics'
@@ -7,115 +7,41 @@ import { isElectron } from '@/lib/platformAPI'
 import { useQuizStore } from '@/stores/quizStore'
 import { ProgressLabel } from './ProgressLabel'
 import {
-  type AnalysisResult,
   CATEGORY_REASONS,
-  computeRecommendations,
   detectDeveloperRole,
   detectWorkPatterns,
   findRecommendedScenario,
   groupByCategory,
-  type RecommendedQuestion,
 } from './recommendUtils'
+import { useRecommendation } from './useRecommendation'
 
 /**
  * Claude Code 利用履歴からクイズをレコメンドする（Electron限定）
  */
 export function UsageRecommend() {
-  const { allQuestions, startSessionWithIds, startScenarioSession } = useQuizStore()
-  const [analysis, setAnalysis] = useState<AnalysisResult | null>(null)
-  const [recommendations, setRecommendations] = useState<RecommendedQuestion[]>([])
-  const [unusedCategories, setUnusedCategories] = useState<string[]>([])
-  const [loading, setLoading] = useState(false)
+  const startSessionWithIds = useQuizStore((s) => s.startSessionWithIds)
+  const startScenarioSession = useQuizStore((s) => s.startScenarioSession)
   const [showQuestions, setShowQuestions] = useState(false)
-  const [hooksInstalled, setHooksInstalled] = useState<boolean | null>(null)
-  const [setupDone, setSetupDone] = useState(false)
 
-  const [aiError, setAiError] = useState<string | null>(null)
-  const [regenerated, setRegenerated] = useState(false)
-  const [regenerating, setRegenerating] = useState(false)
-  const [elapsed, setElapsed] = useState(0)
-  const timerRef = useRef<ReturnType<typeof setInterval> | null>(null)
-
-  const startTimer = useCallback(() => {
-    setElapsed(0)
-    timerRef.current = setInterval(() => setElapsed((t) => t + 1), 1000)
-  }, [])
-  const stopTimer = useCallback(() => {
-    if (timerRef.current) {
-      clearInterval(timerRef.current)
-      timerRef.current = null
-    }
-  }, [])
-
-  useEffect(() => () => stopTimer(), [stopTimer])
-
-  const loadFromCache = useCallback(async (): Promise<boolean> => {
-    const cached = await window.electronAPI?.getCachedRecommend?.()
-    if (!cached || cached.ids.length === 0) return false
-    const cachedAnalysis: AnalysisResult = {
-      tools: {},
-      topics: cached.topics,
-      categoryScores: Object.fromEntries(cached.topCategories.map((c, i) => [c, 100 - i * 10])),
-      recommendedIds: cached.ids,
-      sessionCount: cached.sessionCount,
-      promptSamples: cached.promptSamples ?? [],
-    }
-    const aiReasons = (cached as Record<string, unknown>).reasons as Record<string, string> | undefined
-    if (aiReasons && Object.keys(aiReasons).length > 0) {
-      const recs: RecommendedQuestion[] = cached.ids
-        .map((id) => {
-          const q = allQuestions.find((q) => q.id === id)
-          if (!q) return null
-          return { id, question: q.question, category: q.category, reason: aiReasons[id] ?? '', signals: ['AI が選定'] }
-        })
-        .filter(Boolean) as RecommendedQuestion[]
-      setRecommendations(recs)
-      setUnusedCategories([])
-      setAnalysis(cachedAnalysis)
-    } else {
-      const { recs, unused } = computeRecommendations({ ...cachedAnalysis }, allQuestions)
-      setRecommendations(recs)
-      setUnusedCategories(unused)
-      setAnalysis(cachedAnalysis)
-    }
-    return true
-  }, [allQuestions])
-
-  const analyze = useCallback(async () => {
-    if (!window.electronAPI) return
-    setLoading(true)
-    setAiError(null)
-    haptics.light()
-
-    // 1. Collect latest session data (fast, local)
-    try {
-      await window.electronAPI.runRecommendSkill()
-    } catch {
-      // Collect might fail — continue with cache
-    }
-
-    // 2. Try loading from cache (includes rolling-7d.json prompts)
-    if (await loadFromCache()) {
-      haptics.medium()
-      setLoading(false)
-      return
-    }
-
-    // 3. No cache at all — show error
-    setAiError('Claude Code の利用履歴がありません。いくつか作業をしてからお試しください')
-    setLoading(false)
-  }, [loadFromCache])
-
-  // On mount, load from cache silently
-  useEffect(() => {
-    loadFromCache()
-  }, [loadFromCache])
-
-  // biome-ignore lint/correctness/useExhaustiveDependencies: re-check hooks status after setup completes
-  useEffect(() => {
-    if (!window.electronAPI?.checkGlobalHooks) return
-    window.electronAPI.checkGlobalHooks().then(setHooksInstalled)
-  }, [setupDone])
+  const {
+    analysis,
+    recommendations,
+    unusedCategories,
+    loading,
+    aiError,
+    regenerated,
+    regenerating,
+    elapsed,
+    hooksInstalled,
+    setupDone,
+    allQuestions,
+    analyze,
+    shuffle,
+    setupHooks,
+    dismissSetup,
+    dismissRegenerated,
+    clearAnalysis,
+  } = useRecommendation()
 
   if (!isElectron) return null
 
@@ -132,20 +58,14 @@ export function UsageRecommend() {
             </p>
             <div className="mt-2 flex gap-2">
               <button
-                onClick={async () => {
-                  const result = await window.electronAPI?.setupGlobalHooks(false)
-                  if (result?.success) {
-                    setSetupDone(true)
-                    haptics.medium()
-                  }
-                }}
+                onClick={setupHooks}
                 className="tap-highlight rounded-lg bg-claude-orange px-4 py-2 text-xs font-medium text-white"
                 aria-label="自動レコメンドを有効にする"
               >
                 有効にする
               </button>
               <button
-                onClick={() => setHooksInstalled(true)}
+                onClick={dismissSetup}
                 className="tap-highlight rounded-lg px-4 py-2 text-xs text-stone-500"
                 aria-label="後で設定する"
               >
@@ -228,7 +148,6 @@ export function UsageRecommend() {
           <button
             onClick={(e) => {
               if (!analysis) return
-              haptics.light()
               const icon = e.currentTarget.querySelector('svg')
               if (icon) {
                 icon.style.transition = 'transform 0.5s ease-out'
@@ -238,34 +157,7 @@ export function UsageRecommend() {
                   icon.style.transform = ''
                 }, 500)
               }
-              // 1. Instant shuffle for immediate feedback (0 tokens)
-              const shuffledSamples = [...analysis.promptSamples].sort(() => Math.random() - 0.5)
-              const newAnalysis = { ...analysis, promptSamples: shuffledSamples }
-              setAnalysis(newAnalysis)
-              const prevIds = new Set(recommendations.map((r) => r.id))
-              const { recs, unused } = computeRecommendations(newAnalysis, allQuestions, prevIds)
-              setRecommendations(recs)
-              setUnusedCategories(unused)
-              // 2. Background AI regeneration with Sonnet (cheap)
-              setRegenerated(false)
-              setRegenerating(true)
-              startTimer()
-              window.electronAPI?.clearRecommendCache?.()
-              window.electronAPI
-                ?.runRecommendSkill?.()
-                .then(async (result) => {
-                  stopTimer()
-                  setRegenerating(false)
-                  if (result?.success) {
-                    await loadFromCache()
-                    setRegenerated(true)
-                    haptics.medium()
-                  }
-                })
-                .catch(() => {
-                  stopTimer()
-                  setRegenerating(false)
-                })
+              shuffle()
             }}
             className={`tap-highlight rounded-full p-1.5 ${regenerating ? 'animate-spin text-claude-orange' : 'text-stone-400 active:text-claude-orange'}`}
             aria-label={regenerating ? 'AI が再生成中...' : '問題を更新'}
@@ -274,7 +166,7 @@ export function UsageRecommend() {
             <RefreshCw className="h-3.5 w-3.5" />
           </button>
           <button
-            onClick={() => setAnalysis(null)}
+            onClick={clearAnalysis}
             className="tap-highlight rounded-full p-1.5 text-stone-400"
             aria-label="レコメンドを閉じる"
             title="閉じる"
@@ -321,7 +213,7 @@ export function UsageRecommend() {
       {/* Regeneration success banner — tap to dismiss */}
       {regenerated && (
         <button
-          onClick={() => setRegenerated(false)}
+          onClick={dismissRegenerated}
           className="tap-highlight mx-4 mb-1.5 flex w-[calc(100%-2rem)] animate-[fade-in_0.3s_ease-out] items-center justify-between rounded-lg bg-green-50 px-3 py-1.5 text-left text-xs text-green-700 dark:bg-green-500/10 dark:text-green-400"
         >
           <span>✓ 最新の利用履歴で更新しました</span>
