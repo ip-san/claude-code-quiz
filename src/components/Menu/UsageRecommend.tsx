@@ -301,9 +301,9 @@ export function UsageRecommend() {
                   setRegenerating(false)
                 })
             }}
-            className="tap-highlight rounded-full p-1.5 text-stone-400 active:text-claude-orange"
-            aria-label="問題を更新"
-            title="更新"
+            className={`tap-highlight rounded-full p-1.5 ${regenerating ? 'animate-spin text-claude-orange' : 'text-stone-400 active:text-claude-orange'}`}
+            aria-label={regenerating ? 'AI が再生成中...' : '問題を更新'}
+            title={regenerating ? '再生成中...' : '更新'}
           >
             <RefreshCw className="h-3.5 w-3.5" />
           </button>
