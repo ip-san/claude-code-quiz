@@ -451,7 +451,7 @@ ipcMain.handle('run-recommend-skill', async (): Promise<{ success: boolean; erro
     const projectDir = app.getAppPath()
 
     // Run claude CLI with the recommend skill
-    await execFileAsync('claude', ['-p', '/recommend', '--no-input'], {
+    await execFileAsync('claude', ['-p', '/recommend'], {
       cwd: projectDir,
       timeout: 120_000,
       env: { ...process.env, CLAUDE_PROJECT_DIR: projectDir },
