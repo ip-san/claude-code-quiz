@@ -402,15 +402,32 @@ export function UsageRecommend() {
           )
         })()}
 
-      {/* Step 2: Reflective Observation — 振り返りの問いかけ */}
-      {topTopics.length > 0 && (
-        <div className="mx-4 mb-1.5 rounded-lg border border-claude-orange/20 bg-orange-50/50 px-3 py-2 dark:border-claude-orange/10 dark:bg-orange-500/5">
-          <p className="text-xs leading-relaxed text-stone-700 dark:text-stone-300">
-            {topTopics.map((t: { topic: string }) => t.topic).join('や')}
-            に取り組んでいました。もっと効率的なやり方はなかったでしょうか？
-          </p>
-        </div>
-      )}
+      {/* Step 2: Reflective Observation — 行動パターンに基づく振り返り */}
+      {analysis &&
+        (() => {
+          const patterns = detectWorkPatterns(analysis.promptSamples ?? [])
+          if (patterns.length > 0) {
+            const p = patterns[0]
+            return (
+              <div className="mx-4 mb-1.5 rounded-lg border border-claude-orange/20 bg-orange-50/50 px-3 py-2 dark:border-claude-orange/10 dark:bg-orange-500/5">
+                <p className="text-xs leading-relaxed text-stone-700 dark:text-stone-300">
+                  {p.pattern}していました。<span className="font-medium text-claude-orange">{p.tip}</span>
+                </p>
+              </div>
+            )
+          }
+          if (topTopics.length > 0) {
+            return (
+              <div className="mx-4 mb-1.5 rounded-lg border border-claude-orange/20 bg-orange-50/50 px-3 py-2 dark:border-claude-orange/10 dark:bg-orange-500/5">
+                <p className="text-xs leading-relaxed text-stone-700 dark:text-stone-300">
+                  {topTopics.map((t: { topic: string }) => t.topic).join('や')}
+                  に取り組んでいました。もっと効率的なやり方はなかったでしょうか？
+                </p>
+              </div>
+            )
+          }
+          return null
+        })()}
 
       {/* Step 3: Abstract Conceptualization — 知識の穴を見せる（展開式） */}
       {recCount > 0 && (
@@ -637,12 +654,21 @@ export function findRecommendedScenario(
 
   if (scored.length === 0) return null
 
-  // Pick randomly from top matches for variety
+  // Try behavior-pattern-based matching first (more specific)
+  const workPatterns = detectWorkPatterns(promptSamples)
+  for (const wp of workPatterns) {
+    const patternScenarioIds = PATTERN_SCENARIO_MAP[wp.pattern] ?? []
+    const match = patternScenarioIds.map((id) => SCENARIOS.find((s) => s.id === id)).find((s) => s != null)
+    if (match) {
+      return { scenario: match, reason: `${wp.pattern} → ${wp.tip}` }
+    }
+  }
+
+  // Fallback: category-based matching
   const topScore = scored[0].score
   const topMatches = scored.filter((s) => s.score === topScore)
   const pick = topMatches[Math.floor(Math.random() * topMatches.length)]
 
-  // Build reason from matched categories + related prompt
   const catNames = pick.matched.map((c) => getCategoryById(c)?.name ?? c).join('・')
   const relatedPrompt = pick.matched.flatMap((c) => findRelatedPrompts(promptSamples, c)).find((p) => p.length > 0)
   const reason = relatedPrompt
@@ -671,6 +697,90 @@ export function findRelatedPrompts(prompts: string[], category: string): string[
     .sort(() => Math.random() - 0.5)
 }
 
+/** Detect inefficiency patterns from prompts — "you could have done this better" */
+export function detectWorkPatterns(prompts: string[]): { pattern: string; tip: string; category: string }[] {
+  const patterns: { pattern: string; tip: string; category: string }[] = []
+  const meaningful = prompts.filter((p) => p.length > 10)
+
+  // Repetition: same theme 3+ times
+  const themeCount = new Map<string, number>()
+  for (const p of meaningful) {
+    const key = p.slice(0, 15).toLowerCase()
+    themeCount.set(key, (themeCount.get(key) ?? 0) + 1)
+  }
+  for (const [, count] of themeCount) {
+    if (count >= 3) {
+      patterns.push({
+        pattern: '同じ修正を繰り返し指示',
+        tip: 'CLAUDE.md にルールを書けば毎回伝える必要がない',
+        category: 'memory',
+      })
+      break
+    }
+  }
+
+  // Long prompts: context re-explanation
+  const longPrompts = meaningful.filter((p) => p.length > 80)
+  if (longPrompts.length >= 3) {
+    patterns.push({
+      pattern: '長いプロンプトで毎回文脈を説明',
+      tip: 'CLAUDE.md に書けば自動で読み込まれる',
+      category: 'memory',
+    })
+  }
+
+  // Manual test commands
+  const testCmds = meaningful.filter((p) => /test|テスト/.test(p.toLowerCase()))
+  if (testCmds.length >= 2) {
+    patterns.push({
+      pattern: 'テストを手動で何度も実行',
+      tip: 'PostToolUse hook で自動テストを設定できる',
+      category: 'extensions',
+    })
+  }
+
+  // Session length indicator
+  if (meaningful.length > 15) {
+    patterns.push({
+      pattern: 'セッションが長い（プロンプト' + meaningful.length + '件）',
+      tip: '/compact でコンテキストを圧縮できる',
+      category: 'session',
+    })
+  }
+
+  // File search patterns
+  const searchPrompts = meaningful.filter((p) => /どこ|探し|見つ|ファイル.*教え/.test(p))
+  if (searchPrompts.length >= 2) {
+    patterns.push({
+      pattern: 'ファイルの場所を何度も質問',
+      tip: 'Glob/Grep ツールなら一発で検索できる',
+      category: 'tools',
+    })
+  }
+
+  // Impact/scope questions
+  const impactPrompts = meaningful.filter((p) => /影響|範囲|他に.*ない|壊れ/.test(p))
+  if (impactPrompts.length >= 2) {
+    patterns.push({
+      pattern: '影響範囲を繰り返し確認',
+      tip: 'Plan モードで事前に設計すると手戻りが減る',
+      category: 'bestpractices',
+    })
+  }
+
+  return patterns
+}
+
+/** Map behavior patterns to scenario IDs */
+const PATTERN_SCENARIO_MAP: Record<string, string[]> = {
+  同じ修正を繰り返し指示: ['scenario-claudemd', 'scenario-claudemd-pruning'],
+  長いプロンプトで毎回文脈を説明: ['scenario-claudemd', 'scenario-onboard'],
+  テストを手動で何度も実行: ['scenario-cicd', 'scenario-cicd-setup'],
+  セッションが長い: ['scenario-session', 'scenario-context'],
+  ファイルの場所を何度も質問: ['scenario-legacy', 'scenario-tools'],
+  影響範囲を繰り返し確認: ['scenario-planmode', 'scenario-debug'],
+}
+
 export function computeRecommendations(
   analysis: AnalysisResult,
   allQuestions: Question[],
@@ -684,7 +794,16 @@ export function computeRecommendations(
     .filter(([, s]) => s > 0)
     .sort((a, b) => b[1] - a[1])
 
-  for (const [cat, score] of sorted.slice(0, 3)) {
+  // Detect work patterns for enriched signals
+  const workPatterns = detectWorkPatterns(prompts)
+  const patternsByCategory = new Map<string, string>()
+  for (const wp of workPatterns) {
+    if (!patternsByCategory.has(wp.category)) {
+      patternsByCategory.set(wp.category, `💡 ${wp.tip}`)
+    }
+  }
+
+  for (const [cat] of sorted.slice(0, 3)) {
     const related = findRelatedPrompts(prompts, cat)
     const quote = related[0]
     const fallback = CATEGORY_REASONS[cat]?.used ?? '関連する作業をしていました'
@@ -695,11 +814,11 @@ export function computeRecommendations(
     const sampled = pool.sort(() => Math.random() - 0.5).slice(0, 5)
     for (const q of sampled) {
       const signals: string[] = []
-      signals.push(`${catName}は作業関連度${rank}位（スコア: ${score}）`)
+      // Pattern-based tip takes priority (most actionable)
+      const patternTip = patternsByCategory.get(cat)
+      if (patternTip) signals.push(patternTip)
+      signals.push(`${catName}は作業関連度${rank}位`)
       if (quote) signals.push(`「${quote.length > 25 ? quote.slice(0, 25) + '...' : quote}」に関連`)
-      signals.push(
-        `難易度: ${q.difficulty === 'beginner' ? '入門' : q.difficulty === 'intermediate' ? '中級' : '上級'}`
-      )
       recs.push({ id: q.id, question: q.question, category: q.category, reason, signals })
       used.add(q.id)
     }
