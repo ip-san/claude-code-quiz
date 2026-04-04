@@ -1,5 +1,5 @@
 import { ChevronDown, ChevronUp, Lightbulb, Play, RefreshCw, Sparkles, X } from 'lucide-react'
-import { useCallback, useEffect, useState } from 'react'
+import { useCallback, useEffect, useRef, useState } from 'react'
 
 /** Progress text + dots — both pulse in color together */
 function ProgressLabel({ text }: { text: string }) {
@@ -66,6 +66,22 @@ export function UsageRecommend() {
 
   const [aiError, setAiError] = useState<string | null>(null)
   const [regenerated, setRegenerated] = useState(false)
+  const [regenerating, setRegenerating] = useState(false)
+  const [elapsed, setElapsed] = useState(0)
+  const timerRef = useRef<ReturnType<typeof setInterval> | null>(null)
+
+  const startTimer = useCallback(() => {
+    setElapsed(0)
+    timerRef.current = setInterval(() => setElapsed((t) => t + 1), 1000)
+  }, [])
+  const stopTimer = useCallback(() => {
+    if (timerRef.current) {
+      clearInterval(timerRef.current)
+      timerRef.current = null
+    }
+  }, [])
+
+  useEffect(() => () => stopTimer(), [stopTimer])
 
   const loadFromCache = useCallback(async (): Promise<boolean> => {
     const cached = await window.electronAPI?.getCachedRecommend?.()
@@ -266,14 +282,24 @@ export function UsageRecommend() {
               setUnusedCategories(unused)
               // 2. Background AI regeneration with Sonnet (cheap)
               setRegenerated(false)
+              setRegenerating(true)
+              startTimer()
               window.electronAPI?.clearRecommendCache?.()
-              window.electronAPI?.runRecommendSkill?.().then(async (result) => {
-                if (result?.success) {
-                  await loadFromCache()
-                  setRegenerated(true)
-                  haptics.medium()
-                }
-              })
+              window.electronAPI
+                ?.runRecommendSkill?.()
+                .then(async (result) => {
+                  stopTimer()
+                  setRegenerating(false)
+                  if (result?.success) {
+                    await loadFromCache()
+                    setRegenerated(true)
+                    haptics.medium()
+                  }
+                })
+                .catch(() => {
+                  stopTimer()
+                  setRegenerating(false)
+                })
             }}
             className="tap-highlight rounded-full p-1.5 text-stone-400 active:text-claude-orange"
             aria-label="問題を更新"
@@ -291,6 +317,40 @@ export function UsageRecommend() {
           </button>
         </div>
       </div>
+
+      {/* Background regeneration progress */}
+      {regenerating &&
+        (() => {
+          const steps = [
+            { at: 0, text: 'セッションログを読み込み中' },
+            { at: 5, text: 'プロンプトの意図を解析中' },
+            { at: 15, text: '使用パターンを分析中' },
+            { at: 30, text: 'あなたに合った問題を選定中' },
+            { at: 60, text: '選定理由を生成中' },
+            { at: 90, text: 'もう少しで完了します' },
+          ]
+          const stepText =
+            steps
+              .slice()
+              .reverse()
+              .find((s) => elapsed >= s.at)?.text ?? ''
+          return (
+            <>
+              <div className="mx-4 mb-1 flex items-center gap-2">
+                <div className="h-1 flex-1 overflow-hidden rounded-full bg-stone-100 dark:bg-stone-700">
+                  <div
+                    className="h-full rounded-full bg-claude-orange transition-[width] duration-1000 ease-linear"
+                    style={{ width: `${Math.min((elapsed / 120) * 100, 100)}%` }}
+                  />
+                </div>
+                <span className="flex-shrink-0 text-[10px] text-stone-400 dark:text-stone-500">{elapsed}秒</span>
+              </div>
+              <p className="mx-4 mb-2 text-[11px] text-stone-500 dark:text-stone-400">
+                <ProgressLabel text={stepText} />
+              </p>
+            </>
+          )
+        })()}
 
       {/* Regeneration success banner — tap to dismiss */}
       {regenerated && (
