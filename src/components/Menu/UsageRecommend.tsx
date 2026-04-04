@@ -1,5 +1,30 @@
 import { ChevronDown, ChevronUp, Lightbulb, Play, RefreshCw, Sparkles, Square, X } from 'lucide-react'
 import { useCallback, useEffect, useRef, useState } from 'react'
+
+/** Animated dots that cycle color like Claude Code's spinner */
+function PulsingDots() {
+  return (
+    <span className="ml-0.5 inline-flex gap-[3px]">
+      {[0, 1, 2].map((i) => (
+        <span
+          key={i}
+          className="inline-block h-[5px] w-[5px] rounded-full bg-claude-orange"
+          style={{
+            animation: 'pulse-dot 1.4s ease-in-out infinite',
+            animationDelay: `${i * 0.2}s`,
+          }}
+        />
+      ))}
+      <style>{`
+        @keyframes pulse-dot {
+          0%, 80%, 100% { opacity: 0.2; }
+          40% { opacity: 1; }
+        }
+      `}</style>
+    </span>
+  )
+}
+
 import type { Question } from '@/domain/entities/Question'
 import { getCategoryById } from '@/domain/valueObjects/Category'
 import { trackRecommend } from '@/lib/analytics'
@@ -42,11 +67,10 @@ export function UsageRecommend() {
     { at: 90, text: 'もう少しで完了します' },
   ]
 
-  const dots = '.'.repeat((elapsed % 3) + 1)
-  const progressText =
-    (PROGRESS_STEPS.slice()
+  const progressBase =
+    PROGRESS_STEPS.slice()
       .reverse()
-      .find((s) => elapsed >= s.at)?.text ?? '') + dots
+      .find((s) => elapsed >= s.at)?.text ?? ''
 
   const startTimer = () => {
     setElapsed(0)
@@ -221,7 +245,14 @@ export function UsageRecommend() {
             {loading ? `分析中...（${elapsed}秒）` : 'あなたの利用履歴からレコメンド'}
           </div>
           <div className="text-xs text-stone-500 dark:text-stone-400">
-            {loading ? progressText : 'AI があなたの作業意図を理解し、最適な復習問題を選びます'}
+            {loading ? (
+              <>
+                {progressBase}
+                <PulsingDots />
+              </>
+            ) : (
+              'AI があなたの作業意図を理解し、最適な復習問題を選びます'
+            )}
           </div>
           {aiError && <p className="mt-1 text-xs text-red-500">{aiError}</p>}
         </div>
@@ -326,7 +357,12 @@ export function UsageRecommend() {
           <span className="flex-shrink-0 text-[11px] text-stone-400 dark:text-stone-500">{elapsed}秒</span>
         </div>
       )}
-      {loading && <p className="mx-4 mb-2 text-xs text-stone-500 dark:text-stone-400">{progressText}</p>}
+      {loading && (
+        <p className="mx-4 mb-2 text-xs text-stone-500 dark:text-stone-400">
+          {progressBase}
+          <PulsingDots />
+        </p>
+      )}
 
       {/* Error message */}
       {aiError && <p className="mx-4 mb-2 text-xs text-red-500 dark:text-red-400">{aiError}</p>}
