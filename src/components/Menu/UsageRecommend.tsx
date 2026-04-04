@@ -34,18 +34,19 @@ export function UsageRecommend() {
   const timerRef = useRef<ReturnType<typeof setInterval> | null>(null)
 
   const PROGRESS_STEPS = [
-    { at: 0, text: 'セッションログを読み込み中...' },
-    { at: 5, text: 'プロンプトの意図を解析中...' },
-    { at: 15, text: '使用パターンを分析中...' },
-    { at: 30, text: 'あなたに合った問題を選定中...' },
-    { at: 60, text: '選定理由を生成中...' },
-    { at: 90, text: 'もう少しで完了します...' },
+    { at: 0, text: 'セッションログを読み込み中' },
+    { at: 5, text: 'プロンプトの意図を解析中' },
+    { at: 15, text: '使用パターンを分析中' },
+    { at: 30, text: 'あなたに合った問題を選定中' },
+    { at: 60, text: '選定理由を生成中' },
+    { at: 90, text: 'もう少しで完了します' },
   ]
 
+  const dots = '.'.repeat((elapsed % 3) + 1)
   const progressText =
-    PROGRESS_STEPS.slice()
+    (PROGRESS_STEPS.slice()
       .reverse()
-      .find((s) => elapsed >= s.at)?.text ?? ''
+      .find((s) => elapsed >= s.at)?.text ?? '') + dots
 
   const startTimer = () => {
     setElapsed(0)
