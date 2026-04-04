@@ -65,6 +65,7 @@ export function UsageRecommend() {
   const [setupDone, setSetupDone] = useState(false)
 
   const [aiError, setAiError] = useState<string | null>(null)
+  const [regenerated, setRegenerated] = useState(false)
   const [elapsed, setElapsed] = useState(0)
   const timerRef = useRef<ReturnType<typeof setInterval> | null>(null)
 
@@ -93,7 +94,6 @@ export function UsageRecommend() {
     }
   }, [])
 
-  // biome-ignore lint/correctness/useExhaustiveDependencies: allQuestions needed to match cached IDs to quiz data
   const loadFromCache = useCallback(async (): Promise<boolean> => {
     const cached = await window.electronAPI?.getCachedRecommend?.()
     if (!cached || cached.ids.length === 0) return false
@@ -167,7 +167,6 @@ export function UsageRecommend() {
       haptics.light()
     }
     setLoading(false)
-    // biome-ignore lint/correctness/useExhaustiveDependencies: allQuestions needed to recompute recommendations after quiz data reload
   }, [allQuestions, loadFromCache, recommendations.length, startTimer, stopTimer])
 
   // On mount, load from cache + check if recommend is already running
@@ -304,42 +303,59 @@ export function UsageRecommend() {
         <div className="flex items-center gap-0.5">
           <button
             onClick={(e) => {
-              if (!analysis) return
+              if (!analysis || loading) return
               haptics.light()
+              setAiError(null)
+              setRegenerated(false)
               const icon = e.currentTarget.querySelector('svg')
               if (icon) {
-                icon.style.transition = 'transform 0.4s ease-out'
+                icon.style.transition = 'transform 0.5s ease-out'
                 icon.style.transform = 'rotate(360deg)'
                 setTimeout(() => {
                   icon.style.transition = 'none'
                   icon.style.transform = ''
-                }, 400)
+                }, 500)
               }
-              // Instant shuffle + background regeneration
+              // 1. Instant shuffle for immediate feedback
               const shuffledSamples = [...analysis.promptSamples].sort(() => Math.random() - 0.5)
               const newAnalysis = { ...analysis, promptSamples: shuffledSamples }
               setAnalysis(newAnalysis)
               const { recs, unused } = computeRecommendations(newAnalysis, allQuestions)
               setRecommendations(recs)
               setUnusedCategories(unused)
-              // Kick off AI re-analysis in background with progress
+              // 2. Run AI re-analysis with progress
               setLoading(true)
               startTimer()
-              window.electronAPI?.runRecommendSkill?.().then((result) => {
-                stopTimer()
-                setLoading(false)
-                if (result?.success) {
-                  loadFromCache()
-                  window.electronAPI?.showNotification?.(
-                    'レコメンドを更新しました',
-                    '最新の利用履歴から問題を再選定しました'
-                  )
-                }
-              })
+              window.electronAPI
+                ?.runRecommendSkill?.()
+                .then(async (result) => {
+                  stopTimer()
+                  setLoading(false)
+                  if (result?.success) {
+                    await loadFromCache()
+                    setRegenerated(true)
+                    haptics.medium()
+                    // Try native notification (requires app restart after preload changes)
+                    window.electronAPI?.showNotification?.(
+                      'レコメンドを更新しました',
+                      '最新の利用履歴から問題を再選定しました'
+                    )
+                    // Auto-hide success banner after 5s
+                    setTimeout(() => setRegenerated(false), 5000)
+                  } else {
+                    setAiError(result?.error ?? '再生成に失敗しました')
+                  }
+                })
+                .catch(() => {
+                  stopTimer()
+                  setLoading(false)
+                  setAiError('再生成に失敗しました')
+                })
             }}
-            className="tap-highlight rounded-full p-1.5 text-stone-400 active:text-claude-orange"
-            aria-label="問題を更新"
-            title="更新"
+            disabled={loading}
+            className={`tap-highlight rounded-full p-1.5 ${loading ? 'animate-spin text-claude-orange' : 'text-stone-400 active:text-claude-orange'}`}
+            aria-label={loading ? 'AI が再生成中...' : '問題を更新'}
+            title={loading ? '再生成中...' : '更新'}
           >
             <RefreshCw className="h-3.5 w-3.5" />
           </button>
@@ -370,6 +386,13 @@ export function UsageRecommend() {
             <ProgressLabel text={progressBase} />
           </p>
         </>
+      )}
+
+      {/* Regeneration success banner */}
+      {regenerated && (
+        <div className="mx-4 mb-1.5 animate-[fade-in_0.3s_ease-out] rounded-lg bg-green-50 px-3 py-1.5 text-xs text-green-700 dark:bg-green-500/10 dark:text-green-400">
+          ✓ 最新の利用履歴で更新しました
+        </div>
       )}
 
       {/* Error message */}
