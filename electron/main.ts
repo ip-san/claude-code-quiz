@@ -496,10 +496,17 @@ ipcMain.handle('run-recommend-skill', async (): Promise<{ success: boolean; erro
       })
       recommendProc = proc
       let stderr = ''
+      let stdout = ''
+      proc.stdout?.on('data', (d: Buffer) => {
+        stdout += d.toString()
+      })
       proc.stderr?.on('data', (d: Buffer) => {
         stderr += d.toString()
       })
       proc.on('close', (code) => {
+        console.log(`[recommend] claude exited with code ${code}`)
+        if (stdout.trim()) console.log(`[recommend] stdout: ${stdout.slice(0, 200)}`)
+        if (stderr.trim()) console.log(`[recommend] stderr: ${stderr.slice(0, 200)}`)
         if (proc === recommendProc) recommendProc = null
         if (code === 0) resolve()
         else if (code === 143 || code === null) reject(new Error('タイムアウトしました。もう一度お試しください。'))
@@ -539,8 +546,13 @@ ipcMain.handle('cancel-recommend', (): boolean => {
 })
 
 ipcMain.handle('show-notification', (_event: unknown, title: string, body: string): void => {
+  console.log(`[notification] isSupported=${ElectronNotification.isSupported()}, title="${title}"`)
   if (ElectronNotification.isSupported()) {
-    new ElectronNotification({ title, body }).show()
+    const n = new ElectronNotification({ title, body })
+    n.show()
+    console.log('[notification] shown')
+  } else {
+    console.log('[notification] NOT supported')
   }
 })
 

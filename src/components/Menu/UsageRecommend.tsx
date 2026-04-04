@@ -320,7 +320,9 @@ export function UsageRecommend() {
               const shuffledSamples = [...analysis.promptSamples].sort(() => Math.random() - 0.5)
               const newAnalysis = { ...analysis, promptSamples: shuffledSamples }
               setAnalysis(newAnalysis)
-              const { recs, unused } = computeRecommendations(newAnalysis, allQuestions)
+              // Exclude currently shown questions so user always sees new ones
+              const prevIds = new Set(recommendations.map((r) => r.id))
+              const { recs, unused } = computeRecommendations(newAnalysis, allQuestions, prevIds)
               setRecommendations(recs)
               setUnusedCategories(unused)
               // 2. Run AI re-analysis with progress
@@ -403,16 +405,25 @@ export function UsageRecommend() {
       {/* Step 1: Concrete Experience — あなたがやったこと */}
       {analysis.promptSamples.length > 0 &&
         (() => {
-          const unique = [...new Set(analysis.promptSamples)].filter((p: string) => p.length > 5).slice(0, 3)
-          if (unique.length === 0) return null
+          // Dedupe preserving shuffled order, filter out short/command-like entries
+          const seen = new Set<string>()
+          const filtered: string[] = []
+          for (const p of analysis.promptSamples) {
+            if (p.length <= 5 || seen.has(p) || /^(docker |npm |bun |node |git )/.test(p)) continue
+            seen.add(p)
+            filtered.push(p)
+            if (filtered.length >= 3) break
+          }
+          if (filtered.length === 0) return null
           return (
             <div className="mx-4 mb-1.5">
               <p className="mb-1 text-[11px] font-medium text-stone-500 dark:text-stone-400">あなたの作業</p>
-              <div className="space-y-1">
-                {unique.map((p: string, i: number) => (
+              <div className="space-y-1" key={filtered.join('|')}>
+                {filtered.map((p: string, i: number) => (
                   <p
-                    key={i}
-                    className="truncate rounded bg-stone-50 px-2.5 py-1 text-xs text-stone-600 dark:bg-stone-900/50 dark:text-stone-300"
+                    key={p}
+                    className="animate-[fade-in_0.3s_ease-out] truncate rounded bg-stone-50 px-2.5 py-1 text-xs text-stone-600 dark:bg-stone-900/50 dark:text-stone-300"
+                    style={{ animationDelay: `${i * 0.1}s` }}
                   >
                     {p}
                   </p>
@@ -586,10 +597,11 @@ function findRelatedPrompt(prompts: string[], category: string): string | null {
 
 function computeRecommendations(
   analysis: AnalysisResult,
-  allQuestions: Question[]
+  allQuestions: Question[],
+  excludeIds?: Set<string>
 ): { recs: RecommendedQuestion[]; unused: string[] } {
   const recs: RecommendedQuestion[] = []
-  const used = new Set<string>()
+  const used = new Set<string>(excludeIds ?? [])
   const prompts = analysis.promptSamples ?? []
 
   const sorted = Object.entries(analysis.categoryScores)
