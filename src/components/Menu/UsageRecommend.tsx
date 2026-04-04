@@ -1,24 +1,30 @@
 import { ChevronDown, ChevronUp, Lightbulb, Play, RefreshCw, Sparkles, Square, X } from 'lucide-react'
 import { useCallback, useEffect, useRef, useState } from 'react'
 
-/** Animated dots that cycle color like Claude Code's spinner */
-function PulsingDots() {
+/** Progress text with pulsing dots — text fades in when it changes */
+function ProgressLabel({ text }: { text: string }) {
   return (
-    <span className="ml-0.5 inline-flex gap-[3px]">
-      {[0, 1, 2].map((i) => (
-        <span
-          key={i}
-          className="inline-block h-[5px] w-[5px] rounded-full bg-claude-orange"
-          style={{
-            animation: 'pulse-dot 1.4s ease-in-out infinite',
-            animationDelay: `${i * 0.2}s`,
-          }}
-        />
-      ))}
+    <span className="inline-flex items-center gap-1">
+      <span key={text} className="animate-[fade-in_0.4s_ease-out]">
+        {text}
+      </span>
+      <span className="inline-flex gap-[3px]">
+        {[0, 1, 2].map((i) => (
+          <span
+            key={i}
+            className="inline-block h-[5px] w-[5px] rounded-full bg-claude-orange animate-[pulse-dot_1.4s_ease-in-out_infinite]"
+            style={{ animationDelay: `${i * 0.2}s` }}
+          />
+        ))}
+      </span>
       <style>{`
         @keyframes pulse-dot {
           0%, 80%, 100% { opacity: 0.2; }
           40% { opacity: 1; }
+        }
+        @keyframes fade-in {
+          from { opacity: 0; transform: translateY(4px); }
+          to { opacity: 1; transform: translateY(0); }
         }
       `}</style>
     </span>
@@ -246,10 +252,7 @@ export function UsageRecommend() {
           </div>
           <div className="text-xs text-stone-500 dark:text-stone-400">
             {loading ? (
-              <>
-                {progressBase}
-                <PulsingDots />
-              </>
+              <ProgressLabel text={progressBase} />
             ) : (
               'AI があなたの作業意図を理解し、最適な復習問題を選びます'
             )}
@@ -359,8 +362,7 @@ export function UsageRecommend() {
       )}
       {loading && (
         <p className="mx-4 mb-2 text-xs text-stone-500 dark:text-stone-400">
-          {progressBase}
-          <PulsingDots />
+          <ProgressLabel text={progressBase} />
         </p>
       )}
 
