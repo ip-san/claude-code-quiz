@@ -303,6 +303,20 @@ npm run quiz:search -- "キーワード"  # 特定トピックの既存問題を
 
 > 検証ラウンドで蓄積された具体例・教訓は quiz-refine スキルの `known-issues.md` を参照
 
+**重要な確定値（2026-04-04 docs 再確認済み）:**
+
+- **プラグインのソースタイプは5種類**: relative path, `github`, `url`, `git-subdir`, `npm`。`pip` は存在しない（known-issues.md 誤記修正済み）
+- **`CLAUDE.md` のスコープは4段階**: Managed > Project > User > Local（`CLAUDE.local.md` は Local scope として docs に記載あり）。`settings.json` の5段階と混同しないこと
+- **Hook イベントは26種類**: `PermissionDenied`（auto mode classifier がツール呼び出しを拒否した時）を含む全26種
+- **`defaultMode` の有効値は6つ**: `default`, `acceptEdits`, `plan`, `auto`, `dontAsk`, `bypassPermissions`
+
+**重要な確定値（2026-04-04 再確認済み）:**
+
+- **プラグインのソースタイプは5種類**: relative path, `github`, `url`, `git-subdir`, `npm`。**`pip` は存在しない**
+- **`CLAUDE.md` のスコープは4段階**: Managed > Project > User > Local（`CLAUDE.local.md` は Local scope として記載あり）。`settings.json` の5段階（Managed > CLI > Local > Project > User）と混同しないこと
+- **Hook イベントは26種類**: `PermissionDenied`（auto mode classifier がツール呼び出しを拒否した時）を含む全26種（ext-085 参照）
+- **`defaultMode` の有効値は6つ**: `default`, `acceptEdits`, `plan`, `auto`, `dontAsk`, `bypassPermissions`
+
 ### 内部一貫性チェック（生成直後に必ず確認）
 
 問題を書いたら、フィールド間の矛盾がないか自己チェックする：

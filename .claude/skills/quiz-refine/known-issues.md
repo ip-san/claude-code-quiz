@@ -26,7 +26,7 @@
 
 ## settings ページとリンク先の乖離
 
-- `defaultMode` 有効値は `default`/`acceptEdits`/`plan`/`dontAsk`/`bypassPermissions` の5つ。settings ページの例 `acceptEdits` だけを見て「4つ」と誤判定するパターンは v4.22.0 で実際に発生。完全なリストは permissions ページ（`/en/permissions#permission-modes`）にある
+- `defaultMode` 有効値は `default`/`acceptEdits`/`plan`/`auto`/`dontAsk`/`bypassPermissions` の**6つ**（settings.md L229 確認）。settings ページの例 `acceptEdits` だけを見て「4つ」「5つ」と誤判定するパターンに注意。完全なリストは settings.md の defaultMode 行に記載あり
 - ses-102 がエフォートレベルの設定方法を「5つ」と記述していたが、docs はスキル/サブエージェントのフロントマターを含む6つを列挙 → known-issues.md にエフォートレベル設定方法6種（/effort, /model slider, --effort, env var, settings, frontmatter）を明記
 
 ## VALID_DOC_PAGES の更新
@@ -214,9 +214,10 @@ v4.43.0 以前の known-issues では「exit code 2 の一般ルールで UserPr
 
 ## Hook イベント総数
 
-- Hook event types は全 25 種（2026-03-27 確認）。v4.44.0 時点の 22 種から `TaskCreated`、`CwdChanged`、`FileChanged` の3イベントが追加された
-- 全25種: `SessionStart`, `SessionEnd`, `InstructionsLoaded`, `UserPromptSubmit`, `PreToolUse`, `PermissionRequest`, `PostToolUse`, `PostToolUseFailure`, `Notification`, `SubagentStart`, `SubagentStop`, `TaskCreated`, `TaskCompleted`, `Stop`, `StopFailure`, `TeammateIdle`, `ConfigChange`, `WorktreeCreate`, `WorktreeRemove`, `PreCompact`, `PostCompact`, `Elicitation`, `ElicitationResult`, `CwdChanged`, `FileChanged`
+- Hook event types は全 26 種（2026-04-04 確認）。25 種から `PermissionDenied` が追加された
+- 全26種: `SessionStart`, `SessionEnd`, `InstructionsLoaded`, `UserPromptSubmit`, `PreToolUse`, `PermissionRequest`, `PermissionDenied`, `PostToolUse`, `PostToolUseFailure`, `Notification`, `SubagentStart`, `SubagentStop`, `TaskCreated`, `TaskCompleted`, `Stop`, `StopFailure`, `TeammateIdle`, `ConfigChange`, `WorktreeCreate`, `WorktreeRemove`, `PreCompact`, `PostCompact`, `Elicitation`, `ElicitationResult`, `CwdChanged`, `FileChanged`
 - ブロッキング可能: 12 イベント（PreToolUse, UserPromptSubmit, PermissionRequest, Stop, SubagentStop, TeammateIdle, TaskCreated, TaskCompleted, ConfigChange, WorktreeCreate, Elicitation, ElicitationResult）
+- `PermissionDenied`: auto mode classifier がツール呼び出しを拒否した時。ブロッキング不可だが `{retry: true}` を返すとモデルにリトライを許可できる
 
 ## 環境変数（追加）
 
@@ -235,8 +236,9 @@ v4.43.0 以前の known-issues では「exit code 2 の一般ルールで UserPr
 
 ## Plugin source types
 
-- Plugin の source は6種類: relative path, github, url, git-subdir, npm, pip（2026-03-10 確認、`git-subdir` はモノレポ向けスパースクローン）
-- plugin-marketplaces ページにて `git-subdir` が6番目のソースタイプとして追加されていた。ext-073, ext-130 が「5種類」と記述していた → known-issues.md のPlugin source types項目を5→6に更新。MEMORY.md も更新
+- Plugin の source は5種類: relative path（）, github, url, git-subdir, npm（pip はドキュメントに存在しない。2026-04-04 再確認）
+-  はモノレポ向けスパースクローン（sparse-checkout）
+- plugin-marketplaces ページで確認: relative path, github, url, git-subdir, npm の5種のみ
 
 ## キーボードショートカット（追加）
 
@@ -324,9 +326,12 @@ v4.43.0 以前の known-issues では「exit code 2 の一般ルールで UserPr
 
 - 全630問のreferenceUrlが`/docs/ja/`を使用していたが、quiz-lintは`/docs/en/`を期待していた。テストコード（quizContentQuality.test.ts）も`/docs/ja/`を期待していたため、lintとtestで不整合があった → quiz-lint.mjsとquizContentQuality.test.tsのURL prefix定義を統一するチェックをCIに追加。言語切替が発生した場合の一括変換スクリプトも検討
 
-## CLAUDE.local.md removal from documentation
+## CLAUDE.local.md ドキュメント復帰（確認済み）
 
-- `CLAUDE.local.md` が公式ドキュメントから完全に削除されている。CLAUDE.md のスコープテーブルには Managed policy、Project instructions、User instructions の3つのみが記載されている。以前は4スコープ（Managed > Local > Project > User）だったが、現在は3スコープ（Managed > Project > User）に変更 → - SKILL.md の既知パターンに「CLAUDE.md スコープは3段階（Managed > Project > User）。settings.json は5段階（Managed > CLI > Local > Project > User）」を追加
+-  は現在のドキュメント（memory.md）に**掲載されている**（2026-04-04 再確認）。Local scope はテーブルに記載されており「削除」は誤り
+- CLAUDE.md のスコープは4段階: Managed > Project > Local > User（ は Local scope）
+- settings.json スコープは5段階: Managed > CLI > Local > Project > User（異なる）
+- 以前の「CLAUDE.local.md removal」という記録は古い情報。quiz で「3スコープ」「Local scope が存在しない」と記述しないこと
 
 ## @import does not support glob patterns
 
