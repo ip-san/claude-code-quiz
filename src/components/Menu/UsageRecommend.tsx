@@ -343,8 +343,6 @@ export function UsageRecommend() {
                       'レコメンドを更新しました',
                       '最新の利用履歴から問題を再選定しました'
                     )
-                    // Auto-hide success banner after 5s
-                    setTimeout(() => setRegenerated(false), 5000)
                   } else {
                     setAiError(result?.error ?? '再生成に失敗しました')
                   }
@@ -391,11 +389,15 @@ export function UsageRecommend() {
         </>
       )}
 
-      {/* Regeneration success banner */}
+      {/* Regeneration success banner — tap to dismiss */}
       {regenerated && (
-        <div className="mx-4 mb-1.5 animate-[fade-in_0.3s_ease-out] rounded-lg bg-green-50 px-3 py-1.5 text-xs text-green-700 dark:bg-green-500/10 dark:text-green-400">
-          ✓ 最新の利用履歴で更新しました
-        </div>
+        <button
+          onClick={() => setRegenerated(false)}
+          className="tap-highlight mx-4 mb-1.5 flex w-[calc(100%-2rem)] animate-[fade-in_0.3s_ease-out] items-center justify-between rounded-lg bg-green-50 px-3 py-1.5 text-left text-xs text-green-700 dark:bg-green-500/10 dark:text-green-400"
+        >
+          <span>✓ 最新の利用履歴で更新しました</span>
+          <X className="h-3 w-3 flex-shrink-0 opacity-50" />
+        </button>
       )}
 
       {/* Error message */}
