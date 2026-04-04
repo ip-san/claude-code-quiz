@@ -315,33 +315,21 @@ export function UsageRecommend() {
                   icon.style.transform = ''
                 }, 400)
               }
+              // Instant shuffle + background regeneration
               const shuffledSamples = [...analysis.promptSamples].sort(() => Math.random() - 0.5)
               const newAnalysis = { ...analysis, promptSamples: shuffledSamples }
               setAnalysis(newAnalysis)
               const { recs, unused } = computeRecommendations(newAnalysis, allQuestions)
               setRecommendations(recs)
               setUnusedCategories(unused)
+              // Also kick off AI re-analysis in background (updates cache for next load)
+              window.electronAPI?.runRecommendSkill?.()
             }}
             className="tap-highlight rounded-full p-1.5 text-stone-400 active:text-claude-orange"
-            aria-label="問題をシャッフル"
-            title="シャッフル"
+            aria-label="問題を更新"
+            title="更新"
           >
             <RefreshCw className="h-3.5 w-3.5" />
-          </button>
-          <button
-            onClick={() => {
-              haptics.light()
-              setAnalysis(null)
-              setRecommendations([])
-              setAiError(null)
-              // Trigger re-analysis on next tick (after state clears to show analyze button)
-              setTimeout(() => analyze(), 100)
-            }}
-            className="tap-highlight rounded-full p-1.5 text-stone-400 active:text-claude-orange"
-            aria-label="最新の履歴で再生成"
-            title="再生成"
-          >
-            <Sparkles className="h-3.5 w-3.5" />
           </button>
           <button
             onClick={() => setAnalysis(null)}
