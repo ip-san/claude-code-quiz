@@ -33,6 +33,20 @@ export function UsageRecommend() {
   const [elapsed, setElapsed] = useState(0)
   const timerRef = useRef<ReturnType<typeof setInterval> | null>(null)
 
+  const PROGRESS_STEPS = [
+    { at: 0, text: 'セッションログを読み込み中...' },
+    { at: 5, text: 'プロンプトの意図を解析中...' },
+    { at: 15, text: '使用パターンを分析中...' },
+    { at: 30, text: 'あなたに合った問題を選定中...' },
+    { at: 60, text: '選定理由を生成中...' },
+    { at: 90, text: 'もう少しで完了します...' },
+  ]
+
+  const progressText =
+    PROGRESS_STEPS.slice()
+      .reverse()
+      .find((s) => elapsed >= s.at)?.text ?? ''
+
   const startTimer = () => {
     setElapsed(0)
     timerRef.current = setInterval(() => setElapsed((t) => t + 1), 1000)
@@ -203,12 +217,10 @@ export function UsageRecommend() {
         )}
         <div className="relative flex-1">
           <div className="text-sm font-medium text-claude-dark dark:text-stone-200">
-            {loading ? `AI が利用履歴を分析中...（${elapsed}秒）` : 'あなたの利用履歴からレコメンド'}
+            {loading ? `分析中...（${elapsed}秒）` : 'あなたの利用履歴からレコメンド'}
           </div>
           <div className="text-xs text-stone-500 dark:text-stone-400">
-            {loading
-              ? 'Claude が作業内容を理解して問題を選んでいます'
-              : 'AI があなたの作業意図を理解し、最適な復習問題を選びます'}
+            {loading ? progressText : 'AI があなたの作業意図を理解し、最適な復習問題を選びます'}
           </div>
           {aiError && <p className="mt-1 text-xs text-red-500">{aiError}</p>}
         </div>
@@ -300,6 +312,20 @@ export function UsageRecommend() {
           </button>
         </div>
       </div>
+
+      {/* Progress step text */}
+      {loading && (
+        <div className="mx-4 mb-1.5 flex items-center gap-2">
+          <div className="h-1 flex-1 overflow-hidden rounded-full bg-stone-100 dark:bg-stone-700">
+            <div
+              className="h-full rounded-full bg-claude-orange transition-[width] duration-1000 ease-linear"
+              style={{ width: `${Math.min((elapsed / 120) * 100, 100)}%` }}
+            />
+          </div>
+          <span className="flex-shrink-0 text-[11px] text-stone-400 dark:text-stone-500">{elapsed}秒</span>
+        </div>
+      )}
+      {loading && <p className="mx-4 mb-2 text-xs text-stone-500 dark:text-stone-400">{progressText}</p>}
 
       {/* Error message */}
       {aiError && <p className="mx-4 mb-2 text-xs text-red-500 dark:text-red-400">{aiError}</p>}
