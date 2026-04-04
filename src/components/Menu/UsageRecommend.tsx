@@ -1,4 +1,4 @@
-import { ChevronDown, ChevronUp, Lightbulb, Play, Sparkles, X } from 'lucide-react'
+import { ChevronDown, ChevronUp, Lightbulb, Play, RefreshCw, Sparkles, X } from 'lucide-react'
 import { useCallback, useEffect, useState } from 'react'
 import type { Question } from '@/domain/entities/Question'
 import { getCategoryById } from '@/domain/valueObjects/Category'
@@ -212,13 +212,33 @@ export function UsageRecommend() {
             {recCount}問
           </span>
         </div>
-        <button
-          onClick={() => setAnalysis(null)}
-          className="tap-highlight rounded-full p-2 text-stone-400"
-          aria-label="レコメンドを閉じる"
-        >
-          <X className="h-4 w-4" />
-        </button>
+        <div className="flex items-center gap-1">
+          <button
+            onClick={async () => {
+              if (!window.electronAPI || loading) return
+              setLoading(true)
+              haptics.light()
+              const result = await window.electronAPI.runRecommendSkill()
+              if (result.success) {
+                await loadFromCache()
+                haptics.medium()
+              }
+              setLoading(false)
+            }}
+            disabled={loading}
+            className="tap-highlight rounded-full p-2 text-stone-400"
+            aria-label="レコメンドを再生成"
+          >
+            <RefreshCw className={`h-4 w-4 ${loading ? 'animate-spin' : ''}`} />
+          </button>
+          <button
+            onClick={() => setAnalysis(null)}
+            className="tap-highlight rounded-full p-2 text-stone-400"
+            aria-label="レコメンドを閉じる"
+          >
+            <X className="h-4 w-4" />
+          </button>
+        </div>
       </div>
 
       {/* Your prompts */}
