@@ -322,8 +322,12 @@ export function UsageRecommend() {
               const { recs, unused } = computeRecommendations(newAnalysis, allQuestions)
               setRecommendations(recs)
               setUnusedCategories(unused)
-              // Also kick off AI re-analysis in background (updates cache for next load)
+              // Kick off AI re-analysis in background with progress
+              setLoading(true)
+              startTimer()
               window.electronAPI?.runRecommendSkill?.().then((result) => {
+                stopTimer()
+                setLoading(false)
                 if (result?.success) {
                   loadFromCache()
                   window.electronAPI?.showNotification?.(
@@ -349,6 +353,24 @@ export function UsageRecommend() {
           </button>
         </div>
       </div>
+
+      {/* Background regeneration progress */}
+      {loading && (
+        <>
+          <div className="mx-4 mb-1 flex items-center gap-2">
+            <div className="h-1 flex-1 overflow-hidden rounded-full bg-stone-100 dark:bg-stone-700">
+              <div
+                className="h-full rounded-full bg-claude-orange transition-[width] duration-1000 ease-linear"
+                style={{ width: `${Math.min((elapsed / 120) * 100, 100)}%` }}
+              />
+            </div>
+            <span className="flex-shrink-0 text-[10px] text-stone-400 dark:text-stone-500">{elapsed}秒</span>
+          </div>
+          <p className="mx-4 mb-2 text-[11px] text-stone-500 dark:text-stone-400">
+            <ProgressLabel text={progressBase} />
+          </p>
+        </>
+      )}
 
       {/* Error message */}
       {aiError && <p className="mx-4 mb-2 text-xs text-red-500 dark:text-red-400">{aiError}</p>}
