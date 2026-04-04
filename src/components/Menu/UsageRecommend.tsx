@@ -223,6 +223,12 @@ export function UsageRecommend() {
               if (result.success) {
                 await loadFromCache()
                 haptics.medium()
+                if ('Notification' in window && Notification.permission === 'granted') {
+                  new Notification('レコメンドを更新しました', {
+                    body: `最新の利用履歴から問題を再選定しました`,
+                    icon: '/icons/icon-192.png',
+                  })
+                }
               } else {
                 setAiError(result.error ?? '再生成に失敗しました')
               }
