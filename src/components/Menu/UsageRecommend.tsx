@@ -50,6 +50,8 @@ interface RecommendedQuestion {
   question: string
   category: string
   reason: string
+  /** Why this specific question was chosen — multiple signals */
+  signals: string[]
 }
 
 /**
@@ -101,7 +103,7 @@ export function UsageRecommend() {
         .map((id) => {
           const q = allQuestions.find((q) => q.id === id)
           if (!q) return null
-          return { id, question: q.question, category: q.category, reason: aiReasons[id] ?? '' }
+          return { id, question: q.question, category: q.category, reason: aiReasons[id] ?? '', signals: ['AI が選定'] }
         })
         .filter(Boolean) as RecommendedQuestion[]
       setRecommendations(recs)
@@ -435,6 +437,8 @@ export function UsageRecommend() {
         <div className="mx-4 mb-1.5 space-y-1.5">
           {groupByCategory(recommendations).map(({ category, reason, questions }) => {
             const cat = getCategoryById(category)
+            // Collect unique signals across questions in this category
+            const allSignals = [...new Set(questions.flatMap((q) => q.signals))]
             return (
               <div key={category} className="rounded-lg bg-stone-50 px-3 py-2 dark:bg-stone-900/50">
                 <div className="flex items-center gap-2">
@@ -445,6 +449,18 @@ export function UsageRecommend() {
                   </span>
                 </div>
                 <p className="mt-1 text-[11px] leading-relaxed text-stone-500 dark:text-stone-400">{reason}</p>
+                {allSignals.length > 0 && (
+                  <div className="mt-1.5 flex flex-wrap gap-1">
+                    {allSignals.slice(0, 3).map((signal) => (
+                      <span
+                        key={signal}
+                        className="rounded bg-stone-200/60 px-1.5 py-0.5 text-[10px] text-stone-500 dark:bg-stone-700/50 dark:text-stone-400"
+                      >
+                        {signal}
+                      </span>
+                    ))}
+                  </div>
+                )}
               </div>
             )
           })}
@@ -668,15 +684,23 @@ export function computeRecommendations(
     .filter(([, s]) => s > 0)
     .sort((a, b) => b[1] - a[1])
 
-  for (const [cat] of sorted.slice(0, 3)) {
+  for (const [cat, score] of sorted.slice(0, 3)) {
     const related = findRelatedPrompts(prompts, cat)
     const quote = related[0]
     const fallback = CATEGORY_REASONS[cat]?.used ?? '関連する作業をしていました'
     const reason = quote ? `「${quote.length > 35 ? quote.slice(0, 35) + '...' : quote}」— ${fallback}` : fallback
+    const catName = getCategoryById(cat)?.name ?? cat
+    const rank = sorted.findIndex(([c]) => c === cat) + 1
     const pool = allQuestions.filter((q) => q.category === cat && !used.has(q.id))
     const sampled = pool.sort(() => Math.random() - 0.5).slice(0, 5)
     for (const q of sampled) {
-      recs.push({ id: q.id, question: q.question, category: q.category, reason })
+      const signals: string[] = []
+      signals.push(`${catName}は作業関連度${rank}位（スコア: ${score}）`)
+      if (quote) signals.push(`「${quote.length > 25 ? quote.slice(0, 25) + '...' : quote}」に関連`)
+      signals.push(
+        `難易度: ${q.difficulty === 'beginner' ? '入門' : q.difficulty === 'intermediate' ? '中級' : '上級'}`
+      )
+      recs.push({ id: q.id, question: q.question, category: q.category, reason, signals })
       used.add(q.id)
     }
   }
@@ -690,7 +714,14 @@ export function computeRecommendations(
     const pool = allQuestions.filter((q) => q.category === cat && q.difficulty === 'beginner' && !used.has(q.id))
     const sampled = pool.sort(() => Math.random() - 0.5).slice(0, 3)
     for (const q of sampled) {
-      recs.push({ id: q.id, question: q.question, category: q.category, reason })
+      const catName = getCategoryById(cat)?.name ?? cat
+      recs.push({
+        id: q.id,
+        question: q.question,
+        category: q.category,
+        reason,
+        signals: [`${catName}はまだ使っていない機能`, '入門レベルから始めましょう'],
+      })
       used.add(q.id)
     }
   }

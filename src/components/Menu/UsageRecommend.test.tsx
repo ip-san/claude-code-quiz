@@ -187,9 +187,9 @@ describe('computeRecommendations', () => {
 describe('groupByCategory', () => {
   it('groups questions with the same category together', () => {
     const recs = [
-      { id: 'mem-001', question: 'Q1', category: 'memory', reason: 'reason A' },
-      { id: 'mem-002', question: 'Q2', category: 'memory', reason: 'reason B' },
-      { id: 'tool-001', question: 'Q3', category: 'tools', reason: 'reason C' },
+      { id: 'mem-001', question: 'Q1', category: 'memory', reason: 'reason A', signals: [] },
+      { id: 'mem-002', question: 'Q2', category: 'memory', reason: 'reason B', signals: [] },
+      { id: 'tool-001', question: 'Q3', category: 'tools', reason: 'reason C', signals: [] },
     ]
 
     const groups = groupByCategory(recs)
@@ -209,8 +209,8 @@ describe('groupByCategory', () => {
 
   it('uses the reason of the first question in each group', () => {
     const recs = [
-      { id: 'mem-001', question: 'Q1', category: 'memory', reason: 'first reason' },
-      { id: 'mem-002', question: 'Q2', category: 'memory', reason: 'second reason' },
+      { id: 'mem-001', question: 'Q1', category: 'memory', reason: 'first reason', signals: [] },
+      { id: 'mem-002', question: 'Q2', category: 'memory', reason: 'second reason', signals: [] },
     ]
 
     const groups = groupByCategory(recs)
@@ -226,9 +226,9 @@ describe('groupByCategory', () => {
 
   it('preserves insertion order of categories', () => {
     const recs = [
-      { id: 'a-1', question: 'Q1', category: 'tools', reason: 'r1' },
-      { id: 'b-1', question: 'Q2', category: 'memory', reason: 'r2' },
-      { id: 'a-2', question: 'Q3', category: 'tools', reason: 'r3' },
+      { id: 'a-1', question: 'Q1', category: 'tools', reason: 'r1', signals: [] },
+      { id: 'b-1', question: 'Q2', category: 'memory', reason: 'r2', signals: [] },
+      { id: 'a-2', question: 'Q3', category: 'tools', reason: 'r3', signals: [] },
     ]
 
     const groups = groupByCategory(recs)
