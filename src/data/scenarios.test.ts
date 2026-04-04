@@ -1,7 +1,11 @@
 import { execSync } from 'child_process'
 import { readFileSync } from 'fs'
 import { describe, expect, it } from 'vitest'
+import quizzesData from './quizzes.json'
 import { SCENARIOS } from './scenarios'
+
+const quizIds = new Set(quizzesData.quizzes.map((q: { id: string }) => q.id))
+const quizMap = new Map(quizzesData.quizzes.map((q: { id: string; difficulty: string }) => [q.id, q]))
 
 describe('Scenarios', () => {
   it('all scenarios have at least one question', () => {
@@ -52,6 +56,53 @@ describe('Scenarios', () => {
       for (const step of narrativeSteps) {
         expect(step.text, `${scenario.id} has narrative step without text`).toBeTruthy()
       }
+    }
+  })
+
+  it('all questionIds reference existing questions in quizzes.json', () => {
+    for (const scenario of SCENARIOS) {
+      const questionSteps = scenario.steps.filter((s) => s.type === 'question')
+      for (const step of questionSteps) {
+        expect(
+          quizIds.has(step.questionId!),
+          `${scenario.id}: questionId "${step.questionId}" not found in quizzes.json`
+        ).toBe(true)
+      }
+    }
+  })
+
+  it('no question appears twice in the same scenario', () => {
+    for (const scenario of SCENARIOS) {
+      const ids = scenario.steps.filter((s) => s.type === 'question').map((s) => s.questionId!)
+      const unique = new Set(ids)
+      expect(
+        unique.size,
+        `${scenario.id} has duplicate questions: ${ids.filter((id, i) => ids.indexOf(id) !== i)}`
+      ).toBe(ids.length)
+    }
+  })
+
+  it('cross-scenario question reuse is limited (max 15 shared questions)', () => {
+    const seen = new Map<string, string[]>()
+    for (const scenario of SCENARIOS) {
+      for (const step of scenario.steps.filter((s) => s.type === 'question')) {
+        const list = seen.get(step.questionId!) ?? []
+        list.push(scenario.id)
+        seen.set(step.questionId!, list)
+      }
+    }
+    const shared = [...seen.entries()].filter(([, scenarios]) => scenarios.length > 1)
+    expect(
+      shared.length,
+      `${shared.length} questions shared across scenarios: ${shared.map(([id, s]) => `${id}(${s.join(',')})`).join(', ')}`
+    ).toBeLessThanOrEqual(15)
+  })
+
+  it('each scenario has 3-10 questions', () => {
+    for (const scenario of SCENARIOS) {
+      const count = scenario.steps.filter((s) => s.type === 'question').length
+      expect(count, `${scenario.id} has ${count} questions (expected 3-10)`).toBeGreaterThanOrEqual(3)
+      expect(count, `${scenario.id} has ${count} questions (expected 3-10)`).toBeLessThanOrEqual(10)
     }
   })
 })
