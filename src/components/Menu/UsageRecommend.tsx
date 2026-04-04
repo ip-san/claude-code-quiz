@@ -323,7 +323,15 @@ export function UsageRecommend() {
               setRecommendations(recs)
               setUnusedCategories(unused)
               // Also kick off AI re-analysis in background (updates cache for next load)
-              window.electronAPI?.runRecommendSkill?.()
+              window.electronAPI?.runRecommendSkill?.().then((result) => {
+                if (result?.success) {
+                  loadFromCache()
+                  window.electronAPI?.showNotification?.(
+                    'レコメンドを更新しました',
+                    '最新の利用履歴から問題を再選定しました'
+                  )
+                }
+              })
             }}
             className="tap-highlight rounded-full p-1.5 text-stone-400 active:text-claude-orange"
             aria-label="問題を更新"
