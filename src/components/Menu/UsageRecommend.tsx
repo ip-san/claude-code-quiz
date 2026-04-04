@@ -316,8 +316,11 @@ export function UsageRecommend() {
                   icon.style.transform = ''
                 }, 400)
               }
-              // Re-shuffle: pick different questions from the same analysis
-              const { recs, unused } = computeRecommendations({ ...analysis }, allQuestions)
+              // Re-shuffle: pick different questions + different prompt samples
+              const shuffledSamples = [...analysis.promptSamples].sort(() => Math.random() - 0.5)
+              const newAnalysis = { ...analysis, promptSamples: shuffledSamples }
+              setAnalysis(newAnalysis)
+              const { recs, unused } = computeRecommendations(newAnalysis, allQuestions)
               setRecommendations(recs)
               setUnusedCategories(unused)
             }}
