@@ -18,7 +18,16 @@
  * - 新規ウィンドウの作成を禁止
  */
 
-import { app, BrowserWindow, clipboard, dialog, ipcMain, nativeImage, shell } from 'electron'
+import {
+  app,
+  BrowserWindow,
+  clipboard,
+  dialog,
+  Notification as ElectronNotification,
+  ipcMain,
+  nativeImage,
+  shell,
+} from 'electron'
 import { readdirSync, readFileSync, statSync } from 'fs'
 import { readFile, stat, writeFile } from 'fs/promises'
 import { homedir } from 'os'
@@ -527,6 +536,12 @@ ipcMain.handle('cancel-recommend', (): boolean => {
     return true
   }
   return false
+})
+
+ipcMain.handle('show-notification', (_event: unknown, title: string, body: string): void => {
+  if (ElectronNotification.isSupported()) {
+    new ElectronNotification({ title, body }).show()
+  }
 })
 
 // ============================================================

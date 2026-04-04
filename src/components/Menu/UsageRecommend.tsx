@@ -96,12 +96,10 @@ export function UsageRecommend() {
     if (skillResult.success) {
       await loadFromCache()
       haptics.medium()
-      if ('Notification' in window && Notification.permission === 'granted') {
-        new Notification('あなたの利用履歴を分析しました', {
-          body: `${recommendations.length || 15}問の復習問題を見つけました`,
-          icon: '/icons/icon-192.png',
-        })
-      }
+      window.electronAPI?.showNotification?.(
+        'あなたの利用履歴を分析しました',
+        `${recommendations.length || 15}問の復習問題を見つけました`
+      )
       trackRecommend('analyze', [], recommendations.length)
     } else {
       const err = skillResult.error ?? '分析に失敗しました'
@@ -274,12 +272,10 @@ export function UsageRecommend() {
               if (result.success) {
                 await loadFromCache()
                 haptics.medium()
-                if ('Notification' in window && Notification.permission === 'granted') {
-                  new Notification('レコメンドを更新しました', {
-                    body: `最新の利用履歴から問題を再選定しました`,
-                    icon: '/icons/icon-192.png',
-                  })
-                }
+                window.electronAPI?.showNotification?.(
+                  'レコメンドを更新しました',
+                  '最新の利用履歴から問題を再選定しました'
+                )
               } else {
                 setAiError(result.error ?? '再生成に失敗しました')
               }

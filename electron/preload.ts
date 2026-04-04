@@ -124,6 +124,10 @@ const electronAPI = {
     return ipcRenderer.invoke('cancel-recommend')
   },
 
+  showNotification: (title: string, body: string): Promise<void> => {
+    return ipcRenderer.invoke('show-notification', title, body)
+  },
+
   /**
    * グローバルフックの設定/削除
    */
