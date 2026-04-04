@@ -190,20 +190,26 @@ export function UsageRecommend() {
         onClick={analyze}
         disabled={loading}
         aria-label="利用履歴を分析してクイズをレコメンド"
-        className="tap-highlight mb-5 flex w-full items-center gap-3 rounded-2xl border border-stone-200 bg-white px-4 py-3 text-left dark:border-stone-700 dark:bg-stone-800"
+        className="tap-highlight relative mb-5 flex w-full items-center gap-3 overflow-hidden rounded-2xl border border-stone-200 bg-white px-4 py-3 text-left dark:border-stone-700 dark:bg-stone-800"
       >
+        {loading && (
+          <span
+            className="absolute inset-y-0 left-0 bg-claude-orange/10 transition-[width] duration-1000 ease-linear dark:bg-claude-orange/15"
+            style={{ width: `${Math.min((elapsed / 120) * 100, 100)}%` }}
+          />
+        )}
         {loading ? (
-          <div className="h-5 w-5 animate-spin rounded-full border-2 border-stone-200 border-t-claude-orange" />
+          <div className="relative h-5 w-5 animate-spin rounded-full border-2 border-stone-200 border-t-claude-orange" />
         ) : (
           <Sparkles className="h-5 w-5 text-claude-orange" />
         )}
-        <div className="flex-1">
+        <div className="relative flex-1">
           <div className="text-sm font-medium text-claude-dark dark:text-stone-200">
-            {loading ? 'AI が利用履歴を分析中...' : 'あなたの利用履歴からレコメンド'}
+            {loading ? `AI が利用履歴を分析中...（${elapsed}秒）` : 'あなたの利用履歴からレコメンド'}
           </div>
           <div className="text-xs text-stone-500 dark:text-stone-400">
             {loading
-              ? `Claude が作業内容を理解して問題を選んでいます（${elapsed}秒）`
+              ? 'Claude が作業内容を理解して問題を選んでいます'
               : 'AI があなたの作業意図を理解し、最適な復習問題を選びます'}
           </div>
           {aiError && <p className="mt-1 text-xs text-red-500">{aiError}</p>}
@@ -235,9 +241,19 @@ export function UsageRecommend() {
         <div className="flex items-center gap-2">
           <Sparkles className="h-4 w-4 text-claude-orange" />
           <span className="text-sm font-medium text-claude-dark dark:text-stone-200">あなたへのレコメンド</span>
-          <span className="rounded-full bg-orange-50 px-2 py-0.5 text-xs font-medium text-claude-orange dark:bg-orange-500/10">
-            {loading ? `更新中 ${elapsed}秒` : `${recCount}問`}
-          </span>
+          {loading ? (
+            <span className="relative overflow-hidden rounded-full bg-orange-50 px-2 py-0.5 text-xs font-medium text-claude-orange dark:bg-orange-500/10">
+              <span
+                className="absolute inset-0 bg-claude-orange/15 transition-[width] duration-1000 ease-linear dark:bg-claude-orange/20"
+                style={{ width: `${Math.min((elapsed / 120) * 100, 100)}%` }}
+              />
+              <span className="relative">{elapsed}秒</span>
+            </span>
+          ) : (
+            <span className="rounded-full bg-orange-50 px-2 py-0.5 text-xs font-medium text-claude-orange dark:bg-orange-500/10">
+              {recCount}問
+            </span>
+          )}
         </div>
         <div className="flex items-center gap-1">
           <button
