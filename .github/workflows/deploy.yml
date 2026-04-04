@@ -29,13 +29,13 @@ jobs:
       - run: bun install --frozen-lockfile
       - name: typecheck
         if: matrix.task == 'typecheck'
-        run: tsc --noEmit && type-coverage --strict --at-least 99
+        run: bunx tsc --noEmit && bunx type-coverage --strict --at-least 99
       - name: lint
         if: matrix.task == 'lint'
-        run: biome check src/ mcp/ scripts/
+        run: bunx biome check src/ mcp/ scripts/
       - name: test
         if: matrix.task == 'test'
-        run: vitest run
+        run: bun run test
       - name: validate
         if: matrix.task == 'validate'
         run: node scripts/quiz-utils.mjs check && node scripts/validate-docs.mjs && node scripts/validate-docs-links.mjs
