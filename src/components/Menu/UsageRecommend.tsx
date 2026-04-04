@@ -1,4 +1,4 @@
-import { ChevronDown, ChevronUp, Lightbulb, Play, RefreshCw, Sparkles, X } from 'lucide-react'
+import { BookOpen, ChevronDown, ChevronUp, Lightbulb, Play, RefreshCw, Sparkles, X } from 'lucide-react'
 import { useCallback, useEffect, useRef, useState } from 'react'
 
 /** Progress text + dots — both pulse in color together */
@@ -35,6 +35,7 @@ function ProgressLabel({ text }: { text: string }) {
   )
 }
 
+import { SCENARIOS, type ScenarioData } from '@/data/scenarios'
 import type { Question } from '@/domain/entities/Question'
 import { getCategoryById } from '@/domain/valueObjects/Category'
 import { trackRecommend } from '@/lib/analytics'
@@ -55,7 +56,7 @@ interface RecommendedQuestion {
  * Claude Code 利用履歴からクイズをレコメンドする（Electron限定）
  */
 export function UsageRecommend() {
-  const { allQuestions, startSessionWithIds } = useQuizStore()
+  const { allQuestions, startSessionWithIds, startScenarioSession } = useQuizStore()
   const [analysis, setAnalysis] = useState<AnalysisResult | null>(null)
   const [recommendations, setRecommendations] = useState<RecommendedQuestion[]>([])
   const [unusedCategories, setUnusedCategories] = useState<string[]>([])
@@ -180,7 +181,7 @@ export function UsageRecommend() {
               </button>
               <button
                 onClick={() => setHooksInstalled(true)}
-                className="tap-highlight rounded-lg px-4 py-2 text-xs text-stone-400"
+                className="tap-highlight rounded-lg px-4 py-2 text-xs text-stone-500"
                 aria-label="後で設定する"
               >
                 後で
@@ -343,7 +344,7 @@ export function UsageRecommend() {
                     style={{ width: `${Math.min((elapsed / 120) * 100, 100)}%` }}
                   />
                 </div>
-                <span className="flex-shrink-0 text-[10px] text-stone-400 dark:text-stone-500">{elapsed}秒</span>
+                <span className="flex-shrink-0 text-[10px] text-stone-500 dark:text-stone-500">{elapsed}秒</span>
               </div>
               <p className="mx-4 mb-2 text-[11px] text-stone-500 dark:text-stone-400">
                 <ProgressLabel text={stepText} />
@@ -420,7 +421,7 @@ export function UsageRecommend() {
           aria-label={showQuestions ? '選定理由を閉じる' : '選定理由を表示'}
           aria-expanded={showQuestions}
         >
-          <p className="text-xs text-stone-400 dark:text-stone-500">
+          <p className="text-xs text-stone-500 dark:text-stone-500">
             {showQuestions ? '閉じる' : '知っていればもっと早くできた？'}
           </p>
           {showQuestions ? (
@@ -465,6 +466,35 @@ export function UsageRecommend() {
           )}
         </div>
       )}
+
+      {/* Scenario suggestion */}
+      {analysis &&
+        (() => {
+          const scenario = findRecommendedScenario(analysis.categoryScores)
+          if (!scenario) return null
+          return (
+            <div className="mx-4 mb-1.5 rounded-lg border border-claude-orange/20 bg-orange-50/30 px-3 py-2 dark:border-claude-orange/10 dark:bg-orange-500/5">
+              <p className="mb-1 text-[11px] font-medium text-stone-500 dark:text-stone-400">
+                <BookOpen className="mr-1 inline h-3 w-3 text-claude-orange" />
+                おすすめシナリオ
+              </p>
+              <button
+                onClick={() => {
+                  haptics.medium()
+                  startScenarioSession(scenario.id)
+                }}
+                className="tap-highlight flex w-full items-center gap-2 rounded-lg bg-white px-2.5 py-2 text-left dark:bg-stone-800"
+              >
+                <span className="text-lg">{scenario.icon}</span>
+                <div className="min-w-0 flex-1">
+                  <p className="text-xs font-medium text-claude-dark dark:text-stone-200">{scenario.title}</p>
+                  <p className="truncate text-[11px] text-stone-500 dark:text-stone-400">{scenario.description}</p>
+                </div>
+                <Play className="h-3.5 w-3.5 flex-shrink-0 fill-claude-orange text-claude-orange" />
+              </button>
+            </div>
+          )
+        })()}
 
       {/* Step 4: Active Experimentation — クイズで確かめる */}
       {recCount > 0 && (
@@ -539,6 +569,58 @@ export function groupByCategory(
     }
   }
   return [...groups.entries()].map(([category, { reason, questions }]) => ({ category, reason, questions }))
+}
+
+/** Match scenarios to user's work based on category scores and topics */
+const SCENARIO_CATEGORY_MAP: Record<string, string[]> = {
+  'scenario-onboard': ['memory', 'bestpractices'],
+  'scenario-dotclaude': ['memory'],
+  'scenario-claudemd': ['memory', 'bestpractices'],
+  'scenario-tools': ['tools', 'bestpractices'],
+  'scenario-keyboard': ['keyboard'],
+  'scenario-context': ['session'],
+  'scenario-workflow': ['bestpractices', 'commands'],
+  'scenario-planmode': ['commands', 'bestpractices'],
+  'scenario-session': ['session', 'memory'],
+  'scenario-debug': ['tools', 'bestpractices'],
+  'scenario-claudemd-pruning': ['memory'],
+  'scenario-skills': ['skills'],
+  'scenario-mcp': ['extensions'],
+  'scenario-mcp-setup': ['extensions'],
+  'scenario-legacy': ['tools'],
+  'scenario-cicd': ['commands', 'extensions'],
+  'scenario-team': ['memory', 'bestpractices'],
+  'scenario-parallel': ['session', 'tools'],
+  'scenario-hidden-gems': ['keyboard', 'commands'],
+  'scenario-cicd-setup': ['commands', 'extensions'],
+  'scenario-security': ['extensions', 'session'],
+  'scenario-extend': ['extensions', 'skills'],
+}
+
+export function findRecommendedScenario(categoryScores: Record<string, number>): ScenarioData | null {
+  const topCategories = Object.entries(categoryScores)
+    .filter(([, s]) => s > 0)
+    .sort((a, b) => b[1] - a[1])
+    .slice(0, 3)
+    .map(([cat]) => cat)
+
+  if (topCategories.length === 0) return null
+
+  // Score each scenario by how many of its categories match user's top categories
+  const scored = SCENARIOS.map((s) => {
+    const cats = SCENARIO_CATEGORY_MAP[s.id] ?? []
+    const score = cats.filter((c) => topCategories.includes(c)).length
+    return { scenario: s, score }
+  })
+    .filter((s) => s.score > 0)
+    .sort((a, b) => b.score - a.score)
+
+  if (scored.length === 0) return null
+
+  // Pick randomly from top matches for variety
+  const topScore = scored[0].score
+  const topMatches = scored.filter((s) => s.score === topScore)
+  return topMatches[Math.floor(Math.random() * topMatches.length)].scenario
 }
 
 const CATEGORY_TERMS: Record<string, string[]> = {
