@@ -78,17 +78,18 @@ export function UsageRecommend() {
       .reverse()
       .find((s) => elapsed >= s.at)?.text ?? ''
 
-  const startTimer = () => {
+  const startTimer = useCallback(() => {
     setElapsed(0)
     timerRef.current = setInterval(() => setElapsed((t) => t + 1), 1000)
-  }
-  const stopTimer = () => {
+  }, [])
+  const stopTimer = useCallback(() => {
     if (timerRef.current) {
       clearInterval(timerRef.current)
       timerRef.current = null
     }
-  }
+  }, [])
 
+  // biome-ignore lint/correctness/useExhaustiveDependencies: allQuestions needed to match cached IDs to quiz data
   const loadFromCache = useCallback(async (): Promise<boolean> => {
     const cached = await window.electronAPI?.getCachedRecommend?.()
     if (!cached || cached.ids.length === 0) return false
@@ -121,6 +122,7 @@ export function UsageRecommend() {
     return true
   }, [allQuestions])
 
+  // biome-ignore lint/correctness/useExhaustiveDependencies: allQuestions needed to recompute recommendations after quiz data reload
   const analyze = useCallback(async () => {
     if (!window.electronAPI) return
     setLoading(true)
@@ -161,7 +163,8 @@ export function UsageRecommend() {
       haptics.light()
     }
     setLoading(false)
-  }, [allQuestions, loadFromCache, recommendations.length])
+    // biome-ignore lint/correctness/useExhaustiveDependencies: allQuestions needed to recompute recommendations after quiz data reload
+  }, [allQuestions, loadFromCache, recommendations.length, startTimer, stopTimer])
 
   // On mount, load from cache + check if recommend is already running
   useEffect(() => {
@@ -173,8 +176,9 @@ export function UsageRecommend() {
       }
     })
     return () => stopTimer()
-  }, [loadFromCache])
+  }, [loadFromCache, startTimer, stopTimer])
 
+  // biome-ignore lint/correctness/useExhaustiveDependencies: re-check hooks status after setup completes
   useEffect(() => {
     if (!window.electronAPI?.checkGlobalHooks) return
     window.electronAPI.checkGlobalHooks().then(setHooksInstalled)
