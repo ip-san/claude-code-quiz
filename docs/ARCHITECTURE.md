@@ -10,6 +10,7 @@ Claude Code Quiz のアーキテクチャと設計思想について説明しま
 - [Electron アーキテクチャ](#electron-アーキテクチャ)
 - [ドメイン駆動設計（DDD）](#ドメイン駆動設計ddd)
 - [状態管理](#状態管理)
+- [エージェントチーム](#エージェントチーム)
 - [技術スタック](#技術スタック)
 - [セキュリティ](#セキュリティ)
 
@@ -327,6 +328,36 @@ const state = useQuizStore()
 const currentQuestion = useQuizStore(state => state.questions[state.currentIndex])
 const submitAnswer = useQuizStore(state => state.submitAnswer)
 ```
+
+## エージェントチーム
+
+DDD レイヤードアーキテクチャの層分離を活かし、開発・品質管理をエージェントチームで並列化する。
+
+### アーキテクチャとの対応
+
+```
+domain/          ← domain-developer（worktree 隔離）
+    ↓ インターフェース引き渡し
+stores/          ← store-developer（worktree 隔離）
+    ↓ セレクタ/アクション API
+components/      ← ui-developer（worktree 隔離）
+                 ← test-developer（並行テスト作成）
+                 ← code-reviewer-agent（常駐レビュー）
+```
+
+層間の依存は一方向（domain → stores → components）のため、Phase A（domain）→ Phase B（store）→ Phase C（UI + test）の順で段階的に並列化できる。各フェーズ内では worktree 隔離により同時実装が安全に行える。
+
+### 品質チームとの連携
+
+開発チームの成果物は品質チームのパイプラインに自動で流れる:
+
+```
+開発チーム → コミット → quality-gate（check:all + size + E2E）
+                      → quiz-pipeline（問題追加時のみ）
+                      → facts-checker（月次）
+```
+
+詳細は [自動化ツール一覧](automation.md) と [品質改善ループ](quality-loop.md) を参照。
 
 ## 技術スタック
 

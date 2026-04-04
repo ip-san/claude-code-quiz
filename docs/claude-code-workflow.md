@@ -38,6 +38,7 @@
 
 ```
 /quality-loop            → GA4 分析 + コードレビュー + クイズ生成 + クイズ検証
+/quality-loop --team     → エージェントチームで並列実行（77%高速化）
 /loop 1h /quality-loop   → 1時間ごとに自動実行
 ```
 
@@ -53,16 +54,86 @@
 
 Claude Code の公式ドキュメントは頻繁に更新されるため、クイズの正解が古くなる。`/quiz-refine` はドキュメントのキャッシュ（`.claude/tmp/docs/`）と照合し、変更があった問題だけを再検証する。
 
-## スキルの棲み分け
+## スキル・エージェントの棲み分け
 
 | 配置場所 | 用途 | 例 |
 |---------|------|-----|
 | `~/.claude/skills/` | 全プロジェクト共通の汎用スキル。**カスタムしない** | `/code-review`, `/accessibility` |
 | `.claude/skills/` | **このプロジェクト固有**の教訓・ワークフロー | `/self-review`, `/quality-loop` |
+| `.claude/agents/` | **エージェントチーム**の専門エージェント定義 | `quiz-verifier`, `domain-developer` |
 
 プロジェクトスキルが汎用スキルを**内部で呼び出す**形で統合する。汎用スキルにプロジェクト固有の記述を混ぜない。
 
 例: `/self-review` → 内部で `/code-review`（汎用）を実行 → その後プロジェクト固有チェック 10 項目を実行
+
+## エージェントチーム
+
+`--team` フラグで独立したステップを並列実行する。`.claude/agents/` に 14 体のエージェントを定義。
+
+### 品質チーム（8体）
+
+品質チェック・検証・分析を並列化する。
+
+| エージェント | 役割 | 使用場面 |
+|-------------|------|---------|
+| `quiz-verifier` | カテゴリ別クイズ検証 | `/quiz-refine --team` で最大8並列 |
+| `quality-gate` | テスト・サイズ品質ゲート | `/quality-loop --team` Phase 5 |
+| `doc-watcher` | ドキュメント変更検出 | Phase 1 |
+| `stats-syncer` | CLAUDE.md 統計値同期 | Phase 4 |
+| `quiz-pipeline` | 生成→検証パイプライン | 問題追加時のフルオーケストレーション |
+| `parallel-test-runner` | テスト並列実行 | Phase 5 |
+| `facts-checker` | Verified Facts 鮮度チェック | 月次 |
+| `difficulty-calibrator` | GA4 難易度キャリブレーション | 月次 |
+
+### 開発チーム（6体）
+
+DDD レイヤードアーキテクチャに沿って、機能開発を並列化する。
+
+| エージェント | スクラムロール | 担当レイヤー |
+|-------------|-------------|------------|
+| `dev-orchestrator` | スクラムマスター | 全体オーケストレーション |
+| `domain-developer` | バックエンド開発 | domain/（エンティティ、サービス） |
+| `store-developer` | 状態管理開発 | stores/（Zustand スライス） |
+| `ui-developer` | フロントエンド開発 | components/（React + Tailwind） |
+| `test-developer` | QA | テスト並行作成（unit + E2E） |
+| `code-reviewer-agent` | テックリード | リアルタイムレビュー（常駐） |
+
+### 開発スプリントの流れ
+
+```
+Phase A: domain-developer がドメイン層を実装（基盤）
+    ↓ worktree 統合
+Phase B: store-developer + code-reviewer-agent（並列）
+    ↓ worktree 統合
+Phase C: ui-developer + test-developer（並列）
+    ↓ worktree 統合
+Phase D: check:all + E2E で最終検証
+```
+
+各エージェントは `isolation: worktree` で独立した作業コピーを使い、ファイル競合を防止する。
+
+### 使い方
+
+```
+# 品質チームモード
+/quality-loop --team           # Phase 1/3/5 を並列実行
+/quiz-refine --team            # 8カテゴリ並列検証
+/self-review --team            # レビュー項目を並列実行
+
+# 開発チームモード（dev-orchestrator が自動調整）
+「難易度カスタマイズ機能を追加して」
+→ dev-orchestrator が Planning → Phase A → B → C → D を自動実行
+```
+
+### 実測効果
+
+| 対象 | 逐次 | 並列 | 短縮率 |
+|------|------|------|-------|
+| quality-loop Phase 1 | 226秒 | 130秒 | 42% |
+| quiz-refine 検証 | ~10分 | ~2分 | 77% |
+| 最終ゲート（Phase 5） | 118秒 | 55秒 | 53% |
+| Playwright E2E | 40.7秒 | 28.7秒 | 30% |
+| check:all ローカル | ~35秒 | ~20秒 | 43% |
 
 ## MCP サーバーの活用
 
