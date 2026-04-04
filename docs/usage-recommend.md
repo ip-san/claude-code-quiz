@@ -319,11 +319,14 @@ bun run setup:hooks --remove
 
 | ファイル | 役割 |
 |---------|------|
-| `scripts/collect-session.mjs` | セッション収集 + 7日キャッシュ生成 |
+| `scripts/collect-session.mjs` | セッション収集 + 7日キャッシュ生成 + 行動パターン通知 |
 | `scripts/recommend.mjs` | CLI レコメンド生成（キーワードベース） |
 | `scripts/setup-hooks.mjs` | グローバルフックセットアップ |
-| `.claude/skills/recommend/SKILL.md` | AI レコメンドスキル（意図理解ベース） |
-| `src/components/Menu/UsageRecommend.tsx` | Desktop UI コンポーネント |
-| `electron/main.ts` | IPC ハンドラー |
+| `.claude/skills/recommend/SKILL.md` | AI レコメンドスキル（Sonnet、意図理解ベース） |
+| `src/components/Menu/UsageRecommend.tsx` | Desktop UI コンポーネント（Kolb サイクル） |
+| `src/components/Menu/recommendUtils.ts` | レコメンドロジック（パターン検出、スコアリング、シナリオマッチ） |
+| `src/components/Menu/ProgressLabel.tsx` | プログレスアニメーション（パルスドット） |
+| `src/components/Menu/UsageRecommend.test.tsx` | ユニットテスト（19テスト） |
+| `electron/main.ts` | IPC ハンドラー（キャッシュ管理、通知、プロセス制御） |
 | `electron/preload.ts` | Renderer への API 公開 |
 | `docs/usage-recommend.md` | このドキュメント |
