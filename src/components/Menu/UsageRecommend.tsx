@@ -292,57 +292,49 @@ export function UsageRecommend() {
       {/* Error message */}
       {aiError && <p className="mx-4 mb-2 text-xs text-red-500 dark:text-red-400">{aiError}</p>}
 
-      {/* Work context → reason flow */}
+      {/* ── Kolb Cycle: Experience → Reflection → Conceptualization → Experimentation ── */}
+
+      {/* Step 1: Concrete Experience — あなたがやったこと */}
       {analysis.promptSamples.length > 0 && (
-        <div className="mx-4 mb-2 rounded-lg bg-stone-50 px-3 py-2.5 dark:bg-stone-900/50">
-          <p className="mb-1.5 text-[11px] font-medium text-stone-600 dark:text-stone-300">
-            {analysis.sessionCount > 1 ? `${analysis.sessionCount}セッション` : '直近のセッション'}での作業
-          </p>
-          {analysis.promptSamples.slice(0, 3).map((p: string, i: number) => (
-            <p key={i} className="truncate py-0.5 text-xs text-stone-500 dark:text-stone-400">
-              &gt; {p}
-            </p>
-          ))}
-          {topTopics.length > 0 && (
-            <p className="mt-2 text-[11px] text-claude-orange">
-              → {topTopics.map((t: { topic: string }) => t.topic).join('・')}に関連する問題を選定
-            </p>
-          )}
+        <div className="mx-4 mb-1.5">
+          <p className="mb-1 text-[11px] font-medium text-stone-500 dark:text-stone-400">あなたの作業</p>
+          <div className="space-y-1">
+            {analysis.promptSamples.slice(0, 3).map((p: string, i: number) => (
+              <p
+                key={i}
+                className="truncate rounded bg-stone-50 px-2.5 py-1 text-xs text-stone-600 dark:bg-stone-900/50 dark:text-stone-300"
+              >
+                {p}
+              </p>
+            ))}
+          </div>
         </div>
       )}
 
-      {/* Discovery suggestion */}
-      {unusedCategories.length > 0 && (
-        <div className="mx-4 mb-2 rounded-lg bg-stone-50 p-2.5 dark:bg-stone-900/50">
-          <p className="text-xs font-medium text-stone-600 dark:text-stone-300">
-            <Lightbulb className="mr-1 inline h-3 w-3 text-claude-orange" />
-            もっと効率的にできるかも
-          </p>
-          <p className="mt-1 text-xs text-stone-500 dark:text-stone-400">
-            {unusedCategories
-              .slice(0, 3)
-              .map((cat) => {
-                const reason = CATEGORY_REASONS[cat]?.unused
-                const name = getCategoryById(cat)?.name ?? cat
-                return reason ? `${name}: ${reason}` : name
-              })
-              .join(' / ')}
+      {/* Step 2: Reflective Observation — 振り返りの問いかけ */}
+      {topTopics.length > 0 && (
+        <div className="mx-4 mb-1.5 rounded-lg border border-claude-orange/20 bg-orange-50/50 px-3 py-2 dark:border-claude-orange/10 dark:bg-orange-500/5">
+          <p className="text-xs leading-relaxed text-stone-700 dark:text-stone-300">
+            {topTopics.map((t: { topic: string }) => t.topic).join('や')}
+            に取り組んでいました。もっと効率的なやり方はなかったでしょうか？
           </p>
         </div>
       )}
 
-      {/* Selection details — grouped by category with shared reason */}
+      {/* Step 3: Abstract Conceptualization — 知識の穴を見せる（展開式） */}
       {recCount > 0 && (
         <button
           onClick={() => {
             if (!showQuestions) trackRecommend('view_list', [], recCount)
             setShowQuestions(!showQuestions)
           }}
-          className="tap-highlight mx-4 mb-2 flex w-[calc(100%-2rem)] items-center justify-center gap-1.5 rounded-lg border border-stone-200 py-1.5 dark:border-stone-700"
+          className="tap-highlight mx-4 mb-1.5 flex w-[calc(100%-2rem)] items-center justify-center gap-1.5 rounded-lg border border-stone-200 py-1.5 dark:border-stone-700"
           aria-label={showQuestions ? '選定理由を閉じる' : '選定理由を表示'}
           aria-expanded={showQuestions}
         >
-          <p className="text-xs text-stone-400 dark:text-stone-500">{showQuestions ? '閉じる' : 'なぜこの問題？'}</p>
+          <p className="text-xs text-stone-400 dark:text-stone-500">
+            {showQuestions ? '閉じる' : '知っていればもっと早くできた？'}
+          </p>
           {showQuestions ? (
             <ChevronUp className="h-3 w-3 text-stone-400" />
           ) : (
@@ -351,7 +343,7 @@ export function UsageRecommend() {
         </button>
       )}
       {showQuestions && (
-        <div className="mx-4 mb-2 space-y-1.5">
+        <div className="mx-4 mb-1.5 space-y-1.5">
           {groupByCategory(recommendations).map(({ category, reason, questions }) => {
             const cat = getCategoryById(category)
             return (
@@ -367,10 +359,26 @@ export function UsageRecommend() {
               </div>
             )
           })}
+          {/* Discovery: unused categories as learning opportunity */}
+          {unusedCategories.length > 0 && (
+            <div className="rounded-lg bg-stone-50 px-3 py-2 dark:bg-stone-900/50">
+              <p className="text-[11px] text-stone-500 dark:text-stone-400">
+                <Lightbulb className="mr-1 inline h-3 w-3 text-claude-orange" />
+                {unusedCategories
+                  .slice(0, 2)
+                  .map((cat) => {
+                    const name = getCategoryById(cat)?.name ?? cat
+                    const reason = CATEGORY_REASONS[cat]?.unused
+                    return reason ? `${name}: ${reason}` : name
+                  })
+                  .join(' / ')}
+              </p>
+            </div>
+          )}
         </div>
       )}
 
-      {/* Start quiz */}
+      {/* Step 4: Active Experimentation — クイズで確かめる */}
       {recCount > 0 && (
         <div className="px-4 pb-3 pt-1">
           <button
@@ -387,7 +395,7 @@ export function UsageRecommend() {
             aria-label={`レコメンドされた${recCount}問のクイズを開始`}
           >
             <Play className="h-4 w-4 fill-white" />
-            {recCount}問に挑戦
+            クイズで確かめる（{recCount}問）
           </button>
         </div>
       )}
