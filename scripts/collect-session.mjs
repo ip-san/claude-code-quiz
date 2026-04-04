@@ -424,6 +424,23 @@ try {
       )
     )
 
+    // Detect work patterns for actionable tip
+    const allPrompts = daily.sessions.flatMap((s) => s.promptSamples || []).filter((p) => p.length > 10)
+    let tipMsg = ''
+    const longPrompts = allPrompts.filter((p) => p.length > 80)
+    const testCmds = allPrompts.filter((p) => /test|テスト/i.test(p))
+    const repeatThemes = new Map()
+    for (const p of allPrompts) {
+      const key = p.slice(0, 15).toLowerCase()
+      repeatThemes.set(key, (repeatThemes.get(key) || 0) + 1)
+    }
+    const hasRepeat = [...repeatThemes.values()].some((c) => c >= 3)
+
+    if (hasRepeat) tipMsg = '💡 同じ指示の繰り返しが検出されました。CLAUDE.md にルール化すると効率的です'
+    else if (longPrompts.length >= 3)
+      tipMsg = '💡 長いプロンプトが多い傾向。CLAUDE.md に文脈を書けば自動で読み込まれます'
+    else if (testCmds.length >= 2) tipMsg = '💡 テスト実行が多い傾向。PostToolUse hook で自動化できます'
+
     // Desktop notification
     const topTopics = daily.merged.topics
       .slice(0, 2)
@@ -435,6 +452,7 @@ try {
 
     // Output for hook stderr (shown to user)
     console.error(`\n📚 ${msg}`)
+    if (tipMsg) console.error(`${tipMsg}`)
     console.error(`   ${url}\n`)
   }
 } catch {

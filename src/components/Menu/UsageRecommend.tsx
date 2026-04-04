@@ -402,17 +402,33 @@ export function UsageRecommend() {
           )
         })()}
 
-      {/* Step 2: Reflective Observation — 行動パターンに基づく振り返り */}
+      {/* Step 2: Reflective Observation — Netflix "Because you watched" style chain */}
       {analysis &&
         (() => {
           const patterns = detectWorkPatterns(analysis.promptSamples ?? [])
+          const totalSaved = patterns.reduce((sum, p) => sum + p.savedMinutes, 0)
           if (patterns.length > 0) {
             const p = patterns[0]
             return (
-              <div className="mx-4 mb-1.5 rounded-lg border border-claude-orange/20 bg-orange-50/50 px-3 py-2 dark:border-claude-orange/10 dark:bg-orange-500/5">
-                <p className="text-xs leading-relaxed text-stone-700 dark:text-stone-300">
-                  {p.pattern}していました。<span className="font-medium text-claude-orange">{p.tip}</span>
-                </p>
+              <div className="mx-4 mb-1.5 space-y-1.5">
+                {/* Time savings banner */}
+                {totalSaved > 0 && (
+                  <div className="flex items-center gap-2 rounded-lg bg-claude-orange/10 px-3 py-1.5 dark:bg-claude-orange/5">
+                    <span className="text-base">⏱️</span>
+                    <p className="text-xs font-medium text-claude-orange">この知識があれば約{totalSaved}分短縮できた</p>
+                  </div>
+                )}
+                {/* Evidence chain: prompt → gap → tip */}
+                <div className="rounded-lg border border-claude-orange/20 bg-orange-50/50 px-3 py-2 dark:border-claude-orange/10 dark:bg-orange-500/5">
+                  {p.evidence && (
+                    <p className="mb-1 truncate text-[11px] text-stone-500 dark:text-stone-400">
+                      「{p.evidence.length > 35 ? p.evidence.slice(0, 35) + '...' : p.evidence}」と聞いていた
+                    </p>
+                  )}
+                  <p className="text-xs text-stone-700 dark:text-stone-300">
+                    → {p.pattern}。<span className="font-medium text-claude-orange">{p.tip}</span>
+                  </p>
+                </div>
               </div>
             )
           }
@@ -697,23 +713,36 @@ export function findRelatedPrompts(prompts: string[], category: string): string[
     .sort(() => Math.random() - 0.5)
 }
 
+export interface WorkPattern {
+  pattern: string
+  tip: string
+  category: string
+  /** Estimated minutes saved per session if the user knew this */
+  savedMinutes: number
+  /** The user's actual prompt that triggered this detection */
+  evidence?: string
+}
+
 /** Detect inefficiency patterns from prompts — "you could have done this better" */
-export function detectWorkPatterns(prompts: string[]): { pattern: string; tip: string; category: string }[] {
-  const patterns: { pattern: string; tip: string; category: string }[] = []
+export function detectWorkPatterns(prompts: string[]): WorkPattern[] {
+  const patterns: WorkPattern[] = []
   const meaningful = prompts.filter((p) => p.length > 10)
 
   // Repetition: same theme 3+ times
-  const themeCount = new Map<string, number>()
+  const themeCount = new Map<string, { count: number; example: string }>()
   for (const p of meaningful) {
     const key = p.slice(0, 15).toLowerCase()
-    themeCount.set(key, (themeCount.get(key) ?? 0) + 1)
+    const existing = themeCount.get(key)
+    themeCount.set(key, { count: (existing?.count ?? 0) + 1, example: p })
   }
-  for (const [, count] of themeCount) {
+  for (const [, { count, example }] of themeCount) {
     if (count >= 3) {
       patterns.push({
         pattern: '同じ修正を繰り返し指示',
         tip: 'CLAUDE.md にルールを書けば毎回伝える必要がない',
         category: 'memory',
+        savedMinutes: count * 3,
+        evidence: example,
       })
       break
     }
@@ -726,6 +755,8 @@ export function detectWorkPatterns(prompts: string[]): { pattern: string; tip: s
       pattern: '長いプロンプトで毎回文脈を説明',
       tip: 'CLAUDE.md に書けば自動で読み込まれる',
       category: 'memory',
+      savedMinutes: longPrompts.length * 2,
+      evidence: longPrompts[0],
     })
   }
 
@@ -736,6 +767,8 @@ export function detectWorkPatterns(prompts: string[]): { pattern: string; tip: s
       pattern: 'テストを手動で何度も実行',
       tip: 'PostToolUse hook で自動テストを設定できる',
       category: 'extensions',
+      savedMinutes: testCmds.length * 2,
+      evidence: testCmds[0],
     })
   }
 
@@ -745,6 +778,7 @@ export function detectWorkPatterns(prompts: string[]): { pattern: string; tip: s
       pattern: 'セッションが長い（プロンプト' + meaningful.length + '件）',
       tip: '/compact でコンテキストを圧縮できる',
       category: 'session',
+      savedMinutes: 5,
     })
   }
 
@@ -755,6 +789,8 @@ export function detectWorkPatterns(prompts: string[]): { pattern: string; tip: s
       pattern: 'ファイルの場所を何度も質問',
       tip: 'Glob/Grep ツールなら一発で検索できる',
       category: 'tools',
+      savedMinutes: searchPrompts.length * 2,
+      evidence: searchPrompts[0],
     })
   }
 
@@ -765,6 +801,8 @@ export function detectWorkPatterns(prompts: string[]): { pattern: string; tip: s
       pattern: '影響範囲を繰り返し確認',
       tip: 'Plan モードで事前に設計すると手戻りが減る',
       category: 'bestpractices',
+      savedMinutes: impactPrompts.length * 3,
+      evidence: impactPrompts[0],
     })
   }
 
