@@ -55,8 +55,8 @@ export function MasteryLevel({ overallAccuracy, totalAttempts, totalXp, category
               次: {next.icon} {next.name}（{next.req}）
             </p>
           )}
-          <p className="mt-0.5 text-xs text-stone-400">
-            {totalXp} XP{totalAttempts > 0 && ` — 平均 ${(totalXp / totalAttempts).toFixed(1)} XP/問`}
+          <p className="mt-0.5 text-xs text-stone-400" title="正解+10 XP、不正解+2 XP、復習正解+15 XP">
+            累計 {totalXp} XP{totalAttempts > 0 && `（平均 ${(totalXp / totalAttempts).toFixed(1)} XP/問）`}
           </p>
         </div>
         {canDownload && (

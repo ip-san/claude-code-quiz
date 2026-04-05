@@ -74,6 +74,13 @@ export class NotificationService {
   static shouldAskPermission(): boolean {
     if (!this.isSupported()) return false
     if (Notification.permission !== 'default') return false
+
+    // iOS Safari (non-standalone) does not support notifications
+    // Only show opt-in for iOS if running as installed PWA
+    const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent)
+    const isStandalone = window.matchMedia('(display-mode: standalone)').matches
+    if (isIOS && !isStandalone) return false
+
     try {
       return localStorage.getItem(NOTIFICATION_KEY) !== 'denied'
     } catch {

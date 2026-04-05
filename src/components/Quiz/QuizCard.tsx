@@ -332,8 +332,11 @@ export function QuizCard({
               </span>
             )}
             {isAdaptive && currentIndex === 0 && (
-              <span className="rounded bg-indigo-500/10 px-2 py-1 text-xs font-medium text-indigo-500">
-                あなた向けに調整
+              <span
+                className="rounded bg-indigo-500/10 px-2 py-1 text-xs font-medium text-indigo-500"
+                title="カテゴリ別の正答率に応じて、得意分野は上級、苦手分野は初級を優先出題しています"
+              >
+                正答率に合わせて出題
               </span>
             )}
             {isReviewMode && (
