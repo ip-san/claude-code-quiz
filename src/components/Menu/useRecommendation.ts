@@ -94,8 +94,8 @@ export function useRecommendation() {
         const q = allQuestions.find((q) => q.id === id)
         const cat = q?.category ?? 'unknown'
         if (!recAccuracy[cat]) recAccuracy[cat] = { correct: 0, total: 0 }
-        recAccuracy[cat].total++
-        if (qp.lastCorrect) recAccuracy[cat].correct++
+        recAccuracy[cat].total += qp.attempts
+        recAccuracy[cat].correct += qp.correctCount
       }
     }
 
@@ -129,8 +129,8 @@ export function useRecommendation() {
           const q = store.allQuestions.find((q) => q.id === id)
           const cat = q?.category ?? 'unknown'
           if (!recommendedAccuracy[cat]) recommendedAccuracy[cat] = { correct: 0, total: 0 }
-          recommendedAccuracy[cat].total++
-          if (qp.lastCorrect) recommendedAccuracy[cat].correct++
+          recommendedAccuracy[cat].total += qp.attempts
+          recommendedAccuracy[cat].correct += qp.correctCount
         }
       }
 

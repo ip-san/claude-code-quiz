@@ -318,8 +318,20 @@ export class GrowthTrackingService {
   ): LearningImpact | undefined {
     if (!recommendedAccuracy || Object.keys(recommendedAccuracy).length === 0) return undefined
 
-    // Build pattern → category map from current + previous patterns
-    const patternCategory = new Map<string, string>()
+    // Build pattern → category map from current patterns + known mappings
+    // Known mappings cover patterns that may have been resolved (not in current)
+    const KNOWN_PATTERN_CATEGORIES: Record<string, string> = {
+      同じ修正を繰り返し指示: 'memory',
+      長いプロンプトで毎回文脈を説明: 'memory',
+      テストを手動で何度も実行: 'extensions',
+      セッションが長い: 'session',
+      ファイルの場所を何度も質問: 'tools',
+      影響範囲を繰り返し確認: 'bestpractices',
+      'AI への丸投げ傾向': 'bestpractices',
+      'デバッグを AI に委任する傾向': 'bestpractices',
+      概念を理解しようとする質問が多い: 'bestpractices',
+    }
+    const patternCategory = new Map<string, string>(Object.entries(KNOWN_PATTERN_CATEGORIES))
     for (const p of currentPatterns) {
       if (p.category) patternCategory.set(p.pattern, p.category)
     }
