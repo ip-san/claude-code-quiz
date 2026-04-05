@@ -359,6 +359,23 @@ components/      ← ui-developer（worktree 隔離）
 
 詳細は [自動化ツール一覧](automation.md) と [品質改善ループ](quality-loop.md) を参照。
 
+### AI モデル使い分けパイプライン
+
+コスト効率と精度を両立するため、4層のモデル使い分けを採用:
+
+| レイヤー | 実行者 | 役割 | コスト/回 |
+|---------|--------|------|----------|
+| Layer 1 | スクリプト | 前処理（統計、パターン検出、ノイズ除去） | $0 |
+| Layer 2 | Haiku | 分類・フィルタ（意図タグ付け、事実チェック） | ~$0.004 |
+| Layer 3 | スクリプト | 集計・圧縮（Layer 2 結果 → Sonnet 用入力） | $0 |
+| Layer 4 | Sonnet | 判断（因果推論、問題選定、理由言語化） | ~$0.03 |
+| 特別 | Opus | 高度分析（初回プロファイリング、月次レビュー、停滞介入） | ~$0.15 |
+
+適用先:
+- **レコメンド**: `collect-session.mjs` → `classify-prompts.mjs` → `aggregate-classifications.mjs` → `/recommend` スキル
+- **クイズ検証**: `verify:diff` → `pre-verify-quiz.mjs` → `quiz-verifier` エージェント ×8
+- 詳細は [利用履歴レコメンド](usage-recommend.md) を参照
+
 ## 技術スタック
 
 | カテゴリ | 技術 | 選択理由 |

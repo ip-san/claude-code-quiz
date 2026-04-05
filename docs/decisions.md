@@ -182,7 +182,7 @@ ESLint + Prettier の組み合わせは設定ファイルが多く、プラグ�
 ### 理由
 
 - 1 ツールで lint + format を統一。`.eslintrc`, `.prettierrc`, `.eslintignore` が不要
-- Rust 製で高速（`bun run check` が型チェック + lint + 476 テスト + 732 問チェックで約 5 秒）
+- Rust 製で高速（`bun run check` が型チェック + lint + 476 テスト + 752 問チェックで約 5 秒）
 - ESLint の主要ルールをカバーしており、移行コストが低かった
 - `biome.json` 1 ファイルで全設定が完結
 

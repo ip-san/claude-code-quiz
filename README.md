@@ -165,7 +165,7 @@ bun run build
 | パッケージ | 用途 |
 |-----------|------|
 | [Vitest](https://vitest.dev/) 4 | ユニットテスト（476テスト） |
-| [Playwright](https://playwright.dev/) | E2E + Visual Regression テスト（24テスト） |
+| [Playwright](https://playwright.dev/) | E2E + Visual Regression テスト（59テスト） |
 | [Biome](https://biomejs.dev/) | Lint + フォーマッター |
 | [type-coverage](https://github.com/nicolo-ribaudo/type-coverage) | TypeScript 型カバレッジ（99.5%） |
 | [knip](https://knip.dev/) | 未使用コード・依存の検出 |

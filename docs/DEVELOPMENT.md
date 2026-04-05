@@ -151,7 +151,7 @@ bun run check
 # ウォッチモード（ファイル変更時に自動実行）
 bun run test:watch
 
-# E2E テスト（Playwright、46テスト）
+# E2E テスト（Playwright、59テスト）
 bun run test:e2e
 
 # カバレッジレポート生成

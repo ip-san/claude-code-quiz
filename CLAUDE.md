@@ -12,6 +12,7 @@ PWA でスマホ・ブラウザから利用可能。Electron デスクトップ�
 - **配信:** PWA / GitHub Pages（メイン）+ Electron（デスクトップ）
 - **アナリティクス:** GTM + GA4 + MCP サーバー（`mcp/ga4-server.mjs`）
 - **テスト:** Vitest（476テスト）+ Playwright E2E（59テスト）
+- **AIパイプライン:** Script→Haiku→Script→Sonnet（+Opus 3トリガー）、年間~$5
 - **CI/CD:** GitHub Actions → GitHub Pages 自動デプロイ（GTM ID は Secret 管理）
 - **クイズデータ:** 752問（71ドキュメントページをカバー）
 
@@ -26,7 +27,7 @@ bun run build:web     # Web版プロダクションビルド
 # 品質チェック
 bun run check         # 型チェック + lint + 476テスト + 752問チェック（一括）
 bun test              # ユニット + Store テスト（476テスト、Vitest）
-bun run test:e2e      # E2E + Visual Regression テスト（46テスト、Playwright）
+bun run test:e2e      # E2E + Visual Regression テスト（59テスト、Playwright）
 
 # クイズ管理
 bun run quiz:stats    # クイズ統計（カテゴリ・難易度・correctIndex分布）
