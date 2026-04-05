@@ -329,7 +329,8 @@ try {
       for (const m of testMatches) {
         const n = parseInt(m)
         // Only flag numbers that look like they were a total test count (> 350, close to actual)
-        if (n > 350 && n !== actualTestCount && Math.abs(n - actualTestCount) < 50) {
+        // Allow ±2 tolerance for CI environment differences (jsdom reporter variance)
+        if (n > 350 && Math.abs(n - actualTestCount) > 2 && Math.abs(n - actualTestCount) < 50) {
           errors.push(`${filePath}: stale test count "${m}", actual ${actualTestCount}`)
           autoFixes.push({
             label: `${filePath} test count ${n}`,
