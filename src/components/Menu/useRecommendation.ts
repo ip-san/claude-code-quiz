@@ -80,9 +80,26 @@ export function useRecommendation() {
     }
 
     // Growth tracking: compare with previous analysis and save snapshot
+    // Growth tracking with quiz correlation
     const prompts = cachedAnalysis.promptSamples ?? []
     const patterns = detectWorkPatterns(prompts)
-    const insight = GrowthTrackingService.compareWithPrevious(patterns, prompts)
+
+    // Calculate recommended accuracy for learning impact analysis
+    const store = useQuizStore.getState()
+    const progress = store.userProgress
+    const recAccuracy: Record<string, { correct: number; total: number }> = {}
+    for (const id of cachedAnalysis.recommendedIds ?? []) {
+      const qp = progress.questionProgress[id]
+      if (qp && qp.attempts > 0) {
+        const q = allQuestions.find((q) => q.id === id)
+        const cat = q?.category ?? 'unknown'
+        if (!recAccuracy[cat]) recAccuracy[cat] = { correct: 0, total: 0 }
+        recAccuracy[cat].total++
+        if (qp.lastCorrect) recAccuracy[cat].correct++
+      }
+    }
+
+    const insight = GrowthTrackingService.compareWithPrevious(patterns, prompts, recAccuracy)
     setGrowthInsight(insight)
     GrowthTrackingService.saveSnapshot(patterns, prompts)
 
@@ -91,6 +108,7 @@ export function useRecommendation() {
 
   // ── Initial analysis ───────────────────────────────────────
 
+  // biome-ignore lint/correctness/useExhaustiveDependencies: recommendations used for export snapshot at analyze-time, not reactive
   const analyze = useCallback(async () => {
     if (!window.electronAPI) return
     setLoading(true)

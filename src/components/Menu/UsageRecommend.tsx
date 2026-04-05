@@ -125,11 +125,21 @@ export function UsageRecommend() {
             <p className="text-xs font-medium text-claude-dark dark:text-stone-200">
               {growthInsight.maturityChange.direction === 'improving' ? '📈' : '📊'} あなたの改善レポート
             </p>
-            {growthInsight.improved.length > 0 && (
+            {growthInsight.learningImpact?.quizHelped.map((h) => (
+              <p key={h.pattern} className="mt-1 text-[11px] text-green-600 dark:text-green-400">
+                ✓ クイズ効果: {h.message}
+              </p>
+            ))}
+            {growthInsight.improved.length > 0 && !growthInsight.learningImpact?.quizHelped.length && (
               <p className="mt-1 text-[11px] text-green-600 dark:text-green-400">
                 ✓ 改善: {growthInsight.improved.map((i) => i.pattern).join('、')}
               </p>
             )}
+            {growthInsight.learningImpact?.quizNeeded.map((n) => (
+              <p key={n.pattern} className="mt-0.5 text-[11px] text-amber-600 dark:text-amber-400">
+                📝 {n.message}
+              </p>
+            ))}
             {growthInsight.newIssues.length > 0 && (
               <p className="mt-0.5 text-[11px] text-amber-600 dark:text-amber-400">
                 → 次の課題: {growthInsight.newIssues.map((i) => i.pattern).join('、')}

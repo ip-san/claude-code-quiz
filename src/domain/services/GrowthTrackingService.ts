@@ -46,6 +46,14 @@ export interface PatternChange {
   readonly improvementPercent?: number
 }
 
+/** クイズ学習と実務改善の因果分析 */
+export interface LearningImpact {
+  /** クイズを解いて改善されたパターン */
+  readonly quizHelped: readonly { pattern: string; category: string; message: string }[]
+  /** クイズを解いていなくて改善されていないパターン */
+  readonly quizNeeded: readonly { pattern: string; category: string; message: string }[]
+}
+
 /** 前回と今回の比較結果 */
 export interface GrowthInsight {
   /** 改善されたパターン（前回あったが今回なくなった or 回数が減った） */
@@ -57,6 +65,8 @@ export interface GrowthInsight {
     readonly direction: 'improving' | 'stable' | 'declining'
     readonly message: string
   }
+  /** クイズ→実務の因果分析 */
+  readonly learningImpact?: LearningImpact
   /** コーチングメッセージ（最も重要な1つ） */
   readonly coachingMessage: string
   /** 比較回数（何回目の分析か） */
@@ -135,8 +145,9 @@ export class GrowthTrackingService {
    * 前回のスナップショットと比較して成長インサイトを生成
    */
   static compareWithPrevious(
-    currentPatterns: { pattern: string; savedMinutes: number; aiStyle?: string }[],
-    prompts: string[]
+    currentPatterns: { pattern: string; category?: string; savedMinutes: number; aiStyle?: string }[],
+    prompts: string[],
+    recommendedAccuracy?: Record<string, { correct: number; total: number }>
   ): GrowthInsight | null {
     const history = this.loadHistory()
     if (history.length === 0) return null
@@ -179,6 +190,9 @@ export class GrowthTrackingService {
     // Maturity direction
     const maturityChange = this.assessMaturityChange(previous.maturity, currentMaturity)
 
+    // Learning impact: correlate quiz completion with pattern changes
+    const learningImpact = this.analyzeLearningImpact(improved, currentPatterns, recommendedAccuracy, previous.patterns)
+
     // Coaching message
     const coachingMessage = this.generateCoachingMessage(improved, newIssues, maturityChange, history.length)
 
@@ -186,6 +200,7 @@ export class GrowthTrackingService {
       improved,
       newIssues,
       maturityChange,
+      learningImpact,
       coachingMessage,
       analysisCount: history.length + 1,
     }
@@ -286,6 +301,66 @@ export class GrowthTrackingService {
 
     // Stable
     return '使い方が安定しています。新しいカテゴリに挑戦して、さらにスキルアップしませんか？'
+  }
+
+  /**
+   * クイズ学習と実務改善の因果分析
+   *
+   * パターンのカテゴリとクイズ正答率を突き合わせて:
+   * - クイズ解いた + 改善した → 「学習が実務に活きている」
+   * - クイズ解いてない + 改善してない → 「クイズを解けば改善できるかも」
+   */
+  private static analyzeLearningImpact(
+    improved: readonly PatternChange[],
+    currentPatterns: { pattern: string; category?: string }[],
+    recommendedAccuracy?: Record<string, { correct: number; total: number }>,
+    prevPatterns?: readonly string[]
+  ): LearningImpact | undefined {
+    if (!recommendedAccuracy || Object.keys(recommendedAccuracy).length === 0) return undefined
+
+    // Build pattern → category map from current + previous patterns
+    const patternCategory = new Map<string, string>()
+    for (const p of currentPatterns) {
+      if (p.category) patternCategory.set(p.pattern, p.category)
+    }
+
+    const quizHelped: LearningImpact['quizHelped'][number][] = []
+    const quizNeeded: LearningImpact['quizNeeded'][number][] = []
+
+    // Improved patterns: check if user solved related quizzes
+    for (const imp of improved) {
+      const cat = patternCategory.get(imp.pattern)
+      if (!cat) continue
+      const acc = recommendedAccuracy[cat]
+      if (acc && acc.total > 0 && acc.correct / acc.total >= 0.5) {
+        quizHelped.push({
+          pattern: imp.pattern,
+          category: cat,
+          message: `${imp.pattern}が改善 — ${cat}のクイズ${acc.correct}/${acc.total}問正解が活きています`,
+        })
+      }
+    }
+
+    // Persistent patterns: check if user has NOT solved related quizzes
+    if (prevPatterns) {
+      for (const p of currentPatterns) {
+        if (!p.category) continue
+        // Pattern exists in both current and previous → not improving
+        if (prevPatterns.includes(p.pattern)) {
+          const acc = recommendedAccuracy[p.category]
+          if (!acc || acc.total === 0) {
+            quizNeeded.push({
+              pattern: p.pattern,
+              category: p.category,
+              message: `${p.pattern}が続いています — ${p.category}のクイズを解くと改善できるかもしれません`,
+            })
+          }
+        }
+      }
+    }
+
+    if (quizHelped.length === 0 && quizNeeded.length === 0) return undefined
+    return { quizHelped, quizNeeded }
   }
 }
 
