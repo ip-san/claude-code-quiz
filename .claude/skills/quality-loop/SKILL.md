@@ -146,7 +146,13 @@ Phase 1, 3, 5 では Agent ツールを使って複数エージェントを **�
 **前処理（逐次）:**
 1. `bun run docs:discover && bun run docs:fetch` を実行
 2. `bun run verify:diff` で検証対象を抽出
-3. `.claude/tmp/verify-targets.json` を読み、カテゴリ別の対象問題数を確認
+3. 対象が10問以上なら **Haiku 事前フィルタ** を実行:
+   ```bash
+   node scripts/pre-verify-quiz.mjs
+   ```
+   → `.claude/tmp/pre-verify-results.json` が生成される
+   → Haiku 確認済み（matched）の問題はチェック A-B をスキップ
+4. `.claude/tmp/verify-targets.json` を読み、カテゴリ別の対象問題数を確認
 
 **並列検証:**
 
@@ -156,11 +162,12 @@ Phase 1, 3, 5 では Agent ツールを使って複数エージェントを **�
 ```
 カテゴリ「{category}」の doc-changed / new 問題を検証してください。
 対象問題: {id_list}
+pre-verify 結果: .claude/tmp/pre-verify-results.json を参照（matched はチェック A-B スキップ）
 手順:
 1. node scripts/fetch-docs.mjs --assemble {category}
 2. .claude/tmp/quizzes/{category}.json を Read
 3. .claude/skills/quiz-refine/known-issues.md を Read
-4. チェックリスト A-H を適用
+4. チェックリストを適用（pre-verify 結果に従いスコープ調整）
 5. JSON形式で結果を報告（修正は行わない）
 ```
 
