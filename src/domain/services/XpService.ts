@@ -31,7 +31,7 @@ const LEVELS: readonly XpLevel[] = [
   { level: 4, name: '継続の達人', icon: '⭐', minXp: 400 },
   { level: 5, name: '学びの探求者', icon: '💎', minXp: 800 },
   { level: 6, name: '知識の伝道師', icon: '👑', minXp: 1500 },
-  { level: 7, name: 'Claude Code通', icon: '🏆', minXp: 3000 },
+  { level: 7, name: 'エキスパート', icon: '🏆', minXp: 3000 },
 ]
 
 export class XpService {
