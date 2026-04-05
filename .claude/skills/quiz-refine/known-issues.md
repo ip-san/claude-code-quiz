@@ -92,6 +92,14 @@ v4.43.0 以前の known-issues では「exit code 2 の一般ルールで UserPr
 
 - `sandbox.network.allowManagedDomainsOnly` の説明で `deniedMcpServers`（MCP サーバーの設定名）を引用していた事例 — 正しくは「拒否ドメイン（denied domains）」。ネットワークドメインと MCP サーバーは別のサブシステム
 
+## MCP Tool Search のデフォルト動作（2026-04-06 確認）
+
+- Tool Search は**デフォルトで有効**（ENABLE_TOOL_SEARCH=true 相当）。MCPツールは事前にコンテキストへロードされず、Claudeがオンデマンドで検索・使用する
+- **「MCPツール定義がコンテキストの10%を超えると自動有効化」は誤り** — 10%閾値は ENABLE_TOOL_SEARCH=auto モード専用
+- ENABLE_TOOL_SEARCH の値と動作: デフォルト未設定=常に遅延読み込み、auto=閾値ベース（10%未満なら事前ロード）、false=完全無効化
+- 参照: mcp ページ 'Scale with MCP Tool Search' セクション
+- この機能には Sonnet 4 以降または Opus 4 以降が必要。Haiku はサポート外
+
 ## 「推奨」と「非推奨」の混同
 
 - ドキュメントが「AはBより推奨（recommended）」と記載していても、「Bは非推奨（deprecated）」とは限らない
