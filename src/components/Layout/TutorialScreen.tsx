@@ -160,7 +160,7 @@ export function TutorialScreen({ onComplete }: TutorialScreenProps) {
 
   return (
     <div className="grid min-h-dvh grid-rows-[auto_1fr_auto] bg-claude-cream dark:bg-stone-900">
-      {/* Skip button */}
+      {/* Skip button — made more prominent to reduce frustration */}
       <div className="flex justify-end px-4 pt-3">
         <button
           onClick={() => {
@@ -168,10 +168,10 @@ export function TutorialScreen({ onComplete }: TutorialScreenProps) {
             trackTutorial('skip', currentSlide)
             onComplete('skip')
           }}
-          className="tap-highlight flex items-center gap-1 rounded-full px-3 py-1.5 text-xs font-medium text-stone-500 hover:text-stone-600 dark:hover:text-stone-300"
+          className="tap-highlight flex items-center gap-1 rounded-full border border-stone-300 px-4 py-2 text-sm font-medium text-stone-600 dark:border-stone-600 dark:text-stone-300"
         >
           {locale.tutorial.skip}
-          <ChevronRight className="h-3 w-3" />
+          <ChevronRight className="h-3.5 w-3.5" />
         </button>
       </div>
 

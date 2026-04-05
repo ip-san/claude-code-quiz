@@ -23,7 +23,13 @@ function isDOMMismatchError(error: Error): boolean {
   return DOM_MISMATCH_PATTERNS.some((p) => error.message.includes(p))
 }
 
+/** Stale cache errors — old JS references components that were renamed/removed in a new deploy */
+function isStaleCacheError(error: Error): boolean {
+  return /is not defined$/.test(error.message) && error instanceof ReferenceError
+}
+
 const MAX_AUTO_RETRIES = 1
+const RELOAD_KEY = 'ccquiz-stale-cache-reload'
 
 /**
  * React Error Boundary — catches render errors and shows fallback UI.
@@ -52,6 +58,18 @@ export class ErrorBoundary extends Component<Props, State> {
       }
       // DOM mismatch after retry — still not an app bug, skip GA4 tracking
       return
+    }
+
+    // Stale Service Worker cache: old JS references removed components
+    // Auto-reload once to pick up new SW cache
+    if (isStaleCacheError(error)) {
+      const lastReload = sessionStorage.getItem(RELOAD_KEY)
+      if (!lastReload) {
+        sessionStorage.setItem(RELOAD_KEY, Date.now().toString())
+        window.location.reload()
+        return
+      }
+      // Already reloaded once this session — show error UI instead of loop
     }
 
     trackError(error.message, 'react_boundary')

@@ -78,20 +78,20 @@ export function WelcomeScreen({ onComplete }: WelcomeScreenProps) {
           })}
         </div>
 
-        {/* CTA */}
-        <button
-          onClick={handleStart}
-          className="tap-highlight inline-flex w-full items-center justify-center gap-2 rounded-2xl bg-claude-orange px-8 py-3.5 text-xl font-bold text-white shadow-lg"
-        >
-          <span>はじめる</span>
-          <ArrowRight className="h-5 w-5" />
-        </button>
+        {/* CTA — two equal-weight buttons */}
         <button
           onClick={handleTryOne}
-          className="tap-highlight mt-3 inline-flex w-full items-center justify-center gap-1.5 rounded-2xl border border-stone-200 bg-white px-6 py-2.5 text-sm font-medium text-claude-dark dark:border-stone-700 dark:bg-stone-800"
+          className="tap-highlight inline-flex w-full items-center justify-center gap-2 rounded-2xl bg-claude-orange px-8 py-3.5 text-lg font-bold text-white shadow-lg"
         >
-          <Play className="h-3.5 w-3.5 fill-claude-orange text-claude-orange" />
+          <Play className="h-5 w-5 fill-white" />
           今すぐ1問だけ試す
+        </button>
+        <button
+          onClick={handleStart}
+          className="tap-highlight mt-3 inline-flex w-full items-center justify-center gap-2 rounded-2xl border-2 border-claude-orange px-6 py-3 text-base font-semibold text-claude-orange"
+        >
+          <span>はじめる</span>
+          <ArrowRight className="h-4 w-4" />
         </button>
       </div>
     </div>
