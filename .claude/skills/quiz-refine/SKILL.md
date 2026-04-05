@@ -168,6 +168,24 @@ npm run verify:diff -- memory tools
 
 MEMORY.md の「Verified Facts」セクションと `known-issues.md` を比較し、MEMORY に記載されているがknown-issues に未反映の事実があれば known-issues.md に追記する。これにより検証エージェントが最新の確認済み事実を参照できる。
 
+## Step 0c: Haiku 事前フィルタ（オプション）
+
+差分検出で対象が10問以上ある場合、Haiku で事実チェックの事前フィルタを実行する:
+
+```bash
+node scripts/pre-verify-quiz.mjs
+```
+
+出力: `.claude/tmp/pre-verify-results.json`
+- `matched`: Haiku が「ドキュメントと事実一致」と判定 → **Sonnet 検証をスキップ**
+- `flagged`: 不一致の疑い → Sonnet で必ず精査
+- `uncertain`: 判定不能 → Sonnet で必ず精査
+- `sonnetTargets`: flagged + uncertain のIDリスト
+
+**品質保証**: Haiku は「OK」判定のみ信頼する。「flag」「uncertain」は全て Sonnet に渡すため、見逃しリスクはゼロ。
+
+**対象が10問未満の場合**: pre-verify をスキップし、全問を Sonnet で検証（少量なら直接検証の方が速い）。
+
 ## Step 1: 早期終了チェック
 
 `.claude/tmp/verify-targets.json` を Read で読み込む。
@@ -177,6 +195,10 @@ MEMORY.md の「Verified Facts」セクションと `known-issues.md` を比較�
 - `skippedCount`: スキップされた問題数
 
 **targets が 0 件の場合**: 差分なし。「検証対象なし」と報告して**即座に終了**。
+
+`.claude/tmp/pre-verify-results.json` が存在する場合:
+- `sonnetTargets` のIDのみを検証対象とする（Haiku で OK と判定された問題はスキップ）
+- 「Pre-verify: N問スキップ（Haiku確認済み）」とログ出力
 
 targets > 0 の場合、対象カテゴリのドキュメントをキャッシュ:
 ```bash
