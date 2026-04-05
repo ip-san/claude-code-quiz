@@ -41,6 +41,7 @@ cat ~/.claude-quiz-recommend/learner-profile.json 2>/dev/null || echo '{}'
 このファイルには以下が含まれる:
 - `patternHistory`: 過去の非効率パターン検出履歴（最大10スナップショット）。各スナップショットには日付、パターン名、回数、プロンプト成熟度が含まれる
 - `categoryProgress`: クイズのカテゴリ別正答率（accuracy）と挑戦問題数（attemptedQuestions）
+- `recommendedAccuracy`: **前回レコメンドで出した問題に絞った** カテゴリ別正答（correct/total）。全体の正答率ではなく「レコメンドに対する学習効果」を直接測定できる
 - `totalAttempts`: 総回答数
 - `totalXp`: 累積経験値
 - `streakDays`: 連続学習日数
@@ -48,8 +49,9 @@ cat ~/.claude-quiz-recommend/learner-profile.json 2>/dev/null || echo '{}'
 **学習者プロファイルの活用方法:**
 
 1. **過去に改善されたパターンは再推薦しない** — `patternHistory` の最新スナップショットに含まれず、過去に含まれていたパターンは「解決済み」として扱う
-2. **正答率が高いカテゴリは advanced 問題を出す** — `categoryProgress[cat].accuracy >= 80` なら beginner/intermediate は不要
-3. **正答率が低いカテゴリは基礎から固める** — `categoryProgress[cat].accuracy < 50` なら beginner 問題を優先
+2. **レコメンド問題の正答率で学習効果を測る** — `recommendedAccuracy[cat]` が存在すれば、全体の `categoryProgress` より優先する。レコメンドで出した問題を解いて正答率が高い → その分野は学べている。低い → まだ理解が浅いので同カテゴリの別問題を再推薦
+3. **全体の正答率が高いカテゴリは advanced 問題を出す** — `categoryProgress[cat].accuracy >= 80` なら beginner/intermediate は不要
+4. **正答率が低いカテゴリは基礎から固める** — `categoryProgress[cat].accuracy < 50` なら beginner 問題を優先
 4. **成熟度が向上傾向なら応用的な問題を出す** — `patternHistory` の最新と最古を比較し、`inquiryRatio` が増加していれば、探求型の advanced 問題が適切
 5. **学習量が少ない（totalAttempts < 20）場合は幅広く出す** — 特定カテゴリに偏らせない
 

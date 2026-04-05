@@ -101,6 +101,21 @@ export function useRecommendation() {
     try {
       const store = useQuizStore.getState()
       const progress = store.userProgress
+
+      // Calculate accuracy for previously recommended questions only
+      const prevRecommendedIds = recommendations.map((r) => r.id)
+      const recommendedAccuracy: Record<string, { correct: number; total: number }> = {}
+      for (const id of prevRecommendedIds) {
+        const qp = progress.questionProgress[id]
+        if (qp && qp.attempts > 0) {
+          const q = store.allQuestions.find((q) => q.id === id)
+          const cat = q?.category ?? 'unknown'
+          if (!recommendedAccuracy[cat]) recommendedAccuracy[cat] = { correct: 0, total: 0 }
+          recommendedAccuracy[cat].total++
+          if (qp.lastCorrect) recommendedAccuracy[cat].correct++
+        }
+      }
+
       await window.electronAPI.exportLearnerProfile?.({
         patternHistory: GrowthTrackingService.loadHistory(),
         categoryProgress: Object.fromEntries(
@@ -109,6 +124,7 @@ export function useRecommendation() {
             { accuracy: v.accuracy, attemptedQuestions: v.attemptedQuestions },
           ])
         ),
+        recommendedAccuracy,
         totalAttempts: progress.totalAttempts,
         totalXp: progress.totalXp,
         streakDays: progress.streakDays,

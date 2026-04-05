@@ -135,6 +135,7 @@ const electronAPI = {
   exportLearnerProfile: (data: {
     patternHistory: unknown[]
     categoryProgress: Record<string, { accuracy: number; attemptedQuestions: number }>
+    recommendedAccuracy: Record<string, { correct: number; total: number }>
     totalAttempts: number
     totalXp: number
     streakDays: number

@@ -25,6 +25,8 @@ interface ElectronAPI {
   exportLearnerProfile: (data: {
     patternHistory: unknown[]
     categoryProgress: Record<string, { accuracy: number; attemptedQuestions: number }>
+    /** レコメンドで出した問題に絞ったカテゴリ別正答率 */
+    recommendedAccuracy: Record<string, { correct: number; total: number }>
     totalAttempts: number
     totalXp: number
     streakDays: number
