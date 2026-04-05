@@ -16,11 +16,16 @@ interface XpToastProps {
  */
 export function XpToast({ totalXp, onComplete }: XpToastProps) {
   const { phase, trigger, style } = useToastPhase(1000, onComplete)
-  const prevXpRef = useRef(totalXp)
+  const prevXpRef = useRef<number | null>(null)
   const gainRef = useRef(0)
   const delayRef = useRef<ReturnType<typeof setTimeout>>()
 
   useEffect(() => {
+    // Skip first render — just record initial value
+    if (prevXpRef.current === null) {
+      prevXpRef.current = totalXp
+      return
+    }
     const gain = totalXp - prevXpRef.current
     prevXpRef.current = totalXp
     // Only show toast for meaningful XP gains (correct answers: 10+, not wrong: 2)

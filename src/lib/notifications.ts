@@ -75,9 +75,11 @@ export class NotificationService {
     if (!this.isSupported()) return false
     if (Notification.permission !== 'default') return false
 
-    // iOS Safari (non-standalone) does not support notifications
-    // Only show opt-in for iOS if running as installed PWA
-    const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent)
+    // iOS/iPadOS Safari (non-standalone) does not support notifications
+    // Only show opt-in if running as installed PWA
+    // iPad on iOS 13+ sends Macintosh UA, so also check maxTouchPoints
+    const ua = navigator.userAgent
+    const isIOS = /iPad|iPhone|iPod/.test(ua) || (ua.includes('Macintosh') && navigator.maxTouchPoints > 1)
     const isStandalone = window.matchMedia('(display-mode: standalone)').matches
     if (isIOS && !isStandalone) return false
 
