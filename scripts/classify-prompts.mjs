@@ -83,23 +83,29 @@ JSON配列のみ返してください。説明不要。`
     process.exit(0)
   }
 
-  // ── Parse Haiku response ───���──────────────────────────────
+  // ── Parse Haiku response ────────────────────────────────────
   let classifications = []
   try {
-    const parsed = JSON.parse(result)
-    // Handle both direct array and {result: [...]} formats
-    classifications = Array.isArray(parsed) ? parsed : parsed.result || parsed.classifications || []
-  } catch {
-    // Try extracting JSON array from text response
-    const match = result.match(/\[[\s\S]*\]/)
-    if (match) {
-      try {
-        classifications = JSON.parse(match[0])
-      } catch {
-        cleanup()
-        process.exit(0)
-      }
+    // claude CLI --output-format json wraps in {result: "..."}
+    let text = result
+    try {
+      const wrapper = JSON.parse(result)
+      text = typeof wrapper === 'string' ? wrapper : wrapper.result || wrapper.content || JSON.stringify(wrapper)
+    } catch {
+      // Not JSON wrapper — use raw text
     }
+
+    // Strip markdown code fences (```json ... ```)
+    text = text.replace(/```json\s*/g, '').replace(/```\s*/g, '')
+
+    // Extract JSON array
+    const match = text.match(/\[[\s\S]*\]/)
+    if (match) {
+      classifications = JSON.parse(match[0])
+    }
+  } catch {
+    cleanup()
+    process.exit(0)
   }
 
   // ── Build summary ─────────────────────────────────────────
