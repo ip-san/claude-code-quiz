@@ -1,3 +1,4 @@
+import { XpService } from '../services/XpService'
 import { calculateNextReview } from '../valueObjects/SrsInterval'
 
 /**
@@ -108,6 +109,8 @@ export interface UserProgressProps {
   readonly dailyGoal?: number
   readonly dailyAnswerCounts?: Record<string, number>
   readonly sessionHistory?: readonly SessionRecord[]
+  /** 累積経験値 (XP) */
+  readonly totalXp?: number
 }
 
 export class UserProgress {
@@ -122,6 +125,7 @@ export class UserProgress {
   readonly dailyGoal: number
   readonly dailyAnswerCounts: Readonly<Record<string, number>>
   readonly sessionHistory: readonly SessionRecord[]
+  readonly totalXp: number
 
   private constructor(props: UserProgressProps) {
     this.modifiedAt = props.modifiedAt
@@ -135,6 +139,7 @@ export class UserProgress {
     this.dailyGoal = props.dailyGoal ?? 10
     this.dailyAnswerCounts = Object.freeze({ ...(props.dailyAnswerCounts ?? {}) })
     this.sessionHistory = Object.freeze([...(props.sessionHistory ?? [])])
+    this.totalXp = props.totalXp ?? 0
   }
 
   /**
@@ -256,6 +261,10 @@ export class UserProgress {
       [todayStr]: (this.dailyAnswerCounts[todayStr] ?? 0) + (isFirstAttempt ? 1 : 0),
     }
 
+    // Calculate XP gain
+    const isSrsReview = (existing?.attempts ?? 0) > 0
+    const xpGain = isRetry ? 0 : XpService.calculateAnswerXp(isCorrect, isSrsReview)
+
     return new UserProgress({
       modifiedAt: now,
       questionProgress: {
@@ -274,6 +283,7 @@ export class UserProgress {
       dailyGoal: this.dailyGoal,
       dailyAnswerCounts: newDailyCounts,
       sessionHistory: this.sessionHistory,
+      totalXp: this.totalXp + xpGain,
     })
   }
 
@@ -458,6 +468,7 @@ export class UserProgress {
       dailyGoal: this.dailyGoal,
       dailyAnswerCounts: { ...this.dailyAnswerCounts },
       sessionHistory: [...this.sessionHistory],
+      totalXp: this.totalXp,
     }
   }
 }

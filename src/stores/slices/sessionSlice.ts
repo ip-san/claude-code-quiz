@@ -90,6 +90,7 @@ export const createSessionSlice = (set: StoreSet, get: StoreGet): SessionSlice =
       currentIndex: startIndex,
       initialStreakDays: state.userProgress.streakDays,
       initialTodayCount: state.userProgress.getDailyCount(DailyGoalService.getTodayString()),
+      initialXp: state.userProgress.totalXp,
     }
 
     set({
@@ -132,6 +133,7 @@ export const createSessionSlice = (set: StoreSet, get: StoreGet): SessionSlice =
       ...QuizSessionService.createInitialState(questions, config),
       initialStreakDays: state.userProgress.streakDays,
       initialTodayCount: state.userProgress.getDailyCount(DailyGoalService.getTodayString()),
+      initialXp: state.userProgress.totalXp,
     }
 
     set({
@@ -173,6 +175,7 @@ export const createSessionSlice = (set: StoreSet, get: StoreGet): SessionSlice =
       ...QuizSessionService.createInitialState(questions, config),
       initialStreakDays: state.userProgress.streakDays,
       initialTodayCount: state.userProgress.getDailyCount(DailyGoalService.getTodayString()),
+      initialXp: state.userProgress.totalXp,
     }
 
     set({
@@ -204,6 +207,7 @@ export const createSessionSlice = (set: StoreSet, get: StoreGet): SessionSlice =
       ...QuizSessionService.createInitialState(questions, config),
       initialStreakDays: state.userProgress.streakDays,
       initialTodayCount: state.userProgress.getDailyCount(DailyGoalService.getTodayString()),
+      initialXp: state.userProgress.totalXp,
     }
 
     set({

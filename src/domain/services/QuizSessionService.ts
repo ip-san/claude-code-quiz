@@ -27,6 +27,7 @@ import { UserProgress } from '../entities/UserProgress'
 import { PREDEFINED_CATEGORIES } from '../valueObjects/Category'
 import type { DifficultyLevel } from '../valueObjects/Difficulty'
 import type { QuizModeId } from '../valueObjects/QuizMode'
+import { AdaptiveDifficultyService } from './AdaptiveDifficultyService'
 import { SpacedRepetitionService } from './SpacedRepetitionService'
 
 /**
@@ -80,6 +81,8 @@ export interface QuizSessionState {
   readonly initialStreakDays: number
   /** セッション開始前の今日の回答数（デイリーゴール達成判定用） */
   readonly initialTodayCount: number
+  /** セッション開始時のXP（レベルアップ判定用） */
+  readonly initialXp: number
   /** 各問題の回答履歴 (index → {selectedAnswer, selectedAnswers, isCorrect}) */
   readonly answerHistory: ReadonlyMap<number, AnswerRecord>
 }
@@ -323,11 +326,17 @@ export class QuizSessionService {
 
     // Adaptive difficulty: for random/category modes, prioritize questions
     // the user hasn't mastered yet (unmastered first, then mastered)
+    // Also apply difficulty-based adaptive ordering when sufficient data exists
     if ((config.mode === 'random' || config.mode === 'category') && userProgress.totalAttempts > 0) {
       const unmastered = questions.filter((q) => (userProgress.getQuestionAccuracy(q.id) ?? 0) < 100)
       const mastered = questions.filter((q) => (userProgress.getQuestionAccuracy(q.id) ?? 0) >= 100)
-      // Mix: unmastered shuffled first, mastered shuffled after
-      questions = [...this.shuffleArray(unmastered), ...this.shuffleArray(mastered)]
+
+      // Apply adaptive difficulty within unmastered questions
+      const orderedUnmastered = AdaptiveDifficultyService.isAdaptiveReady(userProgress)
+        ? AdaptiveDifficultyService.reorderByAdaptiveDifficulty(this.shuffleArray(unmastered), userProgress)
+        : this.shuffleArray(unmastered)
+
+      questions = [...orderedUnmastered, ...this.shuffleArray(mastered)]
     }
 
     // Shuffle if needed (skip when SRS priority or adaptive ordering was applied)
@@ -400,6 +409,7 @@ export class QuizSessionService {
       deferFeedback: config.mode === 'full',
       initialStreakDays: 0,
       initialTodayCount: 0,
+      initialXp: 0,
       answerHistory: new Map(),
     }
   }

@@ -20,6 +20,7 @@ import { KeyboardShortcutHelp } from '@/components/Layout/KeyboardShortcutHelp'
 import { locale } from '@/config/locale'
 import { theme } from '@/config/theme'
 import { DailyGoalService } from '@/domain/services/DailyGoalService'
+import { XpService } from '@/domain/services/XpService'
 import { PREDEFINED_QUIZ_MODES } from '@/domain/valueObjects/QuizMode'
 import { haptics } from '@/lib/haptics'
 import { isElectron } from '@/lib/platformAPI'
@@ -181,6 +182,8 @@ export function MenuHeader({
               </>
             )}
           </p>
+          {/* XP / Level bar */}
+          {hasProgress && <XpLevelBar totalXp={userProgress.totalXp} />}
         </div>
       </div>
 
@@ -408,6 +411,37 @@ function MenuSection({ children, title }: { children: React.ReactNode; title?: s
         </p>
       )}
       {children}
+    </div>
+  )
+}
+
+/** XP / レベルプログレスバー */
+function XpLevelBar({ totalXp }: { totalXp: number }) {
+  const level = XpService.getLevel(totalXp)
+  const { percentage, nextXp } = XpService.getProgressToNextLevel(totalXp)
+  const isMaxLevel = percentage === 100 && totalXp >= nextXp
+
+  return (
+    <div className="mt-2 flex items-center gap-2">
+      <span className="text-sm" aria-hidden="true">
+        {level.icon}
+      </span>
+      <div className="flex-1">
+        <div className="flex items-center justify-between">
+          <span className="text-[10px] font-semibold text-claude-dark dark:text-stone-300">
+            Lv.{level.level} {level.name}
+          </span>
+          <span className="text-[10px] text-stone-500">
+            {isMaxLevel ? `${totalXp} XP` : `${totalXp} / ${nextXp} XP`}
+          </span>
+        </div>
+        <div className="mt-0.5 h-1.5 overflow-hidden rounded-full bg-stone-200 dark:bg-stone-700">
+          <div
+            className="h-full rounded-full bg-gradient-to-r from-claude-orange to-amber-400 transition-all duration-500"
+            style={{ width: `${percentage}%` }}
+          />
+        </div>
+      </div>
     </div>
   )
 }

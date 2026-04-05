@@ -9,11 +9,13 @@ import { trackShare } from '@/lib/analytics'
 import { APP_CONFIG, useQuizStore } from '@/stores/quizStore'
 import { CategoryBreakthroughBadge } from './overlays/CategoryBreakthroughBadge'
 import { ConfettiEffect } from './overlays/ConfettiEffect'
+import { LevelUpBadge } from './overlays/LevelUpBadge'
 import { DailyGoalBadge, StreakMilestoneBadge } from './overlays/StreakMilestoneBadge'
 import { CertificateGenerator } from './result/CertificateGenerator'
 import { NextRecommendation } from './result/NextRecommendation'
 import { PersonalBest } from './result/PersonalBest'
 import { ScoreRing } from './result/ScoreRing'
+import { ShareImageGenerator } from './result/ShareImageGenerator'
 import { SkillsAcquired } from './result/SkillsAcquired'
 import { TeamShareGuide } from './result/TeamShareGuide'
 
@@ -197,6 +199,7 @@ export function QuizResult() {
         {/* Achievement badges */}
         {showStars && !isReviewMode && (
           <>
+            <LevelUpBadge previousXp={sessionState?.initialXp ?? 0} currentXp={userProgress.totalXp} />
             <StreakMilestoneBadge
               currentStreak={userProgress.streakDays}
               previousStreak={sessionState?.initialStreakDays ?? 0}
@@ -312,6 +315,13 @@ export function QuizResult() {
                 結果をシェア
               </button>
             )}
+            <ShareImageGenerator
+              score={score}
+              total={answeredCount}
+              percentage={percentage}
+              streakDays={userProgress.streakDays}
+              totalXp={userProgress.totalXp}
+            />
             <button
               onClick={handleBackToMenu}
               className="tap-highlight inline-flex w-full items-center justify-center gap-2 rounded-2xl border border-stone-300 px-6 py-3.5 text-base font-semibold text-stone-600 dark:border-stone-600 dark:text-stone-300"

@@ -17,6 +17,7 @@ import type { Question } from '@/domain/entities/Question'
 import { platformAPI } from '@/lib/platformAPI'
 import { useQuizStore } from '@/stores/quizStore'
 import { DiagramRenderer } from './diagrams/DiagramRenderer'
+import { MemoryRetentionBar } from './MemoryRetentionBar'
 import { QuizText } from './QuizText'
 
 type PromptType = 'explain' | 'practical' | 'compare'
@@ -77,7 +78,7 @@ function AnimatedSection({
 }
 
 export function Feedback({ quiz, isCorrect }: FeedbackProps) {
-  const { sessionState } = useQuizStore()
+  const { sessionState, userProgress } = useQuizStore()
   const [copied, setCopied] = useState(false)
   const [markdownCopied, setMarkdownCopied] = useState(false)
   const [animate, setAnimate] = useState(false)
@@ -322,6 +323,15 @@ export function Feedback({ quiz, isCorrect }: FeedbackProps) {
       </div>
     </AnimatedSection>
   )
+
+  // 4.5: Memory retention bar (non-review mode only)
+  if (!isReviewMode) {
+    sections.push(
+      <AnimatedSection key="retention" order={sections.length} animate={animate} noMotion={noMotion} className="mb-4">
+        <MemoryRetentionBar questionProgress={userProgress.questionProgress[quiz.id]} />
+      </AnimatedSection>
+    )
+  }
 
   // 5: Action buttons
   sections.push(

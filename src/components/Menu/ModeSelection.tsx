@@ -1,13 +1,16 @@
 import { ChevronRight } from 'lucide-react'
-import { useMemo, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { locale } from '@/config/locale'
+import { SpacedRepetitionService } from '@/domain/services/SpacedRepetitionService'
 import { haptics } from '@/lib/haptics'
+import { NotificationService } from '@/lib/notifications'
 import { isElectron } from '@/lib/platformAPI'
 import { useQuizStore } from '@/stores/quizStore'
 import { ChapterProgressMap } from './ChapterProgressMap'
 import { DailySnapshot, hasSeenSnapshotToday } from './DailySnapshot'
 import { FirstTimeGuide } from './FirstTimeGuide'
 import { MenuHeader } from './MenuHeader'
+import { NotificationOptIn } from './NotificationOptIn'
 import { QuickActions } from './QuickActions'
 import { QuizSearch } from './QuizSearch'
 import { ResumeSessionBanner } from './ResumeSessionBanner'
@@ -24,6 +27,19 @@ export function ModeSelection() {
     [allQuestions, userProgress]
   )
 
+  // Schedule evening review reminder if notifications are permitted
+  // biome-ignore lint/correctness/useExhaustiveDependencies: intentionally run only on mount
+  useEffect(() => {
+    if (!isElectron && userProgress.totalAttempts > 0) {
+      const now = Date.now()
+      const dueCount = allQuestions.filter((q) => {
+        const qp = userProgress.questionProgress[q.id]
+        return qp && qp.attempts > 0 && SpacedRepetitionService.isDue(qp, now)
+      }).length
+      NotificationService.scheduleEveningReminder(dueCount)
+    }
+  }, [])
+
   return (
     <div className="flex min-h-dvh flex-col bg-claude-cream dark:bg-stone-900">
       <div className="flex-1 overflow-y-auto px-4 pb-8 pt-6 sm:px-6 sm:pt-8">
@@ -39,6 +55,9 @@ export function ModeSelection() {
             openWithModes={openMenuWithModes}
             onMenuOpened={() => setOpenMenuWithModes(false)}
           />
+
+          {/* Notification opt-in — shown once for PWA users with progress */}
+          {!isElectron && userProgress.totalAttempts > 0 && <NotificationOptIn />}
 
           {/* Daily Snapshot — removes decision paralysis (includes SRS info) */}
           {userProgress.totalAttempts > 0 && !snapshotDismissed && (
