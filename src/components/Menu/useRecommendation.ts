@@ -160,6 +160,11 @@ export function useRecommendation() {
     if (await loadFromCache()) {
       haptics.medium()
       setLoading(false)
+
+      // Opus triggers (background, non-blocking)
+      triggerOpusIfNeeded().catch(() => {
+        /* non-critical background task */
+      })
       return
     }
 
@@ -216,6 +221,47 @@ export function useRecommendation() {
   const dismissSetup = useCallback(() => setHooksInstalled(true), [])
   const dismissRegenerated = useCallback(() => setRegenerated(false), [])
   const clearAnalysis = useCallback(() => setAnalysis(null), [])
+
+  // ── Opus triggers (background, non-blocking) ──────────────
+
+  const triggerOpusIfNeeded = useCallback(async () => {
+    if (!window.electronAPI?.runOpusAnalysis) return
+
+    const store = useQuizStore.getState()
+    const progress = store.userProgress
+    const history = GrowthTrackingService.loadHistory()
+
+    // Trigger 1: Initial profiling — enough quiz data but no pattern history yet
+    if (progress.totalAttempts >= 10 && history.length <= 1) {
+      const context = JSON.stringify({
+        categoryProgress: progress.categoryProgress,
+        totalAttempts: progress.totalAttempts,
+        totalXp: progress.totalXp,
+      })
+      window.electronAPI.runOpusAnalysis('initial', context).catch(() => {
+        /* non-critical */
+      })
+      return
+    }
+
+    // Trigger 2: Stagnation — same pattern in 3+ consecutive snapshots
+    if (history.length >= 3) {
+      const recent3 = history.slice(-3)
+      const commonPatterns = (recent3[0].patterns || []).filter(
+        (p) => (recent3[1].patterns || []).includes(p) && (recent3[2].patterns || []).includes(p)
+      )
+      if (commonPatterns.length > 0) {
+        const context = JSON.stringify({
+          stagnantPatterns: commonPatterns,
+          recentHistory: recent3,
+          categoryProgress: progress.categoryProgress,
+        })
+        window.electronAPI.runOpusAnalysis('stagnation', context).catch(() => {
+          /* non-critical */
+        })
+      }
+    }
+  }, [])
 
   // ── Mount effects ──────────────────────────────────────────
 

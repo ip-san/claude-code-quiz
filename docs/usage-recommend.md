@@ -15,7 +15,38 @@ Desktop（Electron）アプリだからこそ可能な体験：
 
 この機能の核心は「**作業の文脈を理解した学習**」です。汎用的なクイズを出すのではなく、あなたが今日実際に Claude Code で何をしていたかを分析し、その作業に役立つ知識を問う問題だけを選びます。
 
-## 仕組みの全体像
+## 4層パイプラインアーキテクチャ
+
+```
+SessionEnd hook (自動)
+  → Layer 1: collect-session.mjs [Script/$0]
+      前処理: struggleSignals, intentTransitions, promptsByCategory
+      → rolling-7d.json (enriched)
+      → spawn Layer 2 (detached)
+
+  → Layer 2: classify-prompts.mjs [Haiku/~$0.004]
+      50プロンプトを意図分類 (intent, category, struggle)
+      → classified-prompts.json
+      → chain Layer 3
+
+  → Layer 3: aggregate-classifications.mjs [Script/$0]
+      分類+統計+学習者プロファイルを圧縮
+      → compressed-input.json (~1,750文字, 88%削減)
+
+分析ボタン (ユーザー主導)
+  → Layer 4: /recommend skill [Sonnet/~$0.03]
+      圧縮データから因果推論 + 15問選定 + 理由言語化
+      → latest-recommend.json
+
+特別トリガー (自動)
+  → Opus: 初回プロファイリング (1回/$0.15)
+  → Opus: 月次レビュー (月1/$0.15)
+  → Opus: 停滞介入 (パターン3連続未改善時/$0.15)
+
+年間コスト: ~$5 (Haiku $2.74 + Sonnet $0.68 + Opus $1.73)
+```
+
+## データ収集の仕組み
 
 ```
 あなたの Claude Code セッション
@@ -317,12 +348,14 @@ bun run setup:hooks --remove
 
 ## ファイル一覧
 
-| ファイル | 役割 |
-|---------|------|
-| `scripts/collect-session.mjs` | セッション収集 + 7日キャッシュ生成 + 行動パターン通知 |
-| `scripts/recommend.mjs` | CLI レコメンド生成（キーワードベース） |
-| `scripts/setup-hooks.mjs` | グローバルフックセットアップ |
-| `.claude/skills/recommend/SKILL.md` | AI レコメンドスキル（Sonnet、意図理解ベース） |
+| ファイル | 役割 | レイヤー |
+|---------|------|---------|
+| `scripts/collect-session.mjs` | セッション収集 + 前処理（苦戦シグナル・意図遷移・カテゴリ別プロンプト） | Layer 1 (Script) |
+| `scripts/classify-prompts.mjs` | Haiku バッチ分類（意図・カテゴリ・苦戦度） | Layer 2 (Haiku) |
+| `scripts/aggregate-classifications.mjs` | 分類結果集計 + compressed-input.json 生成 | Layer 3 (Script) |
+| `scripts/recommend.mjs` | CLI レコメンド生成（キーワードベース） | — |
+| `scripts/setup-hooks.mjs` | グローバルフックセットアップ | — |
+| `.claude/skills/recommend/SKILL.md` | AI レコメンドスキル（Sonnet、圧縮入力ベース） | Layer 4 (Sonnet) |
 | `src/components/Menu/UsageRecommend.tsx` | Desktop UI コンポーネント（Kolb サイクル） |
 | `src/components/Menu/recommendUtils.ts` | レコメンドロジック（パターン検出、スコアリング、シナリオマッチ） |
 | `src/components/Menu/ProgressLabel.tsx` | プログレスアニメーション（パルスドット） |
