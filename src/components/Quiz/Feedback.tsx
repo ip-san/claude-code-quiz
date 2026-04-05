@@ -324,7 +324,7 @@ export function Feedback({ quiz, isCorrect }: FeedbackProps) {
     </AnimatedSection>
   )
 
-  // 4.5: Memory retention bar (non-review mode only)
+  // 5: Memory retention bar (non-review mode, previously answered questions only)
   if (!isReviewMode) {
     sections.push(
       <AnimatedSection key="retention" order={sections.length} animate={animate} noMotion={noMotion} className="mb-4">
@@ -333,7 +333,7 @@ export function Feedback({ quiz, isCorrect }: FeedbackProps) {
     )
   }
 
-  // 5: Action buttons
+  // 6: Action buttons
   sections.push(
     <AnimatedSection key="actions" order={sections.length} animate={animate} noMotion={noMotion}>
       {/* biome-ignore lint/a11y/useSemanticElements: role="group" is correct for action buttons, not <fieldset> */}

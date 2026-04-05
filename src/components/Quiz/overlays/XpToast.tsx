@@ -23,7 +23,8 @@ export function XpToast({ totalXp, onComplete }: XpToastProps) {
   useEffect(() => {
     const gain = totalXp - prevXpRef.current
     prevXpRef.current = totalXp
-    if (gain > 0) {
+    // Only show toast for meaningful XP gains (correct answers: 10+, not wrong: 2)
+    if (gain >= 5) {
       gainRef.current = gain
       // Delay to avoid overlapping with StreakToast (which triggers immediately)
       clearTimeout(delayRef.current)
