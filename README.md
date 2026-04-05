@@ -7,6 +7,8 @@ PWA でスマホ・ブラウザからいつでも学習でき、Electron デス�
 
 <img src="build/icon.svg" alt="Claude Code Quiz" width="64" height="64">
 
+> **Desktop 版なら、あなたの Claude Code の使い方を AI が分析し、実務に直結するクイズだけを毎日提案します。** 学んだ知識が実務に活きているかを追跡し、次に学ぶべきことをコーチングします。→ [詳細](docs/usage-recommend.md)
+
 ## なぜ AI コーディングツールの「学習」が必要なのか
 
 Claude Code を導入しても、チームが使いこなせなければ投資対効果は出ません。
