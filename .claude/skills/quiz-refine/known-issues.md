@@ -293,6 +293,12 @@ v4.43.0 以前の known-issues では「exit code 2 の一般ルールで UserPr
 - cmd-033 が「`claude commit` サブコマンドは存在しません」と正しく否定しているのに terminology checker がフラグし続ける。毎回 known-issue 確認が必要 → quiz-lint.mjs の terminology チェックに「存在しない」「ではありません」等の否定コンテキスト共起パターンを除外する
 - key-011 が `Ctrl+F` を全バックグラウンドエージェント停止ショートカットとして記載していたが、正しくは `Ctrl+X Ctrl+K`（コードバインディング）。interactive-mode ドキュメントで明確に定義されている → generate-quiz-data SKILL.md のキーボードショートカットセクションに `Ctrl+X Ctrl+K`（全バックグラウンドエージェント停止）を明記
 
+## /memory と /context の役割の違い
+
+- `/memory` = CLAUDE.md ファイルの読み込み確認・編集・オートメモリ制御。公式ドキュメントで「CLAUDE.md が指示通りに動かない場合の**第一デバッグ手順**」として明示
+- `/context` = コンテキストウィンドウの使用量可視化（カテゴリ別トークン表示・最適化提案）
+- 「CLAUDE.md が読み込まれているか確認する」問題に `/context` を正解として生成しないこと（mem-063 で修正済み・2026-04-05）
+
 ## dontAsk パーミッションモードのプラットフォーム制限
 
 - `dontAsk` パーミッションモードは CLI のみで利用可能。デスクトップアプリでは利用不可
