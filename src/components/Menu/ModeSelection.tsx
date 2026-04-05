@@ -104,12 +104,14 @@ export function ModeSelection() {
           {/* Search */}
           <QuizSearch />
 
-          {/* Chapter progress map for overview mode */}
-          <ChapterProgressMap
-            allQuestions={allQuestions}
-            userProgress={userProgress}
-            onStartChapter={(_chapterId, startIndex) => startSession({ mode: 'overview' }, { startIndex })}
-          />
+          {/* Chapter progress map — hidden for first-time users to reduce cognitive load */}
+          {userProgress.totalAttempts > 0 && (
+            <ChapterProgressMap
+              allQuestions={allQuestions}
+              userProgress={userProgress}
+              onStartChapter={(_chapterId, startIndex) => startSession({ mode: 'overview' }, { startIndex })}
+            />
+          )}
         </div>
       </div>
     </div>
