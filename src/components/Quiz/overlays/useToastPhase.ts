@@ -1,4 +1,4 @@
-import { type CSSProperties, useCallback, useRef, useState } from 'react'
+import { type CSSProperties, useCallback, useEffect, useRef, useState } from 'react'
 
 type ToastPhase = 'hidden' | 'enter' | 'visible' | 'exit'
 
@@ -13,8 +13,19 @@ export function useToastPhase(holdMs = 2000, onComplete?: () => void) {
   const [phase, setPhase] = useState<ToastPhase>('hidden')
   const onCompleteRef = useRef(onComplete)
   onCompleteRef.current = onComplete
+  const cleanupRef = useRef<(() => void) | null>(null)
+
+  // Cleanup timers on unmount
+  useEffect(() => {
+    return () => {
+      cleanupRef.current?.()
+    }
+  }, [])
 
   const trigger = useCallback(() => {
+    // Clear any running timers from previous trigger
+    cleanupRef.current?.()
+
     setPhase('enter')
     const t1 = setTimeout(() => setPhase('visible'), 50)
     const t2 = setTimeout(() => setPhase('exit'), holdMs)
@@ -22,11 +33,13 @@ export function useToastPhase(holdMs = 2000, onComplete?: () => void) {
       setPhase('hidden')
       onCompleteRef.current?.()
     }, holdMs + 500)
-    return () => {
+    const cleanup = () => {
       clearTimeout(t1)
       clearTimeout(t2)
       clearTimeout(t3)
     }
+    cleanupRef.current = cleanup
+    return cleanup
   }, [holdMs])
 
   const style: CSSProperties = {

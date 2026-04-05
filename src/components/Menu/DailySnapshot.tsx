@@ -80,7 +80,10 @@ export function DailySnapshot({ onDismiss }: DailySnapshotProps) {
   }
 
   return (
-    <div className="mb-5 animate-view-enter rounded-2xl border border-blue-200 bg-gradient-to-r from-blue-50 to-indigo-50 p-4 dark:border-blue-500/30 dark:from-blue-500/10 dark:to-indigo-500/10">
+    <section
+      className="mb-5 animate-view-enter rounded-2xl border border-blue-200 bg-gradient-to-r from-blue-50 to-indigo-50 p-4 dark:border-blue-500/30 dark:from-blue-500/10 dark:to-indigo-500/10"
+      aria-label="今日のプラン"
+    >
       <div className="mb-3 flex items-center justify-between">
         <div className="flex items-center gap-2">
           <Zap className="h-4 w-4 text-blue-500" />
@@ -153,7 +156,7 @@ export function DailySnapshot({ onDismiss }: DailySnapshotProps) {
           🎲 サクッと10問
         </button>
       )}
-    </div>
+    </section>
   )
 }
 

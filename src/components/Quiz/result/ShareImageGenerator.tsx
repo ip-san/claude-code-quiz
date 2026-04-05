@@ -179,6 +179,8 @@ export function ShareImageGenerator({
     <button
       onClick={generateImage}
       disabled={status === 'generating'}
+      aria-busy={status === 'generating'}
+      aria-live="polite"
       className="tap-highlight inline-flex w-full items-center justify-center gap-2 rounded-2xl border border-indigo-300 bg-white px-6 py-3.5 text-base font-semibold text-indigo-600 dark:border-indigo-500/30 dark:bg-indigo-500/10 dark:text-indigo-400"
     >
       {status === 'copied' || status === 'downloaded' ? (
