@@ -27,6 +27,7 @@ export function UsageRecommend() {
     elapsed,
     hooksInstalled,
     setupDone,
+    growthInsight,
     analyze,
     shuffle,
     setupHooks,
@@ -115,6 +116,14 @@ export function UsageRecommend() {
         </button>
       )}
       {aiError && <p className="mx-4 mb-2 text-xs text-red-500 dark:text-red-400">{aiError}</p>}
+
+      {/* Growth coaching — single line message */}
+      {growthInsight && (
+        <p className="mx-4 mb-1.5 text-xs text-stone-500 dark:text-stone-400">
+          {growthInsight.maturityChange.direction === 'improving' && '📈 '}
+          {growthInsight.coachingMessage}
+        </p>
+      )}
 
       {/* Insight: one key observation from work patterns */}
       {analysis &&

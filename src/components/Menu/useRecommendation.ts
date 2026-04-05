@@ -1,7 +1,13 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
+import { type GrowthInsight, GrowthTrackingService } from '@/domain/services/GrowthTrackingService'
 import { haptics } from '@/lib/haptics'
 import { useQuizStore } from '@/stores/quizStore'
-import { type AnalysisResult, computeRecommendations, type RecommendedQuestion } from './recommendUtils'
+import {
+  type AnalysisResult,
+  computeRecommendations,
+  detectWorkPatterns,
+  type RecommendedQuestion,
+} from './recommendUtils'
 
 /**
  * Custom hook for recommendation state and logic.
@@ -19,6 +25,7 @@ export function useRecommendation() {
   const [regenerating, setRegenerating] = useState(false)
   const [hooksInstalled, setHooksInstalled] = useState<boolean | null>(null)
   const [setupDone, setSetupDone] = useState(false)
+  const [growthInsight, setGrowthInsight] = useState<GrowthInsight | null>(null)
 
   // Timer for regeneration progress
   const [elapsed, setElapsed] = useState(0)
@@ -71,6 +78,14 @@ export function useRecommendation() {
       setUnusedCategories(unused)
       setAnalysis(cachedAnalysis)
     }
+
+    // Growth tracking: compare with previous analysis and save snapshot
+    const prompts = cachedAnalysis.promptSamples ?? []
+    const patterns = detectWorkPatterns(prompts)
+    const insight = GrowthTrackingService.compareWithPrevious(patterns, prompts)
+    setGrowthInsight(insight)
+    GrowthTrackingService.saveSnapshot(patterns, prompts)
+
     return true
   }, [allQuestions])
 
@@ -173,6 +188,7 @@ export function useRecommendation() {
     hooksInstalled,
     setupDone,
     allQuestions,
+    growthInsight,
     // Actions
     analyze,
     shuffle,
