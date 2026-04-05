@@ -8,10 +8,11 @@ import { useCertificateName } from '@/lib/useCertificateName'
 interface MasteryLevelProps {
   overallAccuracy: number
   totalAttempts: number
+  totalXp: number
   categoryStats: Record<string, { accuracy: number; attemptedQuestions: number; totalQuestions: number }>
 }
 
-export function MasteryLevel({ overallAccuracy, totalAttempts, categoryStats }: MasteryLevelProps) {
+export function MasteryLevel({ overallAccuracy, totalAttempts, totalXp, categoryStats }: MasteryLevelProps) {
   const levels = theme.masteryLevels
   const mastery = getMasteryLevel(overallAccuracy, totalAttempts, categoryStats)
   const currentIndex = mastery.index
@@ -54,6 +55,9 @@ export function MasteryLevel({ overallAccuracy, totalAttempts, categoryStats }: 
               次: {next.icon} {next.name}（{next.req}）
             </p>
           )}
+          <p className="mt-0.5 text-xs text-stone-400">
+            {totalXp} XP{totalAttempts > 0 && ` — 平均 ${(totalXp / totalAttempts).toFixed(1)} XP/問`}
+          </p>
         </div>
         {canDownload && (
           <button

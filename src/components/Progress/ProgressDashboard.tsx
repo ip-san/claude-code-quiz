@@ -2,7 +2,6 @@ import { ChevronDown, ChevronUp } from 'lucide-react'
 import { useCallback, useEffect, useRef, useState } from 'react'
 import { getMasteryLevel } from '@/domain/services/MasteryLevelService'
 import { SessionInsightService } from '@/domain/services/SessionInsightService'
-import { XpService } from '@/domain/services/XpService'
 import { type Category, PREDEFINED_CATEGORIES } from '@/domain/valueObjects/Category'
 import { getProgressRepository } from '@/infrastructure/persistence/LocalStorageProgressRepository'
 import { getColorHex } from '@/lib/colors'
@@ -130,18 +129,14 @@ export function ProgressDashboard() {
             <StatCard label="セッション数" value={`${userProgress.sessionHistory.length}回`} icon="📚" />
           </div>
 
-          {/* AI Mastery Level — always visible */}
+          {/* AI Mastery Level + XP — unified level display */}
           {!hasNoProgress && (
             <MasteryLevel
               overallAccuracy={overallAccuracy}
               totalAttempts={userProgress.totalAttempts}
+              totalXp={userProgress.totalXp}
               categoryStats={categoryStats}
             />
-          )}
-
-          {/* XP Progress — learning volume indicator (separate axis from mastery) */}
-          {!hasNoProgress && (
-            <XpProgressCard totalXp={userProgress.totalXp} totalAttempts={userProgress.totalAttempts} />
           )}
 
           {/* Certificate History — always visible */}
@@ -388,51 +383,6 @@ function StatCard({ label, value, icon }: { label: string; value: string | numbe
       <div className="mb-0.5 text-lg">{icon}</div>
       <div className="text-xl font-bold text-claude-dark">{value}</div>
       <div className="text-xs text-stone-500">{label}</div>
-    </div>
-  )
-}
-
-/** XP累積学習量カード — マスタリー（正答率）とは別軸の「学習量」指標 */
-function XpProgressCard({ totalXp, totalAttempts }: { totalXp: number; totalAttempts: number }) {
-  const level = XpService.getLevel(totalXp)
-  const { percentage, nextXp } = XpService.getProgressToNextLevel(totalXp)
-  const isMaxLevel = percentage === 100 && totalXp >= nextXp
-
-  return (
-    <div
-      className={`${cardStyles.base} mb-4 p-4`}
-      aria-label={`学習量レベル: Lv.${level.level} ${level.name}, ${totalXp} XP`}
-    >
-      <div className="mb-2 flex items-center justify-between">
-        <div className="flex items-center gap-2">
-          <span className="text-lg" aria-hidden="true">
-            {level.icon}
-          </span>
-          <div>
-            <p className="text-sm font-semibold text-claude-dark dark:text-stone-200">
-              Lv.{level.level} {level.name}
-            </p>
-            <p className="text-[10px] text-stone-500">学習量レベル（累積XP）</p>
-          </div>
-        </div>
-        <span className="text-sm font-bold text-claude-orange">{totalXp} XP</span>
-      </div>
-      {!isMaxLevel && (
-        <>
-          <div className="h-2 overflow-hidden rounded-full bg-stone-200 dark:bg-stone-700">
-            <div
-              className="h-full rounded-full bg-gradient-to-r from-claude-orange to-amber-400 transition-all duration-500"
-              style={{ width: `${percentage}%` }}
-            />
-          </div>
-          <div className="mt-1 flex items-center justify-between">
-            {totalAttempts > 0 && (
-              <p className="text-[10px] text-stone-500">平均 {(totalXp / totalAttempts).toFixed(1)} XP/問</p>
-            )}
-            <p className="text-[10px] text-stone-500">次のレベルまで {nextXp - totalXp} XP</p>
-          </div>
-        </>
-      )}
     </div>
   )
 }

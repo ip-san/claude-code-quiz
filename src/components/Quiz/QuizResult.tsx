@@ -2,9 +2,9 @@ import { ArrowRight, BookOpen, ChevronDown, Home, RotateCcw, Share2, Star, Targe
 import { useEffect, useMemo, useState } from 'react'
 import { theme } from '@/config/theme'
 import { DailyGoalService } from '@/domain/services/DailyGoalService'
+import { getMasteryLevel } from '@/domain/services/MasteryLevelService'
 import { getOverviewRecommendation } from '@/domain/services/RecommendationService'
 import { getScoreMessage } from '@/domain/services/ScoreMessageService'
-import { XpService } from '@/domain/services/XpService'
 import { getChapterFromTags } from '@/domain/valueObjects/OverviewChapter'
 import { trackShare } from '@/lib/analytics'
 import { APP_CONFIG, useQuizStore } from '@/stores/quizStore'
@@ -36,7 +36,10 @@ export function QuizResult() {
     sessionConfig,
     sessionWrongAnswers,
     userProgress,
+    getCategoryStats,
   } = useQuizStore()
+
+  const categoryStats = getCategoryStats()
 
   const score = sessionState?.score ?? 0
   const answeredCount = sessionState?.answeredCount ?? 0
@@ -309,6 +312,7 @@ export function QuizResult() {
                 percentage={percentage}
                 isPassing={isPassing}
                 userProgress={userProgress}
+                categoryStats={categoryStats}
               />
             </div>
           </div>
@@ -367,14 +371,17 @@ function ShareSection({
   percentage,
   isPassing,
   userProgress,
+  categoryStats,
 }: {
   score: number
   answeredCount: number
   percentage: number
   isPassing: boolean
-  userProgress: { streakDays: number; totalXp: number }
+  userProgress: { streakDays: number; totalXp: number; totalAttempts: number; getOverallAccuracy: () => number }
+  categoryStats: Record<string, { accuracy: number; attemptedQuestions: number; totalQuestions: number }>
 }) {
   const [open, setOpen] = useState(false)
+  const mastery = getMasteryLevel(userProgress.getOverallAccuracy(), userProgress.totalAttempts, categoryStats)
 
   return (
     <div className="relative flex-1">
@@ -392,11 +399,10 @@ function ShareSection({
             <button
               onClick={() => {
                 const stars = '⭐'.repeat(Math.ceil(percentage / 20))
-                const level = XpService.getLevel(userProgress.totalXp)
                 navigator
                   .share({
                     title: theme.appName,
-                    text: `${stars}\n${theme.appName}: ${score}/${answeredCount}問正解 (${percentage}%)\n${isPassing ? '✅ 合格！' : '📚 もう少し！'}\n${level.icon} Lv.${level.level} ${level.name} | ${userProgress.totalXp} XP\n${theme.shareHashtags}`,
+                    text: `${stars}\n${theme.appName}: ${score}/${answeredCount}問正解 (${percentage}%)\n${isPassing ? '✅ 合格！' : '📚 もう少し！'}\n${mastery.icon} ${mastery.name} | ${userProgress.totalXp} XP\n${theme.shareHashtags}`,
                     url: window.location.href,
                   })
                   .then(() => trackShare('native'))
@@ -416,6 +422,8 @@ function ShareSection({
             percentage={percentage}
             streakDays={userProgress.streakDays}
             totalXp={userProgress.totalXp}
+            masteryName={mastery.name}
+            masteryIcon={mastery.icon}
           />
         </div>
       )}

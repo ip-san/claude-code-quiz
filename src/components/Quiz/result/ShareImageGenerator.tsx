@@ -1,7 +1,6 @@
 import { Check, Image } from 'lucide-react'
 import { useCallback, useEffect, useRef, useState } from 'react'
 import { theme } from '@/config/theme'
-import { XpService } from '@/domain/services/XpService'
 import { haptics } from '@/lib/haptics'
 
 type ShareStatus = 'idle' | 'generating' | 'copied' | 'downloaded'
@@ -12,12 +11,22 @@ interface ShareImageGeneratorProps {
   percentage: number
   streakDays: number
   totalXp: number
+  masteryName: string
+  masteryIcon: string
 }
 
 /**
  * セッション結果のシェア画像をCanvas APIで生成
  */
-export function ShareImageGenerator({ score, total, percentage, streakDays, totalXp }: ShareImageGeneratorProps) {
+export function ShareImageGenerator({
+  score,
+  total,
+  percentage,
+  streakDays,
+  totalXp,
+  masteryName,
+  masteryIcon,
+}: ShareImageGeneratorProps) {
   const [status, setStatus] = useState<ShareStatus>('idle')
   const resetTimerRef = useRef<ReturnType<typeof setTimeout>>()
 
@@ -95,10 +104,9 @@ export function ShareImageGenerator({ score, total, percentage, streakDays, tota
 
       // Stats row
       const statsY = 460
-      const level = XpService.getLevel(totalXp)
       const stats = [
         { label: '連続学習', value: `${streakDays}日` },
-        { label: 'レベル', value: `${level.icon} Lv.${level.level}` },
+        { label: 'レベル', value: `${masteryIcon} ${masteryName}` },
         { label: 'XP', value: `${totalXp}` },
       ]
 
@@ -158,7 +166,7 @@ export function ShareImageGenerator({ score, total, percentage, streakDays, tota
     } catch {
       setStatus('idle')
     }
-  }, [score, total, percentage, streakDays, totalXp, scheduleReset])
+  }, [score, total, percentage, streakDays, totalXp, masteryName, masteryIcon, scheduleReset])
 
   const buttonLabel = {
     idle: '画像でシェア',
