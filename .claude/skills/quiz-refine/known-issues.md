@@ -351,3 +351,16 @@ v4.43.0 以前の known-issues では「exit code 2 の一般ルールで UserPr
 ## 1Mコンテキスト料金の誤認パターン
 
 - ses-105 が「200Kトークンを超えるとロングコンテキスト料金が適用される」と記述していたが、ドキュメントは「standard model pricing with no premium for tokens beyond 200K」と明記。プレミアム料金なしが正しい → known-issues.md に「1Mコンテキスト窓は通常料金。200K超えのトークンにプレミアムなし。サブスクリプション包含プランはそのまま利用可能、extra usage経由プランはextra usageとして課金」を追加
+
+## AI パイプライン教訓（v4.51+）
+
+- Haiku の出力は markdown code fence で囲まれることがある。パーサーで strip 必要
+- Haiku の OK 判定のみ信頼。flag/uncertain は全て上位モデルへ渡す（偽陰性ゼロ設計）
+- compressed-input.json が存在しない場合は rolling-7d.json にフォールバック必須
+- プロンプトが長い場合は stdin pipe で渡す（シェル引数制限回避）
+
+## 定義一貫性の教訓（v4.51+）
+
+- XP（学習量）とマスタリーレベル（正答率）は別概念。UI で並行表示すると混乱 → 統合が必要
+- recommendedAccuracy は lastCorrect ではなく correctCount/attempts を使う
+- パターン→カテ���リのマッピングは改善パターンにも対応するため固定テーブルが必要

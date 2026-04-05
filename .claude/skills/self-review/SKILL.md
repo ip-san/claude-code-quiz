@@ -205,3 +205,41 @@ grep -oP 'content="[^"]*\d{3,}問' index.html
 ```
 
 `--fix` 指定時は NG 項目を自動修正し、修正内容を報告する。
+
+---
+
+## 過去セッションの教訓から追加されたチェック（v4.51+）
+
+### 14. フィールド削除前の参照元確認
+
+新規・変更フィールドを削除する前に、全参照元を確認。
+
+```bash
+# 例: dailyGoal の参照元を確認
+grep -rn 'dailyGoal\|daily_goal' src/ --include='*.tsx' --include='*.ts' | grep -v '\.test\.' | grep -v node_modules
+```
+
+**判定:** 0件なら安全に削除可能。1件以上なら影響分析が必要。
+**過去の事例:** DailySnapshot の goal 表示を3往復した（削除→復元→削除）。UsageRecommend への影響を確認せずに削除していた。
+
+### 15. useEffect のライフサイクルリーク
+
+toast/notification/modal など一度だけ表示されるコンポーネントで、`setTimeout`/`setInterval` の cleanup が漏れていないか。
+
+```bash
+grep -rn 'setTimeout\|setInterval' src/components/ --include='*.tsx' | grep -v clearTimeout | grep -v clearInterval | grep -v '\.test\.'
+```
+
+**判定:** `setTimeout` 使用箇所に対応する `clearTimeout` が同スコープにあるか。useEffect の return で cleanup しているか。
+**過去の事例:** useToastPhase の trigger() が3つの setTimeout を作成するが、cleanup が呼び出し元で使われていなかった。
+
+### 16. 新概念の定義一貫性
+
+新しい概念（XP、アダプティブ、成長追跡等）を導入した場合、複数箇所で異なる定義になっていないか。
+
+**チェック方法:** 新概念名で grep し、各箇所の意味が一致しているか目視確認。
+```bash
+grep -rn 'totalXp\|adaptiv\|learningImpact' src/ --include='*.ts' --include='*.tsx' | grep -v test | head -20
+```
+
+**過去の事例:** XP（学習量）とマスタリーレベル（正答率）が並行して表示され混乱。recommendedAccuracy が lastCorrect（最後の1回）で計算され正答率が不正確だった。
