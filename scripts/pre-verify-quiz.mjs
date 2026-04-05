@@ -68,16 +68,17 @@ const quizClaims = targetQuizzes.slice(0, 30).map((q) => ({
   category: q.category,
 }))
 
-// Get doc content for context (compressed)
+// Get doc content for context (heavily compressed — Haiku only needs key facts)
 let docContext = ''
-for (const cat of categories.slice(0, 3)) {
+for (const cat of categories.slice(0, 4)) {
   try {
     const doc = execSync(`node scripts/fetch-docs.mjs --assemble ${cat}`, {
       timeout: 30_000,
       encoding: 'utf8',
       stdio: ['ignore', 'pipe', 'pipe'],
     })
-    docContext += `\n## ${cat}\n${doc.slice(0, 3000)}\n`
+    // Take first 2000 chars per category to keep prompt manageable
+    docContext += `\n## ${cat}\n${doc.slice(0, 2000)}\n`
   } catch {
     docContext += `\n## ${cat}\n(ドキュメント取得失敗)\n`
   }
@@ -101,13 +102,18 @@ ${JSON.stringify(quizClaims)}
 JSON配列で返してください。各要素: {"id": "xxx-NNN", "verdict": "ok|flag|uncertain", "reason": "判定理由（10文字以内）"}
 説明不要、JSON配列のみ。`
 
-// ── Call Haiku ──────────────────────────────────────────────
+// ── Call Haiku via stdin ─────────────────────────────────────
+// Prompt is too long for shell argument, so pipe it via stdin
+const promptFile = join(TMP_DIR, 'pre-verify-prompt.txt')
+writeFileSync(promptFile, prompt)
+
 let results = []
 try {
-  const raw = execSync(
-    `claude -p "${prompt.replace(/"/g, '\\"').replace(/\n/g, '\\n')}" --model haiku --output-format text`,
-    { timeout: 90_000, encoding: 'utf8', stdio: ['ignore', 'pipe', 'pipe'] }
-  )
+  const raw = execSync(`cat "${promptFile}" | claude -p - --model haiku --output-format text`, {
+    timeout: 90_000,
+    encoding: 'utf8',
+    stdio: ['pipe', 'pipe', 'pipe'],
+  })
 
   // Parse response (strip markdown fences)
   let text = raw
