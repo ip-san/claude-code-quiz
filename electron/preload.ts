@@ -128,6 +128,20 @@ const electronAPI = {
     return ipcRenderer.invoke('clear-recommend-cache')
   },
 
+  /**
+   * 学習者プロファイルをファイルにエクスポート（/recommend スキルが読む）
+   * localStorage の成長履歴 + クイズ正答率を ~/.claude-quiz-recommend/learner-profile.json に書き出す
+   */
+  exportLearnerProfile: (data: {
+    patternHistory: unknown[]
+    categoryProgress: Record<string, { accuracy: number; attemptedQuestions: number }>
+    totalAttempts: number
+    totalXp: number
+    streakDays: number
+  }): Promise<void> => {
+    return ipcRenderer.invoke('export-learner-profile', data)
+  },
+
   showNotification: (title: string, body: string): Promise<void> => {
     return ipcRenderer.invoke('show-notification', title, body)
   },

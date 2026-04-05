@@ -547,6 +547,29 @@ ipcMain.handle('clear-recommend-cache', async (): Promise<void> => {
   }
 })
 
+ipcMain.handle(
+  'export-learner-profile',
+  async (
+    _event,
+    data: {
+      patternHistory: unknown[]
+      categoryProgress: Record<string, { accuracy: number; attemptedQuestions: number }>
+      totalAttempts: number
+      totalXp: number
+      streakDays: number
+    }
+  ): Promise<void> => {
+    try {
+      const { writeFile, mkdir } = await import('fs/promises')
+      const storeDir = join(homedir(), '.claude-quiz-recommend')
+      await mkdir(storeDir, { recursive: true })
+      await writeFile(join(storeDir, 'learner-profile.json'), JSON.stringify(data, null, 2))
+    } catch {
+      // Non-critical — skill works without it
+    }
+  }
+)
+
 ipcMain.handle('show-notification', (_event: unknown, title: string, body: string): void => {
   if (ElectronNotification.isSupported()) {
     new ElectronNotification({ title, body, silent: false }).show()

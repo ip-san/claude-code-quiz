@@ -22,6 +22,13 @@ interface ElectronAPI {
   isRecommendRunning: () => Promise<boolean>
   cancelRecommend: () => Promise<boolean>
   clearRecommendCache: () => Promise<void>
+  exportLearnerProfile: (data: {
+    patternHistory: unknown[]
+    categoryProgress: Record<string, { accuracy: number; attemptedQuestions: number }>
+    totalAttempts: number
+    totalXp: number
+    streakDays: number
+  }) => Promise<void>
   showNotification: (title: string, body: string) => Promise<void>
   setupGlobalHooks: (remove: boolean) => Promise<{ success: boolean; error?: string }>
   checkGlobalHooks: () => Promise<boolean>

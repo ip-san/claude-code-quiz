@@ -97,6 +97,26 @@ export function useRecommendation() {
     setAiError(null)
     haptics.light()
 
+    // Export learner profile before running skill so AI can read it
+    try {
+      const store = useQuizStore.getState()
+      const progress = store.userProgress
+      await window.electronAPI.exportLearnerProfile?.({
+        patternHistory: GrowthTrackingService.loadHistory(),
+        categoryProgress: Object.fromEntries(
+          Object.entries(progress.categoryProgress).map(([k, v]) => [
+            k,
+            { accuracy: v.accuracy, attemptedQuestions: v.attemptedQuestions },
+          ])
+        ),
+        totalAttempts: progress.totalAttempts,
+        totalXp: progress.totalXp,
+        streakDays: progress.streakDays,
+      })
+    } catch {
+      // Non-critical
+    }
+
     try {
       await window.electronAPI.runRecommendSkill()
     } catch {
