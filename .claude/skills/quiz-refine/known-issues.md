@@ -379,3 +379,11 @@ v4.43.0 以前の known-issues では「exit code 2 の一般ルールで UserPr
 - XP（学習量）とマスタリーレベル（正答率）は別概念。UI で並行表示すると混乱 → 統合が必要
 - recommendedAccuracy は lastCorrect ではなく correctCount/attempts を使う
 - パターン→カテ���リのマッピングは改善パターンにも対応するため固定テーブルが必要
+
+## /todos コマンド削除の追跡
+
+- cmd-007 が `/todos` をアクティブなスラッシュコマンドとして記述していたが、commands.md から削除済み。また `CLAUDE_CODE_ENABLE_TASKS=false` で「旧/todosに戻る」という説明も現在のドキュメント記載と一致しない → known-issues.md に「/todos はコマンドリストから削除済み（2026-04-06確認）。現在の docs に記載なし。CLAUDE_CODE_ENABLE_TASKS=1 は非インタラクティブモードでのタスクトラッキング有効化」を追加
+
+## 自動スキャンパターンの精度向上
+
+- grep ベースのパターンマッチングで false positive が多発（PostToolUse+ブロック、Ctrl+B+bashなど） → 否定的文脈でのキーワード使用を区別するチェックを追加
