@@ -210,7 +210,78 @@ function analyzeTranscript(filePath) {
     .map((p) => p.trim())
     .slice(-20)
 
-  return { tools, categoryScores, topics, promptSamples, promptCount: prompts.length, conversations }
+  // ── Struggle signals (rule-based pre-detection) ──────────
+  const meaningful = prompts.filter(
+    (p) => p.length > 10 && !p.startsWith('node ') && !p.startsWith('git ') && !/^[!/]/.test(p)
+  )
+
+  // Signal 1: Repetition — same prefix 3+ times
+  const prefixCounts = {}
+  for (const p of meaningful) {
+    const key = p.slice(0, 15).toLowerCase()
+    prefixCounts[key] = (prefixCounts[key] || 0) + 1
+  }
+  const repetitions = Object.entries(prefixCounts).filter(([, c]) => c >= 3)
+  const repetitionSignal = {
+    count: repetitions.length,
+    examples: repetitions.slice(0, 3).map(([prefix]) => prefix),
+  }
+
+  // Signal 3: Negative sentiment
+  const negativeRegex = /わからない|うまくいかない|できない|動かない|困った|error|エラー|なぜ.*ない/i
+  const negativeMatches = meaningful.filter((p) => negativeRegex.test(p))
+  const negativeSignal = {
+    count: negativeMatches.length,
+    examples: negativeMatches.slice(0, 3).map((p) => p.slice(0, 40)),
+  }
+
+  // Signal 5: Fatigue — front-half vs back-half avg length + delegation
+  const half = Math.floor(meaningful.length / 2) || 1
+  const frontAvg = meaningful.slice(0, half).reduce((s, p) => s + p.length, 0) / half
+  const backAvg = meaningful.slice(half).reduce((s, p) => s + p.length, 0) / (meaningful.length - half || 1)
+  const delegationRegex = /お願いします$|全部やって|まとめて|作って$|やって$|してください$/
+  const delegationCount = meaningful.filter((p) => delegationRegex.test(p)).length
+  const fatigueSignal = {
+    ratio: frontAvg > 0 ? Math.round((backAvg / frontAvg) * 100) / 100 : 1,
+    delegationCount,
+  }
+
+  const struggleSignals = {
+    repetition: repetitionSignal,
+    negativeSentiment: negativeSignal,
+    fatigue: fatigueSignal,
+  }
+
+  // ── Intent transitions (coarse labeling) ────────────────
+  const intentLabels = conversations.map((c) => {
+    const t = c.text
+    if (/どう|何|教えて|とは|について/.test(t)) return '探索'
+    if (/\?$|でしょうか|ですか|なぜ|理由/.test(t)) return '質問'
+    if (/直して|修正|変更|エラー|fix|なおし/i.test(t)) return '修正'
+    if (/やって|してください|実行|作って|追加して|削除して/.test(t)) return '試行'
+    return '試行'
+  })
+
+  // ── Prompts by category ──────────────────────────────────
+  const promptsByCategory = {}
+  for (const [cat, keywords] of Object.entries(CATEGORY_KEYWORDS)) {
+    const matched = meaningful.filter((p) => keywords.some((kw) => p.toLowerCase().includes(kw.toLowerCase())))
+    if (matched.length > 0) {
+      promptsByCategory[cat] = matched.slice(0, 5).map((p) => p.slice(0, 60))
+    }
+  }
+
+  return {
+    tools,
+    categoryScores,
+    topics,
+    promptSamples,
+    promptCount: prompts.length,
+    conversations,
+    struggleSignals,
+    intentLabels,
+    promptsByCategory,
+  }
 }
 
 // ── Analyze sessions ───────────────────────────────────────
@@ -267,6 +338,24 @@ for (const sess of daily.sessions) {
 }
 
 // Convert topics back to array
+// Aggregate struggle signals across sessions
+const mergedStruggle = {
+  repetition: { count: 0, examples: [] },
+  negativeSentiment: { count: 0, examples: [] },
+  fatigue: { ratio: 1, delegationCount: 0 },
+}
+for (const sess of daily.sessions) {
+  if (sess.struggleSignals) {
+    mergedStruggle.repetition.count += sess.struggleSignals.repetition.count
+    mergedStruggle.repetition.examples.push(...sess.struggleSignals.repetition.examples)
+    mergedStruggle.negativeSentiment.count += sess.struggleSignals.negativeSentiment.count
+    mergedStruggle.negativeSentiment.examples.push(...sess.struggleSignals.negativeSentiment.examples)
+    mergedStruggle.fatigue.delegationCount += sess.struggleSignals.fatigue.delegationCount
+  }
+}
+mergedStruggle.repetition.examples = mergedStruggle.repetition.examples.slice(0, 3)
+mergedStruggle.negativeSentiment.examples = mergedStruggle.negativeSentiment.examples.slice(0, 3)
+
 daily.merged = {
   tools: merged.tools,
   categoryScores: merged.categoryScores,
@@ -274,13 +363,28 @@ daily.merged = {
     .map(([topic, hits]) => ({ topic, hits }))
     .sort((a, b) => b.hits - a.hits),
   promptSamples: merged.promptSamples.slice(-30),
+  struggleSignals: mergedStruggle,
 }
 
 writeFileSync(dailyFile, JSON.stringify(daily, null, 2))
 
 // ── Build rolling 7-day cache ──────────────────────────────
 const ROLLING_DAYS = 7
-const rollingCache = { prompts: [], conversationFlows: [], topics: {}, categoryScores: {}, sessionCount: 0, days: [] }
+const rollingCache = {
+  prompts: [],
+  conversationFlows: [],
+  topics: {},
+  categoryScores: {},
+  sessionCount: 0,
+  days: [],
+  struggleSignals: {
+    repetition: { count: 0, examples: [] },
+    negativeSentiment: { count: 0, examples: [] },
+    fatigue: { ratio: 1, delegationCount: 0 },
+  },
+  intentTransitions: [],
+  promptsByCategory: {},
+}
 
 for (let d = 0; d < ROLLING_DAYS; d++) {
   const dateStr = new Date(Date.now() - d * 24 * 60 * 60 * 1000).toISOString().slice(0, 10)
@@ -300,7 +404,7 @@ for (let d = 0; d < ROLLING_DAYS; d++) {
         rollingCache.prompts.push(...meaningful)
       }
     }
-    // Collect conversation flows (ordered prompts per session)
+    // Collect conversation flows + intent transitions per session
     for (const sess of dayData.sessions) {
       if (sess.conversations && sess.conversations.length > 0) {
         rollingCache.conversationFlows.push({
@@ -309,6 +413,25 @@ for (let d = 0; d < ROLLING_DAYS; d++) {
           prompts: sess.conversations.slice(-15).map((c) => c.text),
         })
       }
+      // Intent transitions (if available)
+      if (sess.intentLabels && sess.intentLabels.length > 0) {
+        rollingCache.intentTransitions.push({
+          date: dateStr,
+          sessionId: sess.id,
+          sequence: sess.intentLabels,
+        })
+      }
+      // Merge promptsByCategory
+      if (sess.promptsByCategory) {
+        for (const [cat, samples] of Object.entries(sess.promptsByCategory)) {
+          if (!rollingCache.promptsByCategory[cat]) rollingCache.promptsByCategory[cat] = []
+          rollingCache.promptsByCategory[cat].push(...samples)
+        }
+      }
+    }
+    // Merge struggle signals (accumulate counts from today, highest weight)
+    if (d === 0 && dayData.merged?.struggleSignals) {
+      rollingCache.struggleSignals = dayData.merged.struggleSignals
     }
     // Category scores (weighted)
     for (const [cat, score] of Object.entries(dayData.merged.categoryScores)) {
@@ -328,6 +451,12 @@ const rollingTopics = Object.entries(rollingCache.topics)
   .map(([topic, hits]) => ({ topic, hits }))
   .sort((a, b) => b.hits - a.hits)
 
+// Trim promptsByCategory to max 5 per category
+const trimmedByCategory = {}
+for (const [cat, samples] of Object.entries(rollingCache.promptsByCategory)) {
+  trimmedByCategory[cat] = [...new Set(samples)].slice(0, 5)
+}
+
 writeFileSync(
   join(STORE_DIR, 'rolling-7d.json'),
   JSON.stringify(
@@ -340,6 +469,10 @@ writeFileSync(
       conversationFlows: rollingCache.conversationFlows.slice(-15),
       topics: rollingTopics.slice(0, 10),
       categoryScores: rollingCache.categoryScores,
+      // New enriched fields for AI pipeline
+      struggleSignals: rollingCache.struggleSignals,
+      intentTransitions: rollingCache.intentTransitions.slice(-15),
+      promptsByCategory: trimmedByCategory,
     },
     null,
     2
@@ -457,4 +590,22 @@ try {
   }
 } catch {
   // Quiz data not available — just save session data
+}
+
+// ── Trigger Haiku classification (background) ──────────────
+// Runs detached so it doesn't block the SessionEnd hook timeout
+try {
+  const classifyScript = join(process.env.CLAUDE_PROJECT_DIR || process.cwd(), 'scripts', 'classify-prompts.mjs')
+  if (existsSync(classifyScript)) {
+    const { spawn: spawnDetached } = await import('child_process')
+    const child = spawnDetached('node', [classifyScript], {
+      cwd: process.env.CLAUDE_PROJECT_DIR || process.cwd(),
+      detached: true,
+      stdio: 'ignore',
+      env: { ...process.env, CLAUDE_PROJECT_DIR: process.env.CLAUDE_PROJECT_DIR || process.cwd() },
+    })
+    child.unref()
+  }
+} catch {
+  // Non-critical — classification will run next time
 }

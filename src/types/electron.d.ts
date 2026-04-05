@@ -31,6 +31,10 @@ interface ElectronAPI {
     totalXp: number
     streakDays: number
   }) => Promise<void>
+  runOpusAnalysis: (
+    trigger: 'initial' | 'monthly' | 'stagnation',
+    context: string
+  ) => Promise<{ success: boolean; result?: string; error?: string }>
   showNotification: (title: string, body: string) => Promise<void>
   setupGlobalHooks: (remove: boolean) => Promise<{ success: boolean; error?: string }>
   checkGlobalHooks: () => Promise<boolean>

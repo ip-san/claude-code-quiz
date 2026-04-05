@@ -570,6 +570,103 @@ ipcMain.handle(
   }
 )
 
+ipcMain.handle(
+  'run-opus-analysis',
+  async (
+    _event,
+    trigger: 'initial' | 'monthly' | 'stagnation',
+    context: string
+  ): Promise<{ success: boolean; result?: string; error?: string }> => {
+    try {
+      const prompts: Record<string, string> = {
+        initial: `あなたは学習コーチです。以下はユーザーの Claude Code 利用データと学習履歴です。
+
+${context}
+
+以下をJSON形式で回答してください:
+{
+  "learnerType": "ユーザーのAI活用タイプ（15文字以内）",
+  "strengths": ["得意な分野1", "得意な分野2"],
+  "gaps": ["不足している知識1", "不足している知識2"],
+  "recommendedPath": ["最初に学ぶべきカテゴリ", "次に学ぶべきカテゴリ"],
+  "coachingNote": "パーソナライズされた一言アドバイス"
+}`,
+        monthly: `あなたは月次レビューを行う学習コーチです。以下はユーザーの1ヶ月間の成長データです。
+
+${context}
+
+以下をJSON形式で回答してください:
+{
+  "progressSummary": "1ヶ月の成長要約（2文以内）",
+  "adjustedPath": ["来月重点的に学ぶべきカテゴリ1", "カテゴリ2"],
+  "coachingNote": "来月に向けた具体的なアドバイス（1文）"
+}`,
+        stagnation: `あなたは停滞を打破する学習コーチです。ユーザーは同じ非効率パターンが3回連続で検出されています。
+
+${context}
+
+以下をJSON形式で回答してください:
+{
+  "rootCause": "停滞の根本原因（1文）",
+  "intervention": "具体的な介入提案（シナリオID or 問題IDを含む）",
+  "motivationalNote": "ユーザーへの励まし（1文）"
+}`,
+      }
+
+      const prompt = prompts[trigger]
+      const { spawn } = await import('child_process')
+      const result = await new Promise<string>((resolve, reject) => {
+        let stdout = ''
+        const proc = spawn('claude', ['-p', prompt, '--model', 'opus', '--output-format', 'text'], {
+          cwd: app.getAppPath(),
+          timeout: 120_000,
+          stdio: ['ignore', 'pipe', 'pipe'],
+        })
+        proc.stdout?.on('data', (d: Buffer) => {
+          stdout += d.toString()
+        })
+        proc.on('close', (code) => {
+          if (code === 0) resolve(stdout)
+          else reject(new Error(`opus exited with code ${code}`))
+        })
+        proc.on('error', reject)
+      })
+
+      // Save result
+      const { writeFile, mkdir } = await import('fs/promises')
+      const storeDir = join(homedir(), '.claude-quiz-recommend')
+      await mkdir(storeDir, { recursive: true })
+      const outputFile =
+        trigger === 'initial' ? 'learner-type.json' : `opus-${trigger}-${new Date().toISOString().slice(0, 10)}.json`
+      const parsed = tryParseJSON(result)
+      await writeFile(
+        join(storeDir, outputFile),
+        JSON.stringify({ ...parsed, trigger, analyzedAt: new Date().toISOString() }, null, 2)
+      )
+
+      return { success: true, result }
+    } catch (err) {
+      return { success: false, error: String(err) }
+    }
+  }
+)
+
+function tryParseJSON(text: string): Record<string, unknown> {
+  try {
+    return JSON.parse(text)
+  } catch {
+    const match = text.match(/\{[\s\S]*\}/)
+    if (match) {
+      try {
+        return JSON.parse(match[0])
+      } catch {
+        return { raw: text }
+      }
+    }
+    return { raw: text }
+  }
+}
+
 ipcMain.handle('show-notification', (_event: unknown, title: string, body: string): void => {
   if (ElectronNotification.isSupported()) {
     new ElectronNotification({ title, body, silent: false }).show()

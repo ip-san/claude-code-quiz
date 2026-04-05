@@ -16,35 +16,36 @@ argument-hint: "[days]"
 
 ## 手順
 
-### Step 1: 利用履歴と学習者プロファイルの収集
+### Step 1: 圧縮入力の読み込み
 
-まずセッションを収集し、7日分のローリングキャッシュを更新する:
+まずセッションを収集し、前処理パイプラインを実行する:
 
 ```bash
 node scripts/collect-session.mjs --scan-all-today
 ```
 
-次に、7日分の統合データを読む（**こちらをメインで使う**）:
+**圧縮入力**（メインで使う — Haiku分類+スクリプト集計の結果）:
+
+```bash
+cat ~/.claude-quiz-recommend/compressed-input.json 2>/dev/null
+```
+
+このファイルには以下が含まれる（~1,750文字に圧縮済み）:
+- `intentClusters`: Haiku が分類した意図クラスタ（intent名、プロンプトID、苦戦度）
+- `categoryDistribution`: Haiku が判定したカテゴリ分布
+- `overallStruggles`: 苦戦度の全体分布（none/mild/strong）
+- `struggleSignals`: スクリプトが検出した苦戦シグナル（repetition/negativeSentiment/fatigue）
+- `intentTransitions`: スクリプトが付与した意図遷移列（探索→質問→修正→...）
+- `learnerState`: クイズ正答率、XP、パターン推移（Desktop アプリがエクスポート）
+- `candidateIds`: 難易度フィルタ済みの候補問題ID（50-80問）
+- `samplePrompts`: 各意図クラスタの代表プロンプト（5件）
+
+**フォールバック**: compressed-input.json が存在しない場合は従来通り:
 
 ```bash
 cat ~/.claude-quiz-recommend/rolling-7d.json
-```
-
-このファイルには直近7日分のプロンプト（最大50件）、トピック、カテゴリスコアが日ごとの重み付きで集約されている。今日のデータが少なくても、過去の作業文脈が含まれる。
-
-**学習者プロファイル**（あれば読む — Desktop アプリが分析前にエクスポート）:
-
-```bash
 cat ~/.claude-quiz-recommend/learner-profile.json 2>/dev/null || echo '{}'
 ```
-
-このファイルには以下が含まれる:
-- `patternHistory`: 過去の非効率パターン検出履歴（最大10スナップショット）。各スナップショットには日付、パターン名、回数、プロンプト成熟度が含まれる
-- `categoryProgress`: クイズのカテゴリ別正答率（accuracy）と挑戦問題数（attemptedQuestions）
-- `recommendedAccuracy`: **前回レコメンドで出した問題に絞った** カテゴリ別正答（correct/total）。全体の正答率ではなく「レコメンドに対する学習効果」を直接測定できる
-- `totalAttempts`: 総回答数
-- `totalXp`: 累積経験値
-- `streakDays`: 連続学習日数
 
 **学習者プロファイルの活用方法:**
 
@@ -151,7 +152,20 @@ cat ~/.claude-quiz-recommend/sessions/$(date +%Y-%m-%d).json
 
 ### Step 5: 問題の選定
 
-クイズデータから問題を選ぶ:
+**compressed-input.json がある場合**: `candidateIds` から選ぶ（既にフィルタ済み）:
+
+```bash
+node -e "
+const data = JSON.parse(require('fs').readFileSync('src/data/quizzes.json', 'utf8'));
+const compressed = JSON.parse(require('fs').readFileSync(require('os').homedir() + '/.claude-quiz-recommend/compressed-input.json', 'utf8'));
+const ids = new Set(compressed.candidateIds);
+data.quizzes.filter(q => ids.has(q.id)).forEach(q => {
+  console.log(q.id + ' [' + q.category + '/' + q.difficulty + '] ' + q.question.slice(0, 80));
+});
+"
+```
+
+**フォールバック（compressed-input.json なし）**: 全問からスキャン:
 
 ```bash
 node -e "

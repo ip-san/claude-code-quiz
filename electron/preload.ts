@@ -143,6 +143,16 @@ const electronAPI = {
     return ipcRenderer.invoke('export-learner-profile', data)
   },
 
+  /**
+   * Opus による高度な分析（初回プロファイリング/月次レビュー/停滞介入）
+   */
+  runOpusAnalysis: (
+    trigger: 'initial' | 'monthly' | 'stagnation',
+    context: string
+  ): Promise<{ success: boolean; result?: string; error?: string }> => {
+    return ipcRenderer.invoke('run-opus-analysis', trigger, context)
+  },
+
   showNotification: (title: string, body: string): Promise<void> => {
     return ipcRenderer.invoke('show-notification', title, body)
   },
