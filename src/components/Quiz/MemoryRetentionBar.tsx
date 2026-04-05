@@ -5,7 +5,15 @@ interface MemoryRetentionBarProps {
   questionProgress: QuestionProgress | undefined
 }
 
-/** SRSストリークに基づく記憶定着度を可視化 */
+/**
+ * SRSストリークに基づく記憶定着度を可視化
+ *
+ * correctStreak (0-9) を SRS_INTERVALS_MS.length (9段階) に対する
+ * パーセンテージとして表示。ストリークが進むほどバーが伸び、
+ * 色が赤→黄→緑に変化して定着度を直感的に伝える。
+ *
+ * 表示条件: 1回以上回答した問題のみ（初回未回答は非表示）
+ */
 export function MemoryRetentionBar({ questionProgress }: MemoryRetentionBarProps) {
   if (!questionProgress || questionProgress.attempts === 0) return null
 
@@ -14,6 +22,7 @@ export function MemoryRetentionBar({ questionProgress }: MemoryRetentionBarProps
   const percentage = Math.min(Math.round((streak / maxStreak) * 100), 100)
   const remaining = Math.max(0, maxStreak - streak)
 
+  // ストリーク段階に応じたラベル（0=短期記憶 → 7+=長期記憶化）
   const getLabel = (): string => {
     if (streak === 0) return '短期記憶'
     if (streak <= 2) return '定着中'

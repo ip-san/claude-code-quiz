@@ -16,7 +16,11 @@ interface ShareImageGeneratorProps {
 }
 
 /**
- * セッション結果のシェア画像をCanvas APIで生成
+ * セッション結果のシェア画像を Canvas API で生成
+ *
+ * OGP 標準サイズ (1200×630px) で生成。
+ * 共有フロー: Web Share API → クリップボードコピー → ダウンロード（フォールバック順）
+ * 全描画はクライアントサイドで完結（サーバー不要）。
  */
 export function ShareImageGenerator({
   score,

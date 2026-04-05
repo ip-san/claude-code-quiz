@@ -7,8 +7,13 @@ import { NotificationService } from '@/lib/notifications'
 const DISMISSED_KEY = `${theme.storagePrefix}-notification-opt-in-dismissed`
 
 /**
- * 通知許可のオプトインバナー
- * 初回表示のみ。許可/拒否/閉じたら非表示。
+ * PWA 通知許可のオプトインバナー
+ *
+ * 表示条件:
+ * - PWA版のみ（Electron では非表示）
+ * - 3セッション以上完了後（学習習慣が定着してから）
+ * - iOS Safari 非スタンドアロンでは非表示（通知非対応のため）
+ * - 一度許可/拒否/閉じたら再表示しない
  */
 export function NotificationOptIn() {
   const [visible, setVisible] = useState(() => {
