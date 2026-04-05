@@ -44,19 +44,29 @@ Desktop 版は Claude Code の利用履歴を AI が分析し、あなた専用�
 
 Desktop アプリのビルドには 2 つのツールが必要です。既に入っている場合はスキップしてください。
 
+**ターミナルの開き方:**
+- **macOS**: Spotlight（`Cmd+Space`）→「ターミナル」と入力 → Enter
+- **Windows**: スタートメニュー → 「PowerShell」と検索 → Enter
+
 **1) bun（JavaScript ランタイム + パッケージマネージャー）**
 
-ターミナルを開いて以下を実行：
+ターミナルで以下を実行：
 
 ```bash
 bun --version
 ```
 
-`1.0.0` 以上が表示されれば OK。「command not found」と出たらインストール：
+`1.0.0` 以上が表示されれば OK。「command not found」等と出たらインストール：
 
 ```bash
+# macOS / Linux
 curl -fsSL https://bun.sh/install | bash
+
+# Windows (PowerShell を管理者として実行)
+powershell -c "irm bun.sh/install.ps1 | iex"
 ```
+
+インストール後、ターミナルを再起動してから `bun --version` で確認してください。
 
 ※ Node.js は不要です。bun が全て担います。
 
@@ -71,6 +81,9 @@ git --version
 ```bash
 # macOS
 xcode-select --install
+
+# Windows → https://git-scm.com/download/win からダウンロード
+# インストーラーの設定はすべてデフォルトで OK
 ```
 
 ### ステップ 1: ソースコードを取得する
@@ -248,6 +261,10 @@ cd claude-code-quiz && git pull && bun run dev
 ### Windows
 
 1. 設定 → アプリ → 「Claude Code Quiz」を選択 → アンインストール
+2. （任意）設定データを削除：
+   ```powershell
+   Remove-Item -Recurse "$env:APPDATA\claude-code-quiz"
+   ```
 
 ### Linux
 
