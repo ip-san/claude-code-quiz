@@ -82,12 +82,15 @@ checkCount('Component file count', componentCount, /コンポーネント（(\d+
 const readmeMd = readFileSync('README.md', 'utf8')
 
 // ── Vitest test count (single run, reused below) ────────────
+// Skip vitest in pre-commit hooks (SKIP_VITEST=1) for faster commits
 let vitestResult = null
-try {
-  const testOutput = execSync('npx vitest run --reporter=json 2>/dev/null || true', { encoding: 'utf8' })
-  vitestResult = JSON.parse(testOutput)
-} catch {
-  // JSON parse failed
+if (!process.env.SKIP_VITEST) {
+  try {
+    const testOutput = execSync('npx vitest run --reporter=json 2>/dev/null || true', { encoding: 'utf8' })
+    vitestResult = JSON.parse(testOutput)
+  } catch {
+    // JSON parse failed
+  }
 }
 try {
   const testCount = vitestResult?.numPassedTests

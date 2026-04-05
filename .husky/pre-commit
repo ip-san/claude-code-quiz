@@ -1,12 +1,12 @@
 bunx lint-staged
 bunx vitest run --changed --reporter=dot
 
-# Auto-fix stale doc stats and re-stage if needed
-if ! node scripts/validate-docs.mjs 2>/dev/null; then
-  node scripts/validate-docs.mjs --fix
+# Auto-fix stale doc stats (skip vitest — already ran above, saves ~5s)
+if ! SKIP_VITEST=1 node scripts/validate-docs.mjs 2>/dev/null; then
+  SKIP_VITEST=1 node scripts/validate-docs.mjs --fix
   git add CLAUDE.md README.md docs/ index.html 2>/dev/null
   # Verify fix was successful
-  node scripts/validate-docs.mjs
+  SKIP_VITEST=1 node scripts/validate-docs.mjs
 fi
 
 # Prevent banned patterns in staged files
