@@ -93,11 +93,13 @@ export function DailySnapshot({ onDismiss }: DailySnapshotProps) {
 
       {/* Key stats — SRS focused (goal is in MenuHeader's DailyGoalRing) */}
       <div className="mb-3 space-y-1.5 text-sm text-claude-dark">
-        {snapshot.dueCount > 0 && (
+        {snapshot.dueCount > 0 ? (
           <p>
             <strong>🧠 復習: {snapshot.dueCount}問</strong>が期限を迎えています
           </p>
-        )}
+        ) : snapshot.hoursSinceLastSession === null && snapshot.forecast.length === 0 ? (
+          <p className="text-stone-500">新しい問題に挑戦して知識を広げましょう</p>
+        ) : null}
         {snapshot.hoursSinceLastSession !== null && (
           <div className="flex items-center gap-2">
             <Clock className="h-3.5 w-3.5 text-stone-400" />
