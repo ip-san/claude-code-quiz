@@ -17,8 +17,7 @@ Claude Code Quiz の開発環境セットアップと開発ワークフローに
 
 ### 必要なツール
 
-- Node.js 18+
-- [bun](https://bun.sh/)（パッケージマネージャー兼ランタイム）
+- [bun](https://bun.sh/) 1.0+（ランタイム + パッケージマネージャー。Node.js は不要）
 - Git
 - お好みのエディタ（VSCode 推奨）
 

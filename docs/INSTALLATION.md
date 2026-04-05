@@ -38,40 +38,29 @@ Claude Code Quiz のインストール方法を説明します。
 
 Desktop 版は Claude Code の利用履歴を AI が分析し、あなた専用のクイズを毎日提案します。ソースからビルドしてインストールする手順を、初めての方でも迷わないように説明します。
 
+**必要なもの:** [bun](https://bun.sh/)（1.0+）と Git だけ。Node.js は不要です。
+
 ### ステップ 0: 必要なツールを準備する
 
-Desktop アプリのビルドには 3 つのツールが必要です。既に入っている場合はスキップしてください。
+Desktop アプリのビルドには 2 つのツールが必要です。既に入っている場合はスキップしてください。
 
-**1) Node.js（JavaScript 実行環境）**
+**1) bun（JavaScript ランタイム + パッケージマネージャー）**
 
 ターミナルを開いて以下を実行：
-
-```bash
-node --version
-```
-
-`v18.0.0` 以上が表示されれば OK。「command not found」と出たらインストール：
-
-```bash
-# macOS（Homebrew がある場合）
-brew install node
-
-# Homebrew がない場合 → https://nodejs.org/ からダウンロード
-```
-
-**2) bun（高速パッケージマネージャー）**
 
 ```bash
 bun --version
 ```
 
-`1.0.0` 以上が表示されれば OK。なければ：
+`1.0.0` 以上が表示されれば OK。「command not found」と出たらインストール：
 
 ```bash
 curl -fsSL https://bun.sh/install | bash
 ```
 
-**3) Git（ソースコード取得）**
+※ Node.js は不要です。bun が全て担います。
+
+**2) Git（ソースコード取得）**
 
 ```bash
 git --version
