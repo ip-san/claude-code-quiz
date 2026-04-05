@@ -47,6 +47,7 @@ export function QuizResult() {
   const isReviewMode = sessionState?.isReviewMode ?? false
   const hasWrongAnswers = sessionWrongAnswers.length > 0
   const isOverviewMode = sessionConfig.mode === 'overview'
+  const isFirstSession = userProgress.sessionHistory.length <= 1
 
   // Animated count-up
   const [displayPercent, setDisplayPercent] = useState(0)
@@ -259,18 +260,23 @@ export function QuizResult() {
             </div>
           )}
 
-          {/* Skills acquired — show what they can now do */}
-          {!isReviewMode && sessionState && (
+          {/* Skills acquired — hidden on first session to keep it simple */}
+          {!isReviewMode && !isFirstSession && sessionState && (
             <SkillsAcquired questions={sessionState.questions} answerHistory={sessionState.answerHistory} />
           )}
 
-          {/* Practice prompts + teaching tips moved to ProgressDashboard for cleaner result screen */}
+          {/* Certificate — hidden on first session */}
+          {!isFirstSession && (
+            <CertificateGenerator
+              score={score}
+              total={answeredCount}
+              percentage={percentage}
+              mode={sessionConfig.mode}
+            />
+          )}
 
-          {/* Certificate */}
-          <CertificateGenerator score={score} total={answeredCount} percentage={percentage} mode={sessionConfig.mode} />
-
-          {/* Next recommendation */}
-          {!isReviewMode && <NextRecommendation mode={sessionConfig.mode} percentage={percentage} />}
+          {/* Next recommendation — hidden on first session */}
+          {!isReviewMode && !isFirstSession && <NextRecommendation mode={sessionConfig.mode} percentage={percentage} />}
 
           {/* Action buttons — primary CTAs first, share collapsed */}
           <div className="flex flex-col gap-3">
@@ -317,8 +323,9 @@ export function QuizResult() {
             </div>
           </div>
 
-          {/* Next step — connect learning to action */}
+          {/* Next step — connect learning to action (hidden on first session) */}
           {!isReviewMode &&
+            !isFirstSession &&
             (() => {
               // For overview mode: show action item from the last completed chapter
               if (isOverviewMode && sessionState) {

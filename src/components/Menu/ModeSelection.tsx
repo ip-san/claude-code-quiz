@@ -101,8 +101,8 @@ export function ModeSelection() {
           {/* Usage-based recommendation (Electron only) */}
           <UsageRecommend />
 
-          {/* Search */}
-          <QuizSearch />
+          {/* Search — shown after first quiz to avoid overwhelming first-time users */}
+          {userProgress.totalAttempts > 0 && <QuizSearch />}
 
           {/* Chapter progress map — hidden for first-time users to reduce cognitive load */}
           {userProgress.totalAttempts > 0 && (
