@@ -1,13 +1,33 @@
 # Claude Code Quiz
 
-Claude Code の機能と使い方を学習するためのクイズアプリケーション。
-PWA でスマホ・ブラウザからいつでも学習でき、Electron デスクトップ版もあります。
-
-**PWA:** https://ip-san.github.io/claude-code-quiz/
-
 <img src="build/icon.svg" alt="Claude Code Quiz" width="64" height="64">
 
-> **Desktop 版なら、あなたの Claude Code の使い方を AI が分析し、実務に直結するクイズだけを毎日提案します。** 学んだ知識が実務に活きているかを追跡し、次に学ぶべきことをコーチングします。→ [詳細](docs/usage-recommend.md)
+Claude Code の機能と使い方を **752問のクイズ** で学ぶアプリ。スマホでもPCでも。
+
+**今すぐ試す（ブラウザ版）:** https://ip-san.github.io/claude-code-quiz/
+
+---
+
+### Desktop 版: あなた専用の AI コーチ
+
+**あなたの Claude Code の使い方を AI が毎日分析し、実務に直結するクイズだけを届けます。**
+
+```
+あなたの作業ログ
+  → Script が前処理
+    → Haiku が意図分類
+      → Sonnet が15問を厳選（年間たった$5）
+```
+
+- 「同じ指示を繰り返している」→ CLAUDE.md の問題を推薦
+- 学んだ後、実務が改善されたかを自動追跡
+- 停滞を検出したら Opus が原因分析して介入
+
+**導入:** DMG をインストール → 初回起動時にワンクリックでセットアップ完了
+
+→ [パイプラインの詳細](docs/usage-recommend.md) / [アーキテクチャ](docs/ARCHITECTURE.md)
+
+---
 
 ## なぜ AI コーディングツールの「学習」が必要なのか
 
