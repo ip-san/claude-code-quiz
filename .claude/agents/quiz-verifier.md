@@ -22,12 +22,19 @@ color: blue
 ## 手順
 
 1. `.claude/tmp/quizzes/{category}.json` を Read で読み込む
-2. ドキュメントを取得:
+2. **Haiku 事前フィルタ結果を確認**（あれば）:
+   ```bash
+   cat .claude/tmp/pre-verify-results.json 2>/dev/null
+   ```
+   `matched` に含まれるIDは Haiku が事実一致を確認済み → **チェック A（事実の正確性）と B（用語の正確性）をスキップ**し、C-H のみ適用。
+   `flagged` に含まれるIDは不一致の疑い → **チェック A-H を全て適用**（重点的に検証）。
+   `pre-verify-results.json` が存在しない場合は従来通り全チェック適用。
+3. ドキュメントを取得:
    ```bash
    node scripts/fetch-docs.mjs --assemble {category}
    ```
-3. `.claude/skills/quiz-refine/known-issues.md` を Read で読み込む
-4. 対象問題ごとに検証チェックリスト A-H を適用
+4. `.claude/skills/quiz-refine/known-issues.md` を Read で読み込む
+5. 対象問題ごとに検証チェックリストを適用（上記フィルタに従う）
 
 ## 検証チェックリスト
 

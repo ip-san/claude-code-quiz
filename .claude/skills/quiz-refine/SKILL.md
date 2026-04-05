@@ -235,6 +235,7 @@ For iteration = 1..N:
   Phase A: 全カテゴリの quiz-verifier エージェントを同時起動（run_in_background: true）
     各エージェントへのプロンプト:
     - カテゴリ「{category}」の問題を検証してください
+    - .claude/tmp/pre-verify-results.json があれば参照し、matched はチェック A-B スキップ
     - .claude/tmp/quizzes/{category}.json を Read
     - node scripts/fetch-docs.mjs --assemble {category} でドキュメント取得
     - .claude/skills/quiz-refine/known-issues.md を Read
