@@ -47,9 +47,9 @@ test.describe('Quiz App E2E', () => {
       await skip.click()
     }
 
-    // Should see menu with hamburger, search, and first-time guide
+    // Should see menu with hamburger and first-time guide (search hidden for first-time users)
     await expect(page.getByRole('button', { name: 'メニューを開く' })).toBeVisible()
-    await expect(page.getByText('検索・リファレンス')).toBeVisible()
+    await expect(page.getByText(/全体像を学ぶ|はじめての方/)).toBeVisible()
   })
 
   test('start random quiz and answer a question', async ({ page }) => {
@@ -90,8 +90,18 @@ test.describe('Quiz App E2E', () => {
   })
 
   test('search finds questions and shows results', async ({ page }) => {
+    // Search hidden for first-time users. First get to menu, then inject progress + reload.
     await goToMenu(page)
+    await startRandomQuiz(page)
+    await page.locator('[role="option"], [role="checkbox"]').first().click()
+    await page.getByRole('button', { name: '回答する' }).click()
+    await page.getByRole('button', { name: /中止/ }).click()
+    await page
+      .getByRole('button', { name: /続ける|中止する/ })
+      .last()
+      .click()
 
+    // Now on menu with progress — search should be visible
     // Open search
     await page.getByText('検索・リファレンス').click()
 

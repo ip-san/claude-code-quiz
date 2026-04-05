@@ -62,10 +62,28 @@ test.describe('Menu screen', () => {
     await expect(page.getByRole('button', { name: /すでに活用されている方へ/ })).toBeVisible({ timeout: 5000 })
   })
 
-  test('shows search button on menu screen', async ({ page }) => {
+  test('shows search after first quiz attempt', async ({ page }) => {
     await goToMenu(page)
 
-    // QuizSearch component renders a text link / button for search
+    // First-time user: search is hidden. Start a quiz first.
+    await page.getByRole('button', { name: 'メニューを開く' }).click()
+    const menu = page.getByRole('dialog', { name: 'メニュー' })
+    await menu.getByRole('button', { name: /クイズモード/ }).click()
+    await menu.getByText('全カテゴリからランダムに20問').click()
+    await page.waitForSelector('[role="listbox"], [role="group"]', { timeout: 5000 })
+
+    // Answer one question to get progress
+    await page.locator('[role="option"], [role="checkbox"]').first().click()
+    await page.getByRole('button', { name: '回答する' }).click()
+
+    // Quit to menu
+    await page.getByRole('button', { name: /中止/ }).click()
+    await page
+      .getByRole('button', { name: /続ける|中止する/ })
+      .last()
+      .click()
+
+    // Now search should be visible (user has progress)
     await expect(page.getByText('検索・リファレンス')).toBeVisible({ timeout: 5000 })
   })
 
