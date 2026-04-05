@@ -26,10 +26,6 @@ export function DailySnapshot({ onDismiss }: DailySnapshotProps) {
 
   const snapshot = useMemo(() => {
     const now = Date.now()
-    const today = DailyGoalService.getTodayString()
-    const todayCount = userProgress.getDailyCount(today)
-    const dailyGoal = userProgress.dailyGoal
-    const remaining = Math.max(0, dailyGoal - todayCount)
     // SRS due count
     const dueCount = allQuestions.filter((q) => {
       const qp = userProgress.questionProgress[q.id]
@@ -61,7 +57,7 @@ export function DailySnapshot({ onDismiss }: DailySnapshotProps) {
         : null
     const hoursSinceLastSession = lastSession ? Math.round((now - lastSession.completedAt) / 3600000) : null
 
-    return { remaining, dueCount, hoursSinceLastSession, forecast }
+    return { dueCount, hoursSinceLastSession, forecast }
   }, [userProgress, allQuestions])
 
   const handleQuickStart = () => {
@@ -94,16 +90,11 @@ export function DailySnapshot({ onDismiss }: DailySnapshotProps) {
         </button>
       </div>
 
-      {/* Key stats — SRS + goal remaining (streak/goal ring is already in MenuHeader) */}
+      {/* Key stats — SRS focused (streak/goal are in MenuHeader) */}
       <div className="mb-3 space-y-1.5 text-sm text-claude-dark">
         {snapshot.dueCount > 0 && (
           <p>
-            <strong>🧠 復習: {snapshot.dueCount}問</strong>
-          </p>
-        )}
-        {snapshot.remaining > 0 && (
-          <p>
-            <strong>🎯 目標: あと{snapshot.remaining}問</strong>
+            <strong>🧠 復習: {snapshot.dueCount}問</strong>が期限を迎えています
           </p>
         )}
         {snapshot.hoursSinceLastSession !== null && (
