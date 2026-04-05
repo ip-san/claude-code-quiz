@@ -117,13 +117,32 @@ export function UsageRecommend() {
       )}
       {aiError && <p className="mx-4 mb-2 text-xs text-red-500 dark:text-red-400">{aiError}</p>}
 
-      {/* Growth coaching — single line message */}
-      {growthInsight && (
-        <p className="mx-4 mb-1.5 text-xs text-stone-500 dark:text-stone-400">
-          {growthInsight.maturityChange.direction === 'improving' && '📈 '}
-          {growthInsight.coachingMessage}
-        </p>
-      )}
+      {/* Growth coaching — compact summary for 3+ analyses, single line for 2nd */}
+      {growthInsight &&
+        (growthInsight.analysisCount >= 4 &&
+        (growthInsight.improved.length > 0 || growthInsight.newIssues.length > 0) ? (
+          <div className="mx-4 mb-1.5 rounded-lg border border-stone-200 bg-stone-50 px-3 py-2 dark:border-stone-700 dark:bg-stone-900/50">
+            <p className="text-xs font-medium text-claude-dark dark:text-stone-200">
+              {growthInsight.maturityChange.direction === 'improving' ? '📈' : '📊'} あなたの改善レポート
+            </p>
+            {growthInsight.improved.length > 0 && (
+              <p className="mt-1 text-[11px] text-green-600 dark:text-green-400">
+                ✓ 改善: {growthInsight.improved.map((i) => i.pattern).join('、')}
+              </p>
+            )}
+            {growthInsight.newIssues.length > 0 && (
+              <p className="mt-0.5 text-[11px] text-amber-600 dark:text-amber-400">
+                → 次の課題: {growthInsight.newIssues.map((i) => i.pattern).join('、')}
+              </p>
+            )}
+            <p className="mt-0.5 text-[11px] text-stone-500">{growthInsight.maturityChange.message}</p>
+          </div>
+        ) : (
+          <p className="mx-4 mb-1.5 text-xs text-stone-500 dark:text-stone-400">
+            {growthInsight.maturityChange.direction === 'improving' && '📈 '}
+            {growthInsight.coachingMessage}
+          </p>
+        ))}
 
       {/* Insight: one key observation from work patterns */}
       {analysis &&
@@ -177,6 +196,7 @@ export function UsageRecommend() {
         <div className="mx-4 mb-1.5 space-y-1.5">
           {groupByCategory(recommendations).map(({ category, reason, questions }) => {
             const cat = getCategoryById(category)
+            const patternSignal = questions[0]?.signals.find((s) => s.startsWith('💡'))
             return (
               <div key={category} className="rounded-lg bg-stone-50 px-3 py-2 dark:bg-stone-900/50">
                 <div className="flex items-center gap-2">
@@ -186,7 +206,8 @@ export function UsageRecommend() {
                     {questions.length}問
                   </span>
                 </div>
-                <p className="mt-1 text-[11px] leading-relaxed text-stone-500 dark:text-stone-400">{reason}</p>
+                {patternSignal && <p className="mt-1 text-[11px] font-medium text-claude-orange">{patternSignal}</p>}
+                <p className="mt-0.5 text-[11px] leading-relaxed text-stone-500 dark:text-stone-400">{reason}</p>
               </div>
             )
           })}

@@ -34,12 +34,24 @@ export interface PatternSnapshot {
   }
 }
 
+/** パターンの変化詳細 */
+export interface PatternChange {
+  readonly pattern: string
+  readonly detail: string
+  /** 前回の検出回数 */
+  readonly prevCount: number
+  /** 今回の検出回数 */
+  readonly currentCount: number
+  /** 改善率 (0-100)。完全解消=100 */
+  readonly improvementPercent?: number
+}
+
 /** 前回と今回の比較結果 */
 export interface GrowthInsight {
   /** 改善されたパターン（前回あったが今回なくなった or 回数が減った） */
-  readonly improved: readonly { pattern: string; detail: string }[]
+  readonly improved: readonly PatternChange[]
   /** 新たに検出されたパターン */
-  readonly newIssues: readonly { pattern: string; detail: string }[]
+  readonly newIssues: readonly PatternChange[]
   /** プロンプト成熟度の変化 */
   readonly maturityChange: {
     readonly direction: 'improving' | 'stable' | 'declining'
@@ -131,22 +143,36 @@ export class GrowthTrackingService {
 
     const previous = history[history.length - 1]
     const currentMaturity = this.computeMaturity(prompts)
-    const currentPatternSet = new Set(currentPatterns.map((p) => p.pattern))
-    const prevPatternSet = new Set(previous.patterns)
 
-    // Improved: was in previous but not in current
-    const improved: { pattern: string; detail: string }[] = []
+    // Build current pattern count map
+    const currentCounts: Record<string, number> = {}
+    for (const p of currentPatterns) {
+      currentCounts[p.pattern] = (currentCounts[p.pattern] ?? 0) + 1
+    }
+    const prevCounts = previous.patternCounts ?? {}
+
+    // Improved: was in previous but resolved or reduced
+    const improved: PatternChange[] = []
     for (const p of previous.patterns) {
-      if (!currentPatternSet.has(p)) {
-        improved.push({ pattern: p, detail: `「${p}」が解消されました` })
+      const prev = prevCounts[p] ?? 1
+      const curr = currentCounts[p] ?? 0
+      if (curr < prev) {
+        const pct = prev > 0 ? Math.round(((prev - curr) / prev) * 100) : 100
+        const detail = curr === 0 ? `「${p}」が解消されました` : `「${p}」が${pct}%改善（${prev}回→${curr}回）`
+        improved.push({ pattern: p, detail, prevCount: prev, currentCount: curr, improvementPercent: pct })
       }
     }
 
     // New issues: in current but not in previous
-    const newIssues: { pattern: string; detail: string }[] = []
-    for (const p of currentPatternSet) {
-      if (!prevPatternSet.has(p)) {
-        newIssues.push({ pattern: p, detail: `「${p}」が新たに検出されました` })
+    const newIssues: PatternChange[] = []
+    for (const p of Object.keys(currentCounts)) {
+      if (!(p in prevCounts) || (prevCounts[p] ?? 0) === 0) {
+        newIssues.push({
+          pattern: p,
+          detail: `「${p}」が新たに検出されました`,
+          prevCount: 0,
+          currentCount: currentCounts[p],
+        })
       }
     }
 
@@ -220,8 +246,8 @@ export class GrowthTrackingService {
    * コーチングメッセージを生成
    */
   private static generateCoachingMessage(
-    improved: readonly { pattern: string }[],
-    newIssues: readonly { pattern: string }[],
+    improved: readonly PatternChange[],
+    newIssues: readonly PatternChange[],
     maturityChange: GrowthInsight['maturityChange'],
     historyCount: number
   ): string {
@@ -235,9 +261,12 @@ export class GrowthTrackingService {
       return `素晴らしい成長です！${improved.length}つの課題が解消されました。この調子で続けましょう`
     }
 
-    // Some improvement
+    // Some improvement with numbers
     if (improved.length > 0 && improved.length > newIssues.length) {
-      return `「${improved[0].pattern}」が改善されています。クイズで学んだことが実務に活きています`
+      const top = improved[0]
+      const pct = top.improvementPercent
+      const numDetail = pct && pct < 100 ? `（${pct}%改善）` : ''
+      return `「${top.pattern}」が改善${numDetail}。クイズで学んだことが実務に活きています`
     }
 
     // New issues but also improvement
