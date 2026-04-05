@@ -22,11 +22,10 @@ export class AdaptiveDifficultyService {
   static reorderByAdaptiveDifficulty(questions: Question[], userProgress: UserProgress): Question[] {
     const categoryAccuracy = this.getCategoryAccuracies(questions, userProgress)
 
-    return [...questions].sort((a, b) => {
-      const scoreA = this.getDifficultyScore(a, categoryAccuracy)
-      const scoreB = this.getDifficultyScore(b, categoryAccuracy)
-      return scoreB - scoreA // higher score = higher priority
-    })
+    // Stable sort: preserve original order for same-score questions (keeps shuffle intact)
+    const indexed = questions.map((q, i) => ({ q, i, score: this.getDifficultyScore(q, categoryAccuracy) }))
+    indexed.sort((a, b) => b.score - a.score || a.i - b.i)
+    return indexed.map((x) => x.q)
   }
 
   /**

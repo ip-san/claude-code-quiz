@@ -253,14 +253,17 @@ function analyzeTranscript(filePath) {
   }
 
   // ── Intent transitions (coarse labeling) ────────────────
-  const intentLabels = conversations.map((c) => {
-    const t = c.text
-    if (/どう|何|教えて|とは|について/.test(t)) return '探索'
-    if (/\?$|でしょうか|ですか|なぜ|理由/.test(t)) return '質問'
-    if (/直して|修正|変更|エラー|fix|なおし/i.test(t)) return '修正'
-    if (/やって|してください|実行|作って|追加して|削除して/.test(t)) return '試行'
-    return '試行'
-  })
+  const commandPrefix = /^(node |git |npm |bun |npx |docker |cat |grep |ls |cd |mkdir |rm |tail |sleep |kill )/
+  const intentLabels = conversations
+    .filter((c) => c.text.length > 10 && !commandPrefix.test(c.text))
+    .map((c) => {
+      const t = c.text
+      if (/どう|何|教えて|とは|について/.test(t)) return '探索'
+      if (/\?$|でしょうか|ですか|なぜ|理由/.test(t)) return '質問'
+      if (/直して|修正|変更|エラー|fix|なおし/i.test(t)) return '修正'
+      if (/やって|してください|実行|作って|追加して|削除して/.test(t)) return '試行'
+      return '試行'
+    })
 
   // ── Prompts by category ──────────────────────────────────
   const promptsByCategory = {}

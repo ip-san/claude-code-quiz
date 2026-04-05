@@ -39,7 +39,7 @@ export function QuizResult() {
     getCategoryStats,
   } = useQuizStore()
 
-  const categoryStats = getCategoryStats()
+  const categoryStats = useMemo(() => getCategoryStats(), [getCategoryStats])
 
   const score = sessionState?.score ?? 0
   const answeredCount = sessionState?.answeredCount ?? 0

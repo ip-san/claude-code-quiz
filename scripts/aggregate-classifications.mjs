@@ -77,6 +77,20 @@ const samplePrompts = intentClusters
   })
   .filter(Boolean)
 
+// ── Reuse cached candidates if classification hasn't changed ─
+let stableCandidateIds = candidateIds
+try {
+  if (existsSync(OUTPUT_FILE)) {
+    const prev = JSON.parse(readFileSync(OUTPUT_FILE, 'utf8'))
+    // Reuse if same classification timestamp (no new Haiku run)
+    if (prev.classifiedAt === classified.classifiedAt && prev.candidateIds?.length > 0) {
+      stableCandidateIds = prev.candidateIds
+    }
+  }
+} catch {
+  /* use fresh candidates */
+}
+
 // ── Output ──────────────────────────────────────────────────
 const compressed = {
   generatedAt: new Date().toISOString(),
@@ -90,8 +104,9 @@ const compressed = {
   intentTransitions,
   // Learner state
   learnerState,
-  // Pre-filtered candidates
-  candidateIds,
+  // Pre-filtered candidates (stable across re-runs if classification unchanged)
+  candidateIds: stableCandidateIds,
+  classifiedAt: classified.classifiedAt,
   // Minimal samples for Sonnet context
   samplePrompts,
 }
