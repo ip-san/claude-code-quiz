@@ -1,14 +1,18 @@
 /**
  * PWA ローカル通知 — SRS復習リマインダー
  *
- * Notification API を使い、Service Worker 不要のローカル通知。
- * アプリ起動時に通知許可を求め、バックグラウンドではスケジュール済み通知を使用。
+ * Notification API を使い、アプリ起動時に復習リマインダーを表示。
+ *
+ * 注意: PWA の Notification API はアプリがフォアグラウンドの時のみ動作。
+ * バックグラウンド通知には Service Worker + FCM/APNs が必要だが、
+ * このアプリはサーバーレス（GitHub Pages）なので、起動時の即時通知に限定。
+ * iOS では PWA をホーム画面に追加しないと通知が使えない制限あり。
  */
 
 import { theme } from '@/config/theme'
 
 const NOTIFICATION_KEY = `${theme.storagePrefix}-notification-permission`
-const REMINDER_KEY = `${theme.storagePrefix}-reminder-scheduled`
+const SHOWN_KEY = `${theme.storagePrefix}-reminder-shown`
 
 export class NotificationService {
   /**
@@ -16,14 +20,6 @@ export class NotificationService {
    */
   static isSupported(): boolean {
     return 'Notification' in window
-  }
-
-  /**
-   * 通知許可の状態
-   */
-  static getPermission(): NotificationPermission | 'unsupported' {
-    if (!this.isSupported()) return 'unsupported'
-    return Notification.permission
   }
 
   /**
@@ -44,48 +40,32 @@ export class NotificationService {
   }
 
   /**
-   * SRS復習リマインダー通知を送信
+   * アプリ起動時にSRS復習リマインダーを即時表示
+   * 1日1回のみ表示。アプリを開いた時にリマインダーとして機能。
    */
-  static showReviewReminder(dueCount: number): void {
+  static showStartupReminder(dueCount: number): void {
     if (!this.isSupported() || Notification.permission !== 'granted') return
     if (dueCount === 0) return
 
-    new Notification(theme.appName, {
-      body: `🧠 復習待ちの問題が${dueCount}問あります`,
-      icon: '/claude-code-quiz/icons/icon-192.png',
-      tag: 'srs-review', // 重複通知を防止
-      requireInteraction: false,
-    })
-  }
-
-  /**
-   * 今日のリマインダーをスケジュール（簡易実装: setTimeout ベース）
-   * アプリがフォアグラウンドで開いている間のみ有効
-   */
-  static scheduleEveningReminder(dueCount: number): void {
-    if (!this.isSupported() || Notification.permission !== 'granted') return
-    if (dueCount === 0) return
-
-    // 今日すでにスケジュール済みならスキップ
+    // 今日すでに表示済みならスキップ
     const today = new Date().toISOString().slice(0, 10)
     try {
-      if (localStorage.getItem(REMINDER_KEY) === today) return
-      localStorage.setItem(REMINDER_KEY, today)
+      if (localStorage.getItem(SHOWN_KEY) === today) return
+      localStorage.setItem(SHOWN_KEY, today)
     } catch {
       /* ignore */
     }
 
-    // 20:00 にリマインダー（すでに過ぎていたらスキップ）
-    const now = new Date()
-    const evening = new Date(now)
-    evening.setHours(20, 0, 0, 0)
-
-    const delay = evening.getTime() - now.getTime()
-    if (delay <= 0) return
-
-    setTimeout(() => {
-      this.showReviewReminder(dueCount)
-    }, delay)
+    try {
+      new Notification(theme.appName, {
+        body: `🧠 復習待ちの問題が${dueCount}問あります`,
+        icon: '/claude-code-quiz/icons/icon-192.png',
+        tag: 'srs-review',
+        requireInteraction: false,
+      })
+    } catch {
+      // Notification constructor can throw in restricted contexts
+    }
   }
 
   /**
@@ -94,7 +74,6 @@ export class NotificationService {
   static shouldAskPermission(): boolean {
     if (!this.isSupported()) return false
     if (Notification.permission !== 'default') return false
-    // 一度拒否された後に再度聞かない
     try {
       return localStorage.getItem(NOTIFICATION_KEY) !== 'denied'
     } catch {

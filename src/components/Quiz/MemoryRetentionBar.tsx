@@ -10,7 +10,7 @@ export function MemoryRetentionBar({ questionProgress }: MemoryRetentionBarProps
   if (!questionProgress || questionProgress.attempts === 0) return null
 
   const streak = questionProgress.correctStreak ?? 0
-  const maxStreak = SRS_INTERVALS_MS.length // 9段階
+  const maxStreak = SRS_INTERVALS_MS.length || 1 // 9段階（ゼロ除算防止）
   const percentage = Math.min(Math.round((streak / maxStreak) * 100), 100)
   const remaining = Math.max(0, maxStreak - streak)
 
@@ -30,14 +30,23 @@ export function MemoryRetentionBar({ questionProgress }: MemoryRetentionBarProps
     return 'bg-emerald-500'
   }
 
+  const label = getLabel()
+  const description = remaining > 0 ? `${label} — あと${remaining}回正解で長期記憶` : label
+
   return (
-    <div className="mt-2 rounded-lg bg-stone-50 px-3 py-2 dark:bg-stone-800/50">
+    // biome-ignore lint/a11y/useSemanticElements: <meter> cannot be styled with Tailwind; using role="meter" for accessibility
+    <div
+      className="mt-2 rounded-lg bg-stone-50 px-3 py-2 dark:bg-stone-800/50"
+      role="meter"
+      aria-label="記憶定着度"
+      aria-valuenow={percentage}
+      aria-valuemin={0}
+      aria-valuemax={100}
+      aria-valuetext={description}
+    >
       <div className="mb-1 flex items-center justify-between">
         <span className="text-[10px] font-medium text-stone-600 dark:text-stone-400">記憶定着度</span>
-        <span className="text-[10px] text-stone-500">
-          {getLabel()}
-          {remaining > 0 && ` — あと${remaining}回正解で長期記憶`}
-        </span>
+        <span className="text-[10px] text-stone-500">{description}</span>
       </div>
       <div className="h-1.5 overflow-hidden rounded-full bg-stone-200 dark:bg-stone-700">
         <div

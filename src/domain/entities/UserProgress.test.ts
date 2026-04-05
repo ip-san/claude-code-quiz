@@ -417,6 +417,65 @@ describe('UserProgress Entity', () => {
   })
 })
 
+describe('XP integration', () => {
+  it('starts with 0 XP', () => {
+    expect(UserProgress.empty().totalXp).toBe(0)
+  })
+
+  it('gains 10 XP on correct first answer', () => {
+    const updated = UserProgress.empty().recordAnswer('q1', 'memory', true)
+    expect(updated.totalXp).toBe(10)
+  })
+
+  it('gains 2 XP on incorrect answer', () => {
+    const updated = UserProgress.empty().recordAnswer('q1', 'memory', false)
+    expect(updated.totalXp).toBe(2)
+  })
+
+  it('gains 15 XP on correct SRS review (previously answered)', () => {
+    let progress = UserProgress.empty()
+    progress = progress.recordAnswer('q1', 'memory', true)
+    const xpAfterFirst = progress.totalXp
+    progress = progress.recordAnswer('q1', 'memory', true)
+    expect(progress.totalXp - xpAfterFirst).toBe(15) // 10 base + 5 SRS bonus
+  })
+
+  it('does not gain XP on retry', () => {
+    let progress = UserProgress.empty()
+    progress = progress.recordAnswer('q1', 'memory', false)
+    const xpBefore = progress.totalXp
+    progress = progress.recordAnswer('q1', 'memory', true, true)
+    expect(progress.totalXp).toBe(xpBefore)
+  })
+
+  it('accumulates XP across multiple answers', () => {
+    let progress = UserProgress.empty()
+    progress = progress.recordAnswer('q1', 'memory', true) // +10
+    progress = progress.recordAnswer('q2', 'tools', true) // +10
+    progress = progress.recordAnswer('q3', 'skills', false) // +2
+    expect(progress.totalXp).toBe(22)
+  })
+
+  it('preserves XP through toJSON/create roundtrip', () => {
+    let progress = UserProgress.empty()
+    progress = progress.recordAnswer('q1', 'memory', true)
+    const restored = UserProgress.create(progress.toJSON())
+    expect(restored.totalXp).toBe(progress.totalXp)
+  })
+})
+
+describe('addXp', () => {
+  it('adds XP', () => {
+    expect(UserProgress.empty().addXp(50).totalXp).toBe(50)
+  })
+
+  it('returns same instance for 0 or negative', () => {
+    const progress = UserProgress.create({ totalXp: 100 })
+    expect(progress.addXp(0)).toBe(progress)
+    expect(progress.addXp(-10)).toBe(progress)
+  })
+})
+
 describe('recordSession', () => {
   it('should add a session record to sessionHistory', () => {
     const progress = UserProgress.empty()

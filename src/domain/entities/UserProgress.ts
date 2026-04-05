@@ -160,6 +160,7 @@ export class UserProgress {
       dailyGoal: props.dailyGoal,
       dailyAnswerCounts: props.dailyAnswerCounts,
       sessionHistory: props.sessionHistory,
+      totalXp: props.totalXp,
     })
   }
 
@@ -395,6 +396,18 @@ export class UserProgress {
   hasAttempted(questionId: string): boolean {
     const qp = this.questionProgress[questionId]
     return qp !== undefined && qp.attempts > 0
+  }
+
+  /**
+   * XPを加算する（ボーナスXP等）
+   */
+  addXp(amount: number): UserProgress {
+    if (amount <= 0) return this
+    return UserProgress.create({
+      ...this.toJSON(),
+      totalXp: this.totalXp + amount,
+      modifiedAt: Date.now(),
+    })
   }
 
   /**

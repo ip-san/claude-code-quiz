@@ -4,6 +4,7 @@ import { theme } from '@/config/theme'
 import { DailyGoalService } from '@/domain/services/DailyGoalService'
 import { getOverviewRecommendation } from '@/domain/services/RecommendationService'
 import { getScoreMessage } from '@/domain/services/ScoreMessageService'
+import { XpService } from '@/domain/services/XpService'
 import { getChapterFromTags } from '@/domain/valueObjects/OverviewChapter'
 import { trackShare } from '@/lib/analytics'
 import { APP_CONFIG, useQuizStore } from '@/stores/quizStore'
@@ -298,10 +299,11 @@ export function QuizResult() {
               <button
                 onClick={() => {
                   const stars = '⭐'.repeat(Math.ceil(percentage / 20))
+                  const level = XpService.getLevel(userProgress.totalXp)
                   navigator
                     .share({
                       title: theme.appName,
-                      text: `${stars}\n${theme.appName}: ${score}/${answeredCount}問正解 (${percentage}%)\n${isPassing ? '✅ 合格！' : '📚 もう少し！'}\n${theme.shareHashtags}`,
+                      text: `${stars}\n${theme.appName}: ${score}/${answeredCount}問正解 (${percentage}%)\n${isPassing ? '✅ 合格！' : '📚 もう少し！'}\n${level.icon} Lv.${level.level} ${level.name} | ${userProgress.totalXp} XP\n${theme.shareHashtags}`,
                       url: window.location.href,
                     })
                     .then(() => trackShare('native'))

@@ -1,5 +1,6 @@
 import { Bookmark, ExternalLink, Lightbulb, RotateCcw } from 'lucide-react'
 import { useEffect, useMemo, useRef, useState } from 'react'
+import { AdaptiveDifficultyService } from '@/domain/services/AdaptiveDifficultyService'
 import { getCategoryById } from '@/domain/valueObjects/Category'
 import { getChapterFromTags, OVERVIEW_CHAPTERS } from '@/domain/valueObjects/OverviewChapter'
 import { trackChapterProgress } from '@/lib/analytics'
@@ -17,6 +18,7 @@ import { OptionButton } from './OptionButton'
 import { CorrectOverlay } from './overlays/CorrectOverlay'
 import { EncouragementToast } from './overlays/EncouragementToast'
 import { StreakToast } from './overlays/StreakToast'
+import { XpToast } from './overlays/XpToast'
 import { QuizBottomBar } from './QuizBottomBar'
 import { QuizText } from './QuizText'
 import { RelatedQuestions } from './result/RelatedQuestions'
@@ -54,6 +56,11 @@ export function QuizCard({
   const deferFeedback = sessionState?.deferFeedback ?? false
   const hintUsed = sessionState?.hintUsed ?? false
   const isBookmarked = useQuizStore((state) => (quiz ? state.userProgress.isBookmarked(quiz.id) : false))
+  const isAdaptive = useQuizStore((state) => {
+    const mode = state.sessionConfig.mode
+    return (mode === 'random' || mode === 'category') && AdaptiveDifficultyService.isAdaptiveReady(state.userProgress)
+  })
+  const totalXp = useQuizStore((state) => state.userProgress.totalXp)
   const isMultiSelect = quiz?.isMultiSelect ?? false
   const currentIndex = sessionState?.currentIndex ?? 0
   const canGoBack = currentIndex > 0
@@ -271,6 +278,9 @@ export function QuizCard({
       {/* Correct answer overlay — big center check */}
       {showCorrectOverlay && <CorrectOverlay />}
 
+      {/* XP gain toast (hidden in review/defer modes) */}
+      {!deferFeedback && !isReviewMode && <XpToast totalXp={totalXp} />}
+
       {/* Consecutive correct streak toast (hidden in scenario mode) */}
       {!deferFeedback && sessionState?.config.mode !== 'scenario' && <StreakToast streak={consecutiveCorrect} />}
 
@@ -319,6 +329,11 @@ export function QuizCard({
             {quiz.difficulty && (
               <span className={`rounded px-2 py-1 text-xs font-medium ${getDifficultyStyle(quiz.difficulty)}`}>
                 {getDifficultyLabel(quiz.difficulty)}
+              </span>
+            )}
+            {isAdaptive && currentIndex === 0 && (
+              <span className="rounded bg-indigo-500/10 px-2 py-1 text-xs font-medium text-indigo-500">
+                あなた向けに調整
               </span>
             )}
             {isReviewMode && (

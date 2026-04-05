@@ -6,6 +6,7 @@ import { theme } from '@/config/theme'
 import type { Question } from '@/domain/entities/Question'
 import type { UserProgress } from '@/domain/entities/UserProgress'
 import { type QuizSessionConfig, type QuizSessionState } from '@/domain/services/QuizSessionService'
+import { XpService } from '@/domain/services/XpService'
 import type { QuizModeId } from '@/domain/valueObjects/QuizMode'
 import { getProgressRepository } from '@/infrastructure'
 import {
@@ -224,13 +225,19 @@ export function recordCompletedSession(
     }
   }
 
-  const updatedProgress = getCurrentProgress().recordSession(
+  let updatedProgress = getCurrentProgress().recordSession(
     sessionState.config.mode,
     sessionState.config.categoryFilter ?? null,
     sessionState.score,
     sessionState.answeredCount,
     categoryBreakdown
   )
+
+  // Scenario completion bonus XP
+  if (sessionState.config.mode === 'scenario') {
+    updatedProgress = updatedProgress.addXp(XpService.getScenarioCompleteXp())
+  }
+
   updateStore(updatedProgress)
   getProgressRepository().save(updatedProgress).catch(console.error)
 

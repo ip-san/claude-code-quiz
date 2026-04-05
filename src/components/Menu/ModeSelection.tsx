@@ -27,7 +27,7 @@ export function ModeSelection() {
     [allQuestions, userProgress]
   )
 
-  // Schedule evening review reminder if notifications are permitted
+  // Show startup review reminder if notifications are permitted (once per day)
   // biome-ignore lint/correctness/useExhaustiveDependencies: intentionally run only on mount
   useEffect(() => {
     if (!isElectron && userProgress.totalAttempts > 0) {
@@ -36,7 +36,7 @@ export function ModeSelection() {
         const qp = userProgress.questionProgress[q.id]
         return qp && qp.attempts > 0 && SpacedRepetitionService.isDue(qp, now)
       }).length
-      NotificationService.scheduleEveningReminder(dueCount)
+      NotificationService.showStartupReminder(dueCount)
     }
   }, [])
 
@@ -56,8 +56,8 @@ export function ModeSelection() {
             onMenuOpened={() => setOpenMenuWithModes(false)}
           />
 
-          {/* Notification opt-in — shown once for PWA users with progress */}
-          {!isElectron && userProgress.totalAttempts > 0 && <NotificationOptIn />}
+          {/* Notification opt-in — shown after user has established a learning habit (3+ sessions) */}
+          {!isElectron && userProgress.sessionHistory.length >= 3 && <NotificationOptIn />}
 
           {/* Daily Snapshot — removes decision paralysis (includes SRS info) */}
           {userProgress.totalAttempts > 0 && !snapshotDismissed && (

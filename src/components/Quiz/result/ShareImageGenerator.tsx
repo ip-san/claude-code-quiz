@@ -1,8 +1,10 @@
-import { Image } from 'lucide-react'
-import { useCallback, useState } from 'react'
+import { Check, Image } from 'lucide-react'
+import { useCallback, useEffect, useRef, useState } from 'react'
 import { theme } from '@/config/theme'
 import { XpService } from '@/domain/services/XpService'
 import { haptics } from '@/lib/haptics'
+
+type ShareStatus = 'idle' | 'generating' | 'copied' | 'downloaded'
 
 interface ShareImageGeneratorProps {
   score: number
@@ -16,16 +18,25 @@ interface ShareImageGeneratorProps {
  * セッション結果のシェア画像をCanvas APIで生成
  */
 export function ShareImageGenerator({ score, total, percentage, streakDays, totalXp }: ShareImageGeneratorProps) {
-  const [generating, setGenerating] = useState(false)
+  const [status, setStatus] = useState<ShareStatus>('idle')
+  const resetTimerRef = useRef<ReturnType<typeof setTimeout>>()
+
+  // Cleanup timeout on unmount
+  useEffect(() => () => clearTimeout(resetTimerRef.current), [])
+
+  const scheduleReset = useCallback(() => {
+    clearTimeout(resetTimerRef.current)
+    resetTimerRef.current = setTimeout(() => setStatus('idle'), 2000)
+  }, [])
 
   const generateImage = useCallback(async () => {
-    setGenerating(true)
+    setStatus('generating')
     haptics.light()
 
     try {
       const canvas = document.createElement('canvas')
-      const width = 600
-      const height = 315 // OGP recommended ratio
+      const width = 1200
+      const height = 630 // OGP standard (1200×630)
       canvas.width = width
       canvas.height = height
       const ctx = canvas.getContext('2d')
@@ -43,23 +54,23 @@ export function ShareImageGenerator({ score, total, percentage, streakDays, tota
       accentGrad.addColorStop(0, '#E07A3A')
       accentGrad.addColorStop(1, '#F59E0B')
       ctx.fillStyle = accentGrad
-      ctx.fillRect(0, 0, width, 4)
+      ctx.fillRect(0, 0, width, 8)
 
       // App name
       ctx.fillStyle = '#E07A3A'
-      ctx.font = 'bold 18px system-ui, -apple-system, sans-serif'
-      ctx.fillText(theme.appName, 30, 40)
+      ctx.font = 'bold 36px system-ui, -apple-system, sans-serif'
+      ctx.fillText(theme.appName, 60, 80)
 
       // Score circle
       const cx = width / 2
-      const cy = 130
-      const r = 55
+      const cy = 270
+      const r = 110
 
       // Background circle
       ctx.beginPath()
       ctx.arc(cx, cy, r, 0, Math.PI * 2)
       ctx.strokeStyle = '#E5E7EB'
-      ctx.lineWidth = 8
+      ctx.lineWidth = 16
       ctx.stroke()
 
       // Score arc
@@ -67,23 +78,23 @@ export function ShareImageGenerator({ score, total, percentage, streakDays, tota
       ctx.beginPath()
       ctx.arc(cx, cy, r, -Math.PI / 2, -Math.PI / 2 + angle)
       ctx.strokeStyle = percentage >= 70 ? '#22C55E' : percentage >= 40 ? '#F59E0B' : '#EF4444'
-      ctx.lineWidth = 8
+      ctx.lineWidth = 16
       ctx.lineCap = 'round'
       ctx.stroke()
 
       // Score text
       ctx.fillStyle = '#1C1917'
-      ctx.font = 'bold 36px system-ui, -apple-system, sans-serif'
+      ctx.font = 'bold 72px system-ui, -apple-system, sans-serif'
       ctx.textAlign = 'center'
-      ctx.fillText(`${percentage}%`, cx, cy + 8)
+      ctx.fillText(`${percentage}%`, cx, cy + 16)
 
       // Score detail
-      ctx.font = '14px system-ui, -apple-system, sans-serif'
+      ctx.font = '28px system-ui, -apple-system, sans-serif'
       ctx.fillStyle = '#78716C'
-      ctx.fillText(`${score} / ${total}問正解`, cx, cy + 30)
+      ctx.fillText(`${score} / ${total}問正解`, cx, cy + 60)
 
       // Stats row
-      const statsY = 220
+      const statsY = 460
       const level = XpService.getLevel(totalXp)
       const stats = [
         { label: '連続学習', value: `${streakDays}日` },
@@ -94,22 +105,22 @@ export function ShareImageGenerator({ score, total, percentage, streakDays, tota
       const statWidth = width / stats.length
       stats.forEach((stat, i) => {
         const sx = statWidth * i + statWidth / 2
-        ctx.font = 'bold 20px system-ui, -apple-system, sans-serif'
+        ctx.font = 'bold 40px system-ui, -apple-system, sans-serif'
         ctx.fillStyle = '#1C1917'
         ctx.fillText(stat.value, sx, statsY)
-        ctx.font = '12px system-ui, -apple-system, sans-serif'
+        ctx.font = '22px system-ui, -apple-system, sans-serif'
         ctx.fillStyle = '#A8A29E'
-        ctx.fillText(stat.label, sx, statsY + 20)
+        ctx.fillText(stat.label, sx, statsY + 40)
       })
 
       // Footer
       ctx.textAlign = 'left'
-      ctx.font = '11px system-ui, -apple-system, sans-serif'
+      ctx.font = '20px system-ui, -apple-system, sans-serif'
       ctx.fillStyle = '#A8A29E'
-      ctx.fillText(theme.shareHashtags, 30, height - 15)
+      ctx.fillText(theme.shareHashtags, 60, height - 30)
 
       ctx.textAlign = 'right'
-      ctx.fillText(new Date().toLocaleDateString('ja-JP'), width - 30, height - 15)
+      ctx.fillText(new Date().toLocaleDateString('ja-JP'), width - 60, height - 30)
 
       // Convert to blob and trigger download/share
       const blob = await new Promise<Blob | null>((resolve) => canvas.toBlob(resolve, 'image/png'))
@@ -124,32 +135,50 @@ export function ShareImageGenerator({ score, total, percentage, streakDays, tota
         }
       }
 
-      // Fallback: download
+      // Fallback: try clipboard, then download
+      if ('clipboard' in navigator && 'write' in navigator.clipboard) {
+        try {
+          await navigator.clipboard.write([new ClipboardItem({ 'image/png': blob })])
+          setStatus('copied')
+          scheduleReset()
+          return
+        } catch {
+          // Clipboard failed, fall through to download
+        }
+      }
+
       const url = URL.createObjectURL(blob)
       const a = document.createElement('a')
       a.href = url
       a.download = 'quiz-result.png'
       a.click()
       URL.revokeObjectURL(url)
-    } finally {
-      setGenerating(false)
+      setStatus('downloaded')
+      scheduleReset()
+    } catch {
+      setStatus('idle')
     }
-  }, [score, total, percentage, streakDays, totalXp])
+  }, [score, total, percentage, streakDays, totalXp, scheduleReset])
+
+  const buttonLabel = {
+    idle: '画像でシェア',
+    generating: '生成中...',
+    copied: 'クリップボードにコピー！',
+    downloaded: 'ダウンロード完了！',
+  }[status]
 
   return (
     <button
       onClick={generateImage}
-      disabled={generating}
-      className="tap-highlight inline-flex w-full items-center justify-center gap-2 rounded-2xl border border-indigo-300 px-6 py-3.5 text-base font-semibold text-indigo-600 dark:border-indigo-500/30 dark:text-indigo-400"
+      disabled={status === 'generating'}
+      className="tap-highlight inline-flex w-full items-center justify-center gap-2 rounded-2xl border border-indigo-300 bg-white px-6 py-3.5 text-base font-semibold text-indigo-600 dark:border-indigo-500/30 dark:bg-indigo-500/10 dark:text-indigo-400"
     >
-      {generating ? (
-        <>生成中...</>
-      ) : (
-        <>
-          <Image className="h-5 w-5" />
-          画像でシェア
-        </>
+      {status === 'copied' || status === 'downloaded' ? (
+        <Check className="h-5 w-5" />
+      ) : status === 'generating' ? null : (
+        <Image className="h-5 w-5" />
       )}
+      {buttonLabel}
     </button>
   )
 }

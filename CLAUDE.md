@@ -11,7 +11,7 @@ PWA でスマホ・ブラウザから利用可能。Electron デスクトップ�
 - **フロントエンド:** React + TypeScript + Vite + Tailwind CSS + Zustand
 - **配信:** PWA / GitHub Pages（メイン）+ Electron（デスクトップ）
 - **アナリティクス:** GTM + GA4 + MCP サーバー（`mcp/ga4-server.mjs`）
-- **テスト:** Vitest（433テスト）+ Playwright E2E（57テスト）
+- **テスト:** Vitest（463テスト）+ Playwright E2E（59テスト）
 - **CI/CD:** GitHub Actions → GitHub Pages 自動デプロイ（GTM ID は Secret 管理）
 - **クイズデータ:** 752問（71ドキュメントページをカバー）
 
@@ -24,8 +24,8 @@ bun run dev:web       # Web版開発サーバー
 bun run build:web     # Web版プロダクションビルド
 
 # 品質チェック
-bun run check         # 型チェック + lint + 433テスト + 752問チェック（一括）
-bun test              # ユニット + Store テスト（433テスト、Vitest）
+bun run check         # 型チェック + lint + 463テスト + 752問チェック（一括）
+bun test              # ユニット + Store テスト（463テスト、Vitest）
 bun run test:e2e      # E2E + Visual Regression テスト（46テスト、Playwright）
 
 # クイズ管理

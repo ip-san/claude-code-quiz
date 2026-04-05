@@ -19,14 +19,19 @@ export interface XpLevel {
   readonly minXp: number
 }
 
+/**
+ * XPレベルは「学習量」を表す（マスタリーレベルの「正答率」とは別軸）
+ * マスタリーレベル（MasteryLevelService）: 正答率ベースの実力指標
+ * XPレベル: 累積学習量ベースの継続指標
+ */
 const LEVELS: readonly XpLevel[] = [
-  { level: 1, name: 'ビギナー', icon: '🌱', minXp: 0 },
-  { level: 2, name: 'ルーキー', icon: '🌿', minXp: 50 },
-  { level: 3, name: 'レギュラー', icon: '🌳', minXp: 150 },
-  { level: 4, name: 'ベテラン', icon: '⭐', minXp: 400 },
-  { level: 5, name: 'エキスパート', icon: '💎', minXp: 800 },
-  { level: 6, name: 'マスター', icon: '👑', minXp: 1500 },
-  { level: 7, name: 'グランドマスター', icon: '🏆', minXp: 3000 },
+  { level: 1, name: 'はじめの一歩', icon: '🌱', minXp: 0 },
+  { level: 2, name: '学習習慣', icon: '🌿', minXp: 50 },
+  { level: 3, name: 'コツコツ型', icon: '🌳', minXp: 150 },
+  { level: 4, name: '継続の達人', icon: '⭐', minXp: 400 },
+  { level: 5, name: '学びの探求者', icon: '💎', minXp: 800 },
+  { level: 6, name: '知識の伝道師', icon: '👑', minXp: 1500 },
+  { level: 7, name: 'Claude Code通', icon: '🏆', minXp: 3000 },
 ]
 
 export class XpService {
@@ -52,9 +57,10 @@ export class XpService {
    * XPからレベル情報を取得
    */
   static getLevel(totalXp: number): XpLevel {
+    const xp = Math.max(totalXp, 0)
     let current = LEVELS[0]
     for (const level of LEVELS) {
-      if (totalXp >= level.minXp) {
+      if (xp >= level.minXp) {
         current = level
       } else {
         break

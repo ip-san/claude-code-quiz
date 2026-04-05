@@ -1,4 +1,4 @@
-import { Clock, Flame, Target, X, Zap } from 'lucide-react'
+import { Clock, X, Zap } from 'lucide-react'
 import { useMemo } from 'react'
 import { theme } from '@/config/theme'
 import { DailyGoalService } from '@/domain/services/DailyGoalService'
@@ -30,8 +30,6 @@ export function DailySnapshot({ onDismiss }: DailySnapshotProps) {
     const todayCount = userProgress.getDailyCount(today)
     const dailyGoal = userProgress.dailyGoal
     const remaining = Math.max(0, dailyGoal - todayCount)
-    const goalProgress = Math.min(Math.round((todayCount / dailyGoal) * 100), 100)
-
     // SRS due count
     const dueCount = allQuestions.filter((q) => {
       const qp = userProgress.questionProgress[q.id]
@@ -63,9 +61,7 @@ export function DailySnapshot({ onDismiss }: DailySnapshotProps) {
         : null
     const hoursSinceLastSession = lastSession ? Math.round((now - lastSession.completedAt) / 3600000) : null
 
-    const streak = userProgress.streakDays
-
-    return { remaining, dueCount, hoursSinceLastSession, forecast, streak, todayCount, dailyGoal, goalProgress }
+    return { remaining, dueCount, hoursSinceLastSession, forecast }
   }, [userProgress, allQuestions])
 
   const handleQuickStart = () => {
@@ -98,32 +94,18 @@ export function DailySnapshot({ onDismiss }: DailySnapshotProps) {
         </button>
       </div>
 
-      {/* Dashboard stats row */}
-      <div className="mb-3 grid grid-cols-3 gap-2">
-        {/* Streak */}
-        <div className="flex flex-col items-center rounded-xl bg-white/60 px-2 py-2 dark:bg-white/5">
-          <Flame className={`mb-0.5 h-4 w-4 ${snapshot.streak > 0 ? 'text-orange-500' : 'text-stone-300'}`} />
-          <span className="text-lg font-bold text-claude-dark dark:text-stone-200">{snapshot.streak}</span>
-          <span className="text-[10px] text-stone-500">日連続</span>
-        </div>
-        {/* Daily goal */}
-        <div className="flex flex-col items-center rounded-xl bg-white/60 px-2 py-2 dark:bg-white/5">
-          <Target className={`mb-0.5 h-4 w-4 ${snapshot.goalProgress >= 100 ? 'text-green-500' : 'text-blue-500'}`} />
-          <span className="text-lg font-bold text-claude-dark dark:text-stone-200">
-            {snapshot.todayCount}/{snapshot.dailyGoal}
-          </span>
-          <span className="text-[10px] text-stone-500">今日の目標</span>
-        </div>
-        {/* SRS due */}
-        <div className="flex flex-col items-center rounded-xl bg-white/60 px-2 py-2 dark:bg-white/5">
-          <span className="mb-0.5 text-sm">🧠</span>
-          <span className="text-lg font-bold text-claude-dark dark:text-stone-200">{snapshot.dueCount}</span>
-          <span className="text-[10px] text-stone-500">復習待ち</span>
-        </div>
-      </div>
-
-      {/* Detail info */}
-      <div className="mb-3 space-y-1 text-sm text-claude-dark">
+      {/* Key stats — SRS + goal remaining (streak/goal ring is already in MenuHeader) */}
+      <div className="mb-3 space-y-1.5 text-sm text-claude-dark">
+        {snapshot.dueCount > 0 && (
+          <p>
+            <strong>🧠 復習: {snapshot.dueCount}問</strong>
+          </p>
+        )}
+        {snapshot.remaining > 0 && (
+          <p>
+            <strong>🎯 目標: あと{snapshot.remaining}問</strong>
+          </p>
+        )}
         {snapshot.hoursSinceLastSession !== null && (
           <div className="flex items-center gap-2">
             <Clock className="h-3.5 w-3.5 text-stone-400" />
