@@ -243,7 +243,9 @@ v4.43.0 以前の known-issues では「exit code 2 の一般ルールで UserPr
 ## キーボードショートカット（追加）
 
 - `Ctrl+C` = generation cancel のみ（exit ではない）。`Ctrl+D` = exit
-- `/terminal-setup` で `Shift+Enter` と `Option+T` が有効化される。`Alt+B`/`F`/`Y`/`M`/`P` は "Option as Meta" 設定が必要
+- `/terminal-setup` は `Shift+Enter` バインディングのみをインストールする（VS Code, Alacritty, Zed, Warp 等の非ネイティブ端末向け）。iTerm2/WezTerm/Ghostty/Kitty では設定不要
+- `Option+T`（Extended Thinking トグル）は「Option as Meta」のターミナル設定が必要。`/terminal-setup` の機能ではない（2026-04-05 interactive-mode.md で再確認）
+- `Alt+B`/`F`/`Y`/`M`/`P`/`T` は全て "Option as Meta" 設定が必要（macOS）
 - `Shift+Tab` でパーミッションモード切替（Normal→Auto-Accept→Plan）。`Alt+M` は "some configurations" のみ（interactive-mode.md）— 全環境対応ではない
 
 ---
