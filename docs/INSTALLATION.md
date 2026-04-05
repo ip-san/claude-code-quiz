@@ -36,57 +36,76 @@ Claude Code Quiz のインストール方法を説明します。
 
 ## Electron デスクトップアプリ
 
-ソースからビルドして Electron デスクトップアプリとしてインストールする手順。
+Desktop 版は Claude Code の利用履歴を AI が分析し、あなた専用のクイズを毎日提案します。ソースからビルドしてインストールする手順を、初めての方でも迷わないように説明します。
 
-### 必要環境
+### ステップ 0: 必要なツールを準備する
 
-- **Node.js**: 18.0.0 以上
-- **[bun](https://bun.sh/)**: パッケージマネージャー兼ランタイム
-- **OS**: macOS 10.12 以上 / Windows 10 以上 / Ubuntu 18.04 以上
+Desktop アプリのビルドには 3 つのツールが必要です。既に入っている場合はスキップしてください。
 
-### Node.js のインストール
+**1) Node.js（JavaScript 実行環境）**
 
-Node.js がインストールされていない場合：
+ターミナルを開いて以下を実行：
 
 ```bash
-# macOS (Homebrew)
+node --version
+```
+
+`v18.0.0` 以上が表示されれば OK。「command not found」と出たらインストール：
+
+```bash
+# macOS（Homebrew がある場合）
 brew install node
 
-# または公式サイトからダウンロード
-# https://nodejs.org/
+# Homebrew がない場合 → https://nodejs.org/ からダウンロード
 ```
 
-バージョン確認：
+**2) bun（高速パッケージマネージャー）**
 
 ```bash
-node --version  # v18.0.0 以上
-bun --version   # 1.0.0 以上
+bun --version
 ```
 
-### ソースからビルド
-
-### 1. リポジトリのクローン
+`1.0.0` 以上が表示されれば OK。なければ：
 
 ```bash
-git clone git@github.com:ip-san/claude-code-quiz.git
+curl -fsSL https://bun.sh/install | bash
+```
+
+**3) Git（ソースコード取得）**
+
+```bash
+git --version
+```
+
+表示されれば OK。なければ：
+
+```bash
+# macOS
+xcode-select --install
+```
+
+### ステップ 1: ソースコードを取得する
+
+```bash
+git clone https://github.com/ip-san/claude-code-quiz.git
 cd claude-code-quiz
 ```
 
-### 2. 依存パッケージのインストール
+### ステップ 2: 依存パッケージをインストールする
 
 ```bash
 bun install
 ```
 
-初回は数分かかる場合があります。
+初回は 1-2 分かかります。「Done!」と表示されれば完了。
 
-### 3. アプリのビルド
+### ステップ 3: アプリをビルドする
 
 ```bash
 bun run build
 ```
 
-ビルドが完了すると、`release/` フォルダにインストーラーが生成されます：
+完了すると `release/` フォルダにインストーラーが生成されます：
 
 | OS | ファイル | 形式 |
 |----|---------|------|
