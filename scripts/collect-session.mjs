@@ -137,13 +137,15 @@ const TOPIC_KEYWORDS = {
   コスト管理: ['cost', 'コスト', '料金', 'effort'],
 }
 
-function analyzeTranscript(filePath) {
+// ── Sub-functions for analyzeTranscript ───────────────────
+
+function parseJsonlLines(filePath) {
   const lines = readFileSync(filePath, 'utf8').split('\n').filter(Boolean)
   const tools = {}
-  const prompts = [] // flat strings for keyword scoring
-  const conversations = [] // structured: ordered prompts with sequence number
-
+  const prompts = []
+  const conversations = []
   let promptIndex = 0
+
   for (const line of lines) {
     try {
       const j = JSON.parse(line)
@@ -173,8 +175,10 @@ function analyzeTranscript(filePath) {
       /* skip */
     }
   }
+  return { tools, prompts, conversations }
+}
 
-  // Score categories
+function scoreCategories(prompts) {
   const allText = prompts.join(' ')
   const categoryScores = {}
   for (const [cat, keywords] of Object.entries(CATEGORY_KEYWORDS)) {
@@ -183,11 +187,19 @@ function analyzeTranscript(filePath) {
       return score + (allText.match(regex) || []).length
     }, 0)
   }
+  return categoryScores
+}
+
+function analyzeTranscript(filePath) {
+  const { tools, prompts, conversations } = parseJsonlLines(filePath)
+
+  const categoryScores = scoreCategories(prompts)
+  const allText = prompts.join(' ').toLowerCase()
 
   // Detect topics
   const topics = []
   for (const [topic, keywords] of Object.entries(TOPIC_KEYWORDS)) {
-    const hits = keywords.filter((kw) => allText.toLowerCase().includes(kw.toLowerCase())).length
+    const hits = keywords.filter((kw) => allText.includes(kw.toLowerCase())).length
     if (hits >= 1) topics.push({ topic, hits })
   }
 

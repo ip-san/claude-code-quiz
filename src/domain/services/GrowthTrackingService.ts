@@ -73,22 +73,25 @@ export interface GrowthInsight {
   readonly analysisCount: number
 }
 
+/** Prompt maturity detection patterns (reused across compute + assess) */
+const INQUIRY_PATTERN = /なぜ|どう違|仕組み|理由|どういう|メリット|デメリット|比較|explain|why/i
+const SPECIFICITY_PATTERN = /\.tsx?|\.jsx?|\.json|行\d|line \d|src\/|ファイル名/i
+const MIN_PROMPT_LENGTH = 10
+
 export class GrowthTrackingService {
   /**
    * プロンプト配列から成熟度指標を計算
    */
   static computeMaturity(prompts: string[]): PatternSnapshot['maturity'] {
-    const meaningful = prompts.filter((p) => p.length > 10)
+    const meaningful = prompts.filter((p) => p.length > MIN_PROMPT_LENGTH)
     const total = meaningful.length || 1
 
     const avgLength = meaningful.reduce((sum, p) => sum + p.length, 0) / total
 
-    const inquiryPatterns = /なぜ|どう違|仕組み|理由|どういう|メリット|デメリット|比較|explain|why/i
-    const inquiryCount = meaningful.filter((p) => inquiryPatterns.test(p)).length
+    const inquiryCount = meaningful.filter((p) => INQUIRY_PATTERN.test(p)).length
     const inquiryRatio = inquiryCount / total
 
-    const specificPatterns = /\.tsx?|\.jsx?|\.json|行\d|line \d|src\/|ファイル名/i
-    const specificCount = meaningful.filter((p) => specificPatterns.test(p)).length
+    const specificCount = meaningful.filter((p) => SPECIFICITY_PATTERN.test(p)).length
     const specificityRatio = specificCount / total
 
     return {

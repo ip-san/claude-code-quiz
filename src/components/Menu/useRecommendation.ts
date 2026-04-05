@@ -1,4 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
+import type { Question } from '@/domain/entities/Question'
+import type { UserProgress } from '@/domain/entities/UserProgress'
 import { type GrowthInsight, GrowthTrackingService } from '@/domain/services/GrowthTrackingService'
 import { haptics } from '@/lib/haptics'
 import { useQuizStore } from '@/stores/quizStore'
@@ -8,6 +10,26 @@ import {
   detectWorkPatterns,
   type RecommendedQuestion,
 } from './recommendUtils'
+
+/** Calculate category-level accuracy for a set of question IDs */
+function computeRecommendedAccuracy(
+  ids: string[],
+  progress: UserProgress,
+  allQuestions: Question[]
+): Record<string, { correct: number; total: number }> {
+  const result: Record<string, { correct: number; total: number }> = {}
+  for (const id of ids) {
+    const qp = progress.questionProgress[id]
+    if (qp && qp.attempts > 0) {
+      const q = allQuestions.find((q) => q.id === id)
+      const cat = q?.category ?? 'unknown'
+      if (!result[cat]) result[cat] = { correct: 0, total: 0 }
+      result[cat].total += qp.attempts
+      result[cat].correct += qp.correctCount
+    }
+  }
+  return result
+}
 
 /**
  * Custom hook for recommendation state and logic.
@@ -60,7 +82,7 @@ export function useRecommendation() {
       promptSamples: cached.promptSamples ?? [],
     }
 
-    const aiReasons = (cached as Record<string, unknown>).reasons as Record<string, string> | undefined
+    const aiReasons = 'reasons' in cached ? (cached.reasons as Record<string, string> | undefined) : undefined
     if (aiReasons && Object.keys(aiReasons).length > 0) {
       const recs: RecommendedQuestion[] = cached.ids
         .map((id) => {
@@ -87,17 +109,7 @@ export function useRecommendation() {
     // Calculate recommended accuracy for learning impact analysis
     const store = useQuizStore.getState()
     const progress = store.userProgress
-    const recAccuracy: Record<string, { correct: number; total: number }> = {}
-    for (const id of cachedAnalysis.recommendedIds ?? []) {
-      const qp = progress.questionProgress[id]
-      if (qp && qp.attempts > 0) {
-        const q = allQuestions.find((q) => q.id === id)
-        const cat = q?.category ?? 'unknown'
-        if (!recAccuracy[cat]) recAccuracy[cat] = { correct: 0, total: 0 }
-        recAccuracy[cat].total += qp.attempts
-        recAccuracy[cat].correct += qp.correctCount
-      }
-    }
+    const recAccuracy = computeRecommendedAccuracy(cachedAnalysis.recommendedIds ?? [], progress, allQuestions)
 
     const insight = GrowthTrackingService.compareWithPrevious(patterns, prompts, recAccuracy)
     setGrowthInsight(insight)
@@ -121,18 +133,11 @@ export function useRecommendation() {
       const progress = store.userProgress
 
       // Calculate accuracy for previously recommended questions only
-      const prevRecommendedIds = recommendations.map((r) => r.id)
-      const recommendedAccuracy: Record<string, { correct: number; total: number }> = {}
-      for (const id of prevRecommendedIds) {
-        const qp = progress.questionProgress[id]
-        if (qp && qp.attempts > 0) {
-          const q = store.allQuestions.find((q) => q.id === id)
-          const cat = q?.category ?? 'unknown'
-          if (!recommendedAccuracy[cat]) recommendedAccuracy[cat] = { correct: 0, total: 0 }
-          recommendedAccuracy[cat].total += qp.attempts
-          recommendedAccuracy[cat].correct += qp.correctCount
-        }
-      }
+      const recommendedAccuracy = computeRecommendedAccuracy(
+        recommendations.map((r) => r.id),
+        progress,
+        store.allQuestions
+      )
 
       await window.electronAPI.exportLearnerProfile?.({
         patternHistory: GrowthTrackingService.loadHistory(),
