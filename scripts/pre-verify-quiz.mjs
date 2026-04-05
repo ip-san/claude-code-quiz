@@ -47,14 +47,22 @@ console.log(`Pre-verifying ${targetQuizzes.length} questions with Haiku...`)
 
 // ── Fetch docs for target categories ────────────────────────
 const categories = [...new Set(targetQuizzes.map((q) => q.category))]
+const categoryDocMap = targets.categoryDocMap || {}
+
+// Pre-fetch docs using page names from categoryDocMap
+const allDocPages = new Set()
 for (const cat of categories) {
+  const pages = categoryDocMap[cat] || []
+  for (const p of pages) allDocPages.add(p)
+}
+if (allDocPages.size > 0) {
   try {
-    execSync(`node scripts/fetch-docs.mjs --assemble ${cat}`, {
-      timeout: 30_000,
+    execSync(`node scripts/fetch-docs.mjs --pages ${[...allDocPages].join(',')}`, {
+      timeout: 60_000,
       stdio: ['ignore', 'pipe', 'pipe'],
     })
   } catch {
-    // Doc fetch failed — will mark as uncertain
+    // Doc fetch failed — will use whatever is cached
   }
 }
 
@@ -71,13 +79,17 @@ const quizClaims = targetQuizzes.slice(0, 30).map((q) => ({
 // Get doc content for context (heavily compressed — Haiku only needs key facts)
 let docContext = ''
 for (const cat of categories.slice(0, 4)) {
+  const pages = categoryDocMap[cat] || []
+  if (pages.length === 0) {
+    docContext += `\n## ${cat}\n(ドキュメントマッピングなし)\n`
+    continue
+  }
   try {
-    const doc = execSync(`node scripts/fetch-docs.mjs --assemble ${cat}`, {
+    const doc = execSync(`node scripts/fetch-docs.mjs --assemble --pages ${pages.join(',')}`, {
       timeout: 30_000,
       encoding: 'utf8',
       stdio: ['ignore', 'pipe', 'pipe'],
     })
-    // Take first 2000 chars per category to keep prompt manageable
     docContext += `\n## ${cat}\n${doc.slice(0, 2000)}\n`
   } catch {
     docContext += `\n## ${cat}\n(ドキュメント取得失敗)\n`
