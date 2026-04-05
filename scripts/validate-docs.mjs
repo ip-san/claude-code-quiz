@@ -81,11 +81,16 @@ checkCount('Component file count', componentCount, /コンポーネント（(\d+
 // ── README.md (load early — also needed by Vitest inline check below) ──
 const readmeMd = readFileSync('README.md', 'utf8')
 
-// ── Vitest test count ───────────────────────────────────────
+// ── Vitest test count (single run, reused below) ────────────
+let vitestResult = null
 try {
   const testOutput = execSync('npx vitest run --reporter=json 2>/dev/null || true', { encoding: 'utf8' })
-  const testResult = JSON.parse(testOutput)
-  const testCount = testResult.numPassedTests
+  vitestResult = JSON.parse(testOutput)
+} catch {
+  // JSON parse failed
+}
+try {
+  const testCount = vitestResult?.numPassedTests
   if (testCount) {
     checkCount('Vitest test count', testCount, /Vitest（(\d+)テスト）/)
     // Check all inline "Nテスト" in CLAUDE.md AND README.md
@@ -125,10 +130,10 @@ try {
   // skip if playwright not available
 }
 
-// ── Test strategy table ─────────────────────────────────────
+// ── Test strategy table (reuse vitest result) ───────────────
 try {
-  const testOutput2 = execSync('npx vitest run --reporter=json 2>/dev/null || true', { encoding: 'utf8' })
-  const testResult2 = JSON.parse(testOutput2)
+  const testResult2 = vitestResult
+  if (!testResult2) throw new Error('no vitest result')
   const layerCounts = { domain: 0, infrastructure: 0, stores: 0, data: 0 }
   testResult2.testResults.forEach((r) => {
     const m = r.name.match(/src\/(\w+)/)
@@ -313,12 +318,10 @@ try {
   // docs/ may not exist
 }
 
-// ── Stale test count in docs/ ──────────────────────────────
+// ── Stale test count in docs/ (reuse vitest result) ─────────
 // Detect "N テスト" or "Nテスト" patterns in docs/ that don't match actual test counts
 try {
-  const testOutput = execSync('npx vitest run --reporter=json 2>/dev/null || true', { encoding: 'utf8' })
-  const testResult = JSON.parse(testOutput)
-  const actualTestCount = testResult.numPassedTests
+  const actualTestCount = vitestResult?.numPassedTests
   if (actualTestCount) {
     const docsDir = 'docs'
     for (const entry of readdirSync(docsDir)) {
