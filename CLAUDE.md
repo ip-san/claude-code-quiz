@@ -44,6 +44,15 @@ bun run size           # バンドルサイズチェック（size-limit）
 bun run lighthouse     # Lighthouse CI
 ```
 
+## 学習改善機能（v4.51+）
+
+- **XP システム:** 回答ごとに XP 付与（正解10、不正解2、SRS復習+5、シナリオ完走+50）。マスタリーレベルに統合表示
+- **アダプティブ難易度:** `AdaptiveDifficultyService` がカテゴリ別正答率に応じて出題順を調整
+- **記憶定着度バー:** `MemoryRetentionBar` で SRS ストリークの定着度を可視化
+- **成長コーチング:** `GrowthTrackingService` がパターン履歴を比較し改善/課題を1行表示
+- **レコメンドパイプライン:** `scripts/classify-prompts.mjs`（Haiku分類）→ `scripts/aggregate-classifications.mjs`（集計圧縮）→ `/recommend` スキル（Sonnet判断）
+- **クイズ検証フィルタ:** `scripts/pre-verify-quiz.mjs`（Haiku事実チェック）→ `quiz-verifier` エージェント（Sonnet精査）
+
 ## セッション永続化の注意点
 
 - `answerHistory` を `answerRecords` 配列として localStorage に保存
