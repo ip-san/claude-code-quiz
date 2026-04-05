@@ -1,4 +1,4 @@
-import { ArrowRight, BookOpen, Home, RotateCcw, Share2, Star, Target } from 'lucide-react'
+import { ArrowRight, BookOpen, ChevronDown, Home, RotateCcw, Share2, Star, Target } from 'lucide-react'
 import { useEffect, useMemo, useState } from 'react'
 import { theme } from '@/config/theme'
 import { DailyGoalService } from '@/domain/services/DailyGoalService'
@@ -269,16 +269,8 @@ export function QuizResult() {
           {/* Next recommendation */}
           {!isReviewMode && <NextRecommendation mode={sessionConfig.mode} percentage={percentage} />}
 
-          {/* Action buttons */}
+          {/* Action buttons — primary CTAs first, share collapsed */}
           <div className="flex flex-col gap-3">
-            {!isReviewMode && (
-              <button
-                onClick={() => startSession({ mode: 'quick' })}
-                className="tap-highlight inline-flex w-full items-center justify-center gap-2 rounded-2xl border-2 border-green-500 px-6 py-3 text-sm font-semibold text-green-600 dark:border-green-400 dark:text-green-400"
-              >
-                ⚡ もう3問だけ
-              </button>
-            )}
             {hasWrongAnswers && !isReviewMode && (
               <button
                 onClick={startReviewSession}
@@ -295,42 +287,30 @@ export function QuizResult() {
               <RotateCcw className="h-5 w-5" />
               もう一度挑戦する
             </button>
-            {'share' in navigator && (
+            {!isReviewMode && (
               <button
-                onClick={() => {
-                  const stars = '⭐'.repeat(Math.ceil(percentage / 20))
-                  const level = XpService.getLevel(userProgress.totalXp)
-                  navigator
-                    .share({
-                      title: theme.appName,
-                      text: `${stars}\n${theme.appName}: ${score}/${answeredCount}問正解 (${percentage}%)\n${isPassing ? '✅ 合格！' : '📚 もう少し！'}\n${level.icon} Lv.${level.level} ${level.name} | ${userProgress.totalXp} XP\n${theme.shareHashtags}`,
-                      url: window.location.href,
-                    })
-                    .then(() => trackShare('native'))
-                    .catch(() => {
-                      /* user cancelled share */
-                    })
-                }}
-                className="tap-highlight inline-flex w-full items-center justify-center gap-2 rounded-2xl border border-stone-300 px-6 py-3.5 text-base font-semibold text-stone-600 dark:border-stone-600 dark:text-stone-300"
+                onClick={() => startSession({ mode: 'quick' })}
+                className="tap-highlight inline-flex w-full items-center justify-center gap-2 rounded-2xl border-2 border-green-500 px-6 py-3 text-sm font-semibold text-green-600 dark:border-green-400 dark:text-green-400"
               >
-                <Share2 className="h-5 w-5" />
-                結果をシェア
+                ⚡ もう3問だけ
               </button>
             )}
-            <ShareImageGenerator
-              score={score}
-              total={answeredCount}
-              percentage={percentage}
-              streakDays={userProgress.streakDays}
-              totalXp={userProgress.totalXp}
-            />
-            <button
-              onClick={handleBackToMenu}
-              className="tap-highlight inline-flex w-full items-center justify-center gap-2 rounded-2xl border border-stone-300 px-6 py-3.5 text-base font-semibold text-stone-600 dark:border-stone-600 dark:text-stone-300"
-            >
-              <Home className="h-5 w-5" />
-              メニューに戻る
-            </button>
+            <div className="flex gap-3">
+              <button
+                onClick={handleBackToMenu}
+                className="tap-highlight inline-flex flex-1 items-center justify-center gap-2 rounded-2xl border border-stone-300 px-4 py-3 text-sm font-semibold text-stone-600 dark:border-stone-600 dark:text-stone-300"
+              >
+                <Home className="h-4 w-4" />
+                メニュー
+              </button>
+              <ShareSection
+                score={score}
+                answeredCount={answeredCount}
+                percentage={percentage}
+                isPassing={isPassing}
+                userProgress={userProgress}
+              />
+            </div>
           </div>
 
           {/* Next step — connect learning to action */}
@@ -376,6 +356,69 @@ export function QuizResult() {
           {!isReviewMode && <TeamShareGuide percentage={percentage} mode={sessionConfig.mode} />}
         </div>
       </div>
+    </div>
+  )
+}
+
+/** シェア機能を折りたたみにまとめたセクション */
+function ShareSection({
+  score,
+  answeredCount,
+  percentage,
+  isPassing,
+  userProgress,
+}: {
+  score: number
+  answeredCount: number
+  percentage: number
+  isPassing: boolean
+  userProgress: { streakDays: number; totalXp: number }
+}) {
+  const [open, setOpen] = useState(false)
+
+  return (
+    <div className="relative flex-1">
+      <button
+        onClick={() => setOpen(!open)}
+        className="tap-highlight inline-flex w-full items-center justify-center gap-2 rounded-2xl border border-stone-300 px-4 py-3 text-sm font-semibold text-stone-600 dark:border-stone-600 dark:text-stone-300"
+      >
+        <Share2 className="h-4 w-4" />
+        シェア
+        <ChevronDown className={`h-3 w-3 transition-transform ${open ? 'rotate-180' : ''}`} />
+      </button>
+      {open && (
+        <div className="mt-2 flex flex-col gap-2">
+          {'share' in navigator && (
+            <button
+              onClick={() => {
+                const stars = '⭐'.repeat(Math.ceil(percentage / 20))
+                const level = XpService.getLevel(userProgress.totalXp)
+                navigator
+                  .share({
+                    title: theme.appName,
+                    text: `${stars}\n${theme.appName}: ${score}/${answeredCount}問正解 (${percentage}%)\n${isPassing ? '✅ 合格！' : '📚 もう少し！'}\n${level.icon} Lv.${level.level} ${level.name} | ${userProgress.totalXp} XP\n${theme.shareHashtags}`,
+                    url: window.location.href,
+                  })
+                  .then(() => trackShare('native'))
+                  .catch(() => {
+                    /* user cancelled share */
+                  })
+              }}
+              className="tap-highlight inline-flex w-full items-center justify-center gap-2 rounded-xl border border-stone-200 px-4 py-2.5 text-sm text-stone-600 dark:border-stone-700 dark:text-stone-300"
+            >
+              <Share2 className="h-4 w-4" />
+              テキストでシェア
+            </button>
+          )}
+          <ShareImageGenerator
+            score={score}
+            total={answeredCount}
+            percentage={percentage}
+            streakDays={userProgress.streakDays}
+            totalXp={userProgress.totalXp}
+          />
+        </div>
+      )}
     </div>
   )
 }

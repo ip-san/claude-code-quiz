@@ -1,19 +1,27 @@
-import { CSSProperties, useCallback, useState } from 'react'
+import { type CSSProperties, useCallback, useRef, useState } from 'react'
 
 type ToastPhase = 'hidden' | 'enter' | 'visible' | 'exit'
 
 /**
  * トースト表示のフェーズ管理フック
  * enter(50ms) → visible(holdMs) → exit(500ms) → hidden
+ *
+ * @param holdMs - visible 状態を維持する時間
+ * @param onComplete - hidden に遷移した時のコールバック（キュー管理用）
  */
-export function useToastPhase(holdMs = 2000) {
+export function useToastPhase(holdMs = 2000, onComplete?: () => void) {
   const [phase, setPhase] = useState<ToastPhase>('hidden')
+  const onCompleteRef = useRef(onComplete)
+  onCompleteRef.current = onComplete
 
   const trigger = useCallback(() => {
     setPhase('enter')
     const t1 = setTimeout(() => setPhase('visible'), 50)
     const t2 = setTimeout(() => setPhase('exit'), holdMs)
-    const t3 = setTimeout(() => setPhase('hidden'), holdMs + 500)
+    const t3 = setTimeout(() => {
+      setPhase('hidden')
+      onCompleteRef.current?.()
+    }, holdMs + 500)
     return () => {
       clearTimeout(t1)
       clearTimeout(t2)
