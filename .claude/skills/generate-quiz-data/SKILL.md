@@ -1,6 +1,7 @@
 ---
 name: generate-quiz-data
 description: Claude Code公式ドキュメントからクイズ問題を自動生成する。クイズ生成、問題作成、試験問題、quiz generate
+context: fork
 disable-model-invocation: true
 allowed-tools: WebFetch, Read, Write, Glob, Grep, Bash
 argument-hint: "[count]"

@@ -44,6 +44,7 @@
     "quiz:search": "node scripts/quiz-utils.mjs search",
     "quiz:edit": "node scripts/quiz-utils.mjs edit",
     "quiz:merge-proposals": "node scripts/quiz-utils.mjs merge-proposals",
+    "skills:check": "node scripts/check-skills.mjs",
     "docs:fetch": "node scripts/fetch-docs.mjs",
     "docs:split": "node scripts/fetch-docs.mjs --split",
     "docs:assemble": "node scripts/fetch-docs.mjs --assemble",

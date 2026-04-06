@@ -443,52 +443,6 @@ node scripts/quiz-utils.mjs merge-proposals
 
 ---
 
-## 既知パターン（known-issues 要約）
+## 既知パターン
 
-### 環境変数
-- `CLAUDE_CODE_DISABLE_AUTO_MEMORY=0`: 強制有効化も settings.md に記載あり
-- `MCP_TIMEOUT`(mcp page) ≠ `MCP_TOOL_TIMEOUT`(settings page): 別変数
-- `MAX_MCP_OUTPUT_TOKENS`: default 25,000 / warning at 10,000
-- `BASH_MAX_TIMEOUT_MS`: settings.md 記載済み
-- `CLAUDE_CODE_CLIENT_CERT`/`CLIENT_KEY`/`CLIENT_KEY_PASSPHRASE`: mTLS用 settings.md 記載済み
-- `CLAUDE_CODE_ADDITIONAL_DIRECTORIES_CLAUDE_MD=1` は `--add-dir` 併用必須
-- `USE_BUILTIN_RIPGREP`: settings page 記載済み
-- `CLAUDE_AUTOCOMPACT_PCT_OVERRIDE`: 1-100値、コンパクション閾値
-- `CLAUDE_CODE_EFFORT_LEVEL`: Opus 4.6 **と Sonnet 4.6** 両方サポート（Opus専用ではない）
-- `CLAUDE_CODE_SHELL_PREFIX`: docs は "for logging or auditing" のみ
-
-### 設定・モード
-- `defaultMode`: 5値 (default/acceptEdits/plan/dontAsk/bypassPermissions)
-- `allowManagedHooksOnly: true`: user, project, **plugin** hooks を無効化（3種）
-- `spinnerVerbs.mode` 省略時 = `"append"`
-- Settings scopes: Managed > CLI > Local > Project > User
-- `allowed-tools` in Skills: 許可リスト。リスト外は通常パーミッション設定に従う（禁止ではない）
-
-### Hook
-- exit 2 の送信先はイベントごとの decision control テーブルで個別確認
-- `PostToolUse` は Can block = No
-- ブロッキング対応イベント: PreToolUse, UserPromptSubmit, PermissionRequest, Stop, SubagentStop, TeammateIdle, TaskCompleted, ConfigChange, WorktreeCreate
-
-### UI・キーボード
-- `Ctrl+B`: bash commands **and agents** の両方をバックグラウンド化
-- `Shift+Tab`: パーミッションモード切替。`Alt+M` は一部環境のみ
-- Managed CLAUDE.md: macOS=/Library/Application Support/ClaudeCode/CLAUDE.md（~/.claude/ は User scope）
-
-### モデル・思考
-- MAX_THINKING_TOKENS: Opus/Sonnet 4.6 ではアダプティブ推論中は無視。`=0` は全モデルで thinking 無効化
-- Opus 4.6 の用語: "adaptive reasoning"（"Extended Thinking" ではない）
-
-### 改名・用語
-- Task→Agent: CLI は `Agent`、Agent SDK allowedTools は `Task`
-- Microsoft Foundry（NOT "Azure Foundry"）
-- "Claude Agent SDK" が最新名称
-
-### よくある誤りパターン
-- 存在しないフレーズの引用（"Ruthlessly prune" 等は docs にない）
-- `--fork-session` は `--continue` と併用必須
-- `deprecated` はドキュメントに明示的記載がある場合のみ使用
-- 外部知識の混入（docs 未記載の動作を断言しない）
-- ドキュメントの「e.g.」列挙を完全リストと誤認
-- multi問の `correctIndices` を `correctIndex` と混同
-- wrongFeedback 構造の誤認（選択肢と逆のことを述べるのは正常）
-- `gs-NNN` は legacy ID として正当（フォーマット違反ではない）
+**詳細は `.claude/skills/quiz-refine/known-issues.md` を参照。** 検証時に必ず Read で読み込むこと。
