@@ -248,13 +248,17 @@ Claude Code から GA4 Data API に直接クエリできる MCP サーバー。
 
 ## ハーネスフック（`.claude/settings.json`）
 
-Claude Code セッション中にファイル編集を監視し、品質チェックと影響アラートを自動実行する。
+Claude Code セッション中に全6イベントを監視。品質チェック、安全ガード、通知を自動実行。
 
 | フック | タイミング | 内容 | タイムアウト |
 |--------|-----------|------|------------|
-| SessionStart | セッション開始時 | CI失敗・マージ競合・型エラーの検出 | 15秒 |
+| SessionStart | セッション開始時 | CI失敗・マージ競合・型エラー・未コミット数 | 15秒 |
+| PreToolUse (Bash) | コマンド実行前 | 破壊的コマンドの事前ブロック（`scripts/pre-tool-check.sh`） | 3秒 |
 | PostToolUse Hook 1 | Write/Edit 後 | ファイル種別に応じた品質チェック（後述） | 120秒 |
 | PostToolUse Hook 2 | Write/Edit 後 | 重要ファイル変更時の影響範囲アラート | 5秒 |
+| UserPromptSubmit | プロンプト送信時 | 2000文字超のプロンプトに分割提案 | 2秒 |
+| Notification | 通知発火時 | macOS ネイティブ通知（バックグラウンドタスク完了） | 3秒 |
+| Stop | セッション終了時 | 未コミットファイル・型エラー報告 | 15秒 |
 
 ### Hook 1: 品質チェック（ファイル種別分岐）
 

@@ -102,18 +102,23 @@ Layer 6: E2E テスト（Playwright E2E テスト）
   ├── 全体像モード3シナリオ
   └── ユーザーフロー + Visual Regression
 
-Layer 7: ハーネスフック（.claude/settings.json）
-  ├── SessionStart: CI失敗・マージ競合・型エラーの即時検出
+Layer 7: ハーネスフック（.claude/settings.json — 全6イベント）
+  ├── permissions.deny: 破壊的コマンドブロック（7パターン）
+  ├── SessionStart (15s): CI失敗・マージ競合・型エラー・未コミット数
+  ├── PreToolUse: Bash (3s): scripts/pre-tool-check.sh で破壊的コマンドを事前ブロック
   ├── PostToolUse Hook 1 (120s): ファイル種別に応じた品質チェック
-  │   ├── コンポーネント編集 → tsc + SpecConsistency + vitest (並列)
-  │   ├── locale 編集 → tsc + ハードコード日本語スキャン
-  │   ├── ドメイン/ストア編集 → tsc + vitest
-  │   └── ドキュメント編集 → docs:validate
-  └── PostToolUse Hook 2 (5s): 重要ファイル変更時の影響範囲アラート
-      ├── QuizMode.ts → name/description と questionCount/timeLimit の一致確認
-      ├── UserProgress.ts → isCorrectlyAnswered() の呼び出し元への影響確認
-      ├── ScoreThresholds.ts → 全画面のスコア表示への影響警告
-      └── SessionRepository.ts → resumeSlice と saveSnapshot の同時更新確認
+  │   ├── コンポーネント → tsc + SpecConsistency + vitest (並列)
+  │   ├── locale → tsc + ハードコード日本語スキャン
+  │   ├── ドメイン/ストア → tsc + vitest
+  │   └── ドキュメント → docs:validate
+  ├── PostToolUse Hook 2 (5s): 重要ファイル変更時の影響範囲アラート
+  │   ├── QuizMode.ts → name/description と questionCount/timeLimit の一致確認
+  │   ├── UserProgress.ts → isCorrectlyAnswered() の呼び出し元への影響確認
+  │   ├── ScoreThresholds.ts → 全画面のスコア表示への影響警告
+  │   └── SessionRepository.ts → resumeSlice と saveSnapshot の同時更新確認
+  ├── UserPromptSubmit (2s): 2000文字超のプロンプトに分割提案
+  ├── Notification (3s): macOS ネイティブ通知（バックグラウンドタスク完了）
+  └── Stop (15s): 未コミットファイル・型エラー報告
 
 Layer 8: レビュー（/self-review 19項目）
   ├── #18 ハードコード日本語
@@ -122,9 +127,11 @@ Layer 8: レビュー（/self-review 19項目）
 
 ## ハーネスフックの設計原則
 
-- **Hook 1（品質チェック）** は重い処理（tsc + vitest）を並列実行して120秒以内に収める
-- **Hook 2（影響アラート）** は軽量（5秒以内）で、連鎖更新の見落としを防ぐメッセージだけ出す
+- **PreToolUse** は外部スクリプト（`scripts/pre-tool-check.sh`）で stdin をパース。インライン `jq` は stdin 問題があるため使わない
+- **PostToolUse Hook 1** は重い処理（tsc + vitest）を並列実行して120秒以内に収める
+- **PostToolUse Hook 2** は軽量（5秒以内）で、連鎖更新の見落としを防ぐメッセージだけ出す
 - 対象ファイルは `case` 文で分岐し、無関係な編集では何も実行しない
+- **permissions.deny** と **PreToolUse** の二重防御で破壊的コマンドを確実にブロック
 - 詳細: `.claude/settings.json` の `hooks` セクション
 
 ## 新機能追加時のチェックリスト
