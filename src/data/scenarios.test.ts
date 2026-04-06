@@ -184,7 +184,8 @@ describe('ScenarioView epilogue integration guard', () => {
   it('QuizCard accepts onLastQuestionNext prop', () => {
     const quizCardCode = readFileSync('src/components/Quiz/QuizCard.tsx', 'utf8')
     expect(quizCardCode).toContain('onLastQuestionNext')
-    expect(quizCardCode).toContain('onLastQuestionNext ?? nextQuestion')
+    // onLastQuestionNext takes priority over chapter boundary and default nextQuestion
+    expect(quizCardCode).toMatch(/onLastQuestionNext\b/)
   })
 
   it('QuizCard swipe handler respects onLastQuestionNext', () => {

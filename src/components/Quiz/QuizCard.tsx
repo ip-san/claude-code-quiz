@@ -99,8 +99,9 @@ export function QuizCard({
     }
   }, [isNewChapter, previousChapter, sessionState])
 
-  // Chapter complete overlay: show when current question is the last in its chapter and answered
+  // Chapter complete: detect chapter boundary and show overlay when user clicks "next"
   const [dismissedCompletes, setDismissedCompletes] = useState<Set<number>>(new Set())
+  const [pendingChapterComplete, setPendingChapterComplete] = useState<number | null>(null)
   const nextChapter = useMemo(() => {
     if (!isOverviewMode || !sessionState || sessionState.currentIndex >= sessionState.questions.length - 1) return null
     const nextQ = sessionState.questions[sessionState.currentIndex + 1]
@@ -108,10 +109,9 @@ export function QuizCard({
   }, [isOverviewMode, sessionState])
   const isChapterLastQuestion = isOverviewMode && currentChapter && nextChapter && currentChapter.id !== nextChapter.id
   const showChapterComplete =
-    isChapterLastQuestion &&
+    pendingChapterComplete !== null &&
     currentChapter &&
-    isAnswered &&
-    !deferFeedback &&
+    currentChapter.id === pendingChapterComplete &&
     !dismissedCompletes.has(currentChapter.id)
 
   // Compute chapter score for the complete overlay
@@ -203,12 +203,15 @@ export function QuizCard({
   // Slide-in animation key (changes on each question)
   const questionKey = quiz?.id ?? 'empty'
 
-  // Swipe to navigate questions (respects onLastQuestionNext for scenario epilogue)
+  // Swipe to navigate questions (respects chapter boundary and scenario epilogue)
   const swipeHandlers = useSwipe({
     onSwipeLeft: () => {
       haptics.light()
       if (onLastQuestionNext) {
         onLastQuestionNext()
+      } else if (isChapterLastQuestion && currentChapter && isAnswered) {
+        setPendingChapterComplete(currentChapter.id)
+        window.scrollTo(0, 0)
       } else {
         nextQuestion()
       }
@@ -265,6 +268,7 @@ export function QuizCard({
         isLastChapter={currentChapter.id === OVERVIEW_CHAPTERS[OVERVIEW_CHAPTERS.length - 1]?.id}
         onContinue={() => {
           setDismissedCompletes((prev) => new Set(prev).add(currentChapter.id))
+          setPendingChapterComplete(null)
           nextQuestion()
           window.scrollTo(0, 0)
         }}
@@ -487,7 +491,15 @@ export function QuizCard({
         deferFeedback={deferFeedback}
         canGoBack={canGoBack}
         previousQuestion={previousQuestion}
-        nextQuestion={onLastQuestionNext ?? nextQuestion}
+        nextQuestion={
+          onLastQuestionNext ??
+          (isChapterLastQuestion && currentChapter && isAnswered
+            ? () => {
+                setPendingChapterComplete(currentChapter.id)
+                window.scrollTo(0, 0)
+              }
+            : nextQuestion)
+        }
         submitAnswer={submitAnswer}
         goToQuestion={goToQuestion}
         finishTest={finishTest}
