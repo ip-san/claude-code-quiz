@@ -200,4 +200,23 @@ describe('Spec Consistency: Locale completeness', () => {
     expect(source).toContain('isCorrectlyAnswered')
     expect(source).not.toContain('hasAttempted')
   })
+
+  it('score thresholds use ScoreThresholds constants, not hardcoded 70/80', () => {
+    // These files should NOT contain hardcoded >= 70 or >= 80 for score comparisons
+    const filesToCheck = [
+      'src/components/Quiz/chapter/ChapterComplete.tsx',
+      'src/components/Quiz/result/CertificateGenerator.tsx',
+      'src/components/Progress/CertificateHistory.tsx',
+      'src/components/Progress/SessionHistoryList.tsx',
+      'src/components/Progress/WeakPointInsight.tsx',
+      'src/components/Progress/LearningRecommendation.tsx',
+      'src/components/Quiz/result/NextRecommendation.tsx',
+    ]
+    for (const file of filesToCheck) {
+      const source = readFileSync(file, 'utf8')
+      // Check that passing score uses PASSING_SCORE constant
+      const has70Hardcoded = /percentage\s*>=\s*70\b|accuracy\s*>=\s*70\b/.test(source)
+      expect(has70Hardcoded, `${file} has hardcoded >= 70 — use PASSING_SCORE`).toBe(false)
+    }
+  })
 })
