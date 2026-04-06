@@ -115,3 +115,11 @@ domain + store + component が全て必要ない小さな変更:
 2. 各エージェントは自分の worktree 内でのみ変更
 3. 統合後は必ず `bun run check:all` を実行
 4. E2E テストが通るまでコミットしない
+
+## 仕様バグ防止チェック（統合時に必ず確認）
+
+- UI表示カウント = `startSession` の `questionCount` か？
+- 新しいフィルタロジックは `isCorrectlyAnswered()` を使っているか？
+- スコアしきい値は `ScoreThresholds.ts` を参照しているか？
+- セッション状態の新フィールドは SessionRepository + resumeSlice + saveSnapshot の3点更新か？
+- 詳細: [docs/bug-prevention.md](../../docs/bug-prevention.md)
