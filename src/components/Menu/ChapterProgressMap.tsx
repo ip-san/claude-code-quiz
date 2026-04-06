@@ -34,7 +34,21 @@ export function ChapterProgressMap({ allQuestions, userProgress, onStartChapter 
       const total = chapterQuestions.length
       const accuracy = answered > 0 ? Math.round((correct / answered) * 100) : 0
       const isComplete = answered === total && total > 0
-      return { ...ch, total, answered, correct, accuracy, isComplete, startIndex }
+      const correctPct = total > 0 ? Math.round((correct / total) * 100) : 0
+
+      // "続きから" は最初の未正解問題から開始（不正解 or 未回答）
+      let resumeIndex = startIndex
+      if (answered > 0 && correct < total) {
+        const firstIncomplete = chapterQuestions.find((q) => {
+          const p = userProgress.questionProgress[q.id]
+          return !p || p.attempts === 0 || !p.lastCorrect
+        })
+        if (firstIncomplete) {
+          resumeIndex = overviewQuestions.indexOf(firstIncomplete)
+        }
+      }
+
+      return { ...ch, total, answered, correct, accuracy, isComplete, correctPct, startIndex: resumeIndex }
     })
   }, [overviewQuestions, userProgress])
 
@@ -48,7 +62,7 @@ export function ChapterProgressMap({ allQuestions, userProgress, onStartChapter 
       <h2 className="mb-2 text-sm font-semibold text-stone-500">🗺️ 全体像モード進捗</h2>
       <div className="grid grid-cols-2 gap-2 sm:grid-cols-3">
         {chapters.map((ch) => {
-          const progressPct = ch.total > 0 ? (ch.answered / ch.total) * 100 : 0
+          const progressPct = ch.total > 0 ? (ch.correct / ch.total) * 100 : 0
           const isSelected = selectedChapter === ch.id
           return (
             <button
@@ -64,20 +78,20 @@ export function ChapterProgressMap({ allQuestions, userProgress, onStartChapter 
                 <span className="text-xs font-semibold text-stone-500 dark:text-stone-400">
                   {ch.icon} Ch.{ch.id}
                 </span>
-                {ch.isComplete && <span className="text-xs">✅</span>}
+                {ch.correctPct === 100 && <span className="text-xs">✅</span>}
               </div>
               <p className="mb-1.5 line-clamp-1 text-xs font-medium text-claude-dark dark:text-stone-200">{ch.name}</p>
               <div className="mb-1 h-1 overflow-hidden rounded-full bg-stone-100 dark:bg-stone-700">
                 <div
-                  className={`h-full rounded-full transition-all ${ch.isComplete ? 'bg-green-500' : 'progress-gradient'}`}
+                  className={`h-full rounded-full transition-all ${ch.correctPct === 100 ? 'bg-green-500' : 'progress-gradient'}`}
                   style={{ width: `${progressPct}%` }}
                 />
               </div>
               <div className="flex items-center justify-between text-[10px] text-stone-500">
                 <span>
-                  {ch.answered}/{ch.total}問
+                  {ch.correct}/{ch.total}問正解
                 </span>
-                {ch.answered > 0 && <span>{ch.accuracy}%</span>}
+                {ch.answered > 0 && <span>{Math.round((ch.correct / ch.total) * 100)}%</span>}
               </div>
             </button>
           )
@@ -102,7 +116,11 @@ export function ChapterProgressMap({ allQuestions, userProgress, onStartChapter 
             className="tap-highlight inline-flex items-center gap-2 rounded-xl bg-claude-orange px-4 py-2.5 text-sm font-semibold text-white"
           >
             <Play className="h-3.5 w-3.5 fill-white" />
-            {selected.isComplete ? 'もう一度挑戦' : selected.answered > 0 ? '続きから' : 'このチャプターを始める'}
+            {selected.correctPct === 100
+              ? 'もう一度挑戦'
+              : selected.answered > 0
+                ? '続きから'
+                : 'このチャプターを始める'}
           </button>
         </div>
       )}

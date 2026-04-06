@@ -8,7 +8,7 @@ import { haptics } from '@/lib/haptics'
 interface QuickActionsProps {
   allQuestions: readonly Question[]
   userProgress: UserProgress
-  onStart: (mode: QuizModeId) => void
+  onStart: (mode: QuizModeId, questionCount?: number) => void
 }
 
 interface QuickAction {
@@ -17,6 +17,7 @@ interface QuickAction {
   label: string
   sublabel: string
   priority: number
+  questionCount?: number
 }
 
 export function QuickActions({ allQuestions, userProgress, onStart }: QuickActionsProps) {
@@ -44,6 +45,7 @@ export function QuickActions({ allQuestions, userProgress, onStart }: QuickActio
         label: '復習チェック',
         sublabel: `${dueCount}問が期限到来`,
         priority: 100,
+        questionCount: dueCount,
       })
     }
 
@@ -58,11 +60,12 @@ export function QuickActions({ allQuestions, userProgress, onStart }: QuickActio
 
     // Weak mode — when user has weak questions
     if (weakCount > 0) {
+      const weakSessionCount = Math.min(weakCount, 20)
       candidates.push({
         mode: 'weak',
         icon: '🔥',
         label: '苦手克服',
-        sublabel: `${weakCount}問が苦手`,
+        sublabel: weakCount <= 20 ? `${weakCount}問を出題` : `${weakCount}問中${weakSessionCount}問`,
         priority: 80,
       })
     }
@@ -103,7 +106,7 @@ export function QuickActions({ allQuestions, userProgress, onStart }: QuickActio
             key={action.mode}
             onClick={() => {
               haptics.light()
-              onStart(action.mode)
+              onStart(action.mode, action.questionCount)
             }}
             className="tap-highlight flex flex-col items-center gap-1 rounded-xl border border-stone-200 bg-white px-3 py-3 text-center dark:border-stone-700 dark:bg-stone-800"
           >

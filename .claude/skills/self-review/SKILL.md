@@ -3,6 +3,7 @@ name: self-review
 description: 汎用コードレビュー + プロジェクト固有チェックの統合レビュー。セルフレビュー、レビュー、チェック
 allowed-tools: Bash, Grep, Glob, Read, Skill, Agent
 argument-hint: "[--fix] [--skip-code-review] [--team]"
+context: fork
 ---
 
 # Self-Review Skill
@@ -202,6 +203,8 @@ grep -oP 'content="[^"]*\d{3,}問' index.html
 | 11 | hooks 旧ツール参照 | OK / NG | npm→bun/vitest |
 | 12 | テスト内ハードコード | OK / NG | 動的取得すべき数値 |
 | 13 | OGP/SEO 鮮度 | OK / NG | meta 内の問題数 |
+| 18 | ハードコード日本語 | OK / NG (N件) | locale 未使用の直書き |
+| 19 | UI-ロジック整合 | OK / NG (N件) | 表示カウント≠実行カウント等 |
 ```
 
 `--fix` 指定時は NG 項目を自動修正し、修正内容を報告する。
@@ -262,3 +265,66 @@ grep -c "フォールバック\|fallback\|利用不可\|利用できない" docs
 **ルール:** 外部依存を追加したら、同じ PR で「コードのフォールバック」と「ドキュメントの制限事項」を両方入れる。片方だけのマージは不可。
 
 **過去の事例:** Opus トリガーを実装したが、Opus が使えないプランへの考慮が漏れていた。後から Sonnet フォールバック + ドキュメント更新を追加。
+
+### 18. ハードコード日本語文字列
+
+コンポーネント内に直書きされた日本語文字列を検出。`src/config/locales/ja.ts` の locale 定義を使用すべき。
+
+```bash
+grep -rn "'[^']*[\u3040-\u9FFF][^']*'" src/components/ --include='*.tsx' | grep -v 'locale\.' | grep -v '\.test\.' | grep -v '// ' | grep -v 'className'
+```
+
+**判定:** `locale.*` を経由せず直書きされた日本語がコンポーネントの JSX やプロパティにあれば NG。テーマ固有文字列（`theme.*`）経由は OK。
+
+**過去の事例:** RecommendStates, UsageRecommend, MemoryRetentionBar, DailySnapshot, NotificationOptIn に40箇所以上のハードコード日本語があった。locale ファイルに抽出して修正。
+
+### 19. UI表示とコードロジックの整合性（仕様バグ検出）
+
+UI に表示されるテキスト・数値と、実際のプログラムロジックが一致しているかを検証する。
+
+**チェック対象3パターン:**
+
+#### A. 表示カウント ≠ セッション開始カウント
+
+ボタン近辺に `N問` と表示しつつ、`startSession` に渡す `questionCount` が異なるケース。
+
+```bash
+# startSession 呼び出しの周辺を確認
+grep -rn 'startSession' src/components/ --include='*.tsx' -A 2 -B 5 | grep -E '問|Count|count'
+```
+
+**チェック方法:**
+1. `startSession({ mode: X })` を呼ぶ全コンポーネントを列挙
+2. 同じコンポーネント内で表示されるカウント（sublabel, aria-label 等）を確認
+3. `QuizMode.ts` のモード定義 `questionCount` と比較
+4. `questionCount` を明示的に override している場合、override 値と表示が一致するか確認
+
+#### B. モード名/説明 ≠ 実際の挙動
+
+`src/domain/valueObjects/QuizMode.ts` の `name` / `description` が実装と矛盾していないか。
+
+```bash
+# モード定義を一覧
+grep -A 6 'QuizMode.create' src/domain/valueObjects/QuizMode.ts
+```
+
+**チェック項目:**
+- `description` に具体的な数値（N問、N分）がある場合、`questionCount` / `timeLimit` と一致するか
+- `name` に「チェック」「テスト」等の時間的ニュアンスがある場合、`timeLimit` が設定されているか
+- `description` に「ランダム」とある場合、`shuffleQuestions: true` か
+
+#### C. 状態ラベル ≠ 実際の状態
+
+locale 文字列が進行形（〜中）や完了形（〜済み）を使っている場合、表示タイミングと一致するか。
+
+```bash
+# 進行形・完了形の locale を確認
+grep -n '中\|済み\|完了\|期限' src/config/locales/ja.ts
+```
+
+**過去の事例:**
+- QuickActions「復習チェック」sublabel に `34問が期限到来` と表示しつつ `mode: 'quick'`（3問固定）で起動 → 34問出ると思ったら3問
+- DailySnapshot「サクッと10問」が `mode: 'random'`（20問固定）で起動 → 10問のはずが20問
+- QuizMode `quick` の名前「60秒チェック」で `timeLimit: null`（タイマーなし）
+- QuickActions「苦手克服」sublabel に `50問が苦手` と表示しつつ weak モード（20問上限）で起動
+- ブックマーク「N問を保存中」が既に保存完了済みの問題に対して表示

@@ -43,6 +43,8 @@ export function QuizResult() {
 
   const score = sessionState?.score ?? 0
   const answeredCount = sessionState?.answeredCount ?? 0
+  const totalQuestions = sessionState?.questions.length ?? 0
+  const hasUnanswered = answeredCount < totalQuestions
   const hintsUsedCount = sessionState?.hintsUsedCount ?? 0
   const isReviewMode = sessionState?.isReviewMode ?? false
   const hasWrongAnswers = sessionWrongAnswers.length > 0
@@ -173,6 +175,13 @@ export function QuizResult() {
             <span className="rounded-full bg-amber-100 px-2 py-0.5 text-xs text-amber-700">💡{hintsUsedCount}</span>
           )}
         </div>
+
+        {/* Unanswered note (timer expired) */}
+        {hasUnanswered && (
+          <p className="mb-2 text-xs text-stone-500">
+            {answeredCount}/{totalQuestions}問に回答（{totalQuestions - answeredCount}問未回答）
+          </p>
+        )}
 
         {/* Personal best + review mode note */}
         <PersonalBest sessionHistory={userProgress.sessionHistory} currentPercentage={percentage} />

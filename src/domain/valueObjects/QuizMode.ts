@@ -147,8 +147,8 @@ export const PREDEFINED_QUIZ_MODES: QuizMode[] = [
   }),
   QuizMode.create({
     id: 'quick',
-    name: '60秒チェック',
-    description: '復習期限の問題を3問だけ。忙しい日でも60秒で学習維持',
+    name: '復習チェック',
+    description: 'SRS復習期限の問題を優先出題',
     icon: '⚡',
     questionCount: 3,
     timeLimit: null,
