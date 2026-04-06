@@ -209,6 +209,7 @@ export function saveSessionSnapshot(
           dismissedCompletes: [...sessionState.overviewChapterState.dismissedCompletes],
         }
       : undefined,
+    timeRemaining: sessionState.timeRemaining,
   }
   getSessionRepository().save(data)
 }

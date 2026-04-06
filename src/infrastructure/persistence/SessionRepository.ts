@@ -38,6 +38,7 @@ export interface SavedSessionData {
     readonly dismissedIntros: number[]
     readonly dismissedCompletes: number[]
   }
+  readonly timeRemaining?: number | null
 }
 
 export class SessionRepository {

@@ -95,6 +95,7 @@ export const createResumeSlice = (set: StoreSet, get: StoreGet): ResumeSlice => 
       score: saved.score,
       answeredCount: saved.answeredCount,
       startedAt: saved.startedAt,
+      timeRemaining: saved.timeRemaining ?? sessionState.timeRemaining,
       hintsUsedCount: saved.hintsUsedCount,
       hintUsed: saved.hintUsedOnCurrent ?? false,
       answerHistory,
