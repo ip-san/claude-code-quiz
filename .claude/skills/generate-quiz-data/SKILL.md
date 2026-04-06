@@ -102,44 +102,14 @@ node scripts/fetch-docs.mjs --assemble --pages settings,checkpointing,overview,q
 
 **4つのタイプ:**
 
-```json
-// hierarchy: スコープ優先順位・階層
-{ "type": "hierarchy", "label": "設定スコープ優先順位", "items": [
-  { "text": "Managed", "sub": "IT管理者配布" },
-  { "text": "CLI", "sub": "コマンドライン引数" }
-]}
+| タイプ | 用途 | フィールド |
+|--------|------|----------|
+| `hierarchy` | スコープ優先順位・階層 | `items: [{text, sub}]` |
+| `flow` | 時系列・手順・パイプライン | `steps: [{text, sub}]` |
+| `cycle` | 循環状態遷移 | `trigger`, `states: [{text, sub}]` |
+| `comparison` | 比較・対照（2〜4カラム） | `columns: [{heading, items}]` |
 
-// flow: 時系列・手順・パイプライン
-{ "type": "flow", "label": "Hook実行タイミング", "steps": [
-  { "text": "PreToolUse", "sub": "ブロック可能" },
-  { "text": "ツール実行", "sub": "" },
-  { "text": "PostToolUse", "sub": "フィードバック" }
-]}
-
-// cycle: 循環状態遷移
-{ "type": "cycle", "label": "パーミッションモード", "trigger": "Shift+Tab", "states": [
-  { "text": "Normal", "sub": "全操作に確認要" },
-  { "text": "Auto-Accept", "sub": "編集は自動承認" },
-  { "text": "Plan", "sub": "読み取り専用" }
-]}
-
-// comparison: 比較・対照（2〜4カラム）
-{ "type": "comparison", "label": "Skills vs Hooks vs MCP", "columns": [
-  { "heading": "Skills", "items": ["プロンプトテンプレ", "/コマンドで呼出"] },
-  { "heading": "Hooks", "items": ["シェルコマンド自動実行", "イベント駆動"] },
-  { "heading": "MCP", "items": ["外部サービス接続", "ツール提供"] }
-]}
-```
-
-**いつ `diagram` を追加するか:**
-- スコープ優先順位・階層構造 → `hierarchy`
-- 処理の順序・パイプライン → `flow`
-- 状態のトグル・循環 → `cycle`
-- 2つ以上の概念の違い・使い分け → `comparison`
-
-**いつ追加しないか:**
-- 単純な事実確認の問題（ダイアグラムが不要）
-- テキスト解説だけで十分理解できる問題
+構造的概念を含む問題にのみ追加。単純な事実確認には不要。
 
 ## Categories (8 categories)
 
@@ -174,38 +144,11 @@ node scripts/fetch-docs.mjs --assemble --pages settings,checkpointing,overview,q
    - **機能別 referenceUrl の推奨マッピング:** `.claude/skills/quiz-refine/doc-references.md` を参照
 5. **日本語:** 問題文・選択肢・解説・wrongFeedbackはすべて日本語
 6. **選択肢4つ:** 各問題に正確に4つの選択肢を含める
-7. **バッククォート書式:** コード用語・ファイルパス・コマンド・環境変数・設定キーはバッククォートで囲む
-   - **全フィールド対象:** question・options[].text・explanation・wrongFeedback すべてに漏れなく適用する
-   - **URL・ファイルパス途中へのバッククォート挿入禁止:** パス・URL 全体をまとめてバッククォートで囲む
-   - **同一問題内での不整合禁止:** 同じ用語が問題文ではバッククォートあり、選択肢ではなし、のような不整合を避ける
-   - **対象カテゴリ一覧:**
-     - ツール名: `Bash`, `Read`, `Edit`, `Write`, `Grep`, `Glob`, `WebFetch`, `WebSearch`, `NotebookEdit`, `TodoWrite`
-     - Hook イベント名: `PreToolUse`, `PostToolUse`, `UserPromptSubmit`, `Stop`, `SessionStart` 等
-     - ファイルパス: `CLAUDE.md`, `settings.json`, `.mcp.json`, `~/.claude/settings.json` 等
-     - 設定キー: `allowed-tools`, `defaultMode`, `allowManagedHooksOnly`, `permissions.deny` 等
-     - 環境変数: `UPPER_SNAKE_CASE` パターン全般（`CLAUDE_CODE_*`, `MAX_*`, `MCP_*`, `BASH_*` 等）
-     - スラッシュコマンド: `/compact`, `/memory`, `/model`, `/rewind` 等
-     - CLI フラグ: `--continue`, `--dangerously-skip-permissions`, `--from-pr` 等
-     - キーボードショートカット: `Ctrl+C`, `Shift+Tab`, `Alt+M` 等
-     - 技術用語: `ripgrep`, `bubblewrap`, `Seatbelt`, `stdio`, `SSE`, `mTLS` 等
-   - **生成後チェック:** `npm run quiz:lint:backtick --dry-run` で自動検出可能。生成後に必ず実行すること
-   - 完全リスト: `.claude/skills/quiz-refine/doc-references.md` を参照
+7. **バッククォート書式:** コード用語・パス・コマンド・環境変数・設定キーは全フィールドでバッククォート。URL途中への挿入禁止。同一問題内で不整合禁止。対象リスト: `.claude/skills/quiz-refine/doc-references.md`
 
 ### 暗記問題の禁止（最重要）
 
-**単純暗記を問う問題は作成しない。** 以下のパターンは NG：
-
-❌ **NG例（暗記型）:**
-- 「〜のデフォルト値は何ですか？」（数値やパスの暗記）
-- 「〜のキーボードショートカットは？」（キーの丸暗記）
-- 「〜の環境変数名は何ですか？」（変数名の暗記）
-- 「〜のコマンド名は？」（名前の暗記）
-
-✅ **OK例（理解・シナリオ型）:**
-- 「コンテキストが膨大になった場合、最も効果的な対処法はどれですか？」（判断力）
-- 「プロジェクト固有のルールをチーム全員に共有したい場合、どのファイルに記述すべきですか？」（使い分け）
-- 「自動コンパクト機能が意図しないタイミングで発動する場合、どのように調整しますか？」（問題解決）
-- 「MCPサーバーをプロジェクト単位で設定する理由として最も適切なものはどれですか？」（設計理由の理解）
+**単純暗記（デフォルト値・ショートカット・変数名の丸暗記）は NG。** 判断力・使い分け・問題解決・設計理由を問う問題のみ作成。
 
 ### 問題作成の指針
 
