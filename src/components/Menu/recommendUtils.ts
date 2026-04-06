@@ -311,13 +311,26 @@ export function findRecommendedScenario(
   if (scored.length === 0) return null
 
   // Try behavior-pattern-based matching first (more specific)
+  // Collect all pattern-matched scenarios, then pick randomly to avoid always showing the same one
   const workPatterns = detectWorkPatterns(promptSamples)
+  const patternCandidates: { scenario: ScenarioData; reason: string }[] = []
   for (const wp of workPatterns) {
     const patternScenarioIds = PATTERN_SCENARIO_MAP[wp.pattern] ?? []
-    const match = patternScenarioIds.map((id) => SCENARIOS.find((s) => s.id === id)).find((s) => s != null)
-    if (match) {
-      return { scenario: match, reason: `${wp.pattern} → ${wp.tip}` }
+    for (const id of patternScenarioIds) {
+      const s = SCENARIOS.find((sc) => sc.id === id)
+      if (s) {
+        patternCandidates.push({ scenario: s, reason: `${wp.pattern} → ${wp.tip}` })
+      }
     }
+  }
+  if (patternCandidates.length > 0) {
+    // Avoid repeating the last shown scenario (stored in sessionStorage)
+    const lastShownId = typeof sessionStorage !== 'undefined' ? sessionStorage.getItem('last-scenario-id') : null
+    const filtered = patternCandidates.filter((c) => c.scenario.id !== lastShownId)
+    const pool = filtered.length > 0 ? filtered : patternCandidates
+    const pick = pool[Math.floor(Math.random() * pool.length)]
+    if (typeof sessionStorage !== 'undefined') sessionStorage.setItem('last-scenario-id', pick.scenario.id)
+    return pick
   }
 
   // Fallback: category-based matching
