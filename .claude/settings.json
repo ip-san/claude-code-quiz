@@ -26,6 +26,19 @@
         ]
       }
     ],
+    "PreToolUse": [
+      {
+        "matcher": "Bash",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash scripts/pre-tool-check.sh",
+            "timeout": 3,
+            "statusMessage": "コマンド安全チェック..."
+          }
+        ]
+      }
+    ],
     "PostToolUse": [
       {
         "matcher": "Write|Edit",
@@ -41,6 +54,28 @@
             "command": "FILE=$(jq -r '.tool_input.file_path // .tool_response.filePath'); case \"$FILE\" in src/domain/valueObjects/QuizMode.ts) echo '⚠️ QuizMode変更: name/descriptionとquestionCount/timeLimitの一致を確認してください' ;; src/domain/entities/UserProgress.ts) echo '⚠️ UserProgress変更: isCorrectlyAnswered()の呼び出し元に影響がないか確認してください' ;; src/domain/valueObjects/ScoreThresholds.ts) echo '⚠️ ScoreThresholds変更: 全画面のスコア表示に影響します' ;; src/infrastructure/persistence/SessionRepository.ts) echo '⚠️ SessionRepository変更: resumeSlice.tsとutils.tsのsaveSessionSnapshotも更新が必要か確認してください' ;; *) true ;; esac",
             "timeout": 5,
             "statusMessage": "変更影響チェック..."
+          }
+        ]
+      }
+    ],
+    "UserPromptSubmit": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "PROMPT=$(cat | jq -r '.prompt // empty' 2>/dev/null); [ -z \"$PROMPT\" ] && exit 0; LEN=${#PROMPT}; [ \"$LEN\" -gt 2000 ] && echo \"💡 プロンプトが${LEN}文字です。分割を検討してください\" || exit 0",
+            "timeout": 2
+          }
+        ]
+      }
+    ],
+    "Notification": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "MSG=$(cat | jq -r '.message // empty' 2>/dev/null); [ -n \"$MSG\" ] && osascript -e \"display notification \\\"$MSG\\\" with title \\\"Claude Code\\\"\" 2>/dev/null; exit 0",
+            "timeout": 3
           }
         ]
       }
