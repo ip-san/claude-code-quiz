@@ -1,5 +1,5 @@
 import { ChevronDown, ChevronUp, Play, RefreshCw, Sparkles, X } from 'lucide-react'
-import { useState } from 'react'
+import { useMemo, useState } from 'react'
 import { locale } from '@/config/locale'
 import { getCategoryById } from '@/domain/valueObjects/Category'
 import { trackRecommend } from '@/lib/analytics'
@@ -52,6 +52,10 @@ export function UsageRecommend() {
 
   const topTopics = analysis.topics.slice(0, 3)
   const recCount = recommendations.length
+  const scenarioResult = useMemo(
+    () => findRecommendedScenario(analysis.categoryScores, analysis.promptSamples),
+    [analysis]
+  )
 
   return (
     <div className="mb-5 rounded-2xl border border-stone-200 bg-white dark:border-stone-700 dark:bg-stone-800">
@@ -236,33 +240,28 @@ export function UsageRecommend() {
         </div>
       )}
 
-      {/* Scenario suggestion */}
-      {analysis &&
-        (() => {
-          const result = findRecommendedScenario(analysis.categoryScores, analysis.promptSamples)
-          if (!result) return null
-          return (
-            <button
-              onClick={() => {
-                haptics.medium()
-                startScenarioSession(result.scenario.id)
-              }}
-              className="tap-highlight mx-4 mb-1.5 flex w-[calc(100%-2rem)] items-center gap-2 rounded-lg border border-claude-orange/20 bg-orange-50/30 px-3 py-2 text-left dark:border-claude-orange/10 dark:bg-orange-500/5"
-            >
-              <span className="text-lg">{result.scenario.icon}</span>
-              <div className="min-w-0 flex-1">
-                <p className="flex items-center gap-1.5 text-xs font-medium text-claude-dark dark:text-stone-200">
-                  {result.scenario.title}
-                  <span className="rounded-full bg-claude-orange/15 px-1.5 py-px text-[10px] font-semibold text-claude-orange dark:bg-claude-orange/20">
-                    {locale.recommend.practiceScenario}
-                  </span>
-                </p>
-                <p className="truncate text-[11px] text-stone-500 dark:text-stone-400">{result.reason}</p>
-              </div>
-              <Play className="h-3.5 w-3.5 flex-shrink-0 fill-claude-orange text-claude-orange" />
-            </button>
-          )
-        })()}
+      {/* Scenario suggestion — memoized to avoid changing on every re-render */}
+      {scenarioResult && (
+        <button
+          onClick={() => {
+            haptics.medium()
+            startScenarioSession(scenarioResult.scenario.id)
+          }}
+          className="tap-highlight mx-4 mb-1.5 flex w-[calc(100%-2rem)] items-center gap-2 rounded-lg border border-claude-orange/20 bg-orange-50/30 px-3 py-2 text-left dark:border-claude-orange/10 dark:bg-orange-500/5"
+        >
+          <span className="text-lg">{scenarioResult.scenario.icon}</span>
+          <div className="min-w-0 flex-1">
+            <p className="flex items-center gap-1.5 text-xs font-medium text-claude-dark dark:text-stone-200">
+              {scenarioResult.scenario.title}
+              <span className="rounded-full bg-claude-orange/15 px-1.5 py-px text-[10px] font-semibold text-claude-orange dark:bg-claude-orange/20">
+                {locale.recommend.practiceScenario}
+              </span>
+            </p>
+            <p className="truncate text-[11px] text-stone-500 dark:text-stone-400">{scenarioResult.reason}</p>
+          </div>
+          <Play className="h-3.5 w-3.5 flex-shrink-0 fill-claude-orange text-claude-orange" />
+        </button>
+      )}
 
       {/* Quiz CTA */}
       {recCount > 0 && (
