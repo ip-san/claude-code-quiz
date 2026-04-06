@@ -59,7 +59,10 @@ export function ChapterProgressMap({
         }
       }
 
-      // 「続きから」用: 未正解の問題IDリスト
+      // チャプター全問IDリスト（初回開始用）
+      const allIds = chapterQuestions.map((q) => q.id)
+
+      // 未正解の問題IDリスト（続きから用）
       const incompleteIds = chapterQuestions
         .filter((q) => {
           const p = userProgress.questionProgress[q.id]
@@ -76,6 +79,7 @@ export function ChapterProgressMap({
         isComplete,
         correctPct,
         startIndex: resumeIndex,
+        allIds,
         incompleteIds,
       }
     })
@@ -186,8 +190,8 @@ export function ChapterProgressMap({
                 // 「続きから」: 未正解の問題だけで出題
                 onResumeChapter(selected.incompleteIds, `Ch.${selected.id} ${selected.name}`)
               } else {
-                // 「始める」or「もう一度」: チャプター全問を順番に
-                onStartChapter(selected.id, selected.startIndex)
+                // 「始める」or「もう一度」: そのチャプターの全問を出題
+                onResumeChapter(selected.allIds, `Ch.${selected.id} ${selected.name}`)
               }
             }}
             className="tap-highlight inline-flex items-center gap-2 rounded-xl bg-claude-orange px-4 py-2.5 text-sm font-semibold text-white"
