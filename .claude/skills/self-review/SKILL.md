@@ -243,3 +243,22 @@ grep -rn 'totalXp\|adaptiv\|learningImpact' src/ --include='*.ts' --include='*.t
 ```
 
 **過去の事例:** XP（学習量）とマスタリーレベル（正答率）が並行して表示され混乱。recommendedAccuracy が lastCorrect（最後の1回）で計算され正答率が不正確だった。
+
+### 17. 外部サービス依存のフォールバック + ドキュメント記載
+
+AI モデル呼び出し、API、ネットワークなど外部依存を追加した場合、以下を必ずセットで行う:
+
+1. **コードにフォールバック**: try/catch + 代替動作（上位→下位モデル、スキップ、キャッシュ利用等）
+2. **ドキュメントに制限事項を記載**: INSTALLATION.md のトラブルシューティング + usage-recommend.md のフォールバック表
+
+**チェック方法:**
+```bash
+# 新しい外部呼び出しにフォールバックがあるか
+grep -rn "spawn.*claude\|execSync.*claude\|fetch(" scripts/ electron/ --include='*.mjs' --include='*.ts' | grep -v node_modules
+# 対応するドキュメント記載があるか
+grep -c "フォールバック\|fallback\|利用不可\|利用できない" docs/INSTALLATION.md docs/usage-recommend.md
+```
+
+**ルール:** 外部依存を追加したら、同じ PR で「コードのフォールバック」と「ドキュメントの制限事項」を両方入れる。片方だけのマージは不可。
+
+**過去の事例:** Opus トリガーを実装したが、Opus が使えないプランへの考慮が漏れていた。後から Sonnet フォールバック + ドキュメント更新を追加。
