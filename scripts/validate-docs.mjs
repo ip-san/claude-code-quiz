@@ -97,10 +97,11 @@ try {
   if (testCount) {
     checkCount('Vitest test count', testCount, /Vitest（(\d+)テスト）/)
     // Check all inline "Nテスト" in CLAUDE.md AND README.md
-    for (const [file, content] of [
-      ['CLAUDE.md', claudeMd],
-      ['README.md', readmeMd],
-    ]) {
+    // Scan CLAUDE.md, README.md, and all docs/*.md for stale test counts
+    const docsEntries = readdirSync('docs')
+      .filter((f) => f.endsWith('.md'))
+      .map((f) => [join('docs', f), readFileSync(join('docs', f), 'utf8')])
+    for (const [file, content] of [['CLAUDE.md', claudeMd], ['README.md', readmeMd], ...docsEntries]) {
       const inlineMatches = content.match(/(\d+)テスト/g) || []
       for (const m of inlineMatches) {
         const n = parseInt(m)
@@ -128,6 +129,25 @@ try {
   if (e2eMatch) {
     const e2eCount = parseInt(e2eMatch[1])
     checkCount('E2E test count', e2eCount, /Playwright E2E（(\d+)テスト）/)
+    // Scan all docs for stale E2E counts (e.g., "59テスト" near "E2E" or "Playwright")
+    const e2eFiles = [
+      ['CLAUDE.md', claudeMd],
+      ['README.md', readmeMd],
+      ...readdirSync('docs')
+        .filter((f) => f.endsWith('.md'))
+        .map((f) => [join('docs', f), readFileSync(join('docs', f), 'utf8')]),
+    ]
+    for (const [file, content] of e2eFiles) {
+      const e2eMatches = content.match(/(\d+) ?テスト/g) || []
+      for (const m of e2eMatches) {
+        const n = parseInt(m)
+        // Flag E2E-range numbers (30-99) that are close to but don't match actual E2E count
+        if (n >= 30 && n < 100 && n !== e2eCount && Math.abs(n - e2eCount) < 20) {
+          errors.push(`${file}: stale E2E test count "${m}", actual ${e2eCount}`)
+          autoFixes.push({ label: `${file} E2E count ${n}`, old: n, new: e2eCount, file, _replaceAll: true })
+        }
+      }
+    }
   }
 } catch {
   // skip if playwright not available
@@ -321,37 +341,7 @@ try {
   // docs/ may not exist
 }
 
-// ── Stale test count in docs/ (reuse vitest result) ─────────
-// Detect "N テスト" or "Nテスト" patterns in docs/ that don't match actual test counts
-try {
-  const actualTestCount = vitestResult?.numPassedTests
-  if (actualTestCount) {
-    const docsDir = 'docs'
-    for (const entry of readdirSync(docsDir)) {
-      if (!entry.endsWith('.md')) continue
-      const filePath = join(docsDir, entry)
-      const content = readFileSync(filePath, 'utf8')
-      const testMatches = content.match(/(\d+) ?テスト/g) || []
-      for (const m of testMatches) {
-        const n = parseInt(m)
-        // Only flag numbers that look like they were a total test count (> 350, close to actual)
-        // Allow ±2 tolerance for CI environment differences (jsdom reporter variance)
-        if (n > 350 && Math.abs(n - actualTestCount) > 2 && Math.abs(n - actualTestCount) < 50) {
-          errors.push(`${filePath}: stale test count "${m}", actual ${actualTestCount}`)
-          autoFixes.push({
-            label: `${filePath} test count ${n}`,
-            old: n,
-            new: actualTestCount,
-            file: filePath,
-            _replaceAll: true,
-          })
-        }
-      }
-    }
-  }
-} catch {
-  // skip
-}
+// (Stale test count detection for docs/ is now integrated into the Vitest section above)
 
 // ── theme.ts subtitle check ─────────────────────────────────
 const themeContent = readFileSync('src/config/theme.ts', 'utf8')
