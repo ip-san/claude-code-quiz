@@ -1,7 +1,7 @@
 ---
 name: store-developer
 description: Zustand ストア層（スライス）の実装を担当する。ドメインサービスとコンポーネントを接続する状態管理を実装。
-model: opus
+model: sonnet
 tools: Read, Write, Edit, Bash, Grep, Glob
 permissionMode: acceptEdits
 maxTurns: 25

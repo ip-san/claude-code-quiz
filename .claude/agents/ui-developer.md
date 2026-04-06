@@ -1,7 +1,7 @@
 ---
 name: ui-developer
 description: React コンポーネント層の実装を担当する。Zustand ストアから状態を取得し、UIを構築する。
-model: opus
+model: sonnet
 tools: Read, Write, Edit, Bash, Grep, Glob
 permissionMode: acceptEdits
 maxTurns: 30

@@ -1,7 +1,7 @@
 ---
 name: domain-developer
 description: ドメイン層（エンティティ、値オブジェクト、サービス）の実装とユニットテストを担当する。新機能追加やリファクタリング時に使用。
-model: opus
+model: sonnet
 tools: Read, Write, Edit, Bash, Grep, Glob
 permissionMode: acceptEdits
 maxTurns: 30
