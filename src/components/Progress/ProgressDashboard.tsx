@@ -1,5 +1,6 @@
 import { ChevronDown, ChevronUp } from 'lucide-react'
 import { useCallback, useEffect, useRef, useState } from 'react'
+import { locale } from '@/config/locale'
 import { getMasteryLevel } from '@/domain/services/MasteryLevelService'
 import { SessionInsightService } from '@/domain/services/SessionInsightService'
 import { type Category, PREDEFINED_CATEGORIES } from '@/domain/valueObjects/Category'
@@ -58,10 +59,11 @@ export function ProgressDashboard() {
       const progressRepo = getProgressRepository()
       const jsonData = await progressRepo.export()
       const result = await platformAPI.exportProgress(jsonData)
-      if (result.success) showStatus('エクスポートしました')
-      else if ('error' in result && result.error !== 'cancelled') showStatus(`エラー: ${result.error}`, 5000)
+      if (result.success) showStatus(locale.progress.exported)
+      else if ('error' in result && result.error !== 'cancelled')
+        showStatus(`${locale.progress.errorPrefix}: ${result.error}`, 5000)
     } catch {
-      showStatus('エクスポートに失敗しました', 5000)
+      showStatus(locale.progress.exportFailed, 5000)
     }
   }
 
@@ -69,21 +71,21 @@ export function ProgressDashboard() {
     try {
       const result = await platformAPI.importProgress()
       if (result.success && result.data) {
-        if (window.confirm('現在の学習履歴を上書きしますか？この操作は取り消せません。')) {
+        if (window.confirm(locale.progress.confirmOverwrite)) {
           const progressRepo = getProgressRepository()
           const success = await progressRepo.import(result.data)
           if (success) {
             await loadUserProgress()
-            showStatus('インポートしました')
+            showStatus(locale.progress.imported)
           } else {
-            showStatus('無効なファイル形式です', 5000)
+            showStatus(locale.progress.invalidFile, 5000)
           }
         }
       } else if (result.error !== 'cancelled') {
-        showStatus(`エラー: ${result.error}`, 5000)
+        showStatus(`${locale.progress.errorPrefix}: ${result.error}`, 5000)
       }
     } catch {
-      showStatus('インポートに失敗しました', 5000)
+      showStatus(locale.progress.importFailed, 5000)
     }
   }
 
@@ -311,9 +313,9 @@ export function ProgressDashboard() {
                 onClick={async () => {
                   try {
                     await exportProgressCsv()
-                    showStatus('CSVをエクスポートしました')
+                    showStatus(locale.progress.csvExported)
                   } catch {
-                    showStatus('CSVエクスポートに失敗しました', 5000)
+                    showStatus(locale.progress.csvExportFailed, 5000)
                   }
                 }}
                 className={`${buttonStyles.secondary} w-full`}
@@ -323,7 +325,11 @@ export function ProgressDashboard() {
               {exportStatus && (
                 <div
                   className={`rounded-2xl px-4 py-2 text-center text-sm ${
-                    exportStatus.startsWith('エラー') || exportStatus.includes('失敗')
+                    exportStatus === locale.progress.exportFailed ||
+                    exportStatus === locale.progress.importFailed ||
+                    exportStatus === locale.progress.invalidFile ||
+                    exportStatus === locale.progress.csvExportFailed ||
+                    exportStatus.startsWith(locale.progress.errorPrefix)
                       ? 'bg-red-500/20 text-red-400'
                       : 'bg-green-500/20 text-green-400'
                   }`}
@@ -335,7 +341,7 @@ export function ProgressDashboard() {
               )}
               <button
                 onClick={async () => {
-                  if (window.confirm('学習履歴をリセットしますか？この操作は取り消せません。')) {
+                  if (window.confirm(locale.progress.confirmReset)) {
                     await resetUserProgress()
                   }
                 }}

@@ -1,5 +1,6 @@
 import { ArrowRight, BookOpen, ChevronDown, Home, RotateCcw, Share2, Star, Target } from 'lucide-react'
 import { useEffect, useMemo, useState } from 'react'
+import { locale } from '@/config/locale'
 import { theme } from '@/config/theme'
 import { DailyGoalService } from '@/domain/services/DailyGoalService'
 import { getMasteryLevel } from '@/domain/services/MasteryLevelService'
@@ -169,7 +170,7 @@ export function QuizResult() {
               isPassing ? 'bg-green-500/10 text-green-600' : 'bg-red-500/10 text-red-500'
             }`}
           >
-            {isPassing ? '✓ 合格' : '✗ 不合格'}
+            {isPassing ? locale.result.passing : locale.result.notPassing}
           </span>
           {hintsUsedCount > 0 && (
             <span className="rounded-full bg-amber-100 px-2 py-0.5 text-xs text-amber-700">💡{hintsUsedCount}</span>

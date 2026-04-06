@@ -1,5 +1,6 @@
 import { Play } from 'lucide-react'
 import { useMemo, useState } from 'react'
+import { locale } from '@/config/locale'
 import type { Question } from '@/domain/entities/Question'
 import type { UserProgress } from '@/domain/entities/UserProgress'
 import { getOverviewQuestionsOrdered, OVERVIEW_CHAPTERS } from '@/domain/valueObjects/OverviewChapter'
@@ -117,10 +118,10 @@ export function ChapterProgressMap({ allQuestions, userProgress, onStartChapter 
           >
             <Play className="h-3.5 w-3.5 fill-white" />
             {selected.correctPct === 100
-              ? 'もう一度挑戦'
+              ? locale.chapterProgress.retryChapter
               : selected.answered > 0
-                ? '続きから'
-                : 'このチャプターを始める'}
+                ? locale.chapterProgress.continueChapter
+                : locale.chapterProgress.startChapter}
           </button>
         </div>
       )}

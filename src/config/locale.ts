@@ -65,6 +65,9 @@ export interface LocaleConfig {
     readonly retryButton: string
     readonly retryLabel: string
     readonly defaultHint: string
+    readonly questionLabel: (index: number, answered: boolean) => string
+    readonly submitAnswer: string
+    readonly selectOption: string
   }
 
   // === Quiz Result ===
@@ -164,6 +167,16 @@ export interface LocaleConfig {
     readonly chartLabel: string
     readonly past: string
     readonly latest: string
+    readonly exported: string
+    readonly exportFailed: string
+    readonly imported: string
+    readonly importFailed: string
+    readonly invalidFile: string
+    readonly csvExported: string
+    readonly csvExportFailed: string
+    readonly confirmOverwrite: string
+    readonly confirmReset: string
+    readonly errorPrefix: string
   }
 
   // === Mastery ===
@@ -175,6 +188,7 @@ export interface LocaleConfig {
     readonly avgXpLabel: (avg: string) => string
     readonly xpTooltip: string
     readonly downloadCert: string
+    readonly levelReached: (name: string, req: string) => string
   }
 
   // === Team Share ===
@@ -309,6 +323,13 @@ export interface LocaleConfig {
     readonly mistakesOkBody: string
     readonly learningPointsHeading: string
     readonly startLearning: string
+    readonly startChapter: string
+  }
+
+  // === Chapter Progress Map ===
+  readonly chapterProgress: {
+    readonly retryChapter: string
+    readonly continueChapter: string
     readonly startChapter: string
   }
 

@@ -1,4 +1,5 @@
 import { ChevronLeft, ChevronRight, Send } from 'lucide-react'
+import { locale } from '@/config/locale'
 import type { QuizSessionState } from '@/domain/services/QuizSessionService'
 import { haptics } from '@/lib/haptics'
 
@@ -55,7 +56,7 @@ export function QuizBottomBar({
                 className={`h-2.5 w-2.5 rounded-full transition-all ${
                   isCurrent ? 'scale-125 bg-claude-orange' : answered ? 'bg-green-400' : 'bg-stone-300'
                 }`}
-                aria-label={`問題${i + 1}${answered ? '（回答済み）' : ''}`}
+                aria-label={locale.quizCard.questionLabel(i + 1, !!answered)}
               />
             )
           })}
@@ -181,7 +182,7 @@ function SubmitButton({
         hasSelection ? 'tap-highlight bg-claude-orange text-white' : 'bg-stone-200 text-stone-400'
       }`}
     >
-      {hasSelection ? '回答する' : '選択肢を選ぶ'}
+      {hasSelection ? locale.quizCard.submitAnswer : locale.quizCard.selectOption}
     </button>
   )
 }

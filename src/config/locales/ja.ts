@@ -61,6 +61,9 @@ export const ja: LocaleConfig = {
     retryButton: 'もう一度挑戦',
     retryLabel: 'この問題をもう一度挑戦する (R)',
     defaultHint: '公式ドキュメントを確認してみましょう。回答後に参照リンクが表示されます。',
+    questionLabel: (index, answered) => `問題${index}${answered ? '（回答済み）' : ''}`,
+    submitAnswer: '回答する',
+    selectOption: '選択肢を選ぶ',
   },
 
   result: {
@@ -153,6 +156,16 @@ export const ja: LocaleConfig = {
     chartLabel: 'セッション正答率の推移グラフ',
     past: '過去',
     latest: '最新',
+    exported: 'エクスポートしました',
+    exportFailed: 'エクスポートに失敗しました',
+    imported: 'インポートしました',
+    importFailed: 'インポートに失敗しました',
+    invalidFile: '無効なファイル形式です',
+    csvExported: 'CSVをエクスポートしました',
+    csvExportFailed: 'CSVエクスポートに失敗しました',
+    confirmOverwrite: '現在の学習履歴を上書きしますか？この操作は取り消せません。',
+    confirmReset: '学習履歴をリセットしますか？この操作は取り消せません。',
+    errorPrefix: 'エラー',
   },
 
   mastery: {
@@ -163,6 +176,7 @@ export const ja: LocaleConfig = {
     avgXpLabel: (avg) => `（平均 ${avg} XP/問）`,
     xpTooltip: '正解+10 XP、不正解+2 XP、復習正解+15 XP',
     downloadCert: '修了証をダウンロード',
+    levelReached: (name, req) => `${name}レベル到達（${req}）`,
   },
 
   teamShare: {
@@ -290,6 +304,12 @@ export const ja: LocaleConfig = {
     learningPointsHeading: 'このチャプターで学ぶこと',
     startLearning: '学習を始める',
     startChapter: 'チャプターを始める',
+  },
+
+  chapterProgress: {
+    retryChapter: 'もう一度挑戦',
+    continueChapter: '続きから',
+    startChapter: 'このチャプターを始める',
   },
 
   chapterComplete: {

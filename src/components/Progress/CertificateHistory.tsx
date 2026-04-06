@@ -51,7 +51,7 @@ export function CertificateHistory({ sessionHistory, masteryIndex, overallAccura
       icon: level.icon,
       title: LEVEL_DESIGNS[i].title,
       color: CERT_COLORS[i],
-      description: `${level.name}レベル到達（${level.req ?? '学習開始'}）`,
+      description: locale.mastery.levelReached(level.name, level.req ?? locale.common.start),
       scoreLine: `総合正答率 ${overallAccuracy}%`,
     })
   }
