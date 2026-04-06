@@ -336,4 +336,54 @@ export const ja: LocaleConfig = {
     cancel: 'キャンセル',
     dialogLabel: 'カテゴリを選択',
   },
+
+  recommend: {
+    analyzeLabel: 'あなたの利用履歴からレコメンド',
+    analyzeDesc: 'AI があなたの作業意図を理解し、最適な復習問題を選びます',
+    analyzing: '分析中...',
+    analyzingProgress: '利用履歴を分析中',
+    regenerating: 'AI が再生成中...',
+    updateLabel: '問題を更新',
+    whyThisQuestion: 'なぜこの問題？',
+    close: '閉じる',
+    improvementReport: 'あなたの改善レポート',
+    improved: '改善',
+    nextChallenge: '次の課題',
+    relatedToTopics: (topics) => `${topics}に関連する問題を選びました`,
+    sessionLabel: '利用履歴からのレコメンド',
+  },
+
+  retention: {
+    labels: ['短期記憶', '定着中', '定着してきた', 'ほぼ定着', '長期記憶化'],
+    remainingMessage: (n) => `あと${n}回正解で長期記憶`,
+  },
+
+  shareImage: {
+    idle: '画像でシェア',
+    generating: '生成中...',
+    copied: 'クリップボードにコピー！',
+    downloaded: 'ダウンロード完了！',
+    streakLabel: '連続学習',
+    levelLabel: 'レベル',
+  },
+
+  snapshot: {
+    reviewDue: (n) => `復習: ${n}問`,
+    goalRemaining: (n) => `目標: あと${n}問`,
+    lastSession: '前回の学習',
+    hoursAgo: (n) => `${n}時間前`,
+    daysAgo: (n) => `${Math.round(n)}日前`,
+    forecastLabel: '復習予定',
+    tomorrow: '明日',
+    dayAfterTomorrow: '明後日',
+    daysLater: (n) => `${n}日後`,
+    noDataMessage: '新しい問題に挑戦して知識を広げましょう',
+  },
+
+  notification: {
+    title: '復習リマインダー',
+    desc: '復習期限が来たら通知でお知らせします',
+    allow: '許可する',
+    later: '今はしない',
+  },
 }

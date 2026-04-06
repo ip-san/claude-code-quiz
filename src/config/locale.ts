@@ -361,6 +361,61 @@ export interface LocaleConfig {
     readonly cancel: string
     readonly dialogLabel: string
   }
+
+  // === Usage Recommend ===
+  readonly recommend: {
+    readonly analyzeLabel: string
+    readonly analyzeDesc: string
+    readonly analyzing: string
+    readonly analyzingProgress: string
+    readonly regenerating: string
+    readonly updateLabel: string
+    readonly whyThisQuestion: string
+    readonly close: string
+    readonly improvementReport: string
+    readonly improved: string
+    readonly nextChallenge: string
+    readonly relatedToTopics: (topics: string) => string
+    readonly sessionLabel: string
+  }
+
+  // === Memory Retention ===
+  readonly retention: {
+    readonly labels: readonly string[]
+    readonly remainingMessage: (n: number) => string
+  }
+
+  // === Share Image ===
+  readonly shareImage: {
+    readonly idle: string
+    readonly generating: string
+    readonly copied: string
+    readonly downloaded: string
+    readonly streakLabel: string
+    readonly levelLabel: string
+  }
+
+  // === Daily Snapshot ===
+  readonly snapshot: {
+    readonly reviewDue: (n: number) => string
+    readonly goalRemaining: (n: number) => string
+    readonly lastSession: string
+    readonly hoursAgo: (n: number) => string
+    readonly daysAgo: (n: number) => string
+    readonly forecastLabel: string
+    readonly tomorrow: string
+    readonly dayAfterTomorrow: string
+    readonly daysLater: (n: number) => string
+    readonly noDataMessage: string
+  }
+
+  // === Notification ===
+  readonly notification: {
+    readonly title: string
+    readonly desc: string
+    readonly allow: string
+    readonly later: string
+  }
 }
 
 // ============================================================

@@ -316,6 +316,7 @@ v4.43.0 以前の known-issues では「exit code 2 の一般ルールで UserPr
 ## CLAUDE.md line count recommendation inconsistency
 
 - skill-048 が 500行を正解としていたが、memory page は "target under 200 lines per CLAUDE.md file" と明記。features-overview に "~500 lines" と "200 lines" の両方が記載されており混乱の原因 → known-issues.md に「CLAUDE.md 推奨行数は200行/ファイル（memory page）。features-overview に ~500 lines の記載もあるが、200 がプライマリ推奨」を追加
+- known-issues.md が 'CLAUDE.md のスコープは4段階: Managed > Project > Local > User' と記載しているが、MEMORY.md と quiz データは 'Managed > Project > User > Local' を使用 → known-issues.md の該当行を 'Managed > Project > User > Local（MEMORY.md・quiz データ・docs テーブル順で確認済み）' に修正
 
 ## quiz:lint distractor issues accumulation
 

@@ -4,6 +4,7 @@
  */
 
 import { Sparkles } from 'lucide-react'
+import { locale } from '@/config/locale'
 import { ProgressLabel } from './ProgressLabel'
 
 /** フック未設定時のセットアップバナー */
@@ -76,14 +77,10 @@ export function AnalyzeButton({
       )}
       <div className="flex-1">
         <div className="text-sm font-medium text-claude-dark dark:text-stone-200">
-          {loading ? '分析中...' : 'あなたの利用履歴からレコメンド'}
+          {loading ? locale.recommend.analyzing : locale.recommend.analyzeLabel}
         </div>
         <div className="text-xs text-stone-500 dark:text-stone-400">
-          {loading ? (
-            <ProgressLabel text="利用履歴を分析中" />
-          ) : (
-            'AI があなたの作業意図を理解し、最適な復習問題を選びます'
-          )}
+          {loading ? <ProgressLabel text={locale.recommend.analyzingProgress} /> : locale.recommend.analyzeDesc}
         </div>
         {aiError && <p className="mt-1 text-xs text-red-500">{aiError}</p>}
       </div>
