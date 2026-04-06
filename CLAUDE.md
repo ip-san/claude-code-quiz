@@ -11,7 +11,7 @@ PWA（ブラウザ・スマホ）と Electron（デスクトップ・AI連携）
 - **フロントエンド:** React + TypeScript + Vite + Tailwind CSS + Zustand
 - **配信:** PWA（GitHub Pages）+ Electron（デスクトップ）— 用途に応じて使い分け
 - **アナリティクス:** GTM + GA4 + MCP サーバー（`mcp/ga4-server.mjs`）
-- **テスト:** Vitest（476テスト）+ Playwright E2E（59テスト）
+- **テスト:** Vitest（476テスト）+ Playwright E2E（62テスト）
 - **AIパイプライン:** Script→Haiku→Script→Sonnet（+Opus 3トリガー）、年間~$5
 - **CI/CD:** GitHub Actions → GitHub Pages 自動デプロイ（GTM ID は Secret 管理）
 - **クイズデータ:** 752問（71ドキュメントページをカバー）

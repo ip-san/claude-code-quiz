@@ -430,4 +430,222 @@ test.describe('Quiz App E2E', () => {
     const hasErrors = await page.evaluate(() => (window as any).__pageErrors?.length > 0)
     expect(hasErrors).toBeFalsy()
   })
+
+  test('overview progress: completed chapters show completion banner', async ({ page }) => {
+    // Inject progress where all overview questions are answered correctly
+    await page.goto('/')
+    await page.evaluate(() => {
+      const data = JSON.parse(localStorage.getItem('claude-code-quiz-progress') || '{}')
+      // Get overview question IDs from the app's quiz data
+      const quizData = JSON.parse(document.querySelector('[data-quiz-count]')?.getAttribute('data-quiz-count') || '0')
+      // We'll set progress for known Ch1 IDs (5 questions)
+      const ch1Ids = ['bp-001', 'bp-002', 'bp-082', 'bp-083', 'bp-084']
+      const qp: Record<string, unknown> = data.questionProgress || {}
+      for (const id of ch1Ids) {
+        qp[id] = {
+          questionId: id,
+          attempts: 1,
+          correctCount: 1,
+          lastAttemptAt: Date.now(),
+          lastCorrect: true,
+          correctStreak: 1,
+          nextReviewAt: Date.now() + 86400000,
+        }
+      }
+      localStorage.setItem(
+        'claude-code-quiz-progress',
+        JSON.stringify({
+          ...data,
+          modifiedAt: Date.now(),
+          questionProgress: qp,
+          categoryProgress: data.categoryProgress || {},
+          totalAttempts: 5,
+          totalCorrect: 5,
+          totalXp: 50,
+          streakDays: 1,
+          lastSessionAt: Date.now(),
+        })
+      )
+    })
+    await page.reload()
+    await page.waitForLoadState('networkidle')
+    await goToMenu(page)
+
+    // Ch1 should show ✓ (all correct) in the progress map
+    const ch1Button = page.locator('button', { hasText: 'Ch.1' })
+    if (await ch1Button.isVisible({ timeout: 3000 }).catch(() => false)) {
+      await expect(ch1Button.getByText('✅')).toBeVisible()
+      // Ch2 should show "あとN問" (not started)
+      const ch2Button = page.locator('button', { hasText: 'Ch.2' })
+      await expect(ch2Button).toBeVisible()
+    }
+  })
+
+  test('overview progress: all chapters complete shows next-step banner', async ({ page }) => {
+    // Inject progress where ALL 36 overview questions are correctly answered
+    await page.goto('/')
+    await page.evaluate(() => {
+      // All 36 overview question IDs (verified from quizzes.json ch1-ch6)
+      const allOverviewIds = [
+        'bp-001',
+        'bp-002',
+        'bp-082',
+        'bp-083',
+        'bp-084',
+        'mem-001',
+        'mem-003',
+        'mem-005',
+        'bp-003',
+        'mem-019',
+        'cmd-002',
+        'bp-014',
+        'bp-021',
+        'bp-026',
+        'bp-029',
+        'bp-085',
+        'cmd-003',
+        'ses-001',
+        'ses-003',
+        'ses-005',
+        'ses-006',
+        'ses-007',
+        'key-008',
+        'bp-086',
+        'skill-004',
+        'tool-010',
+        'ext-001',
+        'ext-003',
+        'ext-005',
+        'ext-095',
+        'cmd-008',
+        'key-007',
+        'bp-004',
+        'bp-007',
+        'bp-013',
+        'bp-016',
+      ]
+      const qp: Record<string, unknown> = {}
+      for (const id of allOverviewIds) {
+        qp[id] = {
+          questionId: id,
+          attempts: 1,
+          correctCount: 1,
+          lastAttemptAt: Date.now(),
+          lastCorrect: true,
+          correctStreak: 1,
+          nextReviewAt: Date.now() + 86400000,
+        }
+      }
+      const now = Date.now()
+      localStorage.setItem(
+        'claude-code-quiz-progress',
+        JSON.stringify({
+          modifiedAt: now,
+          questionProgress: qp,
+          categoryProgress: {},
+          totalAttempts: 36,
+          totalCorrect: 36,
+          totalXp: 360,
+          streakDays: 1,
+          lastSessionAt: now,
+          sessionHistory: [
+            {
+              id: '1',
+              completedAt: now,
+              mode: 'overview',
+              categoryFilter: null,
+              score: 36,
+              totalQuestions: 36,
+              percentage: 100,
+            },
+          ],
+          dailyAnswerCounts: {},
+          bookmarkedQuestionIds: [],
+        })
+      )
+    })
+    await page.reload()
+    await page.waitForLoadState('networkidle')
+    await goToMenu(page)
+
+    // Should see completion banner instead of chapter grid
+    await expect(page.getByText('全体像モード完了！')).toBeVisible({ timeout: 5000 })
+    await expect(page.getByRole('button', { name: /実力テストへ/ })).toBeVisible()
+    await expect(page.getByRole('button', { name: /もう一度挑戦/ })).toBeVisible()
+  })
+
+  test('overview "続きから" only shows unanswered questions', async ({ page }) => {
+    // Inject progress: Ch1 with 3/5 correct (2 remaining)
+    await page.goto('/')
+    await page.evaluate(() => {
+      const correctIds = ['bp-001', 'bp-002', 'bp-082']
+      const qp: Record<string, unknown> = {}
+      for (const id of correctIds) {
+        qp[id] = {
+          questionId: id,
+          attempts: 1,
+          correctCount: 1,
+          lastAttemptAt: Date.now(),
+          lastCorrect: true,
+          correctStreak: 1,
+          nextReviewAt: Date.now() + 86400000,
+        }
+      }
+      const now = Date.now()
+      localStorage.setItem(
+        'claude-code-quiz-progress',
+        JSON.stringify({
+          modifiedAt: now,
+          questionProgress: qp,
+          categoryProgress: {},
+          totalAttempts: 3,
+          totalCorrect: 3,
+          totalXp: 30,
+          streakDays: 1,
+          lastSessionAt: now,
+          sessionHistory: [
+            {
+              id: '1',
+              completedAt: now,
+              mode: 'overview',
+              categoryFilter: null,
+              score: 3,
+              totalQuestions: 5,
+              percentage: 60,
+            },
+          ],
+          dailyAnswerCounts: {},
+          bookmarkedQuestionIds: [],
+        })
+      )
+    })
+    await page.reload()
+    await page.waitForLoadState('networkidle')
+    await goToMenu(page)
+
+    // Click Ch.1 to expand detail
+    const ch1Button = page.locator('button', { hasText: 'Ch.1' })
+    if (await ch1Button.isVisible({ timeout: 3000 }).catch(() => false)) {
+      await ch1Button.click()
+
+      // Should show "続きから" (not "このチャプターを始める")
+      const continueBtn = page.getByRole('button', { name: /続きから/ })
+      await expect(continueBtn).toBeVisible({ timeout: 3000 })
+
+      // Click it
+      await continueBtn.click()
+
+      // Should start quiz — verify we're in quiz mode
+      await page.waitForSelector('[role="listbox"], [role="group"]', { timeout: 5000 })
+
+      // The session should have only 2 questions (the unanswered ones)
+      const progress = await page.evaluate(() => {
+        const stored = localStorage.getItem('claude-code-quiz-session')
+        if (!stored) return null
+        const data = JSON.parse(stored)
+        return { questionCount: data.questionIds?.length }
+      })
+      expect(progress?.questionCount).toBe(2)
+    }
+  })
 })
