@@ -41,10 +41,7 @@ export function ConfirmDialog({
     btn?.focus()
   }, [])
 
-  const confirmColors =
-    variant === 'danger'
-      ? 'text-red-500'
-      : 'bg-claude-orange text-white'
+  const confirmColors = variant === 'danger' ? 'text-red-500' : 'bg-claude-orange text-white'
 
   return (
     <div
@@ -53,6 +50,9 @@ export function ConfirmDialog({
       aria-modal="true"
       onClick={(e) => {
         if (e.target === e.currentTarget) onCancel()
+      }}
+      onKeyDown={(e) => {
+        if (e.key === 'Escape') onCancel()
       }}
     >
       <div className="absolute inset-0 bg-black/40" />

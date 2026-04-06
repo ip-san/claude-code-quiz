@@ -313,7 +313,9 @@ export function useRecommendation() {
       setLoading(true)
       setAiError(null)
       haptics.light()
-      window.electronAPI?.clearRecommendCache?.().catch(() => {})
+      window.electronAPI?.clearRecommendCache?.().catch(() => {
+        // Non-critical — cache may not exist
+      })
       window.electronAPI
         ?.runRecommendSkill?.()
         .then(async (result) => {
