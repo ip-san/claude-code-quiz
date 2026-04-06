@@ -141,7 +141,7 @@ claude-code-quiz/
 ### テストの実行
 
 ```bash
-# 全テスト実行（489テスト、約2秒）
+# 全テスト実行（490テスト、約2秒）
 bun test
 
 # 型チェック + lint + テスト + クイズチェック（一括、約5秒）
@@ -150,7 +150,7 @@ bun run check
 # ウォッチモード（ファイル変更時に自動実行）
 bun run test:watch
 
-# E2E テスト（Playwright、59テスト）
+# E2E テスト（Playwright、66テスト）
 bun run test:e2e
 
 # カバレッジレポート生成
