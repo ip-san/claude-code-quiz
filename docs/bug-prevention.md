@@ -76,60 +76,36 @@
 
 ## 品質ゲートの全体構成
 
+```mermaid
+flowchart TD
+  L1["Layer 1: tsc 型チェック"] --> L2["Layer 2: Biome Lint"]
+  L2 --> L3["Layer 3: Vitest テスト"]
+  L3 --> L3a["SpecConsistency\nモード整合/保存復元/しきい値"]
+  L3 --> L3b["ドメイン/ストア/バリデーション"]
+  L3 --> L4["Layer 4: jscpd クローン検出 ≤2%"]
+  L4 --> L5["Layer 5: docs:validate\n全ドキュメント統計値同期"]
+  L5 --> L6["Layer 6: Playwright E2E\n表示カウント=セッションカウント検証"]
+  L6 --> L7["Layer 7: ハーネスフック\n全6イベント（下表参照）"]
+  L7 --> L8["Layer 8: /self-review\n19項目チェック"]
+
+  style L1 fill:#e8f5e9
+  style L3a fill:#fff3e0
+  style L6 fill:#e3f2fd
+  style L7 fill:#fce4ec
 ```
-Layer 1: 型チェック（tsc）
-  → コンパイル時に型の不整合を検出
 
-Layer 2: Lint（Biome）
-  → コードスタイル + 基本的なバグパターン
+### Layer 7: ハーネスフック詳細
 
-Layer 3: ユニットテスト（Vitest テスト）
-  ├── SpecConsistency.test.ts (テスト)
-  │   ├── モード定義の数値整合性
-  │   ├── セッション保存/復元の完全性
-  │   ├── チャプター進捗の計算一貫性
-  │   ├── ドメイン層の責務境界
-  │   └── しきい値のハードコード禁止
-  └── ドメイン/ストア/バリデーションテスト
-
-Layer 4: クローン検出（jscpd）
-  → コピペされたロジックの検出（2%以下）
-
-Layer 5: ドキュメント整合（docs:validate）
-  → CLAUDE.md の統計値と実装の一致
-
-Layer 6: E2E テスト（Playwright E2E テスト）
-  ├── 全体像モード3シナリオ
-  └── ユーザーフロー + Visual Regression
-
-Layer 7: ハーネスフック（.claude/settings.json — 全6イベント）
-  ├── permissions.deny: 破壊的コマンドブロック（7パターン）
-  ├── SessionStart (15s): CI失敗・マージ競合・型エラー・未コミット数
-  ├── PreToolUse: Bash (3s): scripts/pre-tool-check.sh で危険コマンドを事前ブロック
-  │   ├── 破壊的Git操作（reset --hard, clean -f, restore ., force push）
-  │   ├── 破壊的SQL（DROP TABLE, truncate）
-  │   └── デーモンプロセスの警告（nohup, バックグラウンド起動）
-  ├── PostToolUse Hook 1 (120s): ファイル種別に応じた品質チェック
-  │   ├── コンポーネント → tsc + SpecConsistency + vitest (並列)
-  │   ├── locale → tsc + ハードコード日本語スキャン
-  │   ├── ドメイン/ストア → tsc + vitest
-  │   ├── scripts/*.mjs → node --check 構文チェック
-  │   └── ドキュメント → docs:validate
-  ├── PostToolUse Hook 2 (5s): 重要ファイル変更時の影響範囲アラート
-  │   ├── QuizMode.ts → name/description と questionCount/timeLimit の一致確認
-  │   ├── UserProgress.ts → isCorrectlyAnswered() の呼び出し元への影響確認
-  │   ├── ScoreThresholds.ts → 全画面のスコア表示への影響警告
-  │   ├── SessionRepository.ts → resumeSlice と saveSnapshot の同時更新確認
-  │   ├── locale.ts → ja.ts にも翻訳追加が必要か確認
-  │   └── ja.ts → locale.ts の型定義も更新が必要か確認
-  ├── UserPromptSubmit (2s): 2000文字超のプロンプトに分割提案
-  ├── Notification (3s): macOS ネイティブ通知（バックグラウンドタスク完了）
-  └── Stop (15s): 未コミットファイル・型エラー・lintエラー報告
-
-Layer 8: レビュー（/self-review 19項目）
-  ├── #18 ハードコード日本語
-  └── #19 UI-ロジック整合性
-```
+| フック | 対象 | 内容 |
+|--------|------|------|
+| **permissions.deny** | 7パターン | 破壊的コマンドブロック |
+| **SessionStart** (15s) | セッション開始 | CI失敗・マージ競合・型エラー・未コミット数 |
+| **PreToolUse** (3s) | Bash | Git/SQL/デーモンの危険コマンド事前ブロック |
+| **PostToolUse Hook 1** (120s) | Write/Edit | コンポーネント→tsc+SpecConsistency+vitest、locale→日本語スキャン、scripts→構文チェック、docs→validate |
+| **PostToolUse Hook 2** (5s) | Write/Edit | QuizMode/UserProgress/ScoreThresholds/SessionRepository/locale 変更時の影響アラート |
+| **UserPromptSubmit** (2s) | プロンプト | 2000文字超の分割提案 |
+| **Notification** (3s) | 通知 | macOS ネイティブ通知 |
+| **Stop** (15s) | セッション終了 | 未コミット・型エラー・lintエラー報告 |
 
 ## ハーネスフックの設計原則
 

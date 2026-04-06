@@ -5,19 +5,18 @@ PWA のビルド・デプロイ・品質管理・アナリティクスを支え�
 
 ## 全体像
 
-```
-┌──────────────────────────────────────────────────────────┐
-│                     開発ワークフロー                        │
-├───────────┬───────────┬────────────┬─────────────────────┤
-│ コード品質  │ クイズ品質  │ アナリティクス│ デプロイ            │
-├───────────┼───────────┼────────────┼─────────────────────┤
-│ /code-    │ /quiz-    │ /analytics │ GitHub Actions      │
-│  review   │  refine   │  -insight  │  → GitHub Pages     │
-│           │ /generate-│            │  → PWA 自動更新     │
-│           │  quiz-data│            │                     │
-├───────────┴───────────┴────────────┴─────────────────────┤
-│                /quality-loop (統合オーケストレーター)        │
-└──────────────────────────────────────────────────────────┘
+```mermaid
+block-beta
+  columns 4
+  block:workflow:4
+    columns 4
+    A["コード品質\n/code-review\n/self-review"] B["クイズ品質\n/quiz-refine\n/generate-quiz-data"] C["アナリティクス\n/analytics-insight"] D["デプロイ\nGitHub Actions\n→ GitHub Pages"]
+  end
+  E["/quality-loop（統合オーケストレーター）"]:4
+  F["ハーネスフック（6イベント）+ permissions.deny"]:4
+
+  workflow --> E
+  E --> F
 ```
 
 ## スキル（Claude Code スラッシュコマンド）
@@ -109,24 +108,29 @@ Critical は自動修正、High は修正案提示、Suggestion は報告のみ�
 
 ### 全体像（更新版）
 
-```
-┌──────────────────────────────────────────────────────────────────┐
-│                     開発ワークフロー                                │
-├───────────┬───────────┬────────────┬─────────────────────────────┤
-│ コード品質  │ クイズ品質  │ アナリティクス│ デプロイ                     │
-├───────────┼───────────┼────────────┼─────────────────────────────┤
-│ /code-    │ /quiz-    │ /analytics │ GitHub Actions              │
-│  review   │  refine   │  -insight  │  → 4並列 matrix ジョブ       │
-│ /self-    │ /generate-│            │  → GitHub Pages             │
-│  review   │  quiz-data│            │  → PWA 自動更新             │
-├───────────┴───────────┴────────────┴─────────────────────────────┤
-│                /quality-loop --team (統合オーケストレーター)          │
-├──────────────────────────────────────────────────────────────────┤
-│  品質エージェント (8体)          │  開発エージェント (6体)            │
-│  quiz-verifier ×8 並列          │  domain → store → UI+test 並列  │
-│  quality-gate / doc-watcher     │  dev-orchestrator が調整         │
-│  facts-checker / calibrator     │  worktree 隔離で競合防止          │
-└──────────────────────────────────────────────────────────────────┘
+```mermaid
+flowchart TD
+  subgraph skills["スキル（7つ）"]
+    S1["/code-review\n/self-review"]
+    S2["/quiz-refine\n/generate-quiz-data"]
+    S3["/analytics-insight"]
+    S4["/spec-audit"]
+  end
+
+  subgraph agents["エージェントチーム（12体）"]
+    direction LR
+    A1["品質チーム\nquiz-verifier ×8並列\nquality-gate / doc-watcher\nfacts-checker / calibrator"]
+    A2["開発チーム\ndomain → store → UI+test\ndev-orchestrator が調整\nworktree 隔離"]
+  end
+
+  QL["/quality-loop --team\n統合オーケストレーター"]
+  CI["GitHub Actions → GitHub Pages"]
+  HK["ハーネスフック（6イベント）"]
+
+  skills --> QL
+  agents --> QL
+  QL --> CI
+  HK -. "編集ごとに自動実行" .-> skills
 ```
 
 ## GTM / GA4 自動化スクリプト
