@@ -12,6 +12,8 @@ interface ChapterProgressMapProps {
   onStartChapter: (chapterId: number, startIndex: number) => void
   /** 「続きから」用: 未正解の問題IDだけでセッション開始 */
   onResumeChapter: (questionIds: string[], chapterName: string) => void
+  /** 全チャプター完了時の次のステップ */
+  onNextStep: () => void
 }
 
 export function ChapterProgressMap({
@@ -19,6 +21,7 @@ export function ChapterProgressMap({
   userProgress,
   onStartChapter,
   onResumeChapter,
+  onNextStep,
 }: ChapterProgressMapProps) {
   const [selectedChapter, setSelectedChapter] = useState<number | null>(null)
 
@@ -81,7 +84,45 @@ export function ChapterProgressMap({
   const hasAnyProgress = chapters.some((ch) => ch.answered > 0)
   if (!hasAnyProgress) return null
 
+  const allComplete = chapters.every((ch) => ch.correctPct === 100)
   const selected = selectedChapter !== null ? chapters.find((ch) => ch.id === selectedChapter) : null
+
+  // 全チャプター完了 → コンパクトな完了バナー + 次のステップ誘導
+  if (allComplete) {
+    return (
+      <div className="mb-5 rounded-2xl border border-green-200 bg-green-50/50 p-4 dark:border-green-500/20 dark:bg-green-500/5">
+        <div className="flex items-center gap-2">
+          <span className="text-xl">🎓</span>
+          <div className="flex-1">
+            <p className="text-sm font-bold text-green-700 dark:text-green-300">全体像モード完了！</p>
+            <p className="text-xs text-stone-500 dark:text-stone-400">
+              全{chapters.reduce((s, c) => s + c.total, 0)}問クリア — 次のステップに進みましょう
+            </p>
+          </div>
+        </div>
+        <div className="mt-3 grid grid-cols-2 gap-2">
+          <button
+            onClick={() => {
+              haptics.light()
+              onStartChapter(1, 0)
+            }}
+            className="tap-highlight rounded-xl border border-stone-200 px-3 py-2.5 text-center text-xs font-medium text-stone-600 dark:border-stone-700 dark:text-stone-300"
+          >
+            🔄 もう一度挑戦
+          </button>
+          <button
+            onClick={() => {
+              haptics.light()
+              onNextStep()
+            }}
+            className="tap-highlight rounded-xl bg-claude-orange px-3 py-2.5 text-center text-xs font-semibold text-white"
+          >
+            🎯 実力テストへ
+          </button>
+        </div>
+      </div>
+    )
+  }
 
   return (
     <div className="mb-5">

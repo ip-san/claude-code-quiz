@@ -111,6 +111,7 @@ export function ModeSelection() {
               userProgress={userProgress}
               onStartChapter={(_chapterId, startIndex) => startSession({ mode: 'overview' }, { startIndex })}
               onResumeChapter={(questionIds, label) => startSessionWithIds(questionIds, label)}
+              onNextStep={() => startSession({ mode: 'full' })}
             />
           )}
         </div>
