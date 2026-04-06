@@ -62,13 +62,14 @@ bun --version
 # macOS / Linux
 curl -fsSL https://bun.sh/install | bash
 
-# Windows (PowerShell を管理者として実行)
+# Windows (PowerShell で実行。管理者権限は不要)
 powershell -c "irm bun.sh/install.ps1 | iex"
 ```
 
 インストール後、**ターミナルを一度閉じて再度開いてから** `bun --version` で確認してください。
 
 **Windows の注意:**
+- **Windows 10 バージョン 1809 以降** が必要です（「設定→システム→バージョン情報」で確認）
 - [Visual C++ 再頒布可能パッケージ](https://learn.microsoft.com/ja-jp/cpp/windows/latest-supported-vc-redist)（x64）が必要です。エラーが出た場合はインストールしてください
 - Windows ネイティブ版の bun は動作しますが、WSL 2（Windows Subsystem for Linux）上で使う方が高速で安定します。WSL 2 をお使いの場合は macOS/Linux と同じ `curl` コマンドでインストールできます
 
@@ -87,7 +88,8 @@ git --version
 xcode-select --install
 
 # Windows → https://git-scm.com/download/win からダウンロード
-# インストーラーの設定はすべてデフォルトで OK
+# インストーラーで「Next」を押し続ければ OK（デフォルト設定推奨）
+# インストール後、PowerShell を再起動してから git --version で確認
 ```
 
 ### ステップ 1: ソースコードを取得する
