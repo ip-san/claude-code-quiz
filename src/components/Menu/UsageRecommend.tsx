@@ -6,6 +6,7 @@ import { trackRecommend } from '@/lib/analytics'
 import { haptics } from '@/lib/haptics'
 import { isElectron } from '@/lib/platformAPI'
 import { useQuizStore } from '@/stores/quizStore'
+import { ConfirmDialog } from '../Layout/ConfirmDialog'
 import { AnalyzeButton, EmptySession, SetupBanner } from './RecommendStates'
 import { detectWorkPatterns, findRecommendedScenario, groupByCategory } from './recommendUtils'
 import { useRecommendation } from './useRecommendation'
@@ -35,6 +36,9 @@ export function UsageRecommend() {
     dismissSetup,
     dismissRegenerated,
     clearAnalysis,
+    showConfirmDialog,
+    confirmReanalyze,
+    cancelConfirmDialog,
   } = useRecommendation()
 
   if (!isElectron) return null
@@ -278,6 +282,17 @@ export function UsageRecommend() {
             {locale.recommend.confirmWithQuiz(recCount)}
           </button>
         </div>
+      )}
+
+      {showConfirmDialog && (
+        <ConfirmDialog
+          title={locale.recommend.updateLabel}
+          message={locale.recommend.confirmReanalyze}
+          confirmLabel={locale.recommend.updateLabel}
+          cancelLabel={locale.common.close}
+          onConfirm={confirmReanalyze}
+          onCancel={cancelConfirmDialog}
+        />
       )}
     </div>
   )

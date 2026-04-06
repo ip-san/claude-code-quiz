@@ -45,6 +45,8 @@ export function useRecommendation() {
   const [loading, setLoading] = useState(false)
   const [aiError, setAiError] = useState<string | null>(null)
   const [regenerated, setRegenerated] = useState(false)
+  const [showConfirmDialog, setShowConfirmDialog] = useState(false)
+  const [pendingAction, setPendingAction] = useState<'analyze' | 'shuffle' | null>(null)
   const [regenerating, setRegenerating] = useState(false)
   const [hooksInstalled, setHooksInstalled] = useState<boolean | null>(null)
   const [setupDone, setSetupDone] = useState(false)
@@ -125,9 +127,11 @@ export function useRecommendation() {
   const analyze = useCallback(async () => {
     if (!window.electronAPI) return
 
-    // If cached results exist, confirm before re-analyzing
+    // If cached results exist, show confirm dialog
     if (analysis) {
-      if (!window.confirm(locale.recommend.confirmReanalyze)) return
+      setPendingAction('analyze')
+      setShowConfirmDialog(true)
+      return
     }
 
     setLoading(true)
@@ -195,7 +199,13 @@ export function useRecommendation() {
 
   const shuffle = useCallback(() => {
     if (!analysis) return
-    if (!window.confirm(locale.recommend.confirmReanalyze)) return
+    setPendingAction('shuffle')
+    setShowConfirmDialog(true)
+  }, [analysis])
+
+  const executeReanalyze = useCallback(() => {
+    setShowConfirmDialog(false)
+    setPendingAction(null)
     haptics.light()
 
     // Clear current display and show loading state
@@ -225,7 +235,7 @@ export function useRecommendation() {
         setRegenerating(false)
         setLoading(false)
       })
-  }, [analysis, allQuestions, recommendations, loadFromCache, startTimer, stopTimer])
+  }, [loadFromCache, startTimer, stopTimer])
 
   // ── Setup hooks check ──────────────────────────────────────
 
@@ -294,6 +304,37 @@ export function useRecommendation() {
     window.electronAPI.checkGlobalHooks().then(setHooksInstalled)
   }, [setupDone])
 
+  const confirmReanalyze = useCallback(() => {
+    setShowConfirmDialog(false)
+    if (pendingAction === 'analyze') {
+      // Re-call analyze with force flag (skip confirm check)
+      setAnalysis(null)
+      setRecommendations([])
+      setLoading(true)
+      setAiError(null)
+      haptics.light()
+      window.electronAPI?.clearRecommendCache?.().catch(() => {})
+      window.electronAPI
+        ?.runRecommendSkill?.()
+        .then(async (result) => {
+          setLoading(false)
+          if (result?.success) {
+            await loadFromCache()
+            haptics.medium()
+          }
+        })
+        .catch(() => setLoading(false))
+    } else {
+      executeReanalyze()
+    }
+    setPendingAction(null)
+  }, [pendingAction, loadFromCache, executeReanalyze])
+
+  const cancelConfirmDialog = useCallback(() => {
+    setShowConfirmDialog(false)
+    setPendingAction(null)
+  }, [])
+
   return {
     // State
     analysis,
@@ -308,6 +349,7 @@ export function useRecommendation() {
     setupDone,
     allQuestions,
     growthInsight,
+    showConfirmDialog,
     // Actions
     analyze,
     shuffle,
@@ -315,5 +357,7 @@ export function useRecommendation() {
     dismissSetup,
     dismissRegenerated,
     clearAnalysis,
+    confirmReanalyze,
+    cancelConfirmDialog,
   }
 }
