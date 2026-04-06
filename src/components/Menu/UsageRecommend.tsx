@@ -1,5 +1,6 @@
 import { ChevronDown, ChevronUp, Play, RefreshCw, Sparkles, X } from 'lucide-react'
 import { useState } from 'react'
+import { locale } from '@/config/locale'
 import { getCategoryById } from '@/domain/valueObjects/Category'
 import { trackRecommend } from '@/lib/analytics'
 import { haptics } from '@/lib/haptics'
@@ -54,12 +55,14 @@ export function UsageRecommend() {
       <div className="flex items-center justify-between px-4 pt-3 pb-2">
         <div className="flex items-center gap-2">
           <Sparkles className="h-4 w-4 text-claude-orange" />
-          <span className="text-sm font-medium text-claude-dark dark:text-stone-200">利用履歴からのレコメンド</span>
+          <span className="text-sm font-medium text-claude-dark dark:text-stone-200">
+            {locale.recommend.sessionLabel}
+          </span>
           <span
             key={recommendations.map((r) => r.id).join(',')}
             className="animate-[fade-in_0.3s_ease-out] rounded-full bg-orange-50 px-2 py-0.5 text-xs font-medium text-claude-orange dark:bg-orange-500/10"
           >
-            {recCount}問
+            {locale.recommend.questionCount(recCount)}
           </span>
         </div>
         <div className="flex items-center gap-0.5">
@@ -78,16 +81,16 @@ export function UsageRecommend() {
               shuffle()
             }}
             className={`tap-highlight rounded-full p-1.5 ${regenerating ? 'animate-spin text-claude-orange' : 'text-stone-400 active:text-claude-orange'}`}
-            aria-label={regenerating ? 'AI が再生成中...' : '問題を更新'}
-            title={regenerating ? '再生成中...' : '更新'}
+            aria-label={regenerating ? locale.recommend.regenerating : locale.recommend.updateLabel}
+            title={regenerating ? locale.recommend.regenerating : locale.recommend.updateLabel}
           >
             <RefreshCw className="h-3.5 w-3.5" />
           </button>
           <button
             onClick={clearAnalysis}
             className="tap-highlight rounded-full p-1.5 text-stone-400"
-            aria-label="レコメンドを閉じる"
-            title="閉じる"
+            aria-label={locale.recommend.close}
+            title={locale.recommend.close}
           >
             <X className="h-3.5 w-3.5" />
           </button>
@@ -103,7 +106,7 @@ export function UsageRecommend() {
               style={{ width: `${Math.min((elapsed / 120) * 100, 100)}%` }}
             />
           </div>
-          <span className="flex-shrink-0 text-[10px] text-stone-500">{elapsed}秒</span>
+          <span className="flex-shrink-0 text-[10px] text-stone-500">{locale.recommend.secondsLabel(elapsed)}</span>
         </div>
       )}
       {regenerated && (
@@ -111,7 +114,7 @@ export function UsageRecommend() {
           onClick={dismissRegenerated}
           className="tap-highlight mx-4 mb-1.5 flex w-[calc(100%-2rem)] animate-[fade-in_0.3s_ease-out] items-center justify-between rounded-lg bg-green-50 px-3 py-1.5 text-left text-xs text-green-700 dark:bg-green-500/10 dark:text-green-400"
         >
-          <span>✓ 更新しました</span>
+          <span>{locale.recommend.updated}</span>
           <X className="h-3 w-3 flex-shrink-0 opacity-50" />
         </button>
       )}
@@ -123,16 +126,17 @@ export function UsageRecommend() {
         (growthInsight.improved.length > 0 || growthInsight.newIssues.length > 0) ? (
           <div className="mx-4 mb-1.5 rounded-lg border border-stone-200 bg-stone-50 px-3 py-2 dark:border-stone-700 dark:bg-stone-900/50">
             <p className="text-xs font-medium text-claude-dark dark:text-stone-200">
-              {growthInsight.maturityChange.direction === 'improving' ? '📈' : '📊'} あなたの改善レポート
+              {growthInsight.maturityChange.direction === 'improving' ? '📈' : '📊'}{' '}
+              {locale.recommend.improvementReport}
             </p>
             {growthInsight.learningImpact?.quizHelped.map((h) => (
               <p key={h.pattern} className="mt-1 text-[11px] text-green-600 dark:text-green-400">
-                ✓ クイズ効果: {h.message}
+                ✓ {locale.recommend.quizEffect}: {h.message}
               </p>
             ))}
             {growthInsight.improved.length > 0 && !growthInsight.learningImpact?.quizHelped.length && (
               <p className="mt-1 text-[11px] text-green-600 dark:text-green-400">
-                ✓ 改善: {growthInsight.improved.map((i) => i.pattern).join('、')}
+                ✓ {locale.recommend.improved}: {growthInsight.improved.map((i) => i.pattern).join('、')}
               </p>
             )}
             {growthInsight.learningImpact?.quizNeeded.map((n) => (
@@ -142,7 +146,7 @@ export function UsageRecommend() {
             ))}
             {growthInsight.newIssues.length > 0 && (
               <p className="mt-0.5 text-[11px] text-amber-600 dark:text-amber-400">
-                → 次の課題: {growthInsight.newIssues.map((i) => i.pattern).join('、')}
+                → {locale.recommend.nextChallenge}: {growthInsight.newIssues.map((i) => i.pattern).join('、')}
               </p>
             )}
             <p className="mt-0.5 text-[11px] text-stone-500">{growthInsight.maturityChange.message}</p>
@@ -169,7 +173,9 @@ export function UsageRecommend() {
                 )}
                 <p className="text-xs text-stone-700 dark:text-stone-300">
                   → <span className="font-medium text-claude-orange">{p.tip}</span>
-                  {p.savedMinutes > 0 && <span className="text-stone-500">（約{p.savedMinutes}分短縮）</span>}
+                  {p.savedMinutes > 0 && (
+                    <span className="text-stone-500">（{locale.recommend.timeSaved(p.savedMinutes)}）</span>
+                  )}
                 </p>
               </div>
             )
@@ -177,7 +183,7 @@ export function UsageRecommend() {
           if (topTopics.length > 0) {
             return (
               <p className="mx-4 mb-1.5 text-xs text-stone-500 dark:text-stone-400">
-                {topTopics.map((t: { topic: string }) => t.topic).join('・')}に関連する問題を選びました
+                {locale.recommend.relatedToTopics(topTopics.map((t: { topic: string }) => t.topic).join('・'))}
               </p>
             )
           }
@@ -194,7 +200,9 @@ export function UsageRecommend() {
           className="tap-highlight mx-4 mb-1.5 flex w-[calc(100%-2rem)] items-center justify-center gap-1 rounded-lg border border-stone-200 py-1.5 dark:border-stone-700"
           aria-expanded={showQuestions}
         >
-          <p className="text-xs text-stone-500">{showQuestions ? '閉じる' : 'なぜこの問題？'}</p>
+          <p className="text-xs text-stone-500">
+            {showQuestions ? locale.recommend.close : locale.recommend.whyThisQuestion}
+          </p>
           {showQuestions ? (
             <ChevronUp className="h-3 w-3 text-stone-400" />
           ) : (
@@ -213,7 +221,7 @@ export function UsageRecommend() {
                   <span className="text-sm">{cat?.icon}</span>
                   <span className="text-xs font-medium text-claude-dark dark:text-stone-200">{cat?.name}</span>
                   <span className="rounded-full bg-stone-200 px-1.5 py-0.5 text-[10px] text-stone-500 dark:bg-stone-700 dark:text-stone-400">
-                    {questions.length}問
+                    {locale.recommend.questionCount(questions.length)}
                   </span>
                 </div>
                 {patternSignal && <p className="mt-1 text-[11px] font-medium text-claude-orange">{patternSignal}</p>}
@@ -242,7 +250,7 @@ export function UsageRecommend() {
                 <p className="flex items-center gap-1.5 text-xs font-medium text-claude-dark dark:text-stone-200">
                   {result.scenario.title}
                   <span className="rounded-full bg-claude-orange/15 px-1.5 py-px text-[10px] font-semibold text-claude-orange dark:bg-claude-orange/20">
-                    実践シナリオ
+                    {locale.recommend.practiceScenario}
                   </span>
                 </p>
                 <p className="truncate text-[11px] text-stone-500 dark:text-stone-400">{result.reason}</p>
@@ -261,13 +269,13 @@ export function UsageRecommend() {
               trackRecommend('start_quiz', [...new Set(recommendations.map((r) => r.category))].slice(0, 3), recCount)
               startSessionWithIds(
                 recommendations.map((r) => r.id),
-                '利用履歴からのレコメンド'
+                locale.recommend.sessionLabel
               )
             }}
             className="tap-highlight flex w-full items-center justify-center gap-2 rounded-xl bg-claude-orange px-4 py-3 text-sm font-medium text-white"
           >
             <Play className="h-4 w-4 fill-white" />
-            クイズで確かめる（{recCount}問）
+            {locale.recommend.confirmWithQuiz(recCount)}
           </button>
         </div>
       )}

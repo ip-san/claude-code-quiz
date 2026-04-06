@@ -1,5 +1,6 @@
 import { Check, Image } from 'lucide-react'
 import { useCallback, useEffect, useRef, useState } from 'react'
+import { locale } from '@/config/locale'
 import { theme } from '@/config/theme'
 import { haptics } from '@/lib/haptics'
 
@@ -104,13 +105,13 @@ export function ShareImageGenerator({
       // Score detail
       ctx.font = '28px system-ui, -apple-system, sans-serif'
       ctx.fillStyle = '#78716C'
-      ctx.fillText(`${score} / ${total}問正解`, cx, cy + 60)
+      ctx.fillText(locale.shareImage.scoreDetail(score, total), cx, cy + 60)
 
       // Stats row
       const statsY = 460
       const stats = [
-        { label: '連続学習', value: `${streakDays}日` },
-        { label: 'レベル', value: `${masteryIcon} ${masteryName}` },
+        { label: locale.shareImage.streakLabel, value: locale.shareImage.streakDays(streakDays) },
+        { label: locale.shareImage.levelLabel, value: `${masteryIcon} ${masteryName}` },
         { label: 'XP', value: `${totalXp}` },
       ]
 
@@ -173,10 +174,10 @@ export function ShareImageGenerator({
   }, [score, total, percentage, streakDays, totalXp, masteryName, masteryIcon, scheduleReset])
 
   const buttonLabel = {
-    idle: '画像でシェア',
-    generating: '生成中...',
-    copied: 'クリップボードにコピー！',
-    downloaded: 'ダウンロード完了！',
+    idle: locale.shareImage.idle,
+    generating: locale.shareImage.generating,
+    copied: locale.shareImage.copied,
+    downloaded: locale.shareImage.downloaded,
   }[status]
 
   return (

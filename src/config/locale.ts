@@ -377,12 +377,27 @@ export interface LocaleConfig {
     readonly nextChallenge: string
     readonly relatedToTopics: (topics: string) => string
     readonly sessionLabel: string
+    readonly updated: string
+    readonly quizEffect: string
+    readonly practiceScenario: string
+    readonly confirmWithQuiz: (count: number) => string
+    readonly questionCount: (n: number) => string
+    readonly timeSaved: (minutes: number) => string
+    readonly secondsLabel: (n: number) => string
+    readonly setupTitle: string
+    readonly setupDesc: string
+    readonly setupEnable: string
+    readonly setupLater: string
+    readonly setupDone: string
+    readonly emptyTitle: string
+    readonly emptyDesc: string
   }
 
   // === Memory Retention ===
   readonly retention: {
     readonly labels: readonly string[]
     readonly remainingMessage: (n: number) => string
+    readonly meterLabel: string
   }
 
   // === Share Image ===
@@ -393,6 +408,8 @@ export interface LocaleConfig {
     readonly downloaded: string
     readonly streakLabel: string
     readonly levelLabel: string
+    readonly scoreDetail: (score: number, total: number) => string
+    readonly streakDays: (days: number) => string
   }
 
   // === Daily Snapshot ===
@@ -407,6 +424,15 @@ export interface LocaleConfig {
     readonly dayAfterTomorrow: string
     readonly daysLater: (n: number) => string
     readonly noDataMessage: string
+    readonly todaysPlan: string
+    readonly reviewAll: (n: number) => string
+    readonly reviewAllLabel: (n: number) => string
+    readonly quickCheck: string
+    readonly quickCheckLabel: string
+    readonly randomChallenge: string
+    readonly randomChallengeLabel: string
+    readonly reviewDueStrong: (n: number) => string
+    readonly forecastCount: (n: number) => string
   }
 
   // === Notification ===

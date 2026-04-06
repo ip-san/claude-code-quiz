@@ -61,20 +61,23 @@ Claude Code を導入しても、チームが使いこなせなければ投資�
 
 つまり、**このアプリの問題は「作って終わり」ではなく、公式ドキュメントの変更とユーザーの学習状況の両面から常に改善され続けています。**
 
-## PWA vs Desktop アプリ
+## PWA と Desktop アプリの使い分け
+
+それぞれに異なる強みがあり、用途に応じて選べます。
 
 | | PWA（スマホ・ブラウザ） | Desktop（Electron） |
 |---|---|---|
-| **入手方法** | [URL](https://ip-san.github.io/claude-code-quiz/) にアクセスするだけ | DMG をダウンロードしてインストール |
-| **オフライン** | Service Worker でキャッシュ | ローカルアプリ |
+| **強み** | URL 共有だけで即利用、スマホ対応 | AI が利用履歴を分析し最適な問題を提案 |
+| **入手方法** | [URL](https://ip-san.github.io/claude-code-quiz/) にアクセス | [DMG をインストール](docs/INSTALLATION.md#electron-デスクトップアプリ) |
+| **オフライン** | Service Worker でキャッシュ | ローカルアプリで完全対応 |
 | **クイズ全機能** | 全て利用可能 | 全て利用可能 |
-| **利用履歴レコメンド** | `bun run recommend` の URL 経由 | **ボタン1つで自動解析** |
-| **自動ログ収集** | 不可 | **SessionEnd/Start フックで自動収集** |
-| **セットアップバナー** | なし | **初回起動時にフック設定を案内** |
+| **利用履歴レコメンド** | — | **ボタン1つで自動解析** |
+| **自動ログ収集** | — | **SessionEnd/Start フックで自動収集** |
+| **成長コーチング** | — | **Opus/Sonnet が改善レポートを生成** |
 | **OS 通知** | ブラウザ通知 | **ネイティブ通知** |
-| **おすすめ** | 通勤中・移動中の学習 | 作業後の復習（履歴連動） |
+| **最適な場面** | 通勤中・移動中の学習、チーム展開 | 作業後の復習、パーソナライズ学習 |
 
-**Desktop アプリ限定機能の詳細:** [docs/usage-recommend.md](docs/usage-recommend.md)
+**Desktop アプリの AI 連携機能の詳細:** [docs/usage-recommend.md](docs/usage-recommend.md)
 
 ## 機能
 
@@ -121,7 +124,7 @@ Claude Code を導入しても、チームが使いこなせなければ投資�
 
 ## クイックスタート
 
-### PWA（推奨）
+### PWA（ブラウザ版）
 
 https://ip-san.github.io/claude-code-quiz/ にアクセスするだけ。スマホのホーム画面に追加でアプリとして使えます。
 
@@ -168,8 +171,8 @@ bun run build
 
 | 技術 | 用途 |
 |------|------|
-| GitHub Pages | PWA ホスティング（メイン） |
-| [Electron](https://www.electronjs.org/) 31 | デスクトップアプリ |
+| GitHub Pages | PWA ホスティング |
+| [Electron](https://www.electronjs.org/) 31 | デスクトップアプリ（AI連携・利用履歴レコメンド） |
 | GitHub Actions | CI/CD（自動ビルド・デプロイ） |
 
 ### アナリティクス

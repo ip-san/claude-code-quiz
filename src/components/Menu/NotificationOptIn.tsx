@@ -1,5 +1,6 @@
 import { Bell, X } from 'lucide-react'
 import { useState } from 'react'
+import { locale } from '@/config/locale'
 import { theme } from '@/config/theme'
 import { haptics } from '@/lib/haptics'
 import { NotificationService } from '@/lib/notifications'
@@ -51,24 +52,28 @@ export function NotificationOptIn() {
       <div className="flex items-start gap-3">
         <Bell className="mt-0.5 h-4 w-4 flex-shrink-0 text-blue-500" />
         <div className="flex-1">
-          <p className="text-sm font-medium text-claude-dark dark:text-stone-200">復習リマインダー</p>
-          <p className="mt-0.5 text-xs text-stone-500 dark:text-stone-400">復習期限が来たら通知でお知らせします</p>
+          <p className="text-sm font-medium text-claude-dark dark:text-stone-200">{locale.notification.title}</p>
+          <p className="mt-0.5 text-xs text-stone-500 dark:text-stone-400">{locale.notification.desc}</p>
           <div className="mt-2 flex gap-2">
             <button
               onClick={handleAllow}
               className="tap-highlight rounded-lg bg-blue-500 px-3 py-1.5 text-xs font-semibold text-white"
             >
-              許可する
+              {locale.notification.allow}
             </button>
             <button
               onClick={handleDismiss}
               className="tap-highlight rounded-lg border border-stone-300 px-3 py-1.5 text-xs text-stone-500 dark:border-stone-600"
             >
-              今はしない
+              {locale.notification.later}
             </button>
           </div>
         </div>
-        <button onClick={handleDismiss} className="tap-highlight rounded-full p-1 text-stone-400" aria-label="閉じる">
+        <button
+          onClick={handleDismiss}
+          className="tap-highlight rounded-full p-1 text-stone-400"
+          aria-label={locale.common.close}
+        >
           <X className="h-3.5 w-3.5" />
         </button>
       </div>

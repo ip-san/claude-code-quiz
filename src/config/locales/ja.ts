@@ -208,7 +208,7 @@ export const ja: LocaleConfig = {
       overview: '全体像',
       unanswered: '未回答',
       review: '復習',
-      quick: '60秒チェック',
+      quick: '復習チェック',
     },
   },
 
@@ -296,7 +296,7 @@ export const ja: LocaleConfig = {
     scenarioLabel: '実践シナリオ',
     scenarioDesc: '実務に沿ったストーリーで学ぶ',
     bookmarkLabel: '後で学ぶ',
-    bookmarkSaving: (count) => `${count}問を保存中`,
+    bookmarkSaving: (count) => `${count}問を保存済み`,
     bookmarkEmpty: '後で学ぶ',
     bookmarkHint: 'クイズ中に🔖をタップで保存できます',
     progressDesc: '統計・推移・AI活用レベル',
@@ -351,11 +351,27 @@ export const ja: LocaleConfig = {
     nextChallenge: '次の課題',
     relatedToTopics: (topics) => `${topics}に関連する問題を選びました`,
     sessionLabel: '利用履歴からのレコメンド',
+    updated: '✓ 更新しました',
+    quizEffect: 'クイズ効果',
+    practiceScenario: '実践シナリオ',
+    confirmWithQuiz: (count) => `クイズで確かめる（${count}問）`,
+    questionCount: (n) => `${n}問`,
+    timeSaved: (minutes) => `約${minutes}分短縮`,
+    secondsLabel: (n) => `${n}秒`,
+    setupTitle: '自動レコメンドを有効にしますか？',
+    setupDesc: 'Claude Code の全セッション終了時にログを収集し、その日の作業に合ったクイズを自動で提案します',
+    setupEnable: '有効にする',
+    setupLater: '後で',
+    setupDone: '設定完了。次回の Claude Code セッションから自動収集が始まります。',
+    emptyTitle: 'Claude Code の利用履歴がまだありません',
+    emptyDesc:
+      'Claude Code でいくつか作業をしてから、もう一度お試しください。セッション終了時に自動でログが蓄積されます。',
   },
 
   retention: {
     labels: ['短期記憶', '定着中', '定着してきた', 'ほぼ定着', '長期記憶化'],
     remainingMessage: (n) => `あと${n}回正解で長期記憶`,
+    meterLabel: '記憶定着度',
   },
 
   shareImage: {
@@ -365,6 +381,8 @@ export const ja: LocaleConfig = {
     downloaded: 'ダウンロード完了！',
     streakLabel: '連続学習',
     levelLabel: 'レベル',
+    scoreDetail: (score, total) => `${score} / ${total}問正解`,
+    streakDays: (days) => `${days}日`,
   },
 
   snapshot: {
@@ -378,6 +396,15 @@ export const ja: LocaleConfig = {
     dayAfterTomorrow: '明後日',
     daysLater: (n) => `${n}日後`,
     noDataMessage: '新しい問題に挑戦して知識を広げましょう',
+    todaysPlan: '今日のプラン',
+    reviewAll: (n) => `🧠 ${n}問を復習`,
+    reviewAllLabel: (n) => `復習期限の${n}問を全て復習する`,
+    quickCheck: '⚡ 3問だけ',
+    quickCheckLabel: '3問だけ素早くチェックする',
+    randomChallenge: '🎲 サクッと10問',
+    randomChallengeLabel: 'ランダムに10問チャレンジする',
+    reviewDueStrong: (n) => `🧠 復習: ${n}問が期限を迎えています`,
+    forecastCount: (n) => `${n}問`,
   },
 
   notification: {

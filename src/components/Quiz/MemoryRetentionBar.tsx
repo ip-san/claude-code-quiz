@@ -1,3 +1,4 @@
+import { locale } from '@/config/locale'
 import type { QuestionProgress } from '@/domain/entities/UserProgress'
 import { SRS_INTERVALS_MS } from '@/domain/valueObjects/SrsInterval'
 
@@ -23,12 +24,13 @@ export function MemoryRetentionBar({ questionProgress }: MemoryRetentionBarProps
   const remaining = Math.max(0, maxStreak - streak)
 
   // ストリーク段階に応じたラベル（0=短期記憶 → 7+=長期記憶化）
+  const labels = locale.retention.labels
   const getLabel = (): string => {
-    if (streak === 0) return '短期記憶'
-    if (streak <= 2) return '定着中'
-    if (streak <= 4) return '定着してきた'
-    if (streak <= 6) return 'ほぼ定着'
-    return '長期記憶化'
+    if (streak === 0) return labels[0]
+    if (streak <= 2) return labels[1]
+    if (streak <= 4) return labels[2]
+    if (streak <= 6) return labels[3]
+    return labels[4]
   }
 
   const getColor = (): string => {
@@ -40,21 +42,23 @@ export function MemoryRetentionBar({ questionProgress }: MemoryRetentionBarProps
   }
 
   const label = getLabel()
-  const description = remaining > 0 ? `${label} — あと${remaining}回正解で長期記憶` : label
+  const description = remaining > 0 ? `${label} — ${locale.retention.remainingMessage(remaining)}` : label
 
   return (
     // biome-ignore lint/a11y/useSemanticElements: <meter> cannot be styled with Tailwind; using role="meter" for accessibility
     <div
       className="mt-2 rounded-lg bg-stone-50 px-3 py-2 dark:bg-stone-800/50"
       role="meter"
-      aria-label="記憶定着度"
+      aria-label={locale.retention.meterLabel}
       aria-valuenow={percentage}
       aria-valuemin={0}
       aria-valuemax={100}
       aria-valuetext={description}
     >
       <div className="mb-1 flex items-center justify-between">
-        <span className="text-[10px] font-medium text-stone-600 dark:text-stone-400">記憶定着度</span>
+        <span className="text-[10px] font-medium text-stone-600 dark:text-stone-400">
+          {locale.retention.meterLabel}
+        </span>
         <span className="text-[10px] text-stone-500">{description}</span>
       </div>
       <div className="h-1.5 overflow-hidden rounded-full bg-stone-200 dark:bg-stone-700">

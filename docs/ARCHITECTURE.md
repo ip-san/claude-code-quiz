@@ -16,7 +16,8 @@ Claude Code Quiz のアーキテクチャと設計思想について説明しま
 
 ## 全体構成
 
-PWA（GitHub Pages）がメインの配信手段。Electron はデスクトップ用の補助。
+PWA（GitHub Pages）と Electron（デスクトップ）の 2 系統で配信。
+PWA は URL 共有だけで導入でき、Electron は利用履歴レコメンドや自動ログ収集など開発者の実務に直結する機能を提供する。
 コードベースは 1 つで、`src/lib/platformAPI.ts` がプラットフォーム差分を吸収する。
 
 ```mermaid
@@ -28,13 +29,13 @@ block-beta
   end
   block:pwa
     columns 1
-    F["PWA（メイン配信）"]
+    F["PWA（ブラウザ・スマホ）"]
     G["vite.config.web.ts\nvite-plugin-pwa\nService Worker\nGitHub Pages"]
     H["URL 共有で導入完了\nSW で自動更新"]
   end
   block:electron
     columns 1
-    I["Electron（デスクトップ補助）"]
+    I["Electron（デスクトップ・AI連携）"]
     J["vite.config.ts\nelectron/main.ts\nelectron/preload.ts\nIPC (contextBridge)"]
     K["dmg/exe/AppImage\nオフライン完全対応"]
   end

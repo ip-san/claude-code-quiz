@@ -221,7 +221,7 @@ Claude Code から GA4 Data API に直接クエリできる MCP サーバー。
 | vite-plugin-pwa | Service Worker 生成、PWA マニフェスト |
 | Tailwind CSS 3 | ユーティリティファーストの CSS |
 | TypeScript 5 | 型安全な開発 |
-| Electron 31 | デスクトップアプリ（オプション） |
+| Electron 31 | デスクトップアプリ（AI連携・利用履歴レコメンド） |
 
 ### テスト・品質チェック
 

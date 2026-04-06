@@ -1,7 +1,7 @@
 # Claude Code Quiz
 
 Claude Code の機能と使い方を学習するためのクイズアプリケーション。
-PWA でスマホ・ブラウザから利用可能。Electron デスクトップ版もあり。
+PWA（ブラウザ・スマホ）と Electron（デスクトップ・AI連携）の 2 系統で配信。
 
 **PWA:** https://ip-san.github.io/claude-code-quiz/
 
@@ -9,7 +9,7 @@ PWA でスマホ・ブラウザから利用可能。Electron デスクトップ�
 
 - **アーキテクチャ:** ドメイン駆動設計（DDD）レイヤードアーキテクチャ
 - **フロントエンド:** React + TypeScript + Vite + Tailwind CSS + Zustand
-- **配信:** PWA / GitHub Pages（メイン）+ Electron（デスクトップ）
+- **配信:** PWA（GitHub Pages）+ Electron（デスクトップ）— 用途に応じて使い分け
 - **アナリティクス:** GTM + GA4 + MCP サーバー（`mcp/ga4-server.mjs`）
 - **テスト:** Vitest（476テスト）+ Playwright E2E（59テスト）
 - **AIパイプライン:** Script→Haiku→Script→Sonnet（+Opus 3トリガー）、年間~$5

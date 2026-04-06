@@ -7,6 +7,8 @@ import { Sparkles } from 'lucide-react'
 import { locale } from '@/config/locale'
 import { ProgressLabel } from './ProgressLabel'
 
+const L = locale.recommend
+
 /** フック未設定時のセットアップバナー */
 export function SetupBanner({
   setupDone,
@@ -22,31 +24,25 @@ export function SetupBanner({
       <div className="flex items-start gap-3">
         <Sparkles className="mt-0.5 h-5 w-5 flex-shrink-0 text-claude-orange" />
         <div className="flex-1">
-          <p className="text-sm font-medium text-claude-dark dark:text-stone-200">自動レコメンドを有効にしますか？</p>
-          <p className="mt-1 text-xs text-stone-500 dark:text-stone-400">
-            Claude Code の全セッション終了時にログを収集し、その日の作業に合ったクイズを自動で提案します
-          </p>
+          <p className="text-sm font-medium text-claude-dark dark:text-stone-200">{L.setupTitle}</p>
+          <p className="mt-1 text-xs text-stone-500 dark:text-stone-400">{L.setupDesc}</p>
           <div className="mt-2 flex gap-2">
             <button
               onClick={onSetup}
               className="tap-highlight rounded-lg bg-claude-orange px-4 py-2 text-xs font-medium text-white"
-              aria-label="自動レコメンドを有効にする"
+              aria-label={L.setupEnable}
             >
-              有効にする
+              {L.setupEnable}
             </button>
             <button
               onClick={onDismiss}
               className="tap-highlight rounded-lg px-4 py-2 text-xs text-stone-500"
-              aria-label="後で設定する"
+              aria-label={L.setupLater}
             >
-              後で
+              {L.setupLater}
             </button>
           </div>
-          {setupDone && (
-            <p className="mt-2 text-xs font-medium text-claude-orange">
-              設定完了。次回の Claude Code セッションから自動収集が始まります。
-            </p>
-          )}
+          {setupDone && <p className="mt-2 text-xs font-medium text-claude-orange">{L.setupDone}</p>}
         </div>
       </div>
     </div>
@@ -67,7 +63,7 @@ export function AnalyzeButton({
     <button
       onClick={onAnalyze}
       disabled={loading}
-      aria-label="利用履歴を分析してクイズをレコメンド"
+      aria-label={L.analyzeLabel}
       className="tap-highlight mb-5 flex w-full items-center gap-3 rounded-2xl border border-stone-200 bg-white px-4 py-3 text-left dark:border-stone-700 dark:bg-stone-800"
     >
       {loading ? (
@@ -92,10 +88,8 @@ export function AnalyzeButton({
 export function EmptySession() {
   return (
     <div className="mb-5 rounded-2xl border border-stone-200 bg-white px-4 py-3 dark:border-stone-700 dark:bg-stone-800">
-      <p className="text-sm font-medium text-claude-dark dark:text-stone-200">Claude Code の利用履歴がまだありません</p>
-      <p className="mt-1 text-xs text-stone-500 dark:text-stone-400">
-        Claude Code でいくつか作業をしてから、もう一度お試しください。セッション終了時に自動でログが蓄積されます。
-      </p>
+      <p className="text-sm font-medium text-claude-dark dark:text-stone-200">{L.emptyTitle}</p>
+      <p className="mt-1 text-xs text-stone-500 dark:text-stone-400">{L.emptyDesc}</p>
     </div>
   )
 }
