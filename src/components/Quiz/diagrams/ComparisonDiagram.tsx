@@ -1,3 +1,4 @@
+import { locale } from '@/config/locale'
 import { useDiagramAnimation } from './useDiagramAnimation'
 
 interface ComparisonDiagramProps {
@@ -12,7 +13,7 @@ export function ComparisonDiagram({ label, columns }: ComparisonDiagramProps) {
   })
 
   return (
-    <div ref={containerRef} aria-label={label ?? '比較図'}>
+    <div ref={containerRef} aria-label={label ?? locale.diagrams.comparison}>
       {columns.length === 0 ? null : (
         <>
           {label && <p className="mb-2 text-xs font-medium text-stone-500">{label}</p>}

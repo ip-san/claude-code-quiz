@@ -64,6 +64,7 @@ export interface LocaleConfig {
     readonly singleSelectGroup: string
     readonly retryButton: string
     readonly retryLabel: string
+    readonly defaultHint: string
   }
 
   // === Quiz Result ===
@@ -233,9 +234,13 @@ export interface LocaleConfig {
     readonly heading: string
     readonly newArea: string
     readonly allMastered: string
+    readonly allMasteredMessage: string
+    readonly fullTestAction: string
     readonly growthArea: string
     readonly expertGoal: string
     readonly retention: string
+    readonly retentionMessage: string
+    readonly weakModeAction: string
   }
 
   // === Weak Point ===
@@ -406,6 +411,34 @@ export interface LocaleConfig {
     readonly title: string
     readonly cancel: string
     readonly dialogLabel: string
+  }
+
+  // === Encouragement ===
+  readonly encouragement: {
+    readonly messages: readonly string[]
+  }
+
+  // === Next Recommendation (QuizResult) ===
+  readonly nextRecommend: {
+    readonly fullTest: string
+    readonly fullTestDesc: string
+    readonly unansweredDesc: string
+    readonly randomTest: string
+    readonly randomTestDesc: string
+  }
+
+  // === Keyboard Shortcuts ===
+  readonly shortcuts: {
+    readonly quizSection: string
+    readonly selectOption: string
+    readonly moveOption: string
+    readonly submitNext: string
+    readonly retry: string
+    readonly shortcutSection: string
+    readonly showHelp: string
+    readonly closeDialog: string
+    readonly title: string
+    readonly showAnytime: string
   }
 
   // === Usage Recommend ===

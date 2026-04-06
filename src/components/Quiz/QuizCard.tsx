@@ -1,5 +1,6 @@
 import { Bookmark, ExternalLink, Lightbulb, RotateCcw } from 'lucide-react'
 import { useEffect, useMemo, useRef, useState } from 'react'
+import { locale } from '@/config/locale'
 import { AdaptiveDifficultyService } from '@/domain/services/AdaptiveDifficultyService'
 import { QuizSessionService } from '@/domain/services/QuizSessionService'
 import { getCategoryById } from '@/domain/valueObjects/Category'
@@ -286,7 +287,7 @@ export function QuizCard({
           </div>
           <button
             onClick={() => toggleBookmark(quiz.id)}
-            aria-label={isBookmarked ? 'ブックマークを解除' : 'ブックマークに追加'}
+            aria-label={isBookmarked ? locale.quizCard.unbookmark : locale.quizCard.bookmark}
             className="tap-highlight rounded-full p-3 transition-colors hover:bg-stone-100 dark:hover:bg-stone-700"
           >
             <Bookmark className={`h-5 w-5 ${isBookmarked ? 'fill-yellow-500 text-yellow-500' : 'text-stone-400'}`} />
@@ -316,11 +317,7 @@ export function QuizCard({
                   <span className="text-sm font-medium text-amber-700 dark:text-amber-300">ヒント</span>
                 </div>
                 <p className="text-sm text-amber-800 dark:text-amber-200">
-                  {quiz.hint ? (
-                    <QuizText text={quiz.hint} />
-                  ) : (
-                    '公式ドキュメントを確認してみましょう。回答後に参照リンクが表示されます。'
-                  )}
+                  {quiz.hint ? <QuizText text={quiz.hint} /> : locale.quizCard.defaultHint}
                 </p>
               </div>
             )}
@@ -364,7 +361,7 @@ export function QuizCard({
         <div
           className="space-y-2 sm:space-y-3"
           role={isMultiSelect ? 'group' : 'listbox'}
-          aria-label={isMultiSelect ? '複数選択回答' : '回答選択肢'}
+          aria-label={isMultiSelect ? locale.quizCard.multiSelectGroup : locale.quizCard.singleSelectGroup}
           aria-activedescendant={!isMultiSelect && selectedAnswer !== null ? `option-${selectedAnswer}` : undefined}
         >
           {quiz.options.map((option, index) => (

@@ -1,3 +1,4 @@
+import { locale } from '@/config/locale'
 import { useDiagramAnimation } from './useDiagramAnimation'
 
 interface FlowDiagramProps {
@@ -26,7 +27,7 @@ export function FlowDiagram({ label, steps }: FlowDiagramProps) {
   }
 
   return (
-    <div ref={containerRef} aria-label={label ?? 'フロー図'}>
+    <div ref={containerRef} aria-label={label ?? locale.diagrams.flow}>
       {label && <p className="mb-2 text-xs font-medium text-stone-500 dark:text-stone-400">{label}</p>}
       <div className="space-y-0.5">
         {steps.map((step, i) => {

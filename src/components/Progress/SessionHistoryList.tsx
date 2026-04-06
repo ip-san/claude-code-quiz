@@ -1,3 +1,4 @@
+import { locale } from '@/config/locale'
 import type { SessionRecord } from '@/domain/entities/UserProgress'
 import { cardStyles } from '@/lib/styles'
 
@@ -6,17 +7,7 @@ interface SessionHistoryListProps {
   limit?: number
 }
 
-const MODE_LABELS: Record<string, string> = {
-  full: '実力テスト',
-  category: 'カテゴリ別',
-  random: 'ランダム',
-  weak: '苦手克服',
-  custom: 'カスタム',
-  bookmark: 'ブックマーク',
-  overview: '全体像',
-  unanswered: '未回答',
-  review: '復習',
-}
+const MODE_LABELS = locale.sessionHistory.modes
 
 function formatDate(timestamp: number): string {
   const d = new Date(timestamp)

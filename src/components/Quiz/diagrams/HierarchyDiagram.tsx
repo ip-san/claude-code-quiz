@@ -1,3 +1,4 @@
+import { locale } from '@/config/locale'
 import { useDiagramAnimation } from './useDiagramAnimation'
 
 interface HierarchyDiagramProps {
@@ -32,7 +33,7 @@ export function HierarchyDiagram({ label, items }: HierarchyDiagramProps) {
   }
 
   return (
-    <div ref={containerRef} aria-label={label ?? '階層図'}>
+    <div ref={containerRef} aria-label={label ?? locale.diagrams.hierarchy}>
       {label && <p className="mb-2 text-xs font-medium text-stone-500 dark:text-stone-400">{label}</p>}
       <div className="flex flex-col items-center gap-0.5">
         {items.map((item, i) => {

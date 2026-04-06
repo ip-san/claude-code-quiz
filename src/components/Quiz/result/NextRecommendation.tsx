@@ -1,4 +1,5 @@
 import { ArrowRight } from 'lucide-react'
+import { locale } from '@/config/locale'
 import { PREDEFINED_CATEGORIES } from '@/domain/valueObjects/Category'
 import type { QuizModeId } from '@/domain/valueObjects/QuizMode'
 import { haptics } from '@/lib/haptics'
@@ -50,13 +51,13 @@ export function NextRecommendation({ mode, percentage }: NextRecommendationProps
     categoryFilter = weakCategory.cat.id
   } else if (mode === 'overview' && percentage >= 70) {
     icon = '🏆'
-    title = '実力テストに挑戦'
-    description = '100問で総合力を試してみませんか？'
+    title = locale.nextRecommend.fullTest
+    description = locale.nextRecommend.fullTestDesc
     nextMode = 'full'
   } else if (mostUnanswered && mostUnanswered.unanswered > 10) {
     icon = '🗺️'
     title = `${mostUnanswered.cat.name} の未回答 ${mostUnanswered.unanswered}問`
-    description = 'まだ解いていない分野に挑戦'
+    description = locale.nextRecommend.unansweredDesc
     nextMode = 'unanswered'
     categoryFilter = mostUnanswered.cat.id
   } else if (weakCategory && weakCategory.accuracy < 70) {
@@ -67,8 +68,8 @@ export function NextRecommendation({ mode, percentage }: NextRecommendationProps
     categoryFilter = weakCategory.cat.id
   } else {
     icon = '🎲'
-    title = 'ランダム20問で腕試し'
-    description = '知識の定着を確認しよう'
+    title = locale.nextRecommend.randomTest
+    description = locale.nextRecommend.randomTestDesc
     nextMode = 'random'
   }
 

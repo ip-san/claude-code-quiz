@@ -1,5 +1,6 @@
 import { Compass, RefreshCw, TrendingUp, Trophy } from 'lucide-react'
 import { useMemo } from 'react'
+import { locale } from '@/config/locale'
 import { PREDEFINED_CATEGORIES } from '@/domain/valueObjects/Category'
 import type { QuizModeId } from '@/domain/valueObjects/QuizMode'
 
@@ -55,7 +56,7 @@ export function LearningRecommendation({ categoryStats, totalAttempts, onStartSe
       return {
         type: 'explore' as const,
         icon: <Compass className="h-5 w-5 text-blue-500" />,
-        title: '新しい分野に挑戦',
+        title: locale.recommendation.newArea,
         message: `${next.icon} ${next.name} をまだ学習していません。新しい知識を広げましょう。`,
         action: `${next.name} を学ぶ`,
         onAction: () => onStartSession({ mode: 'category', categoryFilter: next.id }),
@@ -67,9 +68,9 @@ export function LearningRecommendation({ categoryStats, totalAttempts, onStartSe
       return {
         type: 'mastered' as const,
         icon: <Trophy className="h-5 w-5 text-yellow-500" />,
-        title: '全カテゴリ習得！',
-        message: '素晴らしい成果です。実力テストで総合力を試してみましょう。',
-        action: '実力テストに挑戦',
+        title: locale.recommendation.allMastered,
+        message: locale.recommendation.allMasteredMessage,
+        action: locale.recommendation.fullTestAction,
         onAction: () => onStartSession({ mode: 'full' }),
       }
     }
@@ -79,7 +80,7 @@ export function LearningRecommendation({ categoryStats, totalAttempts, onStartSe
       return {
         type: 'improve' as const,
         icon: <TrendingUp className="h-5 w-5 text-orange-500" />,
-        title: '伸びしろのある分野',
+        title: locale.recommendation.growthArea,
         message: `${weakestCat.icon} ${weakestCat.name}（正答率 ${weakestCat.accuracy}%）を重点的に復習すると、大きく成長できます。`,
         action: `${weakestCat.name} を復習`,
         onAction: () => onStartSession({ mode: 'category', categoryFilter: weakestCat.id }),
@@ -91,7 +92,7 @@ export function LearningRecommendation({ categoryStats, totalAttempts, onStartSe
       return {
         type: 'mastery-push' as const,
         icon: <TrendingUp className="h-5 w-5 text-purple-500" />,
-        title: 'エキスパートを目指す',
+        title: locale.recommendation.expertGoal,
         message: `${weakestCat.icon} ${weakestCat.name}（正答率 ${weakestCat.accuracy}%）を90%以上にすると🏆マスター認定です。`,
         action: `${weakestCat.name} を極める`,
         onAction: () => onStartSession({ mode: 'category', categoryFilter: weakestCat.id }),
@@ -102,9 +103,9 @@ export function LearningRecommendation({ categoryStats, totalAttempts, onStartSe
     return {
       type: 'reinforce' as const,
       icon: <RefreshCw className="h-5 w-5 text-green-500" />,
-      title: '知識の定着',
-      message: '苦手な問題を中心に復習して、知識を確実なものにしましょう。',
-      action: '苦手克服モード',
+      title: locale.recommendation.retention,
+      message: locale.recommendation.retentionMessage,
+      action: locale.recommendation.weakModeAction,
       onAction: () => onStartSession({ mode: 'weak' }),
     }
   }, [categoryStats, totalAttempts, onStartSession])

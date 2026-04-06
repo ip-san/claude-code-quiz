@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { locale } from '@/config/locale'
 import { theme } from '@/config/theme'
 import { getMasteryLevel } from '@/domain/services/MasteryLevelService'
 import { trackCertificate } from '@/lib/analytics'
@@ -89,7 +90,7 @@ export function CertificateGenerator({ score, total, percentage, mode }: Certifi
         disabled={generating}
         className={`tap-highlight w-full rounded-2xl py-3 text-base font-semibold text-white ${buttonColors[levelIndex]}`}
       >
-        {generating ? '生成中...' : '証明書をダウンロード'}
+        {generating ? locale.certificate.generating : locale.certificate.download}
       </button>
     </div>
   )

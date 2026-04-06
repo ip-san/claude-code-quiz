@@ -60,6 +60,7 @@ export const ja: LocaleConfig = {
     singleSelectGroup: '回答選択肢',
     retryButton: 'もう一度挑戦',
     retryLabel: 'この問題をもう一度挑戦する (R)',
+    defaultHint: '公式ドキュメントを確認してみましょう。回答後に参照リンクが表示されます。',
   },
 
   result: {
@@ -214,9 +215,13 @@ export const ja: LocaleConfig = {
     heading: 'おすすめの学習',
     newArea: '新しい分野に挑戦',
     allMastered: '全カテゴリ習得！',
+    allMasteredMessage: '素晴らしい成果です。実力テストで総合力を試してみましょう。',
+    fullTestAction: '実力テストに挑戦',
     growthArea: '伸びしろのある分野',
     expertGoal: 'エキスパートを目指す',
     retention: '知識の定着',
+    retentionMessage: '苦手な問題を中心に復習して、知識を確実なものにしましょう。',
+    weakModeAction: '苦手克服モード',
   },
 
   weakPoint: {
@@ -380,6 +385,37 @@ export const ja: LocaleConfig = {
     title: 'カテゴリを選択',
     cancel: 'キャンセル',
     dialogLabel: 'カテゴリを選択',
+  },
+
+  encouragement: {
+    messages: [
+      '大丈夫。誰もが最初は間違えます',
+      '間違えるほど記憶に残ります',
+      'ここで諦めなければ、必ず力になります',
+      '一つずつ。焦らなくて大丈夫です',
+      'あなたのペースで進みましょう',
+    ],
+  },
+
+  nextRecommend: {
+    fullTest: '実力テストに挑戦',
+    fullTestDesc: '100問で総合力を試してみませんか？',
+    unansweredDesc: 'まだ解いていない分野に挑戦',
+    randomTest: 'ランダム20問で腕試し',
+    randomTestDesc: '知識の定着を確認しよう',
+  },
+
+  shortcuts: {
+    quizSection: 'クイズ画面',
+    selectOption: '選択肢を選ぶ',
+    moveOption: '選択肢を移動',
+    submitNext: '解答する / 次の問題へ',
+    retry: '不正解をリトライ',
+    shortcutSection: 'ショートカット',
+    showHelp: 'このヘルプを表示',
+    closeDialog: 'ダイアログを閉じる',
+    title: 'ショートカット',
+    showAnytime: 'でいつでも表示',
   },
 
   recommend: {

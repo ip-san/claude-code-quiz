@@ -1,5 +1,6 @@
 import { Keyboard, X } from 'lucide-react'
 import { useEffect, useRef } from 'react'
+import { locale } from '@/config/locale'
 
 interface KeyboardShortcutHelpProps {
   isOpen: boolean
@@ -7,14 +8,14 @@ interface KeyboardShortcutHelpProps {
 }
 
 const SHORTCUTS = [
-  { section: 'クイズ画面' },
-  { keys: ['1', '~', '6'], desc: '選択肢を選ぶ' },
-  { keys: ['↑', '↓'], desc: '選択肢を移動' },
-  { keys: ['Enter', 'Space'], desc: '解答する / 次の問題へ' },
-  { keys: ['R'], desc: '不正解をリトライ' },
-  { section: 'ショートカット' },
-  { keys: ['?'], desc: 'このヘルプを表示' },
-  { keys: ['Esc'], desc: 'ダイアログを閉じる' },
+  { section: locale.shortcuts.quizSection },
+  { keys: ['1', '~', '6'], desc: locale.shortcuts.selectOption },
+  { keys: ['↑', '↓'], desc: locale.shortcuts.moveOption },
+  { keys: ['Enter', 'Space'], desc: locale.shortcuts.submitNext },
+  { keys: ['R'], desc: locale.shortcuts.retry },
+  { section: locale.shortcuts.shortcutSection },
+  { keys: ['?'], desc: locale.shortcuts.showHelp },
+  { keys: ['Esc'], desc: locale.shortcuts.closeDialog },
 ] as const
 
 /**
@@ -68,7 +69,7 @@ export function KeyboardShortcutHelp({ isOpen, onClose }: KeyboardShortcutHelpPr
       className="fixed inset-0 z-50 flex items-center justify-center"
       role="dialog"
       aria-modal="true"
-      aria-label="キーボードショートカット"
+      aria-label={locale.menuHeader.keyboardShortcuts}
       onClick={onClose}
       onKeyDown={(e) => {
         if (e.key === 'Escape') onClose()
@@ -84,12 +85,12 @@ export function KeyboardShortcutHelp({ isOpen, onClose }: KeyboardShortcutHelpPr
         <div className="mb-4 flex items-center justify-between">
           <div className="flex items-center gap-2">
             <Keyboard className="h-5 w-5 text-claude-orange" />
-            <h2 className="text-lg font-bold text-claude-dark">ショートカット</h2>
+            <h2 className="text-lg font-bold text-claude-dark">{locale.shortcuts.title}</h2>
           </div>
           <button
             onClick={onClose}
             className="tap-highlight rounded-full p-1.5 text-stone-400 hover:text-stone-600"
-            aria-label="閉じる"
+            aria-label={locale.common.close}
           >
             <X className="h-5 w-5" />
           </button>
@@ -134,7 +135,7 @@ export function KeyboardShortcutHelp({ isOpen, onClose }: KeyboardShortcutHelpPr
           <kbd className="rounded border border-stone-300 bg-stone-50 px-1.5 py-0.5 text-xs dark:border-stone-600 dark:bg-stone-700">
             ?
           </kbd>{' '}
-          でいつでも表示
+          {locale.shortcuts.showAnytime}
         </div>
       </div>
     </div>

@@ -1,5 +1,6 @@
 import { Heart } from 'lucide-react'
 import { useEffect, useState } from 'react'
+import { locale } from '@/config/locale'
 import { Toast } from './Toast'
 import { useToastPhase } from './useToastPhase'
 
@@ -7,13 +8,7 @@ interface EncouragementToastProps {
   wrongStreak: number
 }
 
-const MESSAGES = [
-  '大丈夫。誰もが最初は間違えます',
-  '間違えるほど記憶に残ります',
-  'ここで諦めなければ、必ず力になります',
-  '一つずつ。焦らなくて大丈夫です',
-  'あなたのペースで進みましょう',
-]
+const MESSAGES = locale.encouragement.messages
 
 /**
  * 連続不正解時に表示される励ましトースト

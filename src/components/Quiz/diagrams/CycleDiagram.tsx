@@ -1,3 +1,4 @@
+import { locale } from '@/config/locale'
 import { useDiagramAnimation } from './useDiagramAnimation'
 
 interface CycleDiagramProps {
@@ -26,7 +27,7 @@ export function CycleDiagram({ label, trigger, states }: CycleDiagramProps) {
   ]
 
   return (
-    <div ref={containerRef} aria-label={label ?? '循環図'}>
+    <div ref={containerRef} aria-label={label ?? locale.diagrams.cycle}>
       {label && <p className="mb-2 text-xs font-medium text-stone-500 dark:text-stone-400">{label}</p>}
 
       {/* Circular layout — flex-wrap fallback for narrow screens */}
