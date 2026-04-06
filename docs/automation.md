@@ -246,6 +246,37 @@ Claude Code から GA4 Data API に直接クエリできる MCP サーバー。
 | @google-analytics/admin | GA4 カスタムディメンション自動登録 |
 | google-auth-library | GCP サービスアカウント認証（GTM API デプロイ） |
 
+## ハーネスフック（`.claude/settings.json`）
+
+Claude Code セッション中にファイル編集を監視し、品質チェックと影響アラートを自動実行する。
+
+| フック | タイミング | 内容 | タイムアウト |
+|--------|-----------|------|------------|
+| SessionStart | セッション開始時 | CI失敗・マージ競合・型エラーの検出 | 15秒 |
+| PostToolUse Hook 1 | Write/Edit 後 | ファイル種別に応じた品質チェック（後述） | 120秒 |
+| PostToolUse Hook 2 | Write/Edit 後 | 重要ファイル変更時の影響範囲アラート | 5秒 |
+
+### Hook 1: 品質チェック（ファイル種別分岐）
+
+| 対象ファイル | 実行内容 |
+|------------|---------|
+| `src/components/*.tsx` | tsc + SpecConsistency テスト + vitest（並列） |
+| `src/domain/*`, `src/stores/*` | tsc + vitest（並列） |
+| `src/config/locale*` | tsc + ハードコード日本語スキャン |
+| `*.json` | tsc |
+| `docs/*`, `*.md` | docs:validate |
+
+### Hook 2: 影響範囲アラート
+
+| 対象ファイル | アラート内容 |
+|------------|------------|
+| `QuizMode.ts` | name/description と questionCount/timeLimit の一致確認 |
+| `UserProgress.ts` | isCorrectlyAnswered() の呼び出し元への影響確認 |
+| `ScoreThresholds.ts` | 全画面のスコア表示への影響警告 |
+| `SessionRepository.ts` | resumeSlice と saveSnapshot の同時更新確認 |
+
+詳細: [仕様バグ防止ガイド](bug-prevention.md)
+
 ## CI/CD
 
 ### GitHub Actions → GitHub Pages
