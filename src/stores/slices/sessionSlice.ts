@@ -47,6 +47,19 @@ export interface SessionSlice {
   getProgress: () => { current: number; total: number }
 }
 
+/** セッション初期状態にユーザー進捗のスナップショットを付与（3箇所で共通） */
+function enrichWithProgress(
+  initialState: QuizSessionState,
+  userProgress: import('@/domain/entities/UserProgress').UserProgress
+): QuizSessionState {
+  return {
+    ...initialState,
+    initialStreakDays: userProgress.streakDays,
+    initialTodayCount: userProgress.getDailyCount(DailyGoalService.getTodayString()),
+    initialXp: userProgress.totalXp,
+  }
+}
+
 export const createSessionSlice = (set: StoreSet, get: StoreGet): SessionSlice => ({
   sessionConfig: QuizSessionService.createDefaultConfig(),
   sessionState: null,
@@ -95,12 +108,9 @@ export const createSessionSlice = (set: StoreSet, get: StoreGet): SessionSlice =
         : initialState.overviewChapterState
 
     const sessionState = {
-      ...initialState,
+      ...enrichWithProgress(initialState, state.userProgress),
       currentIndex: startIndex,
       overviewChapterState,
-      initialStreakDays: state.userProgress.streakDays,
-      initialTodayCount: state.userProgress.getDailyCount(DailyGoalService.getTodayString()),
-      initialXp: state.userProgress.totalXp,
     }
 
     set({
@@ -139,12 +149,10 @@ export const createSessionSlice = (set: StoreSet, get: StoreGet): SessionSlice =
       shuffleOptions: false,
     }
 
-    const sessionState = {
-      ...QuizSessionService.createInitialState(questions, config),
-      initialStreakDays: state.userProgress.streakDays,
-      initialTodayCount: state.userProgress.getDailyCount(DailyGoalService.getTodayString()),
-      initialXp: state.userProgress.totalXp,
-    }
+    const sessionState = enrichWithProgress(
+      QuizSessionService.createInitialState(questions, config),
+      state.userProgress
+    )
 
     set({
       sessionConfig: config,
@@ -181,12 +189,10 @@ export const createSessionSlice = (set: StoreSet, get: StoreGet): SessionSlice =
       shuffleOptions: false,
     }
 
-    const sessionState = {
-      ...QuizSessionService.createInitialState(questions, config),
-      initialStreakDays: state.userProgress.streakDays,
-      initialTodayCount: state.userProgress.getDailyCount(DailyGoalService.getTodayString()),
-      initialXp: state.userProgress.totalXp,
-    }
+    const sessionState = enrichWithProgress(
+      QuizSessionService.createInitialState(questions, config),
+      state.userProgress
+    )
 
     set({
       sessionConfig: config,
@@ -213,12 +219,10 @@ export const createSessionSlice = (set: StoreSet, get: StoreGet): SessionSlice =
       questions = QuizSessionService.shuffleArray(questions)
     }
 
-    const sessionState = {
-      ...QuizSessionService.createInitialState(questions, config),
-      initialStreakDays: state.userProgress.streakDays,
-      initialTodayCount: state.userProgress.getDailyCount(DailyGoalService.getTodayString()),
-      initialXp: state.userProgress.totalXp,
-    }
+    const sessionState = enrichWithProgress(
+      QuizSessionService.createInitialState(questions, config),
+      state.userProgress
+    )
 
     set({
       sessionConfig: config,
