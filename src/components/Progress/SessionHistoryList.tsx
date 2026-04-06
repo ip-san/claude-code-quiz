@@ -1,5 +1,6 @@
 import { locale } from '@/config/locale'
 import type { SessionRecord } from '@/domain/entities/UserProgress'
+import { PASSING_SCORE, SCORE_COLORS } from '@/domain/valueObjects/ScoreThresholds'
 import { cardStyles } from '@/lib/styles'
 
 interface SessionHistoryListProps {
@@ -19,9 +20,9 @@ function formatDate(timestamp: number): string {
 }
 
 function getScoreColor(percentage: number): string {
-  if (percentage >= 80) return 'text-green-600'
-  if (percentage >= 70) return 'text-blue-600'
-  if (percentage >= 50) return 'text-orange-600'
+  if (percentage >= SCORE_COLORS.excellent) return 'text-green-600'
+  if (percentage >= PASSING_SCORE) return 'text-blue-600'
+  if (percentage >= SCORE_COLORS.fair) return 'text-orange-600'
   return 'text-red-600'
 }
 

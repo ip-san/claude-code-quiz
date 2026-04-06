@@ -2,6 +2,7 @@ import { Check, Image } from 'lucide-react'
 import { useCallback, useEffect, useRef, useState } from 'react'
 import { locale } from '@/config/locale'
 import { theme } from '@/config/theme'
+import { PASSING_SCORE } from '@/domain/valueObjects/ScoreThresholds'
 import { haptics } from '@/lib/haptics'
 
 type ShareStatus = 'idle' | 'generating' | 'copied' | 'downloaded'
@@ -91,7 +92,7 @@ export function ShareImageGenerator({
       const angle = (percentage / 100) * Math.PI * 2
       ctx.beginPath()
       ctx.arc(cx, cy, r, -Math.PI / 2, -Math.PI / 2 + angle)
-      ctx.strokeStyle = percentage >= 70 ? '#22C55E' : percentage >= 40 ? '#F59E0B' : '#EF4444'
+      ctx.strokeStyle = percentage >= PASSING_SCORE ? '#22C55E' : percentage >= 40 ? '#F59E0B' : '#EF4444'
       ctx.lineWidth = 16
       ctx.lineCap = 'round'
       ctx.stroke()

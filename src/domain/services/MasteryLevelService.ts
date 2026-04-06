@@ -1,5 +1,6 @@
 import { theme } from '@/config/theme'
 import { PREDEFINED_CATEGORIES } from '@/domain/valueObjects/Category'
+import { PASSING_SCORE, SCORE_COLORS } from '@/domain/valueObjects/ScoreThresholds'
 
 export interface MasteryLevelResult {
   readonly index: number
@@ -38,9 +39,9 @@ function computeIndex(
     (cat) => (categoryStats[cat.id]?.attemptedQuestions ?? 0) > 0
   )
 
-  if (accuracy >= 85 && allCategoriesAttempted) return 4
-  if (accuracy >= 80 && attemptedRatio >= 0.5) return 3
-  if (accuracy >= 70) return 2
-  if (accuracy >= 50) return 1
+  if (accuracy >= SCORE_COLORS.excellent + 5 && allCategoriesAttempted) return 4
+  if (accuracy >= SCORE_COLORS.excellent && attemptedRatio >= 0.5) return 3
+  if (accuracy >= PASSING_SCORE) return 2
+  if (accuracy >= SCORE_COLORS.fair) return 1
   return 0
 }

@@ -1,6 +1,7 @@
 import { ArrowRight, Home, Trophy } from 'lucide-react'
 import { locale } from '@/config/locale'
 import type { OverviewChapter } from '@/domain/valueObjects/OverviewChapter'
+import { PASSING_SCORE } from '@/domain/valueObjects/ScoreThresholds'
 import { haptics } from '@/lib/haptics'
 
 interface ChapterCompleteProps {
@@ -24,7 +25,7 @@ export function ChapterComplete({ chapter, score, total, onContinue, onQuit, isL
   return (
     <div className="flex min-h-[60vh] flex-col items-center justify-center px-6 animate-view-enter">
       <div className="w-full max-w-sm text-center">
-        <div className="mb-3 text-4xl">{percentage >= 70 ? '🎉' : '📚'}</div>
+        <div className="mb-3 text-4xl">{percentage >= PASSING_SCORE ? '🎉' : '📚'}</div>
         <p className="mb-1 text-xs font-semibold text-claude-orange">
           Ch.{chapter.id} {locale.chapterComplete.complete}
         </p>
@@ -39,7 +40,7 @@ export function ChapterComplete({ chapter, score, total, onContinue, onQuit, isL
         </div>
 
         <p className="mb-6 text-sm text-stone-500 dark:text-stone-400">
-          {percentage >= 70 ? locale.chapterComplete.wellDone : locale.chapterComplete.reviewAdvice}
+          {percentage >= PASSING_SCORE ? locale.chapterComplete.wellDone : locale.chapterComplete.reviewAdvice}
         </p>
 
         <div className="space-y-2">

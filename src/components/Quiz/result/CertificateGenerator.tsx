@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { locale } from '@/config/locale'
 import { theme } from '@/config/theme'
 import { getMasteryLevel } from '@/domain/services/MasteryLevelService'
+import { isCertificateEligible } from '@/domain/valueObjects/ScoreThresholds'
 import { trackCertificate } from '@/lib/analytics'
 import { generateCertificate, LEVEL_DESIGNS } from '@/lib/certificateCanvas'
 import { useCertificateName } from '@/lib/useCertificateName'
@@ -23,7 +24,7 @@ export function CertificateGenerator({ score, total, percentage, mode }: Certifi
   const [generating, setGenerating] = useState(false)
   const { userProgress, getCategoryStats } = useQuizStore()
 
-  const isEligible = (mode === 'full' && percentage >= 80) || (mode === 'overview' && percentage >= 70)
+  const isEligible = isCertificateEligible(mode, percentage)
   if (!isEligible) return null
 
   const categoryStats = getCategoryStats()

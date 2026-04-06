@@ -2,6 +2,7 @@ import { ArrowRight } from 'lucide-react'
 import { locale } from '@/config/locale'
 import { PREDEFINED_CATEGORIES } from '@/domain/valueObjects/Category'
 import type { QuizModeId } from '@/domain/valueObjects/QuizMode'
+import { PASSING_SCORE } from '@/domain/valueObjects/ScoreThresholds'
 import { haptics } from '@/lib/haptics'
 import { useQuizStore } from '@/stores/quizStore'
 
@@ -49,7 +50,7 @@ export function NextRecommendation({ mode, percentage }: NextRecommendationProps
     description = locale.recommendation.reviewDesc(weakCategory.accuracy)
     nextMode = 'category'
     categoryFilter = weakCategory.cat.id
-  } else if (mode === 'overview' && percentage >= 70) {
+  } else if (mode === 'overview' && percentage >= PASSING_SCORE) {
     icon = '🏆'
     title = locale.nextRecommend.fullTest
     description = locale.nextRecommend.fullTestDesc

@@ -3,6 +3,7 @@ import { useMemo } from 'react'
 import { locale } from '@/config/locale'
 import { PREDEFINED_CATEGORIES } from '@/domain/valueObjects/Category'
 import type { QuizModeId } from '@/domain/valueObjects/QuizMode'
+import { PASSING_SCORE } from '@/domain/valueObjects/ScoreThresholds'
 
 interface CategoryStat {
   totalQuestions: number
@@ -88,7 +89,7 @@ export function LearningRecommendation({ categoryStats, totalAttempts, onStartSe
     }
 
     // Priority 4: Advanced mastery push (70-90% range → push to 90%+)
-    if (weakestCat && weakestCat.accuracy >= 70 && weakestCat.accuracy < 90) {
+    if (weakestCat && weakestCat.accuracy >= PASSING_SCORE && weakestCat.accuracy < 90) {
       return {
         type: 'mastery-push' as const,
         icon: <TrendingUp className="h-5 w-5 text-purple-500" />,

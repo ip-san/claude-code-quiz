@@ -46,10 +46,12 @@ export type ViewState =
 /**
  * アプリケーション設定
  */
+import { PASSING_SCORE } from '@/domain/valueObjects/ScoreThresholds'
+
 export const APP_CONFIG = {
   title: `${theme.appName} マスタークイズ`,
   version: '2.0.0',
-  passingScore: 70,
+  passingScore: PASSING_SCORE,
   weakThreshold: 50,
   minAttemptsForWeak: 1,
   defaultMode: 'random' as QuizModeId,

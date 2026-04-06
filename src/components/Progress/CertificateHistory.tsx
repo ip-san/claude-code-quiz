@@ -2,6 +2,7 @@ import { Award, Download } from 'lucide-react'
 import { locale } from '@/config/locale'
 import { theme } from '@/config/theme'
 import type { SessionRecord } from '@/domain/entities/UserProgress'
+import { isCertificateEligible, PASSING_SCORE, SCORE_COLORS } from '@/domain/valueObjects/ScoreThresholds'
 import { generateCertificate, LEVEL_DESIGNS } from '@/lib/certificateCanvas'
 import { useCertificateName } from '@/lib/useCertificateName'
 
@@ -32,9 +33,9 @@ const CERT_BG = [
 ]
 
 function estimateLevelFromScore(percentage: number): number {
-  if (percentage >= 85) return 4
-  if (percentage >= 80) return 3
-  if (percentage >= 70) return 2
+  if (percentage >= SCORE_COLORS.excellent + 5) return 4 // 85%
+  if (percentage >= SCORE_COLORS.excellent) return 3 // 80%
+  if (percentage >= PASSING_SCORE) return 2 // 70%
   return 1
 }
 
@@ -60,7 +61,7 @@ export function CertificateHistory({ sessionHistory, masteryIndex, overallAccura
   const modeLabel = (mode: string) =>
     mode === 'overview' ? locale.sessionHistory.modes.overview : locale.sessionHistory.modes.full
   sessionHistory
-    .filter((s) => (s.mode === 'full' && s.percentage >= 80) || (s.mode === 'overview' && s.percentage >= 70))
+    .filter((s) => isCertificateEligible(s.mode, s.percentage))
     .reverse()
     .forEach((session) => {
       const levelIndex = estimateLevelFromScore(session.percentage)

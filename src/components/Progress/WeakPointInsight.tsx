@@ -5,6 +5,7 @@ import type { Question } from '@/domain/entities/Question'
 import type { UserProgress } from '@/domain/entities/UserProgress'
 import { PREDEFINED_CATEGORIES } from '@/domain/valueObjects/Category'
 import type { QuizModeId } from '@/domain/valueObjects/QuizMode'
+import { PASSING_SCORE } from '@/domain/valueObjects/ScoreThresholds'
 
 interface WeakPointInsightProps {
   allQuestions: readonly Question[]
@@ -49,7 +50,7 @@ export function WeakPointInsight({ allQuestions, userProgress, categoryStats, on
       if (!stats || stats.attemptedQuestions < 3) return null
       const accuracy = Math.round((stats.correctAnswers / stats.attemptedQuestions) * 100)
       const wrongCount = stats.attemptedQuestions - stats.correctAnswers
-      if (accuracy >= 70) return null
+      if (accuracy >= PASSING_SCORE) return null
 
       // サブトピック分析: このカテゴリの問題を referenceUrl のページ別に集計
       const subtopics = new Map<string, { slug: string; url: string; attempted: number; correct: number }>()
