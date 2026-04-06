@@ -37,10 +37,6 @@ bun run quiz:coverage # ドキュメントページ別カバレッジ
 bun run quiz:check    # クイズ品質チェック（ID重複、偏り、構造）
 bun run quiz:post-add # 問題追加後の一括処理（randomize → check → test → stats）
 
-# ドキュメント検証
-bun run docs:validate  # CLAUDE.md の統計値が実装と一致しているか自動検証
-bun run check:all      # check + docs:validate（CI用フルチェック）
-
 # 品質監視
 bun run size           # バンドルサイズチェック（size-limit）
 bun run skills:check   # スキル・エージェントのベストプラクティスチェック
@@ -58,7 +54,13 @@ bun run lighthouse     # Lighthouse CI
 
 ## セッション永続化の注意点
 
-- `answerHistory` を `answerRecords` 配列として localStorage に保存
+IMPORTANT: `QuizSessionState` に新フィールドを追加したら以下の3箇所を必ず同時更新すること。
+
+1. `src/infrastructure/persistence/SessionRepository.ts` — `SavedSessionData` に保存フィールド追加
+2. `src/stores/utils.ts` — `saveSessionSnapshot()` でシリアライズ
+3. `src/stores/slices/resumeSlice.ts` — `resumeSession()` で復元
+
+- `answerHistory` は `answerRecords` 配列として localStorage に保存
 - `retryQuestion` は UI 状態をリセットし、再回答時に**差分スコアで計算**（二重カウント防止）
 - `finishTest` は answerHistory からスコアを再計算（整合性保証）
 
@@ -124,10 +126,12 @@ bun run lighthouse     # Lighthouse CI
 
 ## Compact Instructions
 
-コンテキスト圧縮時に保持すべき重要ルール:
+IMPORTANT: コンテキスト圧縮後も以下のルールを必ず守ること。
 
-- **ロジック集約**: 未正解判定は `UserProgress.isCorrectlyAnswered()`、スコアしきい値は `ScoreThresholds.ts` を使う。インラインでの再実装禁止
-- **locale 必須**: コンポーネント内の日本語文字列は `src/config/locales/ja.ts` に定義。ハードコード禁止
-- **セッション永続化**: `QuizSessionState` にフィールド追加時は `SessionRepository` + `resumeSlice` + `saveSessionSnapshot` の3点を同時更新
-- **仕様整合**: UI表示のカウント = `startSession` に渡す `questionCount`。`SpecConsistency.test.ts` でテスト
-- **全体像モード**: チャプター状態は `OverviewChapterState`（ドメイン層）で管理。QuizCard の useState 禁止
+- **YOU MUST** 未正解判定には `UserProgress.isCorrectlyAnswered()` を使う。`!p || p.attempts === 0 || !p.lastCorrect` のインライン記述禁止
+- **YOU MUST** スコアしきい値は `ScoreThresholds.ts` の `PASSING_SCORE`, `CERTIFICATE_THRESHOLDS`, `SCORE_COLORS` を参照する。`>= 70` や `>= 80` のハードコード禁止
+- **YOU MUST** コンポーネント内の日本語文字列は `src/config/locales/ja.ts` に定義し `locale.*` 経由で参照する
+- **YOU MUST** `QuizSessionState` にフィールド追加時は `SessionRepository` + `resumeSlice` + `saveSessionSnapshot` の3点を同時更新する
+- **YOU MUST** UI に表示する問題数 = `startSession` に渡す `questionCount`。不一致は `SpecConsistency.test.ts` で検出される
+- **YOU MUST** 全体像モードのチャプター状態は `OverviewChapterState`（ドメイン層）で管理する。QuizCard の `useState` での管理禁止
+- 仕様バグ防止の詳細: [docs/bug-prevention.md](docs/bug-prevention.md)
