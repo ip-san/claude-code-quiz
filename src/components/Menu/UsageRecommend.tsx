@@ -35,7 +35,6 @@ export function UsageRecommend() {
     setupHooks,
     dismissSetup,
     dismissRegenerated,
-    clearAnalysis,
     showConfirmDialog,
     confirmReanalyze,
     cancelConfirmDialog,
@@ -95,14 +94,6 @@ export function UsageRecommend() {
             title={regenerating ? locale.recommend.regenerating : locale.recommend.updateLabel}
           >
             <RefreshCw className="h-3.5 w-3.5" />
-          </button>
-          <button
-            onClick={clearAnalysis}
-            className="tap-highlight rounded-full p-1.5 text-stone-400"
-            aria-label={locale.recommend.close}
-            title={locale.recommend.close}
-          >
-            <X className="h-3.5 w-3.5" />
           </button>
         </div>
       </div>
