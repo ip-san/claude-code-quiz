@@ -1,6 +1,8 @@
 import { locale } from '@/config/locale'
 import type { SessionRecord } from '@/domain/entities/UserProgress'
+import { PASSING_SCORE } from '@/domain/valueObjects/ScoreThresholds'
 import { cardStyles } from '@/lib/styles'
+import { ChartGrid } from './ChartGrid'
 
 interface SessionHistoryChartProps {
   sessions: readonly SessionRecord[]
@@ -48,9 +50,6 @@ export function SessionHistoryChart({ sessions }: SessionHistoryChartProps) {
   // Area fill path
   const areaD = `${pathD} L ${points[points.length - 1].x} ${PADDING.top + INNER_HEIGHT} L ${points[0].x} ${PADDING.top + INNER_HEIGHT} Z`
 
-  // Y-axis labels
-  const yLabels = [0, 25, 50, 75, 100]
-
   return (
     <div className={`${cardStyles.base} p-4`}>
       <h3 className="mb-3 text-sm font-semibold text-claude-dark">学習推移</h3>
@@ -60,37 +59,7 @@ export function SessionHistoryChart({ sessions }: SessionHistoryChartProps) {
         role="img"
         aria-label="セッション正答率の推移グラフ"
       >
-        {/* Grid lines */}
-        {yLabels.map((v) => {
-          const y = PADDING.top + INNER_HEIGHT - (v / 100) * INNER_HEIGHT
-          return (
-            <g key={v}>
-              <line
-                x1={PADDING.left}
-                y1={y}
-                x2={PADDING.left + INNER_WIDTH}
-                y2={y}
-                stroke={gridColor}
-                strokeDasharray={v === 0 ? undefined : '4,4'}
-              />
-              <text x={PADDING.left - 8} y={y + 4} textAnchor="end" className="fill-stone-400 text-[10px]">
-                {v}%
-              </text>
-            </g>
-          )
-        })}
-
-        {/* 70% passing line */}
-        <line
-          x1={PADDING.left}
-          y1={PADDING.top + INNER_HEIGHT - (70 / 100) * INNER_HEIGHT}
-          x2={PADDING.left + INNER_WIDTH}
-          y2={PADDING.top + INNER_HEIGHT - (70 / 100) * INNER_HEIGHT}
-          stroke="#D97757"
-          strokeDasharray="6,3"
-          strokeWidth={1}
-          opacity={0.5}
-        />
+        <ChartGrid gridColor={gridColor} padding={PADDING} innerWidth={INNER_WIDTH} innerHeight={INNER_HEIGHT} />
 
         {/* Area fill */}
         <path d={areaD} fill="#D97757" opacity={0.1} />
@@ -112,7 +81,7 @@ export function SessionHistoryChart({ sessions }: SessionHistoryChartProps) {
             className="inline-block h-px w-4 bg-claude-orange opacity-50"
             style={{ borderTop: '1px dashed #D97757' }}
           />
-          合格ライン(70%)
+          合格ライン({PASSING_SCORE}%)
         </span>
         <span>{locale.progress.latest}</span>
       </div>

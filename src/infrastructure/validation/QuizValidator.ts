@@ -293,90 +293,49 @@ export interface ValidationResult<T> {
   errors?: string[]
 }
 
-/**
- * クイズファイルを検証
- *
- * 【対応フォーマット】
- * - オブジェクト形式: { quizzes: [...] }
- * - 配列形式: [...] → 自動的に { quizzes: [...] } に変換
- *
- * 【エラーハンドリング】
- * - JSON パースエラー: "Invalid JSON format"
- * - スキーマ検証エラー: パス付きのエラーメッセージ
- */
-export function validateQuizFile(jsonString: string): ValidationResult<QuizFileData> {
-  try {
-    const parsed = JSON.parse(jsonString)
-
-    // Support both array and object formats
-    const dataToValidate = Array.isArray(parsed) ? { quizzes: parsed } : parsed
-
-    const result = QuizFileSchema.safeParse(dataToValidate)
-
-    if (result.success) {
-      return { success: true, data: result.data }
-    }
-
-    // エラーメッセージをパス付きで整形
-    const errors = result.error.errors.map((err) => {
-      const path = err.path.join('.')
-      return path ? `${path}: ${err.message}` : err.message
-    })
-
-    return { success: false, errors }
-  } catch (error) {
-    if (error instanceof SyntaxError) {
-      return { success: false, errors: ['Invalid JSON format'] }
-    }
-    return { success: false, errors: ['Unknown validation error'] }
-  }
-}
-
-/**
- * ユーザー進捗データを検証
- *
- * 進捗データのインポート時に使用。
- */
-export function validateUserProgress(jsonString: string): ValidationResult<UserProgressData> {
-  try {
-    const parsed = JSON.parse(jsonString)
-    const result = UserProgressSchema.safeParse(parsed)
-
-    if (result.success) {
-      return { success: true, data: result.data }
-    }
-
-    const errors = result.error.errors.map((err) => {
-      const path = err.path.join('.')
-      return path ? `${path}: ${err.message}` : err.message
-    })
-
-    return { success: false, errors }
-  } catch (error) {
-    if (error instanceof SyntaxError) {
-      return { success: false, errors: ['Invalid JSON format'] }
-    }
-    return { success: false, errors: ['Unknown validation error'] }
-  }
-}
-
-/**
- * クイズセットストレージデータを検証
- *
- * localStorage からの読み込み時に使用。
- * JSON 文字列ではなく、パース済みオブジェクトを受け取る。
- */
-export function validateQuizSetStorage(data: unknown): ValidationResult<QuizSetStorageData> {
-  const result = QuizSetStorageSchema.safeParse(data)
-
-  if (result.success) {
-    return { success: true, data: result.data }
-  }
-
+/** Zod の safeParse 結果を ValidationResult に変換（共通ヘルパー） */
+function toValidationResult<T>(result: z.SafeParseReturnType<unknown, T>): ValidationResult<T> {
+  if (result.success) return { success: true, data: result.data }
   const errors = result.error.errors.map((err) => {
     const path = err.path.join('.')
     return path ? `${path}: ${err.message}` : err.message
   })
-
   return { success: false, errors }
+}
+
+/** JSON 文字列をパースして Zod スキーマで検証（共通ヘルパー） */
+function validateJsonString<T>(
+  jsonString: string,
+  schema: z.ZodType<T>,
+  preprocess?: (parsed: unknown) => unknown
+): ValidationResult<T> {
+  try {
+    const parsed = JSON.parse(jsonString)
+    return toValidationResult(schema.safeParse(preprocess ? preprocess(parsed) : parsed))
+  } catch (error) {
+    if (error instanceof SyntaxError) return { success: false, errors: ['Invalid JSON format'] }
+    return { success: false, errors: ['Unknown validation error'] }
+  }
+}
+
+/** クイズファイルを検証（オブジェクト/配列両対応） */
+export function validateQuizFile(jsonString: string): ValidationResult<QuizFileData> {
+  try {
+    const parsed = JSON.parse(jsonString)
+    const data = Array.isArray(parsed) ? { quizzes: parsed } : parsed
+    return toValidationResult(QuizFileSchema.safeParse(data))
+  } catch (error) {
+    if (error instanceof SyntaxError) return { success: false, errors: ['Invalid JSON format'] }
+    return { success: false, errors: ['Unknown validation error'] }
+  }
+}
+
+/** ユーザー進捗データを検証 */
+export function validateUserProgress(jsonString: string): ValidationResult<UserProgressData> {
+  return validateJsonString(jsonString, UserProgressSchema)
+}
+
+/** クイズセットストレージデータを検証（パース済みオブジェクト） */
+export function validateQuizSetStorage(data: unknown): ValidationResult<QuizSetStorageData> {
+  return toValidationResult(QuizSetStorageSchema.safeParse(data))
 }

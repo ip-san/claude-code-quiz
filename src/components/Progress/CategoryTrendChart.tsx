@@ -4,6 +4,7 @@ import type { SessionRecord } from '@/domain/entities/UserProgress'
 import { type Category, PREDEFINED_CATEGORIES } from '@/domain/valueObjects/Category'
 import { getColorHex } from '@/lib/colors'
 import { cardStyles } from '@/lib/styles'
+import { ChartGrid, percentToY } from './ChartGrid'
 
 interface CategoryTrendChartProps {
   sessions: readonly SessionRecord[]
@@ -99,8 +100,6 @@ export function CategoryTrendChart({ sessions }: CategoryTrendChartProps) {
     })
   }
 
-  const yLabels = [0, 25, 50, 75, 100]
-
   return (
     <div className={`${cardStyles.base} p-4`}>
       <h3 className="mb-2 text-sm font-semibold text-claude-dark dark:text-stone-200">カテゴリ別推移</h3>
@@ -140,32 +139,14 @@ export function CategoryTrendChart({ sessions }: CategoryTrendChartProps) {
             role="img"
             aria-label="カテゴリ別正答率の推移グラフ"
           >
-            {/* Grid lines */}
-            {yLabels.map((v) => {
-              const y = PADDING.top + INNER_HEIGHT - (v / 100) * INNER_HEIGHT
-              return (
-                <g key={v}>
-                  <line
-                    x1={PADDING.left}
-                    y1={y}
-                    x2={PADDING.left + INNER_WIDTH}
-                    y2={y}
-                    stroke={gridColor}
-                    strokeDasharray={v === 0 ? undefined : '4,4'}
-                  />
-                  <text x={PADDING.left - 8} y={y + 4} textAnchor="end" className="fill-stone-400 text-[10px]">
-                    {v}%
-                  </text>
-                </g>
-              )
-            })}
+            <ChartGrid gridColor={gridColor} padding={PADDING} innerWidth={INNER_WIDTH} innerHeight={INNER_HEIGHT} />
 
             {/* Category lines */}
             {categoryLines.map(({ category, points, color }) => {
               if (points.length < 2) return null
               const svgPoints = points.map((p, i) => ({
                 x: PADDING.left + (i / (points.length - 1)) * INNER_WIDTH,
-                y: PADDING.top + INNER_HEIGHT - (p.percentage / 100) * INNER_HEIGHT,
+                y: percentToY(p.percentage, PADDING, INNER_HEIGHT),
                 percentage: p.percentage,
               }))
               const pathD = svgPoints.map((p, i) => `${i === 0 ? 'M' : 'L'} ${p.x} ${p.y}`).join(' ')
