@@ -225,6 +225,11 @@ bun run size         # size-limit による閾値チェック
 bun run test:e2e     # Playwright E2E + Visual Regression
 ```
 
+**エージェント W: skills-check**
+```bash
+bun run skills:check # スキル・エージェントのベストプラクティス
+```
+
 ### a. フルチェック
 ```bash
 bun run check:all    # 型 + lint + Vitest + type-coverage + quiz:check + docs:validate + docs:links
@@ -243,6 +248,12 @@ bun run test:e2e     # Playwright E2E + Visual Regression
 ```
 ユーザーフロー（ウェルカム → クイズ → 結果）が壊れていないか、画面表示が退行していないかを検証。ユニットテストでは検出できないインテグレーション問題を捕捉する。
 
+### d. スキル・エージェントのベストプラクティスチェック
+```bash
+bun run skills:check   # フロントマター + トークン数 + 行数
+```
+スキルやエージェントの変更があった場合に実行。公式推奨（2,000トークン以下、500行以下、フロントマター必須）に準拠しているか検証。
+
 ### ゲート結果の判定
 
 | チェック | 失敗時の対応 |
@@ -250,6 +261,7 @@ bun run test:e2e     # Playwright E2E + Visual Regression
 | check:all | **ブロック。** 結果レポートに NG 理由を記載し、修正を促す |
 | size | **警告。** 超過量を報告。即座のブロックはしないが改善を推奨 |
 | test:e2e | **ブロック。** 失敗テスト名と理由を報告。Visual Regression のスクリーンショット差分がある場合は意図的変更かどうか確認を求める |
+| skills:check | **警告。** トークン超過スキルを報告。`context: fork` 追加や分割を推奨 |
 
 ---
 

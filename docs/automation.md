@@ -292,7 +292,8 @@ scripts/
 ├── recommend.mjs           # CLI レコメンド生成
 ├── fetch-docs.mjs          # 公式ドキュメントキャッシュ
 ├── setup-hooks.mjs         # グローバルフックセットアップ
-└── validate-docs.mjs       # CLAUDE.md 統計値検証
+├── validate-docs.mjs       # CLAUDE.md 統計値検証
+└── check-skills.mjs        # スキル・エージェントのベストプラクティスチェック
 
 mcp/
 └── ga4-server.mjs        # GA4 MCP サーバー

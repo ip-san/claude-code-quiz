@@ -41,6 +41,7 @@ bun run check:all      # check + docs:validate（CI用フルチェック）
 
 # 品質監視
 bun run size           # バンドルサイズチェック（size-limit）
+bun run skills:check   # スキル・エージェントのベストプラクティスチェック
 bun run lighthouse     # Lighthouse CI
 ```
 
