@@ -198,7 +198,11 @@ export function QuizResult() {
         )}
 
         {/* Stars visualization - staggered pop-in */}
-        <div className="mb-6 flex justify-center gap-1" role="img" aria-label={`${filledStars}つ星の評価`}>
+        <div
+          className="mb-6 flex justify-center gap-1"
+          role="img"
+          aria-label={`${filledStars}${locale.result.starRating}`}
+        >
           {[...Array(STAR_COUNT)].map((_, i) => (
             <Star
               key={i}

@@ -95,7 +95,7 @@ export const ja: LocaleConfig = {
     historyLabel: '学習履歴',
     shortcutsLabel: 'キーボードショートカット',
     themeToggle: 'テーマ切替',
-    answered: '問 解答済み',
+    answered: '問 正解済み',
     modeSection: 'モード',
     otherModes: 'その他',
     difficultySection: '難易度',
@@ -170,6 +170,8 @@ export const ja: LocaleConfig = {
     confirmOverwrite: '現在の学習履歴を上書きしますか？この操作は取り消せません。',
     confirmReset: '学習履歴をリセットしますか？この操作は取り消せません。',
     errorPrefix: 'エラー',
+    sessionCountLabel: 'セッション数',
+    sessionCountSuffix: '回',
   },
 
   mastery: {
@@ -240,6 +242,19 @@ export const ja: LocaleConfig = {
     retention: '知識の定着',
     retentionMessage: '苦手な問題を中心に復習して、知識を確実なものにしましょう。',
     weakModeAction: '苦手克服モード',
+    exploreMessage: (name, icon) => `${icon} ${name} をまだ学習していません。新しい知識を広げましょう。`,
+    exploreAction: (name) => `${name} を学ぶ`,
+    improveMessage: (name, icon, accuracy) =>
+      `${icon} ${name}（正答率 ${accuracy}%）を重点的に復習すると、大きく成長できます。`,
+    improveAction: (name) => `${name} を復習`,
+    masteryMessage: (name, icon, accuracy) =>
+      `${icon} ${name}（正答率 ${accuracy}%）を90%以上にすると🏆マスター認定です。`,
+    masteryAction: (name) => `${name} を極める`,
+    reviewAction: (name) => `${name} を復習`,
+    reviewDesc: (accuracy) => `正答率 ${accuracy}% — カテゴリ別で集中的に`,
+    unansweredTitle: (name, count) => `${name} の未回答 ${count}問`,
+    strengthenTitle: (name) => `${name} を強化`,
+    strengthenDesc: (accuracy) => `正答率 ${accuracy}% → 70% を目指そう`,
   },
 
   weakPoint: {
@@ -380,8 +395,10 @@ export const ja: LocaleConfig = {
     quizModesButton: 'クイズモード',
     quizModesDesc: '全体像・実力テスト・カテゴリ別など',
     streakBadge: (days) => `🔥 ${days}日`,
-    unansweredChallenge: '未回答に挑戦',
-    unansweredChallengeDesc: 'まだ解いていない問題をカテゴリ別に',
+    unansweredChallenge: '未正解に挑戦',
+    unansweredChallengeDesc: 'まだ正解していない問題をカテゴリ別に',
+    categoryLabel: (name, answered, total) => `${name}: ${answered}/${total}問`,
+    answeredLabel: (answered, total) => `${answered}/${total}問 正解済み`,
     bookmarkList: 'ブックマーク一覧',
     bookmarkListDesc: '保存した問題の解説を確認',
     reloadApp: 'アプリをリロード',

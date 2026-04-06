@@ -22,8 +22,12 @@ export function ModeSelection() {
   const [snapshotDismissed, setSnapshotDismissed] = useState(() => hasSeenSnapshotToday())
   const [openMenuWithModes, setOpenMenuWithModes] = useState(false)
 
-  const unansweredCount = useMemo(
-    () => allQuestions.filter((q) => !userProgress.hasAttempted(q.id)).length,
+  const incorrectCount = useMemo(
+    () =>
+      allQuestions.filter((q) => {
+        const p = userProgress.questionProgress[q.id]
+        return !p || p.attempts === 0 || !p.lastCorrect
+      }).length,
     [allQuestions, userProgress]
   )
 
@@ -50,7 +54,7 @@ export function ModeSelection() {
           {/* Header */}
           <MenuHeader
             totalQuestions={allQuestions.length}
-            answeredCount={allQuestions.length - unansweredCount}
+            answeredCount={allQuestions.length - incorrectCount}
             hasProgress={userProgress.totalAttempts > 0}
             openWithModes={openMenuWithModes}
             onMenuOpened={() => setOpenMenuWithModes(false)}

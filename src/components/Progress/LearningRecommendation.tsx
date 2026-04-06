@@ -57,8 +57,8 @@ export function LearningRecommendation({ categoryStats, totalAttempts, onStartSe
         type: 'explore' as const,
         icon: <Compass className="h-5 w-5 text-blue-500" />,
         title: locale.recommendation.newArea,
-        message: `${next.icon} ${next.name} をまだ学習していません。新しい知識を広げましょう。`,
-        action: `${next.name} を学ぶ`,
+        message: locale.recommendation.exploreMessage(next.name, next.icon),
+        action: locale.recommendation.exploreAction(next.name),
         onAction: () => onStartSession({ mode: 'category', categoryFilter: next.id }),
       }
     }
@@ -81,8 +81,8 @@ export function LearningRecommendation({ categoryStats, totalAttempts, onStartSe
         type: 'improve' as const,
         icon: <TrendingUp className="h-5 w-5 text-orange-500" />,
         title: locale.recommendation.growthArea,
-        message: `${weakestCat.icon} ${weakestCat.name}（正答率 ${weakestCat.accuracy}%）を重点的に復習すると、大きく成長できます。`,
-        action: `${weakestCat.name} を復習`,
+        message: locale.recommendation.improveMessage(weakestCat.name, weakestCat.icon, weakestCat.accuracy),
+        action: locale.recommendation.improveAction(weakestCat.name),
         onAction: () => onStartSession({ mode: 'category', categoryFilter: weakestCat.id }),
       }
     }
@@ -93,8 +93,8 @@ export function LearningRecommendation({ categoryStats, totalAttempts, onStartSe
         type: 'mastery-push' as const,
         icon: <TrendingUp className="h-5 w-5 text-purple-500" />,
         title: locale.recommendation.expertGoal,
-        message: `${weakestCat.icon} ${weakestCat.name}（正答率 ${weakestCat.accuracy}%）を90%以上にすると🏆マスター認定です。`,
-        action: `${weakestCat.name} を極める`,
+        message: locale.recommendation.masteryMessage(weakestCat.name, weakestCat.icon, weakestCat.accuracy),
+        action: locale.recommendation.masteryAction(weakestCat.name),
         onAction: () => onStartSession({ mode: 'category', categoryFilter: weakestCat.id }),
       }
     }

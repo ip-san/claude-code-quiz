@@ -128,7 +128,11 @@ export function ProgressDashboard() {
             <StatCard label="総回答数" value={userProgress.totalAttempts} icon="📝" />
             <StatCard label="正解数" value={userProgress.totalCorrect} icon="✅" />
             <StatCard label="正答率" value={`${overallAccuracy}%`} icon="📊" />
-            <StatCard label="セッション数" value={`${userProgress.sessionHistory.length}回`} icon="📚" />
+            <StatCard
+              label={locale.progress.sessionCountLabel}
+              value={`${userProgress.sessionHistory.length}${locale.progress.sessionCountSuffix}`}
+              icon="📚"
+            />
           </div>
 
           {/* AI Mastery Level + XP — unified level display */}

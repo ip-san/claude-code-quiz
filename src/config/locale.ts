@@ -181,6 +181,8 @@ export interface LocaleConfig {
     readonly confirmOverwrite: string
     readonly confirmReset: string
     readonly errorPrefix: string
+    readonly sessionCountLabel: string
+    readonly sessionCountSuffix: string
   }
 
   // === Mastery ===
@@ -259,6 +261,17 @@ export interface LocaleConfig {
     readonly retention: string
     readonly retentionMessage: string
     readonly weakModeAction: string
+    readonly exploreMessage: (name: string, icon: string) => string
+    readonly exploreAction: (name: string) => string
+    readonly improveMessage: (name: string, icon: string, accuracy: number) => string
+    readonly improveAction: (name: string) => string
+    readonly masteryMessage: (name: string, icon: string, accuracy: number) => string
+    readonly masteryAction: (name: string) => string
+    readonly reviewAction: (name: string) => string
+    readonly reviewDesc: (accuracy: number) => string
+    readonly unansweredTitle: (name: string, count: number) => string
+    readonly strengthenTitle: (name: string) => string
+    readonly strengthenDesc: (accuracy: number) => string
   }
 
   // === Weak Point ===
@@ -406,6 +419,8 @@ export interface LocaleConfig {
     readonly streakBadge: (days: number) => string
     readonly unansweredChallenge: string
     readonly unansweredChallengeDesc: string
+    readonly categoryLabel: (name: string, answered: number, total: number) => string
+    readonly answeredLabel: (answered: number, total: number) => string
     readonly bookmarkList: string
     readonly bookmarkListDesc: string
     readonly reloadApp: string

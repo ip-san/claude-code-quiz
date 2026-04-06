@@ -45,8 +45,8 @@ export function NextRecommendation({ mode, percentage }: NextRecommendationProps
 
   if (percentage < 50 && weakCategory) {
     icon = '📖'
-    title = `${weakCategory.cat.name} を復習`
-    description = `正答率 ${weakCategory.accuracy}% — カテゴリ別で集中的に`
+    title = locale.recommendation.reviewAction(weakCategory.cat.name)
+    description = locale.recommendation.reviewDesc(weakCategory.accuracy)
     nextMode = 'category'
     categoryFilter = weakCategory.cat.id
   } else if (mode === 'overview' && percentage >= 70) {
@@ -56,14 +56,14 @@ export function NextRecommendation({ mode, percentage }: NextRecommendationProps
     nextMode = 'full'
   } else if (mostUnanswered && mostUnanswered.unanswered > 10) {
     icon = '🗺️'
-    title = `${mostUnanswered.cat.name} の未回答 ${mostUnanswered.unanswered}問`
+    title = locale.recommendation.unansweredTitle(mostUnanswered.cat.name, mostUnanswered.unanswered)
     description = locale.nextRecommend.unansweredDesc
     nextMode = 'unanswered'
     categoryFilter = mostUnanswered.cat.id
   } else if (weakCategory && weakCategory.accuracy < 70) {
     icon = '🎯'
-    title = `${weakCategory.cat.name} を強化`
-    description = `正答率 ${weakCategory.accuracy}% → 70% を目指そう`
+    title = locale.recommendation.strengthenTitle(weakCategory.cat.name)
+    description = locale.recommendation.strengthenDesc(weakCategory.accuracy)
     nextMode = 'category'
     categoryFilter = weakCategory.cat.id
   } else {
