@@ -615,33 +615,50 @@ ${context}
 
       const prompt = prompts[trigger]
       const { spawn } = await import('child_process')
-      const result = await new Promise<string>((resolve, reject) => {
-        let stdout = ''
-        const proc = spawn('claude', ['-p', prompt, '--model', 'opus', '--output-format', 'text'], {
-          cwd: app.getAppPath(),
-          timeout: 120_000,
-          stdio: ['ignore', 'pipe', 'pipe'],
-        })
-        proc.stdout?.on('data', (d: Buffer) => {
-          stdout += d.toString()
-        })
-        proc.on('close', (code) => {
-          if (code === 0) resolve(stdout)
-          else reject(new Error(`opus exited with code ${code}`))
-        })
-        proc.on('error', reject)
-      })
+
+      // Try Opus first, fall back to Sonnet if Opus is unavailable (e.g. plan doesn't include Opus)
+      const models = ['opus', 'sonnet']
+      let result = ''
+      let usedModel = ''
+
+      for (const model of models) {
+        try {
+          result = await new Promise<string>((resolve, reject) => {
+            let stdout = ''
+            const proc = spawn('claude', ['-p', prompt, '--model', model, '--output-format', 'text'], {
+              cwd: app.getAppPath(),
+              timeout: 120_000,
+              stdio: ['ignore', 'pipe', 'pipe'],
+            })
+            proc.stdout?.on('data', (d: Buffer) => {
+              stdout += d.toString()
+            })
+            proc.on('close', (code) => {
+              if (code === 0) resolve(stdout)
+              else reject(new Error(`${model} exited with code ${code}`))
+            })
+            proc.on('error', reject)
+          })
+          usedModel = model
+          break
+        } catch {
+          if (model === 'sonnet') throw new Error('Both opus and sonnet failed')
+          // Opus failed — try Sonnet
+        }
+      }
 
       // Save result
       const { writeFile, mkdir } = await import('fs/promises')
       const storeDir = join(homedir(), '.claude-quiz-recommend')
       await mkdir(storeDir, { recursive: true })
       const outputFile =
-        trigger === 'initial' ? 'learner-type.json' : `opus-${trigger}-${new Date().toISOString().slice(0, 10)}.json`
+        trigger === 'initial'
+          ? 'learner-type.json'
+          : `${usedModel}-${trigger}-${new Date().toISOString().slice(0, 10)}.json`
       const parsed = tryParseJSON(result)
       await writeFile(
         join(storeDir, outputFile),
-        JSON.stringify({ ...parsed, trigger, analyzedAt: new Date().toISOString() }, null, 2)
+        JSON.stringify({ ...parsed, trigger, model: usedModel, analyzedAt: new Date().toISOString() }, null, 2)
       )
 
       return { success: true, result }
