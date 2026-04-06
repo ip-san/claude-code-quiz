@@ -344,10 +344,7 @@ export class QuizSessionService {
 
     // For unanswered mode, filter to incorrect/unanswered questions
     if (config.mode === 'unanswered') {
-      const incorrect = questions.filter((q) => {
-        const qp = userProgress.questionProgress[q.id]
-        return !qp || qp.attempts === 0 || !qp.lastCorrect
-      })
+      const incorrect = questions.filter((q) => !userProgress.isCorrectlyAnswered(q.id))
       if (incorrect.length > 0) {
         questions = incorrect
       }

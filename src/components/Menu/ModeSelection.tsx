@@ -23,11 +23,7 @@ export function ModeSelection() {
   const [openMenuWithModes, setOpenMenuWithModes] = useState(false)
 
   const incorrectCount = useMemo(
-    () =>
-      allQuestions.filter((q) => {
-        const p = userProgress.questionProgress[q.id]
-        return !p || p.attempts === 0 || !p.lastCorrect
-      }).length,
+    () => allQuestions.filter((q) => !userProgress.isCorrectlyAnswered(q.id)).length,
     [allQuestions, userProgress]
   )
 

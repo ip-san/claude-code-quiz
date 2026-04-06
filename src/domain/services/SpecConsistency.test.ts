@@ -194,10 +194,10 @@ describe('Spec Consistency: Locale completeness', () => {
     }
   })
 
-  it('header answered count uses correct-based logic, not attempt-based', () => {
+  it('header answered count uses isCorrectlyAnswered, not hasAttempted', () => {
     const source = readFileSync('src/components/Menu/ModeSelection.tsx', 'utf8')
-    // Should count by lastCorrect, not by hasAttempted
-    expect(source).toContain('lastCorrect')
+    // Should use the centralized isCorrectlyAnswered method
+    expect(source).toContain('isCorrectlyAnswered')
     expect(source).not.toContain('hasAttempted')
   })
 })

@@ -67,11 +67,7 @@ export function CategoryPicker({ onClose, mode = 'category', title }: CategoryPi
 
             // Count incorrect/unanswered for this category
             const unansweredCount = isUnanswered
-              ? allQuestions.filter((q) => {
-                  if (q.category !== cat.id) return false
-                  const p = userProgress.questionProgress[q.id]
-                  return !p || p.attempts === 0 || !p.lastCorrect
-                }).length
+              ? allQuestions.filter((q) => q.category === cat.id && !userProgress.isCorrectlyAnswered(q.id)).length
               : 0
 
             const disabled = isUnanswered && unansweredCount === 0
@@ -148,13 +144,10 @@ function UnansweredProgress({
   userProgress,
 }: {
   allQuestions: readonly { id: string }[]
-  userProgress: { questionProgress: Record<string, { attempts: number; lastCorrect?: boolean }> }
+  userProgress: { isCorrectlyAnswered: (id: string) => boolean }
 }) {
   const total = allQuestions.length
-  const correct = allQuestions.filter((q) => {
-    const p = userProgress.questionProgress[q.id]
-    return p && p.attempts > 0 && p.lastCorrect
-  }).length
+  const correct = allQuestions.filter((q) => userProgress.isCorrectlyAnswered(q.id)).length
   const pct = total > 0 ? Math.round((correct / total) * 100) : 0
 
   return (

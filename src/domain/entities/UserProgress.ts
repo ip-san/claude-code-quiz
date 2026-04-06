@@ -399,6 +399,17 @@ export class UserProgress {
   }
 
   /**
+   * この問題を正解済みか（最後の回答が正解）
+   *
+   * 未回答・不正解の両方を「未正解」として扱う。
+   * 全画面で統一して使用すること（ロジックの分散を防ぐ）。
+   */
+  isCorrectlyAnswered(questionId: string): boolean {
+    const qp = this.questionProgress[questionId]
+    return !!qp && qp.attempts > 0 && !!qp.lastCorrect
+  }
+
+  /**
    * XPを加算する（ボーナスXP等）
    */
   addXp(amount: number): UserProgress {

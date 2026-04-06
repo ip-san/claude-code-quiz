@@ -47,13 +47,10 @@ export function ChapterProgressMap({
       const isComplete = answered === total && total > 0
       const correctPct = total > 0 ? Math.round((correct / total) * 100) : 0
 
-      // "続きから" は最初の未正解問題から開始（不正解 or 未回答）
+      // "続きから" は最初の未正解問題から開始
       let resumeIndex = startIndex
       if (answered > 0 && correct < total) {
-        const firstIncomplete = chapterQuestions.find((q) => {
-          const p = userProgress.questionProgress[q.id]
-          return !p || p.attempts === 0 || !p.lastCorrect
-        })
+        const firstIncomplete = chapterQuestions.find((q) => !userProgress.isCorrectlyAnswered(q.id))
         if (firstIncomplete) {
           resumeIndex = overviewQuestions.indexOf(firstIncomplete)
         }
@@ -63,12 +60,7 @@ export function ChapterProgressMap({
       const allIds = chapterQuestions.map((q) => q.id)
 
       // 未正解の問題IDリスト（続きから用）
-      const incompleteIds = chapterQuestions
-        .filter((q) => {
-          const p = userProgress.questionProgress[q.id]
-          return !p || p.attempts === 0 || !p.lastCorrect
-        })
-        .map((q) => q.id)
+      const incompleteIds = chapterQuestions.filter((q) => !userProgress.isCorrectlyAnswered(q.id)).map((q) => q.id)
 
       return {
         ...ch,

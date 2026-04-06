@@ -77,10 +77,7 @@ export function ExplanationReader() {
         break
       }
       case 'unanswered':
-        questions = questions.filter((q) => {
-          const p = userProgress.questionProgress[q.id]
-          return !p || p.attempts === 0 || !p.lastCorrect
-        })
+        questions = questions.filter((q) => !userProgress.isCorrectlyAnswered(q.id))
         break
     }
 
