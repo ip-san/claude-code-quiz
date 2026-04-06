@@ -92,7 +92,11 @@ export function ChapterProgressMap({ allQuestions, userProgress, onStartChapter 
                 <span>
                   {ch.correct}/{ch.total}問正解
                 </span>
-                {ch.answered > 0 && <span>{Math.round((ch.correct / ch.total) * 100)}%</span>}
+                {ch.correctPct === 100 ? (
+                  <span className="text-green-600">✓</span>
+                ) : ch.correct > 0 || ch.answered > 0 ? (
+                  <span>あと{ch.total - ch.correct}問</span>
+                ) : null}
               </div>
             </button>
           )
