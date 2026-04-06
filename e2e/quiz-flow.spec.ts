@@ -247,7 +247,7 @@ test.describe('Quiz App E2E', () => {
     await expect(page.getByText('前回の続きがあります')).toBeVisible({ timeout: 3000 })
 
     // Click resume
-    await page.getByRole('button', { name: /続きから再開/ }).click()
+    await page.getByRole('button', { name: /続きから/ }).click()
 
     // Should be back in quiz with options visible
     await page.waitForSelector('[role="option"], [role="checkbox"]', { timeout: 5000 })
@@ -332,12 +332,12 @@ test.describe('Quiz App E2E', () => {
     const menu = page.getByRole('dialog', { name: 'メニュー' })
 
     // Scroll down if needed and click unanswered
-    const unansweredItem = menu.getByRole('button', { name: /未回答に挑戦/ })
+    const unansweredItem = menu.getByRole('button', { name: /未正解に挑戦/ })
     await expect(unansweredItem).toBeVisible({ timeout: 3000 })
     await unansweredItem.click()
 
     // Category picker should show with progress info
-    await expect(page.getByText(/回答済み/)).toBeVisible({ timeout: 3000 })
+    await expect(page.getByText(/正解済み/)).toBeVisible({ timeout: 3000 })
   })
 
   test('app loads without errors', async ({ page }) => {
@@ -646,6 +646,160 @@ test.describe('Quiz App E2E', () => {
         return { questionCount: data.questionIds?.length }
       })
       expect(progress?.questionCount).toBe(2)
+    }
+  })
+})
+
+// ============================================================
+// Spec Bug Prevention: displayed count = actual session count
+// ============================================================
+
+/** Get the actual question count from the active session in localStorage */
+async function getSessionQuestionCount(page: Page): Promise<number | null> {
+  return page.evaluate(() => {
+    const stored = localStorage.getItem('claude-code-quiz-session')
+    if (!stored) return null
+    const data = JSON.parse(stored)
+    return data.questionIds?.length ?? null
+  })
+}
+
+/** Extract a number from text like "34問" or "20問" */
+function extractCount(text: string | null): number | null {
+  if (!text) return null
+  const match = text.match(/(\d+)問/)
+  return match ? Number(match[1]) : null
+}
+
+test.describe('Spec Bug Prevention: displayed count matches session count', () => {
+  test.beforeEach(async ({ page }) => {
+    await page.goto('/')
+    await page.evaluate(() => localStorage.clear())
+    await page.reload()
+    await page.waitForLoadState('networkidle')
+  })
+
+  test('random mode: menu says 20問, session has 20 questions', async ({ page }) => {
+    await goToMenu(page)
+    await startRandomQuiz(page)
+
+    const count = await getSessionQuestionCount(page)
+    expect(count).toBe(20)
+  })
+
+  test('full test mode: menu says 100問, session has 100 questions', async ({ page }) => {
+    await goToMenu(page)
+
+    // Start full test
+    await page.getByRole('button', { name: 'メニューを開く' }).click()
+    const menu = page.getByRole('dialog', { name: 'メニュー' })
+    await menu.getByRole('button', { name: /クイズモード/ }).click()
+    await menu.getByText('実力テスト').click()
+    await page.waitForSelector('[role="listbox"], [role="group"]', { timeout: 5000 })
+
+    const count = await getSessionQuestionCount(page)
+    expect(count).toBe(100)
+  })
+
+  test('chapter start: displayed N問 matches session question count', async ({ page }) => {
+    // Inject some progress so ChapterProgressMap is visible
+    await page.evaluate(() => {
+      const now = Date.now()
+      localStorage.setItem(
+        'claude-code-quiz-progress',
+        JSON.stringify({
+          modifiedAt: now,
+          questionProgress: {
+            'bp-001': {
+              questionId: 'bp-001',
+              attempts: 1,
+              correctCount: 1,
+              lastAttemptAt: now,
+              lastCorrect: true,
+              correctStreak: 1,
+            },
+          },
+          categoryProgress: {},
+          totalAttempts: 1,
+          totalCorrect: 1,
+          totalXp: 10,
+          streakDays: 1,
+          lastSessionAt: now,
+        })
+      )
+    })
+    await page.reload()
+    await page.waitForLoadState('networkidle')
+    await goToMenu(page)
+
+    // Find a chapter card and read its displayed count
+    const ch2Button = page.locator('button', { hasText: 'Ch.2' })
+    if (await ch2Button.isVisible({ timeout: 3000 }).catch(() => false)) {
+      const cardText = await ch2Button.textContent()
+      const displayedTotal = extractCount(cardText)
+
+      // Click to expand, then start
+      await ch2Button.click()
+      const startBtn = page.getByRole('button', { name: /始める|続きから/ })
+      await expect(startBtn).toBeVisible({ timeout: 3000 })
+      await startBtn.click()
+
+      // Verify session question count matches displayed count
+      await page.waitForSelector('[role="listbox"], [role="group"]', { timeout: 5000 })
+      const sessionCount = await getSessionQuestionCount(page)
+
+      if (displayedTotal !== null) {
+        expect(sessionCount, `Ch.2 displayed ${displayedTotal}問 but session has ${sessionCount}`).toBe(displayedTotal)
+      }
+    }
+  })
+
+  test('QuickActions: displayed count matches session count', async ({ page }) => {
+    // Inject progress with some answers so QuickActions shows
+    await page.evaluate(() => {
+      const now = Date.now()
+      const qp: Record<string, unknown> = {}
+      // Create 5 answered questions
+      for (const id of ['bp-001', 'bp-002', 'bp-003', 'mem-001', 'mem-003']) {
+        qp[id] = {
+          questionId: id,
+          attempts: 1,
+          correctCount: 1,
+          lastAttemptAt: now,
+          lastCorrect: true,
+          correctStreak: 1,
+        }
+      }
+      localStorage.setItem(
+        'claude-code-quiz-progress',
+        JSON.stringify({
+          modifiedAt: now,
+          questionProgress: qp,
+          categoryProgress: {},
+          totalAttempts: 5,
+          totalCorrect: 5,
+          totalXp: 50,
+          streakDays: 1,
+          lastSessionAt: now,
+          dailyAnswerCounts: {},
+          bookmarkedQuestionIds: [],
+        })
+      )
+      // Dismiss snapshot so QuickActions shows
+      localStorage.setItem('claude-code-quiz-snapshot-dismissed', new Date().toISOString().slice(0, 10))
+    })
+    await page.reload()
+    await page.waitForLoadState('networkidle')
+    await goToMenu(page)
+
+    // Find the ランダム20問 quick action button
+    const randomButton = page.locator('button', { hasText: 'ランダム20問' })
+    if (await randomButton.isVisible({ timeout: 3000 }).catch(() => false)) {
+      await randomButton.click()
+      await page.waitForSelector('[role="listbox"], [role="group"]', { timeout: 5000 })
+
+      const count = await getSessionQuestionCount(page)
+      expect(count, 'ランダム20問 should start 20 questions').toBe(20)
     }
   })
 })
