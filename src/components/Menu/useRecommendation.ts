@@ -195,19 +195,15 @@ export function useRecommendation() {
 
   const shuffle = useCallback(() => {
     if (!analysis) return
+    if (!window.confirm(locale.recommend.confirmReanalyze)) return
     haptics.light()
 
-    const shuffledSamples = [...analysis.promptSamples].sort(() => Math.random() - 0.5)
-    const newAnalysis = { ...analysis, promptSamples: shuffledSamples }
-    setAnalysis(newAnalysis)
-    const prevIds = new Set(recommendations.map((r) => r.id))
-    const { recs, unused } = computeRecommendations(newAnalysis, allQuestions, prevIds)
-    setRecommendations(recs)
-    setUnusedCategories(unused)
-
-    // Background AI regeneration
+    // Clear current display and show loading state
+    setAnalysis(null)
+    setRecommendations([])
+    setLoading(true)
     setRegenerated(false)
-    setRegenerating(true)
+    setRegenerating(false)
     startTimer()
     window.electronAPI?.clearRecommendCache?.()
     window.electronAPI
@@ -215,15 +211,19 @@ export function useRecommendation() {
       .then(async (result) => {
         stopTimer()
         setRegenerating(false)
+        setLoading(false)
         if (result?.success) {
           await loadFromCache()
           setRegenerated(true)
           haptics.medium()
+        } else {
+          setAiError(locale.recommend.analyzingProgress)
         }
       })
       .catch(() => {
         stopTimer()
         setRegenerating(false)
+        setLoading(false)
       })
   }, [analysis, allQuestions, recommendations, loadFromCache, startTimer, stopTimer])
 
