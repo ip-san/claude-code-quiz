@@ -41,7 +41,7 @@ export function CertificateGenerator({ score, total, percentage, mode }: Certifi
       levelName: mastery.name,
       name,
       scoreLine: `${percentage}%`,
-      subScoreLine: `${score} / ${total} 問正解`,
+      subScoreLine: `${score} / ${total} ${locale.common.questionSuffix}`,
       description: certDesc,
       overallAccuracy,
     })
@@ -76,7 +76,7 @@ export function CertificateGenerator({ score, total, percentage, mode }: Certifi
     <div className={`mb-4 rounded-2xl border bg-gradient-to-r p-4 text-center ${uiColors[levelIndex]}`}>
       <div className="mb-2 text-3xl">{mastery.icon}</div>
       <p className={`mb-1 text-sm font-bold ${textColors[levelIndex]}`}>{design.title}</p>
-      <p className={`mb-3 text-xs ${subTextColors[levelIndex]}`}>{mastery.name}として証明書を発行できます</p>
+      <p className={`mb-3 text-xs ${subTextColors[levelIndex]}`}>{locale.certificate.canIssue}</p>
       <input
         type="text"
         value={name}

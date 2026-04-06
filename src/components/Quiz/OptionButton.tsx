@@ -1,4 +1,5 @@
 import { CheckSquare, Square, X } from 'lucide-react'
+import { locale } from '@/config/locale'
 import { QuizText } from './QuizText'
 
 interface OptionButtonProps {
@@ -88,15 +89,15 @@ export function OptionButton({
 
   // Accessibility label construction
   const getAriaLabel = () => {
-    const base = `選択肢${optionLabel}: ${text}`
+    const base = locale.quizCard.optionBase(optionLabel, text)
     if (!isAnswered) {
-      return isSelected ? `${base}（選択中）` : base
+      return isSelected ? `${base}${locale.quizCard.optionSelected}` : base
     }
     if (isCorrect) {
-      return `${base}（正解）`
+      return `${base}${locale.quizCard.optionCorrect}`
     }
     if (isSelected && !isCorrect) {
-      return `${base}（不正解）`
+      return `${base}${locale.quizCard.optionIncorrect}`
     }
     return base
   }

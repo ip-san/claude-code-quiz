@@ -30,8 +30,8 @@ export function MasteryLevel({ overallAccuracy, totalAttempts, totalXp, category
       levelIcon: mastery.icon,
       levelName: mastery.name,
       name,
-      scoreLine: `総合正答率 ${overallAccuracy}%`,
-      description: `${mastery.name}レベル到達`,
+      scoreLine: `${locale.progress.accuracy} ${overallAccuracy}%`,
+      description: locale.mastery.levelReached(mastery.name, locale.common.start),
     })
   }
 
@@ -42,7 +42,11 @@ export function MasteryLevel({ overallAccuracy, totalAttempts, totalXp, category
         <div className="flex-1">
           <div className="flex items-center gap-2">
             <span className={`text-sm font-bold ${current.color}`}>{current.name}</span>
-            <div className="flex gap-1" role="img" aria-label={`レベル ${currentIndex + 1} / ${levels.length}`}>
+            <div
+              className="flex gap-1"
+              role="img"
+              aria-label={`${locale.shareImage.levelLabel} ${currentIndex + 1} / ${levels.length}`}
+            >
               {levels.map((level, i) => (
                 <div
                   key={level.name}

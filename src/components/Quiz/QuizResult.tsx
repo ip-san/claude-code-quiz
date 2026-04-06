@@ -419,7 +419,7 @@ function ShareSection({
                 navigator
                   .share({
                     title: theme.appName,
-                    text: `${stars}\n${theme.appName}: ${score}/${answeredCount}問正解 (${percentage}%)\n${isPassing ? '✅ 合格！' : '📚 もう少し！'}\n${mastery.icon} ${mastery.name} | ${userProgress.totalXp} XP\n${theme.shareHashtags}`,
+                    text: `${stars}\n${theme.appName}: ${score}/${answeredCount}${locale.common.questionSuffix} (${percentage}%)\n${isPassing ? locale.result.passing : locale.result.notPassing}\n${mastery.icon} ${mastery.name} | ${userProgress.totalXp} XP\n${theme.shareHashtags}`,
                     url: window.location.href,
                   })
                   .then(() => trackShare('native'))

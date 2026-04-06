@@ -64,6 +64,10 @@ export const ja: LocaleConfig = {
     questionLabel: (index, answered) => `問題${index}${answered ? '（回答済み）' : ''}`,
     submitAnswer: '回答する',
     selectOption: '選択肢を選ぶ',
+    optionBase: (label, text) => `選択肢${label}: ${text}`,
+    optionSelected: '（選択中）',
+    optionCorrect: '（正解）',
+    optionIncorrect: '（不正解）',
   },
 
   result: {

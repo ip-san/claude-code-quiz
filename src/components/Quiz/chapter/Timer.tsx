@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useRef } from 'react'
+import { locale } from '@/config/locale'
 import { haptics } from '@/lib/haptics'
 import { useQuizStore } from '@/stores/quizStore'
 
@@ -77,7 +78,7 @@ export function Timer() {
       }`}
       role="timer"
       aria-live={timeRemaining <= 10 ? 'assertive' : 'off'}
-      aria-label={`残り時間 ${minutes}分${seconds}秒`}
+      aria-label={locale.timer.remaining(minutes, seconds)}
     >
       <svg
         xmlns="http://www.w3.org/2000/svg"

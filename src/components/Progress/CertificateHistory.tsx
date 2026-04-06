@@ -52,7 +52,7 @@ export function CertificateHistory({ sessionHistory, masteryIndex, overallAccura
       title: LEVEL_DESIGNS[i].title,
       color: CERT_COLORS[i],
       description: locale.mastery.levelReached(level.name, level.req ?? locale.common.start),
-      scoreLine: `総合正答率 ${overallAccuracy}%`,
+      scoreLine: `${locale.progress.accuracy} ${overallAccuracy}%`,
     })
   }
 
@@ -70,7 +70,7 @@ export function CertificateHistory({ sessionHistory, masteryIndex, overallAccura
         icon: theme.masteryLevels[levelIndex].icon,
         title: LEVEL_DESIGNS[levelIndex].title,
         color: CERT_COLORS[levelIndex],
-        description: `${modeLabel(session.mode)} — ${session.percentage}%（${session.score}/${session.totalQuestions}問）`,
+        description: `${modeLabel(session.mode)} — ${session.percentage}%（${session.score}/${session.totalQuestions}${locale.common.questionSuffix}）`,
         scoreLine: `${session.percentage}%`,
         date: new Date(session.completedAt).toLocaleDateString('ja-JP', { month: 'short', day: 'numeric' }),
       })
@@ -129,7 +129,7 @@ export function CertificateHistory({ sessionHistory, masteryIndex, overallAccura
             <button
               onClick={() => handleDownload(cert)}
               className="tap-highlight shrink-0 rounded-full p-2 text-stone-400 hover:text-claude-orange"
-              aria-label={`${cert.title}をダウンロード`}
+              aria-label={`${cert.title} ${locale.mastery.downloadCert}`}
             >
               <Download className="h-4 w-4" />
             </button>

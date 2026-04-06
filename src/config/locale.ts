@@ -68,6 +68,10 @@ export interface LocaleConfig {
     readonly questionLabel: (index: number, answered: boolean) => string
     readonly submitAnswer: string
     readonly selectOption: string
+    readonly optionBase: (label: string, text: string) => string
+    readonly optionSelected: string
+    readonly optionCorrect: string
+    readonly optionIncorrect: string
   }
 
   // === Quiz Result ===
