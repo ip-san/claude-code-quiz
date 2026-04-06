@@ -342,11 +342,14 @@ export class QuizSessionService {
       }
     }
 
-    // For unanswered mode, filter to unanswered questions
+    // For unanswered mode, filter to incorrect/unanswered questions
     if (config.mode === 'unanswered') {
-      const unanswered = questions.filter((q) => !userProgress.hasAttempted(q.id))
-      if (unanswered.length > 0) {
-        questions = unanswered
+      const incorrect = questions.filter((q) => {
+        const qp = userProgress.questionProgress[q.id]
+        return !qp || qp.attempts === 0 || !qp.lastCorrect
+      })
+      if (incorrect.length > 0) {
+        questions = incorrect
       }
     }
 

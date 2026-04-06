@@ -65,9 +65,13 @@ export function CategoryPicker({ onClose, mode = 'category', title }: CategoryPi
             const accuracy = catStats?.accuracy ?? 0
             const attempted = (catStats?.attemptedQuestions ?? 0) > 0
 
-            // Count unanswered for this category
+            // Count incorrect/unanswered for this category
             const unansweredCount = isUnanswered
-              ? allQuestions.filter((q) => q.category === cat.id && !userProgress.hasAttempted(q.id)).length
+              ? allQuestions.filter((q) => {
+                  if (q.category !== cat.id) return false
+                  const p = userProgress.questionProgress[q.id]
+                  return !p || p.attempts === 0 || !p.lastCorrect
+                }).length
               : 0
 
             const disabled = isUnanswered && unansweredCount === 0
@@ -144,17 +148,20 @@ function UnansweredProgress({
   userProgress,
 }: {
   allQuestions: readonly { id: string }[]
-  userProgress: { hasAttempted: (id: string) => boolean }
+  userProgress: { questionProgress: Record<string, { attempts: number; lastCorrect?: boolean }> }
 }) {
   const total = allQuestions.length
-  const answered = allQuestions.filter((q) => userProgress.hasAttempted(q.id)).length
-  const pct = total > 0 ? Math.round((answered / total) * 100) : 0
+  const correct = allQuestions.filter((q) => {
+    const p = userProgress.questionProgress[q.id]
+    return p && p.attempts > 0 && p.lastCorrect
+  }).length
+  const pct = total > 0 ? Math.round((correct / total) * 100) : 0
 
   return (
     <div className="mb-3">
       <div className="mb-1 flex justify-between text-xs text-stone-500">
         <span>
-          {answered} / {total} 問 回答済み
+          {correct} / {total} {locale.common.questionSuffix} {locale.menu.answered}
         </span>
         <span>{pct}%</span>
       </div>
@@ -164,7 +171,7 @@ function UnansweredProgress({
         aria-valuenow={pct}
         aria-valuemin={0}
         aria-valuemax={100}
-        aria-label={locale.menuHeader.answeredLabel(answered, total)}
+        aria-label={locale.menuHeader.answeredLabel(correct, total)}
       >
         <div className="h-full rounded-full bg-claude-orange transition-all" style={{ width: `${pct}%` }} />
       </div>

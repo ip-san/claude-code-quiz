@@ -392,7 +392,11 @@ export function MenuHeader({
       <KeyboardShortcutHelp isOpen={showShortcuts} onClose={() => setShowShortcuts(false)} />
       {showCategoryPicker && <CategoryPicker onClose={() => setShowCategoryPicker(false)} />}
       {showUnansweredPicker && (
-        <CategoryPicker onClose={() => setShowUnansweredPicker(false)} mode="unanswered" title="未回答に挑戦" />
+        <CategoryPicker
+          onClose={() => setShowUnansweredPicker(false)}
+          mode="unanswered"
+          title={locale.menuHeader.unansweredChallenge}
+        />
       )}
     </>
   )
