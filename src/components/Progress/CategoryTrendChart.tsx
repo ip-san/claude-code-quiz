@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { locale } from '@/config/locale'
 import type { SessionRecord } from '@/domain/entities/UserProgress'
 import { type Category, PREDEFINED_CATEGORIES } from '@/domain/valueObjects/Category'
 import { getColorHex } from '@/lib/colors'
@@ -193,8 +194,8 @@ export function CategoryTrendChart({ sessions }: CategoryTrendChartProps) {
             })}
           </svg>
           <div className="mt-1 flex items-center justify-between text-xs text-stone-500">
-            <span>過去</span>
-            <span>最新</span>
+            <span>{locale.progress.past}</span>
+            <span>{locale.progress.latest}</span>
           </div>
         </>
       )}

@@ -224,7 +224,7 @@ export function MenuHeader({
               </MenuSection>
 
               {/* Quiz modes */}
-              <MenuSection title="学習">
+              <MenuSection title={locale.menuHeader.learningSection}>
                 <button
                   onClick={() => setModesExpanded(!modesExpanded)}
                   className="tap-highlight flex w-full items-center gap-3 px-4 py-3 text-left text-sm text-claude-dark dark:text-stone-200"
@@ -272,8 +272,8 @@ export function MenuHeader({
                 />
                 <MenuItem
                   icon={<HelpCircle className="h-4.5 w-4.5" />}
-                  label="未回答に挑戦"
-                  sublabel="まだ解いていない問題をカテゴリ別に"
+                  label={locale.menuHeader.unansweredChallenge}
+                  sublabel={locale.menuHeader.unansweredChallengeDesc}
                   onClick={() => {
                     haptics.light()
                     setMenuOpen(false)
@@ -289,7 +289,7 @@ export function MenuHeader({
               </MenuSection>
 
               {/* Resources */}
-              <MenuSection title="リファレンス">
+              <MenuSection title={locale.menuHeader.referenceSection}>
                 {bookmarkedCount > 0 ? (
                   <>
                     <MenuItem
@@ -300,8 +300,8 @@ export function MenuHeader({
                     />
                     <MenuItem
                       icon={<List className="h-4.5 w-4.5" />}
-                      label="ブックマーク一覧"
-                      sublabel="保存した問題の解説を確認"
+                      label={locale.menuHeader.bookmarkList}
+                      sublabel={locale.menuHeader.bookmarkListDesc}
                       onClick={() => handleMenuAction(() => openReaderWithFilter('bookmarked'))}
                     />
                   </>
@@ -335,7 +335,7 @@ export function MenuHeader({
               </MenuSection>
 
               {/* Settings */}
-              <MenuSection title="設定">
+              <MenuSection title={locale.menuHeader.settingsSection}>
                 <MenuItem
                   icon={currentTheme === 'dark' ? <Sun className="h-4.5 w-4.5" /> : <Moon className="h-4.5 w-4.5" />}
                   label={currentTheme === 'dark' ? locale.menuHeader.lightMode : locale.menuHeader.darkMode}
@@ -356,7 +356,7 @@ export function MenuHeader({
                 {isElectron ? (
                   <MenuItem
                     icon={<RefreshCw className="h-4.5 w-4.5" />}
-                    label="アプリをリロード"
+                    label={locale.menuHeader.reloadApp}
                     onClick={() => handleMenuAction(() => window.location.reload())}
                   />
                 ) : (

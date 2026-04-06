@@ -59,13 +59,14 @@ export function QuickActions({ allQuestions, userProgress, onStart }: QuickActio
     })
 
     // Weak mode — when user has weak questions
+    // Note: actual session includes prerequisites (beginner questions in weak categories),
+    // so session count may exceed weakCount. Display "20問" as the session size.
     if (weakCount > 0) {
-      const weakSessionCount = Math.min(weakCount, 20)
       candidates.push({
         mode: 'weak',
         icon: '🔥',
         label: '苦手克服',
-        sublabel: weakCount <= 20 ? `${weakCount}問を出題` : `${weakCount}問中${weakSessionCount}問`,
+        sublabel: `苦手${weakCount}問+基礎`,
         priority: 80,
       })
     }

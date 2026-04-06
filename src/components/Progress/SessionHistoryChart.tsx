@@ -1,3 +1,4 @@
+import { locale } from '@/config/locale'
 import type { SessionRecord } from '@/domain/entities/UserProgress'
 import { cardStyles } from '@/lib/styles'
 
@@ -100,12 +101,12 @@ export function SessionHistoryChart({ sessions }: SessionHistoryChartProps) {
         {/* Data points */}
         {points.map((p, i) => (
           <circle key={i} cx={p.x} cy={p.y} r={3} fill="#D97757" stroke={dotStroke} strokeWidth={1.5}>
-            <title>{`セッション${i + 1}: ${p.percentage}%`}</title>
+            <title>{`${locale.sessionHistory.sessionLabel(i + 1)}: ${p.percentage}%`}</title>
           </circle>
         ))}
       </svg>
       <div className="mt-1 flex items-center justify-between text-xs text-stone-500">
-        <span>過去</span>
+        <span>{locale.progress.past}</span>
         <span className="flex items-center gap-1">
           <span
             className="inline-block h-px w-4 bg-claude-orange opacity-50"
@@ -113,7 +114,7 @@ export function SessionHistoryChart({ sessions }: SessionHistoryChartProps) {
           />
           合格ライン(70%)
         </span>
-        <span>最新</span>
+        <span>{locale.progress.latest}</span>
       </div>
     </div>
   )

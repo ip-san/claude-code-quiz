@@ -1,5 +1,6 @@
 import { Download } from 'lucide-react'
 import { useState } from 'react'
+import { locale } from '@/config/locale'
 import { theme } from '@/config/theme'
 import { getMasteryLevel } from '@/domain/services/MasteryLevelService'
 import { generateCertificate, LEVEL_DESIGNS } from '@/lib/certificateCanvas'
@@ -55,15 +56,16 @@ export function MasteryLevel({ overallAccuracy, totalAttempts, totalXp, category
               次: {next.icon} {next.name}（{next.req}）
             </p>
           )}
-          <p className="mt-0.5 text-xs text-stone-400" title="正解+10 XP、不正解+2 XP、復習正解+15 XP">
-            累計 {totalXp} XP{totalAttempts > 0 && `（平均 ${(totalXp / totalAttempts).toFixed(1)} XP/問）`}
+          <p className="mt-0.5 text-xs text-stone-400" title={locale.mastery.xpTooltip}>
+            {locale.mastery.totalXpLabel(totalXp)}
+            {totalAttempts > 0 && locale.mastery.avgXpLabel((totalXp / totalAttempts).toFixed(1))}
           </p>
         </div>
         {canDownload && (
           <button
             onClick={() => setShowDownload((v) => !v)}
             className="tap-highlight rounded-full p-2 text-stone-400 hover:text-claude-orange"
-            aria-label="修了証をダウンロード"
+            aria-label={locale.mastery.downloadCert}
           >
             <Download className="h-4 w-4" />
           </button>

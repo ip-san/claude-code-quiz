@@ -24,6 +24,8 @@ export const ja: LocaleConfig = {
 
   welcome: {
     startButton: 'はじめる',
+    tryOneQuestion: '今すぐ1問だけ試す',
+    tryOneSessionLabel: '今すぐ1問',
   },
 
   feedback: {
@@ -99,6 +101,16 @@ export const ja: LocaleConfig = {
     noResults: '該当する問題が見つかりません',
     resultsSuffix: '件',
     searchResultsFor: 'の検索結果',
+    searchReference: '検索・リファレンス',
+    inputPlaceholder: '例: CLAUDE.md, MCP, hooks',
+    categoryFilterLabel: 'カテゴリフィルタ',
+    allCategories: '全て',
+    saved: '保存済み',
+    learnLater: '後で学ぶ',
+    challengeQuestions: (count) => `${count}問に挑戦`,
+    showAllRemaining: (remaining) => `すべて表示（残り ${remaining}件）`,
+    searchResultsTitle: (query) => `「${query}」の検索結果`,
+    correctMark: (score, total) => `${score}/${total}問正解`,
   },
 
   daily: {
@@ -116,6 +128,8 @@ export const ja: LocaleConfig = {
     amazing20: '圧巻！',
     great10: '絶好調！',
     nice5: 'すごい！',
+    good3: 'いい調子！',
+    streakMessage: (label, count) => `${label} ${count}問連続正解`,
   },
 
   progress: {
@@ -144,6 +158,10 @@ export const ja: LocaleConfig = {
     nextPrefix: '次: ',
     nextLevelProgress: '次のレベルへの進捗',
     maxLevel: theme.masteryMaxMessage,
+    totalXpLabel: (xp) => `累計 ${xp} XP`,
+    avgXpLabel: (avg) => `（平均 ${avg} XP/問）`,
+    xpTooltip: '正解+10 XP、不正解+2 XP、復習正解+15 XP',
+    downloadCert: '修了証をダウンロード',
   },
 
   teamShare: {
@@ -165,10 +183,18 @@ export const ja: LocaleConfig = {
   resumeSession: {
     discardLabel: '保存されたセッションを破棄',
     discardButton: '破棄',
+    hasResume: '前回の続きがあります',
+    resumeButton: '続きから',
+    correctSuffix: '問正解',
   },
 
   install: {
     useAsApp: 'アプリとして使う',
+    iosStep1: '共有ボタン（□↑）をタップ',
+    iosStep2: '「ホーム画面に追加」をタップ',
+    installApp: 'アプリをインストール',
+    installDesc: 'ホーム画面に追加してアプリとして使えます',
+    addButton: '追加',
   },
 
   diagrams: {
@@ -210,6 +236,7 @@ export const ja: LocaleConfig = {
       review: '復習',
       quick: '復習チェック',
     },
+    sessionLabel: (index) => `セッション${index}`,
   },
 
   reader: {
@@ -258,6 +285,16 @@ export const ja: LocaleConfig = {
     learningPointsHeading: 'このチャプターで学ぶこと',
     startLearning: '学習を始める',
     startChapter: 'チャプターを始める',
+  },
+
+  chapterComplete: {
+    complete: '完了',
+    wellDone: 'よくできました！次のチャプターに進みましょう。',
+    reviewAdvice: '解説を見返して理解を深めましょう。',
+    nextChapter: '次のチャプターへ',
+    seeResults: '結果を見る',
+    stopForToday: '今日はここまで',
+    correctSuffix: (score, total) => `${score}/${total}問正解`,
   },
 
   studyFirst: {
@@ -314,6 +351,14 @@ export const ja: LocaleConfig = {
     quizModesButton: 'クイズモード',
     quizModesDesc: '全体像・実力テスト・カテゴリ別など',
     streakBadge: (days) => `🔥 ${days}日`,
+    unansweredChallenge: '未回答に挑戦',
+    unansweredChallengeDesc: 'まだ解いていない問題をカテゴリ別に',
+    bookmarkList: 'ブックマーク一覧',
+    bookmarkListDesc: '保存した問題の解説を確認',
+    reloadApp: 'アプリをリロード',
+    learningSection: '学習',
+    referenceSection: 'リファレンス',
+    settingsSection: '設定',
   },
 
   weakPointDetail: {

@@ -26,6 +26,8 @@ export interface LocaleConfig {
   // === Welcome ===
   readonly welcome: {
     readonly startButton: string
+    readonly tryOneQuestion: string
+    readonly tryOneSessionLabel: string
   }
 
   // === Quiz Feedback ===
@@ -107,6 +109,16 @@ export interface LocaleConfig {
     readonly noResults: string
     readonly resultsSuffix: string
     readonly searchResultsFor: string
+    readonly searchReference: string
+    readonly inputPlaceholder: string
+    readonly categoryFilterLabel: string
+    readonly allCategories: string
+    readonly saved: string
+    readonly learnLater: string
+    readonly challengeQuestions: (count: number) => string
+    readonly showAllRemaining: (remaining: number) => string
+    readonly searchResultsTitle: (query: string) => string
+    readonly correctMark: (score: number, total: number) => string
   }
 
   // === Daily ===
@@ -126,6 +138,8 @@ export interface LocaleConfig {
     readonly amazing20: string
     readonly great10: string
     readonly nice5: string
+    readonly good3: string
+    readonly streakMessage: (label: string, count: number) => string
   }
 
   // === Progress ===
@@ -156,6 +170,10 @@ export interface LocaleConfig {
     readonly nextPrefix: string
     readonly nextLevelProgress: string
     readonly maxLevel: string
+    readonly totalXpLabel: (xp: number) => string
+    readonly avgXpLabel: (avg: string) => string
+    readonly xpTooltip: string
+    readonly downloadCert: string
   }
 
   // === Team Share ===
@@ -180,11 +198,19 @@ export interface LocaleConfig {
   readonly resumeSession: {
     readonly discardLabel: string
     readonly discardButton: string
+    readonly hasResume: string
+    readonly resumeButton: string
+    readonly correctSuffix: string
   }
 
   // === Install Prompt ===
   readonly install: {
     readonly useAsApp: string
+    readonly iosStep1: string
+    readonly iosStep2: string
+    readonly installApp: string
+    readonly installDesc: string
+    readonly addButton: string
   }
 
   // === Diagrams ===
@@ -220,6 +246,7 @@ export interface LocaleConfig {
   // === Session History ===
   readonly sessionHistory: {
     readonly modes: Record<string, string>
+    readonly sessionLabel: (index: number) => string
   }
 
   // === Reader ===
@@ -280,6 +307,17 @@ export interface LocaleConfig {
     readonly startChapter: string
   }
 
+  // === Chapter Complete ===
+  readonly chapterComplete: {
+    readonly complete: string
+    readonly wellDone: string
+    readonly reviewAdvice: string
+    readonly nextChapter: string
+    readonly seeResults: string
+    readonly stopForToday: string
+    readonly correctSuffix: (score: number, total: number) => string
+  }
+
   // === Study First ===
   readonly studyFirst: {
     readonly title: string
@@ -336,6 +374,14 @@ export interface LocaleConfig {
     readonly quizModesButton: string
     readonly quizModesDesc: string
     readonly streakBadge: (days: number) => string
+    readonly unansweredChallenge: string
+    readonly unansweredChallengeDesc: string
+    readonly bookmarkList: string
+    readonly bookmarkListDesc: string
+    readonly reloadApp: string
+    readonly learningSection: string
+    readonly referenceSection: string
+    readonly settingsSection: string
   }
 
   // === Weak Point (extended) ===

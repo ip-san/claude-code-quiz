@@ -1,5 +1,6 @@
 import { ArrowRight, GraduationCap, Play, Sparkles, TrendingUp } from 'lucide-react'
 import { AppLogo } from '@/components/Layout/AppLogo'
+import { locale } from '@/config/locale'
 import { getSubtitle, theme } from '@/config/theme'
 import { haptics } from '@/lib/haptics'
 import { hasSeenFlag, setSeenFlag } from '@/lib/storage'
@@ -38,7 +39,7 @@ export function WelcomeScreen({ onComplete }: WelcomeScreenProps) {
     if (pick) {
       onComplete()
       // Start session after navigation completes
-      setTimeout(() => startSessionWithIds([pick.id], '今すぐ1問'), 100)
+      setTimeout(() => startSessionWithIds([pick.id], locale.welcome.tryOneSessionLabel), 100)
     } else {
       onComplete()
     }
@@ -84,13 +85,13 @@ export function WelcomeScreen({ onComplete }: WelcomeScreenProps) {
           className="tap-highlight inline-flex w-full items-center justify-center gap-2 rounded-2xl bg-claude-orange px-8 py-3.5 text-lg font-bold text-white shadow-lg"
         >
           <Play className="h-5 w-5 fill-white" />
-          今すぐ1問だけ試す
+          {locale.welcome.tryOneQuestion}
         </button>
         <button
           onClick={handleStart}
           className="tap-highlight mt-3 inline-flex w-full items-center justify-center gap-2 rounded-2xl border-2 border-claude-orange px-6 py-3 text-base font-semibold text-claude-orange"
         >
-          <span>はじめる</span>
+          <span>{locale.welcome.startButton}</span>
           <ArrowRight className="h-4 w-4" />
         </button>
       </div>

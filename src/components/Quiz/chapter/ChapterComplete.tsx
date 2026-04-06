@@ -1,4 +1,5 @@
 import { ArrowRight, Home, Trophy } from 'lucide-react'
+import { locale } from '@/config/locale'
 import type { OverviewChapter } from '@/domain/valueObjects/OverviewChapter'
 import { haptics } from '@/lib/haptics'
 
@@ -24,7 +25,9 @@ export function ChapterComplete({ chapter, score, total, onContinue, onQuit, isL
     <div className="flex min-h-[60vh] flex-col items-center justify-center px-6 animate-view-enter">
       <div className="w-full max-w-sm text-center">
         <div className="mb-3 text-4xl">{percentage >= 70 ? '🎉' : '📚'}</div>
-        <p className="mb-1 text-xs font-semibold text-claude-orange">Ch.{chapter.id} 完了</p>
+        <p className="mb-1 text-xs font-semibold text-claude-orange">
+          Ch.{chapter.id} {locale.chapterComplete.complete}
+        </p>
         <h2 className="mb-2 text-lg font-bold text-claude-dark dark:text-stone-100">{chapter.name}</h2>
 
         <div className="mb-4 flex items-center justify-center gap-3">
@@ -32,13 +35,11 @@ export function ChapterComplete({ chapter, score, total, onContinue, onQuit, isL
             <Trophy className="h-4 w-4 text-claude-orange" />
             <span className="text-2xl font-bold text-claude-dark dark:text-white">{percentage}%</span>
           </div>
-          <span className="text-sm text-stone-500">
-            {score}/{total}問正解
-          </span>
+          <span className="text-sm text-stone-500">{locale.chapterComplete.correctSuffix(score, total)}</span>
         </div>
 
         <p className="mb-6 text-sm text-stone-500 dark:text-stone-400">
-          {percentage >= 70 ? 'よくできました！次のチャプターに進みましょう。' : '解説を見返して理解を深めましょう。'}
+          {percentage >= 70 ? locale.chapterComplete.wellDone : locale.chapterComplete.reviewAdvice}
         </p>
 
         <div className="space-y-2">
@@ -50,7 +51,7 @@ export function ChapterComplete({ chapter, score, total, onContinue, onQuit, isL
               }}
               className="tap-highlight flex w-full items-center justify-center gap-2 rounded-2xl bg-claude-orange px-6 py-3.5 text-base font-semibold text-white shadow-md"
             >
-              次のチャプターへ
+              {locale.chapterComplete.nextChapter}
               <ArrowRight className="h-5 w-5" />
             </button>
           )}
@@ -62,7 +63,7 @@ export function ChapterComplete({ chapter, score, total, onContinue, onQuit, isL
             className="tap-highlight flex w-full items-center justify-center gap-2 rounded-2xl border border-stone-300 px-6 py-3.5 text-base font-semibold text-stone-600 dark:border-stone-600 dark:text-stone-300"
           >
             <Home className="h-5 w-5" />
-            {isLastChapter ? '結果を見る' : '今日はここまで'}
+            {isLastChapter ? locale.chapterComplete.seeResults : locale.chapterComplete.stopForToday}
           </button>
         </div>
       </div>

@@ -1,5 +1,6 @@
 import { Flame } from 'lucide-react'
 import { useEffect, useState } from 'react'
+import { locale } from '@/config/locale'
 import { Toast } from './Toast'
 import { useToastPhase } from './useToastPhase'
 
@@ -24,8 +25,15 @@ export function StreakToast({ streak }: StreakToastProps) {
     const milestones = [3, 5, 10, 15, 20]
     if (milestones.includes(streak) && streak !== lastShown) {
       setLastShown(streak)
-      const msg = streak >= 20 ? '圧巻！' : streak >= 10 ? '絶好調！' : streak >= 5 ? 'すごい！' : 'いい調子！'
-      setMessage(`${msg} ${streak}問連続正解`)
+      const label =
+        streak >= 20
+          ? locale.streak.amazing20
+          : streak >= 10
+            ? locale.streak.great10
+            : streak >= 5
+              ? locale.streak.nice5
+              : locale.streak.good3
+      setMessage(locale.streak.streakMessage(label, streak))
       return trigger()
     }
   }, [streak, lastShown, trigger])

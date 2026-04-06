@@ -1,6 +1,7 @@
 import { Bookmark, ChevronDown, ChevronUp, ExternalLink, Filter, Play, Search, X } from 'lucide-react'
 import { useMemo, useState } from 'react'
 import { QuizText } from '@/components/Quiz/QuizText'
+import { locale } from '@/config/locale'
 import { getCategoryById, PREDEFINED_CATEGORIES } from '@/domain/valueObjects/Category'
 import { haptics } from '@/lib/haptics'
 import { useQuizStore } from '@/stores/quizStore'
@@ -51,8 +52,13 @@ export function QuizSearch() {
         {/* Header */}
         <div className="flex items-center justify-between border-b border-stone-200 px-4 py-3 dark:border-stone-700">
           <div>
-            <h2 className="text-sm font-bold text-claude-dark dark:text-stone-200">「{query}」の検索結果</h2>
-            <p className="text-xs text-stone-500">{allResults.length}件</p>
+            <h2 className="text-sm font-bold text-claude-dark dark:text-stone-200">
+              {locale.search.searchResultsTitle(query)}
+            </h2>
+            <p className="text-xs text-stone-500">
+              {allResults.length}
+              {locale.search.resultsSuffix}
+            </p>
           </div>
           <div className="flex items-center gap-2">
             <button
@@ -69,7 +75,7 @@ export function QuizSearch() {
               className="tap-highlight inline-flex items-center gap-1.5 rounded-xl bg-claude-orange px-3 py-1.5 text-xs font-medium text-white"
             >
               <Play className="h-3 w-3 fill-white" />
-              {allResults.length}問に挑戦
+              {locale.search.challengeQuestions(allResults.length)}
             </button>
             <button
               onClick={() => {
@@ -77,7 +83,7 @@ export function QuizSearch() {
                 setExpandedId(null)
               }}
               className="tap-highlight rounded-full p-2 text-stone-400"
-              aria-label="戻る"
+              aria-label={locale.common.back}
             >
               <X className="h-5 w-5" />
             </button>
@@ -119,7 +125,7 @@ export function QuizSearch() {
                           className="inline-flex items-center gap-1 text-xs text-claude-orange"
                         >
                           <ExternalLink className="h-3 w-3" />
-                          公式ドキュメント
+                          {locale.feedback.officialDocs}
                         </a>
                       )}
                       <button
@@ -132,7 +138,7 @@ export function QuizSearch() {
                         <Bookmark
                           className={`h-3 w-3 ${userProgress.isBookmarked(r.id) ? 'fill-yellow-500 text-yellow-500' : ''}`}
                         />
-                        {userProgress.isBookmarked(r.id) ? '保存済み' : '後で学ぶ'}
+                        {userProgress.isBookmarked(r.id) ? locale.search.saved : locale.search.learnLater}
                       </button>
                     </div>
                   </div>
@@ -152,7 +158,7 @@ export function QuizSearch() {
         className="tap-highlight mb-5 flex w-full items-center gap-2 rounded-2xl border border-stone-200 bg-white px-4 py-3 text-sm text-stone-400 dark:border-stone-700 dark:bg-stone-800"
       >
         <Search className="h-4 w-4" />
-        検索・リファレンス
+        {locale.search.searchReference}
       </button>
     )
   }
@@ -168,15 +174,15 @@ export function QuizSearch() {
             setQuery(e.target.value)
             setExpandedId(null)
           }}
-          placeholder="例: CLAUDE.md, MCP, hooks"
+          placeholder={locale.search.inputPlaceholder}
           className="flex-1 bg-transparent text-sm text-claude-dark outline-none placeholder:text-stone-400 dark:text-stone-200"
           autoFocus
-          aria-label="問題を検索"
+          aria-label={locale.search.label}
         />
         <button
           onClick={() => setShowFilters(!showFilters)}
           className={`tap-highlight rounded-full p-2 ${categoryFilter ? 'text-claude-orange' : 'text-stone-400'}`}
-          aria-label="カテゴリフィルタ"
+          aria-label={locale.search.categoryFilterLabel}
         >
           <Filter className="h-4 w-4" />
         </button>
@@ -189,7 +195,7 @@ export function QuizSearch() {
             setExpandedId(null)
           }}
           className="tap-highlight rounded-full p-2 text-stone-400"
-          aria-label="検索を閉じる"
+          aria-label={locale.search.closeLabel}
         >
           <X className="h-4 w-4" />
         </button>
@@ -206,7 +212,7 @@ export function QuizSearch() {
                 : 'bg-stone-100 text-stone-600 dark:bg-stone-700 dark:text-stone-300'
             }`}
           >
-            全て
+            {locale.search.allCategories}
           </button>
           {PREDEFINED_CATEGORIES.map((cat) => (
             <button
@@ -227,12 +233,15 @@ export function QuizSearch() {
       {(query.length >= 2 || categoryFilter) && (
         <div className="mt-2 rounded-2xl border border-stone-200 bg-white dark:border-stone-700 dark:bg-stone-800">
           {allResults.length === 0 ? (
-            <p className="p-4 text-center text-sm text-stone-400">該当する問題が見つかりません</p>
+            <p className="p-4 text-center text-sm text-stone-400">{locale.search.noResults}</p>
           ) : (
             <>
               {/* Header */}
               <div className="flex items-center justify-between border-b border-stone-100 px-4 py-2.5 dark:border-stone-700">
-                <span className="text-xs text-stone-500">{allResults.length}件</span>
+                <span className="text-xs text-stone-500">
+                  {allResults.length}
+                  {locale.search.resultsSuffix}
+                </span>
                 <button
                   onClick={() => {
                     haptics.light()
@@ -246,7 +255,7 @@ export function QuizSearch() {
                   className="tap-highlight inline-flex items-center gap-1.5 rounded-lg bg-claude-orange px-3 py-1.5 text-xs font-medium text-white"
                 >
                   <Play className="h-3 w-3 fill-white" />
-                  {allResults.length}問に挑戦
+                  {locale.search.challengeQuestions(allResults.length)}
                 </button>
               </div>
 
@@ -289,7 +298,7 @@ export function QuizSearch() {
                                 className="inline-flex items-center gap-1 text-xs text-claude-orange"
                               >
                                 <ExternalLink className="h-3 w-3" />
-                                公式ドキュメント
+                                {locale.feedback.officialDocs}
                               </a>
                             )}
                             <button
@@ -302,7 +311,7 @@ export function QuizSearch() {
                               <Bookmark
                                 className={`h-3 w-3 ${userProgress.isBookmarked(r.id) ? 'fill-yellow-500 text-yellow-500' : ''}`}
                               />
-                              {userProgress.isBookmarked(r.id) ? '保存済み' : '後で学ぶ'}
+                              {userProgress.isBookmarked(r.id) ? locale.search.saved : locale.search.learnLater}
                             </button>
                           </div>
                         </div>
@@ -315,7 +324,7 @@ export function QuizSearch() {
                     onClick={() => setShowAll(true)}
                     className="tap-highlight w-full border-t border-stone-100 px-4 py-2.5 text-center text-xs font-medium text-claude-orange dark:border-stone-700"
                   >
-                    すべて表示（残り {allResults.length - 10}件）
+                    {locale.search.showAllRemaining(allResults.length - 10)}
                   </button>
                 )}
               </div>

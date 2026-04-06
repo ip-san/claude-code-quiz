@@ -1,4 +1,5 @@
 import { Award, Download } from 'lucide-react'
+import { locale } from '@/config/locale'
 import { theme } from '@/config/theme'
 import type { SessionRecord } from '@/domain/entities/UserProgress'
 import { generateCertificate, LEVEL_DESIGNS } from '@/lib/certificateCanvas'
@@ -56,7 +57,8 @@ export function CertificateHistory({ sessionHistory, masteryIndex, overallAccura
   }
 
   // 2. Session-based certificates
-  const modeLabel = (mode: string) => (mode === 'overview' ? '全体像モード' : '実力テスト')
+  const modeLabel = (mode: string) =>
+    mode === 'overview' ? locale.sessionHistory.modes.overview : locale.sessionHistory.modes.full
   sessionHistory
     .filter((s) => (s.mode === 'full' && s.percentage >= 80) || (s.mode === 'overview' && s.percentage >= 70))
     .reverse()
