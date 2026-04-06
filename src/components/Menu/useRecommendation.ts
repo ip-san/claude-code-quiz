@@ -137,6 +137,7 @@ export function useRecommendation() {
     setLoading(true)
     setAiError(null)
     haptics.light()
+    startTimer()
 
     // Clear cached results so fresh analysis runs
     try {
@@ -180,6 +181,7 @@ export function useRecommendation() {
       // Collect might fail — continue with cache
     }
 
+    stopTimer()
     if (await loadFromCache()) {
       haptics.medium()
       setLoading(false)
@@ -191,9 +193,9 @@ export function useRecommendation() {
       return
     }
 
-    setAiError('Claude Code の利用履歴がありません。いくつか作業をしてからお試しください')
+    setAiError(locale.recommend.emptyDesc)
     setLoading(false)
-  }, [loadFromCache])
+  }, [loadFromCache, startTimer, stopTimer])
 
   // ── Shuffle + background regeneration ──────────────────────
 

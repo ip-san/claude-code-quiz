@@ -54,33 +54,49 @@ export function AnalyzeButton({
   loading,
   aiError,
   onAnalyze,
+  elapsed = 0,
 }: {
   loading: boolean
   aiError: string | null
   onAnalyze: () => void
+  elapsed?: number
 }) {
+  // 漸近的プログレス: 90秒で約85%、完了まで100%にならない
+  const estimatedTotal = 90
+  const progress = loading ? Math.min((1 - Math.exp(-elapsed / estimatedTotal)) * 95, 95) : 0
+
   return (
-    <button
-      onClick={onAnalyze}
-      disabled={loading}
-      aria-label={L.analyzeLabel}
-      className="tap-highlight mb-5 flex w-full items-center gap-3 rounded-2xl border border-stone-200 bg-white px-4 py-3 text-left dark:border-stone-700 dark:bg-stone-800"
-    >
-      {loading ? (
-        <div className="h-5 w-5 animate-spin rounded-full border-2 border-stone-200 border-t-claude-orange" />
-      ) : (
-        <Sparkles className="h-5 w-5 text-claude-orange" />
+    <div className="mb-5 overflow-hidden rounded-2xl border border-stone-200 bg-white dark:border-stone-700 dark:bg-stone-800">
+      <button
+        onClick={onAnalyze}
+        disabled={loading}
+        aria-label={L.analyzeLabel}
+        className="tap-highlight flex w-full items-center gap-3 px-4 py-3 text-left"
+      >
+        {loading ? (
+          <div className="h-5 w-5 animate-spin rounded-full border-2 border-stone-200 border-t-claude-orange" />
+        ) : (
+          <Sparkles className="h-5 w-5 text-claude-orange" />
+        )}
+        <div className="flex-1">
+          <div className="text-sm font-medium text-claude-dark dark:text-stone-200">
+            {loading ? locale.recommend.analyzing : locale.recommend.analyzeLabel}
+          </div>
+          <div className="text-xs text-stone-500 dark:text-stone-400">
+            {loading ? <ProgressLabel text={locale.recommend.analyzingProgress} /> : locale.recommend.analyzeDesc}
+          </div>
+          {aiError && <p className="mt-1 text-xs text-red-500">{aiError}</p>}
+        </div>
+      </button>
+      {loading && (
+        <div className="h-1 bg-stone-100 dark:bg-stone-700">
+          <div
+            className="h-full rounded-r-full bg-gradient-to-r from-claude-orange to-amber-400 transition-[width] duration-1000 ease-linear"
+            style={{ width: `${progress}%` }}
+          />
+        </div>
       )}
-      <div className="flex-1">
-        <div className="text-sm font-medium text-claude-dark dark:text-stone-200">
-          {loading ? locale.recommend.analyzing : locale.recommend.analyzeLabel}
-        </div>
-        <div className="text-xs text-stone-500 dark:text-stone-400">
-          {loading ? <ProgressLabel text={locale.recommend.analyzingProgress} /> : locale.recommend.analyzeDesc}
-        </div>
-        {aiError && <p className="mt-1 text-xs text-red-500">{aiError}</p>}
-      </div>
-    </button>
+    </div>
   )
 }
 

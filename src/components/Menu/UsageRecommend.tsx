@@ -46,7 +46,7 @@ export function UsageRecommend() {
   if (hooksInstalled === false && !analysis)
     return <SetupBanner setupDone={setupDone} onSetup={setupHooks} onDismiss={dismissSetup} />
 
-  if (!analysis) return <AnalyzeButton loading={loading} aiError={aiError} onAnalyze={analyze} />
+  if (!analysis) return <AnalyzeButton loading={loading} aiError={aiError} onAnalyze={analyze} elapsed={elapsed} />
 
   if (analysis.sessionCount === 0) return <EmptySession />
 
