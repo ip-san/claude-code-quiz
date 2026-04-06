@@ -121,3 +121,13 @@ bun run lighthouse     # Lighthouse CI
 | session | ses- | ses-001 |
 | keyboard | key- | key-001 |
 | bestpractices | bp- | bp-001 |
+
+## Compact Instructions
+
+コンテキスト圧縮時に保持すべき重要ルール:
+
+- **ロジック集約**: 未正解判定は `UserProgress.isCorrectlyAnswered()`、スコアしきい値は `ScoreThresholds.ts` を使う。インラインでの再実装禁止
+- **locale 必須**: コンポーネント内の日本語文字列は `src/config/locales/ja.ts` に定義。ハードコード禁止
+- **セッション永続化**: `QuizSessionState` にフィールド追加時は `SessionRepository` + `resumeSlice` + `saveSessionSnapshot` の3点を同時更新
+- **仕様整合**: UI表示のカウント = `startSession` に渡す `questionCount`。`SpecConsistency.test.ts` でテスト
+- **全体像モード**: チャプター状態は `OverviewChapterState`（ドメイン層）で管理。QuizCard の useState 禁止
