@@ -238,23 +238,32 @@ export const PREDEFINED_DIFFICULTIES: Difficulty[] = [
 
 ### ドメインサービス
 
-エンティティに属さないビジネスロジック。
+エンティティに属さないビジネスロジック。全メソッドが static で、状態を持たない純粋関数として動作。
 
 ```typescript
-// src/domain/services/QuizSessionService.ts
-export class QuizSessionService {
-  selectQuestions(
-    allQuestions: Question[],
-    mode: QuizMode,
-    count: number
-  ): Question[] {
-    // モードに応じた問題選択ロジック
-  }
+// src/domain/services/QuizSessionService.ts — セッション管理
+// - prepareSessionQuestions(): モード別の問題選択
+// - nextQuestion(): 次の問題への遷移（チャプター境界検出含む）
+// - OverviewChapterState: 全体像モードのチャプター遷移管理
+// - dismissChapterIntro/Complete(): チャプター画面の状態遷移
+// - getChapterScore(): チャプタースコア計算
+```
 
-  calculateScore(answers: Answer[]): QuizResult {
-    // スコア計算ロジック
-  }
-}
+### 値オブジェクト（集約定数）
+
+ビジネスルールの定数を1箇所に集約し、ロジックの分散を防止。
+
+```typescript
+// src/domain/valueObjects/ScoreThresholds.ts
+export const PASSING_SCORE = 70                    // 合格ライン
+export const CERTIFICATE_THRESHOLDS = { full: 80, overview: 70 }
+export function isCertificateEligible(mode, percentage): boolean
+export function calculateAccuracy(correct, attempted): number
+```
+
+```typescript
+// src/domain/entities/UserProgress.ts
+isCorrectlyAnswered(questionId): boolean  // 未正解判定（6箇所で共通利用）
 ```
 
 ### リポジトリ

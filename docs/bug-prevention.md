@@ -83,8 +83,8 @@ Layer 1: 型チェック（tsc）
 Layer 2: Lint（Biome）
   → コードスタイル + 基本的なバグパターン
 
-Layer 3: ユニットテスト（Vitest 490テスト）
-  ├── SpecConsistency.test.ts (14テスト)
+Layer 3: ユニットテスト（Vitest テスト）
+  ├── SpecConsistency.test.ts (テスト)
   │   ├── モード定義の数値整合性
   │   ├── セッション保存/復元の完全性
   │   ├── チャプター進捗の計算一貫性
@@ -98,7 +98,7 @@ Layer 4: クローン検出（jscpd）
 Layer 5: ドキュメント整合（docs:validate）
   → CLAUDE.md の統計値と実装の一致
 
-Layer 6: E2E テスト（Playwright 62テスト）
+Layer 6: E2E テスト（Playwright E2E テスト）
   ├── 全体像モード3シナリオ
   └── ユーザーフロー + Visual Regression
 

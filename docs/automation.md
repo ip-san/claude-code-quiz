@@ -195,7 +195,8 @@ Claude Code から GA4 Data API に直接クエリできる MCP サーバー。
 | `bun run build:web` | PWA プロダクションビルド |
 | `bun run preview:web` | ビルド結果のプレビュー |
 | `bun run check` | 型 + lint + テスト + 問題チェック |
-| `bun run check:all` | check + ドキュメント検証（CI で使用） |
+| `bun run check:all` | check + ドキュメント検証 + クローン検出（CI で使用） |
+| `bun run cpd` | コードクローン検出（jscpd、2%以下） |
 | `bun run quiz:stats` | カテゴリ・難易度・correctIndex 分布 |
 | `bun run quiz:coverage` | ドキュメントページ別カバレッジ |
 | `bun run quiz:check` | 構造的品質チェック |
