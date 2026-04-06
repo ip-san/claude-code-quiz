@@ -1,8 +1,9 @@
 import { useMemo } from 'react'
+import { locale } from '@/config/locale'
 import type { Question } from '@/domain/entities/Question'
 import type { UserProgress } from '@/domain/entities/UserProgress'
 import { SpacedRepetitionService } from '@/domain/services/SpacedRepetitionService'
-import type { QuizModeId } from '@/domain/valueObjects/QuizMode'
+import { getQuizModeById, type QuizModeId } from '@/domain/valueObjects/QuizMode'
 import { haptics } from '@/lib/haptics'
 
 interface QuickActionsProps {
@@ -37,13 +38,15 @@ export function QuickActions({ allQuestions, userProgress, onStart }: QuickActio
     // Bookmarked count
     const bookmarkedCount = userProgress.bookmarkedQuestionIds.length
 
+    const modeName = (id: QuizModeId) => getQuizModeById(id)?.name ?? id
+
     // SRS review — highest priority when due
     if (dueCount > 0) {
       candidates.push({
         mode: 'quick',
         icon: '⚡',
-        label: '復習チェック',
-        sublabel: `${dueCount}問が期限到来`,
+        label: modeName('quick'),
+        sublabel: locale.snapshot.reviewDue(dueCount),
         priority: 100,
         questionCount: dueCount,
       })
@@ -53,20 +56,20 @@ export function QuickActions({ allQuestions, userProgress, onStart }: QuickActio
     candidates.push({
       mode: 'random',
       icon: '🎲',
-      label: 'ランダム20問',
-      sublabel: 'まずはサクッと',
+      label: modeName('random'),
+      sublabel: locale.common.approxMinutes,
       priority: 50,
     })
 
     // Weak mode — when user has weak questions
     // Note: actual session includes prerequisites (beginner questions in weak categories),
-    // so session count may exceed weakCount. Display "20問" as the session size.
+    // so session count may exceed weakCount.
     if (weakCount > 0) {
       candidates.push({
         mode: 'weak',
         icon: '🔥',
-        label: '苦手克服',
-        sublabel: `苦手${weakCount}問+基礎`,
+        label: modeName('weak'),
+        sublabel: `${locale.common.questionSuffix}${weakCount}+`,
         priority: 80,
       })
     }
@@ -76,8 +79,8 @@ export function QuickActions({ allQuestions, userProgress, onStart }: QuickActio
       candidates.push({
         mode: 'bookmark',
         icon: '📌',
-        label: '後で学ぶ',
-        sublabel: `${bookmarkedCount}問`,
+        label: modeName('bookmark'),
+        sublabel: locale.recommend.questionCount(bookmarkedCount),
         priority: 45,
       })
     }
@@ -87,8 +90,8 @@ export function QuickActions({ allQuestions, userProgress, onStart }: QuickActio
       candidates.push({
         mode: 'full',
         icon: '🎯',
-        label: '実力テスト',
-        sublabel: '100問 / 60分',
+        label: modeName('full'),
+        sublabel: getQuizModeById('full')?.description ?? '',
         priority: 30,
       })
     }
