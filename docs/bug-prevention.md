@@ -105,20 +105,26 @@ Layer 6: E2E テスト（Playwright E2E テスト）
 Layer 7: ハーネスフック（.claude/settings.json — 全6イベント）
   ├── permissions.deny: 破壊的コマンドブロック（7パターン）
   ├── SessionStart (15s): CI失敗・マージ競合・型エラー・未コミット数
-  ├── PreToolUse: Bash (3s): scripts/pre-tool-check.sh で破壊的コマンドを事前ブロック
+  ├── PreToolUse: Bash (3s): scripts/pre-tool-check.sh で危険コマンドを事前ブロック
+  │   ├── 破壊的Git操作（reset --hard, clean -f, restore ., force push）
+  │   ├── 破壊的SQL（DROP TABLE, truncate）
+  │   └── デーモンプロセスの警告（nohup, バックグラウンド起動）
   ├── PostToolUse Hook 1 (120s): ファイル種別に応じた品質チェック
   │   ├── コンポーネント → tsc + SpecConsistency + vitest (並列)
   │   ├── locale → tsc + ハードコード日本語スキャン
   │   ├── ドメイン/ストア → tsc + vitest
+  │   ├── scripts/*.mjs → node --check 構文チェック
   │   └── ドキュメント → docs:validate
   ├── PostToolUse Hook 2 (5s): 重要ファイル変更時の影響範囲アラート
   │   ├── QuizMode.ts → name/description と questionCount/timeLimit の一致確認
   │   ├── UserProgress.ts → isCorrectlyAnswered() の呼び出し元への影響確認
   │   ├── ScoreThresholds.ts → 全画面のスコア表示への影響警告
-  │   └── SessionRepository.ts → resumeSlice と saveSnapshot の同時更新確認
+  │   ├── SessionRepository.ts → resumeSlice と saveSnapshot の同時更新確認
+  │   ├── locale.ts → ja.ts にも翻訳追加が必要か確認
+  │   └── ja.ts → locale.ts の型定義も更新が必要か確認
   ├── UserPromptSubmit (2s): 2000文字超のプロンプトに分割提案
   ├── Notification (3s): macOS ネイティブ通知（バックグラウンドタスク完了）
-  └── Stop (15s): 未コミットファイル・型エラー報告
+  └── Stop (15s): 未コミットファイル・型エラー・lintエラー報告
 
 Layer 8: レビュー（/self-review 19項目）
   ├── #18 ハードコード日本語

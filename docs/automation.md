@@ -253,12 +253,12 @@ Claude Code セッション中に全6イベントを監視。品質チェック�
 | フック | タイミング | 内容 | タイムアウト |
 |--------|-----------|------|------------|
 | SessionStart | セッション開始時 | CI失敗・マージ競合・型エラー・未コミット数 | 15秒 |
-| PreToolUse (Bash) | コマンド実行前 | 破壊的コマンドの事前ブロック（`scripts/pre-tool-check.sh`） | 3秒 |
+| PreToolUse (Bash) | コマンド実行前 | 破壊的コマンド（Git/SQL/デーモン）の事前ブロック（`scripts/pre-tool-check.sh`） | 3秒 |
 | PostToolUse Hook 1 | Write/Edit 後 | ファイル種別に応じた品質チェック（後述） | 120秒 |
 | PostToolUse Hook 2 | Write/Edit 後 | 重要ファイル変更時の影響範囲アラート | 5秒 |
 | UserPromptSubmit | プロンプト送信時 | 2000文字超のプロンプトに分割提案 | 2秒 |
 | Notification | 通知発火時 | macOS ネイティブ通知（バックグラウンドタスク完了） | 3秒 |
-| Stop | セッション終了時 | 未コミットファイル・型エラー報告 | 15秒 |
+| Stop | セッション終了時 | 未コミットファイル・型エラー・lintエラー報告 | 15秒 |
 
 ### Hook 1: 品質チェック（ファイル種別分岐）
 
@@ -267,6 +267,7 @@ Claude Code セッション中に全6イベントを監視。品質チェック�
 | `src/components/*.tsx` | tsc + SpecConsistency テスト + vitest（並列） |
 | `src/domain/*`, `src/stores/*` | tsc + vitest（並列） |
 | `src/config/locale*` | tsc + ハードコード日本語スキャン |
+| `scripts/*.mjs` | node --check 構文チェック |
 | `*.json` | tsc |
 | `docs/*`, `*.md` | docs:validate |
 
@@ -278,6 +279,8 @@ Claude Code セッション中に全6イベントを監視。品質チェック�
 | `UserProgress.ts` | isCorrectlyAnswered() の呼び出し元への影響確認 |
 | `ScoreThresholds.ts` | 全画面のスコア表示への影響警告 |
 | `SessionRepository.ts` | resumeSlice と saveSnapshot の同時更新確認 |
+| `locale.ts` | ja.ts にも翻訳追加が必要か確認 |
+| `ja.ts` | locale.ts の型定義も更新が必要か確認 |
 
 詳細: [仕様バグ防止ガイド](bug-prevention.md)
 
