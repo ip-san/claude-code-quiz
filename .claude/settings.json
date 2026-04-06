@@ -45,13 +45,13 @@
         "hooks": [
           {
             "type": "command",
-            "command": "FILE=$(jq -r '.tool_input.file_path // .tool_response.filePath'); case \"$FILE\" in src/components/*.tsx) { npx tsc --noEmit 2>&1 | tail -5 & TSC=$!; SKIP_VITEST=1 npx vitest run src/domain/services/SpecConsistency.test.ts 2>&1 | tail -5 & SPEC=$!; npx vitest run 2>&1 | tail -8 & VIT=$!; wait $TSC $SPEC $VIT; } ;; src/domain/*|src/stores/*) { npx tsc --noEmit 2>&1 | tail -5 & TSC=$!; npx vitest run 2>&1 | tail -8 & VIT=$!; wait $TSC $VIT; } ;; src/config/locale*) { npx tsc --noEmit 2>&1 | tail -3; grep -rn \"'[^']*[ぁ-んァ-ヶ一-龥]\" src/components/ --include='*.tsx' | grep -v '.test.' | grep -v '// ' | grep -v 'locale\\.' | grep -v 'className' | grep -v '/\\*' | head -3; } ;; *.json) npx tsc --noEmit 2>&1 | tail -3 ;; docs/*|*.md) bun run docs:validate 2>&1 | tail -3 ;; *) true ;; esac",
+            "command": "FILE=$(jq -r '.tool_input.file_path // .tool_response.filePath'); case \"$FILE\" in src/components/*.tsx) { npx tsc --noEmit 2>&1 | tail -5 & TSC=$!; SKIP_VITEST=1 npx vitest run src/domain/services/SpecConsistency.test.ts 2>&1 | tail -5 & SPEC=$!; npx vitest run 2>&1 | tail -8 & VIT=$!; wait $TSC $VIT; } ;; src/domain/*|src/stores/*) { npx tsc --noEmit 2>&1 | tail -5 & TSC=$!; npx vitest run 2>&1 | tail -8 & VIT=$!; wait $TSC $VIT; } ;; src/config/locale*) { npx tsc --noEmit 2>&1 | tail -3; grep -rn \"'[^']*[ぁ-んァ-ヶ一-龥]\" src/components/ --include='*.tsx' | grep -v '.test.' | grep -v '// ' | grep -v 'locale\\.' | grep -v 'className' | grep -v '/\\*' | head -3; } ;; scripts/*.mjs) node --check \"$FILE\" 2>&1 | tail -3 ;; *.json) npx tsc --noEmit 2>&1 | tail -3 ;; docs/*|*.md) bun run docs:validate 2>&1 | tail -3 ;; *) true ;; esac",
             "timeout": 120,
             "statusMessage": "品質チェック実行中..."
           },
           {
             "type": "command",
-            "command": "FILE=$(jq -r '.tool_input.file_path // .tool_response.filePath'); case \"$FILE\" in src/domain/valueObjects/QuizMode.ts) echo '⚠️ QuizMode変更: name/descriptionとquestionCount/timeLimitの一致を確認してください' ;; src/domain/entities/UserProgress.ts) echo '⚠️ UserProgress変更: isCorrectlyAnswered()の呼び出し元に影響がないか確認してください' ;; src/domain/valueObjects/ScoreThresholds.ts) echo '⚠️ ScoreThresholds変更: 全画面のスコア表示に影響します' ;; src/infrastructure/persistence/SessionRepository.ts) echo '⚠️ SessionRepository変更: resumeSlice.tsとutils.tsのsaveSessionSnapshotも更新が必要か確認してください' ;; *) true ;; esac",
+            "command": "FILE=$(jq -r '.tool_input.file_path // .tool_response.filePath'); case \"$FILE\" in src/domain/valueObjects/QuizMode.ts) echo '⚠️ QuizMode変更: name/descriptionとquestionCount/timeLimitの一致を確認してください' ;; src/domain/entities/UserProgress.ts) echo '⚠️ UserProgress変更: isCorrectlyAnswered()の呼び出し元に影響がないか確認してください' ;; src/domain/valueObjects/ScoreThresholds.ts) echo '⚠️ ScoreThresholds変更: 全画面のスコア表示に影響します' ;; src/infrastructure/persistence/SessionRepository.ts) echo '⚠️ SessionRepository変更: resumeSlice.tsとutils.tsのsaveSessionSnapshotも更新が必要か確認してください' ;; src/config/locale.ts) echo '⚠️ locale型定義変更: ja.tsにも対応する翻訳を追加してください' ;; src/config/locales/ja.ts) echo '⚠️ locale翻訳変更: locale.tsの型定義も更新が必要か確認してください' ;; *) true ;; esac",
             "timeout": 5,
             "statusMessage": "変更影響チェック..."
           }
@@ -85,7 +85,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "{ dirty=$(git diff --name-only 2>/dev/null | wc -l | tr -d ' '); tserr=$(npx tsc --noEmit 2>&1 | grep -c 'error TS' 2>/dev/null); msgs=''; [ \"$dirty\" -gt 0 ] && msgs=\"📝 未コミット${dirty}ファイル\"; [ \"$tserr\" -gt 0 ] && msgs=\"${msgs} ⚠️ 型エラー${tserr}件\"; [ -n \"$msgs\" ] && echo \"$msgs\" || echo 'Clean'; }",
+            "command": "{ dirty=$(git diff --name-only 2>/dev/null | wc -l | tr -d ' '); tserr=$(npx tsc --noEmit 2>&1 | grep -c 'error TS' 2>/dev/null); lint=$(npx biome check src/ 2>&1 | grep -c '×' 2>/dev/null); msgs=''; [ \"$dirty\" -gt 0 ] && msgs=\"📝 未コミット${dirty}ファイル\"; [ \"$tserr\" -gt 0 ] && msgs=\"${msgs} ⚠️ 型エラー${tserr}件\"; [ \"$lint\" -gt 0 ] && msgs=\"${msgs} ⚠️ lint${lint}件\"; [ -n \"$msgs\" ] && echo \"$msgs\" || echo 'Clean'; }",
             "timeout": 15,
             "statusMessage": "セッション終了チェック..."
           }
