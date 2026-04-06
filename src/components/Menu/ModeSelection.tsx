@@ -17,7 +17,7 @@ import { ResumeSessionBanner } from './ResumeSessionBanner'
 import { UsageRecommend } from './UsageRecommend'
 
 export function ModeSelection() {
-  const { allQuestions, startSession, userProgress } = useQuizStore()
+  const { allQuestions, startSession, startSessionWithIds, userProgress } = useQuizStore()
 
   const [snapshotDismissed, setSnapshotDismissed] = useState(() => hasSeenSnapshotToday())
   const [openMenuWithModes, setOpenMenuWithModes] = useState(false)
@@ -110,6 +110,7 @@ export function ModeSelection() {
               allQuestions={allQuestions}
               userProgress={userProgress}
               onStartChapter={(_chapterId, startIndex) => startSession({ mode: 'overview' }, { startIndex })}
+              onResumeChapter={(questionIds, label) => startSessionWithIds(questionIds, label)}
             />
           )}
         </div>

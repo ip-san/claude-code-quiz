@@ -10,9 +10,16 @@ interface ChapterProgressMapProps {
   allQuestions: readonly Question[]
   userProgress: UserProgress
   onStartChapter: (chapterId: number, startIndex: number) => void
+  /** 「続きから」用: 未正解の問題IDだけでセッション開始 */
+  onResumeChapter: (questionIds: string[], chapterName: string) => void
 }
 
-export function ChapterProgressMap({ allQuestions, userProgress, onStartChapter }: ChapterProgressMapProps) {
+export function ChapterProgressMap({
+  allQuestions,
+  userProgress,
+  onStartChapter,
+  onResumeChapter,
+}: ChapterProgressMapProps) {
   const [selectedChapter, setSelectedChapter] = useState<number | null>(null)
 
   const overviewQuestions = useMemo(() => getOverviewQuestionsOrdered(allQuestions), [allQuestions])
@@ -49,7 +56,25 @@ export function ChapterProgressMap({ allQuestions, userProgress, onStartChapter 
         }
       }
 
-      return { ...ch, total, answered, correct, accuracy, isComplete, correctPct, startIndex: resumeIndex }
+      // 「続きから」用: 未正解の問題IDリスト
+      const incompleteIds = chapterQuestions
+        .filter((q) => {
+          const p = userProgress.questionProgress[q.id]
+          return !p || p.attempts === 0 || !p.lastCorrect
+        })
+        .map((q) => q.id)
+
+      return {
+        ...ch,
+        total,
+        answered,
+        correct,
+        accuracy,
+        isComplete,
+        correctPct,
+        startIndex: resumeIndex,
+        incompleteIds,
+      }
     })
   }, [overviewQuestions, userProgress])
 
@@ -116,7 +141,13 @@ export function ChapterProgressMap({ allQuestions, userProgress, onStartChapter 
           <button
             onClick={() => {
               haptics.light()
-              onStartChapter(selected.id, selected.startIndex)
+              if (selected.answered > 0 && selected.correctPct < 100 && selected.incompleteIds.length > 0) {
+                // 「続きから」: 未正解の問題だけで出題
+                onResumeChapter(selected.incompleteIds, `Ch.${selected.id} ${selected.name}`)
+              } else {
+                // 「始める」or「もう一度」: チャプター全問を順番に
+                onStartChapter(selected.id, selected.startIndex)
+              }
             }}
             className="tap-highlight inline-flex items-center gap-2 rounded-xl bg-claude-orange px-4 py-2.5 text-sm font-semibold text-white"
           >
