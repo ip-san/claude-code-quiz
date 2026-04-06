@@ -66,7 +66,11 @@ curl -fsSL https://bun.sh/install | bash
 powershell -c "irm bun.sh/install.ps1 | iex"
 ```
 
-インストール後、ターミナルを再起動してから `bun --version` で確認してください。
+インストール後、**ターミナルを一度閉じて再度開いてから** `bun --version` で確認してください。
+
+**Windows の注意:**
+- [Visual C++ 再頒布可能パッケージ](https://learn.microsoft.com/ja-jp/cpp/windows/latest-supported-vc-redist)（x64）が必要です。エラーが出た場合はインストールしてください
+- Windows ネイティブ版の bun は動作しますが、WSL 2（Windows Subsystem for Linux）上で使う方が高速で安定します。WSL 2 をお使いの場合は macOS/Linux と同じ `curl` コマンドでインストールできます
 
 ※ Node.js は不要です。bun が全て担います。
 
@@ -123,20 +127,28 @@ bun run build
 2. 開いたウィンドウで、アプリアイコンを **Applications** フォルダにドラッグ
 3. **Launchpad** または **Applications** フォルダから「Claude Code Quiz」を起動
 
-#### 初回起動時の警告
+#### 初回起動時の警告（署名なしアプリ）
 
-macOS では、署名されていないアプリに対して警告が表示されます：
+macOS では署名されていないアプリに対して警告が表示されます。OS バージョンによって手順が異なります。
 
 > 「Claude Code Quiz」は、開発元を確認できないため開けません。
 
-**解決方法：**
+**macOS Sequoia（15.x）以降:**
 
-1. **システム設定** を開く
-2. **プライバシーとセキュリティ** を選択
-3. 下部に表示される「"Claude Code Quiz" はブロックされました」の横にある **このまま開く** をクリック
-4. 確認ダイアログで **開く** をクリック
+Sequoia では右クリック→「開く」が効きません。以下の手順で許可してください：
 
-または、Finder でアプリを右クリック → **開く** を選択する方法もあります。
+1. アプリをダブルクリック（警告が出て開けない）
+2. **システム設定** → **プライバシーとセキュリティ** を開く
+3. 画面を一番下までスクロール
+4. 「"Claude Code Quiz" はブロックされました」の横にある **このまま開く** をクリック
+5. パスワードまたは Touch ID で認証
+6. 確認ダイアログで **開く** をクリック
+
+一度許可すれば、以降はダブルクリックで起動できます。
+
+**macOS Sonoma（14.x）以前:**
+
+Finder でアプリを **右クリック** → **開く** → 確認ダイアログで **開く** をクリック。
 
 ### Windows
 
@@ -272,6 +284,20 @@ AppImage ファイルを削除するだけです。
 
 ## トラブルシューティング
 
+### bun install が失敗する
+
+**症状**: 依存パッケージのインストール中にエラー
+
+**解決方法**:
+```bash
+# キャッシュをクリアして再実行
+rm -rf node_modules bun.lockb
+bun install
+```
+
+**Windows で「VCRUNTIME140.dll が見つかりません」等のエラー:**
+[Visual C++ 再頒布可能パッケージ](https://learn.microsoft.com/ja-jp/cpp/windows/latest-supported-vc-redist)（x64）をインストールしてください。
+
 ### ビルドが失敗する
 
 **症状**: `bun run build` でエラーが発生
@@ -279,10 +305,16 @@ AppImage ファイルを削除するだけです。
 **解決方法**:
 ```bash
 # node_modules を削除して再インストール
-rm -rf node_modules package-lock.json
+rm -rf node_modules bun.lockb
 bun install
 bun run build
 ```
+
+### macOS でアプリが開けない
+
+**症状**: 「開発元を確認できないため開けません」
+
+**解決方法**: [初回起動時の警告（署名なしアプリ）](#初回起動時の警告署名なしアプリ) を参照してください。macOS Sequoia 以降は右クリック→「開く」では解決できません。
 
 ### アプリが起動しない / 白い画面のまま
 
@@ -293,8 +325,26 @@ bun run build
 2. 最新版を再インストール
 3. それでも解決しない場合、ターミナルから起動してエラーを確認：
    ```bash
+   # macOS
    /Applications/Claude\ Code\ Quiz.app/Contents/MacOS/Claude\ Code\ Quiz
+   
+   # Windows (PowerShell)
+   & "$env:LOCALAPPDATA\Programs\claude-code-quiz\Claude Code Quiz.exe"
    ```
+
+### Linux で AppImage が起動しない
+
+**症状**: 「Permission denied」や FUSE エラー
+
+**解決方法**:
+```bash
+# 実行権限を確認
+chmod +x "Claude Code Quiz-x.x.x.AppImage"
+
+# FUSE がない場合は --appimage-extract で展開して実行
+./"Claude Code Quiz-x.x.x.AppImage" --appimage-extract
+./squashfs-root/AppRun
+```
 
 ### アイコンが表示されない
 
@@ -302,10 +352,7 @@ bun run build
 
 **解決方法**:
 ```bash
-# アイコンを再生成
 bun run generate-icons
-
-# 再ビルド
 bun run build
 ```
 
