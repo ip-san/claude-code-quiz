@@ -41,6 +41,12 @@ export function UsageRecommend() {
     cancelConfirmDialog,
   } = useRecommendation()
 
+  // useMemo must be before early returns (React hooks rule)
+  const scenarioResult = useMemo(
+    () => (analysis ? findRecommendedScenario(analysis.categoryScores, analysis.promptSamples) : null),
+    [analysis]
+  )
+
   if (!isElectron) return null
 
   if (hooksInstalled === false && !analysis)
@@ -52,10 +58,6 @@ export function UsageRecommend() {
 
   const topTopics = analysis.topics.slice(0, 3)
   const recCount = recommendations.length
-  const scenarioResult = useMemo(
-    () => findRecommendedScenario(analysis.categoryScores, analysis.promptSamples),
-    [analysis]
-  )
 
   return (
     <div className="mb-5 rounded-2xl border border-stone-200 bg-white dark:border-stone-700 dark:bg-stone-800">
