@@ -510,6 +510,7 @@ export interface LocaleConfig {
     readonly setupDone: string
     readonly emptyTitle: string
     readonly emptyDesc: string
+    readonly confirmReanalyze: string
   }
 
   // === Memory Retention ===

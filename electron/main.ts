@@ -539,12 +539,11 @@ ipcMain.handle('cancel-recommend', (): boolean => {
 })
 
 ipcMain.handle('clear-recommend-cache', async (): Promise<void> => {
-  try {
-    const { unlink } = await import('fs/promises')
-    await unlink(join(homedir(), '.claude-quiz-recommend', 'latest-recommend.json'))
-  } catch {
-    // File doesn't exist — fine
-  }
+  const { unlink } = await import('fs/promises')
+  const storeDir = join(homedir(), '.claude-quiz-recommend')
+  // Clear all intermediate + final results so full pipeline re-runs
+  const filesToClear = ['latest-recommend.json', 'compressed-input.json', 'classified-prompts.json']
+  await Promise.allSettled(filesToClear.map((f) => unlink(join(storeDir, f))))
 })
 
 ipcMain.handle(

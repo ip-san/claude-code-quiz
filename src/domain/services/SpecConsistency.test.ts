@@ -7,9 +7,8 @@
 
 import { readFileSync } from 'node:fs'
 import { describe, expect, it } from 'vitest'
-import { UserProgress } from '../entities/UserProgress'
 import { getOverviewQuestionsOrdered, OVERVIEW_CHAPTERS } from '../valueObjects/OverviewChapter'
-import { getQuizModeById, PREDEFINED_QUIZ_MODES } from '../valueObjects/QuizMode'
+import { PREDEFINED_QUIZ_MODES } from '../valueObjects/QuizMode'
 import { QuizSessionService } from './QuizSessionService'
 
 // Load quiz data for integration-level checks

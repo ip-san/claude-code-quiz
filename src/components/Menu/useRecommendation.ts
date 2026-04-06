@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
+import { locale } from '@/config/locale'
 import type { Question } from '@/domain/entities/Question'
 import type { UserProgress } from '@/domain/entities/UserProgress'
 import { type GrowthInsight, GrowthTrackingService } from '@/domain/services/GrowthTrackingService'
@@ -123,9 +124,22 @@ export function useRecommendation() {
   // biome-ignore lint/correctness/useExhaustiveDependencies: recommendations used for export snapshot at analyze-time, not reactive
   const analyze = useCallback(async () => {
     if (!window.electronAPI) return
+
+    // If cached results exist, confirm before re-analyzing
+    if (analysis) {
+      if (!window.confirm(locale.recommend.confirmReanalyze)) return
+    }
+
     setLoading(true)
     setAiError(null)
     haptics.light()
+
+    // Clear cached results so fresh analysis runs
+    try {
+      await window.electronAPI.clearRecommendCache?.()
+    } catch {
+      // Non-critical
+    }
 
     // Export learner profile before running skill so AI can read it
     try {
