@@ -1,9 +1,9 @@
 import { Bookmark, ExternalLink, Lightbulb, RotateCcw } from 'lucide-react'
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { AdaptiveDifficultyService } from '@/domain/services/AdaptiveDifficultyService'
+import { QuizSessionService } from '@/domain/services/QuizSessionService'
 import { getCategoryById } from '@/domain/valueObjects/Category'
 import { getChapterFromTags, OVERVIEW_CHAPTERS } from '@/domain/valueObjects/OverviewChapter'
-import { trackChapterProgress } from '@/lib/analytics'
 import { getDifficultyLabel, getDifficultyStyle } from '@/lib/badgeStyles'
 import { getColorHex } from '@/lib/colors'
 import { haptics } from '@/lib/haptics'
@@ -45,6 +45,8 @@ export function QuizCard({
     endSession,
     toggleBookmark,
     useHint,
+    dismissChapterIntro,
+    dismissChapterComplete,
   } = useQuizStore()
 
   const quiz = getCurrentQuestion()
@@ -65,79 +67,28 @@ export function QuizCard({
   const currentIndex = sessionState?.currentIndex ?? 0
   const canGoBack = currentIndex > 0
 
-  // Chapter indicator for overview mode
+  // Chapter state from domain layer (overview mode only)
   const isOverviewMode = sessionState?.config.mode === 'overview'
+  const chapterState = sessionState?.overviewChapterState ?? null
   const currentChapter = useMemo(() => {
-    if (!isOverviewMode || !quiz) return null
-    return getChapterFromTags(quiz.tags)
-  }, [isOverviewMode, quiz])
+    if (!chapterState) return null
+    return OVERVIEW_CHAPTERS.find((c) => c.id === chapterState.currentChapterId) ?? null
+  }, [chapterState])
+  const showChapterIntro = chapterState?.chapterPhase === 'intro' && currentChapter
+  const showChapterComplete = chapterState?.chapterPhase === 'complete' && currentChapter
+  const chapterScore = useMemo(() => {
+    if (!showChapterComplete || !sessionState || !currentChapter) return { score: 0, total: 0 }
+    return QuizSessionService.getChapterScore(sessionState, currentChapter.id)
+  }, [showChapterComplete, sessionState, currentChapter])
+
+  // Chapter indicator: show "Ch.N" badge when chapter changes
   const previousChapter = useMemo(() => {
     if (!isOverviewMode || !sessionState || sessionState.currentIndex === 0) return null
     const prevQuestion = sessionState.questions[sessionState.currentIndex - 1]
     return prevQuestion ? getChapterFromTags(prevQuestion.tags) : null
   }, [isOverviewMode, sessionState])
-  const isNewChapter = isOverviewMode && currentChapter && currentChapter.id !== previousChapter?.id
-
-  // Track chapter completion when transitioning to a new chapter.
-  // Compute accuracy by mapping chapter questions back to their global indices in answerHistory.
-  useEffect(() => {
-    if (isNewChapter && previousChapter && sessionState) {
-      const chapterQuestions = sessionState.questions.filter((q) => {
-        const ch = getChapterFromTags(q.tags)
-        return ch?.id === previousChapter.id
-      })
-      const answered = chapterQuestions.filter((_, i) => {
-        const globalIndex = sessionState.questions.indexOf(chapterQuestions[i])
-        return sessionState.answerHistory.has(globalIndex)
-      })
-      const correct = answered.filter((_, i) => {
-        const globalIndex = sessionState.questions.indexOf(chapterQuestions[i])
-        return sessionState.answerHistory.get(globalIndex)?.isCorrect
-      })
-      const accuracy = answered.length > 0 ? Math.round((correct.length / answered.length) * 100) : 0
-      trackChapterProgress(previousChapter.id, 'complete', accuracy)
-    }
-  }, [isNewChapter, previousChapter, sessionState])
-
-  // Chapter complete: detect chapter boundary and show overlay when user clicks "next"
-  const [dismissedCompletes, setDismissedCompletes] = useState<Set<number>>(new Set())
-  const [pendingChapterComplete, setPendingChapterComplete] = useState<number | null>(null)
-  const nextChapter = useMemo(() => {
-    if (!isOverviewMode || !sessionState || sessionState.currentIndex >= sessionState.questions.length - 1) return null
-    const nextQ = sessionState.questions[sessionState.currentIndex + 1]
-    return nextQ ? getChapterFromTags(nextQ.tags) : null
-  }, [isOverviewMode, sessionState])
-  const isChapterLastQuestion = isOverviewMode && currentChapter && nextChapter && currentChapter.id !== nextChapter.id
-  const showChapterComplete =
-    pendingChapterComplete !== null &&
-    currentChapter &&
-    currentChapter.id === pendingChapterComplete &&
-    !dismissedCompletes.has(currentChapter.id)
-
-  // Compute chapter score for the complete overlay
-  const chapterScore = useMemo(() => {
-    if (!showChapterComplete || !currentChapter || !sessionState) return { score: 0, total: 0 }
-    const chapterQs = sessionState.questions.filter((q) => {
-      const ch = getChapterFromTags(q.tags)
-      return ch?.id === currentChapter.id
-    })
-    let correct = 0
-    let answered = 0
-    for (const q of chapterQs) {
-      const idx = sessionState.questions.indexOf(q)
-      const record = sessionState.answerHistory.get(idx)
-      if (record) {
-        answered++
-        if (record.isCorrect) correct++
-      }
-    }
-    return { score: correct, total: answered }
-  }, [showChapterComplete, currentChapter, sessionState])
-
-  // Show full-page chapter intro instead of just a small indicator
-  const [dismissedIntros, setDismissedIntros] = useState<Set<number>>(new Set())
-  const showChapterIntro = isNewChapter && currentChapter && !dismissedIntros.has(currentChapter.id)
-  const showChapterIndicator = isNewChapter && !showChapterIntro
+  const showChapterIndicator =
+    isOverviewMode && currentChapter && currentChapter.id !== previousChapter?.id && !showChapterIntro
 
   // Keyboard navigation (extracted to custom hook)
   useQuizKeyboard({
@@ -204,14 +155,12 @@ export function QuizCard({
   const questionKey = quiz?.id ?? 'empty'
 
   // Swipe to navigate questions (respects chapter boundary and scenario epilogue)
+  // Swipe/next: domain layer handles chapter boundaries via overviewChapterState
   const swipeHandlers = useSwipe({
     onSwipeLeft: () => {
       haptics.light()
       if (onLastQuestionNext) {
         onLastQuestionNext()
-      } else if (isChapterLastQuestion && currentChapter && isAnswered) {
-        setPendingChapterComplete(currentChapter.id)
-        window.scrollTo(0, 0)
       } else {
         nextQuestion()
       }
@@ -251,14 +200,14 @@ export function QuizCard({
       <ChapterIntro
         chapter={currentChapter}
         onStart={() => {
-          setDismissedIntros((prev) => new Set(prev).add(currentChapter.id))
+          dismissChapterIntro()
           window.scrollTo(0, 0)
         }}
       />
     )
   }
 
-  // Show chapter complete overlay after answering the last question of a chapter
+  // Show chapter complete overlay (triggered by domain layer after answering last chapter question)
   if (showChapterComplete && currentChapter) {
     return (
       <ChapterComplete
@@ -267,9 +216,7 @@ export function QuizCard({
         total={chapterScore.total}
         isLastChapter={currentChapter.id === OVERVIEW_CHAPTERS[OVERVIEW_CHAPTERS.length - 1]?.id}
         onContinue={() => {
-          setDismissedCompletes((prev) => new Set(prev).add(currentChapter.id))
-          setPendingChapterComplete(null)
-          nextQuestion()
+          dismissChapterComplete()
           window.scrollTo(0, 0)
         }}
         onQuit={endSession}
@@ -295,17 +242,7 @@ export function QuizCard({
 
       {/* Compact chapter indicator (shown after intro was dismissed) */}
       {showChapterIndicator && currentChapter && (
-        <ChapterIndicator
-          chapter={currentChapter}
-          totalChapters={OVERVIEW_CHAPTERS.length}
-          onShowIntro={() =>
-            setDismissedIntros((prev) => {
-              const next = new Set(prev)
-              next.delete(currentChapter.id)
-              return next
-            })
-          }
-        />
+        <ChapterIndicator chapter={currentChapter} totalChapters={OVERVIEW_CHAPTERS.length} />
       )}
 
       <div
@@ -491,15 +428,7 @@ export function QuizCard({
         deferFeedback={deferFeedback}
         canGoBack={canGoBack}
         previousQuestion={previousQuestion}
-        nextQuestion={
-          onLastQuestionNext ??
-          (isChapterLastQuestion && currentChapter && isAnswered
-            ? () => {
-                setPendingChapterComplete(currentChapter.id)
-                window.scrollTo(0, 0)
-              }
-            : nextQuestion)
-        }
+        nextQuestion={onLastQuestionNext ?? nextQuestion}
         submitAnswer={submitAnswer}
         goToQuestion={goToQuestion}
         finishTest={finishTest}

@@ -32,6 +32,12 @@ export interface SavedSessionData {
   readonly answerRecords?: SavedAnswerRecord[]
   readonly scenarioId?: string
   readonly sessionLabel?: string
+  readonly overviewChapterState?: {
+    readonly currentChapterId: number
+    readonly chapterPhase: 'intro' | 'questions' | 'complete'
+    readonly dismissedIntros: number[]
+    readonly dismissedCompletes: number[]
+  }
 }
 
 export class SessionRepository {

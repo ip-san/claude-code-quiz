@@ -39,6 +39,8 @@ export interface SessionSlice {
   endSession: () => void
   updateTimer: () => void
   useHint: () => void
+  dismissChapterIntro: () => void
+  dismissChapterComplete: () => void
 
   // Computed getters
   getCurrentQuestion: () => Question | null
@@ -85,9 +87,17 @@ export const createSessionSlice = (set: StoreSet, get: StoreGet): SessionSlice =
 
     const initialState = QuizSessionService.createInitialState(sessionQuestions, config)
     const startIndex = options?.startIndex ? Math.min(options.startIndex, sessionQuestions.length - 1) : 0
+
+    // 全体像モード: startIndex に応じたチャプター状態を再構築
+    const overviewChapterState =
+      config.mode === 'overview' && startIndex > 0
+        ? QuizSessionService.buildOverviewChapterStateFromIndex(sessionQuestions, startIndex)
+        : initialState.overviewChapterState
+
     const sessionState = {
       ...initialState,
       currentIndex: startIndex,
+      overviewChapterState,
       initialStreakDays: state.userProgress.streakDays,
       initialTodayCount: state.userProgress.getDailyCount(DailyGoalService.getTodayString()),
       initialXp: state.userProgress.totalXp,
@@ -554,6 +564,38 @@ export const createSessionSlice = (set: StoreSet, get: StoreGet): SessionSlice =
     // biome-ignore lint/correctness/useHookAtTopLevel: QuizSessionService.useHint is not a React Hook
     const newSessionState = QuizSessionService.useHint(state.sessionState)
     set({ sessionState: newSessionState })
+  },
+
+  dismissChapterIntro: () => {
+    const state = get()
+    if (!state.sessionState) return
+    const newSessionState = QuizSessionService.dismissChapterIntro(state.sessionState)
+    set({ sessionState: newSessionState })
+    saveSessionSnapshot(newSessionState, state.sessionWrongAnswers, () => ({
+      activeScenarioId: get().activeScenarioId,
+      sessionLabel: get().sessionLabel,
+    }))
+  },
+
+  dismissChapterComplete: () => {
+    const state = get()
+    if (!state.sessionState) return
+    const newSessionState = QuizSessionService.dismissChapterComplete(state.sessionState)
+    if (newSessionState.isCompleted) {
+      getSessionRepository().clear()
+      recordCompletedSession(
+        newSessionState,
+        () => get().userProgress,
+        (p) => set({ userProgress: p })
+      )
+      set({ sessionState: newSessionState, viewState: 'result' })
+    } else {
+      set({ sessionState: newSessionState })
+      saveSessionSnapshot(newSessionState, state.sessionWrongAnswers, () => ({
+        activeScenarioId: get().activeScenarioId,
+        sessionLabel: get().sessionLabel,
+      }))
+    }
   },
 
   getCurrentQuestion: () => {

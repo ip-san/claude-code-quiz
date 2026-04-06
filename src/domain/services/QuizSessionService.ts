@@ -26,6 +26,7 @@ import { Question } from '../entities/Question'
 import { UserProgress } from '../entities/UserProgress'
 import { PREDEFINED_CATEGORIES } from '../valueObjects/Category'
 import type { DifficultyLevel } from '../valueObjects/Difficulty'
+import { getChapterFromTags } from '../valueObjects/OverviewChapter'
 import type { QuizModeId } from '../valueObjects/QuizMode'
 import { AdaptiveDifficultyService } from './AdaptiveDifficultyService'
 import { SpacedRepetitionService } from './SpacedRepetitionService'
@@ -85,12 +86,37 @@ export interface QuizSessionState {
   readonly initialXp: number
   /** 各問題の回答履歴 (index → {selectedAnswer, selectedAnswers, isCorrect}) */
   readonly answerHistory: ReadonlyMap<number, AnswerRecord>
+  /** 全体像モードのチャプター状態（overview以外は null） */
+  readonly overviewChapterState: OverviewChapterState | null
 }
 
 export interface AnswerRecord {
   readonly selectedAnswer: number | null
   readonly selectedAnswers: readonly number[]
   readonly isCorrect: boolean
+}
+
+/**
+ * 全体像モードのチャプター範囲（問題インデックス）
+ */
+export interface ChapterRange {
+  readonly chapterId: number
+  readonly startIndex: number // inclusive
+  readonly endIndex: number // exclusive
+}
+
+/**
+ * 全体像モードのチャプター状態
+ *
+ * overview モードでのみ使用。チャプターの遷移
+ * （イントロ → 問題 → 完了）をドメイン層で管理する。
+ */
+export interface OverviewChapterState {
+  readonly chapters: readonly ChapterRange[]
+  readonly currentChapterId: number
+  readonly chapterPhase: 'intro' | 'questions' | 'complete'
+  readonly dismissedIntros: ReadonlySet<number>
+  readonly dismissedCompletes: ReadonlySet<number>
 }
 
 /**
@@ -411,6 +437,54 @@ export class QuizSessionService {
       initialTodayCount: 0,
       initialXp: 0,
       answerHistory: new Map(),
+      overviewChapterState: config.mode === 'overview' ? this.buildOverviewChapterState(questions, 0) : null,
+    }
+  }
+
+  /**
+   * 全体像モードのチャプター状態を構築
+   */
+  /**
+   * 全体像モードのチャプター状態を任意の startIndex から構築（public: セッション再開用）
+   */
+  static buildOverviewChapterStateFromIndex(questions: readonly Question[], startIndex: number): OverviewChapterState {
+    return this.buildOverviewChapterState(questions, startIndex)
+  }
+
+  private static buildOverviewChapterState(questions: readonly Question[], startIndex: number): OverviewChapterState {
+    // チャプター範囲を問題のタグから計算
+    const chapterMap = new Map<number, { start: number; end: number }>()
+    for (let i = 0; i < questions.length; i++) {
+      const ch = getChapterFromTags(questions[i].tags)
+      if (!ch) continue
+      const existing = chapterMap.get(ch.id)
+      if (existing) {
+        existing.end = i + 1
+      } else {
+        chapterMap.set(ch.id, { start: i, end: i + 1 })
+      }
+    }
+    const chapters: ChapterRange[] = Array.from(chapterMap.entries())
+      .sort(([a], [b]) => a - b)
+      .map(([chapterId, range]) => ({ chapterId, startIndex: range.start, endIndex: range.end }))
+
+    // startIndex からチャプターを特定
+    const startChapter = chapters.find((c) => startIndex >= c.startIndex && startIndex < c.endIndex)
+    const currentChapterId = startChapter?.chapterId ?? chapters[0]?.chapterId ?? 1
+
+    // startIndex がチャプター先頭ならイントロ、途中ならイントロスキップ
+    const isChapterStart = startChapter ? startIndex === startChapter.startIndex : true
+    const dismissedIntros = new Set<number>()
+    if (!isChapterStart) {
+      dismissedIntros.add(currentChapterId)
+    }
+
+    return {
+      chapters,
+      currentChapterId,
+      chapterPhase: isChapterStart ? 'intro' : 'questions',
+      dismissedIntros,
+      dismissedCompletes: new Set(),
     }
   }
 
@@ -542,11 +616,31 @@ export class QuizSessionService {
    */
   static nextQuestion(state: QuizSessionState): QuizSessionState {
     const nextIndex = state.currentIndex + 1
+    const ocs = state.overviewChapterState
+
+    // 全体像モード: チャプター境界で完了画面を挟む
+    if (ocs && ocs.chapterPhase === 'questions' && nextIndex < state.questions.length) {
+      const currentRange = ocs.chapters.find((c) => c.chapterId === ocs.currentChapterId)
+      if (currentRange && nextIndex >= currentRange.endIndex) {
+        return {
+          ...state,
+          overviewChapterState: { ...ocs, chapterPhase: 'complete' },
+        }
+      }
+    }
 
     if (nextIndex >= state.questions.length) {
+      // 全体像モード最終チャプター: 完了画面を先に出す
+      if (ocs && ocs.chapterPhase === 'questions') {
+        return {
+          ...state,
+          overviewChapterState: { ...ocs, chapterPhase: 'complete' },
+        }
+      }
       return {
         ...state,
         isCompleted: true,
+        overviewChapterState: ocs ? { ...ocs, chapterPhase: 'complete' } : null,
       }
     }
 
@@ -586,6 +680,81 @@ export class QuizSessionService {
       isCorrect: null,
       hintUsed: false,
     }
+  }
+
+  /**
+   * チャプターイントロを閉じて問題フェーズへ遷移
+   */
+  static dismissChapterIntro(state: QuizSessionState): QuizSessionState {
+    const ocs = state.overviewChapterState
+    if (!ocs || ocs.chapterPhase !== 'intro') return state
+    return {
+      ...state,
+      overviewChapterState: {
+        ...ocs,
+        chapterPhase: 'questions',
+        dismissedIntros: new Set([...ocs.dismissedIntros, ocs.currentChapterId]),
+      },
+    }
+  }
+
+  /**
+   * チャプター完了画面を閉じて次のチャプターへ（またはセッション完了）
+   */
+  static dismissChapterComplete(state: QuizSessionState): QuizSessionState {
+    const ocs = state.overviewChapterState
+    if (!ocs || ocs.chapterPhase !== 'complete') return state
+
+    const currentIdx = ocs.chapters.findIndex((c) => c.chapterId === ocs.currentChapterId)
+    const nextChapterRange = ocs.chapters[currentIdx + 1]
+    const dismissedCompletes = new Set([...ocs.dismissedCompletes, ocs.currentChapterId])
+
+    if (!nextChapterRange) {
+      // 最終チャプター → セッション完了
+      return {
+        ...state,
+        isCompleted: true,
+        overviewChapterState: { ...ocs, dismissedCompletes, chapterPhase: 'complete' },
+      }
+    }
+
+    // 次のチャプターのイントロへ
+    return {
+      ...state,
+      currentIndex: nextChapterRange.startIndex,
+      selectedAnswer: null,
+      selectedAnswers: Object.freeze([]),
+      isAnswered: false,
+      isCorrect: null,
+      hintUsed: false,
+      overviewChapterState: {
+        ...ocs,
+        currentChapterId: nextChapterRange.chapterId,
+        chapterPhase: 'intro',
+        dismissedCompletes,
+      },
+    }
+  }
+
+  /**
+   * チャプタースコアを計算
+   */
+  static getChapterScore(state: QuizSessionState, chapterId: number): { score: number; total: number } {
+    const ocs = state.overviewChapterState
+    if (!ocs) return { score: 0, total: 0 }
+    const range = ocs.chapters.find((c) => c.chapterId === chapterId)
+    if (!range) return { score: 0, total: 0 }
+
+    let score = 0
+    let total = 0
+    for (let i = range.startIndex; i < range.endIndex; i++) {
+      const record = state.answerHistory.get(i)
+      if (record) {
+        total++
+        if (record.isCorrect) score++
+      }
+    }
+    return { score, total }
   }
 
   /**

@@ -113,6 +113,10 @@ export interface QuizStore {
   // Timer actions
   updateTimer: () => void
 
+  // Chapter actions (overview mode)
+  dismissChapterIntro: () => void
+  dismissChapterComplete: () => void
+
   // Bookmark actions
   toggleBookmark: (questionId: string) => void
   getBookmarkedCount: () => number
@@ -197,6 +201,14 @@ export function saveSessionSnapshot(
     answerRecords,
     scenarioId: getStoreValues().activeScenarioId ?? undefined,
     sessionLabel: getStoreValues().sessionLabel ?? undefined,
+    overviewChapterState: sessionState.overviewChapterState
+      ? {
+          currentChapterId: sessionState.overviewChapterState.currentChapterId,
+          chapterPhase: sessionState.overviewChapterState.chapterPhase,
+          dismissedIntros: [...sessionState.overviewChapterState.dismissedIntros],
+          dismissedCompletes: [...sessionState.overviewChapterState.dismissedCompletes],
+        }
+      : undefined,
   }
   getSessionRepository().save(data)
 }

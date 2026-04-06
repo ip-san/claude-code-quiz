@@ -77,6 +77,18 @@ export const createResumeSlice = (set: StoreSet, get: StoreGet): ResumeSlice => 
     const safeCurrentIndex = Math.min(saved.currentIndex, questions.length - 1)
     const currentRecord = answerHistory.get(safeCurrentIndex)
 
+    // Restore overview chapter state from saved data, or rebuild from questions
+    let overviewChapterState = sessionState.overviewChapterState
+    if (saved.overviewChapterState && overviewChapterState) {
+      overviewChapterState = {
+        chapters: overviewChapterState.chapters, // Recomputed from questions
+        currentChapterId: saved.overviewChapterState.currentChapterId,
+        chapterPhase: saved.overviewChapterState.chapterPhase,
+        dismissedIntros: new Set(saved.overviewChapterState.dismissedIntros),
+        dismissedCompletes: new Set(saved.overviewChapterState.dismissedCompletes),
+      }
+    }
+
     const resumedState: QuizSessionState = {
       ...sessionState,
       currentIndex: safeCurrentIndex,
@@ -88,6 +100,7 @@ export const createResumeSlice = (set: StoreSet, get: StoreGet): ResumeSlice => 
       answerHistory,
       selectedAnswer: currentRecord?.selectedAnswer ?? null,
       selectedAnswers: currentRecord?.selectedAnswers ?? Object.freeze([]),
+      overviewChapterState,
     }
 
     // GA4: remaining = total questions minus already answered
