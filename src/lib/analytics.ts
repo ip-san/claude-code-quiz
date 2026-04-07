@@ -233,12 +233,14 @@ export function trackSessionResume(mode: string, questionsRemaining: number): vo
 export function trackRecommend(
   action: 'analyze' | 'view_list' | 'start_quiz',
   topCategories: string[],
-  questionCount: number
+  questionCount: number,
+  hasReasons?: boolean
 ): void {
   pushEvent('usage_recommend', {
     recommend_action: action,
     top_categories: topCategories.join(','),
     question_count: questionCount,
+    ...(hasReasons !== undefined && { has_reasons: hasReasons }),
   })
 }
 

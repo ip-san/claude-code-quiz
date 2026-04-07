@@ -247,21 +247,21 @@ function analyzeTranscript(filePath) {
     if (hits >= 1) topics.push({ topic, hits })
   }
 
-  // Prompt samples (human-readable context)
+  // Prompt samples (human-readable context for AI analysis)
+  const commandPrefixPattern =
+    /^(node |git |ls |cat |grep |rg |bun |npm |npx |docker |curl |wget |ssh |cd |mkdir |rm |mv |cp |tail |head |sed |awk |kill |pkill |lsof |stat |wc |chmod |chown |tar |find |sleep |echo |printf |make |pip |python3? )/
   const promptSamples = prompts
     .filter(
       (p) =>
         p.length > 10 &&
         p.length < 200 &&
-        !p.startsWith('node ') &&
-        !p.startsWith('git ') &&
-        !p.startsWith('ls ') &&
-        !p.startsWith('cat ') &&
-        !p.startsWith('grep ') &&
+        !commandPrefixPattern.test(p) &&
         !p.includes('<command-') &&
         !p.includes('<local-command') &&
         !p.includes('</') &&
-        !/^[!/]/.test(p) // skip !commands and /slash-commands
+        !/^[!/]/.test(p) && // skip !commands and /slash-commands
+        !/^\(cd |^2>&1/.test(p) && // skip subshell commands and redirections
+        !/^[A-Z_]+=/.test(p) // skip env var assignments
     )
     .map((p) => p.trim())
     .slice(-20)

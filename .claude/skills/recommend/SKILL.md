@@ -173,13 +173,11 @@ Haiku ができること（既に `promptClassifications` に含まれる）:
 
 プロンプト原文を「」で引用すると具体性が増す。汎用的な応援メッセージは避ける。
 
-### Step 6: 出力
+### Step 6: 出力（2ファイル）
 
-`~/.claude-quiz-recommend/latest-recommend.json` を更新:
+**YOU MUST** 以下の2つのスクリプトを**両方とも必ず**実行すること。
 
-**IMPORTANT:** `reasons` フィールドは**必須**。問題IDごとに選定理由を書く。理由にはユーザーの実際のプロンプトを「」で引用し、なぜこの問題が選ばれたかを1行で具体的に書く。空の `reasons: {}` は禁止。
-
-**Step 6a: IDs + メタデータを保存**
+**Step 6a:** メタデータを `latest-recommend.json` に保存:
 
 ```bash
 node -e "
@@ -199,28 +197,29 @@ fs.writeFileSync(
   path.join(process.env.HOME, '.claude-quiz-recommend', 'latest-recommend.json'),
   JSON.stringify(data, null, 2)
 );
-console.log('✓ ' + data.questionCount + '問のレコメンドを保存しました');
+console.log('✓ ' + data.questionCount + '問のメタデータ保存');
 "
 ```
 
-**Step 6b: reasons + coachingMessage を別ファイルに保存**
+**Step 6b:** AI 選定理由を `reasons.json` に保存（**これが正のデータ**）:
 
-**YOU MUST** 以下のスクリプトを Step 6a の後に**必ず**実行すること。全15問分の理由を1つずつ書くこと。
+**IMPORTANT:** `reasons.json` が Electron に読み込まれ、UIに表示される。全15問分の理由を1つずつ書くこと。理由にはユーザーのプロンプトを「」で引用し、なぜこの問題が選ばれたかを1行で具体的に書く。
 
 ```bash
 node -e "
 const fs = require('fs');
 const path = require('path');
 const reasons = {
-  'ID1': '「ユーザーのプロンプト引用」→ この問題で学べること',
-  'ID2': '「ユーザーのプロンプト引用」→ この問題で学べること'
+  'bp-001': '「ユーザーのプロンプト引用」→ この問題で学べること',
+  'ext-001': '「ユーザーのプロンプト引用」→ この問題で学べること'
 };
+if (Object.keys(reasons).length === 0) throw new Error('reasons must not be empty');
 const data = { reasons, coachingMessage: COACHING_MESSAGE };
 fs.writeFileSync(
   path.join(process.env.HOME, '.claude-quiz-recommend', 'reasons.json'),
   JSON.stringify(data, null, 2)
 );
-console.log('✓ reasons saved (' + Object.keys(reasons).length + ' entries)');
+console.log('✓ reasons.json saved (' + Object.keys(reasons).length + ' entries)');
 "
 ```
 

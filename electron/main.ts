@@ -494,6 +494,14 @@ ipcMain.handle('run-recommend-skill', async (): Promise<{ success: boolean; erro
 
     const projectDir = app.getAppPath()
 
+    // Clear previous reasons.json before running new skill (will be regenerated)
+    try {
+      const { unlink } = await import('fs/promises')
+      await unlink(join(homedir(), '.claude-quiz-recommend', 'reasons.json'))
+    } catch {
+      // File may not exist
+    }
+
     // Run claude CLI with the recommend skill
     // Try Opus first for deeper reasoning, fall back to Sonnet if unavailable
     const { spawn } = await import('child_process')
@@ -562,8 +570,39 @@ ipcMain.handle('run-recommend-skill', async (): Promise<{ success: boolean; erro
         writeFileSync(resultPath, JSON.stringify(mergedResult, null, 2))
         console.log(`[recommend] Merged reasons from ${source}`)
       } else if (!result.reasons || Object.keys(result.reasons).length === 0) {
-        console.warn('[recommend] WARNING: no reasons from reasons.json or stdout')
-        return { success: true, error: 'missing_reasons' }
+        // Lightweight retry: generate only reasons for existing IDs
+        console.log('[recommend] No reasons found, attempting lightweight retry...')
+        try {
+          const ids = result.ids as string[]
+          const prompt = `以下のクイズ問題IDに対して、ユーザーの利用履歴(~/.claude-quiz-recommend/compressed-input.json)を読み、各問題を推薦する理由を生成してください。結果を~/.claude-quiz-recommend/reasons.jsonに書いてください。形式: {"reasons":{"ID":"理由"},"coachingMessage":"1行メッセージ"}\n\nIDs: ${ids.join(', ')}`
+          const { spawn: spawnRetry } = await import('child_process')
+          await new Promise<void>((resolve, reject) => {
+            const proc = spawnRetry('claude', ['-p', prompt, '--model', 'haiku'], {
+              cwd: projectDir,
+              timeout: 60_000,
+              env: { ...process.env, CLAUDE_PROJECT_DIR: projectDir },
+              stdio: 'ignore',
+            })
+            proc.on('close', (c) => (c === 0 ? resolve() : reject(new Error(`exit ${c}`))))
+            proc.on('error', reject)
+          })
+          // Read the generated reasons
+          try {
+            const retryReasons = readFileSync(reasonsPath, 'utf8')
+            const retryMerge = mergeReasons(result, retryReasons, '')
+            if (retryMerge.merged) {
+              writeFileSync(resultPath, JSON.stringify(retryMerge.result, null, 2))
+              console.log(`[recommend] Lightweight retry succeeded (${retryMerge.result.ids.length} reasons)`)
+            } else {
+              return { success: true, error: 'missing_reasons' }
+            }
+          } catch {
+            return { success: true, error: 'missing_reasons' }
+          }
+        } catch (retryErr) {
+          console.warn('[recommend] Lightweight retry failed:', retryErr)
+          return { success: true, error: 'missing_reasons' }
+        }
       }
     } catch (e) {
       console.error('[recommend] Post-process error:', e)
@@ -599,8 +638,9 @@ ipcMain.handle('cancel-recommend', (): boolean => {
 ipcMain.handle('clear-recommend-cache', async (): Promise<void> => {
   const { unlink } = await import('fs/promises')
   const storeDir = join(homedir(), '.claude-quiz-recommend')
-  // Clear all intermediate + final results so full pipeline re-runs
-  const filesToClear = ['latest-recommend.json', 'compressed-input.json', 'classified-prompts.json', 'reasons.json']
+  // Clear intermediate + final results so full pipeline re-runs
+  // reasons.json is preserved — it survives cache clears so the next loadFromCache can still use it
+  const filesToClear = ['latest-recommend.json', 'compressed-input.json', 'classified-prompts.json']
   await Promise.allSettled(filesToClear.map((f) => unlink(join(storeDir, f))))
 })
 

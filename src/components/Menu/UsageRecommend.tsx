@@ -264,7 +264,13 @@ export function UsageRecommend() {
           <button
             onClick={() => {
               haptics.medium()
-              trackRecommend('start_quiz', [...new Set(recommendations.map((r) => r.category))].slice(0, 3), recCount)
+              const hasReasons = recommendations.some((r) => r.signals.includes(locale.recommendUtils.aiSelected))
+              trackRecommend(
+                'start_quiz',
+                [...new Set(recommendations.map((r) => r.category))].slice(0, 3),
+                recCount,
+                hasReasons
+              )
               startSessionWithIds(
                 recommendations.map((r) => r.id),
                 locale.recommend.sessionLabel

@@ -10,7 +10,18 @@
  * Pure function (no file I/O) for testability.
  */
 
+import { z } from 'zod'
 import { extractReasonsFromStdout } from './extractReasons'
+
+/** Zod schema for reasons.json — validates structure before merging */
+const ReasonsFileSchema = z.object({
+  reasons: z
+    .record(z.string().regex(/^[a-z]+-\d+$/), z.string().min(1))
+    .refine((r) => Object.keys(r).length > 0, { message: 'reasons must not be empty' }),
+  coachingMessage: z.string().optional(),
+})
+
+export type ReasonsFile = z.infer<typeof ReasonsFileSchema>
 
 export interface RecommendResult {
   ids: string[]
@@ -40,11 +51,12 @@ export function mergeReasons(metadata: RecommendResult, reasonsJson: string | nu
     return { merged: false, source: null, result: metadata }
   }
 
-  // Strategy 1: reasons.json is the primary source of truth
+  // Strategy 1: reasons.json is the primary source of truth (Zod-validated)
   if (reasonsJson) {
     try {
-      const ai = JSON.parse(reasonsJson)
-      if (ai.reasons && typeof ai.reasons === 'object' && Object.keys(ai.reasons).length > 0) {
+      const parsed = ReasonsFileSchema.safeParse(JSON.parse(reasonsJson))
+      if (parsed.success) {
+        const ai = parsed.data
         const ids = Object.keys(ai.reasons)
         return {
           merged: true,

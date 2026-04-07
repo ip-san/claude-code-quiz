@@ -176,3 +176,78 @@ describe('mergeReasons — stdout extraction preserves metadata', () => {
     expect(result.coachingMessage).toBe('成長中')
   })
 })
+
+// ── Zod バリデーション ───────────────────────────────────────────────────────
+
+describe('mergeReasons — Zod schema validation', () => {
+  it('rejects reasons.json with invalid ID format', () => {
+    const metadata = makeMetadata()
+    const reasonsJson = JSON.stringify({
+      reasons: { INVALID: 'reason' },
+    })
+    const stdout = '- **bp-001** [beginner]: フォールバック'
+
+    const { source } = mergeReasons(metadata, reasonsJson, stdout)
+    // Invalid ID format (no prefix-NNN) should fail Zod validation → fallback to stdout
+    expect(source).toBe('stdout')
+  })
+
+  it('rejects reasons.json with empty reason string', () => {
+    const metadata = makeMetadata()
+    const reasonsJson = JSON.stringify({
+      reasons: { 'bp-001': '' },
+    })
+    const stdout = '- **bp-001** [beginner]: フォールバック'
+
+    const { source } = mergeReasons(metadata, reasonsJson, stdout)
+    expect(source).toBe('stdout')
+  })
+
+  it('rejects reasons.json with numeric values', () => {
+    const metadata = makeMetadata()
+    const reasonsJson = JSON.stringify({
+      reasons: { 'bp-001': 42 },
+    })
+    const stdout = '- **bp-001** [beginner]: フォールバック'
+
+    const { source } = mergeReasons(metadata, reasonsJson, stdout)
+    expect(source).toBe('stdout')
+  })
+
+  it('accepts valid reasons.json with proper ID format', () => {
+    const metadata = makeMetadata()
+    const reasonsJson = JSON.stringify({
+      reasons: {
+        'bp-001': '有効な理由',
+        'ext-042': '別の有効な理由',
+        'mem-123': 'もう一つ',
+      },
+    })
+
+    const { merged, source, result } = mergeReasons(metadata, reasonsJson, '')
+    expect(merged).toBe(true)
+    expect(source).toBe('reasons.json')
+    expect(Object.keys(result.reasons!)).toHaveLength(3)
+  })
+
+  it('accepts reasons.json with coachingMessage', () => {
+    const metadata = makeMetadata()
+    const reasonsJson = JSON.stringify({
+      reasons: { 'bp-001': '理由' },
+      coachingMessage: 'コーチング',
+    })
+
+    const { result } = mergeReasons(metadata, reasonsJson, '')
+    expect(result.coachingMessage).toBe('コーチング')
+  })
+
+  it('accepts reasons.json without coachingMessage', () => {
+    const metadata = makeMetadata()
+    const reasonsJson = JSON.stringify({
+      reasons: { 'bp-001': '理由' },
+    })
+
+    const { merged } = mergeReasons(metadata, reasonsJson, '')
+    expect(merged).toBe(true)
+  })
+})
