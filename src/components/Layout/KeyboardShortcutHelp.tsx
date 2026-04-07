@@ -1,6 +1,7 @@
 import { Keyboard, X } from 'lucide-react'
 import { useEffect, useRef } from 'react'
 import { locale } from '@/config/locale'
+import { useFocusTrap } from '@/lib/useFocusTrap'
 
 interface KeyboardShortcutHelpProps {
   isOpen: boolean
@@ -24,35 +25,9 @@ const SHORTCUTS = [
  */
 export function KeyboardShortcutHelp({ isOpen, onClose }: KeyboardShortcutHelpProps) {
   const dialogRef = useRef<HTMLDivElement>(null)
+  const CLOSE_KEYS = ['?']
 
-  useEffect(() => {
-    if (!isOpen) return
-
-    const handleKeyDown = (e: KeyboardEvent) => {
-      if (e.key === 'Escape' || e.key === '?') {
-        e.preventDefault()
-        onClose()
-        return
-      }
-      // Focus trap: Shift+Tab from first → last, Tab from last → first
-      if (e.key === 'Tab' && dialogRef.current) {
-        const focusable = dialogRef.current.querySelectorAll<HTMLElement>('button, [tabindex]')
-        if (focusable.length === 0) return
-        const first = focusable[0]
-        const last = focusable[focusable.length - 1]
-        if (e.shiftKey && document.activeElement === first) {
-          e.preventDefault()
-          last.focus()
-        } else if (!e.shiftKey && document.activeElement === last) {
-          e.preventDefault()
-          first.focus()
-        }
-      }
-    }
-
-    window.addEventListener('keydown', handleKeyDown, true)
-    return () => window.removeEventListener('keydown', handleKeyDown, true)
-  }, [isOpen, onClose])
+  useFocusTrap(dialogRef, isOpen, onClose, { extraCloseKeys: CLOSE_KEYS })
 
   // Auto-focus close button
   useEffect(() => {

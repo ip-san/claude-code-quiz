@@ -1,5 +1,5 @@
 import { ArrowLeft, XCircle } from 'lucide-react'
-import { lazy, Suspense, useEffect, useMemo, useRef, useState } from 'react'
+import { lazy, Suspense, useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { AppLogo } from '@/components/Layout/AppLogo'
 import { InstallPrompt } from '@/components/Layout/InstallPrompt'
 import { OfflineIndicator } from '@/components/Layout/OfflineIndicator'
@@ -13,6 +13,7 @@ import { SCENARIOS } from '@/data/scenarios'
 import { getChapterFromTags } from '@/domain/valueObjects/OverviewChapter'
 import { isElectron } from '@/lib/platformAPI'
 import { headerStyles, pageStyles } from '@/lib/styles'
+import { useFocusTrap } from '@/lib/useFocusTrap'
 import { useQuizStore } from '@/stores/quizStore'
 
 // Lazy-load screens not needed on initial render
@@ -336,39 +337,13 @@ function QuizView({
     }
   }
 
-  const handleCancelQuit = () => {
+  const handleCancelQuit = useCallback(() => {
     setShowQuitDialog(false)
     // Restore focus to the trigger button
     requestAnimationFrame(() => triggerRef.current?.focus())
-  }
+  }, [])
 
-  useEffect(() => {
-    if (!showQuitDialog) return
-    const handleKeyDown = (e: KeyboardEvent) => {
-      if (e.key === 'Escape') {
-        e.preventDefault()
-        e.stopPropagation()
-        setShowQuitDialog(false)
-        return
-      }
-      // Focus trap within dialog via ref
-      if (e.key === 'Tab' && dialogRef.current) {
-        const focusable = dialogRef.current.querySelectorAll<HTMLElement>('button')
-        if (focusable.length === 0) return
-        const first = focusable[0]
-        const last = focusable[focusable.length - 1]
-        if (e.shiftKey && document.activeElement === first) {
-          e.preventDefault()
-          last.focus()
-        } else if (!e.shiftKey && document.activeElement === last) {
-          e.preventDefault()
-          first.focus()
-        }
-      }
-    }
-    window.addEventListener('keydown', handleKeyDown, true)
-    return () => window.removeEventListener('keydown', handleKeyDown, true)
-  }, [showQuitDialog])
+  useFocusTrap(dialogRef, showQuitDialog, handleCancelQuit)
 
   // Quiz screen uses lighter status bar
   useEffect(() => {
