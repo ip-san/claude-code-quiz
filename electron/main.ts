@@ -485,31 +485,44 @@ ipcMain.handle('run-recommend-skill', async (): Promise<{ success: boolean; erro
     const projectDir = app.getAppPath()
 
     // Run claude CLI with the recommend skill
-    // Use spawn to explicitly close stdin (avoids "no stdin data" warning)
+    // Try Opus first for deeper reasoning, fall back to Sonnet if unavailable
     const { spawn } = await import('child_process')
-    await new Promise<void>((resolve, reject) => {
-      const proc = spawn('claude', ['-p', '/recommend', '--model', 'sonnet'], {
-        cwd: projectDir,
-        timeout: 300_000, // 5 minutes — skill needs time for AI analysis
-        env: { ...process.env, CLAUDE_PROJECT_DIR: projectDir },
-        stdio: ['ignore', 'pipe', 'pipe'],
+    const models = ['opus', 'sonnet']
+
+    const runWithModel = (model: string) =>
+      new Promise<void>((resolve, reject) => {
+        const proc = spawn('claude', ['-p', '/recommend', '--model', model], {
+          cwd: projectDir,
+          timeout: 300_000, // 5 minutes — skill needs time for AI analysis
+          env: { ...process.env, CLAUDE_PROJECT_DIR: projectDir },
+          stdio: ['ignore', 'pipe', 'pipe'],
+        })
+        recommendProc = proc
+        let stderr = ''
+        proc.stderr?.on('data', (d: Buffer) => {
+          stderr += d.toString()
+        })
+        proc.on('close', (code) => {
+          if (proc === recommendProc) recommendProc = null
+          if (code === 0) resolve()
+          else if (code === 143 || code === null) reject(new Error('タイムアウトしました。もう一度お試しください。'))
+          else reject(new Error(stderr || `claude exited with code ${code}`))
+        })
+        proc.on('error', (err) => {
+          if (proc === recommendProc) recommendProc = null
+          reject(err)
+        })
       })
-      recommendProc = proc
-      let stderr = ''
-      proc.stderr?.on('data', (d: Buffer) => {
-        stderr += d.toString()
-      })
-      proc.on('close', (code) => {
-        if (proc === recommendProc) recommendProc = null
-        if (code === 0) resolve()
-        else if (code === 143 || code === null) reject(new Error('タイムアウトしました。もう一度お試しください。'))
-        else reject(new Error(stderr || `claude exited with code ${code}`))
-      })
-      proc.on('error', (err) => {
-        if (proc === recommendProc) recommendProc = null
-        reject(err)
-      })
-    })
+
+    // Try Opus, fall back to Sonnet on failure
+    try {
+      await runWithModel(models[0])
+    } catch (opusError) {
+      const msg = opusError instanceof Error ? opusError.message : ''
+      // Only fall back if Opus failed due to model availability, not timeout/cancel
+      if (msg.includes('タイムアウト') || msg.includes('ENOENT') || msg.includes('not found')) throw opusError
+      await runWithModel(models[1])
+    }
 
     return { success: true }
   } catch (error) {
