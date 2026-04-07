@@ -294,7 +294,8 @@ export function detectDeveloperRole(categoryScores: Record<string, number>): str
 
 export function findRecommendedScenario(
   categoryScores: Record<string, number>,
-  promptSamples: string[] = []
+  promptSamples: string[] = [],
+  classified?: { classifications: HaikuClassification[]; summary: ClassificationSummary } | null
 ): { scenario: ScenarioData; reason: string } | null {
   const topCategories = Object.entries(categoryScores)
     .filter(([, s]) => s > 0)
@@ -314,27 +315,35 @@ export function findRecommendedScenario(
 
   if (scored.length === 0) return null
 
-  // Try behavior-pattern-based matching first (more specific)
-  // Collect all pattern-matched scenarios, then pick randomly to avoid always showing the same one
-  const workPatterns = detectWorkPatterns(promptSamples)
-  const patternCandidates: { scenario: ScenarioData; reason: string }[] = []
-  for (const wp of workPatterns) {
-    const patternScenarioIds = PATTERN_SCENARIO_MAP[wp.pattern] ?? []
-    for (const id of patternScenarioIds) {
-      const s = SCENARIOS.find((sc) => sc.id === id)
-      if (s) {
-        patternCandidates.push({ scenario: s, reason: `${wp.pattern} → ${wp.tip}` })
+  // Use Haiku classification to match scenarios by struggle patterns
+  if (classified && classified.classifications.length > 0) {
+    const struggles = classified.classifications.filter((c) => c.struggle !== 'none')
+    if (struggles.length > 0) {
+      // Find the dominant struggle category
+      const struggleCats = struggles.map((c) => c.category)
+      const dominantCat = mode(struggleCats)
+      // Match scenarios to the struggle category
+      const candidates: { scenario: ScenarioData; reason: string }[] = []
+      for (const { scenario } of scored) {
+        const cats = SCENARIO_CATEGORY_MAP[scenario.id] ?? []
+        if (dominantCat && cats.includes(dominantCat)) {
+          // Use Haiku's tip as the reason (specific to user's actual work)
+          const relevantTip = struggles.find((c) => c.category === dominantCat)?.tip
+          const reason = relevantTip
+            ? `${relevantTip} — このシナリオで実践的に学べます`
+            : `${getCategoryById(dominantCat)?.name ?? dominantCat}の作業に関連したシナリオです`
+          candidates.push({ scenario, reason })
+        }
+      }
+      if (candidates.length > 0) {
+        const lastShownId = typeof sessionStorage !== 'undefined' ? sessionStorage.getItem('last-scenario-id') : null
+        const filtered = candidates.filter((c) => c.scenario.id !== lastShownId)
+        const pool = filtered.length > 0 ? filtered : candidates
+        const pick = pool[Math.floor(Math.random() * pool.length)]
+        if (typeof sessionStorage !== 'undefined') sessionStorage.setItem('last-scenario-id', pick.scenario.id)
+        return pick
       }
     }
-  }
-  if (patternCandidates.length > 0) {
-    // Avoid repeating the last shown scenario (stored in sessionStorage)
-    const lastShownId = typeof sessionStorage !== 'undefined' ? sessionStorage.getItem('last-scenario-id') : null
-    const filtered = patternCandidates.filter((c) => c.scenario.id !== lastShownId)
-    const pool = filtered.length > 0 ? filtered : patternCandidates
-    const pick = pool[Math.floor(Math.random() * pool.length)]
-    if (typeof sessionStorage !== 'undefined') sessionStorage.setItem('last-scenario-id', pick.scenario.id)
-    return pick
   }
 
   // Fallback: category-based matching

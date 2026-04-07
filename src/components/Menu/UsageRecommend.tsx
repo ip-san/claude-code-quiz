@@ -31,6 +31,7 @@ export function UsageRecommend() {
     setupDone,
     growthInsight,
     workPatterns,
+    classifiedData,
     analyze,
     shuffle,
     setupHooks,
@@ -43,8 +44,8 @@ export function UsageRecommend() {
 
   // useMemo must be before early returns (React hooks rule)
   const scenarioResult = useMemo(
-    () => (analysis ? findRecommendedScenario(analysis.categoryScores, analysis.promptSamples) : null),
-    [analysis]
+    () => (analysis ? findRecommendedScenario(analysis.categoryScores, analysis.promptSamples, classifiedData) : null),
+    [analysis, classifiedData]
   )
 
   if (!isElectron) return null

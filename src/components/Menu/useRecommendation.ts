@@ -52,7 +52,8 @@ export function useRecommendation() {
   const [setupDone, setSetupDone] = useState(false)
   const [growthInsight, setGrowthInsight] = useState<GrowthInsight | null>(null)
   const [workPatterns, setWorkPatterns] = useState<ReturnType<typeof detectWorkPatterns>>([])
-
+  const [classifiedData, setClassifiedData] =
+    useState<Awaited<ReturnType<NonNullable<typeof window.electronAPI>['getClassifiedPrompts']>>>(null)
   // Timer for regeneration progress
   const [elapsed, setElapsed] = useState(0)
   const timerRef = useRef<ReturnType<typeof setInterval> | null>(null)
@@ -117,6 +118,7 @@ export function useRecommendation() {
     // Growth tracking with quiz correlation — use Haiku classification if available
     const prompts = cachedAnalysis.promptSamples ?? []
     const classified = await window.electronAPI?.getClassifiedPrompts?.()
+    setClassifiedData(classified ?? null)
     const patterns = detectWorkPatterns(prompts, classified)
     setWorkPatterns(patterns)
 
@@ -365,6 +367,7 @@ export function useRecommendation() {
     allQuestions,
     growthInsight,
     workPatterns,
+    classifiedData,
     showConfirmDialog,
     // Actions
     analyze,
