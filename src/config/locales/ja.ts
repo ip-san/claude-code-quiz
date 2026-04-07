@@ -281,6 +281,7 @@ export const ja: LocaleConfig = {
     highPriority: '▲ 高優先',
     lowPriority: '低優先 ▼',
     switchTrigger: (trigger) => `${trigger} で切り替え`,
+    switchSuffix: 'で切り替え',
   },
 
   categoryTrend: {

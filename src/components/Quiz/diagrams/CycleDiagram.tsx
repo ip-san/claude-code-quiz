@@ -92,7 +92,7 @@ export function CycleDiagram({ label, trigger, states }: CycleDiagramProps) {
           <code className="rounded bg-stone-100 px-1 py-0.5 font-mono text-stone-600 dark:bg-stone-700 dark:text-stone-300">
             {trigger}
           </code>{' '}
-          で切り替え
+          {locale.diagrams.switchSuffix}
         </p>
       )}
     </div>

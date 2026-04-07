@@ -300,6 +300,7 @@ export interface LocaleConfig {
     readonly highPriority: string
     readonly lowPriority: string
     readonly switchTrigger: (trigger: string) => string
+    readonly switchSuffix: string
   }
 
   // === Category Trend ===
