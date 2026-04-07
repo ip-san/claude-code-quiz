@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { getQuizModeById, PREDEFINED_QUIZ_MODES, QuizMode } from './QuizMode'
+import { ALL_MODE_IDS, getQuizModeById, PREDEFINED_QUIZ_MODES, QuizMode } from './QuizMode'
 
 describe('QuizMode Value Object', () => {
   describe('create()', () => {
@@ -41,21 +41,7 @@ describe('QuizMode Value Object', () => {
     })
 
     it('should accept all valid mode ids', () => {
-      const validModes = [
-        'full',
-        'category',
-        'random',
-        'quick',
-        'weak',
-        'unanswered',
-        'custom',
-        'bookmark',
-        'review',
-        'overview',
-        'scenario',
-      ] as const
-
-      validModes.forEach((modeId) => {
+      ALL_MODE_IDS.forEach((modeId) => {
         const mode = QuizMode.create({
           id: modeId,
           name: 'Test',
@@ -180,20 +166,21 @@ describe('QuizMode Value Object', () => {
 })
 
 describe('PREDEFINED_QUIZ_MODES', () => {
-  it('should have 9 predefined modes', () => {
-    expect(PREDEFINED_QUIZ_MODES).toHaveLength(9)
+  it('should have 10 predefined modes', () => {
+    expect(PREDEFINED_QUIZ_MODES).toHaveLength(10)
   })
 
-  it('should have all required modes', () => {
-    const ids = PREDEFINED_QUIZ_MODES.map((m) => m.id)
+  it('every QuizModeId except custom must have a PREDEFINED entry', () => {
+    // custom is dynamic (user-configured), so it's excluded
+    const predefinedIds = PREDEFINED_QUIZ_MODES.map((m) => m.id)
 
-    expect(ids).toContain('full')
-    expect(ids).toContain('category')
-    expect(ids).toContain('random')
-    expect(ids).toContain('weak')
-    expect(ids).toContain('bookmark')
-    expect(ids).toContain('review')
-    expect(ids).toContain('overview')
+    for (const id of ALL_MODE_IDS) {
+      if (id === 'custom') continue
+      expect(
+        predefinedIds,
+        `Mode "${id}" is missing from PREDEFINED_QUIZ_MODES — this causes questionCount to inherit from previous session`
+      ).toContain(id)
+    }
   })
 
   it('should have unique ids', () => {

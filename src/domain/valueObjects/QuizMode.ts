@@ -28,6 +28,21 @@ export interface QuizModeProps {
   readonly shuffleOptions: boolean
 }
 
+/** QuizModeId に値を追加したら必ずここにも追加すること */
+export const ALL_MODE_IDS: readonly QuizModeId[] = [
+  'full',
+  'category',
+  'random',
+  'quick',
+  'weak',
+  'unanswered',
+  'custom',
+  'bookmark',
+  'review',
+  'overview',
+  'scenario',
+] as const
+
 export class QuizMode {
   readonly id: QuizModeId
   readonly name: string
@@ -50,20 +65,7 @@ export class QuizMode {
   }
 
   static create(props: QuizModeProps): QuizMode {
-    const validModes: QuizModeId[] = [
-      'full',
-      'category',
-      'random',
-      'quick',
-      'weak',
-      'unanswered',
-      'custom',
-      'bookmark',
-      'review',
-      'overview',
-      'scenario',
-    ]
-    if (!validModes.includes(props.id)) {
+    if (!ALL_MODE_IDS.includes(props.id)) {
       throw new Error(`Invalid quiz mode: ${props.id}`)
     }
     return new QuizMode(props)
@@ -161,6 +163,16 @@ export const PREDEFINED_QUIZ_MODES: QuizMode[] = [
     description: '正答率の低い問題を優先出題',
     icon: '🔥',
     questionCount: 20,
+    timeLimit: null,
+    shuffleQuestions: true,
+    shuffleOptions: false,
+  }),
+  QuizMode.create({
+    id: 'unanswered',
+    name: '未正解に挑戦',
+    description: 'まだ正解していない問題をカテゴリ別に',
+    icon: '❓',
+    questionCount: null,
     timeLimit: null,
     shuffleQuestions: true,
     shuffleOptions: false,

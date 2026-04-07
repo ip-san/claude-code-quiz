@@ -75,7 +75,7 @@ const CATEGORY_TERMS: Record<string, string[]> = {
   bestpractices: ['テスト', 'レビュー', 'デバッグ', 'Plan', '設計', 'エラー', '影響', '確認'],
 }
 
-const SCENARIO_CATEGORY_MAP: Record<string, string[]> = {
+export const SCENARIO_CATEGORY_MAP: Record<string, string[]> = {
   'scenario-onboard': ['memory', 'bestpractices'],
   'scenario-dotclaude': ['memory'],
   'scenario-claudemd': ['memory', 'bestpractices'],
@@ -100,7 +100,7 @@ const SCENARIO_CATEGORY_MAP: Record<string, string[]> = {
   'scenario-extend': ['extensions', 'skills'],
 }
 
-const PATTERN_SCENARIO_MAP: Record<string, string[]> = {
+export const PATTERN_SCENARIO_MAP: Record<string, string[]> = {
   同じ修正を繰り返し指示: ['scenario-claudemd', 'scenario-claudemd-pruning'],
   長いプロンプトで毎回文脈を説明: ['scenario-claudemd', 'scenario-onboard'],
   テストを手動で何度も実行: ['scenario-cicd', 'scenario-cicd-setup'],

@@ -7,8 +7,11 @@
 
 import { readFileSync } from 'node:fs'
 import { describe, expect, it } from 'vitest'
+import { PATTERN_SCENARIO_MAP, SCENARIO_CATEGORY_MAP } from '@/components/Menu/recommendUtils'
+import { SCENARIOS } from '@/data/scenarios'
+import { PREDEFINED_CATEGORIES } from '../valueObjects/Category'
 import { getOverviewQuestionsOrdered, OVERVIEW_CHAPTERS } from '../valueObjects/OverviewChapter'
-import { PREDEFINED_QUIZ_MODES } from '../valueObjects/QuizMode'
+import { ALL_MODE_IDS, PREDEFINED_QUIZ_MODES } from '../valueObjects/QuizMode'
 import { QuizSessionService } from './QuizSessionService'
 
 // Load quiz data for integration-level checks
@@ -183,6 +186,51 @@ describe('Spec Consistency: QuizSessionService chapter transitions', () => {
 
     const afterDismiss = QuizSessionService.dismissChapterIntro(state)
     expect(afterDismiss.overviewChapterState?.chapterPhase).toBe('questions')
+  })
+})
+
+describe('Spec Consistency: Mapping exhaustiveness', () => {
+  const scenarioIds = SCENARIOS.map((s) => s.id)
+  const categoryIds = PREDEFINED_CATEGORIES.map((c) => c.id)
+
+  it('SCENARIO_CATEGORY_MAP keys must all exist in SCENARIOS', () => {
+    for (const key of Object.keys(SCENARIO_CATEGORY_MAP)) {
+      expect(scenarioIds, `SCENARIO_CATEGORY_MAP key "${key}" does not exist in SCENARIOS`).toContain(key)
+    }
+  })
+
+  it('SCENARIO_CATEGORY_MAP values must all exist in PREDEFINED_CATEGORIES', () => {
+    for (const [scenarioId, cats] of Object.entries(SCENARIO_CATEGORY_MAP)) {
+      for (const cat of cats) {
+        expect(categoryIds, `SCENARIO_CATEGORY_MAP["${scenarioId}"] references unknown category "${cat}"`).toContain(
+          cat
+        )
+      }
+    }
+  })
+
+  it('every SCENARIO must have an entry in SCENARIO_CATEGORY_MAP', () => {
+    for (const id of scenarioIds) {
+      expect(
+        Object.keys(SCENARIO_CATEGORY_MAP),
+        `Scenario "${id}" has no entry in SCENARIO_CATEGORY_MAP — recommendations for this scenario will be silently skipped`
+      ).toContain(id)
+    }
+  })
+
+  it('PATTERN_SCENARIO_MAP values must all exist in SCENARIOS', () => {
+    for (const [pattern, ids] of Object.entries(PATTERN_SCENARIO_MAP)) {
+      for (const id of ids) {
+        expect(scenarioIds, `PATTERN_SCENARIO_MAP["${pattern}"] references unknown scenario "${id}"`).toContain(id)
+      }
+    }
+  })
+
+  it('CATEGORY_REASONS and CATEGORY_TERMS must cover all categories', () => {
+    const source = readFileSync('src/components/Menu/recommendUtils.ts', 'utf8')
+    for (const catId of categoryIds) {
+      expect(source, `Category "${catId}" missing from CATEGORY_REASONS or CATEGORY_TERMS`).toContain(`  ${catId}:`)
+    }
   })
 })
 

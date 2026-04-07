@@ -124,4 +124,5 @@ flowchart TD
 4. **セッション状態** → `SessionRepository` に保存・復元されるか？
 5. **問題数表示** → 実際のセッション問題数と一致するか？
 6. **モード定義** → `name` と `description` が実装と一致するか？
-7. **SpecConsistency テスト** → 新パターンのテストを追加したか？
+7. **新モードID** → `QuizModeId` に追加したら `ALL_MODE_IDS` と `PREDEFINED_QUIZ_MODES` にも登録したか？（未登録だと前セッションの `questionCount` が引き継がれるバグの原因）
+8. **SpecConsistency テスト** → 新パターンのテストを追加したか？
