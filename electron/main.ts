@@ -773,6 +773,79 @@ ipcMain.handle('check-global-hooks', async (): Promise<boolean> => {
 })
 
 // ============================================================
+// Haiku Classification Results (from SessionEnd hook pipeline)
+// ============================================================
+
+ipcMain.handle(
+  'get-classified-prompts',
+  async (): Promise<{
+    classifications: { id: number; intent: string; category: string; struggle: string }[]
+    summary: {
+      intentClusters: { intent: string; promptIds: number[]; dominantStruggle: string }[]
+      categoryDistribution: Record<string, number>
+      overallStruggles: { none: number; mild: number; strong: number }
+    }
+  } | null> => {
+    try {
+      const filePath = join(homedir(), '.claude-quiz-recommend', 'classified-prompts.json')
+      const content = readFileSync(filePath, 'utf8')
+      const data = JSON.parse(content)
+      return { classifications: data.classifications ?? [], summary: data.summary ?? {} }
+    } catch {
+      return null
+    }
+  }
+)
+
+// ============================================================
+// Haiku-powered Question Ranking (fallback when Sonnet cache unavailable)
+// ============================================================
+
+ipcMain.handle(
+  'rank-questions-with-haiku',
+  async (
+    _event,
+    args: { questions: { id: string; question: string; category: string }[]; userContext: string }
+  ): Promise<string[] | null> => {
+    const { questions, userContext } = args
+    if (questions.length === 0) return null
+
+    const prompt = `ユーザーの作業文脈と問題リストを見て、このユーザーにとって学習価値が高い順に問題IDを並べてください。
+既に知っていそうな基礎的な内容は後ろに、まだ知らなそうな実践的な内容を前に。
+
+## ユーザーの作業文脈
+${userContext}
+
+## 問題リスト
+${JSON.stringify(questions.map((q) => ({ id: q.id, q: q.question.slice(0, 60) })))}
+
+IDのみのJSON配列で返してください。説明不要。`
+
+    try {
+      const { execSync } = await import('child_process')
+      const result = execSync(`claude -p ${JSON.stringify(prompt)} --model haiku --output-format json`, {
+        timeout: 30_000,
+        encoding: 'utf8',
+        stdio: ['ignore', 'pipe', 'pipe'],
+      })
+      let text = result
+      try {
+        const wrapper = JSON.parse(result)
+        text = typeof wrapper === 'string' ? wrapper : wrapper.result || JSON.stringify(wrapper)
+      } catch {
+        /* raw text */
+      }
+      text = text.replace(/```json\s*/g, '').replace(/```\s*/g, '')
+      const match = text.match(/\[[\s\S]*\]/)
+      if (match) return JSON.parse(match[0])
+      return null
+    } catch {
+      return null
+    }
+  }
+)
+
+// ============================================================
 // Cached Recommendations (from SessionEnd hook)
 // ============================================================
 

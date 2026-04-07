@@ -38,6 +38,18 @@ interface ElectronAPI {
   showNotification: (title: string, body: string) => Promise<void>
   setupGlobalHooks: (remove: boolean) => Promise<{ success: boolean; error?: string }>
   checkGlobalHooks: () => Promise<boolean>
+  getClassifiedPrompts: () => Promise<{
+    classifications: { id: number; intent: string; category: string; struggle: string }[]
+    summary: {
+      intentClusters: { intent: string; promptIds: number[]; dominantStruggle: string }[]
+      categoryDistribution: Record<string, number>
+      overallStruggles: { none: number; mild: number; strong: number }
+    }
+  } | null>
+  rankQuestionsWithHaiku: (args: {
+    questions: { id: string; question: string; category: string }[]
+    userContext: string
+  }) => Promise<string[] | null>
   getCachedRecommend: () => Promise<{
     date: string
     sessionCount: number

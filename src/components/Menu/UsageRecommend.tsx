@@ -8,7 +8,7 @@ import { isElectron } from '@/lib/platformAPI'
 import { useQuizStore } from '@/stores/quizStore'
 import { ConfirmDialog } from '../Layout/ConfirmDialog'
 import { AnalyzeButton, EmptySession, SetupBanner } from './RecommendStates'
-import { detectWorkPatterns, findRecommendedScenario, groupByCategory } from './recommendUtils'
+import { findRecommendedScenario, groupByCategory } from './recommendUtils'
 import { useRecommendation } from './useRecommendation'
 
 /**
@@ -30,6 +30,7 @@ export function UsageRecommend() {
     hooksInstalled,
     setupDone,
     growthInsight,
+    workPatterns,
     analyze,
     shuffle,
     setupHooks,
@@ -159,11 +160,10 @@ export function UsageRecommend() {
           </p>
         ))}
 
-      {/* Insight: one key observation from work patterns */}
+      {/* Insight: one key observation from work patterns (Haiku-powered when available) */}
       {analysis &&
         (() => {
-          const patterns = detectWorkPatterns(analysis.promptSamples ?? [])
-          const p = patterns[0]
+          const p = workPatterns[0]
           if (p) {
             return (
               <div className="mx-4 mb-1.5 rounded-lg border border-claude-orange/20 bg-orange-50/50 px-3 py-2 dark:border-claude-orange/10 dark:bg-orange-500/5">

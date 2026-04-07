@@ -172,6 +172,30 @@ const electronAPI = {
   },
 
   /**
+   * Haiku が分類したプロンプト分類結果を取得する
+   */
+  getClassifiedPrompts: (): Promise<{
+    classifications: { id: number; intent: string; category: string; struggle: string }[]
+    summary: {
+      intentClusters: { intent: string; promptIds: number[]; dominantStruggle: string }[]
+      categoryDistribution: Record<string, number>
+      overallStruggles: { none: number; mild: number; strong: number }
+    }
+  } | null> => {
+    return ipcRenderer.invoke('get-classified-prompts')
+  },
+
+  /**
+   * Haiku で問題を学習価値順にランキングする（Sonnet キャッシュ未使用時のフォールバック）
+   */
+  rankQuestionsWithHaiku: (args: {
+    questions: { id: string; question: string; category: string }[]
+    userContext: string
+  }): Promise<string[] | null> => {
+    return ipcRenderer.invoke('rank-questions-with-haiku', args)
+  },
+
+  /**
    * SessionEnd フックが蓄積した今日のレコメンドデータを取得する
    */
   getCachedRecommend: (): Promise<{

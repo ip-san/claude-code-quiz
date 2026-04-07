@@ -135,12 +135,139 @@ export function findRelatedPrompts(prompts: string[], category: string): string[
     .sort(() => Math.random() - 0.5)
 }
 
-/** Detect inefficiency patterns from prompts — "you could have done this better" */
-export function detectWorkPatterns(prompts: string[]): WorkPattern[] {
+/** Haiku 分類結果の型 */
+export interface HaikuClassification {
+  id: number
+  intent: string
+  category: string
+  struggle: string
+}
+
+/** Haiku 分類結果のサマリ型 */
+export interface ClassificationSummary {
+  intentClusters: { intent: string; promptIds: number[]; dominantStruggle: string }[]
+  categoryDistribution: Record<string, number>
+  overallStruggles: { none: number; mild: number; strong: number }
+}
+
+/**
+ * Detect inefficiency patterns from prompts.
+ *
+ * When Haiku classification results are available, uses intent clusters
+ * and struggle signals for accurate pattern detection. Falls back to
+ * regex-based heuristics when classification is unavailable.
+ */
+export function detectWorkPatterns(
+  prompts: string[],
+  classified?: { classifications: HaikuClassification[]; summary: ClassificationSummary } | null
+): WorkPattern[] {
+  // Use Haiku-powered detection if classification is available
+  if (classified && classified.classifications.length > 0) {
+    return detectFromClassification(prompts, classified)
+  }
+  // Fallback: regex-based heuristics
+  return detectFromRegex(prompts)
+}
+
+/** Haiku 分類結果を活用したパターン検出 */
+function detectFromClassification(
+  prompts: string[],
+  classified: { classifications: HaikuClassification[]; summary: ClassificationSummary }
+): WorkPattern[] {
+  const patterns: WorkPattern[] = []
+  const cls = classified.classifications
+  const summary = classified.summary
+
+  // 1. Repetition: same intent appears 3+ times (Haiku understands semantic similarity)
+  for (const cluster of summary.intentClusters) {
+    if (cluster.promptIds.length >= 3) {
+      const sample = prompts[cluster.promptIds[0]] ?? ''
+      // Determine category from the classified prompts in this cluster
+      const clusterCats = cluster.promptIds.map((id) => cls.find((c) => c.id === id)?.category).filter(Boolean)
+      const dominantCat = mode(clusterCats as string[]) ?? 'memory'
+      const tip = CATEGORY_REASONS[dominantCat]?.used ?? '関連する作業をしていました'
+      patterns.push({
+        pattern: `「${cluster.intent}」を繰り返し`,
+        tip,
+        category: dominantCat,
+        savedMinutes: cluster.promptIds.length * 2,
+        evidence: sample,
+      })
+      break // Only report the top cluster
+    }
+  }
+
+  // 2. Struggle-based patterns: Haiku detected mild/strong struggle
+  const strongStruggles = cls.filter((c) => c.struggle === 'strong')
+  const mildStruggles = cls.filter((c) => c.struggle === 'mild')
+
+  if (strongStruggles.length >= 2) {
+    const sample = prompts[strongStruggles[0].id] ?? ''
+    const dominantCat = mode(strongStruggles.map((c) => c.category)) ?? 'bestpractices'
+    patterns.push({
+      pattern: '苦戦している操作がある',
+      tip: CATEGORY_REASONS[dominantCat]?.used ?? '関連するクイズで効率的な方法を学びましょう',
+      category: dominantCat,
+      savedMinutes: strongStruggles.length * 5,
+      evidence: sample,
+    })
+  } else if (mildStruggles.length >= 3) {
+    const sample = prompts[mildStruggles[0].id] ?? ''
+    const dominantCat = mode(mildStruggles.map((c) => c.category)) ?? 'bestpractices'
+    patterns.push({
+      pattern: '効率化できそうな操作パターン',
+      tip: CATEGORY_REASONS[dominantCat]?.used ?? '知っておくと便利な機能があります',
+      category: dominantCat,
+      savedMinutes: mildStruggles.length * 2,
+      evidence: sample,
+    })
+  }
+
+  // 3. Session length indicator (quantitative, no AI needed)
+  const meaningful = prompts.filter((p) => p.length > 10)
+  if (meaningful.length > 15) {
+    patterns.push({
+      pattern: `セッションが長い（プロンプト${meaningful.length}件）`,
+      tip: '/compact でコンテキストを圧縮できる',
+      category: 'session',
+      savedMinutes: 5,
+    })
+  }
+
+  // 4. AI Usage Style Detection from Haiku intents
+  const struggles = summary.overallStruggles
+  const totalClassified = cls.length
+  if (totalClassified >= 5) {
+    const strongRatio = (struggles.strong ?? 0) / totalClassified
+    const noneRatio = (struggles.none ?? 0) / totalClassified
+    if (strongRatio > 0.3) {
+      patterns.push({
+        pattern: 'AI への丸投げ傾向',
+        tip: '「なぜそうなるか」を質問すると理解が深まり、スキルが定着する（Anthropic 研究）',
+        category: 'bestpractices',
+        savedMinutes: 0,
+        aiStyle: 'delegation',
+      })
+    } else if (noneRatio > 0.7) {
+      patterns.push({
+        pattern: '概念を理解しようとする質問が多い',
+        tip: '素晴らしいアプローチ！より高度な問題に挑戦してみましょう',
+        category: 'bestpractices',
+        savedMinutes: 0,
+        aiStyle: 'inquiry',
+      })
+    }
+  }
+
+  return patterns
+}
+
+/** Regex-based fallback (no Haiku classification available) */
+function detectFromRegex(prompts: string[]): WorkPattern[] {
   const patterns: WorkPattern[] = []
   const meaningful = prompts.filter((p) => p.length > 10)
 
-  // Repetition: same theme 3+ times
+  // Repetition: same theme 3+ times (crude: first 15 chars match)
   const themeCount = new Map<string, { count: number; example: string }>()
   for (const p of meaningful) {
     const key = p.slice(0, 15).toLowerCase()
@@ -218,15 +345,11 @@ export function detectWorkPatterns(prompts: string[]): WorkPattern[] {
     })
   }
 
-  // ── AI Usage Style Detection (Anthropic research-based) ──
-
-  // Delegation pattern: "お願いします" "全部やって" "まとめて" "作って"
+  // AI Usage Style Detection (Anthropic research-based)
   const delegationPrompts = meaningful.filter((p) => /お願い|全部|まとめて|作って|やって|してください$/.test(p))
-  // Debug delegation: error paste → "直して" "修正して" pattern
   const debugDelegation = meaningful.filter((p) =>
     /直して|修正して|エラー.*なおし|fix|動かない.*して/.test(p.toLowerCase())
   )
-  // Inquiry pattern (positive): "なぜ" "どう違う" "仕組み" "理由"
   const inquiryPrompts = meaningful.filter((p) => /なぜ|どう違|仕組み|理由|どういう|メリット|デメリット|比較/.test(p))
 
   const totalStyled = delegationPrompts.length + debugDelegation.length + inquiryPrompts.length
@@ -264,6 +387,21 @@ export function detectWorkPatterns(prompts: string[]): WorkPattern[] {
   }
 
   return patterns
+}
+
+/** Find the most frequent value in an array */
+function mode(arr: string[]): string | undefined {
+  const counts = new Map<string, number>()
+  for (const v of arr) counts.set(v, (counts.get(v) ?? 0) + 1)
+  let max = 0
+  let result: string | undefined
+  for (const [k, c] of counts) {
+    if (c > max) {
+      max = c
+      result = k
+    }
+  }
+  return result
 }
 
 /** Map category scores to a developer role label */
