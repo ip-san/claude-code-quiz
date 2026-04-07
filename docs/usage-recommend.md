@@ -25,13 +25,13 @@ SessionEnd hook (自動)
       → spawn Layer 2 (detached)
 
   → Layer 2: classify-prompts.mjs [Haiku/~$0.004]
-      50プロンプトを意図分類 (intent, category, struggle)
+      50プロンプトを意図分類 (intent, category, struggle, phase, tip)
       → classified-prompts.json
       → chain Layer 3
 
   → Layer 3: aggregate-classifications.mjs [Script/$0]
-      分類+統計+学習者プロファイルを圧縮
-      → compressed-input.json (~1,750文字, 88%削減)
+      生データ構造化（会話フロー + 個別分類 + 候補問題文を保持）
+      → compressed-input.json (~8,000文字)
 
 分析ボタン (ユーザー主導)
   → Layer 4: /recommend skill [Sonnet/~$0.03]

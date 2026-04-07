@@ -1,11 +1,16 @@
 #!/usr/bin/env node
 /**
- * Layer 3: 分類結果の集計 + Sonnet 用圧縮入力生成
+ * Layer 3: Sonnet 用入力データの構築
  *
  * classified-prompts.json + rolling-7d.json + learner-profile.json を読み、
- * compressed-input.json を生成する。
+ * Sonnet が因果推論と問題選定を行うための入力データを構築する。
  *
- * Sonnet が読むデータ量を ~15,000文字 → ~1,750文字 に圧縮する。
+ * 設計原則: Sonnet にはできるだけ生に近いデータを渡す。
+ * スクリプトで情報を捨てると、Sonnet の判断材料が減り、
+ * ユーザーが直接 Opus に聞いた方が良い結果になってしまう。
+ *
+ * Sonnet の強みは「7日分の全セッションデータを横断分析できること」。
+ * この強みを活かすため、時系列の文脈と個別分類結果を保持する。
  */
 
 import { existsSync, readFileSync, writeFileSync } from 'fs'
@@ -36,22 +41,43 @@ try {
   /* no profile yet */
 }
 
-// ── Build compressed input ──────────────────────────────────
+// ── Build Sonnet input (preserve raw data) ──────────────────
 
-// 1. Intent clusters (from Haiku)
-const intentClusters = (classified.summary?.intentClusters || []).slice(0, 8)
-
-// 2. Quantitative data (from scripts)
-const struggleSignals = rolling.struggleSignals || {}
-const intentTransitions = (rolling.intentTransitions || []).slice(-5).map((t) => ({
-  date: t.date,
-  sequence: t.sequence.join('→'),
+// 1. Conversation flows — the sequential context that Sonnet needs
+//    to understand "what the user was trying to do across sessions"
+const conversationFlows = (rolling.conversationFlows || []).slice(-10).map((flow) => ({
+  date: flow.date,
+  prompts: flow.prompts.slice(-15).map((p) => p.slice(0, 120)),
 }))
 
-// 3. Category distribution (from Haiku)
-const categoryDistribution = classified.summary?.categoryDistribution || {}
+// 2. Individual Haiku classifications — per-prompt judgment
+//    Sonnet can see patterns that Haiku classified as struggle/none
+//    and make cross-prompt inferences
+const promptClassifications = (classified.classifications || []).map((c) => {
+  const promptText = rolling.prompts?.[c.id]?.slice(0, 120) ?? ''
+  return {
+    text: promptText,
+    intent: c.intent,
+    category: c.category,
+    struggle: c.struggle,
+    phase: c.phase ?? null,
+    tip: c.tip ?? null,
+  }
+})
 
-// 4. Learner state (from profile)
+// 3. Summary statistics (from Haiku) — aggregate view
+const summary = {
+  intentClusters: (classified.summary?.intentClusters || []).slice(0, 10).map((c) => ({
+    intent: c.intent,
+    count: c.promptIds.length,
+    dominantStruggle: c.dominantStruggle,
+    tip: c.tip,
+  })),
+  categoryDistribution: classified.summary?.categoryDistribution || {},
+  overallStruggles: classified.summary?.overallStruggles || {},
+}
+
+// 4. Learner state — quiz progress + growth trajectory
 const learnerState = profile
   ? {
       categoryProgress: profile.categoryProgress || {},
@@ -59,32 +85,21 @@ const learnerState = profile
       totalAttempts: profile.totalAttempts || 0,
       totalXp: profile.totalXp || 0,
       streakDays: profile.streakDays || 0,
-      // Summarize pattern trend
       patternTrend: summarizePatternTrend(profile.patternHistory || []),
     }
   : null
 
-// 5. Candidate quiz IDs (pre-filtered)
-const candidateIds = filterCandidates(categoryDistribution, profile)
-
-// 6. Representative sample prompts (one per top intent cluster)
-const samplePrompts = intentClusters
-  .slice(0, 5)
-  .map((c) => {
-    const promptId = c.promptIds[0]
-    const cls = classified.classifications.find((x) => x.id === promptId)
-    return cls ? `[${c.intent}] ${rolling.prompts[promptId]?.slice(0, 50) || ''}` : null
-  })
-  .filter(Boolean)
+// 5. Candidate quiz questions — include question text so Sonnet
+//    can match prompts to specific questions by understanding
+const candidateQuestions = filterCandidates(summary.categoryDistribution, profile)
 
 // ── Reuse cached candidates if classification hasn't changed ─
-let stableCandidateIds = candidateIds
+let stableCandidates = candidateQuestions
 try {
   if (existsSync(OUTPUT_FILE)) {
     const prev = JSON.parse(readFileSync(OUTPUT_FILE, 'utf8'))
-    // Reuse if same classification timestamp (no new Haiku run)
-    if (prev.classifiedAt === classified.classifiedAt && prev.candidateIds?.length > 0) {
-      stableCandidateIds = prev.candidateIds
+    if (prev.classifiedAt === classified.classifiedAt && prev.candidateQuestions?.length > 0) {
+      stableCandidates = prev.candidateQuestions
     }
   }
 } catch {
@@ -92,29 +107,38 @@ try {
 }
 
 // ── Output ──────────────────────────────────────────────────
-const compressed = {
+const output = {
   generatedAt: new Date().toISOString(),
-  sessionCount: rolling.sessionCount,
-  // Haiku analysis
-  intentClusters,
-  categoryDistribution,
-  overallStruggles: classified.summary?.overallStruggles || {},
-  // Script analysis
-  struggleSignals,
-  intentTransitions,
-  // Learner state
-  learnerState,
-  // Pre-filtered candidates (stable across re-runs if classification unchanged)
-  candidateIds: stableCandidateIds,
   classifiedAt: classified.classifiedAt,
-  // Minimal samples for Sonnet context
-  samplePrompts,
+  sessionCount: rolling.sessionCount,
+  promptCount: rolling.promptCount,
+
+  // Raw conversation flows (time-series context)
+  conversationFlows,
+
+  // Per-prompt Haiku classification with original text
+  promptClassifications,
+
+  // Aggregate statistics
+  summary,
+
+  // Quantitative signals
+  struggleSignals: rolling.struggleSignals || {},
+
+  // Learner quiz state
+  learnerState,
+
+  // Candidate questions with text (for Sonnet to match against prompts)
+  candidateQuestions: stableCandidates,
 }
 
-writeFileSync(OUTPUT_FILE, JSON.stringify(compressed, null, 2))
+writeFileSync(OUTPUT_FILE, JSON.stringify(output, null, 2))
 
-const size = JSON.stringify(compressed).length
-console.log(`✓ compressed-input.json: ${size} chars (${candidateIds.length} candidate questions)`)
+const size = JSON.stringify(output).length
+const candidateCount = stableCandidates.length
+console.log(
+  `✓ compressed-input.json: ${size} chars (${candidateCount} candidate questions, ${promptClassifications.length} classified prompts)`
+)
 
 // ── Helper functions ────────────────────────────────────────
 
@@ -160,21 +184,27 @@ function filterCandidates(catDist, profile) {
       const acc = catProgress[cat]?.accuracy ?? 50
       const pool = allQ.filter((q) => {
         if (q.category !== cat) return false
-        // Filter by difficulty based on accuracy
         if (acc >= 80 && q.difficulty === 'beginner') return false
         if (acc < 50 && q.difficulty === 'advanced') return false
         return true
       })
 
-      // If user already has high accuracy in this category's recommendations, limit pool
       const recCorrect = recAccuracy[cat]
       const maxPerCat = recCorrect && recCorrect.correct / (recCorrect.total || 1) >= 0.8 ? 5 : 15
 
+      // Include question text so Sonnet can match against user prompts
       const sampled = pool.sort(() => Math.random() - 0.5).slice(0, maxPerCat)
-      candidates.push(...sampled.map((q) => q.id))
+      candidates.push(
+        ...sampled.map((q) => ({
+          id: q.id,
+          category: q.category,
+          difficulty: q.difficulty,
+          question: q.question.slice(0, 80),
+        }))
+      )
     }
 
-    return [...new Set(candidates)].slice(0, 80)
+    return candidates.slice(0, 80)
   } catch {
     return []
   }
