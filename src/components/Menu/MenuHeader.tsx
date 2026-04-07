@@ -15,7 +15,7 @@ import {
   Sun,
   X,
 } from 'lucide-react'
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { KeyboardShortcutHelp } from '@/components/Layout/KeyboardShortcutHelp'
 import { locale } from '@/config/locale'
 import { theme } from '@/config/theme'
@@ -56,6 +56,7 @@ export function MenuHeader({
   const [menuOpen, setMenuOpen] = useState(false)
   const [modesExpanded, setModesExpanded] = useState(false)
   const [updateStatus, setUpdateStatus] = useState<'checking' | 'latest' | 'error' | null>(null)
+  const updateTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
   const [showCategoryPicker, setShowCategoryPicker] = useState(false)
   const [showUnansweredPicker, setShowUnansweredPicker] = useState(false)
 
@@ -101,6 +102,12 @@ export function MenuHeader({
     action()
   }
 
+  useEffect(() => {
+    return () => {
+      if (updateTimerRef.current) clearTimeout(updateTimerRef.current)
+    }
+  }, [])
+
   const handleUpdateCheck = async () => {
     if (updateStatus === 'checking') return
     haptics.light()
@@ -116,10 +123,10 @@ export function MenuHeader({
         }
       }
       setUpdateStatus('latest')
-      setTimeout(() => setUpdateStatus(null), 3000)
+      updateTimerRef.current = setTimeout(() => setUpdateStatus(null), 3000)
     } catch {
       setUpdateStatus('error')
-      setTimeout(() => setUpdateStatus(null), 3000)
+      updateTimerRef.current = setTimeout(() => setUpdateStatus(null), 3000)
     }
   }
 
