@@ -1,3 +1,4 @@
+import { locale } from '@/config/locale'
 import { SCENARIOS, type ScenarioData } from '@/data/scenarios'
 import type { Question } from '@/domain/entities/Question'
 import type { UserProgress } from '@/domain/entities/UserProgress'
@@ -30,51 +31,9 @@ export interface WorkPattern {
 
 // ── Constants ────────────────────────────────────────────────
 
-export const CATEGORY_REASONS: Record<string, { used: string; unused: string }> = {
-  memory: {
-    used: 'CLAUDE.md やルール設定に触れていました。効果的な書き方を復習しましょう',
-    unused: 'CLAUDE.md を活用すると、Claude への指示が毎回自動で伝わります',
-  },
-  skills: {
-    used: 'スキルやワークフローを使っていました。もっと便利な使い方があるかも',
-    unused: 'スキルを作ると、よく使う作業を一言で呼び出せるようになります',
-  },
-  tools: {
-    used: 'ファイル操作やコマンド実行をたくさんしていました。ツールの使い分けを確認',
-    unused: 'Read / Edit / Grep などのツールを知ると、Claude への依頼がもっと的確に',
-  },
-  commands: {
-    used: 'コマンド操作をしていました。知っておくと便利なコマンドがまだあるかも',
-    unused: '/compact や /branch など、作業効率を上げるコマンドがあります',
-  },
-  extensions: {
-    used: 'MCP やフックなど拡張機能に触れていました。より深い使い方を学びましょう',
-    unused: 'MCP サーバーやフックで、Claude Code の機能を大幅に拡張できます',
-  },
-  session: {
-    used: 'セッション管理やコンテキストに関わる作業をしていました',
-    unused: 'コンテキストウィンドウの管理を知ると、長時間作業がスムーズに',
-  },
-  keyboard: {
-    used: 'ショートカットを活用していました。まだ知らないキーがあるかも',
-    unused: 'ショートカットを覚えると、マウスなしで爆速操作ができます',
-  },
-  bestpractices: {
-    used: 'ベストプラクティスに関わる作業をしていました。知識を固めましょう',
-    unused: '効果的な使い方のコツを知ると、Claude の回答品質が上がります',
-  },
-}
+export const CATEGORY_REASONS: Record<string, { used: string; unused: string }> = locale.recommendUtils.categoryReasons
 
-const CATEGORY_TERMS: Record<string, string[]> = {
-  memory: ['CLAUDE.md', 'ルール', '指示', 'メモリ', '/init', 'rules', '設定'],
-  skills: ['スキル', 'skill', 'コマンド', '/batch', '/loop', 'ワークフロー'],
-  tools: ['ファイル', 'Read', 'Edit', 'Bash', 'Grep', '検索', '書き換え', '変更'],
-  commands: ['/compact', '/clear', '/model', '/branch', 'コマンド', 'CLI'],
-  extensions: ['MCP', 'hook', 'フック', 'プラグイン', 'サブエージェント', 'Agent', '拡張'],
-  session: ['コンテキスト', 'セッション', 'トークン', '圧縮', '復帰', 'モデル'],
-  keyboard: ['ショートカット', 'Ctrl', 'Shift', 'キー', '操作'],
-  bestpractices: ['テスト', 'レビュー', 'デバッグ', 'Plan', '設計', 'エラー', '影響', '確認'],
-}
+const CATEGORY_TERMS: Record<string, string[]> = locale.recommendUtils.categoryTerms
 
 export const SCENARIO_CATEGORY_MAP: Record<string, string[]> = {
   'scenario-onboard': ['memory', 'bestpractices'],
@@ -101,14 +60,7 @@ export const SCENARIO_CATEGORY_MAP: Record<string, string[]> = {
   'scenario-extend': ['extensions', 'skills'],
 }
 
-export const PATTERN_SCENARIO_MAP: Record<string, string[]> = {
-  同じ修正を繰り返し指示: ['scenario-claudemd', 'scenario-claudemd-pruning'],
-  長いプロンプトで毎回文脈を説明: ['scenario-claudemd', 'scenario-onboard'],
-  テストを手動で何度も実行: ['scenario-cicd', 'scenario-cicd-setup'],
-  セッションが長い: ['scenario-session', 'scenario-context'],
-  ファイルの場所を何度も質問: ['scenario-legacy', 'scenario-tools'],
-  影響範囲を繰り返し確認: ['scenario-planmode', 'scenario-debug'],
-}
+// PATTERN_SCENARIO_MAP removed — Haiku now handles pattern→scenario mapping via suggestedScenarios
 
 // ── Functions ────────────────────────────────────────────────
 
@@ -142,6 +94,7 @@ export interface HaikuClassification {
   category: string
   struggle: string
   tip: string | null
+  aiStyle?: 'delegation' | 'inquiry' | 'efficiency' | null
 }
 
 /** Haiku 分類結果のサマリ型 */
@@ -149,6 +102,12 @@ export interface ClassificationSummary {
   intentClusters: { intent: string; promptIds: number[]; dominantStruggle: string; tip: string | null }[]
   categoryDistribution: Record<string, number>
   overallStruggles: { none: number; mild: number; strong: number }
+  /** Haiku が判定した開発者ロール */
+  developerRole?: string | null
+  /** Haiku が提案するシナリオID */
+  suggestedScenarios?: string[]
+  /** Haiku 分類に基づく AI 利用スタイル分布 */
+  aiStyleDistribution?: { delegation: number; inquiry: number; efficiency: number }
 }
 
 /**
@@ -188,9 +147,9 @@ function detectFromClassification(
       const clusterCats = cluster.promptIds.map((id) => cls.find((c) => c.id === id)?.category).filter(Boolean)
       const dominantCat = mode(clusterCats as string[]) ?? 'memory'
       // Use Haiku's tip if available, fall back to CATEGORY_REASONS only as last resort
-      const tip = cluster.tip ?? CATEGORY_REASONS[dominantCat]?.used ?? '関連する作業をしていました'
+      const tip = cluster.tip ?? CATEGORY_REASONS[dominantCat]?.used ?? locale.recommendUtils.fallbackReason
       patterns.push({
-        pattern: `「${cluster.intent}」を繰り返し`,
+        pattern: locale.recommendUtils.repeatPattern(cluster.intent),
         tip,
         category: dominantCat,
         savedMinutes: cluster.promptIds.length * 2,
@@ -218,7 +177,7 @@ function detectFromClassification(
     const topTip = [...tipCounts.entries()].sort((a, b) => b[1].count - a[1].count)[0]
     if (topTip) {
       patterns.push({
-        pattern: topTip[1].count >= 3 ? '苦戦している操作がある' : '効率化できそうな操作パターン',
+        pattern: topTip[1].count >= 3 ? locale.recommendUtils.strugglePattern : locale.recommendUtils.efficiencyPattern,
         tip: topTip[0], // Haiku's tip, not script's
         category: topTip[1].category,
         savedMinutes: topTip[1].count * 3,
@@ -227,28 +186,51 @@ function detectFromClassification(
     }
   }
 
-  // 3. AI Usage Style Detection from Haiku struggle ratios
-  const overallStruggles = summary.overallStruggles
+  // 3. AI Usage Style Detection — prefer Haiku's pre-computed distribution
   const totalClassified = cls.length
   if (totalClassified >= 5) {
-    const strongRatio = (overallStruggles.strong ?? 0) / totalClassified
-    const noneRatio = (overallStruggles.none ?? 0) / totalClassified
-    if (strongRatio > 0.3) {
-      patterns.push({
-        pattern: 'AI への丸投げ傾向',
-        tip: '「なぜそうなるか」を質問すると理解が深まり、スキルが定着する',
-        category: 'bestpractices',
-        savedMinutes: 0,
-        aiStyle: 'delegation',
-      })
-    } else if (noneRatio > 0.7) {
-      patterns.push({
-        pattern: '概念を理解しようとする質問が多い',
-        tip: '素晴らしいアプローチ！より高度な問題に挑戦してみましょう',
-        category: 'bestpractices',
-        savedMinutes: 0,
-        aiStyle: 'inquiry',
-      })
+    const dist = summary.aiStyleDistribution
+    if (dist) {
+      // Use Haiku's per-classification aiStyle distribution
+      if (dist.delegation > totalClassified * 0.3) {
+        patterns.push({
+          pattern: locale.recommendUtils.delegationPattern,
+          tip: locale.recommendUtils.delegationTip,
+          category: 'bestpractices',
+          savedMinutes: 0,
+          aiStyle: 'delegation',
+        })
+      } else if (dist.inquiry > totalClassified * 0.5) {
+        patterns.push({
+          pattern: locale.recommendUtils.inquiryPattern,
+          tip: locale.recommendUtils.inquiryTip,
+          category: 'bestpractices',
+          savedMinutes: 0,
+          aiStyle: 'inquiry',
+        })
+      }
+    } else {
+      // Fallback: infer from struggle ratios when aiStyleDistribution is unavailable
+      const overallStruggles = summary.overallStruggles
+      const strongRatio = (overallStruggles.strong ?? 0) / totalClassified
+      const noneRatio = (overallStruggles.none ?? 0) / totalClassified
+      if (strongRatio > 0.3) {
+        patterns.push({
+          pattern: locale.recommendUtils.delegationPattern,
+          tip: locale.recommendUtils.delegationTip,
+          category: 'bestpractices',
+          savedMinutes: 0,
+          aiStyle: 'delegation',
+        })
+      } else if (noneRatio > 0.7) {
+        patterns.push({
+          pattern: locale.recommendUtils.inquiryPattern,
+          tip: locale.recommendUtils.inquiryTip,
+          category: 'bestpractices',
+          savedMinutes: 0,
+          aiStyle: 'inquiry',
+        })
+      }
     }
   }
 
@@ -270,29 +252,6 @@ function mode(arr: string[]): string | undefined {
   return result
 }
 
-/** Map category scores to a developer role label */
-export function detectDeveloperRole(categoryScores: Record<string, number>): string | null {
-  const top = Object.entries(categoryScores)
-    .filter(([, s]) => s > 0)
-    .sort((a, b) => b[1] - a[1])
-    .slice(0, 2)
-    .map(([cat]) => cat)
-  if (top.length === 0) return null
-
-  const has = (cat: string) => top.includes(cat)
-  if (has('tools') && has('bestpractices')) return 'コードレビュアー型'
-  if (has('extensions') && has('tools')) return 'インフラ自動化型'
-  if (has('memory') && has('bestpractices')) return 'チームリーダー型'
-  if (has('extensions') && has('skills')) return '拡張カスタマイズ型'
-  if (has('session') && has('tools')) return 'ヘビーユーザー型'
-  if (has('commands') && has('session')) return 'パワーユーザー型'
-  if (has('keyboard')) return 'ショートカットマスター型'
-  if (has('memory')) return 'ルール設計型'
-  if (has('tools')) return '実装者型'
-  if (has('bestpractices')) return '品質重視型'
-  return null
-}
-
 export function findRecommendedScenario(
   categoryScores: Record<string, number>,
   promptSamples: string[] = [],
@@ -305,6 +264,22 @@ export function findRecommendedScenario(
     .map(([cat]) => cat)
 
   if (topCategories.length === 0) return null
+
+  // Prefer Haiku's scenario suggestions when available
+  if (classified?.summary?.suggestedScenarios?.length) {
+    for (const scenarioId of classified.summary.suggestedScenarios) {
+      const scenario = SCENARIOS.find((s) => s.id === scenarioId)
+      if (scenario) {
+        const tip = classified.classifications.find((c) => c.struggle !== 'none')?.tip
+        const reason = tip
+          ? `${tip}${locale.recommendUtils.scenarioLearnSuffix}`
+          : locale.recommendUtils.workRelatedScenario(
+              topCategories.map((c) => getCategoryById(c)?.name ?? c).join('・')
+            )
+        return { scenario, reason }
+      }
+    }
+  }
 
   const scored = SCENARIOS.map((s) => {
     const cats = SCENARIO_CATEGORY_MAP[s.id] ?? []
@@ -331,8 +306,8 @@ export function findRecommendedScenario(
           // Use Haiku's tip as the reason (specific to user's actual work)
           const relevantTip = struggles.find((c) => c.category === dominantCat)?.tip
           const reason = relevantTip
-            ? `${relevantTip} — このシナリオで実践的に学べます`
-            : `${getCategoryById(dominantCat)?.name ?? dominantCat}の作業に関連したシナリオです`
+            ? `${relevantTip}${locale.recommendUtils.scenarioLearnSuffix}`
+            : locale.recommendUtils.workRelatedScenario(getCategoryById(dominantCat)?.name ?? dominantCat)
           candidates.push({ scenario, reason })
         }
       }
@@ -355,8 +330,8 @@ export function findRecommendedScenario(
   const catNames = pick.matched.map((c) => getCategoryById(c)?.name ?? c).join('・')
   const relatedPrompt = pick.matched.flatMap((c) => findRelatedPrompts(promptSamples, c)).find((p) => p.length > 0)
   const reason = relatedPrompt
-    ? `「${relatedPrompt.length > 30 ? relatedPrompt.slice(0, 30) + '...' : relatedPrompt}」の作業に関連`
-    : `${catNames}の作業に関連したシナリオです`
+    ? locale.recommendUtils.workRelated(relatedPrompt.length > 30 ? relatedPrompt.slice(0, 30) + '...' : relatedPrompt)
+    : locale.recommendUtils.workRelatedScenario(catNames)
 
   return { scenario: pick.scenario, reason }
 }
@@ -400,7 +375,7 @@ export function computeRecommendations(
   for (const [cat] of sorted.slice(0, 3)) {
     const related = findRelatedPrompts(prompts, cat)
     const quote = related[0]
-    const fallback = CATEGORY_REASONS[cat]?.used ?? '関連する作業をしていました'
+    const fallback = CATEGORY_REASONS[cat]?.used ?? locale.recommendUtils.fallbackReason
     const reason = quote ? `「${quote.length > 35 ? quote.slice(0, 35) + '...' : quote}」— ${fallback}` : fallback
     const catName = getCategoryById(cat)?.name ?? cat
     const rank = sorted.findIndex(([c]) => c === cat) + 1
@@ -424,10 +399,11 @@ export function computeRecommendations(
       const signals: string[] = []
       const patternTip = patternsByCategory.get(cat)
       if (patternTip) signals.push(patternTip)
-      if (aiStyle === 'delegation') signals.push('🎯 基礎理解を固める問題')
-      else if (aiStyle === 'inquiry') signals.push('🚀 より高度な問題に挑戦')
-      else signals.push(`${catName}は作業関連度${rank}位`)
-      if (quote) signals.push(`「${quote.length > 25 ? quote.slice(0, 25) + '...' : quote}」に関連`)
+      if (aiStyle === 'delegation') signals.push(locale.recommendUtils.basicQuestions)
+      else if (aiStyle === 'inquiry') signals.push(locale.recommendUtils.advancedChallenge)
+      else signals.push(locale.recommendUtils.categoryRank(catName, rank))
+      if (quote)
+        signals.push(locale.recommendUtils.relatedQuote(quote.length > 25 ? quote.slice(0, 25) + '...' : quote))
       recs.push({ id: q.id, question: q.question, category: q.category, reason, signals })
       used.add(q.id)
     }
@@ -438,7 +414,8 @@ export function computeRecommendations(
     .map(([cat]) => cat)
 
   for (const cat of unused.slice(0, 2)) {
-    const reason = CATEGORY_REASONS[cat]?.unused ?? `${getCategoryById(cat)?.name ?? cat} を知ると作業がもっと効率的に`
+    const reason =
+      CATEGORY_REASONS[cat]?.unused ?? locale.recommendUtils.unusedCategoryReason(getCategoryById(cat)?.name ?? cat)
     const pool = allQuestions.filter((q) => q.category === cat && q.difficulty === 'beginner' && !used.has(q.id))
     const sampled = [...pool]
       .sort((a, b) => {
@@ -454,7 +431,7 @@ export function computeRecommendations(
         question: q.question,
         category: q.category,
         reason,
-        signals: [`${catName}はまだ使っていない機能`, '入門レベルから始めましょう'],
+        signals: [locale.recommendUtils.unusedFeature(catName), locale.recommendUtils.beginnerStart],
       })
       used.add(q.id)
     }

@@ -113,7 +113,7 @@ export function CertificateHistory({ sessionHistory, masteryIndex, overallAccura
         value={name}
         onChange={(e) => setName(e.target.value)}
         placeholder={locale.certificate.nameWithContext}
-        aria-label="証明書に記載するお名前"
+        aria-label={locale.certificate.nameLabel}
         className="mb-2 w-full rounded-xl border border-stone-200 bg-stone-50 px-3 py-2 text-center text-sm dark:bg-stone-700 dark:border-stone-600 dark:text-white"
       />
       <div className="flex flex-col gap-2">

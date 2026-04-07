@@ -402,7 +402,7 @@ export function QuizCard({
                     haptics.light()
                     retryQuestion()
                   }}
-                  aria-label="この問題をもう一度挑戦する (R)"
+                  aria-label={locale.quizCard.retryLabel}
                   className="tap-highlight inline-flex w-full items-center justify-center gap-2 rounded-2xl border-2 border-claude-orange py-3.5 text-base font-semibold text-claude-orange sm:py-3"
                 >
                   <RotateCcw className="h-4 w-4" />

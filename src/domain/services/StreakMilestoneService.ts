@@ -5,20 +5,15 @@
  * UI での祝福表示に使用する。
  */
 
+import { locale } from '@/config/locale'
+
 export interface StreakMilestone {
   readonly days: number
   readonly label: string
   readonly emoji: string
 }
 
-const MILESTONES: readonly StreakMilestone[] = [
-  { days: 3, label: '3日連続達成！', emoji: '🌟' },
-  { days: 7, label: '1週間連続！', emoji: '🏆' },
-  { days: 14, label: '2週間連続！', emoji: '🔥' },
-  { days: 30, label: '1ヶ月連続！', emoji: '💎' },
-  { days: 60, label: '2ヶ月連続！', emoji: '👑' },
-  { days: 100, label: '100日連続！', emoji: '🚀' },
-]
+const MILESTONES: readonly StreakMilestone[] = locale.streak.milestones
 
 export class StreakMilestoneService {
   /**
@@ -43,8 +38,8 @@ export class StreakMilestoneService {
    */
   static getStreakLabel(streakDays: number): string {
     if (streakDays === 0) return ''
-    if (streakDays === 1) return '今日も学習中！'
-    return `${streakDays}日連続学習中！`
+    if (streakDays === 1) return locale.streak.learningToday
+    return locale.streak.streakLabel(streakDays)
   }
 
   /**

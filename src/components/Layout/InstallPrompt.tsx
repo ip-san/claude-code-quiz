@@ -85,7 +85,7 @@ export function InstallPrompt() {
               <Share className="h-5 w-5 text-claude-orange" />
               <p className="text-sm font-semibold text-claude-dark">{locale.install.useAsApp}</p>
             </div>
-            <button onClick={handleDismiss} className="p-1 text-stone-400" aria-label="閉じる">
+            <button onClick={handleDismiss} className="p-1 text-stone-400" aria-label={locale.common.close}>
               <X className="h-4 w-4" />
             </button>
           </div>
@@ -127,7 +127,7 @@ export function InstallPrompt() {
         >
           {locale.install.addButton}
         </button>
-        <button onClick={handleDismiss} className="flex-shrink-0 p-1 text-stone-400" aria-label="閉じる">
+        <button onClick={handleDismiss} className="flex-shrink-0 p-1 text-stone-400" aria-label={locale.common.close}>
           <X className="h-4 w-4" />
         </button>
       </div>

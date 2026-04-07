@@ -41,6 +41,7 @@ export function UsageRecommend() {
     hooksInstalled,
     setupDone,
     growthInsight,
+    coachingMessage,
     workPatterns,
     classifiedData,
     analyze,
@@ -143,35 +144,21 @@ export function UsageRecommend() {
               {growthInsight.maturityChange.direction === 'improving' ? '📈' : '📊'}{' '}
               {locale.recommend.improvementReport}
             </p>
-            {growthInsight.learningImpact?.quizHelped.map((h) => (
-              <p key={h.pattern} className="mt-1 text-[11px] text-green-600 dark:text-green-400">
-                ✓ {locale.recommend.quizEffect}: {h.message}
-              </p>
-            ))}
-            {growthInsight.improved.length > 0 && !growthInsight.learningImpact?.quizHelped.length && (
+            {growthInsight.improved.length > 0 && (
               <p className="mt-1 text-[11px] text-green-600 dark:text-green-400">
                 ✓ {locale.recommend.improved}: {growthInsight.improved.map((i) => i.pattern).join('、')}
               </p>
             )}
-            {growthInsight.learningImpact?.quizNeeded.map((n) => (
-              <p key={n.pattern} className="mt-0.5 text-[11px] text-amber-600 dark:text-amber-400">
-                📝 {n.message}
-              </p>
-            ))}
             {growthInsight.newIssues.length > 0 && (
               <p className="mt-0.5 text-[11px] text-amber-600 dark:text-amber-400">
                 → {locale.recommend.nextChallenge}: {growthInsight.newIssues.map((i) => i.pattern).join('、')}
               </p>
             )}
-            {/* Only show maturity message when it adds information beyond the improvement/issue list */}
-            {growthInsight.maturityChange.direction !== 'stable' && (
-              <p className="mt-0.5 text-[11px] text-stone-500">{growthInsight.maturityChange.message}</p>
-            )}
           </div>
         ) : (
           <p className="mx-4 mb-1.5 text-xs text-stone-500 dark:text-stone-400">
             {growthInsight.maturityChange.direction === 'improving' && '📈 '}
-            {growthInsight.coachingMessage}
+            {coachingMessage ?? locale.recommend.analyzingProgress}
           </p>
         ))}
 
@@ -329,7 +316,6 @@ export function UsageRecommend() {
 // Re-export utils for backward compatibility (tests import from this file)
 export {
   computeRecommendations,
-  detectDeveloperRole,
   detectWorkPatterns,
   findRecommendedScenario,
   findRelatedPrompts,

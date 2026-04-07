@@ -192,6 +192,9 @@ export interface LocaleConfig {
     readonly nice5: string
     readonly good3: string
     readonly streakMessage: (label: string, count: number) => string
+    readonly milestones: readonly { days: number; label: string; emoji: string }[]
+    readonly learningToday: string
+    readonly streakLabel: (days: number) => string
   }
 
   // === Progress ===
@@ -297,6 +300,8 @@ export interface LocaleConfig {
     readonly cycle: string
     readonly comparison: string
     readonly flow: string
+    readonly terminal: string
+    readonly config: string
     readonly highPriority: string
     readonly lowPriority: string
     readonly switchTrigger: (trigger: string) => string
@@ -308,6 +313,7 @@ export interface LocaleConfig {
     readonly heading: string
     readonly emptyMessage: string
     readonly insufficientData: string
+    readonly chartLabel: string
   }
 
   // === Related Questions ===
@@ -423,6 +429,7 @@ export interface LocaleConfig {
     readonly learningPointsHeading: string
     readonly startLearning: string
     readonly startChapter: string
+    readonly showOverview: string
   }
 
   // === Chapter Progress Map ===
@@ -585,7 +592,6 @@ export interface LocaleConfig {
     readonly relatedToTopics: (topics: string) => string
     readonly sessionLabel: string
     readonly updated: string
-    readonly quizEffect: string
     readonly practiceScenario: string
     readonly confirmWithQuiz: (count: number) => string
     readonly questionCount: (n: number) => string
@@ -601,6 +607,15 @@ export interface LocaleConfig {
     readonly confirmReanalyze: string
     readonly realtimeMonitoring: string
     readonly realtimeMonitoringDesc: string
+    readonly notifyTitle: string
+    readonly notifyBody: string
+  }
+
+  // === Growth Tracking ===
+  readonly growth: {
+    readonly resolved: (pattern: string) => string
+    readonly improved: (pattern: string, pct: number, prev: number, curr: number) => string
+    readonly newIssue: (pattern: string) => string
   }
 
   // === Memory Retention ===
@@ -651,6 +666,32 @@ export interface LocaleConfig {
     readonly desc: string
     readonly allow: string
     readonly later: string
+  }
+
+  // === Recommend Utils ===
+  readonly recommendUtils: {
+    readonly categoryReasons: Record<string, { used: string; unused: string }>
+    readonly categoryTerms: Record<string, string[]>
+    readonly fallbackReason: string
+    readonly repeatPattern: (intent: string) => string
+    readonly strugglePattern: string
+    readonly efficiencyPattern: string
+    readonly delegationPattern: string
+    readonly delegationTip: string
+    readonly inquiryPattern: string
+    readonly inquiryTip: string
+    readonly scenarioLearnSuffix: string
+    readonly scenarioRelatedSuffix: string
+    readonly workRelated: (catNames: string) => string
+    readonly workRelatedScenario: (catNames: string) => string
+    readonly basicQuestions: string
+    readonly advancedChallenge: string
+    readonly categoryRank: (catName: string, rank: number) => string
+    readonly relatedQuote: (quote: string) => string
+    readonly unusedCategoryReason: (catName: string) => string
+    readonly unusedFeature: (catName: string) => string
+    readonly beginnerStart: string
+    readonly aiSelected: string
   }
 }
 

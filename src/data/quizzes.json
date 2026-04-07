@@ -32,7 +32,41 @@
         "overview",
         "overview-ch-2",
         "overview-060"
-      ]
+      ],
+      "diagram": {
+        "type": "terminal",
+        "label": "CLAUDE.md の初期化イメージ",
+        "lines": [
+          {
+            "type": "command",
+            "text": "claude"
+          },
+          {
+            "type": "prompt",
+            "text": "/init"
+          },
+          {
+            "type": "response",
+            "text": "プロジェクトを分析しています..."
+          },
+          {
+            "type": "response",
+            "text": "CLAUDE.md を作成しました"
+          },
+          {
+            "type": "info",
+            "text": "# Project: claude-code-quiz"
+          },
+          {
+            "type": "info",
+            "text": "## 開発コマンド"
+          },
+          {
+            "type": "info",
+            "text": "  bun run dev / bun test"
+          }
+        ]
+      }
     },
     {
       "id": "mem-002",
@@ -213,7 +247,42 @@
       ],
       "correctIndex": 3,
       "explanation": "YAMLフロントマターの`paths`フィールドでglobパターンを指定できます。例：\n```yaml\npaths:\n  - \"src/api/**/*.ts\"\n```",
-      "referenceUrl": "https://code.claude.com/docs/ja/memory#path-specific-rules"
+      "referenceUrl": "https://code.claude.com/docs/ja/memory#path-specific-rules",
+      "diagram": {
+        "type": "config",
+        "filepath": ".claude/rules/api-standards.md",
+        "lines": [
+          {
+            "text": "---"
+          },
+          {
+            "text": "paths:",
+            "highlight": true
+          },
+          {
+            "text": "  - \"src/api/**/*.ts\"",
+            "highlight": true
+          },
+          {
+            "text": "---"
+          },
+          {
+            "text": ""
+          },
+          {
+            "text": "# API Standards"
+          },
+          {
+            "text": ""
+          },
+          {
+            "text": "- Use async/await for all API calls"
+          },
+          {
+            "text": "- Include error handling with try/catch"
+          }
+        ]
+      }
     },
     {
       "id": "mem-007",
@@ -265,7 +334,32 @@
       "explanation": "`/memory` コマンドは、`CLAUDE.md`ファイルをシステムエディタで直接開く機能です。大幅な再編成では全体を俯瞰しながら編集できるエディタが最も効率的です。オートメモリのエントリポイントも含めた全メモリファイルから選択できます。",
       "category": "memory",
       "difficulty": "beginner",
-      "referenceUrl": "https://code.claude.com/docs/ja/memory#view-and-edit-with-memory"
+      "referenceUrl": "https://code.claude.com/docs/ja/memory#view-and-edit-with-memory",
+      "diagram": {
+        "type": "terminal",
+        "lines": [
+          {
+            "type": "prompt",
+            "text": "/memory"
+          },
+          {
+            "type": "info",
+            "text": "Select file to edit:"
+          },
+          {
+            "type": "info",
+            "text": "> CLAUDE.md (project)"
+          },
+          {
+            "type": "info",
+            "text": "  ~/.claude/MEMORY.md (auto)"
+          },
+          {
+            "type": "info",
+            "text": "Opening in editor..."
+          }
+        ]
+      }
     },
     {
       "id": "mem-010",
@@ -616,7 +710,24 @@
         "overview",
         "overview-ch-5",
         "overview-350"
-      ]
+      ],
+      "diagram": {
+        "type": "terminal",
+        "lines": [
+          {
+            "type": "prompt",
+            "text": "/review-pr 456"
+          },
+          {
+            "type": "response",
+            "text": "Reviewing PR #456..."
+          },
+          {
+            "type": "response",
+            "text": "Found 3 issues..."
+          }
+        ]
+      }
     },
     {
       "id": "skill-005",
@@ -642,7 +753,41 @@
       ],
       "correctIndex": 2,
       "explanation": "`argument-hint`フィールドでオートコンプリート時に表示されるヒントを設定できます。例：`[issue-number]`",
-      "referenceUrl": "https://code.claude.com/docs/ja/skills#frontmatter-reference"
+      "referenceUrl": "https://code.claude.com/docs/ja/skills#frontmatter-reference",
+      "diagram": {
+        "type": "config",
+        "filepath": ".claude/skills/fix-issue/SKILL.md",
+        "lines": [
+          {
+            "text": "---"
+          },
+          {
+            "text": "description: Fix a GitHub issue by number"
+          },
+          {
+            "text": "argument-hint: \"[issue-number]\"",
+            "highlight": true
+          },
+          {
+            "text": "allowed-tools:"
+          },
+          {
+            "text": "  - Bash"
+          },
+          {
+            "text": "  - Read"
+          },
+          {
+            "text": "---"
+          },
+          {
+            "text": ""
+          },
+          {
+            "text": "Fix GitHub issue #$ARGUMENTS."
+          }
+        ]
+      }
     },
     {
       "id": "skill-006",
@@ -764,7 +909,44 @@
       ],
       "correctIndex": 3,
       "explanation": "`allowed-tools`フィールドで、Skillがアクティブな間、指定したツールをパーミッション確認なしで使用できるようにします。例：`Read`, `Grep`, `Glob`。リストにないツールは通常のパーミッション設定に従います（完全な使用禁止にはなりません）。",
-      "referenceUrl": "https://code.claude.com/docs/ja/skills#restrict-tool-access"
+      "referenceUrl": "https://code.claude.com/docs/ja/skills#restrict-tool-access",
+      "diagram": {
+        "type": "config",
+        "filepath": ".claude/skills/review/SKILL.md",
+        "lines": [
+          {
+            "text": "---"
+          },
+          {
+            "text": "description: Review code for quality"
+          },
+          {
+            "text": "allowed-tools:",
+            "highlight": true
+          },
+          {
+            "text": "  - Read",
+            "highlight": true
+          },
+          {
+            "text": "  - Grep",
+            "highlight": true
+          },
+          {
+            "text": "  - Glob",
+            "highlight": true
+          },
+          {
+            "text": "---"
+          },
+          {
+            "text": ""
+          },
+          {
+            "text": "Review the code and report issues."
+          }
+        ]
+      }
     },
     {
       "id": "skill-009",
@@ -1538,7 +1720,24 @@
         "overview",
         "overview-ch-3",
         "overview-170"
-      ]
+      ],
+      "diagram": {
+        "type": "terminal",
+        "lines": [
+          {
+            "type": "prompt",
+            "text": "! npm test"
+          },
+          {
+            "type": "info",
+            "text": "PASS  src/App.test.tsx"
+          },
+          {
+            "type": "info",
+            "text": "Tests: 12 passed, 12 total"
+          }
+        ]
+      }
     },
     {
       "id": "cmd-003",
@@ -1626,7 +1825,28 @@
       "correctIndex": 2,
       "explanation": "`@`記号を入力するとファイルパスのオートコンプリートがトリガーされ、プロジェクト内のファイルを素早く参照できます。これはプロンプト入力時にファイルの内容をClaudeに読み込ませる際に便利です。また`CLAUDE.md`内でも`@path/to/file`と記述することでファイルをインポートできます。",
       "referenceUrl": "https://code.claude.com/docs/ja/interactive-mode",
-      "hint": "ファイルパスを示すために使われるキーボードの記号を考えてみましょう。"
+      "hint": "ファイルパスを示すために使われるキーボードの記号を考えてみましょう。",
+      "diagram": {
+        "type": "terminal",
+        "lines": [
+          {
+            "type": "prompt",
+            "text": "@src/com"
+          },
+          {
+            "type": "info",
+            "text": "src/components/App.tsx"
+          },
+          {
+            "type": "info",
+            "text": "src/components/Header.tsx"
+          },
+          {
+            "type": "info",
+            "text": "src/components/Footer.tsx"
+          }
+        ]
+      }
     },
     {
       "id": "cmd-005",
@@ -1706,7 +1926,28 @@
       ],
       "correctIndex": 2,
       "explanation": "`/model`コマンドはモデルの即時切り替えを行います。Opus 4.6とSonnet 4.6ではモデル選択画面で左右矢印キーを使ってエフォートレベル（推論の深さ）を調整できる機能があります。会話履歴は保持され、セッションの中断なく切り替えが可能です。",
-      "referenceUrl": "https://code.claude.com/docs/ja/interactive-mode"
+      "referenceUrl": "https://code.claude.com/docs/ja/interactive-mode",
+      "diagram": {
+        "type": "terminal",
+        "lines": [
+          {
+            "type": "prompt",
+            "text": "/model"
+          },
+          {
+            "type": "info",
+            "text": "← → でエフォートレベルを調整"
+          },
+          {
+            "type": "info",
+            "text": "  Sonnet 4.6  [████░░] medium"
+          },
+          {
+            "type": "info",
+            "text": "  Opus 4.6    [██████] high"
+          }
+        ]
+      }
     },
     {
       "id": "cmd-007",
@@ -1833,7 +2074,32 @@
       ],
       "correctIndex": 0,
       "explanation": "`/doctor`コマンドはClaude Codeの健全性チェックを行います。インストールの整合性、必要な依存関係の存在、設定ファイルの正当性などを検証し、問題があれば具体的な修正方法を提示します。セッション固有の問題調査には`/debug`、一般的な状態確認には`/status`を使い分けます。",
-      "referenceUrl": "https://code.claude.com/docs/ja/interactive-mode"
+      "referenceUrl": "https://code.claude.com/docs/ja/interactive-mode",
+      "diagram": {
+        "type": "terminal",
+        "lines": [
+          {
+            "type": "prompt",
+            "text": "/doctor"
+          },
+          {
+            "type": "response",
+            "text": "Running health checks..."
+          },
+          {
+            "type": "info",
+            "text": "✓ Installation integrity"
+          },
+          {
+            "type": "info",
+            "text": "✓ Dependencies"
+          },
+          {
+            "type": "info",
+            "text": "✓ Configuration files"
+          }
+        ]
+      }
     },
     {
       "id": "cmd-010",
@@ -1859,7 +2125,28 @@
       ],
       "correctIndex": 3,
       "explanation": "`/rename` <name>コマンドでセッションに分かりやすい名前を付けると、`/resume`で過去のセッション一覧を表示した際に内容を素早く識別できます。デフォルトでは会話履歴から自動生成される名前で管理されるため、複数セッションを使い分ける場合に特に有用です。",
-      "referenceUrl": "https://code.claude.com/docs/ja/interactive-mode"
+      "referenceUrl": "https://code.claude.com/docs/ja/interactive-mode",
+      "diagram": {
+        "type": "terminal",
+        "lines": [
+          {
+            "type": "prompt",
+            "text": "/rename auth-refactor"
+          },
+          {
+            "type": "response",
+            "text": "Session renamed to 'auth-refactor'"
+          },
+          {
+            "type": "info",
+            "text": "--- 翌日 ---"
+          },
+          {
+            "type": "prompt",
+            "text": "/resume auth-refactor"
+          }
+        ]
+      }
     },
     {
       "id": "cmd-011",
@@ -1931,7 +2218,28 @@
       ],
       "correctIndex": 3,
       "explanation": "`claude --teleport` はclaude.ai（ブラウザ版）で開始したセッションをローカルのCLI環境に取り込んで続行するためのCLIフラグです。`/remote-env` コマンドでデフォルトのリモート環境を設定できます。",
-      "referenceUrl": "https://code.claude.com/docs/ja/cli-reference"
+      "referenceUrl": "https://code.claude.com/docs/ja/cli-reference",
+      "diagram": {
+        "type": "terminal",
+        "lines": [
+          {
+            "type": "command",
+            "text": "claude --teleport"
+          },
+          {
+            "type": "info",
+            "text": "Fetching remote sessions..."
+          },
+          {
+            "type": "info",
+            "text": "Select a session to import:"
+          },
+          {
+            "type": "info",
+            "text": "> fix-login-bug (2h ago)"
+          }
+        ]
+      }
     },
     {
       "id": "cmd-013",
@@ -1957,7 +2265,28 @@
       ],
       "correctIndex": 1,
       "explanation": "`/tasks`コマンドはバックグラウンドで実行中の`Bash`コマンドやエージェントの一覧を表示・管理します。`Ctrl+B`でバックグラウンドに移したタスクや`run_in_background`で開始したタスクを確認できます。タスクにはユニークIDが付与され、Claudeが`TaskOutput`ツールで出力を取得します。バックグラウンドタスクはClaude Code終了時に自動クリーンアップされます。",
-      "referenceUrl": "https://code.claude.com/docs/ja/interactive-mode"
+      "referenceUrl": "https://code.claude.com/docs/ja/interactive-mode",
+      "diagram": {
+        "type": "terminal",
+        "lines": [
+          {
+            "type": "prompt",
+            "text": "npm run build を実行して"
+          },
+          {
+            "type": "info",
+            "text": "[Ctrl+B] → バックグラウンドに移動"
+          },
+          {
+            "type": "prompt",
+            "text": "/tasks"
+          },
+          {
+            "type": "info",
+            "text": "ID: t1  npm run build  [running]"
+          }
+        ]
+      }
     },
     {
       "id": "cmd-014",
@@ -2070,7 +2399,56 @@
         "overview",
         "overview-ch-5",
         "overview-400"
-      ]
+      ],
+      "diagram": {
+        "type": "config",
+        "filepath": ".mcp.json",
+        "lines": [
+          {
+            "text": "{"
+          },
+          {
+            "text": "  \"mcpServers\": {",
+            "highlight": true
+          },
+          {
+            "text": "    \"github\": {"
+          },
+          {
+            "text": "      \"command\": \"npx\","
+          },
+          {
+            "text": "      \"args\": ["
+          },
+          {
+            "text": "        \"-y\","
+          },
+          {
+            "text": "        \"@modelcontextprotocol/server-github\""
+          },
+          {
+            "text": "      ],"
+          },
+          {
+            "text": "      \"env\": {"
+          },
+          {
+            "text": "        \"GITHUB_TOKEN\": \"${GH_TOKEN}\""
+          },
+          {
+            "text": "      }"
+          },
+          {
+            "text": "    }"
+          },
+          {
+            "text": "  }"
+          },
+          {
+            "text": "}"
+          }
+        ]
+      }
     },
     {
       "id": "ext-003",
@@ -2533,7 +2911,24 @@
       "explanation": "「--」（ダブルダッシュ）は、Claude Codeのオプション（`--transport`、`--env`、`--scope`など）とMCPサーバーの実行コマンド・引数を分離します。例えば「`claude mcp add` `--transport stdio` myserver -- npx server `--port` 8080」では、`--port`がClaude Codeではなくサーバーに渡されます。",
       "category": "extensions",
       "difficulty": "intermediate",
-      "referenceUrl": "https://code.claude.com/docs/ja/mcp"
+      "referenceUrl": "https://code.claude.com/docs/ja/mcp",
+      "diagram": {
+        "type": "terminal",
+        "lines": [
+          {
+            "type": "command",
+            "text": "claude mcp add --transport stdio myserver \\"
+          },
+          {
+            "type": "command",
+            "text": "  -- npx server --port 8080"
+          },
+          {
+            "type": "info",
+            "text": "↑ Claude options  ↑ Server args"
+          }
+        ]
+      }
     },
     {
       "id": "ext-014",
@@ -2664,7 +3059,28 @@
         "overview",
         "overview-ch-4",
         "overview-270"
-      ]
+      ],
+      "diagram": {
+        "type": "terminal",
+        "lines": [
+          {
+            "type": "prompt",
+            "text": "/resume"
+          },
+          {
+            "type": "info",
+            "text": "Select a session:"
+          },
+          {
+            "type": "info",
+            "text": "> auth-refactor (2 days ago)"
+          },
+          {
+            "type": "info",
+            "text": "  db-migration (5 days ago)"
+          }
+        ]
+      }
     },
     {
       "id": "ses-003",
@@ -2900,7 +3316,24 @@
         "overview",
         "overview-ch-4",
         "overview-340"
-      ]
+      ],
+      "diagram": {
+        "type": "terminal",
+        "lines": [
+          {
+            "type": "prompt",
+            "text": "/compact DB migrationの議論を保持"
+          },
+          {
+            "type": "response",
+            "text": "Compacting with focus..."
+          },
+          {
+            "type": "info",
+            "text": "DB migration context preserved"
+          }
+        ]
+      }
     },
     {
       "id": "ses-008",
@@ -2926,7 +3359,28 @@
       "explanation": "セッション管理のベストプラクティスとして、作業開始時に`/rename`で説明的な名前を付けることが推奨されています。名前付きセッションは`claude --resume <name>`で直接再開できます。これにより「auth-refactor」のような分かりやすい名前で複数のタスクを管理できます。",
       "category": "session",
       "difficulty": "advanced",
-      "referenceUrl": "https://code.claude.com/docs/ja/common-workflows"
+      "referenceUrl": "https://code.claude.com/docs/ja/common-workflows",
+      "diagram": {
+        "type": "terminal",
+        "lines": [
+          {
+            "type": "prompt",
+            "text": "/rename auth-refactor"
+          },
+          {
+            "type": "info",
+            "text": "--- 後日 ---"
+          },
+          {
+            "type": "command",
+            "text": "claude --resume auth-refactor"
+          },
+          {
+            "type": "info",
+            "text": "Resuming 'auth-refactor'..."
+          }
+        ]
+      }
     },
     {
       "id": "ses-009",
@@ -2953,7 +3407,20 @@
       "category": "session",
       "difficulty": "intermediate",
       "referenceUrl": "https://code.claude.com/docs/ja/common-workflows",
-      "hint": "ドキュメントの`/rename [name]`の説明に注目してください。"
+      "hint": "ドキュメントの`/rename [name]`の説明に注目してください。",
+      "diagram": {
+        "type": "terminal",
+        "lines": [
+          {
+            "type": "prompt",
+            "text": "/rename"
+          },
+          {
+            "type": "response",
+            "text": "Auto-generated: 'fix-login-redirect'"
+          }
+        ]
+      }
     },
     {
       "id": "ses-010",
@@ -3032,7 +3499,24 @@
       ],
       "correctIndex": 0,
       "explanation": "`Ctrl+C`でClaudeの応答生成を中断できます（ドキュメントで正式に記載されたキャンセルショートカットです）。中断後も会話は継続し、新しい指示を出したり`/rewind`で巻き戻したりできます。ファイル編集の取り消しは`Esc+Esc`（Rewind）で行います。",
-      "referenceUrl": "https://code.claude.com/docs/ja/interactive-mode"
+      "referenceUrl": "https://code.claude.com/docs/ja/interactive-mode",
+      "diagram": {
+        "type": "terminal",
+        "lines": [
+          {
+            "type": "response",
+            "text": "大規模なリファクタリングを実行..."
+          },
+          {
+            "type": "info",
+            "text": "[Ctrl+C] 生成を中断"
+          },
+          {
+            "type": "prompt",
+            "text": "そのアプローチではなく..."
+          }
+        ]
+      }
     },
     {
       "id": "key-002",
@@ -3213,7 +3697,24 @@
       ],
       "correctIndex": 2,
       "explanation": "`Ctrl+B`で実行中の`Bash`コマンドやエージェントをバックグラウンドに移動できます。コマンドやエージェントは引き続き実行され、出力はバッファリングされます。tmux環境では`Ctrl+B`がtmuxプレフィックスと競合するため2回押す必要があります。",
-      "referenceUrl": "https://code.claude.com/docs/ja/interactive-mode"
+      "referenceUrl": "https://code.claude.com/docs/ja/interactive-mode",
+      "diagram": {
+        "type": "terminal",
+        "lines": [
+          {
+            "type": "response",
+            "text": "npm test を実行中..."
+          },
+          {
+            "type": "info",
+            "text": "[Ctrl+B] バックグラウンドに移動"
+          },
+          {
+            "type": "prompt",
+            "text": "別の質問があるのですが..."
+          }
+        ]
+      }
     },
     {
       "id": "key-007",
@@ -3348,7 +3849,28 @@
       ],
       "correctIndex": 0,
       "explanation": "`Ctrl+T`でタスクリストを表示でき、一度に最大10件まで追跡できます。タスクリストはコンテキスト圧縮をまたいで保持され、`CLAUDE_CODE_TASK_LIST_ID`を設定すれば複数セッション間で共有も可能です。",
-      "referenceUrl": "https://code.claude.com/docs/ja/interactive-mode"
+      "referenceUrl": "https://code.claude.com/docs/ja/interactive-mode",
+      "diagram": {
+        "type": "terminal",
+        "lines": [
+          {
+            "type": "info",
+            "text": "[Ctrl+T] タスクリスト表示"
+          },
+          {
+            "type": "info",
+            "text": "□ API endpoints   [complete]"
+          },
+          {
+            "type": "info",
+            "text": "□ Add tests       [in-progress]"
+          },
+          {
+            "type": "info",
+            "text": "□ Update docs     [pending]"
+          }
+        ]
+      }
     },
     {
       "id": "bp-001",
@@ -3495,7 +4017,24 @@
         "overview",
         "overview-ch-6",
         "overview-500"
-      ]
+      ],
+      "diagram": {
+        "type": "terminal",
+        "lines": [
+          {
+            "type": "prompt",
+            "text": "@src/auth/login.ts のセキュリティと"
+          },
+          {
+            "type": "prompt",
+            "text": "エラーハンドリングをレビューして"
+          },
+          {
+            "type": "response",
+            "text": "login.ts を確認します..."
+          }
+        ]
+      }
     },
     {
       "id": "bp-005",
@@ -3731,7 +4270,24 @@
       "explanation": "`--add-dir` フラグは追加ディレクトリへのアクセスを許可しますが、デフォルトではそのディレクトリの`CLAUDE.md`は読み込まれません。`CLAUDE_CODE_ADDITIONAL_DIRECTORIES_CLAUDE_MD=1` 環境変数を `--add-dir` フラグと併用することで、追加ディレクトリの`CLAUDE.md`、`.claude/CLAUDE.md`、`.claude/rules/`*.md が読み込まれるようになります（例: `CLAUDE_CODE_ADDITIONAL_DIRECTORIES_CLAUDE_MD=1 claude --add-dir ../shared-config`）。",
       "category": "memory",
       "difficulty": "intermediate",
-      "referenceUrl": "https://code.claude.com/docs/ja/memory"
+      "referenceUrl": "https://code.claude.com/docs/ja/memory",
+      "diagram": {
+        "type": "terminal",
+        "lines": [
+          {
+            "type": "command",
+            "text": "CLAUDE_CODE_ADDITIONAL_DIRECTORIES_CLAUDE_MD=1 \\"
+          },
+          {
+            "type": "command",
+            "text": "  claude --add-dir ../shared-config"
+          },
+          {
+            "type": "info",
+            "text": "Loading ../shared-config/CLAUDE.md"
+          }
+        ]
+      }
     },
     {
       "id": "mem-022",
@@ -3949,7 +4505,28 @@
       "explanation": "`/agents`コマンドはサブエージェントの作成・管理を対話的に行えるインターフェースです。「Generate with Claude」オプションを選ぶと、自然言語で説明するだけでClaudeがシステムプロンプトと設定を生成してくれます。ツール選択やモデル選択もガイド付きで行えます。",
       "category": "skills",
       "difficulty": "beginner",
-      "referenceUrl": "https://code.claude.com/docs/ja/sub-agents"
+      "referenceUrl": "https://code.claude.com/docs/ja/sub-agents",
+      "diagram": {
+        "type": "terminal",
+        "lines": [
+          {
+            "type": "prompt",
+            "text": "/agents"
+          },
+          {
+            "type": "info",
+            "text": "Actions: View / Create / Edit / Delete"
+          },
+          {
+            "type": "info",
+            "text": "> Generate with Claude"
+          },
+          {
+            "type": "info",
+            "text": "Describe your agent:"
+          }
+        ]
+      }
     },
     {
       "id": "skill-019",
@@ -4249,7 +4826,24 @@
       "explanation": "`claude -p` \"prompt\" はprintモード（非対話モード）でClaude Codeを実行します。CIパイプラインやスクリプトなど、ユーザーの対話なしに自動実行する場面に最適です。結果を出力して自動終了します。",
       "category": "commands",
       "difficulty": "beginner",
-      "referenceUrl": "https://code.claude.com/docs/ja/common-workflows"
+      "referenceUrl": "https://code.claude.com/docs/ja/common-workflows",
+      "diagram": {
+        "type": "terminal",
+        "lines": [
+          {
+            "type": "command",
+            "text": "claude -p \"fix all lint errors\""
+          },
+          {
+            "type": "response",
+            "text": "Fixed 3 lint errors in src/..."
+          },
+          {
+            "type": "info",
+            "text": "(自動終了)"
+          }
+        ]
+      }
     },
     {
       "id": "cmd-017",
@@ -4494,7 +5088,20 @@
       ],
       "correctIndex": 0,
       "explanation": "`claude mcp add --transport <type> <name> <url/command>` でMCPサーバーを追加します。`--transport` には `http`（推奨）、`sse`、`stdio` を指定できます。リモートサーバーにはHTTP、ローカルプロセスにはstdioが適しています。",
-      "referenceUrl": "https://code.claude.com/docs/ja/mcp"
+      "referenceUrl": "https://code.claude.com/docs/ja/mcp",
+      "diagram": {
+        "type": "terminal",
+        "lines": [
+          {
+            "type": "command",
+            "text": "claude mcp add --transport http my-server https://api.example.com/mcp"
+          },
+          {
+            "type": "info",
+            "text": "Added MCP server 'my-server'"
+          }
+        ]
+      }
     },
     {
       "id": "cmd-025",
@@ -4610,7 +5217,20 @@
       "explanation": "プラグインが提供するコマンドは、プラグイン名で名前空間化されます。例えばcommit-commandsプラグインのcommitコマンドは`/commit-commands:commit`として利用できます。この名前空間化により、異なるプラグイン間でコマンド名が衝突することを防いでいます。",
       "category": "commands",
       "difficulty": "intermediate",
-      "referenceUrl": "https://code.claude.com/docs/ja/discover-plugins"
+      "referenceUrl": "https://code.claude.com/docs/ja/discover-plugins",
+      "diagram": {
+        "type": "terminal",
+        "lines": [
+          {
+            "type": "prompt",
+            "text": "/commit-commands:commit"
+          },
+          {
+            "type": "response",
+            "text": "Running plugin command..."
+          }
+        ]
+      }
     },
     {
       "id": "cmd-028",
@@ -4684,7 +5304,32 @@
       "explanation": "`/copy`コマンドはClaudeの最新の応答をクリップボードにコピーします。応答にコードブロックが含まれる場合はインタラクティブピッカーが表示され、個別のコードブロックまたは全体を選択してコピーできます。",
       "category": "commands",
       "difficulty": "beginner",
-      "referenceUrl": "https://code.claude.com/docs/ja/interactive-mode"
+      "referenceUrl": "https://code.claude.com/docs/ja/interactive-mode",
+      "diagram": {
+        "type": "terminal",
+        "lines": [
+          {
+            "type": "prompt",
+            "text": "/copy"
+          },
+          {
+            "type": "info",
+            "text": "Select content to copy:"
+          },
+          {
+            "type": "info",
+            "text": "> [1] TypeScript code block"
+          },
+          {
+            "type": "info",
+            "text": "  [2] Full response"
+          },
+          {
+            "type": "info",
+            "text": "Copied to clipboard!"
+          }
+        ]
+      }
     },
     {
       "id": "cmd-030",
@@ -4710,7 +5355,24 @@
       "explanation": "`/desktop`コマンドは現在のCLIセッションをClaude Code Desktopアプリにハンドオフします。Desktopアプリではビジュアルなdiff表示や複数セッションの管理が可能です。macOSとWindowsで利用できます。",
       "category": "commands",
       "difficulty": "intermediate",
-      "referenceUrl": "https://code.claude.com/docs/ja/interactive-mode"
+      "referenceUrl": "https://code.claude.com/docs/ja/interactive-mode",
+      "diagram": {
+        "type": "terminal",
+        "lines": [
+          {
+            "type": "prompt",
+            "text": "/desktop"
+          },
+          {
+            "type": "info",
+            "text": "Handing off to Claude Code Desktop..."
+          },
+          {
+            "type": "info",
+            "text": "Session transferred successfully"
+          }
+        ]
+      }
     },
     {
       "id": "ext-016",
@@ -5091,7 +5753,24 @@
       ],
       "correctIndex": 0,
       "explanation": "@server:protocol://resource/pathの形式でMCPリソースを参照できます。@メンションのオートコンプリートでファジー検索も可能です。",
-      "referenceUrl": "https://code.claude.com/docs/ja/mcp"
+      "referenceUrl": "https://code.claude.com/docs/ja/mcp",
+      "diagram": {
+        "type": "terminal",
+        "lines": [
+          {
+            "type": "prompt",
+            "text": "@mydb:postgres://localhost/users"
+          },
+          {
+            "type": "info",
+            "text": "Loading MCP resource..."
+          },
+          {
+            "type": "response",
+            "text": "Found 1,234 user records"
+          }
+        ]
+      }
     },
     {
       "id": "ext-024",
@@ -5303,7 +5982,47 @@
       ],
       "correctIndex": 0,
       "explanation": "`PreToolUse`、`UserPromptSubmit`、`PermissionRequest`、`Stop`、`SubagentStop`、`TeammateIdle`、`TaskCreated`、`TaskCompleted`、`ConfigChange`、`WorktreeCreate`、`Elicitation`、`ElicitationResult`の12イベントがブロッキング可能です。`PostToolUse`、`PostToolUseFailure`、`PermissionDenied`、`StopFailure`、`SessionStart`/`SessionEnd`、`Notification`、`SubagentStart`、`PreCompact`、`PostCompact`、`WorktreeRemove`、`InstructionsLoaded`、`CwdChanged`、`FileChanged`はブロッキングできません。",
-      "referenceUrl": "https://code.claude.com/docs/ja/hooks"
+      "referenceUrl": "https://code.claude.com/docs/ja/hooks",
+      "diagram": {
+        "type": "config",
+        "filepath": ".claude/settings.json",
+        "lines": [
+          {
+            "text": "{"
+          },
+          {
+            "text": "  \"hooks\": {"
+          },
+          {
+            "text": "    \"PreToolUse\": [{",
+            "highlight": true
+          },
+          {
+            "text": "      \"matcher\": \"Bash\","
+          },
+          {
+            "text": "      \"hooks\": [{"
+          },
+          {
+            "text": "        \"type\": \"command\","
+          },
+          {
+            "text": "        \"command\": \"./block-dangerous.sh\""
+          },
+          {
+            "text": "      }]"
+          },
+          {
+            "text": "    }]"
+          },
+          {
+            "text": "  }"
+          },
+          {
+            "text": "}"
+          }
+        ]
+      }
     },
     {
       "id": "ext-030",
@@ -5329,7 +6048,48 @@
       "explanation": "`policy_settings`ソースの変更に対して`ConfigChange`フックは発火しますが、ブロッキング判定（`exit code 2`や`decision: block`など）は無視されます。これはエンタープライズ管理者が配布するポリシー設定が、ローカルのフックによって妨げられないことを保証する設計です。フック自体は正常に実行されるため、変更の監査ログ記録やSlack通知などの監視用途には活用できます。",
       "category": "extensions",
       "difficulty": "advanced",
-      "referenceUrl": "https://code.claude.com/docs/ja/hooks"
+      "referenceUrl": "https://code.claude.com/docs/ja/hooks",
+      "diagram": {
+        "type": "config",
+        "filepath": ".claude/settings.json",
+        "lines": [
+          {
+            "text": "{"
+          },
+          {
+            "text": "  \"hooks\": {"
+          },
+          {
+            "text": "    \"ConfigChange\": [{"
+          },
+          {
+            "text": "      \"matcher\": \"policy_settings\",",
+            "highlight": true
+          },
+          {
+            "text": "      \"hooks\": [{"
+          },
+          {
+            "text": "        \"type\": \"command\","
+          },
+          {
+            "text": "        \"command\": \"./notify-slack.sh\"",
+            "highlight": true
+          },
+          {
+            "text": "      }]"
+          },
+          {
+            "text": "    }]"
+          },
+          {
+            "text": "  }"
+          },
+          {
+            "text": "}"
+          }
+        ]
+      }
     },
     {
       "id": "ses-012",
@@ -5696,7 +6456,28 @@
       ],
       "correctIndex": 2,
       "explanation": "`Ctrl+X Ctrl+K`を3秒以内に2回押すと、全てのバックグラウンドエージェントを一括停止（kill）できます。これはコードバインディング（`Ctrl+X`に続けて`Ctrl+K`を押す）で、個別停止ではなく緊急停止用のショートカットとして設計されており、2回押しで誤操作を防いでいます。",
-      "referenceUrl": "https://code.claude.com/docs/ja/interactive-mode"
+      "referenceUrl": "https://code.claude.com/docs/ja/interactive-mode",
+      "diagram": {
+        "type": "terminal",
+        "lines": [
+          {
+            "type": "info",
+            "text": "[Ctrl+B] Agent 1 → background"
+          },
+          {
+            "type": "info",
+            "text": "[Ctrl+B] Agent 2 → background"
+          },
+          {
+            "type": "info",
+            "text": "[Ctrl+X Ctrl+K] (3秒以内に2回)"
+          },
+          {
+            "type": "info",
+            "text": "All background agents killed"
+          }
+        ]
+      }
     },
     {
       "id": "key-012",
@@ -5748,7 +6529,28 @@
       ],
       "correctIndex": 2,
       "explanation": "`Ctrl+O`でverbose出力モードを切り替えると、ツール実行の詳細や処理過程が表示されます。Claudeがどのツールをどう使っているか把握でき、意図しない動作のデバッグに役立ちます。",
-      "referenceUrl": "https://code.claude.com/docs/ja/interactive-mode"
+      "referenceUrl": "https://code.claude.com/docs/ja/interactive-mode",
+      "diagram": {
+        "type": "terminal",
+        "lines": [
+          {
+            "type": "info",
+            "text": "[Ctrl+O] Verbose mode ON"
+          },
+          {
+            "type": "info",
+            "text": "→ Glob: src/**/*.ts (42 files)"
+          },
+          {
+            "type": "info",
+            "text": "→ Read: src/auth/login.ts"
+          },
+          {
+            "type": "info",
+            "text": "→ Edit: src/auth/login.ts L:23"
+          }
+        ]
+      }
     },
     {
       "id": "key-014",
@@ -5774,7 +6576,24 @@
       ],
       "correctIndex": 1,
       "explanation": "`Ctrl+G`で現在のプロンプトをデフォルトのテキストエディタで開けます。シンタックスハイライト、検索置換、マルチカーソル等のエディタ機能を活用して複雑なプロンプトを作成できます。",
-      "referenceUrl": "https://code.claude.com/docs/ja/interactive-mode"
+      "referenceUrl": "https://code.claude.com/docs/ja/interactive-mode",
+      "diagram": {
+        "type": "terminal",
+        "lines": [
+          {
+            "type": "info",
+            "text": "[Ctrl+G] エディタを起動"
+          },
+          {
+            "type": "info",
+            "text": "--- VS Code / vim で編集 ---"
+          },
+          {
+            "type": "prompt",
+            "text": "(エディタで作成した複数行プロンプト)"
+          }
+        ]
+      }
     },
     {
       "id": "key-015",
@@ -5800,7 +6619,28 @@
       ],
       "correctIndex": 1,
       "explanation": "`Option+T`（macOS）または`Alt+T`（Windows/Linux）でアダプティブ推論の有効/無効をセッション中に切り替えられます。複雑な設計判断では有効にし、単純な作業では無効にすることでコストと品質のバランスを取れます。macOSでは「Option as Meta」のターミナル設定が必要です（iTerm2: Profiles → Keys → Left/Right Option = \"Esc+\"）。`Alt+B`や`Alt+F`などの他のOption/Altショートカットと同様に、「Option as Meta」設定が必要です。",
-      "referenceUrl": "https://code.claude.com/docs/ja/interactive-mode"
+      "referenceUrl": "https://code.claude.com/docs/ja/interactive-mode",
+      "diagram": {
+        "type": "terminal",
+        "lines": [
+          {
+            "type": "info",
+            "text": "[Option+T / Alt+T]"
+          },
+          {
+            "type": "info",
+            "text": "Adaptive reasoning: OFF → ON"
+          },
+          {
+            "type": "prompt",
+            "text": "このモジュールの設計方針を提案して"
+          },
+          {
+            "type": "response",
+            "text": "(拡張思考で詳細な設計を検討中...)"
+          }
+        ]
+      }
     },
     {
       "id": "key-016",
@@ -6281,7 +7121,28 @@
       "explanation": "Claude Codeでは`Esc`キーで処理を中断できます（ドキュメント: \"stop Claude mid-action with the Esc key. Context is preserved, so you can redirect.\"）。コンテキストは保持されるため、中断後に修正指示を入力してリダイレクトできます。完了を待つ必要はなく、早めの軌道修正がコンテキストの節約にもなります。",
       "category": "bestpractices",
       "difficulty": "advanced",
-      "referenceUrl": "https://code.claude.com/docs/ja/best-practices"
+      "referenceUrl": "https://code.claude.com/docs/ja/best-practices",
+      "diagram": {
+        "type": "terminal",
+        "lines": [
+          {
+            "type": "prompt",
+            "text": "ログインバグを直して"
+          },
+          {
+            "type": "response",
+            "text": "src/utils.ts を編集中..."
+          },
+          {
+            "type": "info",
+            "text": "[Esc] 中断"
+          },
+          {
+            "type": "prompt",
+            "text": "違う、src/auth/login.ts を見て"
+          }
+        ]
+      }
     },
     {
       "id": "bp-016",
@@ -6538,7 +7399,43 @@
       ],
       "correctIndex": 2,
       "explanation": "YAMLフロントマターはスキルの`.md`ファイル先頭に`---`で区切って配置するメタデータセクションです。`description`（スキルの説明・トリガー条件）や`allowed-tools`（許可ツール一覧）などを定義し、Claude Codeがスキルを認識・実行する際の設定として使用されます。",
-      "referenceUrl": "https://code.claude.com/docs/ja/skills"
+      "referenceUrl": "https://code.claude.com/docs/ja/skills",
+      "diagram": {
+        "type": "config",
+        "filepath": ".claude/skills/refactor/SKILL.md",
+        "lines": [
+          {
+            "text": "---",
+            "highlight": true
+          },
+          {
+            "text": "description: Refactor code for clarity",
+            "highlight": true
+          },
+          {
+            "text": "allowed-tools:",
+            "highlight": true
+          },
+          {
+            "text": "  - Read",
+            "highlight": true
+          },
+          {
+            "text": "  - Edit",
+            "highlight": true
+          },
+          {
+            "text": "---",
+            "highlight": true
+          },
+          {
+            "text": ""
+          },
+          {
+            "text": "Refactor the specified code."
+          }
+        ]
+      }
     },
     {
       "id": "ext-031",
@@ -6859,7 +7756,47 @@
       "explanation": "サンドボックスはプログラムを隔離環境で実行し、ファイルシステムやネットワークアクセスを制限します。`sandbox.network.allowedDomains`で必要なドメインのみを許可することで、セキュリティを維持しつつ必要な外部アクセスを確保できます。",
       "category": "session",
       "difficulty": "intermediate",
-      "referenceUrl": "https://code.claude.com/docs/ja/settings"
+      "referenceUrl": "https://code.claude.com/docs/ja/settings",
+      "diagram": {
+        "type": "config",
+        "filepath": ".claude/settings.json",
+        "lines": [
+          {
+            "text": "{"
+          },
+          {
+            "text": "  \"sandbox\": {"
+          },
+          {
+            "text": "    \"network\": {"
+          },
+          {
+            "text": "      \"allowedDomains\": [",
+            "highlight": true
+          },
+          {
+            "text": "        \"*.npmjs.org\",",
+            "highlight": true
+          },
+          {
+            "text": "        \"registry.npmjs.org\"",
+            "highlight": true
+          },
+          {
+            "text": "      ]",
+            "highlight": true
+          },
+          {
+            "text": "    }"
+          },
+          {
+            "text": "  }"
+          },
+          {
+            "text": "}"
+          }
+        ]
+      }
     },
     {
       "id": "cmd-031",
@@ -6885,7 +7822,20 @@
       ],
       "correctIndex": 0,
       "explanation": "パイプ（|）はあるコマンドの`stdout`を別のコマンドの`stdin`に接続します。例：cat file.txt | `claude -p` \"要約して\" は、ファイル内容をClaude Codeに渡して処理させます。",
-      "referenceUrl": "https://code.claude.com/docs/ja/common-workflows"
+      "referenceUrl": "https://code.claude.com/docs/ja/common-workflows",
+      "diagram": {
+        "type": "terminal",
+        "lines": [
+          {
+            "type": "command",
+            "text": "cat file.txt | claude -p \"要約して\""
+          },
+          {
+            "type": "response",
+            "text": "このファイルは認証モジュールの..."
+          }
+        ]
+      }
     },
     {
       "id": "ext-037",
@@ -7007,7 +7957,32 @@
       "explanation": "MCPサーバーは各ツールの定義をリクエストごとにコンテキストに追加します。複数のMCPサーバーを設定していると、作業を開始する前から大量のコンテキストが消費されます。`/mcp`コマンドでサーバーごとのコンテキストコストを確認できます。",
       "category": "session",
       "difficulty": "beginner",
-      "referenceUrl": "https://code.claude.com/docs/ja/how-claude-code-works"
+      "referenceUrl": "https://code.claude.com/docs/ja/how-claude-code-works",
+      "diagram": {
+        "type": "terminal",
+        "lines": [
+          {
+            "type": "prompt",
+            "text": "/context"
+          },
+          {
+            "type": "info",
+            "text": "Context: [████████░░] 82%"
+          },
+          {
+            "type": "info",
+            "text": "MCP tools: 35K tokens (!)"
+          },
+          {
+            "type": "prompt",
+            "text": "/mcp"
+          },
+          {
+            "type": "info",
+            "text": "server-a: 15K  server-b: 20K"
+          }
+        ]
+      }
     },
     {
       "id": "ext-039",
@@ -7181,7 +8156,59 @@
       ],
       "correctIndex": 0,
       "explanation": "`matcher`は正規表現文字列で、フックが発火するタイミングを絞り込みます。例：`PreToolUse`で`matcher`に\"`Bash`\"を指定すると、`Bash`ツール使用時のみフックが発火します。",
-      "referenceUrl": "https://code.claude.com/docs/ja/hooks"
+      "referenceUrl": "https://code.claude.com/docs/ja/hooks",
+      "diagram": {
+        "type": "config",
+        "filepath": ".claude/settings.json",
+        "lines": [
+          {
+            "text": "{"
+          },
+          {
+            "text": "  \"hooks\": {"
+          },
+          {
+            "text": "    \"PreToolUse\": ["
+          },
+          {
+            "text": "      {"
+          },
+          {
+            "text": "        \"matcher\": \"Bash\",",
+            "highlight": true
+          },
+          {
+            "text": "        \"hooks\": ["
+          },
+          {
+            "text": "          {"
+          },
+          {
+            "text": "            \"type\": \"command\","
+          },
+          {
+            "text": "            \"command\": \"./validate.sh\""
+          },
+          {
+            "text": "          }"
+          },
+          {
+            "text": "        ]"
+          },
+          {
+            "text": "      }"
+          },
+          {
+            "text": "    ]"
+          },
+          {
+            "text": "  }"
+          },
+          {
+            "text": "}"
+          }
+        ]
+      }
     },
     {
       "id": "ext-045",
@@ -7207,7 +8234,28 @@
       ],
       "correctIndex": 2,
       "explanation": "`claude mcp list`で一覧表示、`claude mcp get` <name>で詳細確認、`claude mcp remove` <name>で削除ができます。",
-      "referenceUrl": "https://code.claude.com/docs/ja/mcp"
+      "referenceUrl": "https://code.claude.com/docs/ja/mcp",
+      "diagram": {
+        "type": "terminal",
+        "lines": [
+          {
+            "type": "command",
+            "text": "claude mcp list"
+          },
+          {
+            "type": "info",
+            "text": "my-db (stdio)  slack (http)"
+          },
+          {
+            "type": "command",
+            "text": "claude mcp remove my-db"
+          },
+          {
+            "type": "info",
+            "text": "Removed 'my-db'"
+          }
+        ]
+      }
     },
     {
       "id": "ext-046",
@@ -7281,7 +8329,51 @@
       "explanation": "Claude Codeの`.mcp.json`ファイルでは${VAR}や${VAR:-default}構文で環境変数の展開がサポートされています。チーム共有の`.mcp.json`には「Authorization: Bearer ${`API_KEY`}」のように変数参照を記載し、実際の値は各メンバーのローカル環境変数として設定します。",
       "category": "extensions",
       "difficulty": "intermediate",
-      "referenceUrl": "https://code.claude.com/docs/ja/mcp"
+      "referenceUrl": "https://code.claude.com/docs/ja/mcp",
+      "diagram": {
+        "type": "config",
+        "filepath": ".mcp.json",
+        "lines": [
+          {
+            "text": "{"
+          },
+          {
+            "text": "  \"mcpServers\": {"
+          },
+          {
+            "text": "    \"my-api\": {"
+          },
+          {
+            "text": "      \"command\": \"node\","
+          },
+          {
+            "text": "      \"args\": [\"server.js\"],"
+          },
+          {
+            "text": "      \"env\": {"
+          },
+          {
+            "text": "        \"API_KEY\": \"${API_KEY}\",",
+            "highlight": true
+          },
+          {
+            "text": "        \"DB_URL\": \"${DB_URL:-localhost}\"",
+            "highlight": true
+          },
+          {
+            "text": "      }"
+          },
+          {
+            "text": "    }"
+          },
+          {
+            "text": "  }"
+          },
+          {
+            "text": "}"
+          }
+        ]
+      }
     },
     {
       "id": "ext-048",
@@ -7307,7 +8399,20 @@
       ],
       "correctIndex": 2,
       "explanation": "MCPサーバーが公開するプロンプトは/mcp__<server>__<prompt>の形式でスラッシュコマンドとして利用できます。引数はスペース区切りで渡します。",
-      "referenceUrl": "https://code.claude.com/docs/ja/mcp"
+      "referenceUrl": "https://code.claude.com/docs/ja/mcp",
+      "diagram": {
+        "type": "terminal",
+        "lines": [
+          {
+            "type": "prompt",
+            "text": "/mcp__analytics__weekly_report Q1"
+          },
+          {
+            "type": "response",
+            "text": "Generating weekly report for Q1..."
+          }
+        ]
+      }
     },
     {
       "id": "ext-049",
@@ -7563,7 +8668,46 @@
       ],
       "correctIndex": 2,
       "explanation": "`permissions.deny`リストに`Agent(subagent-name)`を追加することで、特定のサブエージェントの起動を禁止できます。この`Agent(subagent-name)`構文で任意のサブエージェントタイプを制御できます。なお、v2.1.63以前の旧称`Task(subagent-name)`はエイリアスとして引き続き動作しますが、現行の正式構文は`Agent(subagent-name)`です。",
-      "referenceUrl": "https://code.claude.com/docs/ja/sub-agents"
+      "referenceUrl": "https://code.claude.com/docs/ja/sub-agents",
+      "diagram": {
+        "type": "config",
+        "filepath": ".claude/settings.json",
+        "lines": [
+          {
+            "text": "{"
+          },
+          {
+            "text": "  \"permissions\": {"
+          },
+          {
+            "text": "    \"allow\": ["
+          },
+          {
+            "text": "      \"Bash(npm test)\""
+          },
+          {
+            "text": "    ],"
+          },
+          {
+            "text": "    \"deny\": [",
+            "highlight": true
+          },
+          {
+            "text": "      \"Agent(deploy-agent)\"",
+            "highlight": true
+          },
+          {
+            "text": "    ]",
+            "highlight": true
+          },
+          {
+            "text": "  }"
+          },
+          {
+            "text": "}"
+          }
+        ]
+      }
     },
     {
       "id": "cmd-032",
@@ -7637,7 +8781,28 @@
       "explanation": "Claude Codeには`claude commit`というCLIサブコマンドは存在しません。シェルからGitコミットを効率的に作成するには、`claude`を起動してClaudeにコミットを依頼する方法が最も一般的です。Claudeが変更内容を分析して適切なコミットメッセージを生成し、コミットまで一括で実行します。",
       "category": "commands",
       "difficulty": "beginner",
-      "referenceUrl": "https://code.claude.com/docs/ja/common-workflows"
+      "referenceUrl": "https://code.claude.com/docs/ja/common-workflows",
+      "diagram": {
+        "type": "terminal",
+        "lines": [
+          {
+            "type": "command",
+            "text": "claude"
+          },
+          {
+            "type": "prompt",
+            "text": "commit my changes"
+          },
+          {
+            "type": "response",
+            "text": "変更を分析中..."
+          },
+          {
+            "type": "response",
+            "text": "feat: add user authentication"
+          }
+        ]
+      }
     },
     {
       "id": "cmd-034",
@@ -7756,7 +8921,24 @@
       "explanation": "`/debug`はClaude Codeに同梱のバンドルスキルで（ビルトインコマンドとは異なります）、デバッグログを読み込んでセッションのトラブルシューティングを行います。オプションで問題の説明を添えることで、より的確な診断が可能になります。",
       "category": "commands",
       "difficulty": "beginner",
-      "referenceUrl": "https://code.claude.com/docs/ja/interactive-mode"
+      "referenceUrl": "https://code.claude.com/docs/ja/interactive-mode",
+      "diagram": {
+        "type": "terminal",
+        "lines": [
+          {
+            "type": "prompt",
+            "text": "/debug MCP connection timeout"
+          },
+          {
+            "type": "response",
+            "text": "Reading debug logs..."
+          },
+          {
+            "type": "response",
+            "text": "Found: MCP server timeout at..."
+          }
+        ]
+      }
     },
     {
       "id": "cmd-037",
@@ -7782,7 +8964,24 @@
       "explanation": "`/statusline` コマンドを使うことで、Claude Codeのフッターに表示されるステータスラインのUI表示をセットアップ・カスタマイズできます。",
       "category": "commands",
       "difficulty": "intermediate",
-      "referenceUrl": "https://code.claude.com/docs/ja/interactive-mode"
+      "referenceUrl": "https://code.claude.com/docs/ja/interactive-mode",
+      "diagram": {
+        "type": "terminal",
+        "lines": [
+          {
+            "type": "prompt",
+            "text": "/statusline"
+          },
+          {
+            "type": "info",
+            "text": "Configuring status line..."
+          },
+          {
+            "type": "info",
+            "text": "Model | Context | Session"
+          }
+        ]
+      }
     },
     {
       "id": "cmd-038",
@@ -7808,7 +9007,28 @@
       "explanation": "`/usage` コマンドはサブスクリプションプラン専用のコマンドで、プランの使用制限（リミット）とレート制限のステータスを確認できます。APIキー利用時には使用できません。",
       "category": "commands",
       "difficulty": "beginner",
-      "referenceUrl": "https://code.claude.com/docs/ja/interactive-mode"
+      "referenceUrl": "https://code.claude.com/docs/ja/interactive-mode",
+      "diagram": {
+        "type": "terminal",
+        "lines": [
+          {
+            "type": "prompt",
+            "text": "/usage"
+          },
+          {
+            "type": "info",
+            "text": "Plan: Max"
+          },
+          {
+            "type": "info",
+            "text": "Usage: 45% of daily limit"
+          },
+          {
+            "type": "info",
+            "text": "Rate: Normal"
+          }
+        ]
+      }
     },
     {
       "id": "key-021",
@@ -7834,7 +9054,32 @@
       ],
       "correctIndex": 2,
       "explanation": "`Ctrl+K`はreadline/Emacsの標準的なkill操作です。削除したテキストはkill ringに保存され、`Ctrl+Y`で貼り付け（yank）できます。Claude Code固有のショートカットではなく、bashやzshなど多くのターミナルツールで共通して使えます。",
-      "referenceUrl": "https://code.claude.com/docs/ja/interactive-mode"
+      "referenceUrl": "https://code.claude.com/docs/ja/interactive-mode",
+      "diagram": {
+        "type": "terminal",
+        "lines": [
+          {
+            "type": "prompt",
+            "text": "fix the login bug in auth|.ts"
+          },
+          {
+            "type": "info",
+            "text": "                      ↑ cursor"
+          },
+          {
+            "type": "info",
+            "text": "[Ctrl+K] → カーソル以降を削除"
+          },
+          {
+            "type": "prompt",
+            "text": "fix the login bug in auth"
+          },
+          {
+            "type": "info",
+            "text": "[Ctrl+Y] → 削除テキストを復元"
+          }
+        ]
+      }
     },
     {
       "id": "key-022",
@@ -8445,7 +9690,24 @@
       ],
       "correctIndex": 1,
       "explanation": "`CLAUDE_CODE_USE_BEDROCK`=1でAmazon Bedrock、`CLAUDE_CODE_USE_VERTEX`=1でGoogle Vertex AI経由での認証が可能です。企業環境での利用に対応しています。",
-      "referenceUrl": "https://code.claude.com/docs/ja/settings"
+      "referenceUrl": "https://code.claude.com/docs/ja/settings",
+      "diagram": {
+        "type": "terminal",
+        "lines": [
+          {
+            "type": "command",
+            "text": "CLAUDE_CODE_USE_BEDROCK=1 \\"
+          },
+          {
+            "type": "command",
+            "text": "  AWS_REGION=us-east-1 claude"
+          },
+          {
+            "type": "info",
+            "text": "Connected via Amazon Bedrock"
+          }
+        ]
+      }
     },
     {
       "id": "bp-025",
@@ -8611,7 +9873,24 @@
       ],
       "correctIndex": 2,
       "explanation": "`MCP_TIMEOUT`環境変数でMCPサーバーの起動タイムアウトを変更できます。リモートサーバーやDockerベースのサーバーなど、起動に時間がかかるMCPサーバーで接続問題が発生した場合に有用です。",
-      "referenceUrl": "https://code.claude.com/docs/ja/mcp"
+      "referenceUrl": "https://code.claude.com/docs/ja/mcp",
+      "diagram": {
+        "type": "terminal",
+        "lines": [
+          {
+            "type": "command",
+            "text": "MCP_TIMEOUT=30000 claude"
+          },
+          {
+            "type": "info",
+            "text": "MCP timeout extended to 30s"
+          },
+          {
+            "type": "info",
+            "text": "Connecting to server... ✓"
+          }
+        ]
+      }
     },
     {
       "id": "cmd-039",
@@ -8637,7 +9916,32 @@
       "explanation": "`/vim` コマンドを実行するとVimスタイルの編集モードを一時的に有効にできます。気に入った場合は `/config` コマンドで永続的に設定できます。Normal/Insertモード、h/j/k/l移動、dd/yy等のVim操作が利用可能です。",
       "category": "commands",
       "difficulty": "intermediate",
-      "referenceUrl": "https://code.claude.com/docs/ja/interactive-mode"
+      "referenceUrl": "https://code.claude.com/docs/ja/interactive-mode",
+      "diagram": {
+        "type": "terminal",
+        "lines": [
+          {
+            "type": "prompt",
+            "text": "/vim"
+          },
+          {
+            "type": "info",
+            "text": "Vim mode enabled (session only)"
+          },
+          {
+            "type": "info",
+            "text": "--- 永続化するなら ---"
+          },
+          {
+            "type": "prompt",
+            "text": "/config"
+          },
+          {
+            "type": "info",
+            "text": "Vim mode saved permanently"
+          }
+        ]
+      }
     },
     {
       "id": "cmd-040",
@@ -9122,7 +10426,38 @@
       ],
       "correctIndex": 1,
       "explanation": "`\"$schema\"` に `\"https://json.schemastore.org/claude-code-settings.json\"` を設定すると、VS Code等のIDEで設定キーの自動補完やバリデーションが有効になります。",
-      "referenceUrl": "https://code.claude.com/docs/ja/settings"
+      "referenceUrl": "https://code.claude.com/docs/ja/settings",
+      "diagram": {
+        "type": "config",
+        "filepath": ".claude/settings.json",
+        "lines": [
+          {
+            "text": "{"
+          },
+          {
+            "text": "  \"$schema\": \"https://json.schemastore.org/claude-code-settings.json\",",
+            "highlight": true
+          },
+          {
+            "text": "  \"permissions\": {"
+          },
+          {
+            "text": "    \"allow\": ["
+          },
+          {
+            "text": "      \"Bash(npm test)\""
+          },
+          {
+            "text": "    ]"
+          },
+          {
+            "text": "  }"
+          },
+          {
+            "text": "}"
+          }
+        ]
+      }
     },
     {
       "id": "ses-037",
@@ -9148,7 +10483,37 @@
       ],
       "correctIndex": 1,
       "explanation": "`apiKeyHelper`はシェルスクリプトパスを指定し、認証値を動的に生成するための設定です。Vault等のシークレット管理ツールと連携し、`CLAUDE_CODE_API_KEY_HELPER_TTL_MS`で更新間隔を制御できます。",
-      "referenceUrl": "https://code.claude.com/docs/ja/settings"
+      "referenceUrl": "https://code.claude.com/docs/ja/settings",
+      "diagram": {
+        "type": "config",
+        "filepath": "~/.claude/settings.json",
+        "lines": [
+          {
+            "text": "{"
+          },
+          {
+            "text": "  \"apiKeyHelper\": \"/path/to/get-api-key.sh\",",
+            "highlight": true
+          },
+          {
+            "text": "  \"env\": {"
+          },
+          {
+            "text": "    \"CLAUDE_CODE_API_KEY_HELPER_TTL_MS\":",
+            "highlight": true
+          },
+          {
+            "text": "      \"300000\"",
+            "highlight": true
+          },
+          {
+            "text": "  }"
+          },
+          {
+            "text": "}"
+          }
+        ]
+      }
     },
     {
       "id": "ses-038",
@@ -9270,7 +10635,32 @@
       "explanation": "`autoUpdatesChannel`は\"stable\"（安定版）と\"latest\"（最新版）の2つの選択肢があります。CI/CD環境では予期しない変更を避けるため\"stable\"が推奨されます。更新を完全に止める`DISABLE_AUTOUPDATER`もありますが、セキュリティ更新も止まるためリスクがあります。",
       "category": "session",
       "difficulty": "intermediate",
-      "referenceUrl": "https://code.claude.com/docs/ja/settings"
+      "referenceUrl": "https://code.claude.com/docs/ja/settings",
+      "diagram": {
+        "type": "config",
+        "filepath": "~/.claude/settings.json",
+        "lines": [
+          {
+            "text": "{"
+          },
+          {
+            "text": "  \"autoUpdatesChannel\": \"stable\",",
+            "highlight": true
+          },
+          {
+            "text": "  \"permissions\": {"
+          },
+          {
+            "text": "    \"allow\": [\"Bash(npm test)\"]"
+          },
+          {
+            "text": "  }"
+          },
+          {
+            "text": "}"
+          }
+        ]
+      }
     },
     {
       "id": "ses-042",
@@ -9399,7 +10789,32 @@
       ],
       "correctIndex": 1,
       "explanation": "`alwaysThinkingEnabled`をtrueにすると、アダプティブ推論の有効状態がプロジェクト横断でデフォルトとして保存されます。Claudeは問題の複雑さに応じてアダプティブ推論で思考の深さを動的に調整します。なお、`MAX_THINKING_TOKENS`環境変数はOpus 4.6とSonnet 4.6では無視されます（アダプティブ推論が思考深度を制御するため）。",
-      "referenceUrl": "https://code.claude.com/docs/ja/settings"
+      "referenceUrl": "https://code.claude.com/docs/ja/settings",
+      "diagram": {
+        "type": "config",
+        "filepath": "~/.claude/settings.json",
+        "lines": [
+          {
+            "text": "{"
+          },
+          {
+            "text": "  \"alwaysThinkingEnabled\": true,",
+            "highlight": true
+          },
+          {
+            "text": "  \"permissions\": {"
+          },
+          {
+            "text": "    \"allow\": []"
+          },
+          {
+            "text": "  }"
+          },
+          {
+            "text": "}"
+          }
+        ]
+      }
     },
     {
       "id": "ses-045",
@@ -9551,7 +10966,56 @@
       ],
       "correctIndex": 1,
       "explanation": "`allowManagedHooksOnly`（Managed設定専用キー）をtrueにすると、User/Project/Pluginスコープで定義されたHooksは実行されず、Managed設定のHooksとSDK Hooksのみが許可されます。同様にallowManagedPermissionRulesOnlyでパーミッションルールも制限できます。",
-      "referenceUrl": "https://code.claude.com/docs/ja/settings"
+      "referenceUrl": "https://code.claude.com/docs/ja/settings",
+      "diagram": {
+        "type": "config",
+        "filepath": "/Library/.../managed-settings.json",
+        "lines": [
+          {
+            "text": "{"
+          },
+          {
+            "text": "  \"allowManagedHooksOnly\": true,",
+            "highlight": true
+          },
+          {
+            "text": "  \"hooks\": {"
+          },
+          {
+            "text": "    \"PreToolUse\": ["
+          },
+          {
+            "text": "      {"
+          },
+          {
+            "text": "        \"matcher\": \"Bash\","
+          },
+          {
+            "text": "        \"hooks\": [{"
+          },
+          {
+            "text": "          \"type\": \"command\","
+          },
+          {
+            "text": "          \"command\": \"./audit.sh\""
+          },
+          {
+            "text": "        }]"
+          },
+          {
+            "text": "      }"
+          },
+          {
+            "text": "    ]"
+          },
+          {
+            "text": "  }"
+          },
+          {
+            "text": "}"
+          }
+        ]
+      }
     },
     {
       "id": "ses-053",
@@ -9629,7 +11093,41 @@
       ],
       "correctIndex": 3,
       "explanation": "`sandbox.autoAllowBashIfSandboxed`はデフォルトtrueで、サンドボックスが有効な場合に`Bash`コマンドの実行を自動承認します。`sandbox.excludedCommands`で特定コマンドをサンドボックス外で実行することも可能です。",
-      "referenceUrl": "https://code.claude.com/docs/ja/settings"
+      "referenceUrl": "https://code.claude.com/docs/ja/settings",
+      "diagram": {
+        "type": "config",
+        "filepath": ".claude/settings.json",
+        "lines": [
+          {
+            "text": "{"
+          },
+          {
+            "text": "  \"sandbox\": {"
+          },
+          {
+            "text": "    \"autoAllowBashIfSandboxed\": true,",
+            "highlight": true
+          },
+          {
+            "text": "    \"excludedCommands\": ["
+          },
+          {
+            "text": "      \"docker\","
+          },
+          {
+            "text": "      \"ssh\""
+          },
+          {
+            "text": "    ]"
+          },
+          {
+            "text": "  }"
+          },
+          {
+            "text": "}"
+          }
+        ]
+      }
     },
     {
       "id": "tool-032",
@@ -9655,7 +11153,49 @@
       ],
       "correctIndex": 0,
       "explanation": "`sandbox.network.allowedDomains`でサンドボックス内から接続可能なドメインを指定できます。ワイルドカード（例: *.example.com）もサポートされます。`httpProxyPort`や`socksProxyPort`でプロキシポートも設定可能です。",
-      "referenceUrl": "https://code.claude.com/docs/ja/sandboxing"
+      "referenceUrl": "https://code.claude.com/docs/ja/sandboxing",
+      "diagram": {
+        "type": "config",
+        "filepath": ".claude/settings.json",
+        "lines": [
+          {
+            "text": "{"
+          },
+          {
+            "text": "  \"sandbox\": {"
+          },
+          {
+            "text": "    \"network\": {"
+          },
+          {
+            "text": "      \"allowedDomains\": [",
+            "highlight": true
+          },
+          {
+            "text": "        \"*.example.com\",",
+            "highlight": true
+          },
+          {
+            "text": "        \"api.github.com\"",
+            "highlight": true
+          },
+          {
+            "text": "      ],"
+          },
+          {
+            "text": "      \"httpProxyPort\": 8080"
+          },
+          {
+            "text": "    }"
+          },
+          {
+            "text": "  }"
+          },
+          {
+            "text": "}"
+          }
+        ]
+      }
     },
     {
       "id": "tool-033",
@@ -9707,7 +11247,24 @@
       ],
       "correctIndex": 0,
       "explanation": "`CLAUDE_CODE_SIMPLE=1`を設定すると、最小限のシステムプロンプトで`Bash`・ファイル読み取り・ファイル編集ツールのみで動作します。フック・スキル・プラグイン・MCPサーバーの自動検出・オートメモリ・`CLAUDE.md`は無効化されます。ただし`--mcp-config`で明示的に指定したMCPツールは引き続き利用可能です。カスタム統合やテスト時に便利です。`--bare`CLIフラグも同じ効果を持ちます。",
-      "referenceUrl": "https://code.claude.com/docs/ja/settings"
+      "referenceUrl": "https://code.claude.com/docs/ja/settings",
+      "diagram": {
+        "type": "terminal",
+        "lines": [
+          {
+            "type": "command",
+            "text": "CLAUDE_CODE_SIMPLE=1 claude"
+          },
+          {
+            "type": "info",
+            "text": "Simple mode: Bash + file tools only"
+          },
+          {
+            "type": "info",
+            "text": "No hooks, skills, CLAUDE.md"
+          }
+        ]
+      }
     },
     {
       "id": "tool-036",
@@ -10285,7 +11842,28 @@
       ],
       "correctIndex": 0,
       "explanation": "`/agents`はサブエージェント管理のインタラクティブインターフェースです。全サブエージェント（ビルトイン/ユーザー/プロジェクト/プラグイン）の表示、Claudeによるガイド付き作成、設定の編集、カスタムエージェントの削除が可能です。",
-      "referenceUrl": "https://code.claude.com/docs/ja/sub-agents"
+      "referenceUrl": "https://code.claude.com/docs/ja/sub-agents",
+      "diagram": {
+        "type": "terminal",
+        "lines": [
+          {
+            "type": "prompt",
+            "text": "/agents"
+          },
+          {
+            "type": "info",
+            "text": "Built-in: Explore, Plan"
+          },
+          {
+            "type": "info",
+            "text": "Custom: code-reviewer"
+          },
+          {
+            "type": "info",
+            "text": "[Create] [Edit] [Delete]"
+          }
+        ]
+      }
     },
     {
       "id": "ext-061",
@@ -10337,7 +11915,48 @@
       ],
       "correctIndex": 0,
       "explanation": "サブエージェントのフロントマターでnameとdescriptionが必須です。nameはハイフンと小文字英字による一意識別子、descriptionはClaudeがいつ委任するかを判断するために使用します。tools, model等は省略可能です。",
-      "referenceUrl": "https://code.claude.com/docs/ja/sub-agents"
+      "referenceUrl": "https://code.claude.com/docs/ja/sub-agents",
+      "diagram": {
+        "type": "config",
+        "filepath": ".claude/agents/code-reviewer.md",
+        "lines": [
+          {
+            "text": "---"
+          },
+          {
+            "text": "name: code-reviewer",
+            "highlight": true
+          },
+          {
+            "text": "description: Reviews code for quality",
+            "highlight": true
+          },
+          {
+            "text": "model: sonnet"
+          },
+          {
+            "text": "allowed-tools:"
+          },
+          {
+            "text": "  - Read"
+          },
+          {
+            "text": "  - Grep"
+          },
+          {
+            "text": "  - Glob"
+          },
+          {
+            "text": "---"
+          },
+          {
+            "text": ""
+          },
+          {
+            "text": "Review the code changes for bugs."
+          }
+        ]
+      }
     },
     {
       "id": "ext-063",
@@ -10389,7 +12008,49 @@
       ],
       "correctIndex": 1,
       "explanation": "`dontAsk`モードではパーミッションプロンプトが自動的に拒否されます。ただし、`permissions.allow`で明示的に許可されたツールは引き続き動作します。他にdefault, `acceptEdits`, `bypassPermissions`, planモードがあります。",
-      "referenceUrl": "https://code.claude.com/docs/ja/sub-agents"
+      "referenceUrl": "https://code.claude.com/docs/ja/sub-agents",
+      "diagram": {
+        "type": "config",
+        "filepath": ".claude/agents/safe-worker.md",
+        "lines": [
+          {
+            "text": "---"
+          },
+          {
+            "text": "name: safe-worker"
+          },
+          {
+            "text": "description: Runs tasks safely"
+          },
+          {
+            "text": "permissionMode: dontAsk",
+            "highlight": true
+          },
+          {
+            "text": "permissions:"
+          },
+          {
+            "text": "  allow:",
+            "highlight": true
+          },
+          {
+            "text": "    - Bash(npm test)",
+            "highlight": true
+          },
+          {
+            "text": "    - Read"
+          },
+          {
+            "text": "---"
+          },
+          {
+            "text": ""
+          },
+          {
+            "text": "Run the assigned task."
+          }
+        ]
+      }
     },
     {
       "id": "ext-065",
@@ -10607,7 +12268,52 @@
       ],
       "correctIndex": 0,
       "explanation": "ドキュメントでは「All hook events are supported」と明記されています。サブエージェント内で定義した`Stop`フックは自動的に`SubagentStop`に変換されます。最もよく使用されるのは`PreToolUse`、`PostToolUse`、`Stop`ですが、他のイベントもサポートされています。",
-      "referenceUrl": "https://code.claude.com/docs/ja/sub-agents"
+      "referenceUrl": "https://code.claude.com/docs/ja/sub-agents",
+      "diagram": {
+        "type": "config",
+        "filepath": ".claude/agents/lint-agent.md",
+        "lines": [
+          {
+            "text": "---"
+          },
+          {
+            "text": "name: lint-agent"
+          },
+          {
+            "text": "description: Lint and fix code"
+          },
+          {
+            "text": "hooks:",
+            "highlight": true
+          },
+          {
+            "text": "  PreToolUse:",
+            "highlight": true
+          },
+          {
+            "text": "    - matcher: Bash",
+            "highlight": true
+          },
+          {
+            "text": "      hooks:"
+          },
+          {
+            "text": "        - type: command"
+          },
+          {
+            "text": "          command: ./validate.sh"
+          },
+          {
+            "text": "---"
+          },
+          {
+            "text": ""
+          },
+          {
+            "text": "Lint and fix the code."
+          }
+        ]
+      }
     },
     {
       "id": "ext-072",
@@ -10838,7 +12544,24 @@
       ],
       "correctIndex": 0,
       "explanation": "Homebrew（`brew install --cask claude-code`）とWinGet（winget install Anthropic.ClaudeCode）でのインストールは自動更新されません。brew upgrade claude-code / winget upgrade Anthropic.ClaudeCode で手動更新が必要です。ネイティブインストール（curl）は自動更新対応です。",
-      "referenceUrl": "https://code.claude.com/docs/ja/overview"
+      "referenceUrl": "https://code.claude.com/docs/ja/overview",
+      "diagram": {
+        "type": "terminal",
+        "lines": [
+          {
+            "type": "command",
+            "text": "brew upgrade claude-code"
+          },
+          {
+            "type": "info",
+            "text": "Upgrading 2.0.1 → 2.1.0"
+          },
+          {
+            "type": "info",
+            "text": "(Homebrew版は自動更新されない)"
+          }
+        ]
+      }
     },
     {
       "id": "ses-069",
@@ -11008,7 +12731,20 @@
       ],
       "correctIndex": 3,
       "explanation": "`MCP_TIMEOUT`環境変数を使うことで、MCPサーバーの起動タイムアウトをミリ秒単位で設定できます。例えば`MCP_TIMEOUT=10000 claude`と指定することで、起動タイムアウトを10秒に設定します。ツール実行のタイムアウトを設定したい場合は`MCP_TOOL_TIMEOUT`環境変数を使います。MCPサーバーの出力量を制限したい場合は`MAX_MCP_OUTPUT_TOKENS`環境変数を使います。",
-      "referenceUrl": "https://code.claude.com/docs/ja/mcp"
+      "referenceUrl": "https://code.claude.com/docs/ja/mcp",
+      "diagram": {
+        "type": "terminal",
+        "lines": [
+          {
+            "type": "command",
+            "text": "MCP_TIMEOUT=10000 claude"
+          },
+          {
+            "type": "info",
+            "text": "MCP server startup timeout: 10s"
+          }
+        ]
+      }
     },
     {
       "id": "ses-070",
@@ -11108,7 +12844,48 @@
       ],
       "correctIndex": 1,
       "explanation": "`spinnerVerbs`.modeを\"append\"に設定すると、`spinnerVerbs`.verbsで指定したカスタム動詞がデフォルトのスピナー動詞に追加されます。modeを省略した場合のデフォルトは`\"append\"`（追加）モードです。デフォルト動詞を完全に置き換えるには`\"replace\"`を明示する必要があります。spinnerTipsEnabledでスピナーのTips表示も制御できます。",
-      "referenceUrl": "https://code.claude.com/docs/ja/settings"
+      "referenceUrl": "https://code.claude.com/docs/ja/settings",
+      "diagram": {
+        "type": "config",
+        "filepath": "~/.claude/settings.json",
+        "lines": [
+          {
+            "text": "{"
+          },
+          {
+            "text": "  \"spinnerVerbs\": {"
+          },
+          {
+            "text": "    \"mode\": \"append\",",
+            "highlight": true
+          },
+          {
+            "text": "    \"verbs\": [",
+            "highlight": true
+          },
+          {
+            "text": "      \"Hacking\",",
+            "highlight": true
+          },
+          {
+            "text": "      \"Brewing coffee\",",
+            "highlight": true
+          },
+          {
+            "text": "      \"Deploying\"",
+            "highlight": true
+          },
+          {
+            "text": "    ]"
+          },
+          {
+            "text": "  }"
+          },
+          {
+            "text": "}"
+          }
+        ]
+      }
     },
     {
       "id": "ses-072",
@@ -11264,7 +13041,28 @@
       ],
       "correctIndex": 2,
       "explanation": "`/login`コマンド（またはCLIの`claude auth login`）でClaude Codeにログインしたり、別のアカウント（Claudeサブスクリプション / Anthropic Console等）に切り替えたりできます。認証情報はログイン後に保存され、次回以降は自動認証されます。",
-      "referenceUrl": "https://code.claude.com/docs/ja/interactive-mode"
+      "referenceUrl": "https://code.claude.com/docs/ja/interactive-mode",
+      "diagram": {
+        "type": "terminal",
+        "lines": [
+          {
+            "type": "prompt",
+            "text": "/login"
+          },
+          {
+            "type": "info",
+            "text": "Choose account:"
+          },
+          {
+            "type": "info",
+            "text": "> Claude subscription"
+          },
+          {
+            "type": "info",
+            "text": "  Anthropic Console"
+          }
+        ]
+      }
     },
     {
       "id": "ext-074",
@@ -11440,7 +13238,28 @@
       ],
       "correctIndex": 3,
       "explanation": "Claude Codeのベストプラクティスでは、`/init` コマンドで `CLAUDE.md` ファイルを作成し、プロジェクトのコンテキストを設定することが推奨されています。最初は簡潔に始め、使いながら徐々に改善していくアプローチが効果的です。",
-      "referenceUrl": "https://code.claude.com/docs/ja/best-practices"
+      "referenceUrl": "https://code.claude.com/docs/ja/best-practices",
+      "diagram": {
+        "type": "terminal",
+        "lines": [
+          {
+            "type": "command",
+            "text": "cd your-project && claude"
+          },
+          {
+            "type": "prompt",
+            "text": "/init"
+          },
+          {
+            "type": "response",
+            "text": "Analyzing project structure..."
+          },
+          {
+            "type": "response",
+            "text": "Created CLAUDE.md"
+          }
+        ]
+      }
     },
     {
       "id": "bp-031",
@@ -11691,7 +13510,28 @@
       ],
       "correctIndex": 1,
       "explanation": "`/help`（ヘルプ表示）、`/clear`（会話クリア）、`/compact`（コンテキスト圧縮）は基本コマンドです。`/undo` は存在せず、変更の取り消しには `/rewind` コマンドでチェックポイントに戻ります（Claude Codeのチェックポイントはgitとは独立した機能です）。",
-      "referenceUrl": "https://code.claude.com/docs/ja/interactive-mode"
+      "referenceUrl": "https://code.claude.com/docs/ja/interactive-mode",
+      "diagram": {
+        "type": "terminal",
+        "lines": [
+          {
+            "type": "prompt",
+            "text": "/help"
+          },
+          {
+            "type": "info",
+            "text": "/clear   /compact  /model"
+          },
+          {
+            "type": "info",
+            "text": "/help    /resume   /rewind"
+          },
+          {
+            "type": "info",
+            "text": "(/undo は存在しない)"
+          }
+        ]
+      }
     },
     {
       "id": "bp-036",
@@ -11765,7 +13605,28 @@
       ],
       "correctIndex": 0,
       "explanation": "`/rewind` コマンドはチェックポイント（ユーザーの各プロンプトごとに自動作成）に安全に戻ります。これにより、別のアプローチを試すことが容易になり、実験的な作業も安心して行えます。",
-      "referenceUrl": "https://code.claude.com/docs/ja/checkpointing"
+      "referenceUrl": "https://code.claude.com/docs/ja/checkpointing",
+      "diagram": {
+        "type": "terminal",
+        "lines": [
+          {
+            "type": "prompt",
+            "text": "/rewind"
+          },
+          {
+            "type": "info",
+            "text": "> Checkpoint: before refactor"
+          },
+          {
+            "type": "info",
+            "text": "Restored code and conversation"
+          },
+          {
+            "type": "prompt",
+            "text": "別のアプローチで試して"
+          }
+        ]
+      }
     },
     {
       "id": "mem-030",
@@ -12022,7 +13883,24 @@
       "explanation": "Claude Codeは通常、ファイルの変更やコマンドの実行前にユーザーの承認を求めます。CI/CD環境は非対話的なため、このプロンプトに応答できません。`--dangerously-skip-permissions`フラグはこの承認プロンプトを省略します。フラグ名が示す通りセキュリティリスクがあるため、信頼できる環境でのみ使用すべきです。",
       "category": "commands",
       "difficulty": "advanced",
-      "referenceUrl": "https://code.claude.com/docs/ja/common-workflows"
+      "referenceUrl": "https://code.claude.com/docs/ja/common-workflows",
+      "diagram": {
+        "type": "terminal",
+        "lines": [
+          {
+            "type": "command",
+            "text": "claude -p --dangerously-skip-permissions \\"
+          },
+          {
+            "type": "command",
+            "text": "  \"review this PR for security issues\""
+          },
+          {
+            "type": "info",
+            "text": "(CI/CD: パーミッション確認をスキップ)"
+          }
+        ]
+      }
     },
     {
       "id": "cmd-055",
@@ -12048,7 +13926,20 @@
       ],
       "correctIndex": 3,
       "explanation": "`--from-pr`フラグにPR番号やURLを指定すると、そのPRに紐づくClaude Codeセッションを再開できます。gh pr createでPRを作成した際にセッションが自動的にリンクされるため、後からPR番号だけでセッションに戻れます。",
-      "referenceUrl": "https://code.claude.com/docs/ja/common-workflows"
+      "referenceUrl": "https://code.claude.com/docs/ja/common-workflows",
+      "diagram": {
+        "type": "terminal",
+        "lines": [
+          {
+            "type": "command",
+            "text": "claude --from-pr 123"
+          },
+          {
+            "type": "info",
+            "text": "Resuming session linked to PR #123..."
+          }
+        ]
+      }
     },
     {
       "id": "key-027",
@@ -12074,7 +13965,28 @@
       "explanation": "入力が空の状態で `?` キーを押すと、利用可能なキーボードショートカットの一覧が表示されます。Claude Codeの操作を効率的に学ぶための基本的なヘルプ機能です。",
       "category": "keyboard",
       "difficulty": "intermediate",
-      "referenceUrl": "https://code.claude.com/docs/ja/interactive-mode"
+      "referenceUrl": "https://code.claude.com/docs/ja/interactive-mode",
+      "diagram": {
+        "type": "terminal",
+        "lines": [
+          {
+            "type": "info",
+            "text": "[?] ショートカットヘルプ"
+          },
+          {
+            "type": "info",
+            "text": "Ctrl+C  Cancel generation"
+          },
+          {
+            "type": "info",
+            "text": "Ctrl+B  Background task"
+          },
+          {
+            "type": "info",
+            "text": "Ctrl+T  Task list"
+          }
+        ]
+      }
     },
     {
       "id": "key-028",
@@ -12100,7 +14012,24 @@
       ],
       "correctIndex": 0,
       "explanation": "Escキーは現在の入力テキストをクリアします。生成中のレスポンスを中断する場合は`Ctrl+C`を使用します。また`Esc`を素早く2回押すと、チェックポイントの巻き戻し（Rewind）機能が起動します。",
-      "referenceUrl": "https://code.claude.com/docs/ja/interactive-mode"
+      "referenceUrl": "https://code.claude.com/docs/ja/interactive-mode",
+      "diagram": {
+        "type": "terminal",
+        "lines": [
+          {
+            "type": "prompt",
+            "text": "some text being typed..."
+          },
+          {
+            "type": "info",
+            "text": "[Esc] 入力をクリア"
+          },
+          {
+            "type": "info",
+            "text": "[Esc×2] チェックポイントに巻き戻し"
+          }
+        ]
+      }
     },
     {
       "id": "bp-037",
@@ -12225,7 +14154,40 @@
       "correctIndex": 2,
       "explanation": "`settings.json`の`permissions.deny`に`Bash`(パターン)を追加することで、特定の`Bash`コマンドをブロックできます。例：「`Bash`(curl *)」「`Bash`(rm -rf *)」のようにパターンマッチで制御します。企業のManaged設定で一括管理することも可能です。",
       "referenceUrl": "https://code.claude.com/docs/ja/settings",
-      "hint": "設定ファイルで特定のコマンドを明示的に禁止する方法があります。"
+      "hint": "設定ファイルで特定のコマンドを明示的に禁止する方法があります。",
+      "diagram": {
+        "type": "config",
+        "filepath": ".claude/settings.json",
+        "lines": [
+          {
+            "text": "{"
+          },
+          {
+            "text": "  \"permissions\": {"
+          },
+          {
+            "text": "    \"deny\": [",
+            "highlight": true
+          },
+          {
+            "text": "      \"Bash(curl *)\",",
+            "highlight": true
+          },
+          {
+            "text": "      \"Bash(rm -rf *)\"",
+            "highlight": true
+          },
+          {
+            "text": "    ]"
+          },
+          {
+            "text": "  }"
+          },
+          {
+            "text": "}"
+          }
+        ]
+      }
     },
     {
       "id": "ext-081",
@@ -12279,7 +14241,32 @@
       "correctIndex": 3,
       "explanation": "`/clear`でセッションをリセットしたり、`/compact`でコンテキストを圧縮することで、不要なトークン消費を抑制できます。これにより品質を維持しながらコスト最適化が可能です。",
       "referenceUrl": "https://code.claude.com/docs/ja/interactive-mode",
-      "hint": "セッション管理コマンドでコンテキストウィンドウの使用を最適化できます。"
+      "hint": "セッション管理コマンドでコンテキストウィンドウの使用を最適化できます。",
+      "diagram": {
+        "type": "terminal",
+        "lines": [
+          {
+            "type": "prompt",
+            "text": "/compact"
+          },
+          {
+            "type": "info",
+            "text": "Context: 85% → 32%"
+          },
+          {
+            "type": "info",
+            "text": "--- 別タスクに切り替え ---"
+          },
+          {
+            "type": "prompt",
+            "text": "/clear"
+          },
+          {
+            "type": "info",
+            "text": "Conversation cleared"
+          }
+        ]
+      }
     },
     {
       "id": "cmd-057",
@@ -12305,7 +14292,28 @@
       ],
       "correctIndex": 0,
       "explanation": "具体的な対象（git diff）と観点（セキュリティ、パフォーマンス、エラーハンドリング）を明示することで、Claude Codeから質の高いレビューを得られます。",
-      "referenceUrl": "https://code.claude.com/docs/ja/common-workflows"
+      "referenceUrl": "https://code.claude.com/docs/ja/common-workflows",
+      "diagram": {
+        "type": "terminal",
+        "lines": [
+          {
+            "type": "prompt",
+            "text": "git diffの変更をレビューして。"
+          },
+          {
+            "type": "prompt",
+            "text": "セキュリティ、パフォーマンス、"
+          },
+          {
+            "type": "prompt",
+            "text": "エラーハンドリングの観点で"
+          },
+          {
+            "type": "response",
+            "text": "変更を分析します..."
+          }
+        ]
+      }
     },
     {
       "id": "tool-048",
@@ -12508,7 +14516,28 @@
       "explanation": "`/model` コマンドでは、Opus 4.6やSonnet 4.6など対応モデルを選択中に左右の矢印キーでエフォートレベル（思考の深さ）を調整できます。これにより、タスクの複雑さに応じてモデルの応答品質とスピードのバランスを制御できます。",
       "category": "commands",
       "difficulty": "intermediate",
-      "referenceUrl": "https://code.claude.com/docs/ja/interactive-mode"
+      "referenceUrl": "https://code.claude.com/docs/ja/interactive-mode",
+      "diagram": {
+        "type": "terminal",
+        "lines": [
+          {
+            "type": "prompt",
+            "text": "/model"
+          },
+          {
+            "type": "info",
+            "text": "> Opus 4.6  ← → [███████] high"
+          },
+          {
+            "type": "info",
+            "text": "  Sonnet 4.6     [████░░] medium"
+          },
+          {
+            "type": "info",
+            "text": "Arrow keys: adjust effort"
+          }
+        ]
+      }
     },
     {
       "id": "ext-085",
@@ -12561,7 +14590,20 @@
       "correctIndex": 0,
       "explanation": "ヘッドレス環境では、`ANTHROPIC_API_KEY`環境変数でAPIキーを設定し、`-p`フラグで非対話モードを使用します。CI/CDパイプラインやサーバー上でのバッチ処理に適しています。",
       "referenceUrl": "https://code.claude.com/docs/ja/cli-reference",
-      "hint": "ブラウザベースの認証が使えない環境では、別の認証方法が必要です。"
+      "hint": "ブラウザベースの認証が使えない環境では、別の認証方法が必要です。",
+      "diagram": {
+        "type": "terminal",
+        "lines": [
+          {
+            "type": "command",
+            "text": "ANTHROPIC_API_KEY=sk-... claude -p \\"
+          },
+          {
+            "type": "command",
+            "text": "  \"analyze this codebase\""
+          }
+        ]
+      }
     },
     {
       "id": "tool-050",
@@ -12811,7 +14853,40 @@
       "explanation": "プラグイン機能（`/plugin`コマンド）はclaude `--version`でバージョンを確認し、古い場合はbrew upgrade claude-code（Homebrew）やnpm update -g @anthropic-ai/claude-code（npm）で最新バージョンに更新する必要があります。",
       "category": "commands",
       "difficulty": "beginner",
-      "referenceUrl": "https://code.claude.com/docs/ja/discover-plugins"
+      "referenceUrl": "https://code.claude.com/docs/ja/discover-plugins",
+      "diagram": {
+        "type": "terminal",
+        "lines": [
+          {
+            "type": "command",
+            "text": "claude --version"
+          },
+          {
+            "type": "info",
+            "text": "claude v2.0.12"
+          },
+          {
+            "type": "command",
+            "text": "brew upgrade claude-code"
+          },
+          {
+            "type": "info",
+            "text": "Upgrading 2.0.12 → 2.1.70"
+          },
+          {
+            "type": "command",
+            "text": "claude"
+          },
+          {
+            "type": "prompt",
+            "text": "/plugin"
+          },
+          {
+            "type": "response",
+            "text": "Installed plugins: (none)"
+          }
+        ]
+      }
     },
     {
       "id": "ext-087",
@@ -12838,7 +14913,49 @@
       "correctIndex": 0,
       "explanation": "`PreToolUse`フックの`matcher`で`Edit`ツールを指定し、バリデーションスクリプトでファイルロック状態を確認できます。問題があれば`exit code 2`を返して編集をブロックし、`stderr`の理由がClaudeに表示されます。`CLAUDE.md`の指示は助言に留まるため、確実な制御にはHooksが必要です。",
       "referenceUrl": "https://code.claude.com/docs/ja/hooks#configuration",
-      "hint": "ツール使用前にトリガーされるフックで、特定のツールにマッチさせる機能があります。"
+      "hint": "ツール使用前にトリガーされるフックで、特定のツールにマッチさせる機能があります。",
+      "diagram": {
+        "type": "config",
+        "filepath": ".claude/settings.json",
+        "lines": [
+          {
+            "text": "{"
+          },
+          {
+            "text": "  \"hooks\": {"
+          },
+          {
+            "text": "    \"PreToolUse\": [{",
+            "highlight": true
+          },
+          {
+            "text": "      \"matcher\": \"Edit\",",
+            "highlight": true
+          },
+          {
+            "text": "      \"hooks\": [{"
+          },
+          {
+            "text": "        \"type\": \"command\","
+          },
+          {
+            "text": "        \"command\": \"./check-lock.sh\"",
+            "highlight": true
+          },
+          {
+            "text": "      }]"
+          },
+          {
+            "text": "    }]"
+          },
+          {
+            "text": "  }"
+          },
+          {
+            "text": "}"
+          }
+        ]
+      }
     },
     {
       "id": "ses-096",
@@ -13569,7 +15686,24 @@
         "overview",
         "overview-ch-1",
         "overview-050"
-      ]
+      ],
+      "diagram": {
+        "type": "terminal",
+        "lines": [
+          {
+            "type": "command",
+            "text": "cd your-project && claude"
+          },
+          {
+            "type": "info",
+            "text": "Welcome to Claude Code!"
+          },
+          {
+            "type": "info",
+            "text": "Type your request or /help"
+          }
+        ]
+      }
     },
     {
       "id": "bp-085",
@@ -13679,7 +15813,28 @@
       ],
       "correctIndex": 1,
       "explanation": "`/help`コマンドはClaude Codeのインタラクティブモードで利用可能なコマンドの一覧を表示します。また、入力欄が空の状態で`/`を入力するとコマンドとスキルの一覧が表示されます。キーボードショートカットを確認したい場合は`?`を押します。",
-      "referenceUrl": "https://code.claude.com/docs/ja/interactive-mode"
+      "referenceUrl": "https://code.claude.com/docs/ja/interactive-mode",
+      "diagram": {
+        "type": "terminal",
+        "lines": [
+          {
+            "type": "prompt",
+            "text": "/"
+          },
+          {
+            "type": "info",
+            "text": "/clear    /compact  /model"
+          },
+          {
+            "type": "info",
+            "text": "/help     /resume   /rewind"
+          },
+          {
+            "type": "info",
+            "text": "/review-pr  /deploy  ..."
+          }
+        ]
+      }
     },
     {
       "id": "mem-053",
@@ -14145,7 +16300,28 @@
       ],
       "correctIndex": 0,
       "explanation": "チェックポイントはClaude Codeがユーザーの各プロンプトごとに自動作成するセッション内スナップショットです。`/rewind`（またはEsc×2）でチェックポイント一覧を表示し、変更6の後の時点を選択すると、ファイル変更と会話コンテキストの両方がその時点に復元されます。gitはコードの永続的な履歴管理、チェックポイントはセッション内の作業undoと、目的が異なります。",
-      "referenceUrl": "https://code.claude.com/docs/ja/checkpointing"
+      "referenceUrl": "https://code.claude.com/docs/ja/checkpointing",
+      "diagram": {
+        "type": "terminal",
+        "lines": [
+          {
+            "type": "prompt",
+            "text": "/rewind"
+          },
+          {
+            "type": "info",
+            "text": "  [7] Update docs  ← 誤り"
+          },
+          {
+            "type": "info",
+            "text": "> [6] Add auth     ← ここに戻る"
+          },
+          {
+            "type": "info",
+            "text": "Restored to checkpoint 6"
+          }
+        ]
+      }
     },
     {
       "id": "ses-100",
@@ -14867,7 +17043,50 @@
       ],
       "correctIndex": 3,
       "explanation": "`sandbox.network.allowManagedDomainsOnly: true` を設定すると、マネージド設定で定義された `allowedDomains` のみが有効になります。ユーザー設定、プロジェクト設定、ローカル設定で追加されたドメインはすべて無視されます。ただし拒否ドメイン（denied domains）は引き続きすべてのソースからマージされます。これにより、組織はネットワークアクセスを厳密にホワイトリスト管理できます。",
-      "referenceUrl": "https://code.claude.com/docs/ja/settings"
+      "referenceUrl": "https://code.claude.com/docs/ja/settings",
+      "diagram": {
+        "type": "config",
+        "filepath": "/Library/.../managed-settings.json",
+        "lines": [
+          {
+            "text": "{"
+          },
+          {
+            "text": "  \"sandbox\": {"
+          },
+          {
+            "text": "    \"network\": {"
+          },
+          {
+            "text": "      \"allowManagedDomainsOnly\": true,",
+            "highlight": true
+          },
+          {
+            "text": "      \"allowedDomains\": [",
+            "highlight": true
+          },
+          {
+            "text": "        \"*.corp.example.com\",",
+            "highlight": true
+          },
+          {
+            "text": "        \"api.anthropic.com\"",
+            "highlight": true
+          },
+          {
+            "text": "      ]"
+          },
+          {
+            "text": "    }"
+          },
+          {
+            "text": "  }"
+          },
+          {
+            "text": "}"
+          }
+        ]
+      }
     },
     {
       "id": "ext-107",
@@ -14893,7 +17112,47 @@
       ],
       "correctIndex": 1,
       "explanation": "`ConfigChange` フックのマッチャーは `user_settings`、`project_settings`、`local_settings`、`policy_settings`、`skills` をフィルタリングできます。環境変数の変更は `ConfigChange` フックでは検知できません。また、`policy_settings` の変更はフックが起動しますが、ブロックすることはできません（監査ログのみ）。",
-      "referenceUrl": "https://code.claude.com/docs/ja/hooks"
+      "referenceUrl": "https://code.claude.com/docs/ja/hooks",
+      "diagram": {
+        "type": "config",
+        "filepath": ".claude/settings.json",
+        "lines": [
+          {
+            "text": "{"
+          },
+          {
+            "text": "  \"hooks\": {"
+          },
+          {
+            "text": "    \"ConfigChange\": [{"
+          },
+          {
+            "text": "      \"matcher\": \"user_settings\",",
+            "highlight": true
+          },
+          {
+            "text": "      \"hooks\": [{"
+          },
+          {
+            "text": "        \"type\": \"command\","
+          },
+          {
+            "text": "        \"command\": \"./audit-log.sh\""
+          },
+          {
+            "text": "      }]"
+          },
+          {
+            "text": "    }]"
+          },
+          {
+            "text": "  }"
+          },
+          {
+            "text": "}"
+          }
+        ]
+      }
     },
     {
       "id": "ext-108",
@@ -15330,7 +17589,24 @@
       ],
       "correctIndex": 3,
       "explanation": "`/compact` コマンドはオプションのフォーカス指示を受け付けます。`/compact focus on the API changes` のように、コマンドの後にそのまま自然言語で指示を書くだけです。これにより、コンパクション時にどの情報を優先的に保持するかを指定できます。`CLAUDE.md`に「Compact Instructions」セクションを追加する方法もあります。",
-      "referenceUrl": "https://code.claude.com/docs/ja/interactive-mode"
+      "referenceUrl": "https://code.claude.com/docs/ja/interactive-mode",
+      "diagram": {
+        "type": "terminal",
+        "lines": [
+          {
+            "type": "prompt",
+            "text": "/compact focus on the API changes"
+          },
+          {
+            "type": "response",
+            "text": "Compacting conversation..."
+          },
+          {
+            "type": "info",
+            "text": "API関連の議論を優先保持"
+          }
+        ]
+      }
     },
     {
       "id": "cmd-070",
@@ -15356,7 +17632,28 @@
       ],
       "correctIndex": 2,
       "explanation": "`/context` コマンドは、現在のコンテキスト使用量をカラーグリッドとして可視化します。何がコンテキストスペースを消費しているかを把握でき、MCPサーバーのツール定義が多すぎるなどの問題を発見するのに役立ちます。多すぎるスキルが除外された場合の警告も表示されます。",
-      "referenceUrl": "https://code.claude.com/docs/ja/interactive-mode"
+      "referenceUrl": "https://code.claude.com/docs/ja/interactive-mode",
+      "diagram": {
+        "type": "terminal",
+        "lines": [
+          {
+            "type": "prompt",
+            "text": "/context"
+          },
+          {
+            "type": "info",
+            "text": "Context: [████████░░] 78%"
+          },
+          {
+            "type": "info",
+            "text": "MCP tools: 12K tokens"
+          },
+          {
+            "type": "info",
+            "text": "Conversation: 45K tokens"
+          }
+        ]
+      }
     },
     {
       "id": "ses-106",
@@ -15614,7 +17911,16 @@
       ],
       "correctIndex": 3,
       "explanation": "Agent SDKのTypeScript版は `npm install @anthropic-ai/claude-agent-sdk` でインストールします。Python版は `pip install claude-agent-sdk` です。以前は「Claude Code SDK」という名称でしたが、「Claude Agent SDK」にリネームされました。",
-      "referenceUrl": "https://platform.claude.com/docs/ja/agent-sdk/overview"
+      "referenceUrl": "https://platform.claude.com/docs/ja/agent-sdk/overview",
+      "diagram": {
+        "type": "terminal",
+        "lines": [
+          {
+            "type": "command",
+            "text": "npm install @anthropic-ai/claude-agent-sdk"
+          }
+        ]
+      }
     },
     {
       "id": "ext-115",
@@ -15812,7 +18118,49 @@
       ],
       "correctIndex": 3,
       "explanation": "Agent SDKのフックはClaude Codeと同じイベントをサポートしています。ファイル変更の監査には `PostToolUse` イベントにマッチャー `Edit|Write` を設定し、コールバック関数で `tool_input.file_path` を取得してログに記録します。SDK版ではシェルコマンドではなくPython/TypeScriptのコールバック関数を直接登録できます。",
-      "referenceUrl": "https://platform.claude.com/docs/ja/agent-sdk/overview"
+      "referenceUrl": "https://platform.claude.com/docs/ja/agent-sdk/overview",
+      "diagram": {
+        "type": "config",
+        "filepath": ".claude/settings.json",
+        "lines": [
+          {
+            "text": "{"
+          },
+          {
+            "text": "  \"hooks\": {"
+          },
+          {
+            "text": "    \"PostToolUse\": [{",
+            "highlight": true
+          },
+          {
+            "text": "      \"matcher\": \"Edit|Write\",",
+            "highlight": true
+          },
+          {
+            "text": "      \"hooks\": [{"
+          },
+          {
+            "text": "        \"type\": \"command\","
+          },
+          {
+            "text": "        \"command\": \"./log-file-change.sh\"",
+            "highlight": true
+          },
+          {
+            "text": "      }]"
+          },
+          {
+            "text": "    }]"
+          },
+          {
+            "text": "  }"
+          },
+          {
+            "text": "}"
+          }
+        ]
+      }
     },
     {
       "id": "ext-121",
@@ -15838,7 +18186,49 @@
       ],
       "correctIndex": 0,
       "explanation": "Hooks ガイドでは、`PostToolUse` イベントに `Edit|Write` マッチャーを設定し、`jq -r '.tool_input.file_path' | xargs npx prettier --write` のようなコマンドで編集されたファイルパスを抽出してフォーマッターに渡すパターンが推奨されています。これにより、Claude がファイルを編集するたびに自動的にフォーマットが適用されます。",
-      "referenceUrl": "https://code.claude.com/docs/ja/hooks-guide"
+      "referenceUrl": "https://code.claude.com/docs/ja/hooks-guide",
+      "diagram": {
+        "type": "config",
+        "filepath": ".claude/settings.json",
+        "lines": [
+          {
+            "text": "{"
+          },
+          {
+            "text": "  \"hooks\": {"
+          },
+          {
+            "text": "    \"PostToolUse\": [{",
+            "highlight": true
+          },
+          {
+            "text": "      \"matcher\": \"Edit|Write\",",
+            "highlight": true
+          },
+          {
+            "text": "      \"hooks\": [{"
+          },
+          {
+            "text": "        \"type\": \"command\","
+          },
+          {
+            "text": "        \"command\": \"jq ... | xargs prettier --write\"",
+            "highlight": true
+          },
+          {
+            "text": "      }]"
+          },
+          {
+            "text": "    }]"
+          },
+          {
+            "text": "  }"
+          },
+          {
+            "text": "}"
+          }
+        ]
+      }
     },
     {
       "id": "ext-122",
@@ -16218,7 +18608,24 @@
       ],
       "correctIndex": 0,
       "explanation": "ヘッドレスモードで特定のスキーマに従った構造化出力を得るには、`--output-format json` と `--json-schema` を組み合わせます。JSON Schema の定義を渡すと、レスポンスの `structured_output` フィールドにスキーマに準拠した出力が含まれます。",
-      "referenceUrl": "https://code.claude.com/docs/ja/headless"
+      "referenceUrl": "https://code.claude.com/docs/ja/headless",
+      "diagram": {
+        "type": "terminal",
+        "lines": [
+          {
+            "type": "command",
+            "text": "claude -p --output-format json \\"
+          },
+          {
+            "type": "command",
+            "text": "  --json-schema '{\"type\":\"object\",...}' \\"
+          },
+          {
+            "type": "command",
+            "text": "  \"analyze this code\""
+          }
+        ]
+      }
     },
     {
       "id": "cmd-073",
@@ -16244,7 +18651,24 @@
       ],
       "correctIndex": 3,
       "explanation": "リアルタイムストリーミングには `--output-format stream-json` を `--verbose` と `--include-partial-messages` と組み合わせます。各行が JSON オブジェクトとして出力され、`jq` でフィルタリングできます。テキストデルタの抽出例: `jq -rj 'select(.type == \"stream_event\" and .event.delta.type? == \"text_delta\") | .event.delta.text'`",
-      "referenceUrl": "https://code.claude.com/docs/ja/headless"
+      "referenceUrl": "https://code.claude.com/docs/ja/headless",
+      "diagram": {
+        "type": "terminal",
+        "lines": [
+          {
+            "type": "command",
+            "text": "claude -p 'review' --output-format stream-json \\"
+          },
+          {
+            "type": "command",
+            "text": "  --verbose | jq 'select(.type==\"stream_event\")'"
+          },
+          {
+            "type": "info",
+            "text": "{\"type\":\"stream_event\",\"event\":{...}}"
+          }
+        ]
+      }
     },
     {
       "id": "cmd-074",
@@ -16412,7 +18836,46 @@
       ],
       "correctIndex": 3,
       "explanation": "`--allowedTools` はパーミッションルール構文を使用します。`Bash(git diff *)` では `*` の前にスペースがあるため、「`git diff ` で始まるコマンド」にプレフィックスマッチします。スペースなしの `Bash(git diff*)` だと `git diff-index` のようなコマンドも一致してしまうため、スペースの有無が重要です。",
-      "referenceUrl": "https://code.claude.com/docs/ja/headless"
+      "referenceUrl": "https://code.claude.com/docs/ja/headless",
+      "diagram": {
+        "type": "config",
+        "filepath": "# allowedTools pattern",
+        "lines": [
+          {
+            "text": "# Correct: space before wildcard"
+          },
+          {
+            "text": "claude -p \"task\" \\",
+            "highlight": true
+          },
+          {
+            "text": "  --allowedTools 'Bash(git diff *)'",
+            "highlight": true
+          },
+          {
+            "text": ""
+          },
+          {
+            "text": "# Matches:  git diff --staged"
+          },
+          {
+            "text": "# Matches:  git diff HEAD~1"
+          },
+          {
+            "text": "# No match: git diff-index HEAD"
+          },
+          {
+            "text": ""
+          },
+          {
+            "text": "# Dangerous: no space before *"
+          },
+          {
+            "text": "# 'Bash(git diff*)' also matches git diff-index!",
+            "highlight": true
+          }
+        ]
+      }
     },
     {
       "id": "cmd-078",
@@ -16438,7 +18901,24 @@
       ],
       "correctIndex": 1,
       "explanation": "ヘッドレスモードで会話を継続するには、`--continue` フラグで直前の会話を続けるか、`--resume` にセッション ID を指定して特定の会話を再開します。セッション ID は `--output-format json` の出力の `session_id` フィールドから取得できます。",
-      "referenceUrl": "https://code.claude.com/docs/ja/headless"
+      "referenceUrl": "https://code.claude.com/docs/ja/headless",
+      "diagram": {
+        "type": "terminal",
+        "lines": [
+          {
+            "type": "command",
+            "text": "claude -p \"first task\" --output-format json"
+          },
+          {
+            "type": "info",
+            "text": "{\"session_id\": \"abc-123\", ...}"
+          },
+          {
+            "type": "command",
+            "text": "claude -p --resume abc-123 \"follow up\""
+          }
+        ]
+      }
     },
     {
       "id": "cmd-079",
@@ -16896,7 +19376,41 @@
       ],
       "correctIndex": 2,
       "explanation": "キーバインド設定ファイル（`~/.claude/keybindings.json`）で特定のキーバインドを無効化するには、対象のキーに `null` を設定します。例えば `\"ctrl+u\": null` と設定すると、`Ctrl+U` のバインドが解除されます。設定ファイルの変更は自動検出され、Claude Code の再起動なしに反映されます。",
-      "referenceUrl": "https://code.claude.com/docs/ja/keybindings"
+      "referenceUrl": "https://code.claude.com/docs/ja/keybindings",
+      "diagram": {
+        "type": "config",
+        "filepath": "~/.claude/keybindings.json",
+        "lines": [
+          {
+            "text": "{"
+          },
+          {
+            "text": "  \"Global\": {"
+          },
+          {
+            "text": "    \"ctrl+u\": null,",
+            "highlight": true
+          },
+          {
+            "text": "    \"ctrl+l\": \"global:clear\""
+          },
+          {
+            "text": "  },"
+          },
+          {
+            "text": "  \"Chat\": {"
+          },
+          {
+            "text": "    \"enter\": \"chat:submit\""
+          },
+          {
+            "text": "  }"
+          },
+          {
+            "text": "}"
+          }
+        ]
+      }
     },
     {
       "id": "key-030",
@@ -16922,7 +19436,59 @@
       ],
       "correctIndex": 2,
       "explanation": "キーバインド設定ファイルの各バインディングブロックには `context` フィールドがあり、キーバインドが適用される UI 状態を指定します。`Global`（アプリ全体）、`Chat`（チャット入力エリア）、`Autocomplete`（オートコンプリートメニュー表示中）、`Confirmation`（確認ダイアログ表示中）など多数のコンテキストが定義されています。",
-      "referenceUrl": "https://code.claude.com/docs/ja/keybindings"
+      "referenceUrl": "https://code.claude.com/docs/ja/keybindings",
+      "diagram": {
+        "type": "config",
+        "filepath": "~/.claude/keybindings.json",
+        "lines": [
+          {
+            "text": "{"
+          },
+          {
+            "text": "  \"Global\": {",
+            "highlight": true
+          },
+          {
+            "text": "    \"ctrl+l\": \"global:clear\""
+          },
+          {
+            "text": "  },"
+          },
+          {
+            "text": "  \"Chat\": {",
+            "highlight": true
+          },
+          {
+            "text": "    \"enter\": \"chat:submit\""
+          },
+          {
+            "text": "  },"
+          },
+          {
+            "text": "  \"Autocomplete\": {",
+            "highlight": true
+          },
+          {
+            "text": "    \"tab\": \"autocomplete:accept\""
+          },
+          {
+            "text": "  },"
+          },
+          {
+            "text": "  \"Confirmation\": {",
+            "highlight": true
+          },
+          {
+            "text": "    \"y\": \"confirmation:yes\""
+          },
+          {
+            "text": "  }"
+          },
+          {
+            "text": "}"
+          }
+        ]
+      }
     },
     {
       "id": "key-031",
@@ -17056,7 +19622,36 @@
       ],
       "correctIndex": 0,
       "explanation": "キーバインドの変更は `~/.claude/keybindings.json` で行います。`Chat` コンテキストのバインディングブロックに `\"cmd+enter\": \"chat:submit\"` を追加し、デフォルトの `Enter` を無効化するために `\"enter\": null` を設定します。設定ファイルの変更は自動検出され、再起動なしに反映されます。",
-      "referenceUrl": "https://code.claude.com/docs/ja/keybindings"
+      "referenceUrl": "https://code.claude.com/docs/ja/keybindings",
+      "diagram": {
+        "type": "config",
+        "filepath": "~/.claude/keybindings.json",
+        "lines": [
+          {
+            "text": "{"
+          },
+          {
+            "text": "  \"Chat\": {"
+          },
+          {
+            "text": "    \"cmd+enter\": \"chat:submit\",",
+            "highlight": true
+          },
+          {
+            "text": "    \"enter\": null,",
+            "highlight": true
+          },
+          {
+            "text": "    \"shift+enter\": \"chat:newline\""
+          },
+          {
+            "text": "  }"
+          },
+          {
+            "text": "}"
+          }
+        ]
+      }
     },
     {
       "id": "key-035",
@@ -17468,7 +20063,24 @@
       ],
       "correctIndex": 2,
       "explanation": "`--append-system-prompt` を使うと、Claude Code のデフォルトのシステムプロンプトを維持しながら追加の指示を付加できます。例: `gh pr diff \"$1\" | claude -p --append-system-prompt \"You are a security engineer. Review for vulnerabilities.\" --output-format json`。一方、`--system-prompt` はデフォルトプロンプトを完全に置き換えます。",
-      "referenceUrl": "https://code.claude.com/docs/ja/headless"
+      "referenceUrl": "https://code.claude.com/docs/ja/headless",
+      "diagram": {
+        "type": "terminal",
+        "lines": [
+          {
+            "type": "command",
+            "text": "gh pr diff 123 | claude -p \\"
+          },
+          {
+            "type": "command",
+            "text": "  --append-system-prompt \\"
+          },
+          {
+            "type": "command",
+            "text": "  \"You are a security engineer\""
+          }
+        ]
+      }
     },
     {
       "id": "ext-131",
@@ -17589,7 +20201,47 @@
       ],
       "correctIndex": 1,
       "explanation": "イベントタイプごとに matcher の照合対象が異なります。`SessionStart` は `startup`、`resume`、`clear`、`compact` で照合します。例えば `compact` を matcher に設定すれば、コンパクション後にのみ発火するフックを作成でき、重要なコンテキストを再注入するユースケースに活用できます。",
-      "referenceUrl": "https://code.claude.com/docs/ja/hooks-guide"
+      "referenceUrl": "https://code.claude.com/docs/ja/hooks-guide",
+      "diagram": {
+        "type": "config",
+        "filepath": ".claude/settings.json",
+        "lines": [
+          {
+            "text": "{"
+          },
+          {
+            "text": "  \"hooks\": {"
+          },
+          {
+            "text": "    \"SessionStart\": [{"
+          },
+          {
+            "text": "      \"matcher\": \"compact\",",
+            "highlight": true
+          },
+          {
+            "text": "      \"hooks\": [{"
+          },
+          {
+            "text": "        \"type\": \"command\","
+          },
+          {
+            "text": "        \"command\": \"./inject-context.sh\""
+          },
+          {
+            "text": "      }]"
+          },
+          {
+            "text": "    }]"
+          },
+          {
+            "text": "  }"
+          },
+          {
+            "text": "}"
+          }
+        ]
+      }
     },
     {
       "id": "ext-134",
@@ -17754,7 +20406,23 @@
       ],
       "correctIndex": 2,
       "explanation": "プラグインの `settings.json` で `agent` キーを設定すると、`agents/` ディレクトリで定義したカスタムエージェントがメインスレッドとして有効化されます。これにより、そのエージェントのシステムプロンプト、ツール制限、モデルが Claude Code のデフォルトの振る舞いに適用されます。現在 `settings.json` でサポートされているキーは `agent` のみです。",
-      "referenceUrl": "https://code.claude.com/docs/ja/plugins"
+      "referenceUrl": "https://code.claude.com/docs/ja/plugins",
+      "diagram": {
+        "type": "config",
+        "filepath": "my-plugin/settings.json",
+        "lines": [
+          {
+            "text": "{"
+          },
+          {
+            "text": "  \"agent\": \"my-custom-agent\"",
+            "highlight": true
+          },
+          {
+            "text": "}"
+          }
+        ]
+      }
     },
     {
       "id": "ext-138",
@@ -17976,7 +20644,24 @@
       ],
       "correctIndex": 0,
       "explanation": "Chrome 連携では、`claude --chrome` で起動するか `/chrome` で有効化した後、Claude にブラウザ操作を直接指示できます。Claude は `localhost:3000` などのローカルサーバーにアクセスし、フォームへの入力、ボタンのクリック、エラーメッセージの確認を自動で行います。",
-      "referenceUrl": "https://code.claude.com/docs/ja/chrome"
+      "referenceUrl": "https://code.claude.com/docs/ja/chrome",
+      "diagram": {
+        "type": "terminal",
+        "lines": [
+          {
+            "type": "command",
+            "text": "claude --chrome"
+          },
+          {
+            "type": "prompt",
+            "text": "localhost:3000のフォームをテストして"
+          },
+          {
+            "type": "response",
+            "text": "ブラウザでページを開きます..."
+          }
+        ]
+      }
     },
     {
       "id": "ext-145",
@@ -18420,7 +21105,28 @@
       ],
       "correctIndex": 2,
       "explanation": "外部ターミナルから Claude Code を起動した場合、`/ide` コマンドを実行することで JetBrains IDE に接続し、すべての統合機能（diff 表示、コンテキスト共有、診断共有など）を有効化できます。IDE のプロジェクトルートと同じディレクトリから Claude Code を起動することで、同じファイルにアクセスできるようになります。",
-      "referenceUrl": "https://code.claude.com/docs/ja/jetbrains"
+      "referenceUrl": "https://code.claude.com/docs/ja/jetbrains",
+      "diagram": {
+        "type": "terminal",
+        "lines": [
+          {
+            "type": "command",
+            "text": "claude"
+          },
+          {
+            "type": "prompt",
+            "text": "/ide"
+          },
+          {
+            "type": "info",
+            "text": "Connected to IntelliJ IDEA"
+          },
+          {
+            "type": "info",
+            "text": "Diff view and diagnostics enabled"
+          }
+        ]
+      }
     },
     {
       "id": "tool-064",
@@ -18790,7 +21496,35 @@
       ],
       "correctIndex": 0,
       "explanation": "カスタム出力スタイルはデフォルトでソフトウェアエンジニアリング関連のシステムプロンプト指示（テストでの検証、コード変更前のファイル確認など）を除外します。`keep-coding-instructions: true` を frontmatter で設定すると、これらのコーディング指示が維持されたままカスタムスタイルの指示が追加されます。コーディング支援を継続しつつスタイルだけ変えたい場合に有効です。",
-      "referenceUrl": "https://code.claude.com/docs/ja/output-styles"
+      "referenceUrl": "https://code.claude.com/docs/ja/output-styles",
+      "diagram": {
+        "type": "config",
+        "filepath": "~/.claude/styles/concise.md",
+        "lines": [
+          {
+            "text": "---"
+          },
+          {
+            "text": "description: Concise output style"
+          },
+          {
+            "text": "keep-coding-instructions: true",
+            "highlight": true
+          },
+          {
+            "text": "---"
+          },
+          {
+            "text": ""
+          },
+          {
+            "text": "Be concise. Use bullet points."
+          },
+          {
+            "text": "Avoid unnecessary verbosity."
+          }
+        ]
+      }
     },
     {
       "id": "key-039",
@@ -19132,7 +21866,48 @@
       ],
       "correctIndex": 0,
       "explanation": "`dontAsk` モードは `/permissions` や `permissions.allow` ルールで事前に許可されたツールのみを実行可能にし、許可されていないツールの使用は確認なしで自動拒否します。CI/CD パイプラインなど対話的な確認が不要な環境で使用されます。なお、`dontAsk` モードは CLI のみで利用可能で、Desktop アプリでは利用できません。",
-      "referenceUrl": "https://code.claude.com/docs/ja/permissions"
+      "referenceUrl": "https://code.claude.com/docs/ja/permissions",
+      "diagram": {
+        "type": "config",
+        "filepath": ".claude/settings.json",
+        "lines": [
+          {
+            "text": "{"
+          },
+          {
+            "text": "  \"defaultMode\": \"dontAsk\",",
+            "highlight": true
+          },
+          {
+            "text": "  \"permissions\": {"
+          },
+          {
+            "text": "    \"allow\": [",
+            "highlight": true
+          },
+          {
+            "text": "      \"Bash(npm test)\",",
+            "highlight": true
+          },
+          {
+            "text": "      \"Read\",",
+            "highlight": true
+          },
+          {
+            "text": "      \"Grep\"",
+            "highlight": true
+          },
+          {
+            "text": "    ]"
+          },
+          {
+            "text": "  }"
+          },
+          {
+            "text": "}"
+          }
+        ]
+      }
     },
     {
       "id": "ses-128",
@@ -19397,7 +22172,38 @@
       ],
       "correctIndex": 2,
       "explanation": "`disable-model-invocation: true` を設定すると、Claude がタスクの文脈に応じて自動的にその Skills を呼び出すことが防止されます。ユーザーが明示的に `/skill-name` を入力した場合のみ実行されます。",
-      "referenceUrl": "https://code.claude.com/docs/ja/features-overview"
+      "referenceUrl": "https://code.claude.com/docs/ja/features-overview",
+      "diagram": {
+        "type": "config",
+        "filepath": ".claude/skills/deploy/SKILL.md",
+        "lines": [
+          {
+            "text": "---"
+          },
+          {
+            "text": "description: Deploy to production"
+          },
+          {
+            "text": "disable-model-invocation: true",
+            "highlight": true
+          },
+          {
+            "text": "allowed-tools:"
+          },
+          {
+            "text": "  - Bash"
+          },
+          {
+            "text": "---"
+          },
+          {
+            "text": ""
+          },
+          {
+            "text": "Deploy $ARGUMENTS to production."
+          }
+        ]
+      }
     },
     {
       "id": "skill-047",
@@ -20312,7 +23118,43 @@
       ],
       "correctIndex": 3,
       "explanation": "`--scope project` はプラグインのエントリを `.claude/settings.json` の `enabledPlugins` に追加します。この設定ファイルはバージョン管理の対象となるため、リポジトリをクローンしたチームメンバーにも同じプラグインが適用されます。",
-      "referenceUrl": "https://code.claude.com/docs/ja/plugins-reference"
+      "referenceUrl": "https://code.claude.com/docs/ja/plugins-reference",
+      "diagram": {
+        "type": "config",
+        "filepath": ".claude/settings.json",
+        "lines": [
+          {
+            "text": "{"
+          },
+          {
+            "text": "  \"enabledPlugins\": [",
+            "highlight": true
+          },
+          {
+            "text": "    \"anthropic:code-intel-ts\",",
+            "highlight": true
+          },
+          {
+            "text": "    \"anthropic:code-review\"",
+            "highlight": true
+          },
+          {
+            "text": "  ],"
+          },
+          {
+            "text": "  \"permissions\": {"
+          },
+          {
+            "text": "    \"allow\": []"
+          },
+          {
+            "text": "  }"
+          },
+          {
+            "text": "}"
+          }
+        ]
+      }
     },
     {
       "id": "ext-152",
@@ -20364,7 +23206,47 @@
       ],
       "correctIndex": 3,
       "explanation": "マーケットプレイスからインストールされたプラグインは `~/.claude/plugins/cache` にコピーされます。元のディレクトリ構造とは異なる場所に配置されるため、スクリプトパスの参照に `${CLAUDE_PLUGIN_ROOT}` を使用して、実際のインストール先を動的に解決する必要があります。",
-      "referenceUrl": "https://code.claude.com/docs/ja/plugins-reference"
+      "referenceUrl": "https://code.claude.com/docs/ja/plugins-reference",
+      "diagram": {
+        "type": "config",
+        "filepath": "my-plugin/settings.json",
+        "lines": [
+          {
+            "text": "{"
+          },
+          {
+            "text": "  \"hooks\": {"
+          },
+          {
+            "text": "    \"PostToolUse\": [{"
+          },
+          {
+            "text": "      \"matcher\": \"Edit\","
+          },
+          {
+            "text": "      \"hooks\": [{"
+          },
+          {
+            "text": "        \"type\": \"command\","
+          },
+          {
+            "text": "        \"command\": \"${CLAUDE_PLUGIN_ROOT}/scripts/lint.sh\"",
+            "highlight": true
+          },
+          {
+            "text": "      }]"
+          },
+          {
+            "text": "    }]"
+          },
+          {
+            "text": "  }"
+          },
+          {
+            "text": "}"
+          }
+        ]
+      }
     },
     {
       "id": "ext-154",
@@ -20542,7 +23424,24 @@
       ],
       "correctIndex": 1,
       "explanation": "`claude --remote \"タスクの説明\"`でclaude.ai上に新しいWebセッションが作成されます。タスクはクラウドで実行され、`/tasks`で進捗を確認したり、モバイルアプリからモニタリングできます。複数の`--remote`コマンドを同時に実行して並列作業も可能です。",
-      "referenceUrl": "https://code.claude.com/docs/ja/claude-code-on-the-web"
+      "referenceUrl": "https://code.claude.com/docs/ja/claude-code-on-the-web",
+      "diagram": {
+        "type": "terminal",
+        "lines": [
+          {
+            "type": "command",
+            "text": "claude --remote \"add unit tests for auth\""
+          },
+          {
+            "type": "info",
+            "text": "Created web session on claude.ai"
+          },
+          {
+            "type": "info",
+            "text": "Monitor with /tasks"
+          }
+        ]
+      }
     },
     {
       "id": "ses-146",
@@ -20716,7 +23615,28 @@
       ],
       "correctIndex": 3,
       "explanation": "Claude Code対話セッション内で`/tasks`を実行すると、バックグラウンドで実行中のWebセッション一覧が表示されます。そこから`t`キーでセッションにテレポートすることも可能です。",
-      "referenceUrl": "https://code.claude.com/docs/ja/claude-code-on-the-web"
+      "referenceUrl": "https://code.claude.com/docs/ja/claude-code-on-the-web",
+      "diagram": {
+        "type": "terminal",
+        "lines": [
+          {
+            "type": "prompt",
+            "text": "/tasks"
+          },
+          {
+            "type": "info",
+            "text": "Web sessions:"
+          },
+          {
+            "type": "info",
+            "text": "> fix-auth (running)"
+          },
+          {
+            "type": "info",
+            "text": "  add-tests (complete)"
+          }
+        ]
+      }
     },
     {
       "id": "ext-155",
@@ -21448,7 +24368,32 @@
       ],
       "correctIndex": 1,
       "explanation": "インストーラーはバイナリを`~/.local/bin/claude`に配置します。このディレクトリがシェルのPATHに含まれていない場合、`command not found`エラーが発生します。シェル設定ファイル（`.zshrc`や`.bashrc`）にPATHを追加し、ターミナルを再起動すると解決します。",
-      "referenceUrl": "https://code.claude.com/docs/ja/troubleshooting"
+      "referenceUrl": "https://code.claude.com/docs/ja/troubleshooting",
+      "diagram": {
+        "type": "terminal",
+        "lines": [
+          {
+            "type": "command",
+            "text": "claude"
+          },
+          {
+            "type": "info",
+            "text": "command not found: claude"
+          },
+          {
+            "type": "command",
+            "text": "export PATH=\"$HOME/.local/bin:$PATH\""
+          },
+          {
+            "type": "command",
+            "text": "claude --version"
+          },
+          {
+            "type": "info",
+            "text": "claude v2.1.70"
+          }
+        ]
+      }
     },
     {
       "id": "cmd-096",
@@ -21474,7 +24419,36 @@
       ],
       "correctIndex": 1,
       "explanation": "`Killed`メッセージはLinuxのOOMキラーがメモリ不足でプロセスを強制終了したことを示します。Claude Codeには少なくとも4GBのRAMが必要です。スワップ領域の追加（例: `sudo fallocate -l 2G /swapfile && sudo mkswap /swapfile && sudo swapon /swapfile`）でメモリの不足を補えます。",
-      "referenceUrl": "https://code.claude.com/docs/ja/troubleshooting"
+      "referenceUrl": "https://code.claude.com/docs/ja/troubleshooting",
+      "diagram": {
+        "type": "terminal",
+        "lines": [
+          {
+            "type": "command",
+            "text": "curl -fsSL https://claude.ai/install.sh | sh"
+          },
+          {
+            "type": "info",
+            "text": "Killed (メモリ不足)"
+          },
+          {
+            "type": "command",
+            "text": "sudo fallocate -l 2G /swapfile"
+          },
+          {
+            "type": "command",
+            "text": "sudo mkswap /swapfile && sudo swapon /swapfile"
+          },
+          {
+            "type": "command",
+            "text": "curl -fsSL https://claude.ai/install.sh | sh"
+          },
+          {
+            "type": "info",
+            "text": "Claude Code installed successfully"
+          }
+        ]
+      }
     },
     {
       "id": "cmd-097",
@@ -21500,7 +24474,32 @@
       ],
       "correctIndex": 0,
       "explanation": "ルート（`/`）からインストーラーを実行すると、ファイルシステム全体をスキャンして過剰なメモリを消費しハングします。Dockerfileで`WORKDIR /tmp`を設定してからインストーラーを実行することで、スキャン範囲を限定し問題を回避できます。",
-      "referenceUrl": "https://code.claude.com/docs/ja/troubleshooting"
+      "referenceUrl": "https://code.claude.com/docs/ja/troubleshooting",
+      "diagram": {
+        "type": "terminal",
+        "lines": [
+          {
+            "type": "info",
+            "text": "# Dockerfile (NG: WORKDIR /)"
+          },
+          {
+            "type": "command",
+            "text": "curl ... | sh  # hangs"
+          },
+          {
+            "type": "info",
+            "text": "# Dockerfile (OK: WORKDIR /tmp)"
+          },
+          {
+            "type": "command",
+            "text": "curl -fsSL https://claude.ai/install.sh | sh"
+          },
+          {
+            "type": "info",
+            "text": "Claude Code installed successfully"
+          }
+        ]
+      }
     },
     {
       "id": "cmd-098",
@@ -21526,7 +24525,36 @@
       ],
       "correctIndex": 3,
       "explanation": "`irm`（Invoke-RestMethod）はPowerShellのコマンドレットです。CMD（コマンドプロンプト）で実行すると`irm is not recognized`エラーが発生します。PowerShellを開いて実行するか、CMD用のインストールコマンド（`curl -fsSL https://claude.ai/install.cmd -o install.cmd && install.cmd && del install.cmd`）を使用してください。",
-      "referenceUrl": "https://code.claude.com/docs/ja/troubleshooting"
+      "referenceUrl": "https://code.claude.com/docs/ja/troubleshooting",
+      "diagram": {
+        "type": "terminal",
+        "lines": [
+          {
+            "type": "info",
+            "text": "# CMD → エラー"
+          },
+          {
+            "type": "command",
+            "text": "irm https://claude.ai/install.ps1 | iex"
+          },
+          {
+            "type": "info",
+            "text": "'irm' is not recognized..."
+          },
+          {
+            "type": "info",
+            "text": "# PowerShell → 成功"
+          },
+          {
+            "type": "command",
+            "text": "irm https://claude.ai/install.ps1 | iex"
+          },
+          {
+            "type": "info",
+            "text": "Installing Claude Code..."
+          }
+        ]
+      }
     },
     {
       "id": "cmd-099",
@@ -21812,7 +24840,24 @@
       ],
       "correctIndex": 2,
       "explanation": "ネイティブインストーラー（`curl ... | bash`）がうまくいかない場合、macOSとLinuxでは`brew install --cask claude-code`が代替方法として利用可能です。Windowsでは`winget install Anthropic.ClaudeCode`が代替方法です。",
-      "referenceUrl": "https://code.claude.com/docs/ja/troubleshooting"
+      "referenceUrl": "https://code.claude.com/docs/ja/troubleshooting",
+      "diagram": {
+        "type": "terminal",
+        "lines": [
+          {
+            "type": "command",
+            "text": "brew install --cask claude-code"
+          },
+          {
+            "type": "info",
+            "text": "Installing claude-code..."
+          },
+          {
+            "type": "info",
+            "text": "(手動更新: brew upgrade claude-code)"
+          }
+        ]
+      }
     },
     {
       "id": "cmd-101",
@@ -21935,7 +24980,45 @@
       ],
       "correctIndex": 3,
       "explanation": "`ConfigChange`フックはセッション中にユーザーが設定を変更しようとした際に発火するイベントです。チームセキュリティの一環として、セッション中の設定変更を監査ログに記録したり、不正な変更をブロックしたりするために使用されます。",
-      "referenceUrl": "https://code.claude.com/docs/ja/security"
+      "referenceUrl": "https://code.claude.com/docs/ja/security",
+      "diagram": {
+        "type": "config",
+        "filepath": ".claude/settings.json",
+        "lines": [
+          {
+            "text": "{"
+          },
+          {
+            "text": "  \"hooks\": {"
+          },
+          {
+            "text": "    \"ConfigChange\": [{",
+            "highlight": true
+          },
+          {
+            "text": "      \"hooks\": [{"
+          },
+          {
+            "text": "        \"type\": \"command\","
+          },
+          {
+            "text": "        \"command\": \"./audit-config.sh\"",
+            "highlight": true
+          },
+          {
+            "text": "      }]"
+          },
+          {
+            "text": "    }]"
+          },
+          {
+            "text": "  }"
+          },
+          {
+            "text": "}"
+          }
+        ]
+      }
     },
     {
       "id": "bp-068",
@@ -21987,7 +25070,28 @@
       ],
       "correctIndex": 3,
       "explanation": "Claude Codeの対話セッション内で`/teleport`（または`/tp`）を実行すると、Webセッションのインタラクティブピッカーが表示されます。選択するとリポジトリの検証、ブランチのフェッチとチェックアウト、会話履歴の読み込みが自動的に行われます。",
-      "referenceUrl": "https://code.claude.com/docs/ja/claude-code-on-the-web"
+      "referenceUrl": "https://code.claude.com/docs/ja/claude-code-on-the-web",
+      "diagram": {
+        "type": "terminal",
+        "lines": [
+          {
+            "type": "prompt",
+            "text": "/teleport"
+          },
+          {
+            "type": "info",
+            "text": "Web sessions:"
+          },
+          {
+            "type": "info",
+            "text": "> fix-auth-bug (main branch)"
+          },
+          {
+            "type": "info",
+            "text": "Fetching branch & history..."
+          }
+        ]
+      }
     },
     {
       "id": "bp-069",
@@ -22471,7 +25575,42 @@
       ],
       "correctIndex": 3,
       "explanation": "ルールファイルはMarkdown（.md）形式で作成します。ファイルの先頭にYAMLフロントマターを記述することで、pathsフィールド（適用対象のglobパターン）を設定して特定ファイルにのみ適用するルールを作れます。pathsが設定されていないルールは起動時に無条件で読み込まれます。",
-      "referenceUrl": "https://code.claude.com/docs/ja/memory#path-specific-rules"
+      "referenceUrl": "https://code.claude.com/docs/ja/memory#path-specific-rules",
+      "diagram": {
+        "type": "config",
+        "filepath": ".claude/rules/frontend.md",
+        "lines": [
+          {
+            "text": "---"
+          },
+          {
+            "text": "paths:"
+          },
+          {
+            "text": "  - \"src/components/**/*.tsx\""
+          },
+          {
+            "text": "---",
+            "highlight": true
+          },
+          {
+            "text": ""
+          },
+          {
+            "text": "# Frontend Rules",
+            "highlight": true
+          },
+          {
+            "text": ""
+          },
+          {
+            "text": "- Use functional components"
+          },
+          {
+            "text": "- Prefer Tailwind CSS classes"
+          }
+        ]
+      }
     },
     {
       "id": "mem-045",
@@ -22549,7 +25688,46 @@
       ],
       "correctIndex": 3,
       "explanation": "YAMLフロントマターのpathsフィールドにglobパターンを指定すると、そのルールは対象ファイルにClaudeがアクセスした時にのみコンテキストに読み込まれます。pathsが未設定のルールは起動時に無条件に読み込まれます。これにより、関係のないルールがコンテキストを消費することを防ぎ、必要なルールだけが適用されます。",
-      "referenceUrl": "https://code.claude.com/docs/ja/memory#path-specific-rules"
+      "referenceUrl": "https://code.claude.com/docs/ja/memory#path-specific-rules",
+      "diagram": {
+        "type": "config",
+        "filepath": ".claude/rules/testing.md",
+        "lines": [
+          {
+            "text": "---"
+          },
+          {
+            "text": "paths:",
+            "highlight": true
+          },
+          {
+            "text": "  - \"src/**/*.test.ts\"",
+            "highlight": true
+          },
+          {
+            "text": "  - \"tests/**/*.ts\"",
+            "highlight": true
+          },
+          {
+            "text": "---"
+          },
+          {
+            "text": ""
+          },
+          {
+            "text": "# Testing Rules"
+          },
+          {
+            "text": ""
+          },
+          {
+            "text": "- Use describe/it blocks"
+          },
+          {
+            "text": "- Mock external dependencies"
+          }
+        ]
+      }
     },
     {
       "id": "mem-048",
@@ -22601,7 +25779,32 @@
       ],
       "correctIndex": 3,
       "explanation": "`/memory`スラッシュコマンドを使うと、現在読み込まれている`CLAUDE.md`ファイルの一覧を確認し、内容の表示や編集を行えます。どのスコープ（Managed/Project/User/Local）のファイルが読み込まれているかを把握するのに便利です。",
-      "referenceUrl": "https://code.claude.com/docs/ja/memory#view-and-edit-with-memory"
+      "referenceUrl": "https://code.claude.com/docs/ja/memory#view-and-edit-with-memory",
+      "diagram": {
+        "type": "terminal",
+        "lines": [
+          {
+            "type": "prompt",
+            "text": "/memory"
+          },
+          {
+            "type": "info",
+            "text": "Loaded files:"
+          },
+          {
+            "type": "info",
+            "text": "  CLAUDE.md (project)"
+          },
+          {
+            "type": "info",
+            "text": "  ~/.claude/MEMORY.md (auto)"
+          },
+          {
+            "type": "info",
+            "text": "Auto Memory: ON"
+          }
+        ]
+      }
     },
     {
       "id": "mem-050",
@@ -22705,7 +25908,41 @@
       ],
       "correctIndex": 2,
       "explanation": "frontmatterの`model`フィールドは、スキルがアクティブな間に使用するモデルを指定します。例えば、複雑な分析タスクにはOpus、軽量なタスクにはSonnetを割り当てるなど、スキルごとに最適なモデルを選択できます。同様に`effort`フィールドでセッションのeffortレベルを上書きすることも可能です。",
-      "referenceUrl": "https://code.claude.com/docs/ja/skills#frontmatter-reference"
+      "referenceUrl": "https://code.claude.com/docs/ja/skills#frontmatter-reference",
+      "diagram": {
+        "type": "config",
+        "filepath": ".claude/skills/analyze/SKILL.md",
+        "lines": [
+          {
+            "text": "---"
+          },
+          {
+            "text": "description: Deep code analysis"
+          },
+          {
+            "text": "model: opus",
+            "highlight": true
+          },
+          {
+            "text": "allowed-tools:"
+          },
+          {
+            "text": "  - Read"
+          },
+          {
+            "text": "  - Grep"
+          },
+          {
+            "text": "---"
+          },
+          {
+            "text": ""
+          },
+          {
+            "text": "Analyze the codebase for $ARGUMENTS."
+          }
+        ]
+      }
     },
     {
       "id": "skill-058",
@@ -22731,7 +25968,42 @@
       ],
       "correctIndex": 1,
       "explanation": "スキル内容に`$ARGUMENTS`プレースホルダーが含まれている場合、ユーザーが渡した引数で置換されます。含まれていない場合は、末尾に`ARGUMENTS: <値>`として自動的に追加されるため、Claudeは常に引数を受け取れます。個別の引数には`$ARGUMENTS[N]`または短縮形`$N`でアクセスできます（例：`$0`で最初の引数）。",
-      "referenceUrl": "https://code.claude.com/docs/ja/skills#pass-arguments-to-skills"
+      "referenceUrl": "https://code.claude.com/docs/ja/skills#pass-arguments-to-skills",
+      "diagram": {
+        "type": "config",
+        "filepath": ".claude/skills/greet/SKILL.md",
+        "lines": [
+          {
+            "text": "---"
+          },
+          {
+            "text": "description: Greet a user by name"
+          },
+          {
+            "text": "argument-hint: \"[username]\""
+          },
+          {
+            "text": "---"
+          },
+          {
+            "text": ""
+          },
+          {
+            "text": "Say hello to $ARGUMENTS.",
+            "highlight": true
+          },
+          {
+            "text": ""
+          },
+          {
+            "text": "# Usage: /greet Alice"
+          },
+          {
+            "text": "# $ARGUMENTS becomes \"Alice\"",
+            "highlight": true
+          }
+        ]
+      }
     },
     {
       "id": "skill-059",
@@ -22809,7 +26081,44 @@
       ],
       "correctIndex": 2,
       "explanation": "スキルのfrontmatterで`effort`フィールドを設定すると、セッションのeffortレベルを上書きできます。選択肢は`low`、`medium`、`high`、`max`の4つで、`max`はOpus 4.6でのみ使用可能です。これにより、高精度が必要なスキルにはより高いeffortを、軽量なスキルにはより低いeffortを割り当てることができます。",
-      "referenceUrl": "https://code.claude.com/docs/ja/skills#frontmatter-reference"
+      "referenceUrl": "https://code.claude.com/docs/ja/skills#frontmatter-reference",
+      "diagram": {
+        "type": "config",
+        "filepath": ".claude/skills/deep-review/SKILL.md",
+        "lines": [
+          {
+            "text": "---"
+          },
+          {
+            "text": "description: Thorough code review"
+          },
+          {
+            "text": "model: opus"
+          },
+          {
+            "text": "effort: max",
+            "highlight": true
+          },
+          {
+            "text": "allowed-tools:"
+          },
+          {
+            "text": "  - Read"
+          },
+          {
+            "text": "  - Grep"
+          },
+          {
+            "text": "---"
+          },
+          {
+            "text": ""
+          },
+          {
+            "text": "Perform a deep review of $ARGUMENTS."
+          }
+        ]
+      }
     },
     {
       "id": "tool-065",
@@ -23017,7 +26326,24 @@
       ],
       "correctIndex": 0,
       "explanation": "`/btw`は会話履歴に入らない簡単な質問のためのコマンドです。回答は却下可能なオーバーレイに表示され、会話履歴に追加されないため、コンテキストを増やさずに詳細をチェックできます。ただし、コンテキスト内の情報のみから回答するため、ファイル読み取りやコマンド実行などのツールは使用できません。Claude作業中でも使えます。",
-      "referenceUrl": "https://code.claude.com/docs/ja/best-practices"
+      "referenceUrl": "https://code.claude.com/docs/ja/best-practices",
+      "diagram": {
+        "type": "terminal",
+        "lines": [
+          {
+            "type": "prompt",
+            "text": "/btw TypeScriptのRecord型の使い方は？"
+          },
+          {
+            "type": "info",
+            "text": "[オーバーレイ表示 - 会話履歴に入らない]"
+          },
+          {
+            "type": "response",
+            "text": "Record<K, V> は..."
+          }
+        ]
+      }
     },
     {
       "id": "bp-075",
@@ -23043,7 +26369,24 @@
       ],
       "correctIndex": 1,
       "explanation": "`/compact <instructions>` は自然言語の指示を引数として渡せます。例えば `/compact Focus on the API changes` のように、何を重点的に保持すべきかを指示できます。これにより、単純な圧縮ではなく、重要なコンテキストを選択的に保持したコンパクションが可能になります。",
-      "referenceUrl": "https://code.claude.com/docs/ja/best-practices"
+      "referenceUrl": "https://code.claude.com/docs/ja/best-practices",
+      "diagram": {
+        "type": "terminal",
+        "lines": [
+          {
+            "type": "prompt",
+            "text": "/compact Focus on the API changes"
+          },
+          {
+            "type": "response",
+            "text": "Compacting with focus on API..."
+          },
+          {
+            "type": "info",
+            "text": "Context: 92% → 38%"
+          }
+        ]
+      }
     },
     {
       "id": "bp-076",
@@ -23069,7 +26412,28 @@
       ],
       "correctIndex": 3,
       "explanation": "`Esc+Esc` または `/rewind` を使ってメッセージチェックポイントを選択し、「ここから要約」（Summarize from here）を選ぶと、そのポイント以降のメッセージが凝縮され、以前のコンテキストは保持されます。これにより、序盤の重要な指示を維持しながら、中盤の冗長な部分のみを圧縮できます。",
-      "referenceUrl": "https://code.claude.com/docs/ja/best-practices"
+      "referenceUrl": "https://code.claude.com/docs/ja/best-practices",
+      "diagram": {
+        "type": "terminal",
+        "lines": [
+          {
+            "type": "info",
+            "text": "[Esc×2] チェックポイント選択"
+          },
+          {
+            "type": "info",
+            "text": "> Message 5: デバッグ開始"
+          },
+          {
+            "type": "info",
+            "text": "Actions: Restore / Summarize"
+          },
+          {
+            "type": "info",
+            "text": "> Summarize from here"
+          }
+        ]
+      }
     },
     {
       "id": "bp-077",
@@ -23329,7 +26693,28 @@
       ],
       "correctIndex": 1,
       "explanation": "`CLAUDE.md`の指示が守られない場合、まず`/memory`で対象ファイルが読み込まれているか確認します。読み込まれていない場合は配置場所が正しくない可能性があります。次に指示をより具体的にし、矛盾する指示がないか確認します。",
-      "referenceUrl": "https://code.claude.com/docs/ja/memory#troubleshoot-memory-issues"
+      "referenceUrl": "https://code.claude.com/docs/ja/memory#troubleshoot-memory-issues",
+      "diagram": {
+        "type": "terminal",
+        "lines": [
+          {
+            "type": "prompt",
+            "text": "/memory"
+          },
+          {
+            "type": "info",
+            "text": "  ✓ ./CLAUDE.md"
+          },
+          {
+            "type": "info",
+            "text": "  ✗ ./src/CLAUDE.md (not found)"
+          },
+          {
+            "type": "info",
+            "text": "Check file placement"
+          }
+        ]
+      }
     },
     {
       "id": "mem-059",
@@ -23381,7 +26766,32 @@
       ],
       "correctIndex": 0,
       "explanation": "セキュリティ上の理由で、`autoMemoryDirectory`はプロジェクト設定（`.claude/settings.json`）からは受け付けられません。共有プロジェクトがAuto Memoryの書き込み先を機密性の高い場所にリダイレクトするのを防ぐため、ユーザー、ローカル、またはポリシー設定からのみ指定可能です。",
-      "referenceUrl": "https://code.claude.com/docs/ja/memory#auto-memory"
+      "referenceUrl": "https://code.claude.com/docs/ja/memory#auto-memory",
+      "diagram": {
+        "type": "config",
+        "filepath": "~/.claude/settings.json",
+        "lines": [
+          {
+            "text": "{"
+          },
+          {
+            "text": "  \"autoMemoryDirectory\": \"~/notes/claude\",",
+            "highlight": true
+          },
+          {
+            "text": "  \"permissions\": {"
+          },
+          {
+            "text": "    \"allow\": []"
+          },
+          {
+            "text": "  }"
+          },
+          {
+            "text": "}"
+          }
+        ]
+      }
     },
     {
       "id": "mem-061",
@@ -23433,7 +26843,24 @@
       ],
       "correctIndex": 1,
       "explanation": "`/clear` コマンドは会話履歴をクリアしてコンテキストを解放します。`/reset` と `/new` はエイリアスとして同じ動作をします。",
-      "referenceUrl": "https://code.claude.com/docs/ja/commands"
+      "referenceUrl": "https://code.claude.com/docs/ja/commands",
+      "diagram": {
+        "type": "terminal",
+        "lines": [
+          {
+            "type": "prompt",
+            "text": "/clear"
+          },
+          {
+            "type": "info",
+            "text": "Conversation cleared."
+          },
+          {
+            "type": "info",
+            "text": "(aliases: /reset, /new)"
+          }
+        ]
+      }
     },
     {
       "id": "cmd-104",
@@ -23459,7 +26886,24 @@
       ],
       "correctIndex": 2,
       "explanation": "`/effort` コマンドでは `low`, `medium`, `high`, `max`, `auto` を指定できます。`low`, `medium`, `high` はセッション間で永続化されますが、`max` は現在のセッションのみに適用され、Opus 4.6 が必要です。`auto` はモデルのデフォルトにリセットします。",
-      "referenceUrl": "https://code.claude.com/docs/ja/commands"
+      "referenceUrl": "https://code.claude.com/docs/ja/commands",
+      "diagram": {
+        "type": "terminal",
+        "lines": [
+          {
+            "type": "prompt",
+            "text": "/effort max"
+          },
+          {
+            "type": "info",
+            "text": "Effort level set to max (Opus 4.6 only)"
+          },
+          {
+            "type": "info",
+            "text": "Applies to current session only"
+          }
+        ]
+      }
     },
     {
       "id": "cmd-105",
@@ -23485,7 +26929,24 @@
       ],
       "correctIndex": 3,
       "explanation": "`/copy` コマンドでコードブロックが含まれる場合、インタラクティブピッカーが表示されます。ピッカーで `w` キーを押すと、選択内容をクリップボードではなくファイルに書き出すことができます。これは SSH 接続時に特に便利です。",
-      "referenceUrl": "https://code.claude.com/docs/ja/commands"
+      "referenceUrl": "https://code.claude.com/docs/ja/commands",
+      "diagram": {
+        "type": "terminal",
+        "lines": [
+          {
+            "type": "prompt",
+            "text": "/copy"
+          },
+          {
+            "type": "info",
+            "text": "[1] TypeScript block  [2] Full response"
+          },
+          {
+            "type": "info",
+            "text": "Press w to write to file"
+          }
+        ]
+      }
     },
     {
       "id": "cmd-106",
@@ -23511,7 +26972,28 @@
       ],
       "correctIndex": 2,
       "explanation": "`CLAUDE_CODE_NEW_INIT=1` を設定すると、`/init` コマンドがインタラクティブなセットアップフローを起動します。このフローでは `CLAUDE.md`、スキル、フックなどの生成するファイルを対話的に選択でき、コードベースを探索した上でファイルを作成します。",
-      "referenceUrl": "https://code.claude.com/docs/ja/commands"
+      "referenceUrl": "https://code.claude.com/docs/ja/commands",
+      "diagram": {
+        "type": "terminal",
+        "lines": [
+          {
+            "type": "command",
+            "text": "CLAUDE_CODE_NEW_INIT=1 claude"
+          },
+          {
+            "type": "prompt",
+            "text": "/init"
+          },
+          {
+            "type": "info",
+            "text": "Select files to generate:"
+          },
+          {
+            "type": "info",
+            "text": "[x] CLAUDE.md  [x] Skills  [ ] Hooks"
+          }
+        ]
+      }
     },
     {
       "id": "cmd-107",
@@ -23537,7 +27019,28 @@
       ],
       "correctIndex": 0,
       "explanation": "MCP サーバーはプロンプトをコマンドとして公開でき、これらは `/mcp__<server>__<prompt>` の形式で動的に検出されます。",
-      "referenceUrl": "https://code.claude.com/docs/ja/commands"
+      "referenceUrl": "https://code.claude.com/docs/ja/commands",
+      "diagram": {
+        "type": "terminal",
+        "lines": [
+          {
+            "type": "prompt",
+            "text": "/mcp__github__create-issue"
+          },
+          {
+            "type": "info",
+            "text": "Arguments:"
+          },
+          {
+            "type": "info",
+            "text": "  title: \"Fix login bug\""
+          },
+          {
+            "type": "response",
+            "text": "Issue #42 created successfully"
+          }
+        ]
+      }
     },
     {
       "id": "ses-178",
@@ -23563,7 +27066,32 @@
       ],
       "correctIndex": 0,
       "explanation": "`CLAUDECODE` 環境変数は、Claude Code が起動したシェル環境（`Bash` ツール、tmux セッション）内で自動的に `1` に設定されます。ただし、フックやステータスラインのコマンドでは設定されません。",
-      "referenceUrl": "https://code.claude.com/docs/ja/env-vars"
+      "referenceUrl": "https://code.claude.com/docs/ja/env-vars",
+      "diagram": {
+        "type": "terminal",
+        "lines": [
+          {
+            "type": "prompt",
+            "text": "テスト用のスクリプトを実行して"
+          },
+          {
+            "type": "info",
+            "text": "→ Bash: ./test.sh"
+          },
+          {
+            "type": "info",
+            "text": "  (env: CLAUDECODE=1)"
+          },
+          {
+            "type": "info",
+            "text": "# test.sh 内で環境を判定:"
+          },
+          {
+            "type": "info",
+            "text": "if [ \"$CLAUDECODE\" = \"1\" ]; then ..."
+          }
+        ]
+      }
     },
     {
       "id": "ses-179",
@@ -24187,7 +27715,28 @@
       ],
       "correctIndex": 1,
       "explanation": "公式ベストプラクティスでは「Run `/init` to generate a starter file（`/init` を実行してスターターファイルを生成せよ）」と推奨しています。`/init` はプロジェクトのビルドシステム、テストフレームワーク、コードパターンを検出して初期テンプレートを自動生成します。生成された内容を出発点として、不要な記述を削除し、プロジェクト固有の規約を追加していくのが効率的です。",
-      "referenceUrl": "https://code.claude.com/docs/ja/best-practices"
+      "referenceUrl": "https://code.claude.com/docs/ja/best-practices",
+      "diagram": {
+        "type": "terminal",
+        "lines": [
+          {
+            "type": "command",
+            "text": "claude"
+          },
+          {
+            "type": "prompt",
+            "text": "/init"
+          },
+          {
+            "type": "response",
+            "text": "Detected: TypeScript, Vitest, ESLint"
+          },
+          {
+            "type": "response",
+            "text": "Created CLAUDE.md"
+          }
+        ]
+      }
     },
     {
       "id": "mem-073",
@@ -24291,7 +27840,24 @@
       ],
       "correctIndex": 0,
       "explanation": "CLIでは`Shift+Tab`を押すことで`default`→`acceptEdits`→`plan`の順にパーミッションモードを切り替えられます。また、有効化した`auto`や`bypassPermissions`などのモードもサイクルに含まれます。`Alt+M`は一部設定環境のみで動作します。",
-      "referenceUrl": "https://code.claude.com/docs/ja/permission-modes"
+      "referenceUrl": "https://code.claude.com/docs/ja/permission-modes",
+      "diagram": {
+        "type": "terminal",
+        "lines": [
+          {
+            "type": "info",
+            "text": "[Shift+Tab] モード切替"
+          },
+          {
+            "type": "info",
+            "text": "default → acceptEdits → plan → ..."
+          },
+          {
+            "type": "info",
+            "text": "Current: acceptEdits"
+          }
+        ]
+      }
     },
     {
       "id": "ext-164",
@@ -24681,7 +28247,32 @@
       ],
       "correctIndex": 0,
       "explanation": "Chrome 拡張機能「Claude in Chrome」をインストールすると、`claude --chrome` または `/chrome` で起動でき、Claude Code からブラウザのコンソールエラーや DOM の状態を読み取り、Web アプリのデバッグ・テスト・ブラウザ操作の自動化が可能になります。Google Chrome と Microsoft Edge をサポートしています。",
-      "referenceUrl": "https://code.claude.com/docs/ja/chrome"
+      "referenceUrl": "https://code.claude.com/docs/ja/chrome",
+      "diagram": {
+        "type": "terminal",
+        "lines": [
+          {
+            "type": "command",
+            "text": "claude --chrome"
+          },
+          {
+            "type": "prompt",
+            "text": "コンソールエラーを確認して"
+          },
+          {
+            "type": "response",
+            "text": "Chrome からコンソールログを取得..."
+          },
+          {
+            "type": "info",
+            "text": "Error: Cannot read property 'user'"
+          },
+          {
+            "type": "response",
+            "text": "認証トークンの null チェックが必要です"
+          }
+        ]
+      }
     },
     {
       "id": "ext-171",
@@ -24759,7 +28350,28 @@
       ],
       "correctIndex": 2,
       "explanation": "`/branch` は現在のセッションからフォークセッション（並行する会話スレッド）を作成します。元のセッションの完全なコンテキストを引き継ぎながら、別のコーディング方向を探索できます。フォークされたセッションはセッションピッカーでルートセッションの下にグループ表示されます。",
-      "referenceUrl": "https://code.claude.com/docs/ja/interactive-mode"
+      "referenceUrl": "https://code.claude.com/docs/ja/interactive-mode",
+      "diagram": {
+        "type": "terminal",
+        "lines": [
+          {
+            "type": "prompt",
+            "text": "/branch"
+          },
+          {
+            "type": "info",
+            "text": "Forked session created"
+          },
+          {
+            "type": "info",
+            "text": "Context preserved from parent"
+          },
+          {
+            "type": "prompt",
+            "text": "別のアプローチを試して"
+          }
+        ]
+      }
     },
     {
       "id": "cmd-113",
@@ -24785,7 +28397,28 @@
       ],
       "correctIndex": 1,
       "explanation": "`/batch <instruction>` は大規模な変更を並列処理する組み込みスキルです。(1) コードベースを調査、(2) 5〜30 の独立した単位に分解、(3) ユーザー承認を得て、(4) 各単位をバックグラウンドエージェントが独立した `git worktree` で実行、(5) テスト実行と PR 作成まで自動で行います。git リポジトリ内でのみ使用可能です。",
-      "referenceUrl": "https://code.claude.com/docs/ja/interactive-mode"
+      "referenceUrl": "https://code.claude.com/docs/ja/interactive-mode",
+      "diagram": {
+        "type": "terminal",
+        "lines": [
+          {
+            "type": "prompt",
+            "text": "/batch migrate all components to React 19"
+          },
+          {
+            "type": "response",
+            "text": "Analyzing codebase..."
+          },
+          {
+            "type": "info",
+            "text": "12 independent units identified"
+          },
+          {
+            "type": "info",
+            "text": "Approve? [y/n]"
+          }
+        ]
+      }
     },
     {
       "id": "cmd-114",
@@ -24811,7 +28444,24 @@
       ],
       "correctIndex": 1,
       "explanation": "`--bare` は最小モードフラグで、Hooks、Skills、プラグイン、MCP サーバー、Auto Memory、`CLAUDE.md` の自動検出をすべてスキップします。`Bash` とファイル操作は使用可能です。CI/CD パイプラインやスクリプトからの自動化など、拡張機能が不要で高速な起動が求められるシナリオに適しています。",
-      "referenceUrl": "https://code.claude.com/docs/ja/cli-reference"
+      "referenceUrl": "https://code.claude.com/docs/ja/cli-reference",
+      "diagram": {
+        "type": "terminal",
+        "lines": [
+          {
+            "type": "command",
+            "text": "claude --bare"
+          },
+          {
+            "type": "info",
+            "text": "Bare mode: Bash + file tools only"
+          },
+          {
+            "type": "info",
+            "text": "Skipped: hooks, skills, MCP, CLAUDE.md"
+          }
+        ]
+      }
     },
     {
       "id": "cmd-115",
@@ -24837,7 +28487,28 @@
       ],
       "correctIndex": 1,
       "explanation": "`/voice` で音声入力を有効にすると、デフォルトではスペースバーを長押しして話しかけ、離すとテキストに変換されてプロンプト入力欄に表示されます。タイピングと音声入力を同じメッセージ内で混在でき、21 言語（日本語含む）をサポートしています。Push-to-talk キーは `~/.claude/keybindings.json` でカスタマイズ可能です。",
-      "referenceUrl": "https://code.claude.com/docs/ja/interactive-mode"
+      "referenceUrl": "https://code.claude.com/docs/ja/interactive-mode",
+      "diagram": {
+        "type": "terminal",
+        "lines": [
+          {
+            "type": "prompt",
+            "text": "/voice"
+          },
+          {
+            "type": "info",
+            "text": "Voice input enabled"
+          },
+          {
+            "type": "info",
+            "text": "[Space 長押し] 録音中..."
+          },
+          {
+            "type": "info",
+            "text": "→ このバグを修正して"
+          }
+        ]
+      }
     },
     {
       "id": "cmd-116",
@@ -24863,7 +28534,32 @@
       ],
       "correctIndex": 2,
       "explanation": "`/voice` の要件は: (1) Claude Code v2.1.69 以上、(2) claude.ai アカウントでの認証（API キーやサードパーティプロバイダー経由では不可）、(3) ローカルマイクアクセス。macOS、Linux、Windows をサポートしますが、リモート環境（Web 版 Claude Code）や SSH セッションでは使用できません。",
-      "referenceUrl": "https://code.claude.com/docs/ja/interactive-mode"
+      "referenceUrl": "https://code.claude.com/docs/ja/interactive-mode",
+      "diagram": {
+        "type": "terminal",
+        "lines": [
+          {
+            "type": "prompt",
+            "text": "/voice"
+          },
+          {
+            "type": "info",
+            "text": "Voice mode active (press Enter to stop)"
+          },
+          {
+            "type": "info",
+            "text": "Listening..."
+          },
+          {
+            "type": "info",
+            "text": "Transcribed: \"Fix the login test\""
+          },
+          {
+            "type": "response",
+            "text": "テストを確認しています..."
+          }
+        ]
+      }
     },
     {
       "id": "key-048",
@@ -24889,7 +28585,32 @@
       ],
       "correctIndex": 0,
       "explanation": "リバースサーチ（`Ctrl+R`）では、マッチが見つかったら `Tab` または `Esc` で受け入れて編集を続行でき、`Enter` で受け入れて即座に実行します。`Ctrl+R` を再度押すとより古いマッチに移動し、`Ctrl+C` でキャンセルして元の入力に戻ります。検索語はマッチ結果内でハイライト表示されます。",
-      "referenceUrl": "https://code.claude.com/docs/ja/interactive-mode"
+      "referenceUrl": "https://code.claude.com/docs/ja/interactive-mode",
+      "diagram": {
+        "type": "terminal",
+        "lines": [
+          {
+            "type": "info",
+            "text": "[Ctrl+R]"
+          },
+          {
+            "type": "info",
+            "text": "reverse-i-search: dep"
+          },
+          {
+            "type": "info",
+            "text": "> ! npm run deploy --prod"
+          },
+          {
+            "type": "info",
+            "text": "[Tab] → 入力欄に展開して編集"
+          },
+          {
+            "type": "info",
+            "text": "[Enter] → 即座に実行"
+          }
+        ]
+      }
     },
     {
       "id": "key-049",
@@ -24967,7 +28688,28 @@
       ],
       "correctIndex": 0,
       "explanation": "`Option+O`（macOS）/ `Alt+O`（Windows/Linux）でファストモードを切り替えられます。ファストモードでは高速なモデルで応答が生成されます。macOS では Option キーを Meta として送信するターミナル設定が必要です。",
-      "referenceUrl": "https://code.claude.com/docs/ja/interactive-mode"
+      "referenceUrl": "https://code.claude.com/docs/ja/interactive-mode",
+      "diagram": {
+        "type": "terminal",
+        "lines": [
+          {
+            "type": "info",
+            "text": "[Option+O / Alt+O]"
+          },
+          {
+            "type": "info",
+            "text": "Fast mode: OFF → ON"
+          },
+          {
+            "type": "prompt",
+            "text": "このファイルの行数は？"
+          },
+          {
+            "type": "response",
+            "text": "142行です (fast)"
+          }
+        ]
+      }
     },
     {
       "id": "tool-075",
@@ -25019,7 +28761,28 @@
       ],
       "correctIndex": 0,
       "explanation": "computer use は組み込み MCP サーバー `computer-use` として提供され、デフォルトでは無効です。対話セッション内で `/mcp` コマンドを実行し、サーバーリストから `computer-use` を選択して有効化します。この設定はプロジェクトごとに永続化されるため、一度有効にすればそのプロジェクトでは再設定不要です。",
-      "referenceUrl": "https://code.claude.com/docs/ja/computer-use"
+      "referenceUrl": "https://code.claude.com/docs/ja/computer-use",
+      "diagram": {
+        "type": "terminal",
+        "lines": [
+          {
+            "type": "prompt",
+            "text": "/mcp"
+          },
+          {
+            "type": "info",
+            "text": "MCP servers:"
+          },
+          {
+            "type": "info",
+            "text": "> computer-use [disabled]"
+          },
+          {
+            "type": "info",
+            "text": "Enable? [y] → Enabled"
+          }
+        ]
+      }
     },
     {
       "id": "tool-077",
@@ -25357,7 +29120,44 @@
       ],
       "correctIndex": 1,
       "explanation": "パーミッション設定では`Skill(name)`で完全一致、`Skill(name *)`でプレフィックスマッチ（引数付き呼び出しも含む）のルールを定義できます。特定のスキルだけをdenyルールに追加すれば、そのスキルへのClaudeの自動アクセスを拒否しつつ、他のスキルは通常通り使えます。",
-      "referenceUrl": "https://code.claude.com/docs/ja/skills"
+      "referenceUrl": "https://code.claude.com/docs/ja/skills",
+      "diagram": {
+        "type": "config",
+        "filepath": ".claude/settings.json",
+        "lines": [
+          {
+            "text": "{"
+          },
+          {
+            "text": "  \"permissions\": {"
+          },
+          {
+            "text": "    \"allow\": ["
+          },
+          {
+            "text": "      \"Bash(npm test)\""
+          },
+          {
+            "text": "    ],"
+          },
+          {
+            "text": "    \"deny\": ["
+          },
+          {
+            "text": "      \"Skill(deploy *)\"",
+            "highlight": true
+          },
+          {
+            "text": "    ]"
+          },
+          {
+            "text": "  }"
+          },
+          {
+            "text": "}"
+          }
+        ]
+      }
     },
     {
       "id": "skill-067",
@@ -25383,7 +29183,41 @@
       ],
       "correctIndex": 2,
       "explanation": "`paths`フロントマターフィールドは、スキルが自動的に読み込まれる条件をglobパターンで制限します。例えば`paths: '**/*.tsx'`と設定すると、`.tsx`ファイルを扱っている場合にのみClaudeがそのスキルを自動的に読み込みます。パス固有ルール（path-specific rules）と同じ書式で指定します。",
-      "referenceUrl": "https://code.claude.com/docs/ja/skills"
+      "referenceUrl": "https://code.claude.com/docs/ja/skills",
+      "diagram": {
+        "type": "config",
+        "filepath": ".claude/skills/react-review/SKILL.md",
+        "lines": [
+          {
+            "text": "---"
+          },
+          {
+            "text": "description: Review React components"
+          },
+          {
+            "text": "paths: \"**/*.tsx\"",
+            "highlight": true
+          },
+          {
+            "text": "allowed-tools:"
+          },
+          {
+            "text": "  - Read"
+          },
+          {
+            "text": "  - Grep"
+          },
+          {
+            "text": "---"
+          },
+          {
+            "text": ""
+          },
+          {
+            "text": "Review the React component."
+          }
+        ]
+      }
     }
   ]
 }

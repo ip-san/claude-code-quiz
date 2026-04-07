@@ -141,7 +141,7 @@ export function CategoryTrendChart({ sessions }: CategoryTrendChartProps) {
             viewBox={`0 0 ${CHART_WIDTH} ${CHART_HEIGHT}`}
             className="w-full"
             role="img"
-            aria-label="カテゴリ別正答率の推移グラフ"
+            aria-label={locale.categoryTrend.chartLabel}
           >
             <ChartGrid gridColor={gridColor} padding={PADDING} innerWidth={INNER_WIDTH} innerHeight={INNER_HEIGHT} />
 

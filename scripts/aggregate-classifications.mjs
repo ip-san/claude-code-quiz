@@ -13,7 +13,7 @@
  * この強みを活かすため、時系列の文脈と個別分類結果を保持する。
  */
 
-import { existsSync, readFileSync, writeFileSync } from 'fs'
+import { existsSync, readdirSync, readFileSync, writeFileSync } from 'fs'
 import { join } from 'path'
 
 const STORE_DIR = join(process.env.HOME || '', '.claude-quiz-recommend')
@@ -40,6 +40,37 @@ try {
 } catch {
   /* no profile yet */
 }
+
+// ── Read Opus analysis files (zero-cost: already generated) ──
+const LEARNER_TYPE_FILE = join(STORE_DIR, 'learner-type.json')
+let opusLearnerType = null
+try {
+  if (existsSync(LEARNER_TYPE_FILE)) {
+    opusLearnerType = JSON.parse(readFileSync(LEARNER_TYPE_FILE, 'utf8'))
+  }
+} catch {
+  /* no Opus analysis yet */
+}
+
+// Find latest analysis files by trigger type (opus-{trigger}-*.json or sonnet-{trigger}-*.json)
+function findLatestAnalysis(triggerName) {
+  try {
+    const files = readdirSync(STORE_DIR)
+      .filter((f) => f.includes(`-${triggerName}-`) && f.endsWith('.json'))
+      .sort()
+    if (files.length > 0) {
+      return JSON.parse(readFileSync(join(STORE_DIR, files[files.length - 1]), 'utf8'))
+    }
+  } catch {
+    /* not available */
+  }
+  return null
+}
+
+const opusStagnation = findLatestAnalysis('stagnation')
+const opusBreakthrough = findLatestAnalysis('breakthrough')
+const opusMastery = findLatestAnalysis('mastery')
+const opusMonthly = findLatestAnalysis('monthly')
 
 // ── Build Sonnet input (preserve raw data) ──────────────────
 
@@ -137,6 +168,51 @@ const output = {
 
   // Candidate questions with text (for Sonnet to match against prompts)
   candidateQuestions: stableCandidates,
+
+  // Opus/Sonnet deep analysis (pre-computed, zero additional cost)
+  opusAnalysis: opusLearnerType
+    ? {
+        learnerType: opusLearnerType.learnerType,
+        strengths: opusLearnerType.strengths,
+        gaps: opusLearnerType.gaps,
+        recommendedPath: opusLearnerType.recommendedPath,
+        coachingNote: opusLearnerType.coachingNote,
+        analyzedAt: opusLearnerType.analyzedAt,
+      }
+    : null,
+  stagnationAnalysis: opusStagnation
+    ? {
+        rootCause: opusStagnation.rootCause,
+        intervention: opusStagnation.intervention,
+        motivationalNote: opusStagnation.motivationalNote,
+        analyzedAt: opusStagnation.analyzedAt,
+      }
+    : null,
+  breakthroughAnalysis: opusBreakthrough
+    ? {
+        causalAnalysis: opusBreakthrough.causalAnalysis,
+        transferSuggestion: opusBreakthrough.transferSuggestion,
+        coachingNote: opusBreakthrough.coachingNote,
+        analyzedAt: opusBreakthrough.analyzedAt,
+      }
+    : null,
+  masteryAnalysis: opusMastery
+    ? {
+        crossCategoryInsight: opusMastery.crossCategoryInsight,
+        nextChallenge: opusMastery.nextChallenge,
+        suggestedQuestionIds: opusMastery.suggestedQuestionIds,
+        coachingNote: opusMastery.coachingNote,
+        analyzedAt: opusMastery.analyzedAt,
+      }
+    : null,
+  monthlyReview: opusMonthly
+    ? {
+        progressSummary: opusMonthly.progressSummary,
+        adjustedPath: opusMonthly.adjustedPath,
+        coachingNote: opusMonthly.coachingNote,
+        analyzedAt: opusMonthly.analyzedAt,
+      }
+    : null,
 }
 
 writeFileSync(OUTPUT_FILE, JSON.stringify(output, null, 2))

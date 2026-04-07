@@ -32,6 +32,7 @@ import { readdirSync, readFileSync, statSync } from 'fs'
 import { readFile, stat, writeFile } from 'fs/promises'
 import { homedir } from 'os'
 import { basename, join } from 'path'
+import { electronLocale as loc } from './locale'
 
 /**
  * 【ハードウェアアクセラレーション無効化】
@@ -54,6 +55,13 @@ let mainWindow: BrowserWindow | null = null
  */
 // app.isPackaged が最も信頼性の高い判定方法
 const isDev = !app.isPackaged
+
+// Notification icon — macOS uses the app bundle icon automatically,
+// so only set icon on Windows/Linux to avoid double-icon display.
+const notificationIcon =
+  process.platform === 'darwin'
+    ? undefined
+    : join(isDev ? join(__dirname, '..') : app.getAppPath(), 'build', 'icon.png')
 
 // 開発時のみ: CSP 警告を抑制（webRequest で CSP ヘッダーを設定済みだが、
 // Electron 内部の sandbox_bundle チェックが先に走るため警告が出る。
@@ -227,7 +235,7 @@ ipcMain.handle('export-progress', async (_event, data: string): Promise<{ succes
     }
 
     const result = await dialog.showSaveDialog(mainWindow, {
-      title: '学習進捗をエクスポート',
+      title: loc.export.progressTitle,
       defaultPath: `quiz-progress-${new Date().toISOString().split('T')[0]}.json`,
       filters: [{ name: 'JSON Files', extensions: ['json'] }],
     })
@@ -260,7 +268,7 @@ ipcMain.handle(
       }
 
       const result = await dialog.showSaveDialog(mainWindow, {
-        title: 'CSV をエクスポート',
+        title: loc.export.csvTitle,
         defaultPath: defaultFilename,
         filters: [{ name: 'CSV Files', extensions: ['csv'] }],
       })
@@ -292,7 +300,7 @@ ipcMain.handle('import-progress', async (): Promise<{ success: boolean; data?: s
     }
 
     const result = await dialog.showOpenDialog(mainWindow, {
-      title: '学習進捗をインポート',
+      title: loc.export.importTitle,
       filters: [{ name: 'JSON Files', extensions: ['json'] }],
       properties: ['openFile'],
     })
@@ -309,7 +317,7 @@ ipcMain.handle('import-progress', async (): Promise<{ success: boolean; data?: s
     if (fileStats.size > MAX_PROGRESS_FILE_SIZE) {
       return {
         success: false,
-        error: `ファイルサイズが大きすぎます（最大1MB）。現在のサイズ: ${Math.round((fileStats.size / 1024) * 10) / 10}KB`,
+        error: loc.export.fileTooLarge(Math.round((fileStats.size / 1024) * 10) / 10),
       }
     }
 
@@ -359,18 +367,19 @@ const CATEGORY_KEYWORDS: Record<string, string[]> = {
   bestpractices: ['plan mode', 'Plan', 'verify', 'test', 'review', 'IMPORTANT', 'best practice'],
 }
 
+const tk = loc.topicKeywords
 const TOPIC_KEYWORDS: Record<string, string[]> = {
-  'CLAUDE.mdの書き方': ['CLAUDE.md', '/init', 'ルール', '指示'],
-  コンテキスト管理: ['コンテキスト', '/compact', '/clear', 'context', '圧縮'],
+  [tk.claudeMd]: ['CLAUDE.md', '/init', 'ルール', '指示'],
+  [tk.contextManagement]: ['コンテキスト', '/compact', '/clear', 'context', '圧縮'],
   MCP: ['MCP', 'mcp', 'ツール連携', 'stdio'],
   Hooks: ['hook', 'Hook', 'フック', 'PreToolUse', 'PostToolUse'],
-  サブエージェント: ['subagent', 'サブエージェント', 'Agent', 'worktree', '並列'],
+  [tk.subagent]: ['subagent', 'サブエージェント', 'Agent', 'worktree', '並列'],
   Skills: ['skill', 'SKILL.md', 'スキル', 'frontmatter'],
-  デバッグ: ['debug', 'デバッグ', 'エラー', 'error', 'バグ'],
-  テスト: ['test', 'テスト', 'vitest', 'playwright'],
-  'CI/CD': ['CI', 'GitHub Actions', 'deploy', 'デプロイ'],
-  セキュリティ: ['security', 'セキュリティ', 'permission', 'sandbox'],
-  コスト管理: ['cost', 'コスト', '料金', 'effort'],
+  [tk.debug]: ['debug', 'デバッグ', 'エラー', 'error', 'バグ'],
+  [tk.test]: ['test', 'テスト', 'vitest', 'playwright'],
+  [tk.cicd]: ['CI', 'GitHub Actions', 'deploy', 'デプロイ'],
+  [tk.security]: ['security', 'セキュリティ', 'permission', 'sandbox'],
+  [tk.cost]: ['cost', 'コスト', '料金', 'effort'],
 }
 
 ipcMain.handle('analyze-usage', async (_event, daysBack: number): Promise<UsageAnalysis | null> => {
@@ -505,7 +514,7 @@ ipcMain.handle('run-recommend-skill', async (): Promise<{ success: boolean; erro
         proc.on('close', (code) => {
           if (proc === recommendProc) recommendProc = null
           if (code === 0) resolve()
-          else if (code === 143 || code === null) reject(new Error('タイムアウトしました。もう一度お試しください。'))
+          else if (code === 143 || code === null) reject(new Error(loc.recommend.timeout))
           else reject(new Error(stderr || `claude exited with code ${code}`))
         })
         proc.on('error', (err) => {
@@ -520,7 +529,7 @@ ipcMain.handle('run-recommend-skill', async (): Promise<{ success: boolean; erro
     } catch (opusError) {
       const msg = opusError instanceof Error ? opusError.message : ''
       // Only fall back if Opus failed due to model availability, not timeout/cancel
-      if (msg.includes('タイムアウト') || msg.includes('ENOENT') || msg.includes('not found')) throw opusError
+      if (msg.includes(loc.recommend.timeout) || msg.includes('ENOENT') || msg.includes('not found')) throw opusError
       await runWithModel(models[1])
     }
 
@@ -529,10 +538,10 @@ ipcMain.handle('run-recommend-skill', async (): Promise<{ success: boolean; erro
     const msg = error instanceof Error ? error.message : 'Unknown error'
     // Check if claude CLI is not found
     if (msg.includes('ENOENT') || msg.includes('not found')) {
-      return { success: false, error: 'Claude Code CLI が見つかりません。インストールしてください。' }
+      return { success: false, error: loc.recommend.cliNotFound }
     }
     if (msg.includes('timeout') || msg.includes('TIMEOUT')) {
-      return { success: false, error: 'タイムアウトしました。もう一度お試しください。' }
+      return { success: false, error: loc.recommend.timeout }
     }
     return { success: false, error: msg }
   }
@@ -586,7 +595,7 @@ ipcMain.handle(
   'run-opus-analysis',
   async (
     _event,
-    trigger: 'initial' | 'monthly' | 'stagnation',
+    trigger: 'initial' | 'monthly' | 'stagnation' | 'breakthrough' | 'mastery',
     context: string
   ): Promise<{ success: boolean; result?: string; error?: string }> => {
     try {
@@ -622,6 +631,27 @@ ${context}
   "rootCause": "停滞の根本原因（1文）",
   "intervention": "具体的な介入提案（シナリオID or 問題IDを含む）",
   "motivationalNote": "ユーザーへの励まし（1文）"
+}`,
+        breakthrough: `あなたは学習分析の専門家です。ユーザーの実務パフォーマンスが急成長しました。以下のデータから因果関係を分析してください。
+
+${context}
+
+以下をJSON形式で回答してください:
+{
+  "causalAnalysis": "何が成長の原因か（クイズ学習と実務改善の因果関係を具体的に、2文以内）",
+  "transferSuggestion": "この学習パターンを他のカテゴリにも応用する提案（1文）",
+  "coachingNote": "ユーザーへの称賛と次のステップ（1文）"
+}`,
+        mastery: `あなたは学習コーチです。ユーザーがあるカテゴリを制覇（正答率90%超）しました。
+
+${context}
+
+以下をJSON形式で回答してください:
+{
+  "crossCategoryInsight": "このカテゴリの知識が他のカテゴリとどう関連するか（1文）",
+  "nextChallenge": "次に挑戦すべきカテゴリとその理由（1文）",
+  "suggestedQuestionIds": ["関連する別カテゴリの問題ID1", "問題ID2", "問題ID3"],
+  "coachingNote": "制覇の称賛と次の目標（1文）"
 }`,
       }
 
@@ -698,7 +728,7 @@ function tryParseJSON(text: string): Record<string, unknown> {
 
 ipcMain.handle('show-notification', (_event: unknown, title: string, body: string): void => {
   if (ElectronNotification.isSupported()) {
-    new ElectronNotification({ title, body, silent: false }).show()
+    new ElectronNotification({ title, body, icon: notificationIcon, silent: false }).show()
   }
   // System beep as fallback (macOS notification center may suppress Electron notifications)
   shell.beep()
@@ -1017,18 +1047,21 @@ async function analyzeActiveSession(filePath: string): Promise<void> {
 1. 何に困っているか（10文字以内）
 2. 関連する Claude Code の機能カテゴリ: memory|skills|tools|commands|extensions|session|keyboard|bestpractices
 3. 具体的な改善提案（15文字以内）
+4. 通知タイトル（20文字以内、親しみやすく）
+5. 通知本文（40文字以内、クイズで学べることを示唆）
 
 プロンプト:
 ${context}
 
-JSON形式で返してください: {"struggle":"...","category":"...","tip":"..."}`
+JSON形式で返してください: {"struggle":"...","category":"...","tip":"...","notifyTitle":"...","notifyBody":"..."}`
 
         const raw = execSync(`claude -p ${JSON.stringify(haikuPrompt)} --model haiku --output-format json`, {
           timeout: 15_000,
           encoding: 'utf8',
           stdio: ['ignore', 'pipe', 'pipe'],
         })
-        let parsed: { struggle?: string; category?: string; tip?: string } = {}
+        let parsed: { struggle?: string; category?: string; tip?: string; notifyTitle?: string; notifyBody?: string } =
+          {}
         try {
           const wrapper = JSON.parse(raw)
           const text = typeof wrapper === 'string' ? wrapper : wrapper.result || JSON.stringify(wrapper)
@@ -1067,15 +1100,15 @@ JSON形式で返してください: {"struggle":"...","category":"...","tip":"..
         // Haiku unavailable — fall back to generic notification
       }
 
-      // Build notification with specific question if available
-      const title = questionText ? '💡 今の作業に役立つ問題' : '💡 関連するクイズがあります'
-      const body = questionText
-        ? `${questionText}...${tip ? `\n💡 ${tip}` : ''}`
-        : errorCount >= 2
-          ? 'エラーが続いています。関連する知識をクイズで確認してみませんか？'
-          : '同じテーマを繰り返しています。効率化のヒントがあるかもしれません。'
+      // Build notification — prefer AI-generated text, fall back to generic
+      const title = parsed.notifyTitle || (questionText ? loc.microQuiz.titleWithQuestion : loc.microQuiz.titleGeneric)
+      const body = parsed.notifyBody
+        ? `${parsed.notifyBody}${tip ? `\n💡 ${tip}` : ''}`
+        : questionText
+          ? `${questionText}...${tip ? `\n💡 ${tip}` : ''}`
+          : loc.microQuiz.bodyFallback
 
-      const notification = new ElectronNotification({ title, body, silent: true })
+      const notification = new ElectronNotification({ title, body, icon: notificationIcon, silent: true })
       notification.on('click', () => {
         const win = BrowserWindow.getAllWindows()[0]
         if (win) {

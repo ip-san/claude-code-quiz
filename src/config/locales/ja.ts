@@ -180,6 +180,16 @@ export const ja: LocaleConfig = {
     nice5: 'すごい！',
     good3: 'いい調子！',
     streakMessage: (label, count) => `${label} ${count}問連続正解`,
+    milestones: [
+      { days: 3, label: '3日連続達成！', emoji: '🌟' },
+      { days: 7, label: '1週間連続！', emoji: '🏆' },
+      { days: 14, label: '2週間連続！', emoji: '🔥' },
+      { days: 30, label: '1ヶ月連続！', emoji: '💎' },
+      { days: 60, label: '2ヶ月連続！', emoji: '👑' },
+      { days: 100, label: '100日連続！', emoji: '🚀' },
+    ],
+    learningToday: '今日も学習中！',
+    streakLabel: (days) => `${days}日連続学習中！`,
   },
 
   progress: {
@@ -278,6 +288,8 @@ export const ja: LocaleConfig = {
     cycle: '循環図',
     comparison: '比較図',
     flow: 'フロー図',
+    terminal: 'ターミナル',
+    config: '設定ファイル',
     highPriority: '▲ 高優先',
     lowPriority: '低優先 ▼',
     switchTrigger: (trigger) => `${trigger} で切り替え`,
@@ -288,6 +300,7 @@ export const ja: LocaleConfig = {
     heading: 'カテゴリ別推移',
     emptyMessage: 'クイズに回答すると、カテゴリ別の正答率推移が表示されます',
     insufficientData: '選択したカテゴリにはまだ十分なデータがありません',
+    chartLabel: 'カテゴリ別正答率の推移グラフ',
   },
 
   relatedQuestions: {
@@ -401,6 +414,7 @@ export const ja: LocaleConfig = {
     learningPointsHeading: 'このチャプターで学ぶこと',
     startLearning: '学習を始める',
     startChapter: 'チャプターを始める',
+    showOverview: 'チャプター概要を表示',
   },
 
   chapterProgress: {
@@ -558,7 +572,6 @@ export const ja: LocaleConfig = {
     relatedToTopics: (topics) => `${topics}に関連する問題を選びました`,
     sessionLabel: '利用履歴からのレコメンド',
     updated: '✓ 更新しました',
-    quizEffect: 'クイズ効果',
     practiceScenario: '実践シナリオ',
     confirmWithQuiz: (count) => `クイズで確かめる（${count}問）`,
     questionCount: (n) => `${n}問`,
@@ -575,6 +588,14 @@ export const ja: LocaleConfig = {
     confirmReanalyze: '最新の利用履歴で再分析します。よろしいですか？',
     realtimeMonitoring: 'リアルタイム監視',
     realtimeMonitoringDesc: '作業中の苦戦を検出して通知',
+    notifyTitle: 'レコメンド生成完了',
+    notifyBody: 'あなたに合った問題が見つかりました。確認してみましょう！',
+  },
+
+  growth: {
+    resolved: (pattern) => `「${pattern}」が解消されました`,
+    improved: (pattern, pct, prev, curr) => `「${pattern}」が${pct}%改善（${prev}回→${curr}回）`,
+    newIssue: (pattern) => `「${pattern}」が新たに検出されました`,
   },
 
   retention: {
@@ -621,5 +642,72 @@ export const ja: LocaleConfig = {
     desc: '復習期限が来たら通知でお知らせします',
     allow: '許可する',
     later: '今はしない',
+  },
+
+  recommendUtils: {
+    categoryReasons: {
+      memory: {
+        used: 'CLAUDE.md やルール設定に触れていました。効果的な書き方を復習しましょう',
+        unused: 'CLAUDE.md を活用すると、Claude への指示が毎回自動で伝わります',
+      },
+      skills: {
+        used: 'スキルやワークフローを使っていました。もっと便利な使い方があるかも',
+        unused: 'スキルを作ると、よく使う作業を一言で呼び出せるようになります',
+      },
+      tools: {
+        used: 'ファイル操作やコマンド実行をたくさんしていました。ツールの使い分けを確認',
+        unused: 'Read / Edit / Grep などのツールを知ると、Claude への依頼がもっと的確に',
+      },
+      commands: {
+        used: 'コマンド操作をしていました。知っておくと便利なコマンドがまだあるかも',
+        unused: '/compact や /branch など、作業効率を上げるコマンドがあります',
+      },
+      extensions: {
+        used: 'MCP やフックなど拡張機能に触れていました。より深い使い方を学びましょう',
+        unused: 'MCP サーバーやフックで、Claude Code の機能を大幅に拡張できます',
+      },
+      session: {
+        used: 'セッション管理やコンテキストに関わる作業をしていました',
+        unused: 'コンテキストウィンドウの管理を知ると、長時間作業がスムーズに',
+      },
+      keyboard: {
+        used: 'ショートカットを活用していました。まだ知らないキーがあるかも',
+        unused: 'ショートカットを覚えると、マウスなしで爆速操作ができます',
+      },
+      bestpractices: {
+        used: 'ベストプラクティスに関わる作業をしていました。知識を固めましょう',
+        unused: '効果的な使い方のコツを知ると、Claude の回答品質が上がります',
+      },
+    },
+    categoryTerms: {
+      memory: ['CLAUDE.md', 'ルール', '指示', 'メモリ', '/init', 'rules', '設定'],
+      skills: ['スキル', 'skill', 'コマンド', '/batch', '/loop', 'ワークフロー'],
+      tools: ['ファイル', 'Read', 'Edit', 'Bash', 'Grep', '検索', '書き換え', '変更'],
+      commands: ['/compact', '/clear', '/model', '/branch', 'コマンド', 'CLI'],
+      extensions: ['MCP', 'hook', 'フック', 'プラグイン', 'サブエージェント', 'Agent', '拡張'],
+      session: ['コンテキスト', 'セッション', 'トークン', '圧縮', '復帰', 'モデル'],
+      keyboard: ['ショートカット', 'Ctrl', 'Shift', 'キー', '操作'],
+      bestpractices: ['テスト', 'レビュー', 'デバッグ', 'Plan', '設計', 'エラー', '影響', '確認'],
+    },
+    fallbackReason: '関連する作業をしていました',
+    repeatPattern: (intent) => `「${intent}」を繰り返し`,
+    strugglePattern: '苦戦している操作がある',
+    efficiencyPattern: '効率化できそうな操作パターン',
+    delegationPattern: 'AI への丸投げ傾向',
+    delegationTip: '「なぜそうなるか」を質問すると理解が深まり、スキルが定着する',
+    inquiryPattern: '概念を理解しようとする質問が多い',
+    inquiryTip: '素晴らしいアプローチ！より高度な問題に挑戦してみましょう',
+    scenarioLearnSuffix: ' — このシナリオで実践的に学べます',
+    scenarioRelatedSuffix: 'の作業に関連したシナリオです',
+    workRelated: (catNames) => `「${catNames}」の作業に関連`,
+    workRelatedScenario: (catNames) => `${catNames}の作業に関連したシナリオです`,
+    basicQuestions: '🎯 基礎理解を固める問題',
+    advancedChallenge: '🚀 より高度な問題に挑戦',
+    categoryRank: (catName, rank) => `${catName}は作業関連度${rank}位`,
+    relatedQuote: (quote) => `「${quote}」に関連`,
+    unusedCategoryReason: (catName) => `${catName} を知ると作業がもっと効率的に`,
+    unusedFeature: (catName) => `${catName}はまだ使っていない機能`,
+    beginnerStart: '入門レベルから始めましょう',
+    aiSelected: 'AI が選定',
   },
 }

@@ -144,10 +144,10 @@ const electronAPI = {
   },
 
   /**
-   * Opus による高度な分析（初回プロファイリング/月次レビュー/停滞介入）
+   * Opus による高度な分析（初回プロファイリング/月次レビュー/停滞介入/急成長/カテゴリ制覇）
    */
   runOpusAnalysis: (
-    trigger: 'initial' | 'monthly' | 'stagnation',
+    trigger: 'initial' | 'monthly' | 'stagnation' | 'breakthrough' | 'mastery',
     context: string
   ): Promise<{ success: boolean; result?: string; error?: string }> => {
     return ipcRenderer.invoke('run-opus-analysis', trigger, context)
@@ -217,6 +217,7 @@ const electronAPI = {
     topCategories: string[]
     topics: { topic: string; hits: number }[]
     promptSamples: string[]
+    coachingMessage?: string
   } | null> => {
     return ipcRenderer.invoke('get-cached-recommend')
   },

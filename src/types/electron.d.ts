@@ -32,7 +32,7 @@ interface ElectronAPI {
     streakDays: number
   }) => Promise<void>
   runOpusAnalysis: (
-    trigger: 'initial' | 'monthly' | 'stagnation',
+    trigger: 'initial' | 'monthly' | 'stagnation' | 'breakthrough' | 'mastery',
     context: string
   ) => Promise<{ success: boolean; result?: string; error?: string }>
   showNotification: (title: string, body: string) => Promise<void>
@@ -62,6 +62,7 @@ interface ElectronAPI {
     topCategories: string[]
     topics: { topic: string; hits: number }[]
     promptSamples: string[]
+    coachingMessage?: string
   } | null>
 }
 

@@ -1,4 +1,5 @@
 import { Info } from 'lucide-react'
+import { locale } from '@/config/locale'
 import type { OverviewChapter } from '@/domain/valueObjects/OverviewChapter'
 
 interface ChapterIndicatorProps {
@@ -28,7 +29,7 @@ export function ChapterIndicator({ chapter, totalChapters, onShowIntro }: Chapte
           <button
             onClick={onShowIntro}
             className="tap-highlight rounded-full p-2 text-claude-orange/60"
-            aria-label="チャプター概要を表示"
+            aria-label={locale.chapterIntro.showOverview}
           >
             <Info className="h-4 w-4" />
           </button>

@@ -25,33 +25,37 @@ SessionEnd hook (自動)
       → spawn Layer 2 (detached)
 
   → Layer 2: classify-prompts.mjs [Haiku/~$0.004]
-      50プロンプトを意図分類 (intent, category, struggle, phase, tip)
+      50プロンプトを意図分類 (intent, category, struggle, phase, tip, aiStyle)
+      + 全体メタ分析 (developerRole, suggestedScenarios)
       Claude の応答も対話ペアとして参照（苦戦判定の精度向上）
       → classified-prompts.json
       → chain Layer 3
 
   → Layer 3: aggregate-classifications.mjs [Script/$0]
       生データ構造化（会話フロー + 個別分類 + 候補問題文を保持）
+      + Opus 分析ファイル読み込み（learner-type, stagnation, breakthrough, mastery, monthly）
       → compressed-input.json (~8,000文字)
 
 分析ボタン (ユーザー主導)
   → Layer 4: /recommend skill [Opus→Sonnet fallback/~$0.06]
       生データから因果推論 + 前回効果検証 + 15問選定 + 理由言語化
+      + コーチングメッセージ生成（Opus分析を活用）
       → latest-recommend.json
 
 リアルタイム監視 (トグル ON 時)
-  → Electron fs.watch [Script/$0]
-      進行中セッションの苦戦検出 → デスクトップ通知
-      ※ AI モデル不使用（ローカル分析のみ）
+  → Electron fs.watch [Script/$0] + Haiku [~$0.002/通知]
+      進行中セッションの苦戦検出 → Haiku で通知文生成 → デスクトップ通知
 
-特別トリガー (自動)
-  → Opus → Sonnet フォールバック
-      初回プロファイリング (1回/$0.15 or $0.03)
-      月次レビュー (月1/$0.15 or $0.03)
-      停滞介入 (パターン3連続未改善時/$0.15 or $0.03)
+特別トリガー (自動、全て Opus → Sonnet フォールバック)
+  → initial: 初回プロファイリング (1回/$0.02)
+  → stagnation: 停滞介入 (パターン3連続未改善時/$0.02)
+  → breakthrough: 急成長分析 (2パターン以上解消時/$0.02)
+  → mastery: カテゴリ制覇 (正答率90%超到達時/$0.02、カテゴリごとに1回)
+  → monthly: 月次レビュー (月初の初回分析時/$0.03)
   ※ Opus が利用できないプランでは自動的に Sonnet で実行
+  ※ 分析結果は compressed-input.json に統合され、次回の /recommend で活用
 
-年間コスト: ~$7 (Haiku $2.74 + Opus/Sonnet $4.41)
+年間コスト: ~$6 (Haiku $2.74 + Sonnet $2.50 + Opus $0.76)
 
 フォールバック:
   Opus 利用不可 → Sonnet で自動代替
@@ -107,8 +111,9 @@ Electron fs.watch（recursive、10秒デバウンス）
   │ - 同一テーマの繰り返し
   │ - User→Claude の対話ペア
   ↓
-苦戦検出 → デスクトップ通知
-  │         「💡 関連するクイズがあります」
+苦戦検出 → Haiku で通知文生成 → デスクトップ通知
+  │         タイトル・本文は Haiku が文脈に合わせて生成
+  │         フォールバック: locale の汎用メッセージ
   │         クリックでアプリを開く
   ↓
 30分間クールダウン（通知過多を防止）
@@ -141,8 +146,9 @@ Electron fs.watch（recursive、10秒デバウンス）
 
 ### プライバシー
 
-- 監視データは**一切外部に送信されない**（ローカルの JSONL ファイルを読むだけ）
-- 通知の判定は Electron プロセス内で完結（AI モデル不使用）
+- 監視データは**ローカルの JSONL ファイルを読むだけ**
+- 苦戦判定は Electron プロセス内で完結（AI モデル不使用）
+- 通知文の生成に Haiku を使用（苦戦検出時のみ、Claude CLI 経由で Anthropic API に送信）
 - トグル OFF で即座に監視停止、ファイル監視ハンドルを解放
 
 ### セッション開きっぱなし問題の解決
@@ -439,11 +445,11 @@ bun run setup:hooks --remove
 | `scripts/setup-hooks.mjs` | グローバルフックセットアップ | — |
 | `.claude/skills/recommend/SKILL.md` | AI レコメンドスキル（Sonnet、圧縮入力ベース） | Layer 4 (Sonnet) |
 | `src/components/Menu/UsageRecommend.tsx` | Desktop UI コンポーネント（Kolb サイクル） |
-| `src/components/Menu/recommendUtils.ts` | レコメンドロジック（パターン検出、スコアリング、シナリオマッチ） |
+| `src/components/Menu/recommendUtils.ts` | レコメンドロジック（Haiku分類消費、フォールバック推薦、シナリオマッチ） |
 | `src/components/Menu/ProgressLabel.tsx` | プログレスアニメーション（パルスドット） |
 | `src/components/Menu/UsageRecommend.test.tsx` | ユニットテスト（19テスト） |
 | `src/components/Menu/useRecommendation.ts` | 分析状態管理 + 成長追跡統合 |
-| `src/domain/services/GrowthTrackingService.ts` | パターン履歴保存・比較・コーチングメッセージ生成 |
+| `src/domain/services/GrowthTrackingService.ts` | パターン履歴保存・diff計算（メッセージ生成はSonnetに委譲） |
 | `electron/main.ts` | IPC ハンドラー（キャッシュ管理、通知、プロセス制御） |
 | `electron/preload.ts` | Renderer への API 公開 |
 | `docs/usage-recommend.md` | このドキュメント |
@@ -526,17 +532,16 @@ localStorage: claude-code-quiz-pattern-history
 | debug-delegation | 「直して」「エラーなおして」 | intermediate 問題 |
 | inquiry（探求） | 「なぜ」「仕組み」「比較」 | advanced 問題に誘導 |
 
-### コーチングメッセージの生成ロジック
+### コーチングメッセージの生成
 
-優先度順（最初にマッチしたものを表示）：
+コーチングメッセージは **Sonnet が `/recommend` 実行時に生成** する（`coachingMessage` フィールド）。
 
-1. **初回比較**: 「前回の分析結果と比較できるようになりました」
-2. **大幅改善**: 「素晴らしい成長です！N つの課題が解消されました」
-3. **一部改善（数値付き）**: 「繰り返し指示が改善（80%改善）。クイズで学んだことが実務に活きています」
-4. **改善+新課題**: 「繰り返し指示は改善。次はセッション長に取り組んでみましょう」
-5. **新課題のみ**: 「セッション長が見つかりました。関連するクイズで学びましょう」
-6. **成熟度向上**: 「『なぜ』と質問する頻度が増加」
-7. **安定**: 「使い方が安定しています。この調子で続けましょう」
+以前はスクリプト（GrowthTrackingService）が if/else チェーンで固定メッセージを選んでいたが、Sonnet に委譲することで:
+- ユーザーの実際のプロンプトを引用した具体的なフィードバックが可能に
+- Opus の分析（停滞原因、急成長の因果分析、カテゴリ制覇の関連性）を統合できる
+- パターンの変化と学習効果の因果関係を推論できる
+
+GrowthTrackingService はパターンの diff 計算（improved/newIssues/maturityChange.direction）のみを担当し、メッセージ生成は行わない。
 
 ### 改善サマリーカード（4回目以降）
 

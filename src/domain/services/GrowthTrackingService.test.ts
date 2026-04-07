@@ -118,17 +118,16 @@ describe('GrowthTrackingService', () => {
       expect(result!.newIssues[0].pattern).toBe('セッションが長い')
     })
 
-    it('generates intro message on first comparison', () => {
+    it('returns analysisCount on first comparison', () => {
       GrowthTrackingService.saveSnapshot(
         [{ pattern: '同じ修正を繰り返し指示', savedMinutes: 9 }],
         ['テスト用の長いプロンプト文字列です']
       )
       const result = GrowthTrackingService.compareWithPrevious([], ['テスト用の長いプロンプト文字列です'])
-      expect(result!.coachingMessage).toContain('比較')
       expect(result!.analysisCount).toBe(2)
     })
 
-    it('generates improvement message on second+ comparison', () => {
+    it('increments analysisCount on second+ comparison', () => {
       // First snapshot
       GrowthTrackingService.saveSnapshot(
         [{ pattern: '問題パターンX', savedMinutes: 5 }],
@@ -143,7 +142,6 @@ describe('GrowthTrackingService', () => {
       )
       const result = GrowthTrackingService.compareWithPrevious([], ['テスト用の長いプロンプト文字列です'])
       expect(result).not.toBeNull()
-      // With 2 items in history, coaching should mention improvement or next steps
       expect(result!.analysisCount).toBe(3)
     })
 

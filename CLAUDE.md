@@ -11,8 +11,8 @@ PWA（ブラウザ・スマホ）と Electron（デスクトップ・AI連携）
 - **フロントエンド:** React + TypeScript + Vite + Tailwind CSS + Zustand
 - **配信:** PWA（GitHub Pages）+ Electron（デスクトップ）— 用途に応じて使い分け
 - **アナリティクス:** GTM + GA4 + MCP サーバー（`mcp/ga4-server.mjs`）
-- **テスト:** Vitest（497テスト）+ Playwright E2E（66テスト）
-- **AIパイプライン:** Script→Haiku→Script→Sonnet（+Opus 3トリガー）、年間~$5
+- **テスト:** Vitest（496テスト）+ Playwright E2E（66テスト）
+- **AIパイプライン:** Script→Haiku→Script→Sonnet（+Opus 5トリガー）、年間~$6
 - **CI/CD:** GitHub Actions → GitHub Pages 自動デプロイ（GTM ID は Secret 管理）
 - **クイズデータ:** 752問（71ドキュメントページをカバー）
 
@@ -48,8 +48,9 @@ bun run lighthouse     # Lighthouse CI
 - **XP システム:** 回答ごとに XP 付与（正解10、不正解2、SRS復習+5、シナリオ完走+50）。マスタリーレベルに統合表示
 - **アダプティブ難易度:** `AdaptiveDifficultyService` がカテゴリ別正答率に応じて出題順を調整
 - **記憶定着度バー:** `MemoryRetentionBar` で SRS ストリークの定着度を可視化
-- **成長コーチング:** `GrowthTrackingService` がパターン履歴を比較し改善/課題を1行表示
-- **レコメンドパイプライン:** `scripts/classify-prompts.mjs`（Haiku分類）→ `scripts/aggregate-classifications.mjs`（集計圧縮）→ `/recommend` スキル（Sonnet判断）
+- **成長コーチング:** Sonnet がコーチングメッセージを生成（`coachingMessage`）。`GrowthTrackingService` はパターン diff 計算のみ
+- **レコメンドパイプライン:** `scripts/classify-prompts.mjs`（Haiku分類+aiStyle+developerRole+suggestedScenarios）→ `scripts/aggregate-classifications.mjs`（集計+Opus分析統合）→ `/recommend` スキル（Sonnet判断+コーチング）
+- **Opus トリガー（5種）:** initial（初回プロファイリング）/ stagnation（停滞介入）/ breakthrough（急成長分析）/ mastery（カテゴリ制覇）/ monthly（月次レビュー）。Opus 利用不可時は Sonnet で自動代替
 - **クイズ検証フィルタ:** `scripts/pre-verify-quiz.mjs`（Haiku事実チェック）→ `quiz-verifier` エージェント（Sonnet精査）
 
 ## セッション永続化の注意点

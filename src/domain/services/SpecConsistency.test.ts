@@ -7,7 +7,7 @@
 
 import { readFileSync } from 'node:fs'
 import { describe, expect, it } from 'vitest'
-import { PATTERN_SCENARIO_MAP, SCENARIO_CATEGORY_MAP } from '@/components/Menu/recommendUtils'
+import { SCENARIO_CATEGORY_MAP } from '@/components/Menu/recommendUtils'
 import { locale } from '@/config/locale'
 import { SCENARIOS } from '@/data/scenarios'
 import { PREDEFINED_CATEGORIES } from '../valueObjects/Category'
@@ -219,18 +219,12 @@ describe('Spec Consistency: Mapping exhaustiveness', () => {
     }
   })
 
-  it('PATTERN_SCENARIO_MAP values must all exist in SCENARIOS', () => {
-    for (const [pattern, ids] of Object.entries(PATTERN_SCENARIO_MAP)) {
-      for (const id of ids) {
-        expect(scenarioIds, `PATTERN_SCENARIO_MAP["${pattern}"] references unknown scenario "${id}"`).toContain(id)
-      }
-    }
-  })
-
   it('CATEGORY_REASONS and CATEGORY_TERMS must cover all categories', () => {
-    const source = readFileSync('src/components/Menu/recommendUtils.ts', 'utf8')
+    const reasons = locale.recommendUtils.categoryReasons
+    const terms = locale.recommendUtils.categoryTerms
     for (const catId of categoryIds) {
-      expect(source, `Category "${catId}" missing from CATEGORY_REASONS or CATEGORY_TERMS`).toContain(`  ${catId}:`)
+      expect(reasons[catId], `Category "${catId}" missing from locale.recommendUtils.categoryReasons`).toBeDefined()
+      expect(terms[catId], `Category "${catId}" missing from locale.recommendUtils.categoryTerms`).toBeDefined()
     }
   })
 })

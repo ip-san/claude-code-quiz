@@ -10,7 +10,11 @@
  */
 
 import { existsSync, mkdirSync, readdirSync, readFileSync, statSync, writeFileSync } from 'fs'
-import { basename, join } from 'path'
+import { basename, dirname, join } from 'path'
+import { fileURLToPath } from 'url'
+
+const __dirname = dirname(fileURLToPath(import.meta.url))
+const { scriptLocale: loc } = await import(join(__dirname, 'locale.mjs'))
 
 const STORE_DIR = join(process.env.HOME || '', '.claude-quiz-recommend')
 const SESSIONS_DIR = join(STORE_DIR, 'sessions')
@@ -559,19 +563,16 @@ try {
     }
     const hasRepeat = [...repeatThemes.values()].some((c) => c >= 3)
 
-    if (hasRepeat) tipMsg = '💡 同じ指示の繰り返しが検出されました。CLAUDE.md にルール化すると効率的です'
-    else if (longPrompts.length >= 3)
-      tipMsg = '💡 長いプロンプトが多い傾向。CLAUDE.md に文脈を書けば自動で読み込まれます'
-    else if (testCmds.length >= 2) tipMsg = '💡 テスト実行が多い傾向。PostToolUse hook で自動化できます'
+    if (hasRepeat) tipMsg = loc.collect.tipRepeat
+    else if (longPrompts.length >= 3) tipMsg = loc.collect.tipLongPrompt
+    else if (testCmds.length >= 2) tipMsg = loc.collect.tipTestAuto
 
     // Desktop notification
     const topTopics = daily.merged.topics
       .slice(0, 2)
       .map((t) => t.topic)
       .join('・')
-    const msg = topTopics
-      ? `${topTopics}に取り組んでいました。${ids.length}問の復習を用意しました`
-      : `${ids.length}問の復習問題を用意しました`
+    const msg = topTopics ? loc.collect.notifyWithTopics(topTopics, ids.length) : loc.collect.notifyGeneric(ids.length)
 
     // Output for hook stderr (shown to user)
     console.error(`\n📚 ${msg}`)

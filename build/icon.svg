@@ -5,13 +5,13 @@
       <stop offset="100%" style="stop-color:#C4644A"/>
     </linearGradient>
   </defs>
-  <!-- Rounded square background -->
-  <rect width="512" height="512" rx="112" fill="url(#bg)"/>
-  <!-- < bracket — with inner padding -->
-  <path d="M155 200 L100 256 L155 312" stroke="white" stroke-width="36" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+  <!-- Rounded square background — inset for macOS HIG padding -->
+  <rect x="51" y="51" width="410" height="410" rx="90" fill="url(#bg)"/>
+  <!-- < bracket -->
+  <path d="M175 218 L130 256 L175 294" stroke="white" stroke-width="30" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
   <!-- > bracket -->
-  <path d="M357 200 L412 256 L357 312" stroke="white" stroke-width="36" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+  <path d="M337 218 L382 256 L337 294" stroke="white" stroke-width="30" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
   <!-- ? mark (centered) -->
-  <path d="M228 208 Q228 170 256 170 Q284 170 284 208 Q284 245 256 258 L256 278" stroke="white" stroke-width="28" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
-  <circle cx="256" cy="320" r="15" fill="white"/>
+  <path d="M234 220 Q234 188 256 188 Q278 188 278 220 Q278 249 256 260 L256 276" stroke="white" stroke-width="24" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+  <circle cx="256" cy="310" r="13" fill="white"/>
 </svg>

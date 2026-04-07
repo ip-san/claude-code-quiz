@@ -6,6 +6,7 @@
  * ユーザーの使い方が段々改善しているかを可視化するための基盤。
  */
 
+import { locale } from '@/config/locale'
 import { theme } from '@/config/theme'
 
 const STORAGE_KEY = `${theme.storagePrefix}-pattern-history`
@@ -48,14 +49,6 @@ export interface PatternChange {
   readonly improvementPercent?: number
 }
 
-/** クイズ学習と実務改善の因果分析 */
-export interface LearningImpact {
-  /** クイズを解いて改善されたパターン */
-  readonly quizHelped: readonly { pattern: string; category: string; message: string }[]
-  /** クイズを解いていなくて改善されていないパターン */
-  readonly quizNeeded: readonly { pattern: string; category: string; message: string }[]
-}
-
 /** 前回と今回の比較結果 */
 export interface GrowthInsight {
   /** 改善されたパターン（前回あったが今回なくなった or 回数が減った） */
@@ -65,12 +58,7 @@ export interface GrowthInsight {
   /** プロンプト成熟度の変化 */
   readonly maturityChange: {
     readonly direction: 'improving' | 'stable' | 'declining'
-    readonly message: string
   }
-  /** クイズ→実務の因果分析 */
-  readonly learningImpact?: LearningImpact
-  /** コーチングメッセージ（最も重要な1つ） */
-  readonly coachingMessage: string
   /** 比較回数（何回目の分析か） */
   readonly analysisCount: number
 }
@@ -151,8 +139,7 @@ export class GrowthTrackingService {
    */
   static compareWithPrevious(
     currentPatterns: { pattern: string; tip?: string; category?: string; savedMinutes: number; aiStyle?: string }[],
-    prompts: string[],
-    recommendedAccuracy?: Record<string, { correct: number; total: number }>
+    prompts: string[]
   ): GrowthInsight | null {
     const history = this.loadHistory()
     if (history.length === 0) return null
@@ -174,7 +161,7 @@ export class GrowthTrackingService {
       const curr = currentCounts[p] ?? 0
       if (curr < prev) {
         const pct = prev > 0 ? Math.round(((prev - curr) / prev) * 100) : 100
-        const detail = curr === 0 ? `「${p}」が解消されました` : `「${p}」が${pct}%改善（${prev}回→${curr}回）`
+        const detail = curr === 0 ? locale.growth.resolved(p) : locale.growth.improved(p, pct, prev, curr)
         improved.push({ pattern: p, detail, prevCount: prev, currentCount: curr, improvementPercent: pct })
       }
     }
@@ -186,7 +173,7 @@ export class GrowthTrackingService {
         const matchingPattern = currentPatterns.find((cp) => cp.pattern === p)
         newIssues.push({
           pattern: p,
-          detail: `「${p}」が新たに検出されました`,
+          detail: locale.growth.newIssue(p),
           tip: matchingPattern?.tip,
           prevCount: 0,
           currentCount: currentCounts[p],
@@ -197,18 +184,10 @@ export class GrowthTrackingService {
     // Maturity direction
     const maturityChange = this.assessMaturityChange(previous.maturity, currentMaturity)
 
-    // Learning impact: correlate quiz completion with pattern changes
-    const learningImpact = this.analyzeLearningImpact(improved, currentPatterns, recommendedAccuracy, previous.patterns)
-
-    // Coaching message
-    const coachingMessage = this.generateCoachingMessage(improved, newIssues, maturityChange, history.length)
-
     return {
       improved,
       newIssues,
       maturityChange,
-      learningImpact,
-      coachingMessage,
       analysisCount: history.length + 1,
     }
   }
@@ -249,143 +228,9 @@ export class GrowthTrackingService {
     if (!prevModerate && currModerate) score++
     else if (prevModerate && !currModerate) score--
 
-    if (score > 0) {
-      const details: string[] = []
-      if (current.inquiryRatio > prev.inquiryRatio + 0.05) details.push('「なぜ」と質問する頻度が増加')
-      if (current.specificityRatio > prev.specificityRatio + 0.05) details.push('具体的な指示が増加')
-      return {
-        direction: 'improving',
-        message: details.length > 0 ? details.join('、') : 'プロンプトの質が向上しています',
-      }
-    }
-    if (score < 0) {
-      return { direction: 'declining', message: '丸投げ傾向が増えています。「なぜ？」と質問してみましょう' }
-    }
-    return { direction: 'stable', message: '安定した使い方ができています' }
-  }
-
-  /**
-   * コーチングメッセージを生成
-   */
-  private static generateCoachingMessage(
-    improved: readonly PatternChange[],
-    newIssues: readonly PatternChange[],
-    maturityChange: GrowthInsight['maturityChange'],
-    historyCount: number
-  ): string {
-    // First analysis with history
-    if (historyCount === 1) {
-      return '前回の分析結果と比較できるようになりました。使い続けるほど成長が見えてきます'
-    }
-
-    // Big improvement
-    if (improved.length >= 2 && newIssues.length === 0) {
-      return `素晴らしい成長です！${improved.length}つの課題が解消されました。この調子で続けましょう`
-    }
-
-    // Some improvement with numbers
-    if (improved.length > 0 && improved.length > newIssues.length) {
-      const top = improved[0]
-      const pct = top.improvementPercent
-      const numDetail = pct && pct < 100 ? `（${pct}%改善）` : ''
-      return `「${top.pattern}」が改善${numDetail}。クイズで学んだことが実務に活きています`
-    }
-
-    // New issues but also improvement — use the Haiku-generated tip if available
-    if (improved.length > 0 && newIssues.length > 0) {
-      const tip = newIssues[0].tip
-      const next = tip ? `💡 ${tip}` : `「${newIssues[0].pattern}」に取り組んでみましょう`
-      return `「${improved[0].pattern}」は改善。次は${next}`
-    }
-
-    // Only new issues — use the Haiku-generated tip if available
-    if (newIssues.length > 0) {
-      const tip = newIssues[0].tip
-      return tip
-        ? `「${newIssues[0].pattern}」が見つかりました。💡 ${tip}`
-        : `「${newIssues[0].pattern}」が見つかりました。関連するクイズで効率的な方法を学びましょう`
-    }
-
-    // Maturity improving
-    if (maturityChange.direction === 'improving') {
-      return maturityChange.message
-    }
-
-    // Stable — acknowledge mastery without suggesting "new" categories
-    // (users who already work extensively with CLAUDE.md etc. find "try new categories" contradictory)
-    return '使い方が安定しています。この調子で続けましょう'
-  }
-
-  /**
-   * クイズ学習と実務改善の因果分析
-   *
-   * パターンのカテゴリとクイズ正答率を突き合わせて:
-   * - クイズ解いた + 改善した → 「学習が実務に活きている」
-   * - クイズ解いてない + 改善してない → 「クイズを解けば改善できるかも」
-   */
-  private static analyzeLearningImpact(
-    improved: readonly PatternChange[],
-    currentPatterns: { pattern: string; category?: string }[],
-    recommendedAccuracy?: Record<string, { correct: number; total: number }>,
-    prevPatterns?: readonly string[]
-  ): LearningImpact | undefined {
-    if (!recommendedAccuracy || Object.keys(recommendedAccuracy).length === 0) return undefined
-
-    // Build pattern → category map from current patterns + known mappings
-    // Known mappings cover patterns that may have been resolved (not in current)
-    const KNOWN_PATTERN_CATEGORIES: Record<string, string> = {
-      同じ修正を繰り返し指示: 'memory',
-      長いプロンプトで毎回文脈を説明: 'memory',
-      テストを手動で何度も実行: 'extensions',
-      セッションが長い: 'session',
-      ファイルの場所を何度も質問: 'tools',
-      影響範囲を繰り返し確認: 'bestpractices',
-      'AI への丸投げ傾向': 'bestpractices',
-      'デバッグを AI に委任する傾向': 'bestpractices',
-      概念を理解しようとする質問が多い: 'bestpractices',
-    }
-    const patternCategory = new Map<string, string>(Object.entries(KNOWN_PATTERN_CATEGORIES))
-    for (const p of currentPatterns) {
-      if (p.category) patternCategory.set(p.pattern, p.category)
-    }
-
-    const quizHelped: LearningImpact['quizHelped'][number][] = []
-    const quizNeeded: LearningImpact['quizNeeded'][number][] = []
-
-    // Improved patterns: check if user solved related quizzes
-    for (const imp of improved) {
-      const cat = patternCategory.get(imp.pattern)
-      if (!cat) continue
-      const acc = recommendedAccuracy[cat]
-      if (acc && acc.total > 0 && acc.correct / acc.total >= 0.5) {
-        quizHelped.push({
-          pattern: imp.pattern,
-          category: cat,
-          message: `${imp.pattern}が改善 — ${cat}のクイズ${acc.correct}/${acc.total}問正解が活きています`,
-        })
-      }
-    }
-
-    // Persistent patterns: check if user has NOT solved related quizzes
-    if (prevPatterns) {
-      for (const p of currentPatterns) {
-        if (!p.category) continue
-        // Pattern exists in both current and previous → not improving
-        if (prevPatterns.includes(p.pattern)) {
-          const acc = recommendedAccuracy[p.category]
-          if (!acc || acc.total === 0) {
-            quizNeeded.push({
-              pattern: p.pattern,
-              category: p.category,
-              message: `${p.pattern}が続いています — ${p.category}のクイズを解くと改善できるかもしれません`,
-            })
-          }
-        }
-      }
-    }
-
-    if (quizHelped.length === 0 && quizNeeded.length === 0) return undefined
-    return { quizHelped, quizNeeded }
+    if (score > 0) return { direction: 'improving' }
+    if (score < 0) return { direction: 'declining' }
+    return { direction: 'stable' }
   }
 }
 

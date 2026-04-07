@@ -161,7 +161,7 @@ export function MenuHeader({
                   window.location.reload()
                 }}
                 className="tap-highlight rounded-full p-2 text-stone-400 hover:text-stone-600 dark:hover:text-stone-300"
-                aria-label="リロード"
+                aria-label={locale.menuHeader.reloadApp}
               >
                 <RefreshCw className="h-4 w-4" />
               </button>

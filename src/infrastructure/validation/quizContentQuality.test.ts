@@ -442,7 +442,7 @@ describe('Quiz Content Quality', () => {
     )
 
     it('diagramフィールドが有効なtypeを持つこと', () => {
-      const validTypes = ['hierarchy', 'flow', 'cycle', 'comparison']
+      const validTypes = ['hierarchy', 'flow', 'cycle', 'comparison', 'terminal', 'config']
       const violations = diagramQuizzes.filter((q) => !validTypes.includes(q.diagram.type))
       expect(violations.map((q) => q.id)).toEqual([])
     })

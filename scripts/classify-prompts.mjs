@@ -72,14 +72,19 @@ try {
     text: p.slice(0, 100),
   }))
 
-  const classifyPrompt = `以下はユーザーの Claude Code 利用プロンプトです。各プロンプトを分類してJSON配列で返してください。
+  const classifyPrompt = `以下はユーザーの Claude Code 利用プロンプトです。各プロンプトを分類してください。
 
-## 分類ルール
+## 分類ルール（各プロンプト）
 - intent: 何をしようとしていたか（10文字以内）
 - category: memory|skills|tools|commands|extensions|session|keyboard|bestpractices
 - struggle: none|mild|strong（苦戦の兆候）
 - phase: 探索|質問|試行|修正|成功|放棄（作業フェーズ）
 - tip: 苦戦(mild/strong)の場合のみ、Claude Code の具体的な機能名を使った改善提案（20文字以内）。none の場合は null
+- aiStyle: delegation|inquiry|efficiency|null（AI活用スタイル）
+  - delegation: エラーを貼り付けて「直して」、結果だけ求める
+  - inquiry: 「なぜ」「どう違う」など理解を求める質問
+  - efficiency: ツールやコマンドを効率的に使っている
+  - null: 判定できない場合
 
 tip の例:
 - 同じ指示を繰り返している → "CLAUDE.md にルールを書く"
@@ -101,7 +106,15 @@ ${flowContext || 'なし'}
 ## プロンプト一覧
 ${JSON.stringify(promptList)}
 
-JSON配列のみ返してください。説明不要。`
+2つの出力を返してください:
+1. classifications: プロンプトごとの分類配列（上記フォーマット）
+2. meta: 全体の分析
+   - developerRole: ユーザーの開発者タイプ（15文字以内）。例: コードレビュアー型、インフラ自動化型
+   - suggestedScenarios: ユーザーの作業に最も関連するシナリオID（最大3つ）
+     選択肢: scenario-onboard, scenario-dotclaude, scenario-claudemd, scenario-tools, scenario-keyboard, scenario-context, scenario-workflow, scenario-planmode, scenario-session, scenario-debug, scenario-claudemd-pruning, scenario-skills, scenario-mcp, scenario-mcp-setup, scenario-legacy, scenario-cicd, scenario-team, scenario-parallel, scenario-hidden-gems, scenario-cicd-setup, scenario-security, scenario-extend
+
+JSON形式: {"classifications": [...], "meta": {"developerRole": "...", "suggestedScenarios": [...]}}
+JSONのみ返してください。説明不要。`
 
   // ── Call Haiku via claude CLI ──────────────────────────────
   let result
@@ -119,6 +132,7 @@ JSON配列のみ返してください。説明不要。`
 
   // ── Parse Haiku response ────────────────────────────────────
   let classifications = []
+  let meta = {}
   try {
     // claude CLI --output-format json wraps in {result: "..."}
     let text = result
@@ -132,10 +146,29 @@ JSON配列のみ返してください。説明不要。`
     // Strip markdown code fences (```json ... ```)
     text = text.replace(/```json\s*/g, '').replace(/```\s*/g, '')
 
-    // Extract JSON array
-    const match = text.match(/\[[\s\S]*\]/)
-    if (match) {
-      classifications = JSON.parse(match[0])
+    // Try to parse as {classifications: [...], meta: {...}} first
+    const objMatch = text.match(/\{[\s\S]*\}/)
+    if (objMatch) {
+      const parsed = JSON.parse(objMatch[0])
+      if (parsed.classifications && Array.isArray(parsed.classifications)) {
+        classifications = parsed.classifications
+        meta = parsed.meta || {}
+      } else if (Array.isArray(parsed)) {
+        // Shouldn't happen with object match, but be safe
+        classifications = parsed
+      } else {
+        // Fallback: try extracting array
+        const arrMatch = text.match(/\[[\s\S]*\]/)
+        if (arrMatch) {
+          classifications = JSON.parse(arrMatch[0])
+        }
+      }
+    } else {
+      // Fallback: extract JSON array (backward compat)
+      const arrMatch = text.match(/\[[\s\S]*\]/)
+      if (arrMatch) {
+        classifications = JSON.parse(arrMatch[0])
+      }
     }
   } catch {
     cleanup()
@@ -168,6 +201,14 @@ JSON配列のみ返してください。説明不要。`
     }
   }
 
+  // ── Compute aiStyle distribution ───────────────────────────
+  const aiStyleDist = { delegation: 0, inquiry: 0, efficiency: 0 }
+  for (const c of classifications) {
+    if (c.aiStyle && aiStyleDist[c.aiStyle] !== undefined) {
+      aiStyleDist[c.aiStyle]++
+    }
+  }
+
   // ── Write output ──────────────────────────────────────────
   const output = {
     classifiedAt: new Date().toISOString(),
@@ -178,6 +219,9 @@ JSON配列のみ返してください。説明不要。`
       intentClusters: [...intentClusters.values()].sort((a, b) => b.promptIds.length - a.promptIds.length).slice(0, 10),
       categoryDistribution: categoryDist,
       overallStruggles: struggleDist,
+      developerRole: meta.developerRole || null,
+      suggestedScenarios: meta.suggestedScenarios || [],
+      aiStyleDistribution: aiStyleDist,
     },
   }
 

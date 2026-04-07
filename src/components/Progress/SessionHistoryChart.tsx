@@ -57,7 +57,7 @@ export function SessionHistoryChart({ sessions }: SessionHistoryChartProps) {
         viewBox={`0 0 ${CHART_WIDTH} ${CHART_HEIGHT}`}
         className="w-full"
         role="img"
-        aria-label="セッション正答率の推移グラフ"
+        aria-label={locale.progress.chartLabel}
       >
         <ChartGrid gridColor={gridColor} padding={PADDING} innerWidth={INNER_WIDTH} innerHeight={INNER_HEIGHT} />
 

@@ -65,6 +65,11 @@ cat ~/.claude-quiz-recommend/compressed-input.json 2>/dev/null
 - `summary`: 意図クラスタ、カテゴリ分布、苦戦度の全体分布
 - `learnerState`: クイズ正答率、XP、パターン推移（Desktop アプリがエクスポート）
 - `candidateQuestions`: 難易度フィルタ済みの候補問題（ID + 問題文80文字、50-80問）
+- `opusAnalysis`: Opus による学習者プロファイリング（learnerType/strengths/gaps/recommendedPath/coachingNote）。null の場合は未分析
+- `stagnationAnalysis`: Opus による停滞分析（rootCause/intervention/motivationalNote）。null の場合は停滞未検出
+- `breakthroughAnalysis`: Opus による急成長分析（causalAnalysis/transferSuggestion/coachingNote）。null の場合は急成長未検出
+- `masteryAnalysis`: Opus によるカテゴリ制覇分析（crossCategoryInsight/nextChallenge/suggestedQuestionIds/coachingNote）。null の場合は制覇未達
+- `monthlyReview`: Opus による月次レビュー（progressSummary/adjustedPath/coachingNote）。null の場合は今月未レビュー
 
 **フォールバック**: compressed-input.json が存在しない場合:
 
@@ -90,6 +95,22 @@ Haiku ができること（既に `promptClassifications` に含まれる）:
 2. **会話フロー全体からの意図理解** — 「個々のプロンプトは無害だが、流れで見ると wheel spinning」
 3. **プロンプト原文と候補問題の意味的マッチング** — 「この問題がこの苦戦を解決する」の判断
 4. **学習者プロファイルとの統合** — クイズ正答率と実務パターンの相関分析
+5. **Opus 分析の統合** — `opusAnalysis` と `stagnationAnalysis` を活用（下記参照）
+
+### Opus 分析の活用（`opusAnalysis` / `stagnationAnalysis`）
+
+`compressed-input.json` に Opus（または Sonnet フォールバック）による深い分析が含まれる場合がある。**追加コストゼロで利用できる事前分析結果。**
+
+**`opusAnalysis`（初回プロファイリング）がある場合:**
+- `learnerType`（例: "インフラ自動化型"）→ 問題選定の方向性に活用。このタイプに合ったカテゴリを優先
+- `gaps`（不足知識）→ gaps に対応するカテゴリの問題を優先推薦
+- `recommendedPath`（学習順序）→ 推薦する問題の難易度・カテゴリ順序に反映
+- `coachingNote` → `coachingMessage` 生成時の参考にする（丸写しではなく、今週のデータと組み合わせる）
+
+**`stagnationAnalysis`（停滞介入）がある場合:**
+- `rootCause`（停滞の根本原因）→ **最優先で対処**。この原因に直接関連する問題を3問以上含める
+- `intervention`（シナリオID or 問題ID を含む介入提案）→ 推薦に含める
+- `motivationalNote` → `coachingMessage` に統合する（停滞ユーザーへの励まし）
 
 ### Step 3: 会話フローの横断分析
 
@@ -141,6 +162,17 @@ Haiku ができること（既に `promptClassifications` に含まれる）:
 - `recommendedAccuracy` が低いカテゴリ → 同カテゴリの別問題を再推薦
 - `categoryProgress` に存在しないカテゴリ → 入門問題
 
+### coachingMessage の生成
+
+前回との比較に基づき、ユーザーへの1行コーチングメッセージを生成する。
+
+- 改善があった場合: 具体的に何が改善されたか言及（例: 「修正ループが5回→1回に減少。CLAUDE.md の効果が出ています」）
+- 新しい課題がある場合: Haiku の tip を活用（例: 「Hooks で苦戦しています。PostToolUse hook で自動化」）
+- 安定している場合: 成長を認めつつ次のステップを提案
+- 初回分析の場合: 「利用履歴の分析を開始しました。次回から成長の変化が見えるようになります」
+
+プロンプト原文を「」で引用すると具体性が増す。汎用的な応援メッセージは避ける。
+
 ### Step 6: 出力
 
 `~/.claude-quiz-recommend/latest-recommend.json` を更新:
@@ -162,6 +194,7 @@ const data = {
     // 例: 'bp-008': '「枠線の統一感」を5回修正指示 → 修正ループの対処法',
     // 例: 'ext-015': '型チェック・テスト・ビルドを順次実行 → 並列化で時短'
   },
+  coachingMessage: COACHING_MESSAGE,  // 1-line coaching (see "coachingMessage の生成" section)
   url: 'https://ip-san.github.io/claude-code-quiz/?ids=' + IDS.join(','),
   topCategories: TOP_CATEGORIES,
   topics: TOPICS,

@@ -113,11 +113,36 @@ const ComparisonDiagramSchema = z.object({
   columns: z.array(ComparisonColumnSchema).min(2).max(5),
 })
 
+const TerminalLineSchema = z.object({
+  type: z.enum(['command', 'prompt', 'response', 'info']),
+  text: z.string().min(1),
+})
+
+const TerminalDiagramSchema = z.object({
+  type: z.literal('terminal'),
+  label: z.string().optional(),
+  lines: z.array(TerminalLineSchema).min(1).max(12),
+})
+
+const ConfigLineSchema = z.object({
+  text: z.string().min(1),
+  highlight: z.boolean().optional(),
+})
+
+const ConfigDiagramSchema = z.object({
+  type: z.literal('config'),
+  label: z.string().optional(),
+  filepath: z.string().min(1),
+  lines: z.array(ConfigLineSchema).min(1).max(15),
+})
+
 export const DiagramSchema = z.discriminatedUnion('type', [
   HierarchyDiagramSchema,
   FlowDiagramSchema,
   CycleDiagramSchema,
   ComparisonDiagramSchema,
+  TerminalDiagramSchema,
+  ConfigDiagramSchema,
 ])
 
 export type DiagramData = z.infer<typeof DiagramSchema>
