@@ -273,6 +273,7 @@ export const ja: LocaleConfig = {
       unanswered: '未正解',
       review: '復習',
       quick: '復習チェック',
+      scenario: '実践シナリオ',
     },
     sessionLabel: (index) => `セッション${index}`,
   },

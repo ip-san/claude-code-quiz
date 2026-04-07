@@ -8,6 +8,7 @@
 import { readFileSync } from 'node:fs'
 import { describe, expect, it } from 'vitest'
 import { PATTERN_SCENARIO_MAP, SCENARIO_CATEGORY_MAP } from '@/components/Menu/recommendUtils'
+import { locale } from '@/config/locale'
 import { SCENARIOS } from '@/data/scenarios'
 import { PREDEFINED_CATEGORIES } from '../valueObjects/Category'
 import { getOverviewQuestionsOrdered, OVERVIEW_CHAPTERS } from '../valueObjects/OverviewChapter'
@@ -235,6 +236,24 @@ describe('Spec Consistency: Mapping exhaustiveness', () => {
 })
 
 describe('Spec Consistency: Locale completeness', () => {
+  it('sessionHistory.modes must cover all QuizMode IDs', () => {
+    const modeLabels = locale.sessionHistory.modes
+    for (const id of ALL_MODE_IDS) {
+      expect(
+        modeLabels[id],
+        `locale.sessionHistory.modes is missing "${id}" — SessionHistoryList will display raw mode string`
+      ).toBeDefined()
+    }
+  })
+
+  it('scenario difficultyLabels must cover all scenario difficulties', () => {
+    const labels = locale.scenario.difficultyLabels as Record<string, string>
+    const difficulties = new Set(SCENARIOS.map((s) => s.difficulty))
+    for (const d of difficulties) {
+      expect(labels[d], `locale.scenario.difficultyLabels is missing "${d}"`).toBeDefined()
+    }
+  })
+
   it('all QuizMode names are used somewhere (not orphaned)', () => {
     for (const mode of PREDEFINED_QUIZ_MODES) {
       // Mode names should be referenceable via mode definition
