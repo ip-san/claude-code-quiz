@@ -141,14 +141,42 @@ describe('mergeReasons — fallback behavior', () => {
 // ── スキップ ──────────────────────────────────────────────────────────────────
 
 describe('mergeReasons — skip when already merged', () => {
-  it('skips when metadata already has reasons', () => {
+  it('skips reasons but updates coachingMessage if missing', () => {
     const metadata = makeMetadata({ reasons: { 'bp-001': '既存' } })
-    const reasonsJson = JSON.stringify({ reasons: { 'bp-073': '新規' } })
+    const reasonsJson = JSON.stringify({
+      reasons: { 'bp-001': '新規' },
+      coachingMessage: '成長アドバイス',
+    })
 
     const { merged, source, result } = mergeReasons(metadata, reasonsJson, '')
-    expect(merged).toBe(false)
-    expect(source).toBeNull()
+    expect(merged).toBe(true)
+    expect(source).toBe('reasons.json')
+    // reasons は既存を保持
     expect(result.reasons!['bp-001']).toBe('既存')
+    // coachingMessage は新しく追加
+    expect(result.coachingMessage).toBe('成長アドバイス')
+  })
+
+  it('skips entirely when reasons and coachingMessage both exist', () => {
+    const metadata = makeMetadata({
+      reasons: { 'bp-001': '既存' },
+      coachingMessage: '既存メッセージ',
+    })
+    const reasonsJson = JSON.stringify({
+      reasons: { 'bp-001': '新規' },
+      coachingMessage: '新規メッセージ',
+    })
+
+    const { merged, result } = mergeReasons(metadata, reasonsJson, '')
+    expect(merged).toBe(false)
+    expect(result.coachingMessage).toBe('既存メッセージ')
+  })
+
+  it('skips when no reasonsJson available for coaching update', () => {
+    const metadata = makeMetadata({ reasons: { 'bp-001': '既存' } })
+
+    const { merged } = mergeReasons(metadata, null, '')
+    expect(merged).toBe(false)
   })
 })
 

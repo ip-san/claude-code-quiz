@@ -50,7 +50,22 @@ export interface MergeResult {
  */
 export function mergeReasons(metadata: RecommendResult, reasonsJson: string | null, stdout: string): MergeResult {
   // Skip if metadata already has reasons (previous merge succeeded)
+  // But still update coachingMessage if missing and available in reasons.json
   if (metadata.reasons && Object.keys(metadata.reasons).length > 0) {
+    if (!metadata.coachingMessage && reasonsJson) {
+      try {
+        const parsed = ReasonsFileSchema.safeParse(JSON.parse(reasonsJson))
+        if (parsed.success && parsed.data.coachingMessage) {
+          return {
+            merged: true,
+            source: 'reasons.json',
+            result: { ...metadata, coachingMessage: parsed.data.coachingMessage },
+          }
+        }
+      } catch {
+        // Invalid JSON
+      }
+    }
     return { merged: false, source: null, skipReason: 'already_merged', result: metadata }
   }
 
