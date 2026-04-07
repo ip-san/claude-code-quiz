@@ -120,6 +120,7 @@ export function useRecommendation() {
       setUnusedCategories([])
       setAnalysis(cachedAnalysis)
     } else {
+      // Fallback: compute recommendations locally when AI reasons are not available
       const progress = useQuizStore.getState().userProgress
       const { recs, unused } = computeRecommendations({ ...cachedAnalysis }, allQuestions, undefined, progress)
       setRecommendations(recs)
@@ -251,8 +252,7 @@ export function useRecommendation() {
         stopTimer()
         setRegenerating(false)
         setLoading(false)
-        if (result?.success) {
-          await loadFromCache()
+        if (result?.success && (await loadFromCache())) {
           setRegenerated(true)
           haptics.medium()
           notifyRecommendComplete()
@@ -408,8 +408,7 @@ export function useRecommendation() {
         ?.runRecommendSkill?.()
         .then(async (result) => {
           setLoading(false)
-          if (result?.success) {
-            await loadFromCache()
+          if (result?.success && (await loadFromCache())) {
             haptics.medium()
             notifyRecommendComplete()
           }

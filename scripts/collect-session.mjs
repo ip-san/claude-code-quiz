@@ -506,8 +506,10 @@ if (daily.merged.promptSamples.length < MIN_PROMPTS) {
 }
 
 // ── Generate recommendation URL ────────────────────────────
+// Skip when called from /recommend skill (--scan-all-today) — the skill writes its own output with AI-generated reasons
 // Top 3 categories → pick 5 question IDs each
 try {
+  if (scanAllToday) throw new Error('skip')
   const quizPath = join(process.env.CLAUDE_PROJECT_DIR || process.cwd(), 'src/data/quizzes.json')
   if (existsSync(quizPath)) {
     const quizData = JSON.parse(readFileSync(quizPath, 'utf8'))

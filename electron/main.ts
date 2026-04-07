@@ -28,10 +28,11 @@ import {
   nativeImage,
   shell,
 } from 'electron'
-import { readdirSync, readFileSync, statSync } from 'fs'
+import { readdirSync, readFileSync, statSync, writeFileSync } from 'fs'
 import { readFile, stat, writeFile } from 'fs/promises'
 import { homedir } from 'os'
 import { basename, join } from 'path'
+import { mergeReasons } from '../src/infrastructure/recommend/mergeReasons'
 import { electronLocale as loc } from './locale'
 
 /**
@@ -498,6 +499,8 @@ ipcMain.handle('run-recommend-skill', async (): Promise<{ success: boolean; erro
     const { spawn } = await import('child_process')
     const models = ['opus', 'sonnet']
 
+    let skillStdout = ''
+
     const runWithModel = (model: string) =>
       new Promise<void>((resolve, reject) => {
         const proc = spawn('claude', ['-p', '/recommend', '--model', model], {
@@ -507,14 +510,22 @@ ipcMain.handle('run-recommend-skill', async (): Promise<{ success: boolean; erro
           stdio: ['ignore', 'pipe', 'pipe'],
         })
         recommendProc = proc
+        let stdout = ''
         let stderr = ''
+        proc.stdout?.on('data', (d: Buffer) => {
+          stdout += d.toString()
+        })
         proc.stderr?.on('data', (d: Buffer) => {
           stderr += d.toString()
         })
         proc.on('close', (code) => {
           if (proc === recommendProc) recommendProc = null
-          if (code === 0) resolve()
-          else if (code === 143 || code === null) reject(new Error(loc.recommend.timeout))
+          if (code === 0) {
+            skillStdout = stdout || stderr // claude -p may output to stderr
+            console.log(`[recommend] stdout=${stdout.length}B, stderr=${stderr.length}B`)
+            if (stdout.length > 0) console.log(`[recommend] stdout-sample: ${stdout.slice(0, 500)}`)
+            resolve()
+          } else if (code === 143 || code === null) reject(new Error(loc.recommend.timeout))
           else reject(new Error(stderr || `claude exited with code ${code}`))
         })
         proc.on('error', (err) => {
@@ -531,6 +542,31 @@ ipcMain.handle('run-recommend-skill', async (): Promise<{ success: boolean; erro
       // Only fall back if Opus failed due to model availability, not timeout/cancel
       if (msg.includes(loc.recommend.timeout) || msg.includes('ENOENT') || msg.includes('not found')) throw opusError
       await runWithModel(models[1])
+    }
+
+    // Post-process: merge reasons from separate file or stdout into output
+    // mergeReasons is statically imported at the top of the file
+    const storeDir = join(homedir(), '.claude-quiz-recommend')
+    const resultPath = join(storeDir, 'latest-recommend.json')
+    const reasonsPath = join(storeDir, 'reasons.json')
+    try {
+      const result = JSON.parse(readFileSync(resultPath, 'utf8'))
+      let reasonsJson: string | null = null
+      try {
+        reasonsJson = readFileSync(reasonsPath, 'utf8')
+      } catch {
+        // reasons.json not found
+      }
+      const { merged, source, result: mergedResult } = mergeReasons(result, reasonsJson, skillStdout)
+      if (merged) {
+        writeFileSync(resultPath, JSON.stringify(mergedResult, null, 2))
+        console.log(`[recommend] Merged reasons from ${source}`)
+      } else if (!result.reasons || Object.keys(result.reasons).length === 0) {
+        console.warn('[recommend] WARNING: no reasons from reasons.json or stdout')
+        return { success: true, error: 'missing_reasons' }
+      }
+    } catch (e) {
+      console.error('[recommend] Post-process error:', e)
     }
 
     return { success: true }
@@ -564,7 +600,7 @@ ipcMain.handle('clear-recommend-cache', async (): Promise<void> => {
   const { unlink } = await import('fs/promises')
   const storeDir = join(homedir(), '.claude-quiz-recommend')
   // Clear all intermediate + final results so full pipeline re-runs
-  const filesToClear = ['latest-recommend.json', 'compressed-input.json', 'classified-prompts.json']
+  const filesToClear = ['latest-recommend.json', 'compressed-input.json', 'classified-prompts.json', 'reasons.json']
   await Promise.allSettled(filesToClear.map((f) => unlink(join(storeDir, f))))
 })
 

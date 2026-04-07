@@ -179,6 +179,8 @@ Haiku ができること（既に `promptClassifications` に含まれる）:
 
 **IMPORTANT:** `reasons` フィールドは**必須**。問題IDごとに選定理由を書く。理由にはユーザーの実際のプロンプトを「」で引用し、なぜこの問題が選ばれたかを1行で具体的に書く。空の `reasons: {}` は禁止。
 
+**Step 6a: IDs + メタデータを保存**
+
 ```bash
 node -e "
 const fs = require('fs');
@@ -188,13 +190,6 @@ const data = {
   sessionCount: SESSION_COUNT,
   questionCount: IDS.length,
   ids: IDS,
-  reasons: {
-    // **全問に理由を書くこと（空禁止）**
-    // 形式: 'ID': '「ユーザーのプロンプト引用」→ この問題で学べること'
-    // 例: 'bp-008': '「枠線の統一感」を5回修正指示 → 修正ループの対処法',
-    // 例: 'ext-015': '型チェック・テスト・ビルドを順次実行 → 並列化で時短'
-  },
-  coachingMessage: COACHING_MESSAGE,  // 1-line coaching (see "coachingMessage の生成" section)
   url: 'https://ip-san.github.io/claude-code-quiz/?ids=' + IDS.join(','),
   topCategories: TOP_CATEGORIES,
   topics: TOPICS,
@@ -205,7 +200,27 @@ fs.writeFileSync(
   JSON.stringify(data, null, 2)
 );
 console.log('✓ ' + data.questionCount + '問のレコメンドを保存しました');
-console.log(data.url);
+"
+```
+
+**Step 6b: reasons + coachingMessage を別ファイルに保存**
+
+**YOU MUST** 以下のスクリプトを Step 6a の後に**必ず**実行すること。全15問分の理由を1つずつ書くこと。
+
+```bash
+node -e "
+const fs = require('fs');
+const path = require('path');
+const reasons = {
+  'ID1': '「ユーザーのプロンプト引用」→ この問題で学べること',
+  'ID2': '「ユーザーのプロンプト引用」→ この問題で学べること'
+};
+const data = { reasons, coachingMessage: COACHING_MESSAGE };
+fs.writeFileSync(
+  path.join(process.env.HOME, '.claude-quiz-recommend', 'reasons.json'),
+  JSON.stringify(data, null, 2)
+);
+console.log('✓ reasons saved (' + Object.keys(reasons).length + ' entries)');
 "
 ```
 
@@ -234,12 +249,14 @@ console.log(data.url);
 
 ### 選定した問題（15問）
 
+**YOU MUST** 以下の形式で全15問を出力すること。`**ID** [difficulty]:` の形式は後処理で解析される。
+
 **苦戦への対処（N問）**
-- ID: 問題タイトル — 「○○」で繰り返し質問していた → この知識で解決できる
+- **bp-036** [intermediate]: 「○○」で繰り返し質問 → この知識で解決できる
 
 **深い理解（N問）**
-- ID: 問題タイトル — 試行→修正ループが検出された機能の理解を深める
+- **ext-015** [advanced]: 試行→修正ループが検出 → 機能の理解を深める
 
 **効率化のチャンス（N問）**
-- ID: 問題タイトル — 手動でやっていた○○を自動化できる
+- **cmd-003** [beginner]: 手動でやっていた○○ → 自動化できる
 ```

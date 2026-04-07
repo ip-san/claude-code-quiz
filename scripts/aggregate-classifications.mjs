@@ -76,23 +76,23 @@ const opusMonthly = findLatestAnalysis('monthly')
 
 // 1. Conversation flows — the sequential context that Sonnet needs
 //    to understand "what the user was trying to do across sessions"
-const conversationFlows = (rolling.conversationFlows || []).slice(-10).map((flow) => ({
+const conversationFlows = (rolling.conversationFlows || []).slice(-5).map((flow) => ({
   date: flow.date,
   // Preserve dialogue pairs (user + assistant) with role, text, and error flags
   prompts: flow.prompts
-    .slice(-15)
+    .slice(-10)
     .map((p) =>
       typeof p === 'object'
-        ? { role: p.role, text: (p.text || '').slice(0, 120), hasError: p.hasError || undefined }
-        : { role: 'user', text: (p || '').slice(0, 120) }
+        ? { role: p.role, text: (p.text || '').slice(0, 80), hasError: p.hasError || undefined }
+        : { role: 'user', text: (p || '').slice(0, 80) }
     ),
 }))
 
 // 2. Individual Haiku classifications — per-prompt judgment
 //    Sonnet can see patterns that Haiku classified as struggle/none
 //    and make cross-prompt inferences
-const promptClassifications = (classified.classifications || []).map((c) => {
-  const promptText = rolling.prompts?.[c.id]?.slice(0, 120) ?? ''
+const promptClassifications = (classified.classifications || []).slice(-30).map((c) => {
+  const promptText = rolling.prompts?.[c.id]?.slice(0, 80) ?? ''
   return {
     text: promptText,
     intent: c.intent,
@@ -282,12 +282,12 @@ function filterCandidates(catDist, profile) {
           id: q.id,
           category: q.category,
           difficulty: q.difficulty,
-          question: q.question.slice(0, 80),
+          question: q.question.slice(0, 50),
         }))
       )
     }
 
-    return candidates.slice(0, 80)
+    return candidates.slice(0, 50)
   } catch {
     return []
   }
