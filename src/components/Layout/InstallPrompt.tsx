@@ -1,5 +1,6 @@
 import { Download, Share, X } from 'lucide-react'
 import { useEffect, useState } from 'react'
+import { locale } from '@/config/locale'
 import { hasSeenWelcome } from './WelcomeScreen'
 
 interface BeforeInstallPromptEvent extends Event {
@@ -82,7 +83,7 @@ export function InstallPrompt() {
           <div className="mb-3 flex items-center justify-between">
             <div className="flex items-center gap-2">
               <Share className="h-5 w-5 text-claude-orange" />
-              <p className="text-sm font-semibold text-claude-dark">アプリとして使う</p>
+              <p className="text-sm font-semibold text-claude-dark">{locale.install.useAsApp}</p>
             </div>
             <button onClick={handleDismiss} className="p-1 text-stone-400" aria-label="閉じる">
               <X className="h-4 w-4" />
@@ -93,17 +94,13 @@ export function InstallPrompt() {
               <span className="flex h-5 w-5 flex-shrink-0 items-center justify-center rounded-full bg-claude-orange text-xs font-bold text-white">
                 1
               </span>
-              <span>
-                Safari 画面下の <strong>共有ボタン</strong>（□↑）をタップ
-              </span>
+              <span>{locale.install.iosStep1}</span>
             </div>
             <div className="flex items-center gap-2">
               <span className="flex h-5 w-5 flex-shrink-0 items-center justify-center rounded-full bg-claude-orange text-xs font-bold text-white">
                 2
               </span>
-              <span>
-                <strong>「ホーム画面に追加」</strong>をタップ
-              </span>
+              <span>{locale.install.iosStep2}</span>
             </div>
           </div>
         </div>
@@ -121,14 +118,14 @@ export function InstallPrompt() {
           <Download className="h-5 w-5 text-claude-orange" />
         </div>
         <div className="flex-1">
-          <p className="text-sm font-semibold text-claude-dark">アプリをインストール</p>
-          <p className="text-xs text-stone-500 dark:text-stone-400">ホーム画面から起動できます</p>
+          <p className="text-sm font-semibold text-claude-dark">{locale.install.installApp}</p>
+          <p className="text-xs text-stone-500 dark:text-stone-400">{locale.install.installDesc}</p>
         </div>
         <button
           onClick={handleInstall}
           className="tap-highlight flex-shrink-0 rounded-full bg-claude-orange px-4 py-2 text-sm font-semibold text-white"
         >
-          追加
+          {locale.install.addButton}
         </button>
         <button onClick={handleDismiss} className="flex-shrink-0 p-1 text-stone-400" aria-label="閉じる">
           <X className="h-4 w-4" />

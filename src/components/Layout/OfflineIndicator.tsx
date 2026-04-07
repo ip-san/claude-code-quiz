@@ -1,5 +1,6 @@
 import { WifiOff } from 'lucide-react'
 import { useEffect, useState } from 'react'
+import { locale } from '@/config/locale'
 
 /**
  * オフライン時に画面上部にバナーを表示する。
@@ -29,7 +30,7 @@ export function OfflineIndicator() {
       style={{ paddingTop: `calc(env(safe-area-inset-top, 0px) + 6px)` }}
     >
       <WifiOff className="h-3.5 w-3.5" />
-      オフラインモード
+      {locale.offline.indicator}
     </div>
   )
 }

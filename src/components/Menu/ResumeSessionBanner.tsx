@@ -28,7 +28,7 @@ export function ResumeSessionBanner() {
         <div className="flex-1">
           <span className="text-sm font-semibold text-claude-dark">{locale.resumeSession.hasResume}</span>
           <p className="text-xs text-stone-500 dark:text-stone-400">
-            {modeName} - 問題 {progress}
+            {locale.resumeSession.progressText(modeName, progress)}
             {scoreText && ` (${scoreText})`}
           </p>
         </div>

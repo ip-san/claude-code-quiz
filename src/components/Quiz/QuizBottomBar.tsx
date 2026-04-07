@@ -90,7 +90,7 @@ export function QuizBottomBar({
                 className="tap-highlight flex flex-1 items-center justify-center gap-2 rounded-2xl bg-green-600 py-3 text-base font-semibold text-white"
               >
                 <Send className="h-4 w-4" />
-                テスト終了（{sessionState?.answerHistory?.size ?? 0}/{questionsLength}）
+                {locale.quizCard.finishTest(sessionState?.answerHistory?.size ?? 0, questionsLength)}
               </button>
             )
           })()}
@@ -131,7 +131,7 @@ export function QuizBottomBar({
             }}
             className="tap-highlight flex-1 rounded-2xl bg-claude-orange py-3.5 text-base font-semibold text-white sm:py-3"
           >
-            次の問題へ
+            {locale.quizCard.nextQuestion}
           </button>
         ) : (
           <>

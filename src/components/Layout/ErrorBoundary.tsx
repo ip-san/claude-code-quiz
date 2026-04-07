@@ -1,4 +1,5 @@
 import { Component, type ReactNode } from 'react'
+import { locale } from '@/config/locale'
 import { trackError } from '@/lib/analytics'
 
 interface Props {
@@ -80,13 +81,13 @@ export class ErrorBoundary extends Component<Props, State> {
       return (
         <div className="flex min-h-dvh items-center justify-center bg-claude-cream px-4">
           <div className="text-center">
-            <p className="mb-4 text-lg font-semibold text-claude-dark">エラーが発生しました</p>
-            <p className="mb-6 text-sm text-stone-500">アプリを再読み込みしてください</p>
+            <p className="mb-4 text-lg font-semibold text-claude-dark">{locale.errorBoundary.title}</p>
+            <p className="mb-6 text-sm text-stone-500">{locale.errorBoundary.message}</p>
             <button
               onClick={() => window.location.reload()}
               className="tap-highlight rounded-2xl bg-claude-orange px-6 py-3 text-base font-semibold text-white"
             >
-              再読み込み
+              {locale.errorBoundary.reload}
             </button>
           </div>
         </div>

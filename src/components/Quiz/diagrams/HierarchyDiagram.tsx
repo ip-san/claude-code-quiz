@@ -72,8 +72,8 @@ export function HierarchyDiagram({ label, items }: HierarchyDiagramProps) {
         className="mt-1.5 flex items-center justify-between text-[10px] text-stone-500 dark:text-stone-500"
         aria-hidden="true"
       >
-        <span>▲ 高優先</span>
-        <span>低優先 ▼</span>
+        <span>{locale.diagrams.highPriority}</span>
+        <span>{locale.diagrams.lowPriority}</span>
       </div>
     </div>
   )

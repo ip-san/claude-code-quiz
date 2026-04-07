@@ -67,8 +67,10 @@ export function CategoryTrendChart({ sessions }: CategoryTrendChartProps) {
   if (!hasBreakdownData) {
     return (
       <div className={`${cardStyles.base} p-6 text-center`}>
-        <h3 className="mb-2 text-sm font-semibold text-claude-dark dark:text-stone-200">カテゴリ別推移</h3>
-        <p className="text-sm text-stone-400">クイズに回答すると、カテゴリ別の正答率推移が表示されます</p>
+        <h3 className="mb-2 text-sm font-semibold text-claude-dark dark:text-stone-200">
+          {locale.categoryTrend.heading}
+        </h3>
+        <p className="text-sm text-stone-400">{locale.categoryTrend.emptyMessage}</p>
       </div>
     )
   }
@@ -102,7 +104,9 @@ export function CategoryTrendChart({ sessions }: CategoryTrendChartProps) {
 
   return (
     <div className={`${cardStyles.base} p-4`}>
-      <h3 className="mb-2 text-sm font-semibold text-claude-dark dark:text-stone-200">カテゴリ別推移</h3>
+      <h3 className="mb-2 text-sm font-semibold text-claude-dark dark:text-stone-200">
+        {locale.categoryTrend.heading}
+      </h3>
 
       {/* Category toggles */}
       <div className="mb-3 flex flex-wrap gap-1.5">
@@ -130,7 +134,7 @@ export function CategoryTrendChart({ sessions }: CategoryTrendChartProps) {
       </div>
 
       {categoryLines.length === 0 ? (
-        <p className="py-4 text-center text-xs text-stone-500">選択したカテゴリにはまだ十分なデータがありません</p>
+        <p className="py-4 text-center text-xs text-stone-500">{locale.categoryTrend.insufficientData}</p>
       ) : (
         <>
           <svg

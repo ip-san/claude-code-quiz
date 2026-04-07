@@ -1,5 +1,6 @@
 import { RefreshCw } from 'lucide-react'
 import { useEffect, useState } from 'react'
+import { locale } from '@/config/locale'
 import { isElectron } from '@/lib/platformAPI'
 
 /**
@@ -25,12 +26,12 @@ export function PWAUpdatePrompt() {
     <div className="fixed bottom-4 left-4 right-4 z-50 mx-auto max-w-sm animate-slide-down">
       <div className="flex items-center gap-3 rounded-2xl bg-white p-4 shadow-2xl ring-1 ring-stone-200 dark:bg-stone-800 dark:ring-stone-700">
         <RefreshCw className="h-5 w-5 flex-shrink-0 text-claude-orange" />
-        <p className="flex-1 text-sm text-stone-800 dark:text-white">更新されました</p>
+        <p className="flex-1 text-sm text-stone-800 dark:text-white">{locale.pwaUpdate.updated}</p>
         <button
           onClick={() => window.location.reload()}
           className="tap-highlight flex-shrink-0 rounded-full bg-claude-orange px-4 py-1.5 text-xl font-bold text-white"
         >
-          再読込
+          {locale.pwaUpdate.reload}
         </button>
       </div>
     </div>

@@ -57,7 +57,7 @@ export function MasteryLevel({ overallAccuracy, totalAttempts, totalXp, category
           </div>
           {next && (
             <p className="mt-0.5 text-xs text-stone-500">
-              次: {next.icon} {next.name}（{next.req}）
+              {locale.mastery.nextLevel(next.icon, next.name, next.req ?? '')}
             </p>
           )}
           <p className="mt-0.5 text-xs text-stone-400" title={locale.mastery.xpTooltip}>
@@ -81,7 +81,7 @@ export function MasteryLevel({ overallAccuracy, totalAttempts, totalXp, category
             type="text"
             value={name}
             onChange={(e) => setName(e.target.value)}
-            placeholder="お名前を入力"
+            placeholder={locale.certificate.namePlaceholder}
             aria-label="証明書に記載するお名前"
             className="mb-2 w-full rounded-xl border border-stone-300 bg-stone-50 px-3 py-2 text-center text-sm dark:bg-stone-700 dark:border-stone-600 dark:text-white"
           />
@@ -89,7 +89,7 @@ export function MasteryLevel({ overallAccuracy, totalAttempts, totalXp, category
             onClick={handleDownload}
             className="tap-highlight w-full rounded-xl bg-claude-orange py-2 text-sm font-semibold text-white"
           >
-            {LEVEL_DESIGNS[currentIndex].title}をダウンロード
+            {locale.mastery.downloadLevel(LEVEL_DESIGNS[currentIndex].title)}
           </button>
         </div>
       )}

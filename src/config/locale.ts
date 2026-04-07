@@ -21,6 +21,25 @@ export interface LocaleConfig {
     readonly questionSuffix: string
     readonly categorySuffix: string
     readonly approxMinutes: string
+    readonly menu: string
+  }
+
+  // === Error Boundary ===
+  readonly errorBoundary: {
+    readonly title: string
+    readonly message: string
+    readonly reload: string
+  }
+
+  // === PWA Update ===
+  readonly pwaUpdate: {
+    readonly updated: string
+    readonly reload: string
+  }
+
+  // === Offline ===
+  readonly offline: {
+    readonly indicator: string
   }
 
   // === Welcome ===
@@ -56,15 +75,23 @@ export interface LocaleConfig {
   // === Quiz Card ===
   readonly quizCard: {
     readonly noQuestions: string
+    readonly noQuestionsHint: string
+    readonly backToMenu: string
     readonly bookmark: string
     readonly unbookmark: string
     readonly hint: string
     readonly usedHint: string
+    readonly showHint: string
     readonly multiSelectGroup: string
     readonly singleSelectGroup: string
+    readonly multiSelectHint: string
     readonly retryButton: string
     readonly retryLabel: string
     readonly defaultHint: string
+    readonly docsLink: string
+    readonly adaptiveTooltip: string
+    readonly adaptiveLabel: string
+    readonly reviewBadge: string
     readonly questionLabel: (index: number, answered: boolean) => string
     readonly submitAnswer: string
     readonly selectOption: string
@@ -72,19 +99,32 @@ export interface LocaleConfig {
     readonly optionSelected: string
     readonly optionCorrect: string
     readonly optionIncorrect: string
+    readonly finishTest: (answered: number, total: number) => string
+    readonly nextQuestion: string
   }
 
   // === Quiz Result ===
   readonly result: {
     readonly firstCongrats: string
+    readonly firstMessage: string
     readonly reviewNote: string
     readonly starRating: string
     readonly nextRecommendation: string
     readonly tomorrowAction: string
+    readonly tomorrowMessage: string
     readonly passing: string
     readonly notPassing: string
     readonly nextStep: string
     readonly learnedAction: string
+    readonly overviewCompleteDesc: string
+    readonly categoryMistake: (icon: string, name: string, count: number) => string
+    readonly deepDive: (icon: string, name: string) => string
+    readonly reviewWrong: (count: number) => string
+    readonly retryAgain: string
+    readonly quickThree: string
+    readonly shareButton: string
+    readonly textShare: string
+    readonly answerProgress: (answered: number, total: number, unanswered: number) => string
   }
 
   // === Certificate ===
@@ -92,9 +132,13 @@ export interface LocaleConfig {
     readonly congrats: string
     readonly canIssue: string
     readonly namePlaceholder: string
+    readonly nameWithContext: string
     readonly nameLabel: string
     readonly generating: string
     readonly download: string
+    readonly noCertificates: string
+    readonly eligibilityHint: string
+    readonly earnedCount: (count: number) => string
   }
 
   // === Menu ===
@@ -183,6 +227,15 @@ export interface LocaleConfig {
     readonly errorPrefix: string
     readonly sessionCountLabel: string
     readonly sessionCountSuffix: string
+    readonly emptyTitle: string
+    readonly emptyMessage: string
+    readonly startFirst: string
+    readonly chartSection: string
+    readonly recentSessions: string
+    readonly categorySection: string
+    readonly dataManagement: string
+    readonly passingLine: (score: number) => string
+    readonly needMoreSessions: string
   }
 
   // === Mastery ===
@@ -194,7 +247,10 @@ export interface LocaleConfig {
     readonly avgXpLabel: (avg: string) => string
     readonly xpTooltip: string
     readonly downloadCert: string
+    readonly downloadLevel: (title: string) => string
     readonly levelReached: (name: string, req: string) => string
+    readonly nextLevel: (icon: string, name: string, req: string) => string
+    readonly xpGained: (gain: number) => string
   }
 
   // === Team Share ===
@@ -222,6 +278,7 @@ export interface LocaleConfig {
     readonly hasResume: string
     readonly resumeButton: string
     readonly correctSuffix: string
+    readonly progressText: (modeName: string, progress: string) => string
   }
 
   // === Install Prompt ===
@@ -242,6 +299,19 @@ export interface LocaleConfig {
     readonly flow: string
     readonly highPriority: string
     readonly lowPriority: string
+    readonly switchTrigger: (trigger: string) => string
+  }
+
+  // === Category Trend ===
+  readonly categoryTrend: {
+    readonly heading: string
+    readonly emptyMessage: string
+    readonly insufficientData: string
+  }
+
+  // === Related Questions ===
+  readonly relatedQuestions: {
+    readonly heading: string
   }
 
   // === Timer ===
@@ -283,6 +353,8 @@ export interface LocaleConfig {
   readonly sessionHistory: {
     readonly modes: Record<string, string>
     readonly sessionLabel: (index: number) => string
+    readonly noHistory: string
+    readonly historyTitle: (count: number) => string
   }
 
   // === Reader ===
@@ -297,6 +369,7 @@ export interface LocaleConfig {
     readonly noResults: string
     readonly correctAnswer: string
     readonly countLabel: (filtered: number, total: number) => string
+    readonly allPages: string
   }
 
   // === Streak Banner ===
@@ -309,6 +382,14 @@ export interface LocaleConfig {
       readonly day7: string
       readonly day3: string
     }
+    readonly streakAchieved: (days: number) => string
+    readonly dailyGoalDone: string
+    readonly dailyGoalProgress: (current: number, goal: number) => string
+  }
+
+  // === Category Breakthrough ===
+  readonly categoryBreakthrough: {
+    readonly bestUpdate: (icon: string, name: string, prev: number, now: number) => string
   }
 
   // === Tutorial ===
@@ -348,6 +429,12 @@ export interface LocaleConfig {
     readonly retryChapter: string
     readonly continueChapter: string
     readonly startChapter: string
+    readonly allComplete: string
+    readonly allClearMessage: (total: number) => string
+    readonly fullTestButton: string
+    readonly progressHeading: string
+    readonly correctCount: (correct: number, total: number) => string
+    readonly remainingCount: (n: number) => string
   }
 
   // === Chapter Complete ===

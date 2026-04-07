@@ -30,7 +30,7 @@ export function SessionHistoryChart({ sessions }: SessionHistoryChartProps) {
   if (sessions.length < 2) {
     return (
       <div className={`${cardStyles.base} p-6 text-center`}>
-        <p className="text-sm text-stone-400">グラフを表示するには2回以上のセッションが必要です</p>
+        <p className="text-sm text-stone-400">{locale.progress.needMoreSessions}</p>
       </div>
     )
   }
@@ -52,7 +52,7 @@ export function SessionHistoryChart({ sessions }: SessionHistoryChartProps) {
 
   return (
     <div className={`${cardStyles.base} p-4`}>
-      <h3 className="mb-3 text-sm font-semibold text-claude-dark">学習推移</h3>
+      <h3 className="mb-3 text-sm font-semibold text-claude-dark">{locale.progress.chartTitle}</h3>
       <svg
         viewBox={`0 0 ${CHART_WIDTH} ${CHART_HEIGHT}`}
         className="w-full"

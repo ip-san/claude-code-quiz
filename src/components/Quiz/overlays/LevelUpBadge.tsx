@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react'
+import { locale } from '@/config/locale'
 
 interface LevelUpBadgeProps {
   /** セッション開始時の累積XP */
@@ -37,8 +38,8 @@ export function LevelUpBadge({ previousXp, currentXp }: LevelUpBadgeProps) {
       <p className="text-2xl" aria-hidden="true">
         ✨
       </p>
-      <p className="text-sm font-bold text-amber-700 dark:text-amber-300">+{gain} XP 獲得！</p>
-      <p className="text-xs text-stone-600 dark:text-stone-400">累計 {currentXp} XP</p>
+      <p className="text-sm font-bold text-amber-700 dark:text-amber-300">{locale.mastery.xpGained(gain)}</p>
+      <p className="text-xs text-stone-600 dark:text-stone-400">{locale.mastery.totalXpLabel(currentXp)}</p>
     </div>
   )
 }

@@ -181,13 +181,13 @@ export function QuizCard({
         <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-2xl bg-claude-orange/10">
           <span className="text-3xl">🔍</span>
         </div>
-        <h3 className="mb-2 text-lg font-semibold text-claude-dark">該当する問題がありません</h3>
-        <p className="mb-6 text-sm text-stone-500 dark:text-stone-400">別のカテゴリや難易度を試してみてください</p>
+        <h3 className="mb-2 text-lg font-semibold text-claude-dark">{locale.quizCard.noQuestions}</h3>
+        <p className="mb-6 text-sm text-stone-500 dark:text-stone-400">{locale.quizCard.noQuestionsHint}</p>
         <button
           onClick={endSession}
           className="tap-highlight rounded-2xl bg-claude-orange px-6 py-3 text-sm font-semibold text-white"
         >
-          メニューに戻る
+          {locale.quizCard.backToMenu}
         </button>
       </div>
     )
@@ -276,13 +276,15 @@ export function QuizCard({
             {isAdaptive && currentIndex === 0 && (
               <span
                 className="rounded bg-indigo-500/10 px-2 py-1 text-xs font-medium text-indigo-500"
-                title="カテゴリ別の正答率に応じて、得意分野は上級、苦手分野は初級を優先出題しています"
+                title={locale.quizCard.adaptiveTooltip}
               >
-                正答率に合わせて出題
+                {locale.quizCard.adaptiveLabel}
               </span>
             )}
             {isReviewMode && (
-              <span className="rounded bg-amber-100 px-2 py-1 text-xs font-medium text-amber-700">復習</span>
+              <span className="rounded bg-amber-100 px-2 py-1 text-xs font-medium text-amber-700">
+                {locale.quizCard.reviewBadge}
+              </span>
             )}
           </div>
           <button
@@ -308,13 +310,13 @@ export function QuizCard({
                 className="tap-highlight flex items-center gap-1.5 rounded-2xl border border-amber-300 bg-amber-50 px-3 py-2 text-sm text-amber-700 dark:text-amber-300"
               >
                 <Lightbulb className="h-4 w-4" />
-                ヒントを表示
+                {locale.quizCard.showHint}
               </button>
             ) : (
               <div className="rounded-lg border border-amber-300 bg-amber-50 p-3 dark:bg-amber-500/10">
                 <div className="mb-1 flex items-center gap-1.5">
                   <Lightbulb className="h-4 w-4 text-amber-600 dark:text-amber-400" />
-                  <span className="text-sm font-medium text-amber-700 dark:text-amber-300">ヒント</span>
+                  <span className="text-sm font-medium text-amber-700 dark:text-amber-300">{locale.quizCard.hint}</span>
                 </div>
                 <p className="text-sm text-amber-800 dark:text-amber-200">
                   {quiz.hint ? <QuizText text={quiz.hint} /> : locale.quizCard.defaultHint}
@@ -327,7 +329,7 @@ export function QuizCard({
           <div className="mb-4 rounded-lg border border-amber-200 bg-amber-50/50 p-3">
             <div className="mb-1 flex items-center gap-1.5">
               <Lightbulb className="h-4 w-4 text-amber-500" />
-              <span className="text-xs font-medium text-amber-600">使用したヒント</span>
+              <span className="text-xs font-medium text-amber-600">{locale.quizCard.usedHint}</span>
             </div>
             <p className="text-xs text-amber-700">
               <QuizText text={quiz.hint} />
@@ -345,7 +347,7 @@ export function QuizCard({
               className="inline-flex items-center gap-1 text-xs text-stone-500 hover:text-claude-orange"
             >
               <ExternalLink className="h-3 w-3" />
-              公式ドキュメントで詳しく調べる
+              {locale.quizCard.docsLink}
             </a>
           </div>
         )}
@@ -353,7 +355,7 @@ export function QuizCard({
         {/* Multi-select indicator */}
         {isMultiSelect && (
           <div className="mb-4 flex items-center gap-2 rounded-lg border border-indigo-200 bg-indigo-50 px-3 py-2">
-            <span className="text-sm font-medium text-indigo-700">該当するものを全て選んでください</span>
+            <span className="text-sm font-medium text-indigo-700">{locale.quizCard.multiSelectHint}</span>
           </div>
         )}
 
@@ -404,7 +406,7 @@ export function QuizCard({
                   className="tap-highlight inline-flex w-full items-center justify-center gap-2 rounded-2xl border-2 border-claude-orange py-3.5 text-base font-semibold text-claude-orange sm:py-3"
                 >
                   <RotateCcw className="h-4 w-4" />
-                  もう一度挑戦 <span className="text-xs opacity-60">(R)</span>
+                  {locale.quizCard.retryButton} <span className="text-xs opacity-60">(R)</span>
                 </button>
               </div>
             )}

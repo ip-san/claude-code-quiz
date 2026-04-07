@@ -1,4 +1,5 @@
 import { Check, Copy, Users } from 'lucide-react'
+import { locale } from '@/config/locale'
 import { theme } from '@/config/theme'
 import { useCopyToClipboard } from '@/lib/useCopyToClipboard'
 
@@ -28,13 +29,10 @@ export function TeamShareGuide({ percentage, mode }: TeamShareGuideProps) {
     <div className="mt-6 rounded-2xl border border-purple-200 bg-gradient-to-b from-purple-50 to-indigo-50 p-5 text-left dark:border-purple-500/30 dark:from-purple-500/10 dark:to-indigo-500/10">
       <div className="mb-3 flex items-center gap-2">
         <Users className="h-5 w-5 text-purple-500" />
-        <p className="text-sm font-bold text-purple-700 dark:text-purple-300">チームに広げる</p>
+        <p className="text-sm font-bold text-purple-700 dark:text-purple-300">{locale.teamShare.heading}</p>
       </div>
 
-      <p className="mb-4 text-sm text-claude-dark">
-        あなたが学んだことを、チームにも共有しましょう。 AI
-        駆動開発は一人では完結しません。チーム全体で取り組むことで、本当の変革が起こります。
-      </p>
+      <p className="mb-4 text-sm text-claude-dark">{locale.teamShare.intro}</p>
 
       {/* 3-step team action plan */}
       <div className="mb-4 space-y-2">
@@ -56,17 +54,17 @@ export function TeamShareGuide({ percentage, mode }: TeamShareGuideProps) {
         {copied ? (
           <>
             <Check className="h-4 w-4" />
-            コピーしました
+            {locale.common.copied}
           </>
         ) : (
           <>
             <Copy className="h-4 w-4" />
-            チームへの提案メッセージをコピー
+            {locale.teamShare.copyButton}
           </>
         )}
       </button>
 
-      <p className="mt-2 text-center text-xs text-stone-500">Slack やメールにそのまま貼り付けられます</p>
+      <p className="mt-2 text-center text-xs text-stone-500">{locale.teamShare.copyHint}</p>
     </div>
   )
 }

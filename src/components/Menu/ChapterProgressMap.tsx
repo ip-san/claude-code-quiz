@@ -90,9 +90,9 @@ export function ChapterProgressMap({
         <div className="flex items-center gap-2">
           <span className="text-xl">🎓</span>
           <div className="flex-1">
-            <p className="text-sm font-bold text-green-700 dark:text-green-300">全体像モード完了！</p>
+            <p className="text-sm font-bold text-green-700 dark:text-green-300">{locale.chapterProgress.allComplete}</p>
             <p className="text-xs text-stone-500 dark:text-stone-400">
-              全{chapters.reduce((s, c) => s + c.total, 0)}問クリア — 次のステップに進みましょう
+              {locale.chapterProgress.allClearMessage(chapters.reduce((s, c) => s + c.total, 0))}
             </p>
           </div>
         </div>
@@ -104,7 +104,7 @@ export function ChapterProgressMap({
             }}
             className="tap-highlight rounded-xl border border-stone-200 px-3 py-2.5 text-center text-xs font-medium text-stone-600 dark:border-stone-700 dark:text-stone-300"
           >
-            🔄 もう一度挑戦
+            {`🔄 ${locale.chapterProgress.retryChapter}`}
           </button>
           <button
             onClick={() => {
@@ -113,7 +113,7 @@ export function ChapterProgressMap({
             }}
             className="tap-highlight rounded-xl bg-claude-orange px-3 py-2.5 text-center text-xs font-semibold text-white"
           >
-            🎯 実力テストへ
+            {`🎯 ${locale.chapterProgress.fullTestButton}`}
           </button>
         </div>
       </div>
@@ -122,7 +122,7 @@ export function ChapterProgressMap({
 
   return (
     <div className="mb-5">
-      <h2 className="mb-2 text-sm font-semibold text-stone-500">🗺️ 全体像モード進捗</h2>
+      <h2 className="mb-2 text-sm font-semibold text-stone-500">{`🗺️ ${locale.chapterProgress.progressHeading}`}</h2>
       <div className="grid grid-cols-2 gap-2 sm:grid-cols-3">
         {chapters.map((ch) => {
           const progressPct = ch.total > 0 ? (ch.correct / ch.total) * 100 : 0
@@ -151,13 +151,11 @@ export function ChapterProgressMap({
                 />
               </div>
               <div className="flex items-center justify-between text-[10px] text-stone-500">
-                <span>
-                  {ch.correct}/{ch.total}問正解
-                </span>
+                <span>{locale.chapterProgress.correctCount(ch.correct, ch.total)}</span>
                 {ch.correctPct === 100 ? (
                   <span className="text-green-600">✓</span>
                 ) : ch.correct > 0 || ch.answered > 0 ? (
-                  <span>あと{ch.total - ch.correct}問</span>
+                  <span>{locale.chapterProgress.remainingCount(ch.total - ch.correct)}</span>
                 ) : null}
               </div>
             </button>

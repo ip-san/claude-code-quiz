@@ -1,5 +1,6 @@
 import { ArrowRight } from 'lucide-react'
 import { useMemo } from 'react'
+import { locale } from '@/config/locale'
 import type { Question } from '@/domain/entities/Question'
 import { getDifficultyLabel } from '@/lib/badgeStyles'
 import { haptics } from '@/lib/haptics'
@@ -41,7 +42,7 @@ export function RelatedQuestions({ currentQuestion, allQuestions }: RelatedQuest
 
   return (
     <div className="mt-4 rounded-xl border border-stone-200 bg-stone-50/50 p-3 dark:border-stone-700 dark:bg-stone-800/50">
-      <p className="mb-2 text-xs font-semibold text-stone-500 dark:text-stone-400">この分野をもっと深く</p>
+      <p className="mb-2 text-xs font-semibold text-stone-500 dark:text-stone-400">{locale.relatedQuestions.heading}</p>
       <div className="space-y-1.5">
         {related.map((q) => (
           <button

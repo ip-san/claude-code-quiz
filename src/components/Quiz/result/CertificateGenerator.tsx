@@ -82,7 +82,7 @@ export function CertificateGenerator({ score, total, percentage, mode }: Certifi
         type="text"
         value={name}
         onChange={(e) => setName(e.target.value)}
-        placeholder="お名前を入力"
+        placeholder={locale.certificate.namePlaceholder}
         aria-label="証明書に記載するお名前"
         className="mb-3 w-full rounded-xl border border-stone-300 bg-white px-4 py-2.5 text-center text-sm text-claude-dark dark:bg-stone-800 dark:text-white dark:border-stone-600"
       />

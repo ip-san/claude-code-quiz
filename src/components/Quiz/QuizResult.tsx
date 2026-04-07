@@ -142,10 +142,8 @@ export function QuizResult() {
         {/* First session completion — show BEFORE score to lead with encouragement */}
         {!isReviewMode && userProgress.sessionHistory.length <= 1 && (
           <div className="mb-4 rounded-2xl bg-gradient-to-r from-claude-orange/10 to-blue-500/10 p-4 text-center">
-            <p className="text-lg font-bold text-claude-dark">🎉 はじめの一歩、おめでとうございます</p>
-            <p className="mt-1 text-sm text-claude-gray">
-              AI を学ぶ決断をしました。ここから毎日少しずつ伸びていきます。
-            </p>
+            <p className="text-lg font-bold text-claude-dark">{`🎉 ${locale.result.firstCongrats}`}</p>
+            <p className="mt-1 text-sm text-claude-gray">{locale.result.firstMessage}</p>
           </div>
         )}
 
@@ -180,13 +178,13 @@ export function QuizResult() {
         {/* Unanswered note (timer expired) */}
         {hasUnanswered && (
           <p className="mb-2 text-xs text-stone-500">
-            {answeredCount}/{totalQuestions}問に回答（{totalQuestions - answeredCount}問未回答）
+            {locale.result.answerProgress(answeredCount, totalQuestions, totalQuestions - answeredCount)}
           </p>
         )}
 
         {/* Personal best + review mode note */}
         <PersonalBest sessionHistory={userProgress.sessionHistory} currentPercentage={percentage} />
-        {isReviewMode && <p className="mb-4 text-xs text-stone-500">復習モード — スコア非反映</p>}
+        {isReviewMode && <p className="mb-4 text-xs text-stone-500">{locale.result.reviewNote}</p>}
 
         {/* Category breakthrough badges */}
         {showStars && !isReviewMode && sessionState && (
@@ -239,34 +237,35 @@ export function QuizResult() {
           {/* Recommendation for overview mode */}
           {recommendation && (
             <div className="mb-6 rounded-xl border border-indigo-200 bg-indigo-50 p-4 text-left">
-              <p className="mb-2 text-xs font-semibold text-indigo-500">次のおすすめ</p>
+              <p className="mb-2 text-xs font-semibold text-indigo-500">{locale.result.nextRecommendation}</p>
               {recommendation.type === 'perfect' ? (
                 <>
                   <p className="mb-3 text-sm text-stone-600 dark:text-stone-300">
-                    全体像を把握できました！実力テストで総合力を試してみましょう。
+                    {locale.result.overviewCompleteDesc}
                   </p>
                   <button
                     onClick={handleStartFullTest}
                     className="inline-flex items-center gap-1.5 rounded-lg bg-indigo-500 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-indigo-600"
                   >
                     <Target className="h-4 w-4" />
-                    実力テストに挑戦
+                    {locale.nextRecommend.fullTest}
                     <ArrowRight className="h-4 w-4" />
                   </button>
                 </>
               ) : (
                 <>
                   <p className="mb-3 text-sm text-stone-600 dark:text-stone-300">
-                    <span className="font-medium">
-                      {recommendation.categoryIcon} {recommendation.categoryName}
-                    </span>
-                    で{recommendation.wrongCount}問間違えました。カテゴリ別学習で深掘りしてみましょう。
+                    {locale.result.categoryMistake(
+                      recommendation.categoryIcon ?? '',
+                      recommendation.categoryName ?? '',
+                      recommendation.wrongCount ?? 0
+                    )}
                   </p>
                   <button
                     onClick={() => recommendation.categoryId && handleStartCategorySession(recommendation.categoryId)}
                     className="inline-flex items-center gap-1.5 rounded-lg bg-indigo-500 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-indigo-600"
                   >
-                    {recommendation.categoryIcon} {recommendation.categoryName}を深掘り
+                    {locale.result.deepDive(recommendation.categoryIcon ?? '', recommendation.categoryName ?? '')}
                     <ArrowRight className="h-4 w-4" />
                   </button>
                 </>
@@ -300,7 +299,7 @@ export function QuizResult() {
                 className="tap-highlight inline-flex w-full items-center justify-center gap-2 rounded-2xl bg-amber-500 px-6 py-3.5 text-base font-semibold text-white"
               >
                 <BookOpen className="h-5 w-5" />
-                間違えた問題を復習（{sessionWrongAnswers.length}問）
+                {locale.result.reviewWrong(sessionWrongAnswers.length)}
               </button>
             )}
             <button
@@ -308,14 +307,14 @@ export function QuizResult() {
               className="tap-highlight inline-flex w-full items-center justify-center gap-2 rounded-2xl bg-claude-orange px-6 py-3.5 text-base font-semibold text-white"
             >
               <RotateCcw className="h-5 w-5" />
-              もう一度挑戦する
+              {locale.result.retryAgain}
             </button>
             {!isReviewMode && (
               <button
                 onClick={() => startSession({ mode: 'quick' })}
                 className="tap-highlight inline-flex w-full items-center justify-center gap-2 rounded-2xl border-2 border-green-500 px-6 py-3 text-sm font-semibold text-green-600 dark:border-green-400 dark:text-green-400"
               >
-                ⚡ もう3問だけ
+                {`⚡ ${locale.result.quickThree}`}
               </button>
             )}
             <div className="flex gap-3">
@@ -324,7 +323,7 @@ export function QuizResult() {
                 className="tap-highlight inline-flex flex-1 items-center justify-center gap-2 rounded-2xl border border-stone-300 px-4 py-3 text-sm font-semibold text-stone-600 dark:border-stone-600 dark:text-stone-300"
               >
                 <Home className="h-4 w-4" />
-                メニュー
+                {locale.common.menu}
               </button>
               <ShareSection
                 score={score}
@@ -349,11 +348,11 @@ export function QuizResult() {
                 if (actionItem) {
                   return (
                     <div className="mt-6 rounded-2xl border border-green-300 bg-green-50 p-4 text-left dark:border-green-500/30 dark:bg-green-500/10">
-                      <p className="mb-1 text-xs font-semibold text-green-600 dark:text-green-400">明日やること</p>
-                      <p className="mb-3 text-sm text-claude-dark">{actionItem}</p>
-                      <p className="text-xs text-stone-500">
-                        知識を行動に変えるのは、今です。小さな一歩が未来を変えます。
+                      <p className="mb-1 text-xs font-semibold text-green-600 dark:text-green-400">
+                        {locale.result.tomorrowAction}
                       </p>
+                      <p className="mb-3 text-sm text-claude-dark">{actionItem}</p>
+                      <p className="text-xs text-stone-500">{locale.result.tomorrowMessage}</p>
                     </div>
                   )
                 }
@@ -363,7 +362,7 @@ export function QuizResult() {
               return (
                 <div className="mt-6 rounded-2xl border border-claude-orange/20 bg-claude-orange/5 p-4 text-center dark:border-claude-orange/30 dark:bg-claude-orange/10">
                   <p className="mb-1 text-xs font-semibold text-claude-orange">Next Step</p>
-                  <p className="mb-3 text-sm text-claude-dark">学んだ知識を実践してみましょう</p>
+                  <p className="mb-3 text-sm text-claude-dark">{locale.result.learnedAction}</p>
                   <a
                     href={theme.officialDocsUrl}
                     target="_blank"

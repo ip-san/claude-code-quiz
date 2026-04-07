@@ -47,7 +47,7 @@ export function ReaderFilters({
               : 'bg-stone-100 text-stone-600 dark:bg-stone-700 dark:text-stone-300'
           }`}
         >
-          全て
+          {locale.search.allCategories}
         </button>
         {PREDEFINED_CATEGORIES.map((cat) => (
           <button
@@ -75,7 +75,7 @@ export function ReaderFilters({
                 : 'bg-stone-100 text-stone-500 dark:bg-stone-700 dark:text-stone-400'
             }`}
           >
-            全ページ
+            {locale.reader.allPages}
           </button>
           {docPages.map(({ page, count }) => (
             <button

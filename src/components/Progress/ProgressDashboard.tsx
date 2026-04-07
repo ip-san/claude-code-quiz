@@ -94,12 +94,12 @@ export function ProgressDashboard() {
       {/* Sticky header */}
       <div className={`${headerStyles.sticky} px-4 py-3 sm:px-6`}>
         <div className="mx-auto flex items-center justify-between sm:max-w-2xl lg:max-w-4xl">
-          <h1 className="text-lg font-bold text-claude-dark">学習進捗</h1>
+          <h1 className="text-lg font-bold text-claude-dark">{locale.progress.title}</h1>
           <button
             onClick={() => setViewState('menu')}
             className="tap-highlight rounded-full bg-stone-100 px-4 py-1.5 text-sm font-medium text-stone-600 dark:bg-stone-700 dark:text-stone-300"
           >
-            閉じる
+            {locale.common.close}
           </button>
         </div>
       </div>
@@ -112,22 +112,22 @@ export function ProgressDashboard() {
               <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-stone-100 dark:bg-stone-700">
                 <span className="text-3xl">📊</span>
               </div>
-              <h3 className="mb-2 text-lg font-medium text-claude-dark">ここに学習の記録が残ります</h3>
-              <p className="mb-4 text-sm text-stone-500">最初の1問を解くと、あなたの成長が見えるようになります</p>
+              <h3 className="mb-2 text-lg font-medium text-claude-dark">{locale.progress.emptyTitle}</h3>
+              <p className="mb-4 text-sm text-stone-500">{locale.progress.emptyMessage}</p>
               <button
                 onClick={() => setViewState('menu')}
                 className="tap-highlight rounded-2xl bg-claude-orange px-6 py-3 text-sm font-semibold text-white"
               >
-                最初の1問を解く
+                {locale.progress.startFirst}
               </button>
             </div>
           )}
 
           {/* Overall Stats — always visible */}
           <div className="mb-4 grid grid-cols-2 gap-3 sm:grid-cols-4">
-            <StatCard label="総回答数" value={userProgress.totalAttempts} icon="📝" />
-            <StatCard label="正解数" value={userProgress.totalCorrect} icon="✅" />
-            <StatCard label="正答率" value={`${overallAccuracy}%`} icon="📊" />
+            <StatCard label={locale.progress.totalAnswers} value={userProgress.totalAttempts} icon="📝" />
+            <StatCard label={locale.progress.correctCount} value={userProgress.totalCorrect} icon="✅" />
+            <StatCard label={locale.progress.accuracy} value={`${overallAccuracy}%`} icon="📊" />
             <StatCard
               label={locale.progress.sessionCountLabel}
               value={`${userProgress.sessionHistory.length}${locale.progress.sessionCountSuffix}`}
@@ -179,13 +179,17 @@ export function ProgressDashboard() {
               onClick={() => startSession({ mode: 'weak' })}
               className="tap-highlight mb-4 w-full rounded-2xl bg-claude-orange px-6 py-3 font-semibold text-white"
             >
-              🎯 苦手問題に挑戦
+              {`🎯 ${locale.progress.weakChallenge}`}
             </button>
           )}
 
           {/* ── Collapsible: Charts ── */}
           {!hasNoProgress && (
-            <CollapsibleSection title="正答率の推移" isOpen={showCharts} onToggle={() => setShowCharts(!showCharts)}>
+            <CollapsibleSection
+              title={locale.progress.chartSection}
+              isOpen={showCharts}
+              onToggle={() => setShowCharts(!showCharts)}
+            >
               <SessionHistoryChart sessions={userProgress.sessionHistory} />
               <div className="mt-4">
                 <CategoryTrendChart sessions={userProgress.sessionHistory} />
@@ -198,13 +202,13 @@ export function ProgressDashboard() {
                   <div className="mt-4 flex flex-wrap gap-3">
                     {best !== null && (
                       <div className={`flex-1 ${cardStyles.base} p-4`}>
-                        <div className="mb-1 text-xs text-stone-500">最高正答率</div>
+                        <div className="mb-1 text-xs text-stone-500">{locale.progress.bestAccuracy}</div>
                         <div className="text-2xl font-bold text-claude-orange">{best}%</div>
                       </div>
                     )}
                     {trend !== null && (
                       <div className={`flex-1 ${cardStyles.base} p-4`}>
-                        <div className="mb-1 text-xs text-stone-500">成長トレンド</div>
+                        <div className="mb-1 text-xs text-stone-500">{locale.progress.growthTrend}</div>
                         <div className={`text-2xl font-bold ${trend >= 0 ? 'text-green-600' : 'text-red-500'}`}>
                           {trend >= 0 ? '+' : ''}
                           {trend}%
@@ -216,7 +220,7 @@ export function ProgressDashboard() {
               })()}
               {userProgress.sessionHistory.length > 0 && (
                 <div className="mt-4">
-                  <h3 className="mb-2 text-sm font-semibold text-stone-500">最近のセッション</h3>
+                  <h3 className="mb-2 text-sm font-semibold text-stone-500">{locale.progress.recentSessions}</h3>
                   <SessionHistoryList sessions={userProgress.sessionHistory} limit={5} />
                 </div>
               )}
@@ -226,7 +230,7 @@ export function ProgressDashboard() {
           {/* ── Collapsible: Category Details ── */}
           {!hasNoProgress && (
             <CollapsibleSection
-              title="カテゴリ別進捗"
+              title={locale.progress.categorySection}
               isOpen={showCategories}
               onToggle={() => setShowCategories(!showCategories)}
             >
@@ -240,7 +244,7 @@ export function ProgressDashboard() {
                 if (teachable.length === 0) return null
                 return (
                   <div className="mb-4 rounded-2xl border border-purple-200 bg-purple-50/50 p-4 dark:border-purple-500/30 dark:bg-purple-500/10">
-                    <p className="mb-2 text-sm font-bold text-purple-700 dark:text-purple-300">🎓 教えられるカテゴリ</p>
+                    <p className="mb-2 text-sm font-bold text-purple-700 dark:text-purple-300">{`🎓 ${locale.progress.teachable}`}</p>
                     <div className="flex flex-wrap gap-2">
                       {teachable.map((cat) => (
                         <span
@@ -300,17 +304,17 @@ export function ProgressDashboard() {
 
           {/* ── Collapsible: Data Management ── */}
           <CollapsibleSection
-            title="データ管理"
+            title={locale.progress.dataManagement}
             isOpen={showDataManagement}
             onToggle={() => setShowDataManagement(!showDataManagement)}
           >
             <div className="space-y-3">
               <div className="flex flex-col gap-3 sm:flex-row">
                 <button onClick={handleExport} className={`${buttonStyles.secondary} flex-1`}>
-                  📥 履歴をエクスポート
+                  {`📥 ${locale.progress.exportLabel}`}
                 </button>
                 <button onClick={handleImport} className={`${buttonStyles.secondary} flex-1`}>
-                  📤 履歴をインポート
+                  {`📤 ${locale.progress.importLabel}`}
                 </button>
               </div>
               <button
@@ -324,7 +328,7 @@ export function ProgressDashboard() {
                 }}
                 className={`${buttonStyles.secondary} w-full`}
               >
-                📊 CSVでエクスポート
+                {`📊 ${locale.progress.csvExport}`}
               </button>
               {exportStatus && (
                 <div
@@ -351,7 +355,7 @@ export function ProgressDashboard() {
                 }}
                 className="tap-highlight w-full rounded-2xl border border-red-600/50 px-6 py-3 font-semibold text-red-400"
               >
-                履歴をリセット
+                {locale.progress.resetLabel}
               </button>
             </div>
           </CollapsibleSection>

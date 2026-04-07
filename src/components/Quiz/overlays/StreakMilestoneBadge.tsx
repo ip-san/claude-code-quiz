@@ -1,3 +1,4 @@
+import { locale } from '@/config/locale'
 import { DailyGoalService } from '@/domain/services/DailyGoalService'
 import { StreakMilestoneService } from '@/domain/services/StreakMilestoneService'
 
@@ -21,7 +22,7 @@ export function StreakMilestoneBadge({ currentStreak, previousStreak }: StreakMi
     <div className="animate-pulse-success rounded-xl border border-amber-200 bg-gradient-to-r from-amber-50 to-yellow-50 px-5 py-4 text-center shadow-sm">
       <div className="mb-1 text-3xl">{milestone.emoji}</div>
       <p className="text-sm font-bold text-amber-700">{milestone.label}</p>
-      <p className="text-xs text-amber-600">{currentStreak}日連続学習達成！</p>
+      <p className="text-xs text-amber-600">{locale.streakBanner.streakAchieved(currentStreak)}</p>
     </div>
   )
 }
@@ -45,10 +46,8 @@ export function DailyGoalBadge({ previousTodayCount, currentTodayCount, dailyGoa
   return (
     <div className="animate-pulse-success rounded-xl border border-green-200 bg-gradient-to-r from-green-50 to-emerald-50 px-5 py-4 text-center shadow-sm">
       <div className="mb-1 text-3xl">🎯</div>
-      <p className="text-sm font-bold text-green-700">今日の目標達成！</p>
-      <p className="text-xs text-green-600">
-        {currentTodayCount} / {dailyGoal} 問クリア
-      </p>
+      <p className="text-sm font-bold text-green-700">{locale.streakBanner.dailyGoalDone}</p>
+      <p className="text-xs text-green-600">{locale.streakBanner.dailyGoalProgress(currentTodayCount, dailyGoal)}</p>
     </div>
   )
 }

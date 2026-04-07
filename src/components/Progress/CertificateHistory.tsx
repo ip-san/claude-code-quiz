@@ -94,10 +94,8 @@ export function CertificateHistory({ sessionHistory, masteryIndex, overallAccura
         <div className="flex items-center gap-3">
           <Award className="h-6 w-6 text-stone-300 dark:text-stone-600" />
           <div>
-            <p className="text-sm font-medium text-stone-500">修了証はまだありません</p>
-            <p className="text-xs text-stone-500">
-              AI活用レベルが学習者以上に到達、または全体像モード 70%+ / 実力テスト 80%+ で発行されます
-            </p>
+            <p className="text-sm font-medium text-stone-500">{locale.certificate.noCertificates}</p>
+            <p className="text-xs text-stone-500">{locale.certificate.eligibilityHint}</p>
           </div>
         </div>
       </div>
@@ -108,13 +106,13 @@ export function CertificateHistory({ sessionHistory, masteryIndex, overallAccura
     <div className="mb-4">
       <div className="mb-2 flex items-center gap-2">
         <Award className="h-4 w-4 text-amber-500" />
-        <h3 className="text-sm font-bold text-claude-dark">獲得した修了証（{entries.length}件）</h3>
+        <h3 className="text-sm font-bold text-claude-dark">{locale.certificate.earnedCount(entries.length)}</h3>
       </div>
       <input
         type="text"
         value={name}
         onChange={(e) => setName(e.target.value)}
-        placeholder="お名前を入力（修了証に記載）"
+        placeholder={locale.certificate.nameWithContext}
         aria-label="証明書に記載するお名前"
         className="mb-2 w-full rounded-xl border border-stone-200 bg-stone-50 px-3 py-2 text-center text-sm dark:bg-stone-700 dark:border-stone-600 dark:text-white"
       />

@@ -1,5 +1,6 @@
 import { TrendingUp } from 'lucide-react'
 import { useMemo } from 'react'
+import { locale } from '@/config/locale'
 import type { Question } from '@/domain/entities/Question'
 import type { UserProgress } from '@/domain/entities/UserProgress'
 import type { AnswerRecord } from '@/domain/services/QuizSessionService'
@@ -68,7 +69,7 @@ export function CategoryBreakthroughBadge({ questions, answerHistory, userProgre
         >
           <TrendingUp className="h-5 w-5" />
           <span className="text-sm font-bold">
-            {bt.icon} {bt.categoryName} 自己ベスト更新！ {bt.prev}% → {bt.now}%
+            {locale.categoryBreakthrough.bestUpdate(bt.icon, bt.categoryName, bt.prev, bt.now)}
           </span>
         </div>
       ))}

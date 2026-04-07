@@ -1,5 +1,6 @@
 import { CheckCircle } from 'lucide-react'
 import { useMemo } from 'react'
+import { locale } from '@/config/locale'
 import { getSkillDescription } from '@/config/theme'
 import type { Question } from '@/domain/entities/Question'
 import type { AnswerRecord } from '@/domain/services/QuizSessionService'
@@ -38,7 +39,7 @@ export function SkillsAcquired({ questions, answerHistory }: SkillsAcquiredProps
 
   return (
     <div className="mb-4 rounded-2xl border border-green-200 bg-green-50/50 p-4 text-left dark:border-green-500/30 dark:bg-green-500/10">
-      <p className="mb-2 text-xs font-semibold text-green-700 dark:text-green-400">あなたが身につけたこと</p>
+      <p className="mb-2 text-xs font-semibold text-green-700 dark:text-green-400">{locale.skills.heading}</p>
       <div className="space-y-1.5">
         {acquiredSkills.map((skill) => (
           <div key={skill.id} className="flex items-start gap-2">

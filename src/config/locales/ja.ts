@@ -20,6 +20,22 @@ export const ja: LocaleConfig = {
     questionSuffix: '問',
     categorySuffix: 'カテゴリ',
     approxMinutes: '約5分',
+    menu: 'メニュー',
+  },
+
+  errorBoundary: {
+    title: 'エラーが発生しました',
+    message: 'アプリを再読み込みしてください',
+    reload: '再読み込み',
+  },
+
+  pwaUpdate: {
+    updated: '更新されました',
+    reload: '再読込',
+  },
+
+  offline: {
+    indicator: 'オフラインモード',
   },
 
   welcome: {
@@ -52,15 +68,23 @@ export const ja: LocaleConfig = {
 
   quizCard: {
     noQuestions: '該当する問題がありません',
+    noQuestionsHint: '別のカテゴリや難易度を試してみてください',
+    backToMenu: 'メニューに戻る',
     bookmark: 'ブックマークに追加',
     unbookmark: 'ブックマークを解除',
     hint: 'ヒント',
     usedHint: '使用したヒント',
+    showHint: 'ヒントを表示',
     multiSelectGroup: '複数選択回答',
     singleSelectGroup: '回答選択肢',
+    multiSelectHint: '該当するものを全て選んでください',
     retryButton: 'もう一度挑戦',
     retryLabel: 'この問題をもう一度挑戦する (R)',
     defaultHint: '公式ドキュメントを確認してみましょう。回答後に参照リンクが表示されます。',
+    docsLink: '公式ドキュメントで詳しく調べる',
+    adaptiveTooltip: 'カテゴリ別の正答率に応じて、得意分野は上級、苦手分野は初級を優先出題しています',
+    adaptiveLabel: '正答率に合わせて出題',
+    reviewBadge: '復習',
     questionLabel: (index, answered) => `問題${index}${answered ? '（回答済み）' : ''}`,
     submitAnswer: '回答する',
     selectOption: '選択肢を選ぶ',
@@ -68,27 +92,45 @@ export const ja: LocaleConfig = {
     optionSelected: '（選択中）',
     optionCorrect: '（正解）',
     optionIncorrect: '（不正解）',
+    finishTest: (answered, total) => `テスト終了（${answered}/${total}）`,
+    nextQuestion: '次の問題へ',
   },
 
   result: {
     firstCongrats: 'はじめの一歩、おめでとうございます',
+    firstMessage: 'AI を学ぶ決断をしました。ここから毎日少しずつ伸びていきます。',
     reviewNote: '復習モード — スコア非反映',
     starRating: 'つ星の評価',
     nextRecommendation: '次のおすすめ',
     tomorrowAction: '明日やること',
+    tomorrowMessage: '知識を行動に変えるのは、今です。小さな一歩が未来を変えます。',
     passing: '✅ 合格！',
     notPassing: '📚 もう少し！',
     nextStep: 'Next Step',
     learnedAction: '学んだ知識を実践してみましょう',
+    overviewCompleteDesc: '全体像を把握できました！実力テストで総合力を試してみましょう。',
+    categoryMistake: (icon, name, count) =>
+      `${icon} ${name}で${count}問間違えました。カテゴリ別学習で深掘りしてみましょう。`,
+    deepDive: (icon, name) => `${icon} ${name}を深掘り`,
+    reviewWrong: (count) => `間違えた問題を復習（${count}問）`,
+    retryAgain: 'もう一度挑戦する',
+    quickThree: 'もう3問だけ',
+    shareButton: 'シェア',
+    textShare: 'テキストでシェア',
+    answerProgress: (answered, total, unanswered) => `${answered}/${total}問に回答（${unanswered}問未回答）`,
   },
 
   certificate: {
     congrats: '合格おめでとうございます！',
     canIssue: '証明書を発行できます',
     namePlaceholder: 'お名前を入力',
+    nameWithContext: 'お名前を入力（修了証に記載）',
     nameLabel: '証明書に記載するお名前',
     generating: '生成中...',
     download: '証明書をダウンロード',
+    noCertificates: '修了証はまだありません',
+    eligibilityHint: 'AI活用レベルが学習者以上に到達、または全体像モード 70%+ / 実力テスト 80%+ で発行されます',
+    earnedCount: (count) => `獲得した修了証（${count}件）`,
   },
 
   menu: {
@@ -172,6 +214,15 @@ export const ja: LocaleConfig = {
     errorPrefix: 'エラー',
     sessionCountLabel: 'セッション数',
     sessionCountSuffix: '回',
+    emptyTitle: 'ここに学習の記録が残ります',
+    emptyMessage: '最初の1問を解くと、あなたの成長が見えるようになります',
+    startFirst: '最初の1問を解く',
+    chartSection: '正答率の推移',
+    recentSessions: '最近のセッション',
+    categorySection: 'カテゴリ別進捗',
+    dataManagement: 'データ管理',
+    passingLine: (score) => `合格ライン(${score}%)`,
+    needMoreSessions: 'グラフを表示するには2回以上のセッションが必要です',
   },
 
   mastery: {
@@ -182,7 +233,10 @@ export const ja: LocaleConfig = {
     avgXpLabel: (avg) => `（平均 ${avg} XP/問）`,
     xpTooltip: '正解+10 XP、不正解+2 XP、復習正解+15 XP',
     downloadCert: '修了証をダウンロード',
+    downloadLevel: (title) => `${title}をダウンロード`,
     levelReached: (name, req) => `${name}レベル到達（${req}）`,
+    nextLevel: (icon, name, req) => `次: ${icon} ${name}（${req}）`,
+    xpGained: (gain) => `+${gain} XP 獲得！`,
   },
 
   teamShare: {
@@ -207,6 +261,7 @@ export const ja: LocaleConfig = {
     hasResume: '前回の続きがあります',
     resumeButton: '続きから',
     correctSuffix: '問正解',
+    progressText: (modeName, progress) => `${modeName} - 問題 ${progress}`,
   },
 
   install: {
@@ -225,6 +280,17 @@ export const ja: LocaleConfig = {
     flow: 'フロー図',
     highPriority: '▲ 高優先',
     lowPriority: '低優先 ▼',
+    switchTrigger: (trigger) => `${trigger} で切り替え`,
+  },
+
+  categoryTrend: {
+    heading: 'カテゴリ別推移',
+    emptyMessage: 'クイズに回答すると、カテゴリ別の正答率推移が表示されます',
+    insufficientData: '選択したカテゴリにはまだ十分なデータがありません',
+  },
+
+  relatedQuestions: {
+    heading: 'この分野をもっと深く',
   },
 
   timer: {
@@ -276,6 +342,8 @@ export const ja: LocaleConfig = {
       scenario: '実践シナリオ',
     },
     sessionLabel: (index) => `セッション${index}`,
+    noHistory: 'まだセッション履歴がありません',
+    historyTitle: (count) => `セッション履歴（直近${count}件）`,
   },
 
   reader: {
@@ -289,6 +357,7 @@ export const ja: LocaleConfig = {
     noResults: '条件に一致する問題がありません',
     correctAnswer: '正解',
     countLabel: (filtered, total) => `${filtered} / ${total}件`,
+    allPages: '全ページ',
   },
 
   streakBanner: {
@@ -300,6 +369,13 @@ export const ja: LocaleConfig = {
       day7: '1週間連続！良い調子です',
       day3: '3日連続！この調子で続けましょう',
     },
+    streakAchieved: (days) => `${days}日連続学習達成！`,
+    dailyGoalDone: '今日の目標達成！',
+    dailyGoalProgress: (current, goal) => `${current} / ${goal} 問クリア`,
+  },
+
+  categoryBreakthrough: {
+    bestUpdate: (icon, name, prev, now) => `${icon} ${name} 自己ベスト更新！ ${prev}% → ${now}%`,
   },
 
   tutorial: {
@@ -330,6 +406,12 @@ export const ja: LocaleConfig = {
     retryChapter: 'もう一度挑戦',
     continueChapter: '続きから',
     startChapter: 'このチャプターを始める',
+    allComplete: '全体像モード完了！',
+    allClearMessage: (total) => `全${total}問クリア — 次のステップに進みましょう`,
+    fullTestButton: '実力テストへ',
+    progressHeading: '全体像モード進捗',
+    correctCount: (correct, total) => `${correct}/${total}問正解`,
+    remainingCount: (n) => `あと${n}問`,
   },
 
   chapterComplete: {
