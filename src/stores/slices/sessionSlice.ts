@@ -387,7 +387,8 @@ export const createSessionSlice = (set: StoreSet, get: StoreGet): SessionSlice =
       recordCompletedSession(
         newSessionState,
         () => get().userProgress,
-        (p) => set({ userProgress: p })
+        (p) => set({ userProgress: p }),
+        get().activeScenarioId
       )
       set({
         sessionState: newSessionState,
@@ -517,7 +518,8 @@ export const createSessionSlice = (set: StoreSet, get: StoreGet): SessionSlice =
     recordCompletedSession(
       completedState,
       () => state.userProgress,
-      (p) => set({ userProgress: p })
+      (p) => set({ userProgress: p }),
+      get().activeScenarioId
     )
     set({
       sessionState: completedState,
@@ -590,7 +592,8 @@ export const createSessionSlice = (set: StoreSet, get: StoreGet): SessionSlice =
       recordCompletedSession(
         newSessionState,
         () => get().userProgress,
-        (p) => set({ userProgress: p })
+        (p) => set({ userProgress: p }),
+        get().activeScenarioId
       )
       set({ sessionState: newSessionState, viewState: 'result' })
     } else {

@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react'
 import { locale } from '@/config/locale'
+import { trackLevelUp } from '@/lib/analytics'
 
 interface LevelUpBadgeProps {
   /** セッション開始時の累積XP */
@@ -22,10 +23,11 @@ export function LevelUpBadge({ previousXp, currentXp }: LevelUpBadgeProps) {
   useEffect(() => {
     if (isSignificant) {
       setShow(true)
+      trackLevelUp(gain, currentXp)
       const timer = setTimeout(() => setShow(false), 4000)
       return () => clearTimeout(timer)
     }
-  }, [isSignificant])
+  }, [isSignificant, gain, currentXp])
 
   if (!show || !isSignificant) return null
 

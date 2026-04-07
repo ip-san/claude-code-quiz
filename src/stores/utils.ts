@@ -14,7 +14,7 @@ import {
   type SavedAnswerRecord,
   type SavedSessionData,
 } from '@/infrastructure/persistence/SessionRepository'
-import { setUserProperties, trackQuizComplete } from '@/lib/analytics'
+import { setUserProperties, trackQuizComplete, trackScenarioComplete } from '@/lib/analytics'
 
 // ============================================================
 // View State
@@ -222,7 +222,8 @@ export function saveSessionSnapshot(
 export function recordCompletedSession(
   sessionState: QuizSessionState,
   getCurrentProgress: () => UserProgress,
-  updateStore: (progress: UserProgress) => void
+  updateStore: (progress: UserProgress) => void,
+  scenarioId?: string | null
 ): void {
   if (sessionState.isReviewMode) return
 
@@ -260,6 +261,10 @@ export function recordCompletedSession(
     sessionState.answeredCount > 0 ? Math.round((sessionState.score / sessionState.answeredCount) * 100) : 0
   const durationSec = sessionState.startedAt ? Math.round((Date.now() - sessionState.startedAt) / 1000) : 0
   trackQuizComplete(sessionState.config.mode, sessionState.score, sessionState.answeredCount, accuracy, durationSec)
+
+  if (sessionState.config.mode === 'scenario' && scenarioId) {
+    trackScenarioComplete(scenarioId, sessionState.score, sessionState.answeredCount, accuracy)
+  }
 
   // ユーザープロパティを更新（セグメント分析用）
   setUserProperties({

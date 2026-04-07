@@ -1,6 +1,8 @@
+import { useEffect } from 'react'
 import { locale } from '@/config/locale'
 import { DailyGoalService } from '@/domain/services/DailyGoalService'
 import { StreakMilestoneService } from '@/domain/services/StreakMilestoneService'
+import { trackDailyGoal, trackStreakMilestone } from '@/lib/analytics'
 
 interface StreakMilestoneBadgeProps {
   currentStreak: number
@@ -15,6 +17,10 @@ interface StreakMilestoneBadgeProps {
  */
 export function StreakMilestoneBadge({ currentStreak, previousStreak }: StreakMilestoneBadgeProps) {
   const milestone = StreakMilestoneService.getMilestone(currentStreak, previousStreak)
+
+  useEffect(() => {
+    if (milestone) trackStreakMilestone(currentStreak, milestone.label)
+  }, [milestone, currentStreak])
 
   if (!milestone) return null
 
@@ -40,6 +46,10 @@ interface DailyGoalBadgeProps {
  */
 export function DailyGoalBadge({ previousTodayCount, currentTodayCount, dailyGoal }: DailyGoalBadgeProps) {
   const isNewlyAchieved = DailyGoalService.isGoalNewlyAchieved(previousTodayCount, currentTodayCount, dailyGoal)
+
+  useEffect(() => {
+    if (isNewlyAchieved) trackDailyGoal(currentTodayCount, dailyGoal)
+  }, [isNewlyAchieved, currentTodayCount, dailyGoal])
 
   if (!isNewlyAchieved) return null
 

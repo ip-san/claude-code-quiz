@@ -36,6 +36,13 @@ const NUMERIC_PARAMS = new Set([
   'question_count',
   'result_count',
   'slide_index',
+  'xp_gained',
+  'total_xp',
+  'streak_days',
+  'today_count',
+  'daily_goal',
+  'previous_accuracy',
+  'new_accuracy',
 ])
 
 const STRING_PARAMS = new Set([
@@ -47,6 +54,8 @@ const STRING_PARAMS = new Set([
   'method',
   'error_message',
   'error_source',
+  'milestone',
+  'scenario_id',
 ])
 
 function validateCustomEventUsage(dimensions, metrics) {

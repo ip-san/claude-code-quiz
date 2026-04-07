@@ -1,10 +1,11 @@
 import { TrendingUp } from 'lucide-react'
-import { useMemo } from 'react'
+import { useEffect, useMemo } from 'react'
 import { locale } from '@/config/locale'
 import type { Question } from '@/domain/entities/Question'
 import type { UserProgress } from '@/domain/entities/UserProgress'
 import type { AnswerRecord } from '@/domain/services/QuizSessionService'
 import { getCategoryById } from '@/domain/valueObjects/Category'
+import { trackCategoryBest } from '@/lib/analytics'
 
 interface CategoryBreakthroughBadgeProps {
   questions: readonly Question[]
@@ -57,6 +58,12 @@ export function CategoryBreakthroughBadge({ questions, answerHistory, userProgre
 
     return results
   }, [questions, answerHistory, userProgress.questionProgress])
+
+  useEffect(() => {
+    for (const bt of breakthroughs) {
+      trackCategoryBest(bt.categoryName, bt.prev, bt.now)
+    }
+  }, [breakthroughs])
 
   if (breakthroughs.length === 0) return null
 

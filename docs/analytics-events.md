@@ -212,6 +212,74 @@ Web Share API によるクイズ結果のシェア（成功時のみ計測）。
 
 **分析用途:** セッション復帰率。リテンション測定の指標。
 
+### level_up
+
+XP レベルアップ（30XP 以上の獲得時に発火）。
+
+| パラメータ | 型 | 値 |
+|-----------|-----|-----|
+| `xp_gained` | number | 獲得 XP 量 |
+| `total_xp` | number | 累計 XP |
+
+**送信元:** `src/components/Quiz/overlays/LevelUpBadge.tsx`
+
+**分析用途:** XP システムへの反応。シナリオ完走ボーナスの効果測定。
+
+### streak_milestone
+
+ストリークマイルストーン達成（3/7/14/30/60/100日）。
+
+| パラメータ | 型 | 値 |
+|-----------|-----|-----|
+| `streak_days` | number | 連続学習日数 |
+| `milestone` | string | マイルストーンラベル |
+
+**送信元:** `src/components/Quiz/overlays/StreakMilestoneBadge.tsx`
+
+**分析用途:** 継続学習のマイルストーン到達率。リテンション改善の指標。
+
+### daily_goal_achieved
+
+デイリーゴール達成。
+
+| パラメータ | 型 | 値 |
+|-----------|-----|-----|
+| `today_count` | number | 今日の回答数 |
+| `daily_goal` | number | 目標回答数 |
+
+**送信元:** `src/components/Quiz/overlays/StreakMilestoneBadge.tsx` (`DailyGoalBadge`)
+
+**分析用途:** 日課化の成功率。ゴール設定の適切さの評価。
+
+### scenario_complete
+
+シナリオモード完了（ストーリー完走時）。`quiz_complete` に加えて送信。
+
+| パラメータ | 型 | 値 |
+|-----------|-----|-----|
+| `scenario_id` | string | シナリオ ID |
+| `score` | number | 正解数 |
+| `total` | number | 総問題数 |
+| `accuracy` | number | 正答率（0-100） |
+
+**送信元:** `src/stores/utils.ts` (`recordCompletedSession`)
+
+**分析用途:** シナリオ別の完了率・正答率。ストーリーの効果測定。
+
+### category_best
+
+カテゴリ自己ベスト更新（5% 以上の改善時）。
+
+| パラメータ | 型 | 値 |
+|-----------|-----|-----|
+| `category` | string | カテゴリ名 |
+| `previous_accuracy` | number | 前回の正答率 |
+| `new_accuracy` | number | 今回の正答率 |
+
+**送信元:** `src/components/Quiz/overlays/CategoryBreakthroughBadge.tsx`
+
+**分析用途:** カテゴリ別の成長速度。ブレークスルーの頻度と分布。
+
 ### app_error
 
 アプリエラー（未処理例外・レンダリングエラー）。
@@ -247,6 +315,8 @@ Web Share API によるクイズ結果のシェア（成功時のみ計測）。
 | 正誤 | `is_correct` | 問題単位の正答率 |
 | テーマ | `theme` | ダーク/ライト利用率 |
 | シェア方法 | `method` | シェア手段の利用率 |
+| マイルストーン | `milestone` | ストリークマイルストーンの分類 |
+| シナリオID | `scenario_id` | シナリオ別の分析 |
 
 ### カスタムディメンション（ユーザースコープ）
 
@@ -270,6 +340,13 @@ Web Share API によるクイズ結果のシェア（成功時のみ計測）。
 | 残り問題数 | `questions_remaining` | 標準 | 復帰時の残量 |
 | 検索結果件数 | `result_count` | 標準 | 検索精度の評価 |
 | スライド番号 | `slide_index` | 標準 | チュートリアルスキップ位置 |
+| 獲得XP | `xp_gained` | 標準 | レベルアップ時のXP量 |
+| 累計XP | `total_xp` | 標準 | ユーザーの総XP |
+| 連続日数 | `streak_days` | 標準 | マイルストーン達成時の日数 |
+| 今日の回答数 | `today_count` | 標準 | デイリーゴール進捗 |
+| デイリーゴール | `daily_goal` | 標準 | 目標設定値 |
+| 前回正答率 | `previous_accuracy` | 標準 | 自己ベスト更新前の値 |
+| 新正答率 | `new_accuracy` | 標準 | 自己ベスト更新後の値 |
 
 ### コンバージョンイベント
 
@@ -299,6 +376,10 @@ Web Share API によるクイズ結果のシェア（成功時のみ計測）。
            certificate_      reader_open
            download          quiz_search
                              theme_change
+
+達成  ──→ レベルアップ / ストリーク / デイリーゴール / カテゴリベスト / シナリオ完了
+          level_up           streak_         daily_goal_     category_       scenario_
+                             milestone       achieved        best            complete
 ```
 
 ## イベント追加手順

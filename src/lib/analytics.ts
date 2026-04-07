@@ -242,6 +242,31 @@ export function trackRecommend(
   })
 }
 
+/** XP レベルアップ（大きなXP獲得時） */
+export function trackLevelUp(xpGained: number, totalXp: number): void {
+  pushEvent('level_up', { xp_gained: xpGained, total_xp: totalXp })
+}
+
+/** ストリークマイルストーン達成（3/7/14/30/60/100日） */
+export function trackStreakMilestone(streakDays: number, milestone: string): void {
+  pushEvent('streak_milestone', { streak_days: streakDays, milestone })
+}
+
+/** デイリーゴール達成 */
+export function trackDailyGoal(todayCount: number, dailyGoal: number): void {
+  pushEvent('daily_goal_achieved', { today_count: todayCount, daily_goal: dailyGoal })
+}
+
+/** シナリオモード完了 */
+export function trackScenarioComplete(scenarioId: string, score: number, total: number, accuracy: number): void {
+  pushEvent('scenario_complete', { scenario_id: scenarioId, score, total, accuracy })
+}
+
+/** カテゴリ自己ベスト更新 */
+export function trackCategoryBest(category: string, previousAccuracy: number, newAccuracy: number): void {
+  pushEvent('category_best', { category, previous_accuracy: previousAccuracy, new_accuracy: newAccuracy })
+}
+
 /** アプリエラー */
 export function trackError(message: string, source: string): void {
   pushEvent('app_error', {

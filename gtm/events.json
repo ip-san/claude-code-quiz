@@ -92,6 +92,31 @@
       "name": "usage_recommend",
       "description": "利用履歴レコメンド（Electron限定）。analyze=解析実行、view_list=問題一覧展開、start_quiz=クイズ開始",
       "params": ["recommend_action", "top_categories", "question_count", "platform"]
+    },
+    {
+      "name": "level_up",
+      "description": "XPレベルアップ（30XP以上の獲得時に発火）",
+      "params": ["xp_gained", "total_xp", "platform"]
+    },
+    {
+      "name": "streak_milestone",
+      "description": "ストリークマイルストーン達成（3/7/14/30/60/100日）",
+      "params": ["streak_days", "milestone", "platform"]
+    },
+    {
+      "name": "daily_goal_achieved",
+      "description": "デイリーゴール達成",
+      "params": ["today_count", "daily_goal", "platform"]
+    },
+    {
+      "name": "scenario_complete",
+      "description": "シナリオモード完了（ストーリー完走時）",
+      "params": ["scenario_id", "score", "total", "accuracy", "platform"]
+    },
+    {
+      "name": "category_best",
+      "description": "カテゴリ自己ベスト更新（5%以上の改善時）",
+      "params": ["category", "previous_accuracy", "new_accuracy", "platform"]
     }
   ]
 }
