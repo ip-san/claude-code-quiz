@@ -145,8 +145,6 @@ function parseJsonlLines(filePath) {
   const prompts = []
   const conversations = []
   let promptIndex = 0
-  // Track last user prompt to pair with assistant response
-  let lastUserText = null
 
   for (const line of lines) {
     try {
@@ -164,7 +162,6 @@ function parseJsonlLines(filePath) {
         if (text.length > 5) {
           prompts.push(text)
           promptIndex++
-          lastUserText = text
           conversations.push({ seq: promptIndex, role: 'user', text })
         }
       }
