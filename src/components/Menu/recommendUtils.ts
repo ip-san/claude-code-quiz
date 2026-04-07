@@ -223,11 +223,13 @@ function detectFromClassification(
     })
   }
 
-  // 3. Session length indicator (quantitative, no AI needed)
+  // 3. Session length: only suggest /compact when Haiku detected session-related struggles
+  //    (not just because there are many prompts — a long productive session doesn't need compaction)
   const meaningful = prompts.filter((p) => p.length > 10)
-  if (meaningful.length > 15) {
+  const sessionStruggles = cls.filter((c) => c.category === 'session' && c.struggle !== 'none')
+  if (meaningful.length > 15 && sessionStruggles.length >= 2) {
     patterns.push({
-      pattern: `セッションが長い（プロンプト${meaningful.length}件）`,
+      pattern: `セッションが長く、コンテキスト管理に苦戦（${sessionStruggles.length}件検出）`,
       tip: '/compact でコンテキストを圧縮できる',
       category: 'session',
       savedMinutes: 5,
@@ -311,13 +313,16 @@ function detectFromRegex(prompts: string[]): WorkPattern[] {
     })
   }
 
-  // Session length indicator
-  if (meaningful.length > 15) {
+  // Session length: only suggest /compact when there are signs of context management issues
+  // (e.g. re-explaining context, "さっき言った" references, or very long sessions with repetition)
+  const contextReExplain = meaningful.filter((p) => /さっき|先ほど|前に言った|もう一度/.test(p))
+  if (meaningful.length > 20 && contextReExplain.length >= 2) {
     patterns.push({
-      pattern: `セッションが長い（プロンプト${meaningful.length}件）`,
+      pattern: `セッションが長く、文脈の再説明が${contextReExplain.length}回`,
       tip: '/compact でコンテキストを圧縮できる',
       category: 'session',
       savedMinutes: 5,
+      evidence: contextReExplain[0],
     })
   }
 
