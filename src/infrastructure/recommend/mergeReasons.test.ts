@@ -26,7 +26,8 @@ function makeMetadata(overrides: Partial<RecommendResult> = {}): RecommendResult
 
 describe('mergeReasons — reasons.json as source of truth', () => {
   it('uses AI-selected IDs from reasons.json, not metadata IDs', () => {
-    const metadata = makeMetadata({ ids: ['random-001', 'random-002'] })
+    // At least one ID overlaps to pass stale detection
+    const metadata = makeMetadata({ ids: ['bp-073', 'random-002'] })
     const reasonsJson = JSON.stringify({
       reasons: { 'bp-073': '理由A', 'ext-003': '理由B' },
     })
@@ -42,7 +43,7 @@ describe('mergeReasons — reasons.json as source of truth', () => {
   })
 
   it('preserves metadata fields (topics, sessionCount, promptSamples)', () => {
-    const metadata = makeMetadata()
+    const metadata = makeMetadata({ ids: ['bp-001'] })
     const reasonsJson = JSON.stringify({
       reasons: { 'bp-001': 'r' },
     })
@@ -55,7 +56,7 @@ describe('mergeReasons — reasons.json as source of truth', () => {
   })
 
   it('uses coachingMessage from reasons.json', () => {
-    const metadata = makeMetadata()
+    const metadata = makeMetadata({ ids: ['bp-001'] })
     const reasonsJson = JSON.stringify({
       reasons: { 'bp-001': 'r' },
       coachingMessage: 'AI生成メッセージ',
@@ -215,7 +216,7 @@ describe('mergeReasons — Zod schema validation', () => {
   })
 
   it('accepts valid reasons.json with proper ID format', () => {
-    const metadata = makeMetadata()
+    const metadata = makeMetadata({ ids: ['bp-001', 'ext-042', 'mem-123'] })
     const reasonsJson = JSON.stringify({
       reasons: {
         'bp-001': '有効な理由',
@@ -231,7 +232,7 @@ describe('mergeReasons — Zod schema validation', () => {
   })
 
   it('accepts reasons.json with coachingMessage', () => {
-    const metadata = makeMetadata()
+    const metadata = makeMetadata({ ids: ['bp-001'] })
     const reasonsJson = JSON.stringify({
       reasons: { 'bp-001': '理由' },
       coachingMessage: 'コーチング',
@@ -242,12 +243,68 @@ describe('mergeReasons — Zod schema validation', () => {
   })
 
   it('accepts reasons.json without coachingMessage', () => {
-    const metadata = makeMetadata()
+    const metadata = makeMetadata({ ids: ['bp-001'] })
     const reasonsJson = JSON.stringify({
       reasons: { 'bp-001': '理由' },
     })
 
     const { merged } = mergeReasons(metadata, reasonsJson, '')
     expect(merged).toBe(true)
+  })
+})
+
+// ── Stale reasons.json 検出 ──────────────────────────────────────────────────
+
+describe('mergeReasons — stale detection', () => {
+  it('detects stale reasons.json when no IDs overlap with metadata', () => {
+    const metadata = makeMetadata({ ids: ['tool-001', 'tool-002', 'tool-003'] })
+    const reasonsJson = JSON.stringify({
+      reasons: {
+        'bp-001': '前回の理由A',
+        'ext-001': '前回の理由B',
+      },
+    })
+    const stdout = '- **tool-001** [beginner]: 新しい理由'
+
+    const { source } = mergeReasons(metadata, reasonsJson, stdout)
+    // Stale reasons.json (no overlap) should be skipped → fallback to stdout
+    expect(source).toBe('stdout')
+  })
+
+  it('accepts reasons.json when some IDs overlap with metadata', () => {
+    const metadata = makeMetadata({ ids: ['bp-001', 'tool-002', 'ext-003'] })
+    const reasonsJson = JSON.stringify({
+      reasons: {
+        'bp-001': '理由A',
+        'ext-001': '理由B',
+      },
+    })
+
+    const { source } = mergeReasons(metadata, reasonsJson, '')
+    // bp-001 overlaps → not stale
+    expect(source).toBe('reasons.json')
+  })
+
+  it('accepts reasons.json when metadata has empty ids', () => {
+    const metadata = makeMetadata({ ids: [] })
+    const reasonsJson = JSON.stringify({
+      reasons: { 'bp-001': '理由' },
+    })
+
+    const { source } = mergeReasons(metadata, reasonsJson, '')
+    // No metadata IDs to compare → trust reasons.json
+    expect(source).toBe('reasons.json')
+  })
+
+  it('returns skipReason=already_merged when reasons exist', () => {
+    const metadata = makeMetadata({ reasons: { 'bp-001': '既存' } })
+    const { skipReason } = mergeReasons(metadata, null, '')
+    expect(skipReason).toBe('already_merged')
+  })
+
+  it('returns skipReason=no_source when nothing available', () => {
+    const metadata = makeMetadata()
+    const { skipReason } = mergeReasons(metadata, null, '')
+    expect(skipReason).toBe('no_source')
   })
 })

@@ -14,7 +14,7 @@ import { z } from 'zod'
 import { extractReasonsFromStdout } from './extractReasons'
 
 /** Zod schema for reasons.json — validates structure before merging */
-const ReasonsFileSchema = z.object({
+export const ReasonsFileSchema = z.object({
   reasons: z
     .record(z.string().regex(/^[a-z]+-\d+$/), z.string().min(1))
     .refine((r) => Object.keys(r).length > 0, { message: 'reasons must not be empty' }),
@@ -29,12 +29,15 @@ export interface RecommendResult {
   coachingMessage?: string
   questionCount: number
   url: string
+  date?: string
   [key: string]: unknown
 }
 
 export interface MergeResult {
   merged: boolean
   source: 'reasons.json' | 'stdout' | null
+  /** Reason merge was skipped (for diagnostics) */
+  skipReason?: 'already_merged' | 'stale_reasons' | 'no_source'
   result: RecommendResult
 }
 
@@ -48,7 +51,7 @@ export interface MergeResult {
 export function mergeReasons(metadata: RecommendResult, reasonsJson: string | null, stdout: string): MergeResult {
   // Skip if metadata already has reasons (previous merge succeeded)
   if (metadata.reasons && Object.keys(metadata.reasons).length > 0) {
-    return { merged: false, source: null, result: metadata }
+    return { merged: false, source: null, skipReason: 'already_merged', result: metadata }
   }
 
   // Strategy 1: reasons.json is the primary source of truth (Zod-validated)
@@ -57,18 +60,21 @@ export function mergeReasons(metadata: RecommendResult, reasonsJson: string | nu
       const parsed = ReasonsFileSchema.safeParse(JSON.parse(reasonsJson))
       if (parsed.success) {
         const ai = parsed.data
-        const ids = Object.keys(ai.reasons)
-        return {
-          merged: true,
-          source: 'reasons.json',
-          result: {
-            ...metadata,
-            ids,
-            reasons: ai.reasons,
-            questionCount: ids.length,
-            url: 'https://ip-san.github.io/claude-code-quiz/?ids=' + ids.join(','),
-            coachingMessage: ai.coachingMessage ?? metadata.coachingMessage,
-          },
+        const reasonIds = Object.keys(ai.reasons)
+
+        // Stale detection: if metadata has IDs and none overlap with reasons, reasons.json is stale
+        if (metadata.ids.length > 0) {
+          const metadataSet = new Set(metadata.ids)
+          const overlap = reasonIds.filter((id) => metadataSet.has(id))
+          if (overlap.length === 0) {
+            // No overlap — reasons.json is from a previous run, skip it
+            // Fall through to stdout extraction
+          } else {
+            return buildMerged(metadata, reasonIds, ai.reasons, ai.coachingMessage, 'reasons.json')
+          }
+        } else {
+          // No metadata IDs to compare — trust reasons.json
+          return buildMerged(metadata, reasonIds, ai.reasons, ai.coachingMessage, 'reasons.json')
         }
       }
     } catch {
@@ -79,19 +85,29 @@ export function mergeReasons(metadata: RecommendResult, reasonsJson: string | nu
   // Strategy 2: Extract from stdout (fallback)
   const extracted = extractReasonsFromStdout(stdout)
   if (extracted) {
-    return {
-      merged: true,
-      source: 'stdout',
-      result: {
-        ...metadata,
-        ids: extracted.ids,
-        reasons: extracted.reasons,
-        questionCount: extracted.ids.length,
-        url: 'https://ip-san.github.io/claude-code-quiz/?ids=' + extracted.ids.join(','),
-        coachingMessage: extracted.coachingMessage ?? metadata.coachingMessage,
-      },
-    }
+    return buildMerged(metadata, extracted.ids, extracted.reasons, extracted.coachingMessage, 'stdout')
   }
 
-  return { merged: false, source: null, result: metadata }
+  return { merged: false, source: null, skipReason: 'no_source', result: metadata }
+}
+
+function buildMerged(
+  metadata: RecommendResult,
+  ids: string[],
+  reasons: Record<string, string>,
+  coachingMessage: string | undefined,
+  source: 'reasons.json' | 'stdout'
+): MergeResult {
+  return {
+    merged: true,
+    source,
+    result: {
+      ...metadata,
+      ids,
+      reasons,
+      questionCount: ids.length,
+      url: 'https://ip-san.github.io/claude-code-quiz/?ids=' + ids.join(','),
+      coachingMessage: coachingMessage ?? metadata.coachingMessage,
+    },
+  }
 }

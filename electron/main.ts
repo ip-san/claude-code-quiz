@@ -530,8 +530,6 @@ ipcMain.handle('run-recommend-skill', async (): Promise<{ success: boolean; erro
           if (proc === recommendProc) recommendProc = null
           if (code === 0) {
             skillStdout = stdout || stderr // claude -p may output to stderr
-            console.log(`[recommend] stdout=${stdout.length}B, stderr=${stderr.length}B`)
-            if (stdout.length > 0) console.log(`[recommend] stdout-sample: ${stdout.slice(0, 500)}`)
             resolve()
           } else if (code === 143 || code === null) reject(new Error(loc.recommend.timeout))
           else reject(new Error(stderr || `claude exited with code ${code}`))
@@ -570,7 +568,24 @@ ipcMain.handle('run-recommend-skill', async (): Promise<{ success: boolean; erro
         writeFileSync(resultPath, JSON.stringify(mergedResult, null, 2))
         console.log(`[recommend] Merged reasons from ${source}`)
       } else if (!result.reasons || Object.keys(result.reasons).length === 0) {
-        // Lightweight retry: generate only reasons for existing IDs
+        // Lightweight retry: generate only reasons for existing IDs (rate limited: 1/hour)
+        const retryKey = join(storeDir, '.retry-timestamp')
+        let shouldRetry = true
+        try {
+          const lastRetry = Number(readFileSync(retryKey, 'utf8'))
+          if (Date.now() - lastRetry < 3600_000) shouldRetry = false
+        } catch {
+          // No previous retry
+        }
+        if (!shouldRetry) {
+          console.log('[recommend] Lightweight retry skipped (rate limited)')
+          return { success: true, error: 'missing_reasons' }
+        }
+        try {
+          writeFileSync(retryKey, String(Date.now()))
+        } catch {
+          /* non-critical */
+        }
         console.log('[recommend] No reasons found, attempting lightweight retry...')
         try {
           const ids = result.ids as string[]

@@ -97,9 +97,10 @@ export function useRecommendation() {
     const aiReasons = 'reasons' in cached ? (cached.reasons as Record<string, string> | undefined) : undefined
     if (aiReasons && Object.keys(aiReasons).length > 0) {
       const progress = useQuizStore.getState().userProgress
+      const questionMap = new Map(allQuestions.map((q) => [q.id, q]))
       const recs: RecommendedQuestion[] = cached.ids
         .map((id) => {
-          const q = allQuestions.find((q) => q.id === id)
+          const q = questionMap.get(id)
           if (!q) return null
           return {
             id,

@@ -461,8 +461,8 @@ writeFileSync(
       days: rollingCache.days,
       sessionCount: rollingCache.sessionCount,
       promptCount: rollingCache.prompts.length,
-      prompts: [...new Set(rollingCache.prompts)].slice(-100),
-      conversationFlows: rollingCache.conversationFlows.slice(-15),
+      prompts: [...new Set(rollingCache.prompts)].slice(-50),
+      conversationFlows: rollingCache.conversationFlows.slice(-5),
       topics: rollingTopics.slice(0, 10),
       categoryScores: rollingCache.categoryScores,
       // Quantitative signals only — judgment delegated to Haiku (classify-prompts.mjs)
