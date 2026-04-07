@@ -94,7 +94,7 @@ export function useRecommendation() {
       promptSamples: cached.promptSamples ?? [],
     }
 
-    const aiReasons = 'reasons' in cached ? (cached.reasons as Record<string, string> | undefined) : undefined
+    const aiReasons = cached.reasons
     if (aiReasons && Object.keys(aiReasons).length > 0) {
       const progress = useQuizStore.getState().userProgress
       const questionMap = new Map(allQuestions.map((q) => [q.id, q]))
@@ -142,9 +142,7 @@ export function useRecommendation() {
     GrowthTrackingService.saveSnapshot(patterns, prompts)
 
     // Coaching message from Sonnet (via /recommend skill output)
-    const aiCoachingMessage =
-      'coachingMessage' in cached ? (cached as { coachingMessage?: string }).coachingMessage : null
-    setCoachingMessage(aiCoachingMessage ?? null)
+    setCoachingMessage(cached.coachingMessage ?? null)
 
     return true
   }, [allQuestions])
@@ -384,8 +382,13 @@ export function useRecommendation() {
   // ── Mount effects ──────────────────────────────────────────
 
   useEffect(() => {
-    loadFromCache()
-  }, [loadFromCache])
+    // Wait for allQuestions to load before attempting cache restoration
+    // Without this guard, loadFromCache runs with an empty question list,
+    // fails to match any IDs, and shows AnalyzeButton instead of cached results
+    if (allQuestions.length > 0) {
+      loadFromCache()
+    }
+  }, [loadFromCache, allQuestions.length])
 
   // biome-ignore lint/correctness/useExhaustiveDependencies: re-check after setup
   useEffect(() => {

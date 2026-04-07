@@ -62,6 +62,7 @@ interface ElectronAPI {
     topCategories: string[]
     topics: { topic: string; hits: number }[]
     promptSamples: string[]
+    reasons?: Record<string, string>
     coachingMessage?: string
   } | null>
 }

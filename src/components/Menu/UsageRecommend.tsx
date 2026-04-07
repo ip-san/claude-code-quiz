@@ -155,12 +155,12 @@ export function UsageRecommend() {
               </p>
             )}
           </div>
-        ) : (
+        ) : coachingMessage ? (
           <p className="mx-4 mb-1.5 text-xs text-stone-500 dark:text-stone-400">
             {growthInsight.maturityChange.direction === 'improving' && '📈 '}
-            {coachingMessage ?? locale.recommend.analyzingProgress}
+            {coachingMessage}
           </p>
-        ))}
+        ) : null)}
 
       {/* Insight: one key observation from work patterns (Haiku-powered when available) */}
       {analysis &&

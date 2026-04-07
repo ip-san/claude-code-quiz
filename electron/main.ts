@@ -993,6 +993,8 @@ ipcMain.handle(
     topCategories: string[]
     topics: { topic: string; hits: number }[]
     promptSamples: string[]
+    reasons?: Record<string, string>
+    coachingMessage?: string
   } | null> => {
     try {
       const storeDir = join(homedir(), '.claude-quiz-recommend')
