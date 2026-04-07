@@ -163,7 +163,10 @@ export function UsageRecommend() {
                 → {locale.recommend.nextChallenge}: {growthInsight.newIssues.map((i) => i.pattern).join('、')}
               </p>
             )}
-            <p className="mt-0.5 text-[11px] text-stone-500">{growthInsight.maturityChange.message}</p>
+            {/* Only show maturity message when it adds information beyond the improvement/issue list */}
+            {growthInsight.maturityChange.direction !== 'stable' && (
+              <p className="mt-0.5 text-[11px] text-stone-500">{growthInsight.maturityChange.message}</p>
+            )}
           </div>
         ) : (
           <p className="mx-4 mb-1.5 text-xs text-stone-500 dark:text-stone-400">
