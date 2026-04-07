@@ -98,7 +98,8 @@ export function useRecommendation() {
       setUnusedCategories([])
       setAnalysis(cachedAnalysis)
     } else {
-      const { recs, unused } = computeRecommendations({ ...cachedAnalysis }, allQuestions)
+      const progress = useQuizStore.getState().userProgress
+      const { recs, unused } = computeRecommendations({ ...cachedAnalysis }, allQuestions, undefined, progress)
       setRecommendations(recs)
       setUnusedCategories(unused)
       setAnalysis(cachedAnalysis)

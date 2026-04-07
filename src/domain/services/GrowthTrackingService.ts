@@ -302,8 +302,9 @@ export class GrowthTrackingService {
       return maturityChange.message
     }
 
-    // Stable
-    return '使い方が安定しています。新しいカテゴリに挑戦して、さらにスキルアップしませんか？'
+    // Stable — acknowledge mastery without suggesting "new" categories
+    // (users who already work extensively with CLAUDE.md etc. find "try new categories" contradictory)
+    return '使い方が安定しています。この調子で続けましょう'
   }
 
   /**

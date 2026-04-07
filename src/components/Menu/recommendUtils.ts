@@ -1,5 +1,6 @@
 import { SCENARIOS, type ScenarioData } from '@/data/scenarios'
 import type { Question } from '@/domain/entities/Question'
+import type { UserProgress } from '@/domain/entities/UserProgress'
 import { getCategoryById } from '@/domain/valueObjects/Category'
 
 // ── Types ────────────────────────────────────────────────────
@@ -350,7 +351,8 @@ export function findRecommendedScenario(
 export function computeRecommendations(
   analysis: AnalysisResult,
   allQuestions: Question[],
-  excludeIds?: Set<string>
+  excludeIds?: Set<string>,
+  userProgress?: UserProgress
 ): { recs: RecommendedQuestion[]; unused: string[] } {
   const recs: RecommendedQuestion[] = []
   const used = new Set<string>(excludeIds ?? [])
@@ -390,14 +392,20 @@ export function computeRecommendations(
     const catName = getCategoryById(cat)?.name ?? cat
     const rank = sorted.findIndex(([c]) => c === cat) + 1
     const pool = allQuestions.filter((q) => q.category === cat && !used.has(q.id))
-    // Prefer questions matching AI usage style difficulty
-    const sorted2 = preferDifficulty
-      ? [...pool].sort((a, b) => {
-          const aMatch = a.difficulty === preferDifficulty ? 0 : 1
-          const bMatch = b.difficulty === preferDifficulty ? 0 : 1
-          return aMatch - bMatch || Math.random() - 0.5
-        })
-      : pool.sort(() => Math.random() - 0.5)
+    // Sort: unanswered/incorrect first, then difficulty match, then random
+    const sorted2 = [...pool].sort((a, b) => {
+      // Deprioritize already-correct questions so users get fresh challenges
+      const aCorrect = userProgress?.isCorrectlyAnswered(a.id) ? 1 : 0
+      const bCorrect = userProgress?.isCorrectlyAnswered(b.id) ? 1 : 0
+      if (aCorrect !== bCorrect) return aCorrect - bCorrect
+      // Then prefer difficulty match if specified
+      if (preferDifficulty) {
+        const aMatch = a.difficulty === preferDifficulty ? 0 : 1
+        const bMatch = b.difficulty === preferDifficulty ? 0 : 1
+        if (aMatch !== bMatch) return aMatch - bMatch
+      }
+      return Math.random() - 0.5
+    })
     const sampled = sorted2.slice(0, 5)
     for (const q of sampled) {
       const signals: string[] = []
@@ -419,7 +427,13 @@ export function computeRecommendations(
   for (const cat of unused.slice(0, 2)) {
     const reason = CATEGORY_REASONS[cat]?.unused ?? `${getCategoryById(cat)?.name ?? cat} を知ると作業がもっと効率的に`
     const pool = allQuestions.filter((q) => q.category === cat && q.difficulty === 'beginner' && !used.has(q.id))
-    const sampled = pool.sort(() => Math.random() - 0.5).slice(0, 3)
+    const sampled = [...pool]
+      .sort((a, b) => {
+        const aCorrect = userProgress?.isCorrectlyAnswered(a.id) ? 1 : 0
+        const bCorrect = userProgress?.isCorrectlyAnswered(b.id) ? 1 : 0
+        return aCorrect - bCorrect || Math.random() - 0.5
+      })
+      .slice(0, 3)
     for (const q of sampled) {
       const catName = getCategoryById(cat)?.name ?? cat
       recs.push({
