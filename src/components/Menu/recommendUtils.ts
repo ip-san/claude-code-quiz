@@ -206,11 +206,12 @@ function detectFromClassification(
     // Group by tip to find the most common suggestion
     const tipCounts = new Map<string, { count: number; category: string; example: string }>()
     for (const c of struggles_with_tips) {
-      const existing = tipCounts.get(c.tip!)
+      const tipKey = c.tip ?? ''
+      const existing = tipCounts.get(tipKey)
       if (existing) {
         existing.count++
       } else {
-        tipCounts.set(c.tip!, { count: 1, category: c.category, example: prompts[c.id] ?? '' })
+        tipCounts.set(tipKey, { count: 1, category: c.category, example: prompts[c.id] ?? '' })
       }
     }
     // Pick the most frequently suggested tip
