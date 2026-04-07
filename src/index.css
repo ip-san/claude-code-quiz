@@ -213,7 +213,7 @@ body {
   button:focus-visible,
   [role="option"]:focus-visible,
   [role="checkbox"]:focus-visible {
-    outline: 2px solid #d97757;
+    outline: 2px solid #B05A3A;
     outline-offset: 2px;
   }
 }
@@ -230,7 +230,7 @@ body {
 
 /* Gradient progress bar */
 .progress-gradient {
-  background: linear-gradient(90deg, #d97757, #e8956e);
+  background: linear-gradient(90deg, #B05A3A, #e8956e);
 }
 .progress-gradient-green {
   background: linear-gradient(90deg, #22c55e, #4ade80);

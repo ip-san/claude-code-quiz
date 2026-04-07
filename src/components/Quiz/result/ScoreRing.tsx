@@ -28,7 +28,7 @@ export function ScoreRing({ percentage, score, total, color, noMotion }: ScoreRi
     'text-orange-600': '#ea580c',
     'text-red-600': '#dc2626',
   }
-  const strokeColor = colorMap[color] ?? '#D97757'
+  const strokeColor = colorMap[color] ?? '#B05A3A'
 
   // Animate on mount
   useEffect(() => {

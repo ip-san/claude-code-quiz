@@ -42,7 +42,7 @@ export function ChartGrid({ gridColor, padding, innerWidth, innerHeight }: Chart
         y1={percentToY(PASSING_SCORE, padding, innerHeight)}
         x2={padding.left + innerWidth}
         y2={percentToY(PASSING_SCORE, padding, innerHeight)}
-        stroke="#D97757"
+        stroke="#B05A3A"
         strokeDasharray="6,3"
         strokeWidth={1}
         opacity={0.5}

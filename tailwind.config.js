@@ -6,7 +6,7 @@ export default {
     extend: {
       colors: {
         claude: {
-          orange: '#D97757',
+          orange: '#B05A3A',
           cream: '#FAF9F5',
           dark: '#1A1A1A',
           gray: '#595959',

@@ -62,14 +62,14 @@ export function SessionHistoryChart({ sessions }: SessionHistoryChartProps) {
         <ChartGrid gridColor={gridColor} padding={PADDING} innerWidth={INNER_WIDTH} innerHeight={INNER_HEIGHT} />
 
         {/* Area fill */}
-        <path d={areaD} fill="#D97757" opacity={0.1} />
+        <path d={areaD} fill="#B05A3A" opacity={0.1} />
 
         {/* Line */}
-        <path d={pathD} fill="none" stroke="#D97757" strokeWidth={2} />
+        <path d={pathD} fill="none" stroke="#B05A3A" strokeWidth={2} />
 
         {/* Data points */}
         {points.map((p, i) => (
-          <circle key={i} cx={p.x} cy={p.y} r={3} fill="#D97757" stroke={dotStroke} strokeWidth={1.5}>
+          <circle key={i} cx={p.x} cy={p.y} r={3} fill="#B05A3A" stroke={dotStroke} strokeWidth={1.5}>
             <title>{`${locale.sessionHistory.sessionLabel(i + 1)}: ${p.percentage}%`}</title>
           </circle>
         ))}
@@ -79,7 +79,7 @@ export function SessionHistoryChart({ sessions }: SessionHistoryChartProps) {
         <span className="flex items-center gap-1">
           <span
             className="inline-block h-px w-4 bg-claude-orange opacity-50"
-            style={{ borderTop: '1px dashed #D97757' }}
+            style={{ borderTop: '1px dashed #B05A3A' }}
           />
           合格ライン({PASSING_SCORE}%)
         </span>
