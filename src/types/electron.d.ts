@@ -52,6 +52,8 @@ interface ElectronAPI {
   }) => Promise<string[] | null>
   setRealtimeMonitoring: (enabled: boolean) => Promise<void>
   getRealtimeMonitoring: () => Promise<boolean>
+  onStartMicroQuiz: (callback: (data: { questionId: string; tip: string }) => void) => () => void
+  onOpenRecommend: (callback: () => void) => () => void
   getCachedRecommend: () => Promise<{
     date: string
     sessionCount: number

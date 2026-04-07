@@ -220,6 +220,20 @@ const electronAPI = {
   } | null> => {
     return ipcRenderer.invoke('get-cached-recommend')
   },
+  /**
+   * Main プロセスからのイベントを受け取るリスナーを登録
+   */
+  onStartMicroQuiz: (callback: (data: { questionId: string; tip: string }) => void): (() => void) => {
+    const handler = (_event: unknown, data: { questionId: string; tip: string }) => callback(data)
+    ipcRenderer.on('start-micro-quiz', handler)
+    return () => ipcRenderer.removeListener('start-micro-quiz', handler)
+  },
+
+  onOpenRecommend: (callback: () => void): (() => void) => {
+    const handler = () => callback()
+    ipcRenderer.on('open-recommend', handler)
+    return () => ipcRenderer.removeListener('open-recommend', handler)
+  },
 } as const
 
 /**

@@ -999,24 +999,94 @@ async function analyzeActiveSession(filePath: string): Promise<void> {
       if (overlap12 >= Math.min(words[1].size, words[2].size) * 0.5) sameTopicRepeat++
     }
 
-    // Trigger notification if struggle detected
+    // Trigger micro-recommendation if struggle detected
     const isStruggling = errorCount >= 2 || sameTopicRepeat >= 2 || (userMessages >= 8 && errorCount >= 1)
 
     if (isStruggling && ElectronNotification.isSupported()) {
-      const notification = new ElectronNotification({
-        title: '💡 関連するクイズがあります',
-        body:
-          errorCount >= 2
-            ? 'エラーが続いています。関連する知識をクイズで確認してみませんか？'
-            : '同じテーマを繰り返しています。効率化のヒントがあるかもしれません。',
-        silent: true,
-      })
+      // Build context from recent user messages for Haiku
+      const context = recentTexts.slice(-5).join('\n')
+
+      // Try Haiku to identify what they're struggling with + find matching question
+      let questionId: string | null = null
+      let questionText = ''
+      let tip = ''
+
+      try {
+        const { execSync } = await import('child_process')
+        const haikuPrompt = `ユーザーが Claude Code で苦戦しています。以下の直近のプロンプトから:
+1. 何に困っているか（10文字以内）
+2. 関連する Claude Code の機能カテゴリ: memory|skills|tools|commands|extensions|session|keyboard|bestpractices
+3. 具体的な改善提案（15文字以内）
+
+プロンプト:
+${context}
+
+JSON形式で返してください: {"struggle":"...","category":"...","tip":"..."}`
+
+        const raw = execSync(`claude -p ${JSON.stringify(haikuPrompt)} --model haiku --output-format json`, {
+          timeout: 15_000,
+          encoding: 'utf8',
+          stdio: ['ignore', 'pipe', 'pipe'],
+        })
+        let parsed: { struggle?: string; category?: string; tip?: string } = {}
+        try {
+          const wrapper = JSON.parse(raw)
+          const text = typeof wrapper === 'string' ? wrapper : wrapper.result || JSON.stringify(wrapper)
+          const match = text
+            .replace(/```json\s*/g, '')
+            .replace(/```\s*/g, '')
+            .match(/\{[\s\S]*\}/)
+          if (match) parsed = JSON.parse(match[0])
+        } catch {
+          /* parse failed */
+        }
+
+        tip = parsed.tip || ''
+        const category = parsed.category || ''
+
+        // Find matching question from quiz data
+        if (category) {
+          const quizPath = join(app.getAppPath(), 'src', 'data', 'quizzes.json')
+          try {
+            const quizData = JSON.parse(readFileSync(quizPath, 'utf8'))
+            const candidates = quizData.quizzes
+              .filter(
+                (q: { category: string; difficulty: string }) => q.category === category && q.difficulty !== 'advanced'
+              )
+              .sort(() => Math.random() - 0.5)
+              .slice(0, 1)
+            if (candidates.length > 0) {
+              questionId = candidates[0].id
+              questionText = candidates[0].question.slice(0, 60)
+            }
+          } catch {
+            /* quiz file not found */
+          }
+        }
+      } catch {
+        // Haiku unavailable — fall back to generic notification
+      }
+
+      // Build notification with specific question if available
+      const title = questionText ? '💡 今の作業に役立つ問題' : '💡 関連するクイズがあります'
+      const body = questionText
+        ? `${questionText}...${tip ? `\n💡 ${tip}` : ''}`
+        : errorCount >= 2
+          ? 'エラーが続いています。関連する知識をクイズで確認してみませんか？'
+          : '同じテーマを繰り返しています。効率化のヒントがあるかもしれません。'
+
+      const notification = new ElectronNotification({ title, body, silent: true })
       notification.on('click', () => {
         const win = BrowserWindow.getAllWindows()[0]
         if (win) {
           win.show()
           win.focus()
-          win.webContents.send('open-recommend')
+          // Send specific question ID if available, otherwise open recommend section
+          if (questionId) {
+            win.webContents.send('start-micro-quiz', { questionId, tip })
+          } else {
+            win.webContents.send('open-recommend')
+          }
         }
       })
       notification.show()

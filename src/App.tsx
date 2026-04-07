@@ -63,6 +63,27 @@ export default function App() {
   } = useQuizStore()
   const [showWelcome, setShowWelcome] = useState(() => !hasSeenWelcome())
   const [showTutorial, setShowTutorial] = useState(() => !hasSeenTutorial())
+  const [microQuizTip, setMicroQuizTip] = useState<string | null>(null)
+
+  // Listen for micro-quiz from real-time session monitor
+  useEffect(() => {
+    const cleanup1 = window.electronAPI?.onStartMicroQuiz?.((data) => {
+      setMicroQuizTip(data.tip || null)
+      startSessionWithIds([data.questionId], '💡 今の作業に役立つ問題')
+    })
+    const cleanup2 = window.electronAPI?.onOpenRecommend?.(() => {
+      // Just bring window to focus — recommend section is already visible in menu
+    })
+    return () => {
+      cleanup1?.()
+      cleanup2?.()
+    }
+  }, [startSessionWithIds])
+
+  // Clear micro-quiz tip when returning to menu
+  useEffect(() => {
+    if (viewState === 'menu') setMicroQuizTip(null)
+  }, [viewState])
 
   // Initialize store on mount + handle ?ids= URL parameter
   useEffect(() => {
@@ -240,7 +261,7 @@ export default function App() {
   const progress = getProgress()
   const timeRemaining = sessionState?.timeRemaining ?? null
 
-  return <QuizView progress={progress} timeRemaining={timeRemaining} />
+  return <QuizView progress={progress} timeRemaining={timeRemaining} microQuizTip={microQuizTip} />
 }
 
 /** Quiz content switcher — renders ScenarioView or QuizCard based on mode */
@@ -306,9 +327,11 @@ function StudyFirstViewWrapper() {
 function QuizView({
   progress,
   timeRemaining,
+  microQuizTip,
 }: {
   progress: { current: number; total: number }
   timeRemaining: number | null
+  microQuizTip?: string | null
 }) {
   const { endSession, suspendSession, sessionState, sessionLabel } = useQuizStore()
   const isReviewMode = sessionState?.isReviewMode ?? false
@@ -409,6 +432,14 @@ function QuizView({
           </div>
         </div>
       </div>
+
+      {/* Micro-quiz context banner */}
+      {microQuizTip && (
+        <div className="mx-3 mt-2 rounded-xl border border-indigo-200 bg-indigo-50 px-3 py-2 dark:border-indigo-500/30 dark:bg-indigo-500/10 sm:mx-auto sm:max-w-3xl">
+          <p className="text-xs font-medium text-indigo-600 dark:text-indigo-400">💡 {microQuizTip}</p>
+          <p className="text-[10px] text-indigo-500/70">作業中の苦戦から自動検出されました</p>
+        </div>
+      )}
 
       {/* Scrollable content */}
       <div className="flex-1">
