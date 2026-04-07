@@ -535,18 +535,34 @@ try {
     const url = `https://ip-san.github.io/claude-code-quiz/?ids=${ids.join(',')}`
 
     // Save URL for desktop app to read
+    // Preserve existing AI-generated reasons and coachingMessage if present
+    let existingReasons = undefined
+    let existingCoaching = undefined
+    try {
+      const existing = JSON.parse(readFileSync(join(STORE_DIR, 'latest-recommend.json'), 'utf8'))
+      if (existing.reasons && Object.keys(existing.reasons).length > 0) {
+        existingReasons = existing.reasons
+        existingCoaching = existing.coachingMessage
+      }
+    } catch {
+      // No existing file
+    }
     writeFileSync(
       join(STORE_DIR, 'latest-recommend.json'),
       JSON.stringify(
         {
           date: today,
           sessionCount: daily.sessions.length,
-          questionCount: ids.length,
-          ids,
-          url,
+          questionCount: existingReasons ? Object.keys(existingReasons).length : ids.length,
+          ids: existingReasons ? Object.keys(existingReasons) : ids,
+          url: existingReasons
+            ? `https://ip-san.github.io/claude-code-quiz/?ids=${Object.keys(existingReasons).join(',')}`
+            : url,
           topCategories: sorted.slice(0, 3).map(([c]) => c),
           topics: daily.merged.topics.slice(0, 5),
           promptSamples: daily.merged.promptSamples.slice(-15),
+          ...(existingReasons && { reasons: existingReasons }),
+          ...(existingCoaching && { coachingMessage: existingCoaching }),
         },
         null,
         2
