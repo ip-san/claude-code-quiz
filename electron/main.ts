@@ -779,9 +779,9 @@ ipcMain.handle('check-global-hooks', async (): Promise<boolean> => {
 ipcMain.handle(
   'get-classified-prompts',
   async (): Promise<{
-    classifications: { id: number; intent: string; category: string; struggle: string }[]
+    classifications: { id: number; intent: string; category: string; struggle: string; tip: string | null }[]
     summary: {
-      intentClusters: { intent: string; promptIds: number[]; dominantStruggle: string }[]
+      intentClusters: { intent: string; promptIds: number[]; dominantStruggle: string; tip: string | null }[]
       categoryDistribution: Record<string, number>
       overallStruggles: { none: number; mild: number; strong: number }
     }

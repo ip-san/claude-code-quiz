@@ -141,11 +141,12 @@ export interface HaikuClassification {
   intent: string
   category: string
   struggle: string
+  tip: string | null
 }
 
 /** Haiku 分類結果のサマリ型 */
 export interface ClassificationSummary {
-  intentClusters: { intent: string; promptIds: number[]; dominantStruggle: string }[]
+  intentClusters: { intent: string; promptIds: number[]; dominantStruggle: string; tip: string | null }[]
   categoryDistribution: Record<string, number>
   overallStruggles: { none: number; mild: number; strong: number }
 }
@@ -178,14 +179,15 @@ function detectFromClassification(
   const cls = classified.classifications
   const summary = classified.summary
 
-  // 1. Repetition: same intent appears 3+ times (Haiku understands semantic similarity)
+  // 1. Intent clusters with Haiku-generated tips
+  // Haiku already determined the tip based on actual prompt content — use it directly
   for (const cluster of summary.intentClusters) {
-    if (cluster.promptIds.length >= 3) {
+    if (cluster.promptIds.length >= 3 || (cluster.dominantStruggle !== 'none' && cluster.promptIds.length >= 2)) {
       const sample = prompts[cluster.promptIds[0]] ?? ''
-      // Determine category from the classified prompts in this cluster
       const clusterCats = cluster.promptIds.map((id) => cls.find((c) => c.id === id)?.category).filter(Boolean)
       const dominantCat = mode(clusterCats as string[]) ?? 'memory'
-      const tip = CATEGORY_REASONS[dominantCat]?.used ?? '関連する作業をしていました'
+      // Use Haiku's tip if available, fall back to CATEGORY_REASONS only as last resort
+      const tip = cluster.tip ?? CATEGORY_REASONS[dominantCat]?.used ?? '関連する作業をしていました'
       patterns.push({
         pattern: `「${cluster.intent}」を繰り返し`,
         tip,
@@ -197,55 +199,42 @@ function detectFromClassification(
     }
   }
 
-  // 2. Struggle-based patterns: Haiku detected mild/strong struggle
-  const strongStruggles = cls.filter((c) => c.struggle === 'strong')
-  const mildStruggles = cls.filter((c) => c.struggle === 'mild')
-
-  if (strongStruggles.length >= 2) {
-    const sample = prompts[strongStruggles[0].id] ?? ''
-    const dominantCat = mode(strongStruggles.map((c) => c.category)) ?? 'bestpractices'
-    patterns.push({
-      pattern: '苦戦している操作がある',
-      tip: CATEGORY_REASONS[dominantCat]?.used ?? '関連するクイズで効率的な方法を学びましょう',
-      category: dominantCat,
-      savedMinutes: strongStruggles.length * 5,
-      evidence: sample,
-    })
-  } else if (mildStruggles.length >= 3) {
-    const sample = prompts[mildStruggles[0].id] ?? ''
-    const dominantCat = mode(mildStruggles.map((c) => c.category)) ?? 'bestpractices'
-    patterns.push({
-      pattern: '効率化できそうな操作パターン',
-      tip: CATEGORY_REASONS[dominantCat]?.used ?? '知っておくと便利な機能があります',
-      category: dominantCat,
-      savedMinutes: mildStruggles.length * 2,
-      evidence: sample,
-    })
+  // 2. Struggle-based patterns: use individual Haiku tips
+  const struggles_with_tips = cls.filter((c) => c.struggle !== 'none' && c.tip)
+  if (struggles_with_tips.length >= 2) {
+    // Group by tip to find the most common suggestion
+    const tipCounts = new Map<string, { count: number; category: string; example: string }>()
+    for (const c of struggles_with_tips) {
+      const existing = tipCounts.get(c.tip!)
+      if (existing) {
+        existing.count++
+      } else {
+        tipCounts.set(c.tip!, { count: 1, category: c.category, example: prompts[c.id] ?? '' })
+      }
+    }
+    // Pick the most frequently suggested tip
+    const topTip = [...tipCounts.entries()].sort((a, b) => b[1].count - a[1].count)[0]
+    if (topTip) {
+      patterns.push({
+        pattern: topTip[1].count >= 3 ? '苦戦している操作がある' : '効率化できそうな操作パターン',
+        tip: topTip[0], // Haiku's tip, not script's
+        category: topTip[1].category,
+        savedMinutes: topTip[1].count * 3,
+        evidence: topTip[1].example,
+      })
+    }
   }
 
-  // 3. Session length: only suggest /compact when Haiku detected session-related struggles
-  //    (not just because there are many prompts — a long productive session doesn't need compaction)
-  const meaningful = prompts.filter((p) => p.length > 10)
-  const sessionStruggles = cls.filter((c) => c.category === 'session' && c.struggle !== 'none')
-  if (meaningful.length > 15 && sessionStruggles.length >= 2) {
-    patterns.push({
-      pattern: `セッションが長く、コンテキスト管理に苦戦（${sessionStruggles.length}件検出）`,
-      tip: '/compact でコンテキストを圧縮できる',
-      category: 'session',
-      savedMinutes: 5,
-    })
-  }
-
-  // 4. AI Usage Style Detection from Haiku intents
-  const struggles = summary.overallStruggles
+  // 3. AI Usage Style Detection from Haiku struggle ratios
+  const overallStruggles = summary.overallStruggles
   const totalClassified = cls.length
   if (totalClassified >= 5) {
-    const strongRatio = (struggles.strong ?? 0) / totalClassified
-    const noneRatio = (struggles.none ?? 0) / totalClassified
+    const strongRatio = (overallStruggles.strong ?? 0) / totalClassified
+    const noneRatio = (overallStruggles.none ?? 0) / totalClassified
     if (strongRatio > 0.3) {
       patterns.push({
         pattern: 'AI への丸投げ傾向',
-        tip: '「なぜそうなるか」を質問すると理解が深まり、スキルが定着する（Anthropic 研究）',
+        tip: '「なぜそうなるか」を質問すると理解が深まり、スキルが定着する',
         category: 'bestpractices',
         savedMinutes: 0,
         aiStyle: 'delegation',

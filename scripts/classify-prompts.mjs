@@ -60,6 +60,16 @@ try {
 - intent: 何をしようとしていたか（10文字以内）
 - category: memory|skills|tools|commands|extensions|session|keyboard|bestpractices
 - struggle: none|mild|strong（苦戦の兆候）
+- tip: 苦戦(mild/strong)の場合のみ、Claude Code の具体的な機能名を使った改善提案（20文字以内）。none の場合は null
+
+tip の例:
+- 同じ指示を繰り返している → "CLAUDE.md にルールを書く"
+- ファイルを探している → "Glob/Grep ツールを使う"
+- セッションが長く文脈を忘れている → "/compact で圧縮"
+- エラーを貼り付けて直してと言う → "エラーの原因を質問する"
+- テストを何度も手動実行 → "PostToolUse hook で自動化"
+
+重要: tip はユーザーの実際の作業内容に合った提案にすること。汎用的な提案は避ける。
 
 ## 会話の流れ（参考）
 ${flowContext || 'なし'}
@@ -121,12 +131,16 @@ JSON配列のみ返してください。説明不要。`
     // Intent clusters
     const intent = c.intent || 'unknown'
     if (!intentClusters.has(intent)) {
-      intentClusters.set(intent, { intent, promptIds: [], dominantStruggle: 'none' })
+      intentClusters.set(intent, { intent, promptIds: [], dominantStruggle: 'none', tip: null })
     }
     const cluster = intentClusters.get(intent)
     cluster.promptIds.push(c.id)
     if (c.struggle === 'strong' || (c.struggle === 'mild' && cluster.dominantStruggle === 'none')) {
       cluster.dominantStruggle = c.struggle
+    }
+    // Keep the first non-null tip from Haiku as the representative tip for this cluster
+    if (c.tip && !cluster.tip) {
+      cluster.tip = c.tip
     }
   }
 

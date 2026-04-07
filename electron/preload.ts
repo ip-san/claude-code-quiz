@@ -175,9 +175,9 @@ const electronAPI = {
    * Haiku が分類したプロンプト分類結果を取得する
    */
   getClassifiedPrompts: (): Promise<{
-    classifications: { id: number; intent: string; category: string; struggle: string }[]
+    classifications: { id: number; intent: string; category: string; struggle: string; tip: string | null }[]
     summary: {
-      intentClusters: { intent: string; promptIds: number[]; dominantStruggle: string }[]
+      intentClusters: { intent: string; promptIds: number[]; dominantStruggle: string; tip: string | null }[]
       categoryDistribution: Record<string, number>
       overallStruggles: { none: number; mild: number; strong: number }
     }
