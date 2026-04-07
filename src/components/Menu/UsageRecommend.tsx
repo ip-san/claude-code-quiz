@@ -1,5 +1,5 @@
-import { ChevronDown, ChevronUp, Play, RefreshCw, Sparkles, X } from 'lucide-react'
-import { useMemo, useState } from 'react'
+import { Activity, ChevronDown, ChevronUp, Play, RefreshCw, Sparkles, X } from 'lucide-react'
+import { useCallback, useEffect, useMemo, useState } from 'react'
 import { locale } from '@/config/locale'
 import { getCategoryById } from '@/domain/valueObjects/Category'
 import { trackRecommend } from '@/lib/analytics'
@@ -18,6 +18,17 @@ export function UsageRecommend() {
   const startSessionWithIds = useQuizStore((s) => s.startSessionWithIds)
   const startScenarioSession = useQuizStore((s) => s.startScenarioSession)
   const [showQuestions, setShowQuestions] = useState(false)
+  const [monitoring, setMonitoring] = useState(false)
+
+  useEffect(() => {
+    window.electronAPI?.getRealtimeMonitoring?.().then((v) => setMonitoring(v))
+  }, [])
+
+  const toggleMonitoring = useCallback(async () => {
+    const next = !monitoring
+    await window.electronAPI?.setRealtimeMonitoring?.(next)
+    setMonitoring(next)
+  }, [monitoring])
 
   const {
     analysis,
@@ -276,6 +287,27 @@ export function UsageRecommend() {
           </button>
         </div>
       )}
+
+      {/* Real-time monitoring toggle */}
+      <button
+        onClick={toggleMonitoring}
+        className="mt-2 flex w-full items-center justify-between rounded-xl border border-stone-200 px-3 py-2 dark:border-stone-700"
+      >
+        <div className="flex items-center gap-2">
+          <Activity className={`h-4 w-4 ${monitoring ? 'text-green-500' : 'text-stone-400'}`} />
+          <div className="text-left">
+            <p className="text-xs font-medium text-claude-dark">{locale.recommend.realtimeMonitoring}</p>
+            <p className="text-[10px] text-stone-500">{locale.recommend.realtimeMonitoringDesc}</p>
+          </div>
+        </div>
+        <div
+          className={`h-5 w-9 rounded-full transition-colors ${monitoring ? 'bg-green-500' : 'bg-stone-300 dark:bg-stone-600'}`}
+        >
+          <div
+            className={`h-5 w-5 rounded-full bg-white shadow transition-transform ${monitoring ? 'translate-x-4' : 'translate-x-0'}`}
+          />
+        </div>
+      </button>
 
       {showConfirmDialog && (
         <ConfirmDialog

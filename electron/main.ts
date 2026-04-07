@@ -899,10 +899,194 @@ ipcMain.handle(
 )
 
 // ============================================================
+// Real-time Session Monitoring (proactive struggle detection)
+// ============================================================
+
+import { type FSWatcher, watch } from 'fs'
+
+let sessionWatcher: FSWatcher | null = null
+let lastAnalyzedSize = 0
+let monitoringDebounce: ReturnType<typeof setTimeout> | null = null
+const MONITOR_SETTINGS_FILE = join(homedir(), '.claude-quiz-recommend', 'monitor-settings.json')
+
+function isMonitoringEnabled(): boolean {
+  try {
+    const settings = JSON.parse(readFileSync(MONITOR_SETTINGS_FILE, 'utf8'))
+    return settings.enabled === true
+  } catch {
+    return false
+  }
+}
+
+function findActiveSession(): string | null {
+  const projectsDir = join(homedir(), '.claude', 'projects')
+  const fiveMinAgo = Date.now() - 5 * 60 * 1000
+  let newest = { path: '', mtime: 0 }
+
+  try {
+    for (const projDir of readdirSync(projectsDir)) {
+      const projPath = join(projectsDir, projDir)
+      try {
+        for (const f of readdirSync(projPath)) {
+          if (!f.endsWith('.jsonl')) continue
+          const fPath = join(projPath, f)
+          const mtime = statSync(fPath).mtimeMs
+          if (mtime > fiveMinAgo && mtime > newest.mtime) {
+            newest = { path: fPath, mtime }
+          }
+        }
+      } catch {
+        /* skip */
+      }
+    }
+  } catch {
+    /* skip */
+  }
+
+  return newest.path || null
+}
+
+async function analyzeActiveSession(filePath: string): Promise<void> {
+  try {
+    const currentSize = statSync(filePath).size
+    if (currentSize === lastAnalyzedSize) return
+    lastAnalyzedSize = currentSize
+
+    // Count recent struggle indicators from the last portion of the file
+    const content = readFileSync(filePath, 'utf8')
+    const lines = content.split('\n').filter(Boolean).slice(-20)
+
+    let userMessages = 0
+    let errorCount = 0
+    let sameTopicRepeat = 0
+    const recentTexts: string[] = []
+
+    for (const line of lines) {
+      try {
+        const j = JSON.parse(line)
+        if (j.type === 'user' && j.message?.content) {
+          const text =
+            typeof j.message.content === 'string'
+              ? j.message.content
+              : j.message.content
+                  .filter((c: { type: string }) => c.type === 'text')
+                  .map((c: { text: string }) => c.text)
+                  .join(' ')
+          if (text.length > 10) {
+            userMessages++
+            recentTexts.push(text.slice(0, 50))
+          }
+        }
+        // Count tool errors in assistant responses
+        if (j.message?.role === 'assistant' && Array.isArray(j.message?.content)) {
+          for (const c of j.message.content) {
+            if (c.type === 'tool_result' && c.is_error) errorCount++
+          }
+        }
+      } catch {
+        /* skip */
+      }
+    }
+
+    // Detect same-topic repetition in recent user messages
+    if (recentTexts.length >= 3) {
+      const last3 = recentTexts.slice(-3)
+      // Simple check: if 2+ of last 3 messages share 50%+ of words
+      const words = last3.map((t) => new Set(t.toLowerCase().split(/\s+/)))
+      const overlap01 = [...words[0]].filter((w) => words[1].has(w)).length
+      const overlap12 = [...words[1]].filter((w) => words[2].has(w)).length
+      if (overlap01 >= Math.min(words[0].size, words[1].size) * 0.5) sameTopicRepeat++
+      if (overlap12 >= Math.min(words[1].size, words[2].size) * 0.5) sameTopicRepeat++
+    }
+
+    // Trigger notification if struggle detected
+    const isStruggling = errorCount >= 2 || sameTopicRepeat >= 2 || (userMessages >= 8 && errorCount >= 1)
+
+    if (isStruggling && ElectronNotification.isSupported()) {
+      const notification = new ElectronNotification({
+        title: '💡 関連するクイズがあります',
+        body:
+          errorCount >= 2
+            ? 'エラーが続いています。関連する知識をクイズで確認してみませんか？'
+            : '同じテーマを繰り返しています。効率化のヒントがあるかもしれません。',
+        silent: true,
+      })
+      notification.on('click', () => {
+        const win = BrowserWindow.getAllWindows()[0]
+        if (win) {
+          win.show()
+          win.focus()
+          win.webContents.send('open-recommend')
+        }
+      })
+      notification.show()
+      // Don't notify again for 30 minutes
+      stopSessionMonitor()
+      setTimeout(
+        () => {
+          if (isMonitoringEnabled()) startSessionMonitor()
+        },
+        30 * 60 * 1000
+      )
+    }
+  } catch {
+    /* non-critical */
+  }
+}
+
+function startSessionMonitor(): void {
+  if (sessionWatcher) return
+
+  const projectsDir = join(homedir(), '.claude', 'projects')
+  try {
+    sessionWatcher = watch(projectsDir, { recursive: true }, (_event, filename) => {
+      if (!filename?.endsWith('.jsonl')) return
+      // Debounce: wait 10s after last change before analyzing
+      if (monitoringDebounce) clearTimeout(monitoringDebounce)
+      monitoringDebounce = setTimeout(() => {
+        const active = findActiveSession()
+        if (active) analyzeActiveSession(active)
+      }, 10_000)
+    })
+  } catch {
+    /* watch not supported or permission denied */
+  }
+}
+
+function stopSessionMonitor(): void {
+  if (sessionWatcher) {
+    sessionWatcher.close()
+    sessionWatcher = null
+  }
+  if (monitoringDebounce) {
+    clearTimeout(monitoringDebounce)
+    monitoringDebounce = null
+  }
+  lastAnalyzedSize = 0
+}
+
+// IPC: Toggle monitoring
+ipcMain.handle('set-realtime-monitoring', async (_event, enabled: boolean): Promise<void> => {
+  const { mkdir } = await import('fs/promises')
+  await mkdir(join(homedir(), '.claude-quiz-recommend'), { recursive: true })
+  await writeFile(MONITOR_SETTINGS_FILE, JSON.stringify({ enabled }, null, 2))
+  if (enabled) startSessionMonitor()
+  else stopSessionMonitor()
+})
+
+ipcMain.handle('get-realtime-monitoring', (): boolean => {
+  return isMonitoringEnabled()
+})
+
+// ============================================================
 // App Lifecycle
 // ============================================================
 
-app.whenReady().then(createWindow)
+app.whenReady().then(() => {
+  createWindow()
+  // Start monitoring if enabled
+  if (isMonitoringEnabled()) startSessionMonitor()
+})
 
 /**
  * 【macOS 対応】

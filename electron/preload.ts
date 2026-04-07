@@ -196,6 +196,17 @@ const electronAPI = {
   },
 
   /**
+   * リアルタイムセッション監視の ON/OFF
+   */
+  setRealtimeMonitoring: (enabled: boolean): Promise<void> => {
+    return ipcRenderer.invoke('set-realtime-monitoring', enabled)
+  },
+
+  getRealtimeMonitoring: (): Promise<boolean> => {
+    return ipcRenderer.invoke('get-realtime-monitoring')
+  },
+
+  /**
    * SessionEnd フックが蓄積した今日のレコメンドデータを取得する
    */
   getCachedRecommend: (): Promise<{

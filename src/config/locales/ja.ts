@@ -573,6 +573,8 @@ export const ja: LocaleConfig = {
     emptyDesc:
       'Claude Code でいくつか作業をしてから、もう一度お試しください。セッション終了時に自動でログが蓄積されます。',
     confirmReanalyze: '最新の利用履歴で再分析します。よろしいですか？',
+    realtimeMonitoring: 'リアルタイム監視',
+    realtimeMonitoringDesc: '作業中の苦戦を検出して通知',
   },
 
   retention: {

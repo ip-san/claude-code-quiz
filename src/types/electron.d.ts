@@ -50,6 +50,8 @@ interface ElectronAPI {
     questions: { id: string; question: string; category: string }[]
     userContext: string
   }) => Promise<string[] | null>
+  setRealtimeMonitoring: (enabled: boolean) => Promise<void>
+  getRealtimeMonitoring: () => Promise<boolean>
   getCachedRecommend: () => Promise<{
     date: string
     sessionCount: number

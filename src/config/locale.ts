@@ -599,6 +599,8 @@ export interface LocaleConfig {
     readonly emptyTitle: string
     readonly emptyDesc: string
     readonly confirmReanalyze: string
+    readonly realtimeMonitoring: string
+    readonly realtimeMonitoringDesc: string
   }
 
   // === Memory Retention ===
