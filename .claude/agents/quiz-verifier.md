@@ -92,3 +92,15 @@ severity の判定基準:
 - **major**: 解説が不正確、URL無効
 - **minor**: 書式不備、wrongFeedback の質
 - **info**: 改善提案、ダイアグラム追加候補
+
+## Critical 判定の二重確認
+
+severity が `critical` の issue を検出した場合、偽陽性（正しい問題を誤りと判定）を防ぐために以下の手順で二重確認する:
+
+1. ドキュメントの該当箇所を再度読み直す
+2. 問題文・選択肢・解説を注意深く再評価する
+3. 「この問題は本当に事実と異なるか？」を自問する
+4. ニュアンスの違い（例: "非推奨" vs "推奨ではない"）を見分ける
+5. 確信が持てない場合は severity を `major` に下げ、`needsOpusReview: true` フラグを追加する
+
+リードエージェントは `needsOpusReview: true` の issue を Opus で最終確認する。

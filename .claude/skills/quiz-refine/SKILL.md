@@ -216,9 +216,10 @@ For iteration = 1..N:
 
   Phase C: 結果集約・修正（逐次）
     1. 各エージェントの報告を集約
-    2. [fix mode] critical/major を node scripts/quiz-utils.mjs edit で修正
-    3. [dry-run] レポートに蓄積
-    4. bun run quiz:randomize && bun run quiz:check
+    2. needsOpusReview: true の issue を Opus エージェントで最終確認（偽陽性防止）
+    3. [fix mode] critical/major を node scripts/quiz-utils.mjs edit で修正
+    4. [dry-run] レポートに蓄積
+    5. bun run quiz:randomize && bun run quiz:check
 
   反復サマリー出力
 End for

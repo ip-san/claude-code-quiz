@@ -1,7 +1,7 @@
 ---
 name: facts-checker
-description: MEMORY.md の Verified Facts を公式ドキュメントと照合し、古くなった事実や変更された事実を検出する。定期的な鮮度チェックに使用。
-model: sonnet
+description: MEMORY.md の Verified Facts を公式ドキュメントと照合し、古くなった事実や変更された事実を検出する。定期的な鮮度チェックに使用。Opus 推奨（微妙なニュアンスの差異検出に必要）。Opus 利用不可時は Sonnet にフォールバック。
+model: opus
 tools: Read, Bash, Grep, Glob
 permissionMode: auto
 maxTurns: 25

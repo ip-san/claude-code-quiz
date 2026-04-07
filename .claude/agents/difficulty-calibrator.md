@@ -1,7 +1,7 @@
 ---
 name: difficulty-calibrator
-description: GA4 の正答率データからクイズの difficulty ラベルと実際の難易度の乖離を検出し、調整を提案する。月次の品質改善に使用。
-model: sonnet
+description: GA4 の正答率データからクイズの difficulty ラベルと実際の難易度の乖離を検出し、調整を提案する。月次の品質改善に使用。Opus 推奨（統計解釈+教育的判断に必要）。Opus 利用不可時は Sonnet にフォールバック。
+model: opus
 tools: Read, Bash, Grep, Glob, mcp__ga4-analytics__ga4_report, mcp__ga4-analytics__ga4_summary
 permissionMode: plan
 maxTurns: 20

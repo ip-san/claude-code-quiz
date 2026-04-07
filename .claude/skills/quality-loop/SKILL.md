@@ -286,3 +286,30 @@ bun run skills:check   # フロントマター + トークン数 + 行数
 ```
 
 `--team` 使用時は各フェーズの並列実行時間と、逐次実行との推定比較を記載する。
+
+---
+
+## モデル選択ガイドライン
+
+判断の性質に応じて適切なモデルを使い分ける。Opus が利用できないプランでは自動的に Sonnet にフォールバックする。
+
+| 判断の性質 | モデル | フォールバック | 例 |
+|-----------|--------|-------------|-----|
+| 機械的なデータ収集・集計 | Script（モデル不要） | — | セッション収集、分類集計、統計取得 |
+| 単純な分類・パターン認識 | Haiku | Script（正規表現） | プロンプト意図分類、事実一致判定、問題ランキング |
+| 複数プロンプトの文脈理解 | Sonnet | — | レコメンド15問選定、クイズ検証、コードレビュー |
+| 微妙なニュアンス・深い推論 | Opus | Sonnet | Verified Facts 鮮度チェック、難易度キャリブレーション、停滞介入 |
+
+### Opus → Sonnet フォールバック
+
+`facts-checker` と `difficulty-calibrator` は `model: opus` で定義されている。Opus 利用不可時は Agent ツールの `model` パラメータで `sonnet` を明示指定して起動する:
+
+```
+Agent(subagent_type: "facts-checker", model: "sonnet")
+```
+
+### quiz-verifier の critical 二重確認
+
+quiz-verifier（Sonnet）が `needsOpusReview: true` を報告した場合:
+1. まず Opus で確認を試みる（Agent model: "opus"）
+2. Opus 利用不可なら Sonnet で再確認（追加のドキュメント箇所を含めて再検証）

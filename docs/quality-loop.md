@@ -74,16 +74,18 @@ flowchart TD
 
 #### エージェント定義（`.claude/agents/`）
 
-| エージェント | 役割 | モデル | 使用フェーズ |
-|-------------|------|--------|------------|
-| `quiz-verifier` | カテゴリ別クイズ検証 | sonnet | Phase 3（最大8並列） |
-| `quality-gate` | テスト・サイズ品質ゲート | sonnet | Phase 5 |
-| `parallel-test-runner` | テスト並列実行 | haiku | Phase 5 |
-| `doc-watcher` | ドキュメント変更検出 | sonnet | Phase 1 |
-| `stats-syncer` | CLAUDE.md 統計値同期 | haiku | Phase 4 |
-| `quiz-pipeline` | 生成→検証パイプライン | opus | 単独実行 |
-| `facts-checker` | Verified Facts 鮮度チェック | sonnet | 月次 |
-| `difficulty-calibrator` | GA4 難易度キャリブレーション | sonnet | 月次 |
+| エージェント | 役割 | モデル | フォールバック | 使用フェーズ |
+|-------------|------|--------|-------------|------------|
+| `quiz-verifier` | カテゴリ別クイズ検証 | sonnet | — | Phase 3（最大8並列） |
+| `quality-gate` | テスト・サイズ品質ゲート | sonnet | — | Phase 5 |
+| `parallel-test-runner` | テスト並列実行 | haiku | — | Phase 5 |
+| `doc-watcher` | ドキュメント変更検出 | sonnet | — | Phase 1 |
+| `stats-syncer` | CLAUDE.md 統計値同期 | haiku | — | Phase 4 |
+| `quiz-pipeline` | 生成→検証パイプライン | opus | sonnet | 単独実行 |
+| `facts-checker` | Verified Facts 鮮度チェック | opus | sonnet | 月次 |
+| `difficulty-calibrator` | GA4 難易度キャリブレーション | opus | sonnet | 月次 |
+
+**モデル選択の原則:** 機械的 → Script、分類・パターン認識 → Haiku、文脈理解 → Sonnet、微妙なニュアンス・深い推論 → Opus。Opus が利用不可の場合は自動的に Sonnet にフォールバック。
 
 ## 6つのステップ
 
