@@ -87,6 +87,7 @@ export function useRecommendation() {
 
     const aiReasons = 'reasons' in cached ? (cached.reasons as Record<string, string> | undefined) : undefined
     if (aiReasons && Object.keys(aiReasons).length > 0) {
+      const progress = useQuizStore.getState().userProgress
       const recs: RecommendedQuestion[] = cached.ids
         .map((id) => {
           const q = allQuestions.find((q) => q.id === id)
@@ -94,6 +95,12 @@ export function useRecommendation() {
           return { id, question: q.question, category: q.category, reason: aiReasons[id] ?? '', signals: ['AI が選定'] }
         })
         .filter(Boolean) as RecommendedQuestion[]
+      // Deprioritize already-correct questions even in AI-selected recommendations
+      recs.sort((a, b) => {
+        const aCorrect = progress.isCorrectlyAnswered(a.id) ? 1 : 0
+        const bCorrect = progress.isCorrectlyAnswered(b.id) ? 1 : 0
+        return aCorrect - bCorrect
+      })
       setRecommendations(recs)
       setUnusedCategories([])
       setAnalysis(cachedAnalysis)
