@@ -47,7 +47,12 @@ try {
 //    to understand "what the user was trying to do across sessions"
 const conversationFlows = (rolling.conversationFlows || []).slice(-10).map((flow) => ({
   date: flow.date,
-  prompts: flow.prompts.slice(-15).map((p) => p.slice(0, 120)),
+  // Preserve dialogue pairs (user + assistant) with role, text, and error flags
+  prompts: flow.prompts.slice(-15).map((p) =>
+    typeof p === 'object'
+      ? { role: p.role, text: (p.text || '').slice(0, 120), hasError: p.hasError || undefined }
+      : { role: 'user', text: (p || '').slice(0, 120) }
+  ),
 }))
 
 // 2. Individual Haiku classifications — per-prompt judgment

@@ -145,10 +145,14 @@ function parseJsonlLines(filePath) {
   const prompts = []
   const conversations = []
   let promptIndex = 0
+  // Track last user prompt to pair with assistant response
+  let lastUserText = null
 
   for (const line of lines) {
     try {
       const j = JSON.parse(line)
+
+      // ── User messages ─────────────────────────────────────
       if (j.type === 'user' && j.message?.content) {
         const text =
           typeof j.message.content === 'string'
@@ -160,14 +164,53 @@ function parseJsonlLines(filePath) {
         if (text.length > 5) {
           prompts.push(text)
           promptIndex++
-          conversations.push({ seq: promptIndex, text })
+          lastUserText = text
+          conversations.push({ seq: promptIndex, role: 'user', text })
         }
       }
-      if (j.message?.content && Array.isArray(j.message.content)) {
+
+      // ── Assistant messages (Claude's response) ────────────
+      // Collect response summary + tool results for struggle accuracy
+      if (j.message?.role === 'assistant' && j.message?.content && Array.isArray(j.message.content)) {
+        let responseText = ''
+        let toolsUsed = []
+        let hasError = false
+
         for (const c of j.message.content) {
+          if (c.type === 'text' && c.text) {
+            responseText += c.text
+          }
           if (c.type === 'tool_use') {
             tools[c.name] = (tools[c.name] || 0) + 1
+            toolsUsed.push(c.name)
             if (c.input?.command) prompts.push(c.input.command)
+          }
+          if (c.type === 'tool_result' && c.is_error) {
+            hasError = true
+          }
+        }
+
+        // Build conversation pair: what user asked → what Claude did
+        if (responseText.length > 0 || toolsUsed.length > 0) {
+          const summary = responseText.slice(0, 120) || `[ツール: ${toolsUsed.slice(0, 3).join(', ')}]`
+          conversations.push({
+            seq: promptIndex,
+            role: 'assistant',
+            text: summary,
+            toolsUsed: toolsUsed.length > 0 ? toolsUsed.slice(0, 5) : undefined,
+            hasError: hasError || undefined,
+          })
+        }
+      }
+
+      // ── Tool results (separate from assistant content) ────
+      if (j.type === 'tool_result' || j.message?.role === 'tool') {
+        // Check for error in tool results
+        const isError = j.is_error || j.message?.is_error
+        if (isError && conversations.length > 0) {
+          const last = conversations[conversations.length - 1]
+          if (last.role === 'assistant') {
+            last.hasError = true
           }
         }
       }
@@ -373,13 +416,17 @@ for (let d = 0; d < ROLLING_DAYS; d++) {
         rollingCache.prompts.push(...meaningful)
       }
     }
-    // Collect conversation flows + intent transitions per session
+    // Collect conversation flows with dialogue pairs (user + assistant)
     for (const sess of dayData.sessions) {
       if (sess.conversations && sess.conversations.length > 0) {
         rollingCache.conversationFlows.push({
           date: dateStr,
           sessionId: sess.id,
-          prompts: sess.conversations.slice(-15).map((c) => c.text),
+          prompts: sess.conversations.slice(-20).map((c) => ({
+            role: c.role || 'user',
+            text: (c.text || '').slice(0, 120),
+            hasError: c.hasError || undefined,
+          })),
         })
       }
     }

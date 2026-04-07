@@ -43,11 +43,29 @@ try {
   }
 
   // ── Build Haiku prompt ────────────────────────────────────
-  // Include conversation flow context for better classification
+  // Include conversation flows WITH assistant responses for accurate struggle detection
   const flowContext = (rolling.conversationFlows || [])
     .slice(-5)
-    .map((f) => f.prompts.slice(-5).join(' → '))
-    .join('\n')
+    .map((f) => {
+      // Format as dialogue pairs: User→Claude→User→Claude
+      if (Array.isArray(f.prompts) && f.prompts.length > 0 && typeof f.prompts[0] === 'object') {
+        // New format: [{role, text, hasError?}, ...]
+        return f.prompts
+          .slice(-10)
+          .map((p) => {
+            const prefix = p.role === 'assistant' ? 'Claude' : 'User'
+            const err = p.hasError ? ' [エラー]' : ''
+            return `${prefix}: ${(p.text || '').slice(0, 80)}${err}`
+          })
+          .join('\n  ')
+      }
+      // Legacy format: plain string array
+      return f.prompts
+        .slice(-5)
+        .map((p) => (typeof p === 'string' ? p : ''))
+        .join(' → ')
+    })
+    .join('\n---\n')
 
   const promptList = prompts.slice(-50).map((p, i) => ({
     id: i,
@@ -73,8 +91,11 @@ tip の例:
 重要:
 - tip はユーザーの実際の作業内容に合った提案にすること。汎用的な提案は避ける
 - phase は会話の流れを見て判断すること。同じプロンプトでも文脈で変わる
+- 会話の流れには Claude の応答も含まれる。Claude が一発で解決した場合は struggle=none
+- Claude が的外れな回答をしてユーザーが再質問した場合は struggle=mild/strong
+- [エラー] マークはツール実行が失敗したことを示す
 
-## 会話の流れ（参考）
+## 会話の流れ（User と Claude の対話）
 ${flowContext || 'なし'}
 
 ## プロンプト一覧

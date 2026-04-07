@@ -26,6 +26,7 @@ SessionEnd hook (自動)
 
   → Layer 2: classify-prompts.mjs [Haiku/~$0.004]
       50プロンプトを意図分類 (intent, category, struggle, phase, tip)
+      Claude の応答も対話ペアとして参照（苦戦判定の精度向上）
       → classified-prompts.json
       → chain Layer 3
 
