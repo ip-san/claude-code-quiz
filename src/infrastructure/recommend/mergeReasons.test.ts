@@ -178,6 +178,30 @@ describe('mergeReasons — skip when already merged', () => {
     const { merged } = mergeReasons(metadata, null, '')
     expect(merged).toBe(false)
   })
+
+  it('skips coaching update when reasons.json has no coachingMessage', () => {
+    const metadata = makeMetadata({ reasons: { 'bp-001': '既存' } })
+    const reasonsJson = JSON.stringify({ reasons: { 'bp-001': '理由' } })
+
+    const { merged, skipReason } = mergeReasons(metadata, reasonsJson, '')
+    expect(merged).toBe(false)
+    expect(skipReason).toBe('already_merged')
+  })
+
+  it('skips coaching update when reasons.json is invalid JSON', () => {
+    const metadata = makeMetadata({ reasons: { 'bp-001': '既存' } })
+
+    const { merged } = mergeReasons(metadata, '{bad json', '')
+    expect(merged).toBe(false)
+  })
+
+  it('skips coaching update when reasons.json fails Zod validation', () => {
+    const metadata = makeMetadata({ reasons: { 'bp-001': '既存' } })
+    const reasonsJson = JSON.stringify({ reasons: { INVALID: '' } })
+
+    const { merged } = mergeReasons(metadata, reasonsJson, '')
+    expect(merged).toBe(false)
+  })
 })
 
 // ── stdout からの抽出 ────────────────────────────────────────────────────────

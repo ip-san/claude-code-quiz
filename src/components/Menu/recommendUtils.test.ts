@@ -371,4 +371,76 @@ describe('findRecommendedScenario', () => {
     const result = findRecommendedScenario({ tools: 90, memory: 50 }, [], classified)
     expect(result).not.toBeNull()
   })
+
+  it('returns non-null for single category with matching scenario', () => {
+    const result = findRecommendedScenario({ memory: 100 })
+    // memory maps to scenario-onboard, scenario-dotclaude, scenario-claudemd, scenario-session, scenario-team
+    expect(result).not.toBeNull()
+    expect(result!.reason.length).toBeGreaterThan(0)
+  })
+
+  it('returns scenario with reason even without prompts or classified data', () => {
+    const result = findRecommendedScenario({ tools: 80, bestpractices: 60 })
+    expect(result).not.toBeNull()
+    expect(typeof result!.scenario.id).toBe('string')
+  })
+
+  it('handles classified data with no struggles gracefully', () => {
+    const classified = {
+      classifications: [makeClassification(0, 'task', 'tools', 'none')],
+      summary: makeSummary([], { none: 1, mild: 0, strong: 0 }),
+    }
+    const result = findRecommendedScenario({ tools: 90 }, [], classified)
+    // No struggles → falls back to category-based matching
+    expect(result).not.toBeNull()
+  })
+
+  it('handles empty categoryScores object', () => {
+    const result = findRecommendedScenario({})
+    expect(result).toBeNull()
+  })
+})
+
+// ── computeRecommendations edge cases ────────────────────────────────────────
+
+describe('computeRecommendations — edge cases', () => {
+  const questions = [
+    makeQuestion('mem-001', 'memory', 'beginner'),
+    makeQuestion('mem-002', 'memory', 'intermediate'),
+    makeQuestion('mem-003', 'memory', 'advanced'),
+    makeQuestion('tool-001', 'tools', 'beginner'),
+    makeQuestion('tool-002', 'tools', 'intermediate'),
+  ]
+
+  it('handles all questions excluded', () => {
+    const analysis = makeAnalysis({ memory: 90 })
+    const excludeIds = new Set(questions.map((q) => q.id))
+    const { recs } = computeRecommendations(analysis, questions, excludeIds)
+    expect(recs).toHaveLength(0)
+  })
+
+  it('handles single category with one question', () => {
+    const analysis = makeAnalysis({ memory: 90 })
+    const singleQ = [makeQuestion('mem-001', 'memory')]
+    const { recs } = computeRecommendations(analysis, singleQ)
+    expect(recs).toHaveLength(1)
+    expect(recs[0].id).toBe('mem-001')
+  })
+
+  it('handles negative category scores', () => {
+    const analysis = makeAnalysis({ memory: -10, tools: 0 })
+    // Negative scores are filtered out (s > 0)
+    const { recs } = computeRecommendations(analysis, questions)
+    const memRecs = recs.filter((r) => r.category === 'memory')
+    expect(memRecs).toHaveLength(0)
+  })
+
+  it('signals include category rank', () => {
+    const analysis = makeAnalysis({ memory: 90, tools: 50 })
+    const { recs } = computeRecommendations(analysis, questions)
+    // Each recommendation should have at least one signal
+    for (const rec of recs) {
+      expect(rec.signals.length).toBeGreaterThan(0)
+    }
+  })
 })
