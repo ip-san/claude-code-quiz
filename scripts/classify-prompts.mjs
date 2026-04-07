@@ -60,6 +60,7 @@ try {
 - intent: 何をしようとしていたか（10文字以内）
 - category: memory|skills|tools|commands|extensions|session|keyboard|bestpractices
 - struggle: none|mild|strong（苦戦の兆候）
+- phase: 探索|質問|試行|修正|成功|放棄（作業フェーズ）
 - tip: 苦戦(mild/strong)の場合のみ、Claude Code の具体的な機能名を使った改善提案（20文字以内）。none の場合は null
 
 tip の例:
@@ -69,7 +70,9 @@ tip の例:
 - エラーを貼り付けて直してと言う → "エラーの原因を質問する"
 - テストを何度も手動実行 → "PostToolUse hook で自動化"
 
-重要: tip はユーザーの実際の作業内容に合った提案にすること。汎用的な提案は避ける。
+重要:
+- tip はユーザーの実際の作業内容に合った提案にすること。汎用的な提案は避ける
+- phase は会話の流れを見て判断すること。同じプロンプトでも文脈で変わる
 
 ## 会話の流れ（参考）
 ${flowContext || 'なし'}

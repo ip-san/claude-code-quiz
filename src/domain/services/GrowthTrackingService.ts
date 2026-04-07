@@ -38,6 +38,8 @@ export interface PatternSnapshot {
 export interface PatternChange {
   readonly pattern: string
   readonly detail: string
+  /** Haiku が生成した改善提案（利用可能な場合） */
+  readonly tip?: string
   /** 前回の検出回数 */
   readonly prevCount: number
   /** 今回の検出回数 */
@@ -148,7 +150,7 @@ export class GrowthTrackingService {
    * 前回のスナップショットと比較して成長インサイトを生成
    */
   static compareWithPrevious(
-    currentPatterns: { pattern: string; category?: string; savedMinutes: number; aiStyle?: string }[],
+    currentPatterns: { pattern: string; tip?: string; category?: string; savedMinutes: number; aiStyle?: string }[],
     prompts: string[],
     recommendedAccuracy?: Record<string, { correct: number; total: number }>
   ): GrowthInsight | null {
@@ -177,13 +179,15 @@ export class GrowthTrackingService {
       }
     }
 
-    // New issues: in current but not in previous
+    // New issues: in current but not in previous — include Haiku tip if available
     const newIssues: PatternChange[] = []
     for (const p of Object.keys(currentCounts)) {
       if (!(p in prevCounts) || (prevCounts[p] ?? 0) === 0) {
+        const matchingPattern = currentPatterns.find((cp) => cp.pattern === p)
         newIssues.push({
           pattern: p,
           detail: `「${p}」が新たに検出されました`,
+          tip: matchingPattern?.tip,
           prevCount: 0,
           currentCount: currentCounts[p],
         })
@@ -287,14 +291,19 @@ export class GrowthTrackingService {
       return `「${top.pattern}」が改善${numDetail}。クイズで学んだことが実務に活きています`
     }
 
-    // New issues but also improvement
+    // New issues but also improvement — use the Haiku-generated tip if available
     if (improved.length > 0 && newIssues.length > 0) {
-      return `「${improved[0].pattern}」は改善。次は「${newIssues[0].pattern}」に取り組んでみましょう`
+      const tip = newIssues[0].tip
+      const next = tip ? `💡 ${tip}` : `「${newIssues[0].pattern}」に取り組んでみましょう`
+      return `「${improved[0].pattern}」は改善。次は${next}`
     }
 
-    // Only new issues
+    // Only new issues — use the Haiku-generated tip if available
     if (newIssues.length > 0) {
-      return `「${newIssues[0].pattern}」が見つかりました。関連するクイズで効率的な方法を学びましょう`
+      const tip = newIssues[0].tip
+      return tip
+        ? `「${newIssues[0].pattern}」が見つかりました。💡 ${tip}`
+        : `「${newIssues[0].pattern}」が見つかりました。関連するクイズで効率的な方法を学びましょう`
     }
 
     // Maturity improving

@@ -166,8 +166,9 @@ export function detectWorkPatterns(
   if (classified && classified.classifications.length > 0) {
     return detectFromClassification(prompts, classified)
   }
-  // Fallback: regex-based heuristics
-  return detectFromRegex(prompts)
+  // No Haiku classification available — return empty rather than making
+  // crude regex-based judgments. Pattern detection requires AI understanding.
+  return []
 }
 
 /** Haiku 分類結果を活用したパターン検出 */
@@ -245,136 +246,6 @@ function detectFromClassification(
         tip: '素晴らしいアプローチ！より高度な問題に挑戦してみましょう',
         category: 'bestpractices',
         savedMinutes: 0,
-        aiStyle: 'inquiry',
-      })
-    }
-  }
-
-  return patterns
-}
-
-/** Regex-based fallback (no Haiku classification available) */
-function detectFromRegex(prompts: string[]): WorkPattern[] {
-  const patterns: WorkPattern[] = []
-  const meaningful = prompts.filter((p) => p.length > 10)
-
-  // Repetition: same theme 3+ times (crude: first 15 chars match)
-  const themeCount = new Map<string, { count: number; example: string }>()
-  for (const p of meaningful) {
-    const key = p.slice(0, 15).toLowerCase()
-    const existing = themeCount.get(key)
-    themeCount.set(key, { count: (existing?.count ?? 0) + 1, example: p })
-  }
-  for (const [, { count, example }] of themeCount) {
-    if (count >= 3) {
-      patterns.push({
-        pattern: '同じ修正を繰り返し指示',
-        tip: 'CLAUDE.md にルールを書けば毎回伝える必要がない',
-        category: 'memory',
-        savedMinutes: count * 3,
-        evidence: example,
-      })
-      break
-    }
-  }
-
-  // Long prompts: context re-explanation
-  const longPrompts = meaningful.filter((p) => p.length > 80)
-  if (longPrompts.length >= 3) {
-    patterns.push({
-      pattern: '長いプロンプトで毎回文脈を説明',
-      tip: 'CLAUDE.md に書けば自動で読み込まれる',
-      category: 'memory',
-      savedMinutes: longPrompts.length * 2,
-      evidence: longPrompts[0],
-    })
-  }
-
-  // Manual test commands
-  const testCmds = meaningful.filter((p) => /test|テスト/.test(p.toLowerCase()))
-  if (testCmds.length >= 2) {
-    patterns.push({
-      pattern: 'テストを手動で何度も実行',
-      tip: 'PostToolUse hook で自動テストを設定できる',
-      category: 'extensions',
-      savedMinutes: testCmds.length * 2,
-      evidence: testCmds[0],
-    })
-  }
-
-  // Session length: only suggest /compact when there are signs of context management issues
-  // (e.g. re-explaining context, "さっき言った" references, or very long sessions with repetition)
-  const contextReExplain = meaningful.filter((p) => /さっき|先ほど|前に言った|もう一度/.test(p))
-  if (meaningful.length > 20 && contextReExplain.length >= 2) {
-    patterns.push({
-      pattern: `セッションが長く、文脈の再説明が${contextReExplain.length}回`,
-      tip: '/compact でコンテキストを圧縮できる',
-      category: 'session',
-      savedMinutes: 5,
-      evidence: contextReExplain[0],
-    })
-  }
-
-  // File search patterns
-  const searchPrompts = meaningful.filter((p) => /どこ|探し|見つ|ファイル.*教え/.test(p))
-  if (searchPrompts.length >= 2) {
-    patterns.push({
-      pattern: 'ファイルの場所を何度も質問',
-      tip: 'Glob/Grep ツールなら一発で検索できる',
-      category: 'tools',
-      savedMinutes: searchPrompts.length * 2,
-      evidence: searchPrompts[0],
-    })
-  }
-
-  // Impact/scope questions
-  const impactPrompts = meaningful.filter((p) => /影響|範囲|他に.*ない|壊れ/.test(p))
-  if (impactPrompts.length >= 2) {
-    patterns.push({
-      pattern: '影響範囲を繰り返し確認',
-      tip: 'Plan モードで事前に設計すると手戻りが減る',
-      category: 'bestpractices',
-      savedMinutes: impactPrompts.length * 3,
-      evidence: impactPrompts[0],
-    })
-  }
-
-  // AI Usage Style Detection (Anthropic research-based)
-  const delegationPrompts = meaningful.filter((p) => /お願い|全部|まとめて|作って|やって|してください$/.test(p))
-  const debugDelegation = meaningful.filter((p) =>
-    /直して|修正して|エラー.*なおし|fix|動かない.*して/.test(p.toLowerCase())
-  )
-  const inquiryPrompts = meaningful.filter((p) => /なぜ|どう違|仕組み|理由|どういう|メリット|デメリット|比較/.test(p))
-
-  const totalStyled = delegationPrompts.length + debugDelegation.length + inquiryPrompts.length
-  if (totalStyled >= 3) {
-    const delegationRatio = (delegationPrompts.length + debugDelegation.length) / totalStyled
-
-    if (delegationRatio > 0.7 && delegationPrompts.length >= 3) {
-      patterns.push({
-        pattern: 'AI への丸投げ傾向',
-        tip: '「なぜそうなるか」を質問すると理解が深まり、スキルが定着する（Anthropic 研究）',
-        category: 'bestpractices',
-        savedMinutes: 0,
-        evidence: delegationPrompts[0],
-        aiStyle: 'delegation',
-      })
-    } else if (debugDelegation.length >= 2) {
-      patterns.push({
-        pattern: 'デバッグを AI に委任する傾向',
-        tip: 'エラーの原因を「なぜ起きたか」と質問すると、次回から自力で解決できるようになる',
-        category: 'bestpractices',
-        savedMinutes: debugDelegation.length * 5,
-        evidence: debugDelegation[0],
-        aiStyle: 'debug-delegation',
-      })
-    } else if (inquiryPrompts.length >= 3) {
-      patterns.push({
-        pattern: '概念を理解しようとする質問が多い',
-        tip: '素晴らしいアプローチ！より高度な問題に挑戦してみましょう',
-        category: 'bestpractices',
-        savedMinutes: 0,
-        evidence: inquiryPrompts[0],
         aiStyle: 'inquiry',
       })
     }
