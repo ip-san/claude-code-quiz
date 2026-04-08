@@ -280,4 +280,143 @@ describe('Spec Consistency: Locale completeness', () => {
       expect(has70Hardcoded, `${file} has hardcoded >= 70 — use PASSING_SCORE`).toBe(false)
     }
   })
+
+  it('score thresholds: all files using score comparison import ScoreThresholds', () => {
+    // Extended check: files that compare accuracy/percentage against numeric thresholds
+    // must import from ScoreThresholds
+    const filesToCheck = [
+      'src/components/Progress/ProgressDashboard.tsx',
+      'src/components/Quiz/QuizResult.tsx',
+      'src/components/Menu/CategoryPicker.tsx',
+    ]
+    for (const file of filesToCheck) {
+      const source = readFileSync(file, 'utf8')
+      expect(source, `${file} should import from ScoreThresholds`).toContain('ScoreThresholds')
+      // Should NOT have raw >= 70, >= 80, >= 50 for score comparisons
+      const hasRawThreshold = /accuracy\s*>=\s*(?:70|80|50)\b|progress\s*>=\s*(?:70|80|50)\b/.test(source)
+      expect(hasRawThreshold, `${file} has hardcoded score threshold — use ScoreThresholds constants`).toBe(false)
+    }
+  })
+})
+
+describe('Spec Consistency: isCorrectlyAnswered usage', () => {
+  it('files checking answer correctness must use isCorrectlyAnswered, not lastCorrect', () => {
+    const filesToCheck = [
+      'src/stores/slices/progressSlice.ts',
+      'src/components/Reader/ExplanationReader.tsx',
+      'src/components/Reader/ReaderCard.tsx',
+    ]
+    for (const file of filesToCheck) {
+      const source = readFileSync(file, 'utf8')
+      // Should NOT access .lastCorrect for correctness checking
+      const hasInlineCheck = /\.lastCorrect\b/.test(source)
+      expect(hasInlineCheck, `${file} accesses .lastCorrect directly — use isCorrectlyAnswered()`).toBe(false)
+    }
+  })
+
+  it('no file uses inline unanswered check pattern', () => {
+    // The pattern "!p || p.attempts === 0 || !p.lastCorrect" is banned
+    const filesToCheck = [
+      'src/stores/slices/progressSlice.ts',
+      'src/components/Reader/ExplanationReader.tsx',
+      'src/components/Reader/ReaderCard.tsx',
+      'src/components/Menu/ModeSelection.tsx',
+      'src/components/Menu/ChapterProgressMap.tsx',
+    ]
+    for (const file of filesToCheck) {
+      const source = readFileSync(file, 'utf8')
+      const hasBannedPattern = /p\.attempts\s*===\s*0.*lastCorrect|lastCorrect.*p\.attempts\s*===\s*0/.test(source)
+      expect(hasBannedPattern, `${file} uses banned inline unanswered check — use isCorrectlyAnswered()`).toBe(false)
+    }
+  })
+})
+
+describe('Spec Consistency: Session state reset on start', () => {
+  // Use implementation line markers to extract correct source blocks
+  const source = readFileSync('src/stores/slices/sessionSlice.ts', 'utf8')
+  const lines = source.split('\n')
+
+  // Find implementation lines (indented with 2 spaces, not interface definitions)
+  function findImplBlock(startFn: string, endFn: string): string {
+    const startPattern = new RegExp(`^  ${startFn}`)
+    const endPattern = new RegExp(`^  ${endFn}`)
+    let startIdx = -1
+    let endIdx = lines.length
+    for (let i = 0; i < lines.length; i++) {
+      if (startPattern.test(lines[i]) && i > 60) {
+        startIdx = i
+        break
+      }
+    }
+    for (let i = startIdx + 1; i < lines.length; i++) {
+      if (endPattern.test(lines[i]) && i > 60) {
+        endIdx = i
+        break
+      }
+    }
+    return lines.slice(startIdx, endIdx).join('\n')
+  }
+
+  it('startSession resets activeScenarioId and sessionLabel', () => {
+    const block = findImplBlock('startSession:', 'startSessionWithIds:')
+    expect(block, 'startSession should reset activeScenarioId').toContain('activeScenarioId: null')
+    expect(block, 'startSession should reset sessionLabel').toContain('sessionLabel: null')
+  })
+
+  it('startScenarioSession resets sessionLabel', () => {
+    const block = findImplBlock('startScenarioSession:', 'retrySession:')
+    expect(block, 'startScenarioSession should reset sessionLabel').toContain('sessionLabel: null')
+  })
+
+  it('retryQuestion saves session snapshot', () => {
+    const block = findImplBlock('retryQuestion:', 'selectAnswer:')
+    expect(block, 'retryQuestion should call saveSessionSnapshot').toContain('saveSessionSnapshot')
+  })
+})
+
+describe('Spec Consistency: Navigation restores answer state', () => {
+  const source = readFileSync('src/stores/slices/sessionSlice.ts', 'utf8')
+  const lines = source.split('\n')
+
+  function findImplBlock(startFn: string, endFn: string): string {
+    const startPattern = new RegExp(`^  ${startFn}`)
+    const endPattern = new RegExp(`^  ${endFn}`)
+    let startIdx = -1
+    let endIdx = lines.length
+    for (let i = 0; i < lines.length; i++) {
+      if (startPattern.test(lines[i]) && i > 60) {
+        startIdx = i
+        break
+      }
+    }
+    for (let i = startIdx + 1; i < lines.length; i++) {
+      if (endPattern.test(lines[i]) && i > 60) {
+        endIdx = i
+        break
+      }
+    }
+    return lines.slice(startIdx, endIdx).join('\n')
+  }
+
+  it('previousQuestion restores isAnswered from answerHistory', () => {
+    const block = findImplBlock('previousQuestion:', 'goToQuestion:')
+    expect(block).not.toContain('isAnswered: false')
+    expect(block).toContain('record !== undefined')
+  })
+
+  it('goToQuestion restores isAnswered from answerHistory', () => {
+    const block = findImplBlock('goToQuestion:', 'finishTest:')
+    expect(block).not.toContain('isAnswered: false')
+    expect(block).toContain('record !== undefined')
+  })
+})
+
+describe('Spec Consistency: hasPassed uses PASSING_SCORE', () => {
+  it('QuizSessionService.hasPassed default should use PASSING_SCORE constant', () => {
+    const source = readFileSync('src/domain/services/QuizSessionService.ts', 'utf8')
+    // Should NOT have = 70 as default
+    expect(source).not.toMatch(/hasPassed\(.*=\s*70\)/)
+    // Should reference PASSING_SCORE
+    expect(source).toContain('PASSING_SCORE')
+  })
 })

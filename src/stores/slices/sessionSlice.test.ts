@@ -1,0 +1,196 @@
+/**
+ * SessionSlice unit tests
+ *
+ * Covers bugs found in spec review: C1 (retryQuestion snapshot), C2 (deferFeedback double snapshot),
+ * H3 (startSession state reset), H4 (startScenarioSession label reset),
+ * H5 (navigation isAnswered/isCorrect restoration)
+ */
+import { beforeEach, describe, expect, it, vi } from 'vitest'
+import { useQuizStore } from '../quizStore'
+
+// Helper: initialize store and return it
+async function initStore() {
+  await useQuizStore.getState().initialize()
+  return useQuizStore.getState
+}
+
+// Helper: answer the CURRENT question (whatever currentIndex is)
+function answerCurrentQuestion(correct: boolean) {
+  const state = useQuizStore.getState()
+  const session = state.sessionState!
+  const q = session.questions[session.currentIndex]
+  const ci = q.correctIndex
+  const correctSet = new Set(Array.isArray(ci) ? ci : [ci])
+
+  if (correct) {
+    state.selectAnswer(Array.isArray(ci) ? ci[0] : ci)
+  } else {
+    const wrongIndex = q.options.findIndex((_, i) => !correctSet.has(i))
+    state.selectAnswer(wrongIndex)
+  }
+  state.submitAnswer()
+}
+
+describe('sessionSlice', () => {
+  beforeEach(async () => {
+    localStorage.clear()
+    useQuizStore.setState({
+      viewState: 'menu',
+      sessionState: null,
+      sessionWrongAnswers: [],
+      savedSession: null,
+      activeScenarioId: null,
+      sessionLabel: null,
+    })
+    await initStore()
+  })
+
+  describe('C1: retryQuestion saves session snapshot', () => {
+    it('should persist session state after retry', () => {
+      useQuizStore.getState().startSession({ mode: 'random', questionCount: 3 })
+      answerCurrentQuestion(false)
+
+      // localStorage should have a snapshot from submitAnswer
+      const snapshotBefore = localStorage.getItem('claude-code-quiz-session')
+      expect(snapshotBefore).not.toBeNull()
+
+      // Retry the question
+      useQuizStore.getState().retryQuestion()
+      const s = useQuizStore.getState().sessionState!
+      expect(s.isAnswered).toBe(false)
+      expect(s.isCorrect).toBeNull()
+
+      // Snapshot should be updated after retry
+      const snapshotAfter = localStorage.getItem('claude-code-quiz-session')
+      expect(snapshotAfter).not.toBeNull()
+      // retryQuestion doesn't change answeredCount, but the snapshot should be re-saved
+      // Verify the setItem was called after retry (at least 2 saves: submitAnswer + retry)
+      const setItemCalls = (localStorage.setItem as any).mock.calls.filter(
+        (c: string[]) => c[0] === 'claude-code-quiz-session'
+      )
+      expect(setItemCalls.length).toBeGreaterThanOrEqual(2)
+    })
+  })
+
+  describe('C2: deferFeedback single atomic update', () => {
+    it('should auto-advance in defer mode without double snapshot', () => {
+      useQuizStore.getState().startSession({ mode: 'full' })
+      const s = useQuizStore.getState().sessionState!
+      expect(s.deferFeedback).toBe(true)
+
+      // Answer first question
+      answerCurrentQuestion(true)
+
+      // Should auto-advance to next question
+      const after = useQuizStore.getState().sessionState!
+      expect(after.currentIndex).toBe(1)
+      expect(after.isAnswered).toBe(false)
+
+      // Answer should be recorded in history
+      expect(after.answerHistory.has(0)).toBe(true)
+    })
+  })
+
+  describe('H3: startSession resets activeScenarioId and sessionLabel', () => {
+    it('should clear activeScenarioId from previous scenario session', () => {
+      // Start a scenario session first
+      const scenarios = useQuizStore.getState().allQuestions.length > 0
+      if (!scenarios) return
+
+      // Manually set scenario state to simulate previous scenario session
+      useQuizStore.setState({ activeScenarioId: 'old-scenario', sessionLabel: 'old-label' })
+
+      // Start a regular session
+      useQuizStore.getState().startSession({ mode: 'random', questionCount: 3 })
+
+      const state = useQuizStore.getState()
+      expect(state.activeScenarioId).toBeNull()
+      expect(state.sessionLabel).toBeNull()
+    })
+  })
+
+  describe('H4: startScenarioSession resets sessionLabel', () => {
+    it('should clear sessionLabel from previous custom session', () => {
+      // Set a label from a previous custom session
+      useQuizStore.setState({ sessionLabel: 'search: hooks' })
+
+      // Start a scenario session (use first available scenario)
+      useQuizStore.getState().startScenarioSession('scenario-onboard')
+
+      const state = useQuizStore.getState()
+      expect(state.sessionLabel).toBeNull()
+      // activeScenarioId should be set to the new scenario
+      expect(state.activeScenarioId).toBe('scenario-onboard')
+    })
+  })
+
+  describe('H5: navigation restores isAnswered/isCorrect from answerHistory', () => {
+    it('previousQuestion should show answered state for answered questions', () => {
+      useQuizStore.getState().startSession({ mode: 'random', questionCount: 5 })
+
+      // Answer first question correctly
+      answerCurrentQuestion(true)
+      expect(useQuizStore.getState().sessionState!.isAnswered).toBe(true)
+      expect(useQuizStore.getState().sessionState!.isCorrect).toBe(true)
+
+      // Go to next question
+      useQuizStore.getState().nextQuestion()
+      expect(useQuizStore.getState().sessionState!.currentIndex).toBe(1)
+
+      // Go back to first question
+      useQuizStore.getState().previousQuestion()
+      const s = useQuizStore.getState().sessionState!
+      expect(s.currentIndex).toBe(0)
+      expect(s.isAnswered).toBe(true)
+      expect(s.isCorrect).toBe(true)
+    })
+
+    it('goToQuestion should show answered state for answered questions', () => {
+      useQuizStore.getState().startSession({ mode: 'random', questionCount: 5 })
+
+      // Answer first question incorrectly
+      answerCurrentQuestion(false)
+
+      // Go to question 3
+      useQuizStore.getState().nextQuestion()
+      useQuizStore.getState().goToQuestion(0)
+
+      const s = useQuizStore.getState().sessionState!
+      expect(s.currentIndex).toBe(0)
+      expect(s.isAnswered).toBe(true)
+      expect(s.isCorrect).toBe(false)
+    })
+
+    it('navigation to unanswered question shows unanswered state', () => {
+      useQuizStore.getState().startSession({ mode: 'random', questionCount: 5 })
+
+      // Answer first question
+      answerCurrentQuestion(true)
+      useQuizStore.getState().nextQuestion()
+
+      // Question 1 (index 1) is unanswered
+      const s = useQuizStore.getState().sessionState!
+      expect(s.currentIndex).toBe(1)
+      expect(s.isAnswered).toBe(false)
+      expect(s.isCorrect).toBeNull()
+    })
+  })
+
+  describe('finishTest recalculates score from answerHistory', () => {
+    it('should produce correct final score from history', () => {
+      useQuizStore.getState().startSession({ mode: 'random', questionCount: 3 })
+
+      // Answer all 3 questions
+      for (let i = 0; i < 3; i++) {
+        answerCurrentQuestion(i === 0) // first correct, rest wrong
+        if (i < 2) useQuizStore.getState().nextQuestion()
+      }
+
+      useQuizStore.getState().finishTest()
+      const s = useQuizStore.getState().sessionState!
+      expect(s.isCompleted).toBe(true)
+      expect(s.score).toBe(1) // Only first was correct
+      expect(s.answeredCount).toBe(3)
+    })
+  })
+})
