@@ -137,7 +137,15 @@
     "files": [
       "dist/**/*",
       "dist-electron/**/*",
-      "build/**/*"
+      "build/**/*",
+      "scripts/*.mjs",
+      "src/data/quizzes.json",
+      ".claude/skills/**/*"
+    ],
+    "asarUnpack": [
+      "scripts/*.mjs",
+      "src/data/quizzes.json",
+      ".claude/skills/**/*"
     ],
     "icon": "build/icon.png",
     "mac": {

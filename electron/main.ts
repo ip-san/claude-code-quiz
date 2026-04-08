@@ -57,6 +57,16 @@ let mainWindow: BrowserWindow | null = null
 // app.isPackaged が最も信頼性の高い判定方法
 const isDev = !app.isPackaged
 
+/**
+ * ASAR unpack されたファイルへのパス。
+ * パッケージ版では scripts/, .claude/skills/, src/data/ が app.asar.unpacked/ に展開される。
+ * 開発時は通常のプロジェクトルートを返す。
+ */
+function getUnpackedPath(): string {
+  if (isDev) return join(__dirname, '..')
+  return app.getAppPath().replace('app.asar', 'app.asar.unpacked')
+}
+
 // Notification icon — macOS uses the app bundle icon automatically,
 // so only set icon on Windows/Linux to avoid double-icon display.
 const notificationIcon =
@@ -492,7 +502,8 @@ ipcMain.handle('run-recommend-skill', async (): Promise<{ success: boolean; erro
       recommendProc = null
     }
 
-    const projectDir = app.getAppPath()
+    // Use unpacked path so claude CLI can read .claude/skills/ and scripts/
+    const projectDir = getUnpackedPath()
 
     // Clear previous reasons.json before running new skill (will be regenerated)
     try {
@@ -759,7 +770,7 @@ ${context}
           result = await new Promise<string>((resolve, reject) => {
             let stdout = ''
             const proc = spawn('claude', ['-p', prompt, '--model', model, '--output-format', 'text'], {
-              cwd: app.getAppPath(),
+              cwd: getUnpackedPath(),
               timeout: 120_000,
               stdio: ['ignore', 'pipe', 'pipe'],
             })
@@ -833,7 +844,7 @@ ipcMain.handle('setup-global-hooks', async (_event, remove: boolean): Promise<{ 
   try {
     const claudeDir = join(homedir(), '.claude')
     const settingsPath = join(claudeDir, 'settings.json')
-    const scriptPath = join(app.getAppPath(), 'scripts', 'collect-session.mjs')
+    const scriptPath = join(getUnpackedPath(), 'scripts', 'collect-session.mjs')
     const MARKER = 'claude-quiz-recommend'
 
     // Ensure .claude dir exists
@@ -1172,7 +1183,7 @@ JSON形式で返してください: {"struggle":"...","category":"...","tip":"..
 
         // Find matching question from quiz data
         if (category) {
-          const quizPath = join(app.getAppPath(), 'src', 'data', 'quizzes.json')
+          const quizPath = join(getUnpackedPath(), 'src', 'data', 'quizzes.json')
           try {
             const quizData = JSON.parse(readFileSync(quizPath, 'utf8'))
             const candidates = quizData.quizzes
