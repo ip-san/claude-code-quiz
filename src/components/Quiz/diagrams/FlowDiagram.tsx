@@ -2,8 +2,8 @@ import { locale } from '@/config/locale'
 import { useDiagramAnimation } from './useDiagramAnimation'
 
 interface FlowDiagramProps {
-  label?: string
-  steps: Array<{ text: string; sub?: string }>
+  label?: string | undefined
+  steps: Array<{ text: string; sub?: string | undefined }>
 }
 
 /**

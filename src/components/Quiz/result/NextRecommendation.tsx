@@ -78,7 +78,7 @@ export function NextRecommendation({ mode, percentage }: NextRecommendationProps
     <button
       onClick={() => {
         haptics.light()
-        startSession({ mode: nextMode, categoryFilter })
+        startSession({ mode: nextMode, ...(categoryFilter !== undefined && { categoryFilter }) })
       }}
       aria-label={`${title} — ${description}`}
       className="tap-highlight mb-3 flex w-full items-center gap-3 rounded-2xl border border-claude-orange/30 bg-claude-orange/5 p-4 text-left dark:bg-claude-orange/10"

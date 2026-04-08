@@ -103,11 +103,11 @@ export interface ClassificationSummary {
   categoryDistribution: Record<string, number>
   overallStruggles: { none: number; mild: number; strong: number }
   /** Haiku が判定した開発者ロール */
-  developerRole?: string | null
+  developerRole?: string | null | undefined
   /** Haiku が提案するシナリオID */
-  suggestedScenarios?: string[]
+  suggestedScenarios?: string[] | undefined
   /** Haiku 分類に基づく AI 利用スタイル分布 */
-  aiStyleDistribution?: { delegation: number; inquiry: number; efficiency: number }
+  aiStyleDistribution?: { delegation: number; inquiry: number; efficiency: number } | undefined
 }
 
 /**

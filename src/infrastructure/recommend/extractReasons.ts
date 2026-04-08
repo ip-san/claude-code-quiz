@@ -9,7 +9,7 @@
 export interface ExtractedReasons {
   reasons: Record<string, string>
   ids: string[]
-  coachingMessage?: string
+  coachingMessage?: string | undefined
 }
 
 /**

@@ -69,7 +69,9 @@ export function ModeSelection() {
             <QuickActions
               allQuestions={allQuestions}
               userProgress={userProgress}
-              onStart={(mode, questionCount) => startSession({ mode, questionCount })}
+              onStart={(mode, questionCount) =>
+                startSession({ mode, ...(questionCount !== undefined && { questionCount }) })
+              }
             />
           )}
 

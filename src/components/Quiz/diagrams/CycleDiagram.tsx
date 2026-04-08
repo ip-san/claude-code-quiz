@@ -2,9 +2,9 @@ import { locale } from '@/config/locale'
 import { useDiagramAnimation } from './useDiagramAnimation'
 
 interface CycleDiagramProps {
-  label?: string
-  trigger?: string
-  states: Array<{ text: string; sub?: string }>
+  label?: string | undefined
+  trigger?: string | undefined
+  states: Array<{ text: string; sub?: string | undefined }>
 }
 
 /**

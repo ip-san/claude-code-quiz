@@ -2,7 +2,7 @@ import { locale } from '@/config/locale'
 import { useDiagramAnimation } from './useDiagramAnimation'
 
 interface ComparisonDiagramProps {
-  label?: string
+  label?: string | undefined
   columns: Array<{ heading: string; items: string[] }>
 }
 

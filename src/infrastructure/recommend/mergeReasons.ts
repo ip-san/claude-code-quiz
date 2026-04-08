@@ -25,11 +25,11 @@ export type ReasonsFile = z.infer<typeof ReasonsFileSchema>
 
 export interface RecommendResult {
   ids: string[]
-  reasons?: Record<string, string>
-  coachingMessage?: string
+  reasons?: Record<string, string> | undefined
+  coachingMessage?: string | undefined
   questionCount: number
   url: string
-  date?: string
+  date?: string | undefined
   [key: string]: unknown
 }
 
@@ -37,7 +37,7 @@ export interface MergeResult {
   merged: boolean
   source: 'reasons.json' | 'stdout' | null
   /** Reason merge was skipped (for diagnostics) */
-  skipReason?: 'already_merged' | 'stale_reasons' | 'no_source'
+  skipReason?: 'already_merged' | 'stale_reasons' | 'no_source' | undefined
   result: RecommendResult
 }
 

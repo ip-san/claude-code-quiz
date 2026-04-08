@@ -2,11 +2,11 @@ import { Fragment, type ReactNode } from 'react'
 
 interface QuizTextProps {
   text: string
-  className?: string
+  className?: string | undefined
   /** Enable code highlight animation in explanation */
-  animated?: boolean
+  animated?: boolean | undefined
   /** Base delay in ms for code highlight stagger */
-  animationDelay?: number
+  animationDelay?: number | undefined
 }
 
 /**

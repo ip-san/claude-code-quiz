@@ -4,11 +4,11 @@ import { useDiagramAnimation } from './useDiagramAnimation'
 
 interface ConfigLine {
   text: string
-  highlight?: boolean
+  highlight?: boolean | undefined
 }
 
 interface ConfigDiagramProps {
-  label?: string
+  label?: string | undefined
   filepath: string
   lines: ConfigLine[]
 }

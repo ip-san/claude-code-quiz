@@ -22,7 +22,7 @@ export interface PatternSnapshot {
   /** パターン名 → 具体的な回数/強度 */
   readonly patternCounts: Readonly<Record<string, number>>
   /** AI usage style（あれば） */
-  readonly aiStyle?: string
+  readonly aiStyle?: string | undefined
   /** プロンプトの成熟度指標 */
   readonly maturity: {
     /** 平均プロンプト長 */
@@ -41,13 +41,13 @@ export interface PatternChange {
   readonly pattern: string
   readonly detail: string
   /** Haiku が生成した改善提案（利用可能な場合） */
-  readonly tip?: string
+  readonly tip?: string | undefined
   /** 前回の検出回数 */
   readonly prevCount: number
   /** 今回の検出回数 */
   readonly currentCount: number
   /** 改善率 (0-100)。完全解消=100 */
-  readonly improvementPercent?: number
+  readonly improvementPercent?: number | undefined
 }
 
 /** 前回と今回の比較結果 */

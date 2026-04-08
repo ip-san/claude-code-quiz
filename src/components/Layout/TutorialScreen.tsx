@@ -26,7 +26,7 @@ interface SlideData {
   title: string
   description: string
   visualType: 'terminal' | 'bubbles' | 'capabilities' | 'path'
-  tip?: string
+  tip?: string | undefined
 }
 
 const SLIDE_DATA: SlideData[] = locale.tutorial.slides.map((slide, i) => ({

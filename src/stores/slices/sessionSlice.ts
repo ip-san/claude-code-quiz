@@ -20,7 +20,7 @@ import { APP_CONFIG, recordCompletedSession, type StoreGet, type StoreSet, saveS
 export interface SessionSlice {
   sessionConfig: QuizSessionConfig
   sessionState: QuizSessionState | null
-  sessionWrongAnswers: { questionId: string; selectedAnswer: number; selectedAnswers?: number[] }[]
+  sessionWrongAnswers: { questionId: string; selectedAnswer: number; selectedAnswers?: number[] | undefined }[]
   activeScenarioId: string | null
   sessionLabel: string | null
 

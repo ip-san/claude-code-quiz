@@ -47,12 +47,12 @@ export interface QuestionProgress {
   readonly correctCount: number
   readonly lastAttemptAt: number
   readonly lastCorrect: boolean
-  readonly nextReviewAt?: number
-  readonly correctStreak?: number
+  readonly nextReviewAt?: number | undefined
+  readonly correctStreak?: number | undefined
   /** 忘却回数（マスター後に不正解した回数）。ラプスが多いほど再上昇を遅くする */
-  readonly lapseCount?: number
+  readonly lapseCount?: number | undefined
   /** ラプス前の最大ストリーク。再上昇速度の制限に使用 */
-  readonly maxStreakBeforeLapse?: number
+  readonly maxStreakBeforeLapse?: number | undefined
 }
 
 /**
@@ -76,7 +76,7 @@ export interface SessionRecord {
   readonly totalQuestions: number
   readonly percentage: number
   /** カテゴリ別正答内訳（v2以降のセッションのみ） */
-  readonly categoryBreakdown?: Readonly<Record<string, CategoryBreakdown>>
+  readonly categoryBreakdown?: Readonly<Record<string, CategoryBreakdown>> | undefined
 }
 
 /**
@@ -105,12 +105,12 @@ export interface UserProgressProps {
   readonly totalCorrect: number
   readonly streakDays: number
   readonly lastSessionAt: number
-  readonly bookmarkedQuestionIds?: readonly string[]
-  readonly dailyGoal?: number
-  readonly dailyAnswerCounts?: Record<string, number>
-  readonly sessionHistory?: readonly SessionRecord[]
+  readonly bookmarkedQuestionIds?: readonly string[] | undefined
+  readonly dailyGoal?: number | undefined
+  readonly dailyAnswerCounts?: Record<string, number> | undefined
+  readonly sessionHistory?: readonly SessionRecord[] | undefined
   /** 累積経験値 (XP) */
-  readonly totalXp?: number
+  readonly totalXp?: number | undefined
 }
 
 export class UserProgress {

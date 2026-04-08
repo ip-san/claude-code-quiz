@@ -2,8 +2,8 @@ import { locale } from '@/config/locale'
 import { useDiagramAnimation } from './useDiagramAnimation'
 
 interface HierarchyDiagramProps {
-  label?: string
-  items: Array<{ text: string; sub?: string }>
+  label?: string | undefined
+  items: Array<{ text: string; sub?: string | undefined }>
 }
 
 /**

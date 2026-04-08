@@ -25,20 +25,22 @@ export interface SavedSessionData {
   readonly score: number
   readonly answeredCount: number
   readonly startedAt: number
-  readonly wrongAnswers: { questionId: string; selectedAnswer: number; selectedAnswers?: number[] }[]
+  readonly wrongAnswers: { questionId: string; selectedAnswer: number; selectedAnswers?: number[] | undefined }[]
   readonly hintsUsedCount: number
   readonly hintUsedOnCurrent: boolean
   readonly savedAt: number
-  readonly answerRecords?: SavedAnswerRecord[]
-  readonly scenarioId?: string
-  readonly sessionLabel?: string
-  readonly overviewChapterState?: {
-    readonly currentChapterId: number
-    readonly chapterPhase: 'intro' | 'questions' | 'complete'
-    readonly dismissedIntros: number[]
-    readonly dismissedCompletes: number[]
-  }
-  readonly timeRemaining?: number | null
+  readonly answerRecords?: SavedAnswerRecord[] | undefined
+  readonly scenarioId?: string | undefined
+  readonly sessionLabel?: string | undefined
+  readonly overviewChapterState?:
+    | {
+        readonly currentChapterId: number
+        readonly chapterPhase: 'intro' | 'questions' | 'complete'
+        readonly dismissedIntros: number[]
+        readonly dismissedCompletes: number[]
+      }
+    | undefined
+  readonly timeRemaining?: number | null | undefined
 }
 
 export class SessionRepository {

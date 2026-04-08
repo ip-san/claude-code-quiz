@@ -5,8 +5,8 @@ import { QuizText } from './QuizText'
 interface ExplanationWithDiagramsProps {
   explanation: string
   diagrams: readonly DiagramData[]
-  animated?: boolean
-  animationDelay?: number
+  animated?: boolean | undefined
+  animationDelay?: number | undefined
 }
 
 const DIAGRAM_MARKER = /\{\{diagram:(\d+)\}\}/g

@@ -26,8 +26,8 @@ function SingleDiagram({ diagram }: { diagram: DiagramData }) {
 }
 
 interface DiagramRendererProps {
-  diagram?: DiagramData
-  diagrams?: readonly DiagramData[]
+  diagram?: DiagramData | undefined
+  diagrams?: readonly DiagramData[] | undefined
 }
 
 export function DiagramRenderer({ diagram, diagrams }: DiagramRendererProps) {

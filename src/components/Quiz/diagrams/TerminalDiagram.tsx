@@ -11,7 +11,7 @@ interface TerminalLine {
 }
 
 interface TerminalDiagramProps {
-  label?: string
+  label?: string | undefined
   lines: TerminalLine[]
 }
 

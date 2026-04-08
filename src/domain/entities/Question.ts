@@ -34,7 +34,7 @@ import type { DifficultyLevel } from '../valueObjects/Difficulty'
  */
 export interface QuizOption {
   readonly text: string
-  readonly wrongFeedback?: string
+  readonly wrongFeedback?: string | undefined
 }
 
 /**
@@ -54,18 +54,18 @@ export interface QuestionProps {
   readonly id: string
   readonly question: string
   readonly options: QuizOption[]
-  readonly correctIndex?: number
+  readonly correctIndex?: number | undefined
   readonly explanation: string
-  readonly referenceUrl?: string
-  readonly aiPrompt?: string
-  readonly hint?: string
+  readonly referenceUrl?: string | undefined
+  readonly aiPrompt?: string | undefined
+  readonly hint?: string | undefined
   readonly category: string
   readonly difficulty: DifficultyLevel
-  readonly tags?: string[]
-  readonly type?: QuestionType
-  readonly correctIndices?: number[]
-  readonly diagram?: DiagramData
-  readonly diagrams?: DiagramData[]
+  readonly tags?: string[] | undefined
+  readonly type?: QuestionType | undefined
+  readonly correctIndices?: number[] | undefined
+  readonly diagram?: DiagramData | undefined
+  readonly diagrams?: DiagramData[] | undefined
 }
 
 export class Question {
@@ -74,15 +74,15 @@ export class Question {
   readonly options: readonly QuizOption[]
   readonly correctIndex: number
   readonly explanation: string
-  readonly referenceUrl?: string
-  readonly aiPrompt?: string
-  readonly hint?: string
+  readonly referenceUrl?: string | undefined
+  readonly aiPrompt?: string | undefined
+  readonly hint?: string | undefined
   readonly category: string
   readonly difficulty: DifficultyLevel
   readonly tags: readonly string[]
   readonly type: QuestionType
   readonly correctIndices: readonly number[]
-  readonly diagram?: DiagramData
+  readonly diagram?: DiagramData | undefined
   readonly diagrams: readonly DiagramData[]
 
   /**

@@ -28,9 +28,9 @@ export function QuizCard({
   isModalOpen = false,
   onLastQuestionNext,
 }: {
-  isModalOpen?: boolean
+  isModalOpen?: boolean | undefined
   /** シナリオモードで最後の問題の後にエピローグを表示するためのコールバック */
-  onLastQuestionNext?: () => void
+  onLastQuestionNext?: (() => void) | undefined
 }) {
   const {
     getCurrentQuestion,

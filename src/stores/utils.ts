@@ -77,7 +77,7 @@ export interface QuizStore {
   // Session state
   sessionConfig: QuizSessionConfig
   sessionState: QuizSessionState | null
-  sessionWrongAnswers: { questionId: string; selectedAnswer: number; selectedAnswers?: number[] }[]
+  sessionWrongAnswers: { questionId: string; selectedAnswer: number; selectedAnswers?: number[] | undefined }[]
 
   // Progress state (using domain entity)
   userProgress: UserProgress
@@ -176,7 +176,7 @@ export type StoreGet = () => QuizStore
  */
 export function saveSessionSnapshot(
   sessionState: QuizSessionState,
-  wrongAnswers: { questionId: string; selectedAnswer: number; selectedAnswers?: number[] }[],
+  wrongAnswers: { questionId: string; selectedAnswer: number; selectedAnswers?: number[] | undefined }[],
   getStoreValues: () => { activeScenarioId: string | null; sessionLabel: string | null }
 ): void {
   const answerRecords: SavedAnswerRecord[] = []

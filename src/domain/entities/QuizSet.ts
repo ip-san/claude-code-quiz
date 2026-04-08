@@ -13,8 +13,8 @@ export type QuizSetType = 'default' | 'user'
 export interface QuizSetProps {
   readonly id: string
   readonly title: string
-  readonly description?: string
-  readonly version?: string
+  readonly description?: string | undefined
+  readonly version?: string | undefined
   readonly type: QuizSetType
   readonly questions: Question[]
   readonly createdAt: number
@@ -67,9 +67,9 @@ export class QuizSet {
    * Create default quiz set from JSON data
    */
   static createDefault(data: {
-    title?: string
-    description?: string
-    version?: string
+    title?: string | undefined
+    description?: string | undefined
+    version?: string | undefined
     quizzes: QuestionProps[]
   }): QuizSet {
     const questions = data.quizzes.map((q) => Question.fromData(q)).filter((q): q is Question => q !== null)
