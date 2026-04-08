@@ -1058,6 +1058,15 @@ ipcMain.handle(
       } catch {
         /* rolling not available — use recommend's own samples */
       }
+      // Enrich coachingMessage from reasons.json if missing
+      if (!data.coachingMessage) {
+        try {
+          const reasonsData = JSON.parse(readFileSync(join(storeDir, 'reasons.json'), 'utf8'))
+          if (reasonsData.coachingMessage) data.coachingMessage = reasonsData.coachingMessage
+        } catch {
+          /* reasons.json not available */
+        }
+      }
       return data
     } catch {
       return null

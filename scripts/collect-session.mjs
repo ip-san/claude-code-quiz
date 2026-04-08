@@ -547,6 +547,15 @@ try {
     } catch {
       // No existing file
     }
+    // Also check reasons.json for coachingMessage (source of truth)
+    if (!existingCoaching) {
+      try {
+        const reasonsFile = JSON.parse(readFileSync(join(STORE_DIR, 'reasons.json'), 'utf8'))
+        if (reasonsFile.coachingMessage) existingCoaching = reasonsFile.coachingMessage
+      } catch {
+        // reasons.json not available
+      }
+    }
     writeFileSync(
       join(STORE_DIR, 'latest-recommend.json'),
       JSON.stringify(
