@@ -160,9 +160,17 @@ export function useRecommendation() {
       return
     }
 
-    setLoading(true)
     setAiError(null)
     haptics.light()
+
+    // Pre-flight check: verify CLI is installed, authenticated, and has model access
+    const check = await window.electronAPI.checkRecommendReady?.()
+    if (check && !check.ready) {
+      setAiError(check.error ?? null)
+      return
+    }
+
+    setLoading(true)
     startTimer()
 
     // Clear cached results so fresh analysis runs

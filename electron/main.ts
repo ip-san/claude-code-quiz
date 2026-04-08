@@ -494,6 +494,39 @@ import type { ChildProcess } from 'child_process'
 
 let recommendProc: ChildProcess | null = null
 
+/** Pre-flight check: verify Claude CLI is installed, authenticated, and has model access */
+ipcMain.handle('check-recommend-ready', async (): Promise<{ ready: boolean; error?: string }> => {
+  try {
+    const { execSync } = await import('child_process')
+    // 1. Check CLI exists
+    try {
+      execSync('claude --version', { timeout: 5000, stdio: 'pipe' })
+    } catch {
+      return { ready: false, error: loc.recommend.cliNotFound }
+    }
+    // 2. Check auth + model access with a minimal prompt
+    try {
+      execSync('claude -p "ping" --model haiku --output-format text', {
+        timeout: 15_000,
+        stdio: 'pipe',
+        encoding: 'utf8',
+      })
+    } catch (e) {
+      const msg = (e instanceof Error ? e.message : '').toLowerCase()
+      if (msg.includes('auth') || msg.includes('login') || msg.includes('unauthorized') || msg.includes('401')) {
+        return { ready: false, error: loc.recommend.authRequired }
+      }
+      if (msg.includes('model') || msg.includes('quota') || msg.includes('rate limit') || msg.includes('403')) {
+        return { ready: false, error: loc.recommend.modelUnavailable }
+      }
+      // Other errors (network, etc.) — still allow attempt
+    }
+    return { ready: true }
+  } catch {
+    return { ready: false, error: loc.recommend.cliNotFound }
+  }
+})
+
 ipcMain.handle('run-recommend-skill', async (): Promise<{ success: boolean; error?: string }> => {
   try {
     // Kill any existing recommend process (prevents duplicate runs on reload)

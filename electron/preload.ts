@@ -110,6 +110,12 @@ const electronAPI = {
     return ipcRenderer.invoke('analyze-usage', daysBack)
   },
   /**
+   * Claude CLI の事前チェック（インストール・認証・モデルアクセス）
+   */
+  checkRecommendReady: (): Promise<{ ready: boolean; error?: string }> => {
+    return ipcRenderer.invoke('check-recommend-ready')
+  },
+  /**
    * /recommend スキルを Claude CLI 経由で実行する
    */
   runRecommendSkill: (): Promise<{ success: boolean; error?: string }> => {
