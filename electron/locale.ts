@@ -11,7 +11,9 @@ export const electronLocale = {
   },
   recommend: {
     timeout: 'タイムアウトしました。もう一度お試しください。',
-    cliNotFound: 'Claude Code CLI が見つかりません。インストールしてください。',
+    cliNotFound: 'Claude Code CLI が見つかりません。https://code.claude.com からインストールしてください。',
+    authRequired: 'Claude Code にログインしてください。ターミナルで「claude」を実行してセットアップできます。',
+    modelUnavailable: 'AI モデルにアクセスできません。Claude Code のプランをご確認ください。',
   },
   microQuiz: {
     titleWithQuestion: '💡 今の作業に役立つ問題',

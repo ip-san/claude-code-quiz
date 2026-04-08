@@ -637,12 +637,32 @@ ipcMain.handle('run-recommend-skill', async (): Promise<{ success: boolean; erro
     return { success: true }
   } catch (error) {
     const msg = error instanceof Error ? error.message : 'Unknown error'
+    const msgLower = msg.toLowerCase()
     // Check if claude CLI is not found
-    if (msg.includes('ENOENT') || msg.includes('not found')) {
+    if (msgLower.includes('enoent') || msgLower.includes('not found')) {
       return { success: false, error: loc.recommend.cliNotFound }
     }
-    if (msg.includes('timeout') || msg.includes('TIMEOUT')) {
+    if (msgLower.includes('timeout')) {
       return { success: false, error: loc.recommend.timeout }
+    }
+    // Authentication errors (not logged in, expired token)
+    if (
+      msgLower.includes('auth') ||
+      msgLower.includes('login') ||
+      msgLower.includes('unauthorized') ||
+      msgLower.includes('401')
+    ) {
+      return { success: false, error: loc.recommend.authRequired }
+    }
+    // Model access errors (plan limits, model not available)
+    if (
+      msgLower.includes('model') ||
+      msgLower.includes('quota') ||
+      msgLower.includes('rate limit') ||
+      msgLower.includes('403') ||
+      msgLower.includes('permission')
+    ) {
+      return { success: false, error: loc.recommend.modelUnavailable }
     }
     return { success: false, error: msg }
   }
