@@ -270,8 +270,9 @@ export function trackCategoryBest(category: string, previousAccuracy: number, ne
 }
 
 /** アプリエラー */
-export function trackError(message: string, source: string): void {
+export function trackError(message: string, source: string, action: 'caught' | 'uncaught' = 'uncaught'): void {
   pushEvent('app_error', {
+    action,
     error_message: message.substring(0, 200),
     error_source: source,
   })

@@ -165,16 +165,6 @@ describe('Electron Security: PATH modification safety', () => {
       mainSource.indexOf('// パッケージ版 Electron'),
       mainSource.indexOf('/**\n * ASAR')
     )
-    // Should only contain known safe directories
-    const allowedPatterns = [
-      '/usr/local/bin',
-      '/opt/homebrew/bin',
-      '.local/bin',
-      '.npm-global/bin',
-      'AppData',
-      'Program Files',
-      'cmux.app',
-    ]
     // Should NOT contain dangerous patterns
     expect(pathBlock).not.toContain('/tmp')
     expect(pathBlock).not.toContain('/var')

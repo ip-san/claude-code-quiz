@@ -286,6 +286,7 @@ XP レベルアップ（30XP 以上の獲得時に発火）。
 
 | パラメータ | 型 | 値 |
 |-----------|-----|-----|
+| `action` | string | `caught`（ErrorBoundary）/ `uncaught`（グローバルハンドラ） |
 | `error_message` | string | エラーメッセージ（200文字以内） |
 | `error_source` | string | `react_boundary` / `window_error` / `unhandled_rejection` |
 
@@ -294,6 +295,21 @@ XP レベルアップ（30XP 以上の獲得時に発火）。
 - `src/main.tsx`（グローバル `window.onerror` + `unhandledrejection`）
 
 **分析用途:** 頻出エラーの検出とバグ修正の優先度判断。`/quality-loop` のステップ 0 で最優先チェック。
+
+### usage_recommend
+
+利用履歴レコメンド（Electron 限定）。
+
+| パラメータ | 型 | 値 |
+|-----------|-----|-----|
+| `recommend_action` | string | `analyze` / `view_list` / `start_quiz` |
+| `top_categories` | string | カンマ区切りのカテゴリ ID |
+| `question_count` | number | レコメンド問題数 |
+| `has_reasons` | boolean | （任意）AI 選定理由の有無 |
+
+**送信元:** `src/lib/analytics.ts`（`trackRecommend()`）
+
+**分析用途:** レコメンド機能の利用状況。分析→一覧表示→クイズ開始のファネル分析。
 
 ## GA4 カスタム定義
 

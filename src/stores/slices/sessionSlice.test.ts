@@ -5,7 +5,7 @@
  * H3 (startSession state reset), H4 (startScenarioSession label reset),
  * H5 (navigation isAnswered/isCorrect restoration)
  */
-import { beforeEach, describe, expect, it, vi } from 'vitest'
+import { beforeEach, describe, expect, it } from 'vitest'
 import { useQuizStore } from '../quizStore'
 
 // Helper: initialize store and return it
@@ -244,7 +244,6 @@ describe('sessionSlice', () => {
   describe('deferFeedback auto-advance at final question', () => {
     it('should stay on final question when all answered in defer mode', () => {
       useQuizStore.getState().startSession({ mode: 'full' })
-      const total = useQuizStore.getState().sessionState!.questions.length
 
       // Answer first 2 questions (defer mode auto-advances)
       answerCurrentQuestion(true)

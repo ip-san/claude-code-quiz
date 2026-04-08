@@ -73,7 +73,7 @@ export class ErrorBoundary extends Component<Props, State> {
       // Already reloaded once this session — show error UI instead of loop
     }
 
-    trackError(error.message, 'react_boundary')
+    trackError(error.message, 'react_boundary', 'caught')
   }
 
   render() {
