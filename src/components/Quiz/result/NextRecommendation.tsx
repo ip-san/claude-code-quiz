@@ -59,7 +59,7 @@ export function NextRecommendation({ mode, percentage }: NextRecommendationProps
     icon = '🗺️'
     title = locale.recommendation.unansweredTitle(mostUnanswered.cat.name, mostUnanswered.unanswered)
     description = locale.nextRecommend.unansweredDesc
-    nextMode = 'unanswered'
+    nextMode = 'category'
     categoryFilter = mostUnanswered.cat.id
   } else if (weakCategory && weakCategory.accuracy < 70) {
     icon = '🎯'

@@ -342,14 +342,6 @@ export class QuizSessionService {
       }
     }
 
-    // For unanswered mode, filter to incorrect/unanswered questions
-    if (config.mode === 'unanswered') {
-      const incorrect = questions.filter((q) => !userProgress.isCorrectlyAnswered(q.id))
-      if (incorrect.length > 0) {
-        questions = incorrect
-      }
-    }
-
     // Adaptive difficulty: for random/category modes, prioritize questions
     // the user hasn't mastered yet (unmastered first, then mastered)
     // Also apply difficulty-based adaptive ordering when sufficient data exists
