@@ -32,6 +32,7 @@ import { readdirSync, readFileSync, statSync, writeFileSync } from 'fs'
 import { readFile, stat, writeFile } from 'fs/promises'
 import { homedir } from 'os'
 import { basename, join } from 'path'
+import { classifyCliError } from '../src/infrastructure/recommend/classifyError'
 import { mergeReasons } from '../src/infrastructure/recommend/mergeReasons'
 import { electronLocale as loc } from './locale'
 
@@ -494,6 +495,13 @@ import type { ChildProcess } from 'child_process'
 
 let recommendProc: ChildProcess | null = null
 
+const errorMessages: Record<string, string> = {
+  cli_not_found: loc.recommend.cliNotFound,
+  auth_required: loc.recommend.authRequired,
+  model_unavailable: loc.recommend.modelUnavailable,
+  timeout: loc.recommend.timeout,
+}
+
 /** Pre-flight check: verify Claude CLI is installed, authenticated, and has model access */
 ipcMain.handle('check-recommend-ready', async (): Promise<{ ready: boolean; error?: string }> => {
   try {
@@ -501,8 +509,9 @@ ipcMain.handle('check-recommend-ready', async (): Promise<{ ready: boolean; erro
     // 1. Check CLI exists
     try {
       execSync('claude --version', { timeout: 5000, stdio: 'pipe' })
-    } catch {
-      return { ready: false, error: loc.recommend.cliNotFound }
+    } catch (e) {
+      const errType = classifyCliError(e instanceof Error ? e.message : '')
+      return { ready: false, error: errorMessages[errType] ?? loc.recommend.cliNotFound }
     }
     // 2. Check auth + model access with a minimal prompt
     try {
@@ -512,14 +521,11 @@ ipcMain.handle('check-recommend-ready', async (): Promise<{ ready: boolean; erro
         encoding: 'utf8',
       })
     } catch (e) {
-      const msg = (e instanceof Error ? e.message : '').toLowerCase()
-      if (msg.includes('auth') || msg.includes('login') || msg.includes('unauthorized') || msg.includes('401')) {
-        return { ready: false, error: loc.recommend.authRequired }
+      const errType = classifyCliError(e instanceof Error ? e.message : '')
+      if (errType !== 'unknown') {
+        return { ready: false, error: errorMessages[errType] }
       }
-      if (msg.includes('model') || msg.includes('quota') || msg.includes('rate limit') || msg.includes('403')) {
-        return { ready: false, error: loc.recommend.modelUnavailable }
-      }
-      // Other errors (network, etc.) — still allow attempt
+      // Unknown errors (network, etc.) — still allow attempt
     }
     return { ready: true }
   } catch {
@@ -670,34 +676,8 @@ ipcMain.handle('run-recommend-skill', async (): Promise<{ success: boolean; erro
     return { success: true }
   } catch (error) {
     const msg = error instanceof Error ? error.message : 'Unknown error'
-    const msgLower = msg.toLowerCase()
-    // Check if claude CLI is not found
-    if (msgLower.includes('enoent') || msgLower.includes('not found')) {
-      return { success: false, error: loc.recommend.cliNotFound }
-    }
-    if (msgLower.includes('timeout')) {
-      return { success: false, error: loc.recommend.timeout }
-    }
-    // Authentication errors (not logged in, expired token)
-    if (
-      msgLower.includes('auth') ||
-      msgLower.includes('login') ||
-      msgLower.includes('unauthorized') ||
-      msgLower.includes('401')
-    ) {
-      return { success: false, error: loc.recommend.authRequired }
-    }
-    // Model access errors (plan limits, model not available)
-    if (
-      msgLower.includes('model') ||
-      msgLower.includes('quota') ||
-      msgLower.includes('rate limit') ||
-      msgLower.includes('403') ||
-      msgLower.includes('permission')
-    ) {
-      return { success: false, error: loc.recommend.modelUnavailable }
-    }
-    return { success: false, error: msg }
+    const errType = classifyCliError(msg)
+    return { success: false, error: errorMessages[errType] ?? msg }
   }
 })
 
