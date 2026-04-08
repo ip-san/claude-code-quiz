@@ -28,7 +28,7 @@ import {
   nativeImage,
   shell,
 } from 'electron'
-import { readdirSync, readFileSync, statSync, writeFileSync } from 'fs'
+import { existsSync, readdirSync, readFileSync, statSync, writeFileSync } from 'fs'
 import { readFile, stat, writeFile } from 'fs/promises'
 import { homedir } from 'os'
 import { basename, join } from 'path'
