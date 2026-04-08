@@ -46,7 +46,8 @@ describe('resumeSlice', () => {
       expect(state.viewState).toBe('menu')
       expect(state.sessionState).toBeNull()
       expect(state.savedSession).not.toBeNull()
-      expect(state.savedSession!.answeredCount).toBe(1)
+      expect(state.savedSession!.questionIds.length).toBe(5)
+      expect(state.savedSession!.score).toBe(1)
     })
 
     it('does not save completed session', () => {
