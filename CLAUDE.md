@@ -49,7 +49,8 @@ bun run lighthouse     # Lighthouse CI
 - **アダプティブ難易度:** `AdaptiveDifficultyService` がカテゴリ別正答率に応じて出題順を調整
 - **記憶定着度バー:** `MemoryRetentionBar` で SRS ストリークの定着度を可視化
 - **成長コーチング:** Sonnet がコーチングメッセージを生成（`coachingMessage`）。`GrowthTrackingService` はパターン diff 計算のみ
-- **レコメンドパイプライン:** `scripts/classify-prompts.mjs`（Haiku分類+aiStyle+developerRole+suggestedScenarios）→ `scripts/aggregate-classifications.mjs`（集計+Opus分析統合）→ `/recommend` スキル（Sonnet判断+コーチング）
+- **レコメンドパイプライン:** `scripts/classify-prompts.mjs`（Haiku分類+aiStyle+developerRole+suggestedScenarios）→ `scripts/aggregate-classifications.mjs`（集計+Opus分析統合、入力15KB圧縮）→ `/recommend` スキル（Sonnet判断+コーチング）→ `reasons.json`（AI選定理由、正のデータ）→ `mergeReasons`（Zod検証+メタデータ統合）→ `latest-recommend.json`
+- **レコメンド堅牢化:** 事前チェック（CLI/認証/モデル）→ reasons.json 分離出力 → stale検出 → stdout フォールバック → 軽量リトライ（Haiku、1時間Rate Limit）→ SessionEnd上書き保護 → キャッシュ復元（allQuestions読込待ち）。レコメンド専用テスト144件
 - **Opus トリガー（5種）:** initial（初回プロファイリング）/ stagnation（停滞介入）/ breakthrough（急成長分析）/ mastery（カテゴリ制覇）/ monthly（月次レビュー）。Opus 利用不可時は Sonnet で自動代替
 - **クイズ検証フィルタ:** `scripts/pre-verify-quiz.mjs`（Haiku事実チェック）→ `quiz-verifier` エージェント（Sonnet精査）
 
