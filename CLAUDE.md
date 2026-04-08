@@ -11,7 +11,7 @@ PWA（ブラウザ・スマホ）と Electron（デスクトップ・AI連携）
 - **フロントエンド:** React + TypeScript + Vite + Tailwind CSS + Zustand
 - **配信:** PWA（GitHub Pages）+ Electron（デスクトップ）— 用途に応じて使い分け
 - **アナリティクス:** GTM + GA4 + MCP サーバー（`mcp/ga4-server.mjs`）
-- **テスト:** Vitest（644テスト）+ Playwright E2E（66テスト）
+- **テスト:** Vitest（696テスト）+ Playwright E2E（66テスト）
 - **AIパイプライン:** Script→Haiku→Script→Sonnet（+Opus 5トリガー）、年間~$6
 - **CI/CD:** GitHub Actions → GitHub Pages 自動デプロイ（GTM ID は Secret 管理）
 - **クイズデータ:** 752問（71ドキュメントページをカバー）
@@ -25,9 +25,9 @@ bun run dev:web       # Web版開発サーバー
 bun run build:web     # Web版プロダクションビルド
 
 # 品質チェック
-bun run check         # 型チェック + lint + 644テスト + 752問チェック（一括）
+bun run check         # 型チェック + lint + 695テスト + 752問チェック（一括）
 bun run check:all     # check + docs:validate + cpd（CI用フルチェック）
-bun test              # ユニット + Store テスト（644テスト、Vitest）
+bun test              # ユニット + Store テスト（695テスト、Vitest）
 bun run test:e2e      # E2E + Visual Regression テスト（66テスト、Playwright）
 bun run cpd           # コードクローン検出（jscpd、2%以下）
 
@@ -50,7 +50,8 @@ bun run lighthouse     # Lighthouse CI
 - **記憶定着度バー:** `MemoryRetentionBar` で SRS ストリークの定着度を可視化
 - **成長コーチング:** Sonnet がコーチングメッセージを生成（`coachingMessage`）。`GrowthTrackingService` はパターン diff 計算のみ
 - **レコメンドパイプライン:** `scripts/classify-prompts.mjs`（Haiku分類+aiStyle+developerRole+suggestedScenarios）→ `scripts/aggregate-classifications.mjs`（集計+Opus分析統合、入力15KB圧縮）→ `/recommend` スキル（Sonnet判断+コーチング）→ `reasons.json`（AI選定理由、正のデータ）→ `mergeReasons`（Zod検証+メタデータ統合）→ `latest-recommend.json`
-- **レコメンド堅牢化:** 事前チェック（CLI/認証/モデル）→ reasons.json 分離出力 → stale検出 → stdout フォールバック → 軽量リトライ（Haiku、1時間Rate Limit）→ SessionEnd上書き保護 → キャッシュ復元（allQuestions読込待ち）。レコメンド専用テスト144件
+- **レコメンド堅牢化:** 事前チェック（CLI/認証/モデル）→ reasons.json 分離出力 → stale検出 → stdout フォールバック → 軽量リトライ（Haiku、1時間Rate Limit）→ SessionEnd上書き保護 → キャッシュ復元（allQuestions読込待ち）→ GrowthInsight永続化（再起動後も改善レポート維持）→ DMG/exe PATH補完（パッケージ版CLI検出）。レコメンド専用テスト223件
+- **テスタビリティ:** `scripts/session-analysis.mjs`（セッション分析純粋関数6本）、`electron/recommend-handlers.ts`（IPC ハンドラ DI パターン）に抽出。`scripts/__tests__/` でスクリプトもテスト対象化
 - **Opus トリガー（5種）:** initial（初回プロファイリング）/ stagnation（停滞介入）/ breakthrough（急成長分析）/ mastery（カテゴリ制覇）/ monthly（月次レビュー）。Opus 利用不可時は Sonnet で自動代替
 - **クイズ検証フィルタ:** `scripts/pre-verify-quiz.mjs`（Haiku事実チェック）→ `quiz-verifier` エージェント（Sonnet精査）
 
@@ -95,8 +96,9 @@ IMPORTANT: `QuizSessionState` に新フィールドを追加したら以下の3�
     { "text": "不正解選択肢", "wrongFeedback": "誤りの理由" }
   ],
   "correctIndex": 0,
-  "explanation": "解説",
-  "referenceUrl": "https://code.claude.com/docs/ja/..."
+  "explanation": "概念の説明。\n{{diagram:0}}\n詳細や補足。",
+  "referenceUrl": "https://code.claude.com/docs/ja/...",
+  "diagrams": [{ "type": "terminal", "lines": [...] }]
 }
 ```
 
@@ -104,6 +106,8 @@ IMPORTANT: `QuizSessionState` に新フィールドを追加したら以下の3�
 - 正解選択肢に `wrongFeedback` を付けない
 - 不正解選択肢には必ず `wrongFeedback` を付ける
 - correctIndex は追加後に `bun run quiz:randomize` でランダム化する
+- `diagrams` は配列（最大3つ）。`explanation` 中の `{{diagram:N}}` で挿入位置を指定
+- `diagram`（単数）も後方互換で対応するが、新規追加は `diagrams` を使用
 
 ## タグシステム
 

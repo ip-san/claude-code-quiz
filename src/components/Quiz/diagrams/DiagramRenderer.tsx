@@ -6,11 +6,7 @@ import { FlowDiagram } from './FlowDiagram'
 import { HierarchyDiagram } from './HierarchyDiagram'
 import { TerminalDiagram } from './TerminalDiagram'
 
-interface DiagramRendererProps {
-  diagram: DiagramData
-}
-
-export function DiagramRenderer({ diagram }: DiagramRendererProps) {
+function SingleDiagram({ diagram }: { diagram: DiagramData }) {
   switch (diagram.type) {
     case 'hierarchy':
       return <HierarchyDiagram label={diagram.label} items={diagram.items} />
@@ -27,4 +23,22 @@ export function DiagramRenderer({ diagram }: DiagramRendererProps) {
     default:
       return null
   }
+}
+
+interface DiagramRendererProps {
+  diagram?: DiagramData
+  diagrams?: readonly DiagramData[]
+}
+
+export function DiagramRenderer({ diagram, diagrams }: DiagramRendererProps) {
+  const items = diagrams && diagrams.length > 0 ? diagrams : diagram ? [diagram] : []
+  if (items.length === 0) return null
+
+  return (
+    <div className="space-y-3">
+      {items.map((d, i) => (
+        <SingleDiagram key={i} diagram={d} />
+      ))}
+    </div>
+  )
 }

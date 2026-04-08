@@ -89,18 +89,25 @@ node scripts/fetch-docs.mjs --assemble --pages settings,checkpointing,overview,q
     { "text": "選択肢4", "wrongFeedback": "この選択肢が誤りである理由" }
   ],
   "correctIndex": 1,
-  "explanation": "正解の詳細な解説（日本語）",
+  "explanation": "概念の説明。\n{{diagram:0}}\n詳細や補足。",
   "referenceUrl": "https://code.claude.com/docs/en/...",
-  "diagram": { ... }
+  "diagrams": [{ ... }]
 }
 ```
 
-### `diagram` フィールド（オプション）
+### `diagrams` フィールド（オプション）
 
-構造的な概念（階層・フロー・循環・比較）を解説する問題には、`diagram` フィールドを追加する。
-解説テキストの下にアニメーション付き図として表示される。
+構造的な概念を解説する問題には、`diagrams` 配列にダイアグラムを追加する。
+解説テキスト中の `{{diagram:N}}` マーカー位置に挿入表示される（N は diagrams 配列のインデックス）。
 
-**4つのタイプ:**
+**マーカールール:**
+- `{{diagram:0}}` は `diagrams[0]` を挿入
+- マーカーは独立した行に配置（前後に改行 `\n`）
+- 解説を「導入/概念説明」と「詳細/補足」の間に配置
+- マーカーなしの場合は解説末尾にまとめて表示
+- 1問に最大3つまで
+
+**6つのタイプ:**
 
 | タイプ | 用途 | フィールド |
 |--------|------|----------|
@@ -108,8 +115,11 @@ node scripts/fetch-docs.mjs --assemble --pages settings,checkpointing,overview,q
 | `flow` | 時系列・手順・パイプライン | `steps: [{text, sub}]` |
 | `cycle` | 循環状態遷移 | `trigger`, `states: [{text, sub}]` |
 | `comparison` | 比較・対照（2〜4カラム） | `columns: [{heading, items}]` |
+| `terminal` | コマンド実行例 | `lines: [{type, text}]` |
+| `config` | 設定ファイル例 | `filepath`, `lines: [{text, highlight?}]` |
 
 構造的概念を含む問題にのみ追加。単純な事実確認には不要。
+図+ターミナルなど、複数ダイアグラムの組み合わせも有効。
 
 ## Categories (8 categories)
 

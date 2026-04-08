@@ -16,7 +16,7 @@ import { locale } from '@/config/locale'
 import type { Question } from '@/domain/entities/Question'
 import { platformAPI } from '@/lib/platformAPI'
 import { useQuizStore } from '@/stores/quizStore'
-import { DiagramRenderer } from './diagrams/DiagramRenderer'
+import { ExplanationWithDiagrams } from './ExplanationWithDiagrams'
 import { MemoryRetentionBar } from './MemoryRetentionBar'
 import { QuizText } from './QuizText'
 
@@ -307,20 +307,12 @@ export function Feedback({ quiz, isCorrect }: FeedbackProps) {
   sections.push(
     <AnimatedSection key="explanation" order={explanationOrder} animate={animate} noMotion={noMotion} className="mb-4">
       <p className="mb-1 text-sm font-medium text-claude-dark">{locale.feedback.explanation}</p>
-      <div>
-        <p className="text-sm leading-relaxed text-stone-600 dark:text-stone-300">
-          <QuizText
-            text={quiz.explanation}
-            animated={animate && !noMotion}
-            animationDelay={300 + explanationOrder * 120}
-          />
-        </p>
-        {quiz.diagram && (
-          <div className="mt-3 border-t border-stone-200 pt-3">
-            <DiagramRenderer diagram={quiz.diagram} />
-          </div>
-        )}
-      </div>
+      <ExplanationWithDiagrams
+        explanation={quiz.explanation}
+        diagrams={quiz.diagrams}
+        animated={animate && !noMotion}
+        animationDelay={300 + explanationOrder * 120}
+      />
     </AnimatedSection>
   )
 

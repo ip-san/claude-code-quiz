@@ -65,6 +65,7 @@ export interface QuestionProps {
   readonly type?: QuestionType
   readonly correctIndices?: number[]
   readonly diagram?: DiagramData
+  readonly diagrams?: DiagramData[]
 }
 
 export class Question {
@@ -82,6 +83,7 @@ export class Question {
   readonly type: QuestionType
   readonly correctIndices: readonly number[]
   readonly diagram?: DiagramData
+  readonly diagrams: readonly DiagramData[]
 
   /**
    * Private constructor - 外部から直接 new できない
@@ -100,6 +102,8 @@ export class Question {
     this.difficulty = props.difficulty
     this.tags = Object.freeze(props.tags ?? [])
     this.diagram = props.diagram ? Object.freeze(props.diagram) : undefined
+    // diagrams 優先、なければ diagram から配列化（後方互換）
+    this.diagrams = Object.freeze(props.diagrams ? [...props.diagrams] : props.diagram ? [props.diagram] : [])
     this.type = props.type ?? 'single'
     if (this.type === 'multi' && props.correctIndices) {
       this.correctIndices = Object.freeze([...props.correctIndices])
@@ -221,6 +225,7 @@ export class Question {
         type: questionType,
         correctIndices,
         diagram: d.diagram as DiagramData | undefined,
+        diagrams: Array.isArray(d.diagrams) ? (d.diagrams as DiagramData[]) : undefined,
       })
     } catch {
       return null
@@ -396,6 +401,7 @@ ${this.referenceUrl ? `**参考:** ${this.referenceUrl}` : ''}
       type: this.type,
       correctIndices: this.isMultiSelect ? [...this.correctIndices] : undefined,
       diagram: this.diagram,
+      diagrams: this.diagrams.length > 0 ? [...this.diagrams] : undefined,
     }
   }
 }

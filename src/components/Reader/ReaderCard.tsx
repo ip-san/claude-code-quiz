@@ -1,6 +1,5 @@
 import { Bookmark, ChevronDown, ChevronUp, ExternalLink } from 'lucide-react'
-import { DiagramRenderer } from '@/components/Quiz/diagrams/DiagramRenderer'
-import { QuizText } from '@/components/Quiz/QuizText'
+import { ExplanationWithDiagrams } from '@/components/Quiz/ExplanationWithDiagrams'
 import { locale } from '@/config/locale'
 import type { Question } from '@/domain/entities/Question'
 import type { UserProgress } from '@/domain/entities/UserProgress'
@@ -48,14 +47,7 @@ export function ReaderCard({ question, isExpanded, onToggle, userProgress, onTog
           <p className="mb-2 text-xs font-medium text-green-600 dark:text-green-400">
             {locale.reader.correctAnswer}: {question.options[question.correctIndex]?.text}
           </p>
-          <div className="text-xs leading-relaxed text-stone-600 dark:text-stone-400">
-            <QuizText text={question.explanation} />
-          </div>
-          {question.diagram && (
-            <div className="mt-3">
-              <DiagramRenderer diagram={question.diagram} />
-            </div>
-          )}
+          <ExplanationWithDiagrams explanation={question.explanation} diagrams={question.diagrams} />
           <div className="mt-3 flex items-center gap-3">
             {question.referenceUrl && (
               <a

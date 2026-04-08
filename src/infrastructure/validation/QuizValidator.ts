@@ -173,6 +173,7 @@ export const QuizItemSchema = z
     type: QuestionTypeSchema,
     correctIndices: z.array(z.number().int().min(0)).optional(),
     diagram: DiagramSchema.optional(),
+    diagrams: z.array(DiagramSchema).min(1).max(3).optional(),
   })
   .refine(
     (data) => {

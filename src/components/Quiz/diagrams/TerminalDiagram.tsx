@@ -123,15 +123,17 @@ export function TerminalDiagram({ label, lines }: TerminalDiagramProps) {
                   </p>
                 )}
                 {line.type === 'prompt' && (
-                  <p>
-                    <span className="text-claude-orange">&gt;</span>{' '}
-                    <span className="text-white">
-                      {state.typingChars !== null ? line.text.slice(0, state.typingChars) : line.text}
-                    </span>
-                    {state.typingChars !== null && (
-                      <span className="ml-px animate-terminal-cursor text-stone-400">▋</span>
-                    )}
-                  </p>
+                  <div className="-mx-3 border-y border-claude-orange/40 bg-claude-orange/5 px-3 py-1">
+                    <p>
+                      <span className="text-claude-orange">&gt;</span>{' '}
+                      <span className="text-white">
+                        {state.typingChars !== null ? line.text.slice(0, state.typingChars) : line.text}
+                      </span>
+                      {state.typingChars !== null && (
+                        <span className="ml-px animate-terminal-cursor text-stone-400">▋</span>
+                      )}
+                    </p>
+                  </div>
                 )}
                 {line.type === 'response' && (
                   <p>

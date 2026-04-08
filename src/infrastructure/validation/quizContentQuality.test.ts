@@ -437,42 +437,41 @@ describe('Quiz Content Quality', () => {
   })
 
   describe('ダイアグラムの品質', () => {
-    const diagramQuizzes = quizzes.filter(
-      (q): q is typeof q & { diagram: NonNullable<typeof q.diagram> } => q.diagram != null
-    )
+    // Flatten: each quiz's diagrams array into (quiz, diagram) pairs
+    const diagramEntries = quizzes.flatMap((q) => (q.diagrams ?? []).map((d) => ({ id: q.id, diagram: d })))
 
     it('diagramフィールドが有効なtypeを持つこと', () => {
       const validTypes = ['hierarchy', 'flow', 'cycle', 'comparison', 'terminal', 'config']
-      const violations = diagramQuizzes.filter((q) => !validTypes.includes(q.diagram.type))
-      expect(violations.map((q) => q.id)).toEqual([])
+      const violations = diagramEntries.filter((e) => !validTypes.includes(e.diagram.type))
+      expect(violations.map((e) => e.id)).toEqual([])
     })
 
     it('hierarchyダイアグラムが2個以上のアイテムを持つこと', () => {
-      const violations = diagramQuizzes
-        .filter((q) => q.diagram.type === 'hierarchy')
-        .filter((q) => (q.diagram.items?.length ?? 0) < 2)
-      expect(violations.map((q) => q.id)).toEqual([])
+      const violations = diagramEntries
+        .filter((e) => e.diagram.type === 'hierarchy')
+        .filter((e) => (((e.diagram as Record<string, unknown>).items as unknown[])?.length ?? 0) < 2)
+      expect(violations.map((e) => e.id)).toEqual([])
     })
 
     it('flowダイアグラムが2個以上のステップを持つこと', () => {
-      const violations = diagramQuizzes
-        .filter((q) => q.diagram.type === 'flow')
-        .filter((q) => (q.diagram.steps?.length ?? 0) < 2)
-      expect(violations.map((q) => q.id)).toEqual([])
+      const violations = diagramEntries
+        .filter((e) => e.diagram.type === 'flow')
+        .filter((e) => (((e.diagram as Record<string, unknown>).steps as unknown[])?.length ?? 0) < 2)
+      expect(violations.map((e) => e.id)).toEqual([])
     })
 
     it('cycleダイアグラムが2個以上の状態を持つこと', () => {
-      const violations = diagramQuizzes
-        .filter((q) => q.diagram.type === 'cycle')
-        .filter((q) => (q.diagram.states?.length ?? 0) < 2)
-      expect(violations.map((q) => q.id)).toEqual([])
+      const violations = diagramEntries
+        .filter((e) => e.diagram.type === 'cycle')
+        .filter((e) => (((e.diagram as Record<string, unknown>).states as unknown[])?.length ?? 0) < 2)
+      expect(violations.map((e) => e.id)).toEqual([])
     })
 
     it('comparisonダイアグラムが2個以上のカラムを持つこと', () => {
-      const violations = diagramQuizzes
-        .filter((q) => q.diagram.type === 'comparison')
-        .filter((q) => (q.diagram.columns?.length ?? 0) < 2)
-      expect(violations.map((q) => q.id)).toEqual([])
+      const violations = diagramEntries
+        .filter((e) => e.diagram.type === 'comparison')
+        .filter((e) => (((e.diagram as Record<string, unknown>).columns as unknown[])?.length ?? 0) < 2)
+      expect(violations.map((e) => e.id)).toEqual([])
     })
   })
 
