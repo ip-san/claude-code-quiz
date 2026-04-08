@@ -29,7 +29,7 @@ jobs:
       - run: bun install --frozen-lockfile
       - name: typecheck
         if: matrix.task == 'typecheck'
-        run: bunx tsc -p tsconfig.node.json && bunx tsc --noEmit && bunx type-coverage --strict --at-least 99
+        run: bunx tsc --noEmit && bunx type-coverage --strict --at-least 99
       - name: lint
         if: matrix.task == 'lint'
         run: bunx biome check src/ mcp/ scripts/

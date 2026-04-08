@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { analyzeUsageFromContents, type FileReader, getCachedRecommendData } from '../../../electron/recommend-handlers'
+import { analyzeUsageFromContents, type FileReader, getCachedRecommendData } from './recommendHandlers'
 
 // ── getCachedRecommendData ─────────────────────────────────
 
