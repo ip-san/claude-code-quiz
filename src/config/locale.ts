@@ -301,6 +301,9 @@ export interface LocaleConfig {
     readonly comparison: string
     readonly flow: string
     readonly terminal: string
+    readonly terminalSkip: string
+    readonly terminalReplay: string
+    readonly terminalCopy: string
     readonly config: string
     readonly highPriority: string
     readonly lowPriority: string
