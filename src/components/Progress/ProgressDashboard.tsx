@@ -4,6 +4,7 @@ import { locale } from '@/config/locale'
 import { getMasteryLevel } from '@/domain/services/MasteryLevelService'
 import { SessionInsightService } from '@/domain/services/SessionInsightService'
 import { type Category, PREDEFINED_CATEGORIES } from '@/domain/valueObjects/Category'
+import { PASSING_SCORE, SCORE_COLORS } from '@/domain/valueObjects/ScoreThresholds'
 import { getProgressRepository } from '@/infrastructure/persistence/LocalStorageProgressRepository'
 import { getColorHex } from '@/lib/colors'
 import { platformAPI } from '@/lib/platformAPI'
@@ -239,7 +240,9 @@ export function ProgressDashboard() {
                 const teachable = PREDEFINED_CATEGORIES.filter((cat) => {
                   const stats = categoryStats[cat.id]
                   if (!stats || stats.attemptedQuestions < 5) return false
-                  return Math.round((stats.correctAnswers / stats.attemptedQuestions) * 100) >= 90
+                  return (
+                    Math.round((stats.correctAnswers / stats.attemptedQuestions) * 100) >= SCORE_COLORS.excellent + 10
+                  )
                 })
                 if (teachable.length === 0) return null
                 return (
@@ -272,12 +275,14 @@ export function ProgressDashboard() {
                         <div className="flex items-center gap-2">
                           <span>{category.icon}</span>
                           <span className="font-medium text-claude-dark">{category.name}</span>
-                          {progress >= 90 && <span className="text-xs">🏆</span>}
-                          {progress >= 70 && progress < 90 && <span className="text-xs">⭐</span>}
+                          {progress >= SCORE_COLORS.excellent + 10 && <span className="text-xs">🏆</span>}
+                          {progress >= PASSING_SCORE && progress < SCORE_COLORS.excellent + 10 && (
+                            <span className="text-xs">⭐</span>
+                          )}
                         </div>
                         <div className="flex items-center gap-2">
                           <span
-                            className={`text-sm font-semibold ${progress >= 70 ? 'text-green-600' : progress >= 50 ? 'text-amber-600' : 'text-stone-500'}`}
+                            className={`text-sm font-semibold ${progress >= PASSING_SCORE ? 'text-green-600' : progress >= SCORE_COLORS.fair ? 'text-amber-600' : 'text-stone-500'}`}
                           >
                             {progress}%
                           </span>

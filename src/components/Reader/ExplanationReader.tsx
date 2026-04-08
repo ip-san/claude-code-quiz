@@ -64,8 +64,7 @@ export function ExplanationReader() {
         break
       case 'wrong': {
         questions = questions.filter((q) => {
-          const p = userProgress.questionProgress[q.id]
-          return p && p.attempts > 0 && !p.lastCorrect
+          return userProgress.hasAttempted(q.id) && !userProgress.isCorrectlyAnswered(q.id)
         })
         break
       }

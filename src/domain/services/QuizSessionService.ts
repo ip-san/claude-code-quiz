@@ -28,6 +28,7 @@ import { PREDEFINED_CATEGORIES } from '../valueObjects/Category'
 import type { DifficultyLevel } from '../valueObjects/Difficulty'
 import { getChapterFromTags } from '../valueObjects/OverviewChapter'
 import type { QuizModeId } from '../valueObjects/QuizMode'
+import { PASSING_SCORE } from '../valueObjects/ScoreThresholds'
 import { AdaptiveDifficultyService } from './AdaptiveDifficultyService'
 import { SpacedRepetitionService } from './SpacedRepetitionService'
 
@@ -846,7 +847,7 @@ export class QuizSessionService {
   /**
    * 合格判定
    */
-  static hasPassed(state: QuizSessionState, passingScore: number = 70): boolean {
+  static hasPassed(state: QuizSessionState, passingScore: number = PASSING_SCORE): boolean {
     return this.calculateScorePercentage(state) >= passingScore
   }
 }

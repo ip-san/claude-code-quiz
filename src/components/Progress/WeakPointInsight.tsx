@@ -73,7 +73,7 @@ export function WeakPointInsight({ allQuestions, userProgress, categoryStats, on
           label: slugToLabel(s.slug),
           accuracy: s.attempted > 0 ? Math.round((s.correct / s.attempted) * 100) : 0,
         }))
-        .filter((s) => s.accuracy < 70) // 弱いサブトピックのみ
+        .filter((s) => s.accuracy < PASSING_SCORE) // 弱いサブトピックのみ
         .sort((a, b) => a.accuracy - b.accuracy)
         .slice(0, 5)
 

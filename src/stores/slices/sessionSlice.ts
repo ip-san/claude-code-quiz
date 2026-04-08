@@ -118,6 +118,8 @@ export const createSessionSlice = (set: StoreSet, get: StoreGet): SessionSlice =
       sessionState,
       sessionWrongAnswers: [],
       savedSession: null,
+      activeScenarioId: null,
+      sessionLabel: null,
       viewState: 'quiz',
     })
 
@@ -200,6 +202,7 @@ export const createSessionSlice = (set: StoreSet, get: StoreGet): SessionSlice =
       sessionWrongAnswers: [],
       savedSession: null,
       activeScenarioId: scenarioId,
+      sessionLabel: null,
       viewState: 'quiz',
     })
     saveSessionSnapshot(sessionState, [], () => ({
@@ -246,6 +249,13 @@ export const createSessionSlice = (set: StoreSet, get: StoreGet): SessionSlice =
 
     const newSessionState = QuizSessionService.retryQuestion(state.sessionState)
     set({ sessionState: newSessionState })
+
+    if (!newSessionState.isReviewMode) {
+      saveSessionSnapshot(newSessionState, state.sessionWrongAnswers, () => ({
+        activeScenarioId: get().activeScenarioId,
+        sessionLabel: get().sessionLabel,
+      }))
+    }
   },
 
   selectAnswer: (index) => {
@@ -302,8 +312,28 @@ export const createSessionSlice = (set: StoreSet, get: StoreGet): SessionSlice =
             },
           ]
 
+      // In defer mode (実力テスト), auto-advance to next unanswered question after submission
+      let stateToSave = newState
+      if (newState.deferFeedback) {
+        let nextIdx = newState.currentIndex + 1
+        while (nextIdx < newState.questions.length && newState.answerHistory.has(nextIdx)) {
+          nextIdx++
+        }
+        if (nextIdx < newState.questions.length) {
+          stateToSave = {
+            ...newState,
+            currentIndex: nextIdx,
+            selectedAnswer: null,
+            selectedAnswers: Object.freeze([]),
+            isAnswered: false,
+            isCorrect: null,
+            hintUsed: false,
+          }
+        }
+      }
+
       set({
-        sessionState: newState,
+        sessionState: stateToSave,
         userProgress: updatedProgress,
         sessionWrongAnswers: newWrongAnswers,
       })
@@ -314,34 +344,10 @@ export const createSessionSlice = (set: StoreSet, get: StoreGet): SessionSlice =
           console.error('Failed to save progress:', error)
         })
 
-      saveSessionSnapshot(newState, newWrongAnswers, () => ({
+      saveSessionSnapshot(stateToSave, newWrongAnswers, () => ({
         activeScenarioId: get().activeScenarioId,
         sessionLabel: get().sessionLabel,
       }))
-
-      // In defer mode (実力テスト), auto-advance to next unanswered question after submission
-      if (newState.deferFeedback) {
-        let nextIdx = newState.currentIndex + 1
-        while (nextIdx < newState.questions.length && newState.answerHistory.has(nextIdx)) {
-          nextIdx++
-        }
-        if (nextIdx < newState.questions.length) {
-          const advancedState: typeof newState = {
-            ...newState,
-            currentIndex: nextIdx,
-            selectedAnswer: null,
-            selectedAnswers: Object.freeze([]),
-            isAnswered: false,
-            isCorrect: null,
-            hintUsed: false,
-          }
-          set({ sessionState: advancedState })
-          saveSessionSnapshot(advancedState, newWrongAnswers, () => ({
-            activeScenarioId: get().activeScenarioId,
-            sessionLabel: get().sessionLabel,
-          }))
-        }
-      }
     } else {
       set({ sessionState: newState })
     }
@@ -453,8 +459,8 @@ export const createSessionSlice = (set: StoreSet, get: StoreGet): SessionSlice =
         currentIndex: prevIdx,
         selectedAnswer: record?.selectedAnswer ?? null,
         selectedAnswers: record?.selectedAnswers ?? Object.freeze([]),
-        isAnswered: false,
-        isCorrect: null,
+        isAnswered: record !== undefined,
+        isCorrect: record?.isCorrect ?? null,
         hintUsed: false,
       },
     })
@@ -474,8 +480,8 @@ export const createSessionSlice = (set: StoreSet, get: StoreGet): SessionSlice =
         currentIndex: index,
         selectedAnswer: record?.selectedAnswer ?? null,
         selectedAnswers: record?.selectedAnswers ?? Object.freeze([]),
-        isAnswered: false,
-        isCorrect: null,
+        isAnswered: record !== undefined,
+        isCorrect: record?.isCorrect ?? null,
         hintUsed: false,
       },
     })

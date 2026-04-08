@@ -17,9 +17,8 @@ interface ReaderCardProps {
 export function ReaderCard({ question, isExpanded, onToggle, userProgress, onToggleBookmark }: ReaderCardProps) {
   const cat = getCategoryById(question.category)
   const isBookmarked = userProgress.isBookmarked(question.id)
-  const progress = userProgress.questionProgress[question.id]
-  const hasAttempted = !!progress && progress.attempts > 0
-  const lastCorrect = progress?.lastCorrect ?? false
+  const hasAttempted = userProgress.hasAttempted(question.id)
+  const isCorrect = userProgress.isCorrectlyAnswered(question.id)
 
   return (
     <div className="border-b border-stone-100 dark:border-stone-800">
@@ -30,9 +29,7 @@ export function ReaderCard({ question, isExpanded, onToggle, userProgress, onTog
         </span>
         <div className="flex flex-shrink-0 items-center gap-1.5">
           {hasAttempted && (
-            <span className={`text-xs ${lastCorrect ? 'text-green-500' : 'text-red-400'}`}>
-              {lastCorrect ? '✓' : '✗'}
-            </span>
+            <span className={`text-xs ${isCorrect ? 'text-green-500' : 'text-red-400'}`}>{isCorrect ? '✓' : '✗'}</span>
           )}
           {isBookmarked && <Bookmark className="h-3 w-3 fill-yellow-500 text-yellow-500" />}
           {isExpanded ? (

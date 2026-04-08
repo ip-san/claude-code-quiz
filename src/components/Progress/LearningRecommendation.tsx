@@ -41,7 +41,7 @@ export function LearningRecommendation({ categoryStats, totalAttempts, onStartSe
 
       const accuracy = Math.round((stats.correctAnswers / Math.max(stats.attemptedQuestions, 1)) * 100)
 
-      if (accuracy < 70) allMastered = false
+      if (accuracy < PASSING_SCORE) allMastered = false
 
       if (!weakestCat || accuracy < weakestCat.accuracy) {
         weakestCat = { id: category.id, name: category.name, icon: category.icon, accuracy }
@@ -77,7 +77,7 @@ export function LearningRecommendation({ categoryStats, totalAttempts, onStartSe
     }
 
     // Priority 3: Weakest category → focused improvement
-    if (weakestCat && weakestCat.accuracy < 70) {
+    if (weakestCat && weakestCat.accuracy < PASSING_SCORE) {
       return {
         type: 'improve' as const,
         icon: <TrendingUp className="h-5 w-5 text-orange-500" />,

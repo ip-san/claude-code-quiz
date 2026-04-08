@@ -7,6 +7,7 @@ import { getMasteryLevel } from '@/domain/services/MasteryLevelService'
 import { getOverviewRecommendation } from '@/domain/services/RecommendationService'
 import { getScoreMessage } from '@/domain/services/ScoreMessageService'
 import { getChapterFromTags } from '@/domain/valueObjects/OverviewChapter'
+import { CERTIFICATE_THRESHOLDS } from '@/domain/valueObjects/ScoreThresholds'
 import { trackShare } from '@/lib/analytics'
 import { APP_CONFIG, useQuizStore } from '@/stores/quizStore'
 import { CategoryBreakthroughBadge } from './overlays/CategoryBreakthroughBadge'
@@ -137,7 +138,7 @@ export function QuizResult() {
         }`}
       >
         {/* Confetti on perfect/excellent score */}
-        {percentage >= 80 && !noMotion && <ConfettiEffect />}
+        {percentage >= CERTIFICATE_THRESHOLDS.full && !noMotion && <ConfettiEffect />}
 
         {/* First session completion — show BEFORE score to lead with encouragement */}
         {!isReviewMode && userProgress.sessionHistory.length <= 1 && (

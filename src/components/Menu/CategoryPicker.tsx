@@ -2,6 +2,7 @@ import { useEffect } from 'react'
 import { locale } from '@/config/locale'
 import { PREDEFINED_CATEGORIES } from '@/domain/valueObjects/Category'
 import type { QuizModeId } from '@/domain/valueObjects/QuizMode'
+import { SCORE_COLORS } from '@/domain/valueObjects/ScoreThresholds'
 import { haptics } from '@/lib/haptics'
 import { useQuizStore } from '@/stores/quizStore'
 
@@ -79,7 +80,7 @@ export function CategoryPicker({ onClose, mode = 'category', title }: CategoryPi
                 </div>
                 {attempted && (
                   <span
-                    className={`text-xs font-medium ${accuracy >= 80 ? 'text-emerald-500' : accuracy >= 50 ? 'text-amber-500' : 'text-red-500'}`}
+                    className={`text-xs font-medium ${accuracy >= SCORE_COLORS.excellent ? 'text-emerald-500' : accuracy >= SCORE_COLORS.fair ? 'text-amber-500' : 'text-red-500'}`}
                   >
                     {accuracy}%
                   </span>

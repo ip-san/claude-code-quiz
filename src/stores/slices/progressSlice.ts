@@ -84,9 +84,7 @@ export const createProgressSlice = (set: StoreSet, get: StoreGet): ProgressSlice
     for (const category of PREDEFINED_CATEGORIES) {
       const categoryQuestions = state.allQuestions.filter((q) => q.category === category.id)
       const attemptedQuestions = categoryQuestions.filter((q) => state.userProgress.hasAttempted(q.id))
-      const correctAnswers = attemptedQuestions.filter(
-        (q) => state.userProgress.questionProgress[q.id]?.lastCorrect
-      ).length
+      const correctAnswers = attemptedQuestions.filter((q) => state.userProgress.isCorrectlyAnswered(q.id)).length
 
       stats[category.id] = {
         categoryId: category.id,

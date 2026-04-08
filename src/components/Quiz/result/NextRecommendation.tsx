@@ -61,7 +61,7 @@ export function NextRecommendation({ mode, percentage }: NextRecommendationProps
     description = locale.nextRecommend.unansweredDesc
     nextMode = 'category'
     categoryFilter = mostUnanswered.cat.id
-  } else if (weakCategory && weakCategory.accuracy < 70) {
+  } else if (weakCategory && weakCategory.accuracy < PASSING_SCORE) {
     icon = '🎯'
     title = locale.recommendation.strengthenTitle(weakCategory.cat.name)
     description = locale.recommendation.strengthenDesc(weakCategory.accuracy)
