@@ -50,7 +50,7 @@ const quizCount = quizData.quizzes.length
 checkCount('Quiz count', quizCount, /クイズデータ:\*\* (\d+)問/)
 
 // ── Diagram count ───────────────────────────────────────────
-const diagramCount = quizData.quizzes.filter((q) => q.diagram).length
+const diagramCount = quizData.quizzes.filter((q) => q.diagrams?.length > 0 || q.diagram).length
 checkCount('Diagram count', diagramCount, /ダイアグラム:\*\* (\d+)問/)
 
 // ── Overview questions ──────────────────────────────────────
