@@ -64,25 +64,25 @@ export function TerminalDiagram({ label, lines }: TerminalDiagramProps) {
           <span className="h-2.5 w-2.5 rounded-full bg-red-500/70" />
           <span className="h-2.5 w-2.5 rounded-full bg-yellow-500/70" />
           <span className="h-2.5 w-2.5 rounded-full bg-green-500/70" />
-          <span className="ml-2 flex-1 text-[10px] text-stone-400">Claude Code</span>
+          <span className="ml-2 min-w-0 flex-1 truncate text-[10px] text-stone-400">Claude Code</span>
           {/* Skip / Replay button */}
           {isPlaying && (
             <button
               onClick={skipAnimation}
-              className="flex items-center gap-1 rounded px-1.5 py-0.5 text-[10px] text-stone-400 transition-colors hover:bg-stone-700 hover:text-stone-200"
+              className="flex shrink-0 items-center gap-1 rounded px-1.5 py-0.5 text-[10px] text-stone-400 transition-colors hover:bg-stone-700 hover:text-stone-200"
             >
               <SkipForward className="h-3 w-3" />
-              {locale.diagrams.terminalSkip}
+              <span className="hidden sm:inline">{locale.diagrams.terminalSkip}</span>
             </button>
           )}
           {isComplete && (
             <>
               <button
                 onClick={replayAnimation}
-                className="flex items-center gap-1 rounded px-1.5 py-0.5 text-[10px] text-stone-400 transition-colors hover:bg-stone-700 hover:text-stone-200"
+                className="flex shrink-0 items-center gap-1 rounded px-1.5 py-0.5 text-[10px] text-stone-400 transition-colors hover:bg-stone-700 hover:text-stone-200"
               >
                 <Play className="h-3 w-3" />
-                {locale.diagrams.terminalReplay}
+                <span className="hidden sm:inline">{locale.diagrams.terminalReplay}</span>
               </button>
               <button
                 onClick={async () => {
@@ -94,11 +94,11 @@ export function TerminalDiagram({ label, lines }: TerminalDiagramProps) {
                     setTimeout(() => setCopied(false), 1500)
                   }
                 }}
-                className="flex items-center gap-1 rounded px-1.5 py-0.5 text-[10px] text-stone-400 transition-colors hover:bg-stone-700 hover:text-stone-200"
+                className="flex shrink-0 items-center gap-1 rounded px-1.5 py-0.5 text-[10px] text-stone-400 transition-colors hover:bg-stone-700 hover:text-stone-200"
                 aria-label={locale.diagrams.terminalCopy}
               >
                 {copied ? <Check className="h-3 w-3 text-green-400" /> : <Clipboard className="h-3 w-3" />}
-                {locale.diagrams.terminalCopy}
+                <span className="hidden sm:inline">{locale.diagrams.terminalCopy}</span>
               </button>
             </>
           )}
