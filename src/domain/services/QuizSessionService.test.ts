@@ -1039,3 +1039,109 @@ describe('weightedSampleByCategory', () => {
     expect(counts.session).toBe(17)
   })
 })
+
+// ================================================
+// Edge cases: mode fallbacks and boundary conditions
+// ================================================
+
+const createQ = (id: string, category = 'tools', difficulty: 'beginner' | 'intermediate' | 'advanced' = 'beginner') =>
+  Question.create({
+    id,
+    question: `Test question ${id}`,
+    options: [{ text: 'Option A' }, { text: 'Option B' }, { text: 'Option C' }],
+    correctIndex: 0,
+    explanation: 'Test explanation',
+    category,
+    difficulty,
+  })
+
+const defaultConfig = (overrides: Partial<QuizSessionConfig> = {}): QuizSessionConfig => ({
+  mode: 'random',
+  categoryFilter: null,
+  difficultyFilter: null,
+  questionCount: null,
+  timeLimit: null,
+  shuffleQuestions: false,
+  shuffleOptions: false,
+  ...overrides,
+})
+
+describe('prepareSessionQuestions edge cases', () => {
+  it('weak mode with all questions mastered falls back to full list', () => {
+    const questions = [createQ('q1'), createQ('q2'), createQ('q3')]
+    const config = defaultConfig({ mode: 'weak' })
+
+    let progress = UserProgress.empty()
+    for (const q of questions) {
+      progress = progress.recordAnswer(q.id, 'tools', true)
+      progress = progress.recordAnswer(q.id, 'tools', true)
+    }
+
+    const result = QuizSessionService.prepareSessionQuestions(questions, config, progress, 50, 1)
+    expect(result.length).toBe(questions.length)
+  })
+
+  it('quick mode with no SRS-due questions uses oldest answered', () => {
+    const questions = [createQ('q1'), createQ('q2'), createQ('q3')]
+    const config = defaultConfig({ mode: 'quick', questionCount: 3 })
+
+    let progress = UserProgress.empty()
+    for (const q of questions) {
+      progress = progress.recordAnswer(q.id, 'tools', true)
+    }
+
+    const result = QuizSessionService.prepareSessionQuestions(questions, config, progress)
+    expect(result.length).toBeGreaterThan(0)
+    expect(result.length).toBeLessThanOrEqual(3)
+  })
+
+  it('category filter matching 0 questions returns empty', () => {
+    const questions = [createQ('q1', 'tools'), createQ('q2', 'tools')]
+    const config = defaultConfig({ mode: 'category', categoryFilter: 'nonexistent' })
+    const progress = UserProgress.empty()
+
+    const result = QuizSessionService.prepareSessionQuestions(questions, config, progress)
+    expect(result).toHaveLength(0)
+  })
+})
+
+describe('submitAnswer diff scoring on retry', () => {
+  it('wrong→retry→correct applies +1 delta', () => {
+    const questions = [createQ('q1')]
+    const config = defaultConfig()
+    let state = QuizSessionService.createInitialState(questions, config)
+
+    // First answer: wrong (option 1, correct is 0)
+    state = { ...state, selectedAnswer: 1 }
+    const result1 = QuizSessionService.submitAnswer(state)!
+    expect(result1.isCorrect).toBe(false)
+    state = result1.newState
+    expect(state.score).toBe(0)
+
+    // Retry
+    state = QuizSessionService.retryQuestion(state)
+
+    // Re-answer: correct
+    state = { ...state, selectedAnswer: 0 }
+    const result2 = QuizSessionService.submitAnswer(state)!
+    expect(result2.isCorrect).toBe(true)
+    // Diff score: was wrong (0) → now correct (1) = +1
+    expect(result2.newState.score).toBe(1)
+  })
+
+  it('wrong→retry→wrong keeps score at 0', () => {
+    const questions = [createQ('q1')]
+    const config = defaultConfig()
+    let state = QuizSessionService.createInitialState(questions, config)
+
+    state = { ...state, selectedAnswer: 1 }
+    const result1 = QuizSessionService.submitAnswer(state)!
+    state = result1.newState
+    expect(state.score).toBe(0)
+
+    state = QuizSessionService.retryQuestion(state)
+    state = { ...state, selectedAnswer: 2 }
+    const result2 = QuizSessionService.submitAnswer(state)!
+    expect(result2.newState.score).toBe(0)
+  })
+})

@@ -192,5 +192,87 @@ describe('sessionSlice', () => {
       expect(s.score).toBe(1) // Only first was correct
       expect(s.answeredCount).toBe(3)
     })
+
+    it('should return to menu with 0 answered questions', () => {
+      useQuizStore.getState().startSession({ mode: 'random', questionCount: 3 })
+      // Finish without answering anything
+      useQuizStore.getState().finishTest()
+      expect(useQuizStore.getState().viewState).toBe('menu')
+      expect(useQuizStore.getState().sessionState).toBeNull()
+    })
+  })
+
+  describe('previousQuestion boundary', () => {
+    it('should not go below index 0', () => {
+      useQuizStore.getState().startSession({ mode: 'random', questionCount: 5 })
+      expect(useQuizStore.getState().sessionState!.currentIndex).toBe(0)
+
+      // Try to go back from index 0
+      useQuizStore.getState().previousQuestion()
+      expect(useQuizStore.getState().sessionState!.currentIndex).toBe(0)
+    })
+  })
+
+  describe('goToQuestion boundary', () => {
+    it('should ignore out-of-range index', () => {
+      useQuizStore.getState().startSession({ mode: 'random', questionCount: 3 })
+
+      useQuizStore.getState().goToQuestion(-1)
+      expect(useQuizStore.getState().sessionState!.currentIndex).toBe(0)
+
+      useQuizStore.getState().goToQuestion(999)
+      expect(useQuizStore.getState().sessionState!.currentIndex).toBe(0)
+    })
+  })
+
+  describe('updateTimer', () => {
+    it('should not crash when no session exists', () => {
+      // No session started
+      expect(() => useQuizStore.getState().updateTimer()).not.toThrow()
+    })
+
+    it('should not change state when no time limit', () => {
+      useQuizStore.getState().startSession({ mode: 'random', questionCount: 3 })
+      const before = useQuizStore.getState().sessionState!.timeRemaining
+      expect(before).toBeNull()
+
+      useQuizStore.getState().updateTimer()
+      expect(useQuizStore.getState().sessionState!.timeRemaining).toBeNull()
+    })
+  })
+
+  describe('deferFeedback auto-advance at final question', () => {
+    it('should stay on final question when all answered in defer mode', () => {
+      useQuizStore.getState().startSession({ mode: 'full' })
+      const total = useQuizStore.getState().sessionState!.questions.length
+
+      // Answer first 2 questions (defer mode auto-advances)
+      answerCurrentQuestion(true)
+      answerCurrentQuestion(true)
+
+      // Should have advanced
+      const s = useQuizStore.getState().sessionState!
+      expect(s.currentIndex).toBe(2)
+      expect(s.answerHistory.size).toBe(2)
+    })
+  })
+
+  describe('retryQuestion then re-answer (diff scoring)', () => {
+    it('wrong→retry→correct should apply +1 diff score', () => {
+      useQuizStore.getState().startSession({ mode: 'random', questionCount: 3 })
+
+      // Answer incorrectly
+      answerCurrentQuestion(false)
+      expect(useQuizStore.getState().sessionState!.score).toBe(0)
+
+      // Retry
+      useQuizStore.getState().retryQuestion()
+      expect(useQuizStore.getState().sessionState!.isAnswered).toBe(false)
+
+      // Now answer correctly
+      answerCurrentQuestion(true)
+      // Diff score: was 0 (wrong) → now 1 (correct) = +1 delta
+      expect(useQuizStore.getState().sessionState!.score).toBe(1)
+    })
   })
 })
