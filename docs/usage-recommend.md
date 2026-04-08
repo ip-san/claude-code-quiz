@@ -15,7 +15,7 @@ Desktop（Electron）アプリだからこそ可能な体験：
 
 この機能の核心は「**作業の文脈を理解した学習**」です。汎用的なクイズを出すのではなく、あなたが今日実際に Claude Code で何をしていたかを分析し、その作業に役立つ知識を問う問題だけを選びます。
 
-## 4層パイプラインアーキテクチャ
+## 3層パイプラインアーキテクチャ
 
 ```
 SessionEnd hook (自動)
@@ -29,15 +29,13 @@ SessionEnd hook (自動)
       + 全体メタ分析 (developerRole, suggestedScenarios)
       Claude の応答も対話ペアとして参照（苦戦判定の精度向上）
       → classified-prompts.json
-      → chain Layer 3
-
-  → Layer 3: aggregate-classifications.mjs [Script/$0]
-      生データ構造化（会話フロー + 個別分類 + 候補問題文を保持）
-      + Opus 分析ファイル読み込み（learner-type, stagnation, breakthrough, mastery, monthly）
-      → compressed-input.json (~8,000文字)
+      → chain aggregate-classifications.mjs [Script/$0] (同期実行)
+        生データ構造化（会話フロー + 個別分類 + 候補問題文を保持）
+        + Opus 分析ファイル読み込み（learner-type, stagnation, breakthrough, mastery, monthly）
+        → compressed-input.json (~8,000文字)
 
 分析ボタン (ユーザー主導)
-  → Layer 4: /recommend skill [Opus→Sonnet fallback/~$0.06]
+  → Layer 3: /recommend skill [Opus→Sonnet fallback/~$0.06]
       生データから因果推論 + 前回効果検証 + 15問選定 + 理由言語化
       + コーチングメッセージ生成（Opus分析を活用）
       → latest-recommend.json
@@ -78,7 +76,7 @@ SessionEnd hook (自動)
   │   └── ...                ← 毎日蓄積
   │
   ├── rolling-7d.json        ← 7日分を重み付き統合（最大50プロンプト）
-  │                             今日=1.0x → 昨日=0.62x → ... → 7日前=0.14x
+  │                             今日=1.0x → 昨日=0.62x → ... → 7日前=0.22x
   │
   └── latest-recommend.json  ← AI（Opus→Sonnet）が選んだ最新の15問
         │
@@ -124,7 +122,7 @@ Electron fs.watch（recursive、10秒デバウンス）
 | 条件 | 判定 |
 |------|------|
 | ツール実行エラーが2回以上 | エラー連鎖。根本原因の理解不足 |
-| 直近3メッセージで同一テーマを繰り返し | 修正ループ。CLAUDE.md や Hook の活用不足 |
+| 直近20メッセージ中、3メッセージで同一テーマを繰り返し | 修正ループ。CLAUDE.md や Hook の活用不足 |
 | 8件以上のメッセージ + エラー1回以上 | 長時間の試行錯誤 |
 
 ### 設定
@@ -318,7 +316,7 @@ Electron fs.watch（recursive、10秒デバウンス）
 - **シャッフル**: ローカルで即時再サンプリング（AI 不要）
 - **初回/再生成**: Sonnet モデルで実行（Opus の約1/3コスト）
 - **選定理由**: プロンプトとカテゴリのキーワードマッチングでローカル生成
-- **プロンプト**: `rolling-7d.json` から100件のユニークプロンプトを供給
+- **プロンプト**: `rolling-7d.json` から50件のユニークプロンプトを供給
 
 ### 自動レコメンド（パッシブ）
 
@@ -360,7 +358,7 @@ bun run recommend            # 手動でレコメンド生成（CLI）
 | ファイル | 内容 | 更新タイミング |
 |---------|------|-------------|
 | `sessions/{date}.json` | 日別のセッションデータ | SessionStart/End ごと |
-| `rolling-7d.json` | 7日分の重み付き統合データ（最大100ユニークプロンプト） | 同上 |
+| `rolling-7d.json` | 7日分の重み付き統合データ（最大50ユニークプロンプト） | 同上 |
 | `latest-recommend.json` | AI が選んだ最新レコメンド | `/recommend` 実行時 |
 
 **日別ファイル**は無期限に残ります（手動削除可）。
@@ -374,7 +372,7 @@ bun run recommend            # 手動でレコメンド生成（CLI）
 | 2日前 | 0.54 | |
 | 3日前 | 0.46 | |
 | ... | ... | |
-| 7日前 | 0.14 | 参考程度 |
+| 7日前 | 0.22 | 参考程度 |
 
 これにより、今日ほとんど作業していなくても過去の文脈が生きます。
 
@@ -401,7 +399,7 @@ bun run recommend            # 手動でレコメンド生成（CLI）
 
 | データ | 内容 | 機密性 |
 |--------|------|--------|
-| プロンプトサンプル | ユーザーが Claude Code に入力したテキスト（最大100件） | **高** — 業務内容が含まれる可能性 |
+| プロンプトサンプル | ユーザーが Claude Code に入力したテキスト（最大50件） | **高** — 業務内容が含まれる可能性 |
 | ツール使用統計 | Bash: 573回, Read: 276回 等 | 低 |
 | カテゴリスコア | tools: 595, session: 303 等 | 低 |
 | トピック | 「MCP」「デバッグ」等のキーワード | 低 |
@@ -439,11 +437,13 @@ bun run setup:hooks --remove
 | ファイル | 役割 | レイヤー |
 |---------|------|---------|
 | `scripts/collect-session.mjs` | セッション収集 + 前処理（苦戦シグナル・意図遷移・カテゴリ別プロンプト） | Layer 1 (Script) |
-| `scripts/classify-prompts.mjs` | Haiku バッチ分類（意図・カテゴリ・苦戦度） | Layer 2 (Haiku) |
-| `scripts/aggregate-classifications.mjs` | 分類結果集計 + compressed-input.json 生成 | Layer 3 (Script) |
+| `scripts/classify-prompts.mjs` | Haiku バッチ分類 + aggregate 同期実行 | Layer 2 (Haiku+Script) |
+| `scripts/aggregate-classifications.mjs` | 分類結果集計 + compressed-input.json 生成 | Layer 2 内で実行 |
+| `scripts/session-analysis.mjs` | セッション分析純粋関数（6本） | Layer 1-2 共通 |
+| `electron/recommend-handlers.ts` | IPC ハンドラ（DI パターン） | Electron |
 | `scripts/recommend.mjs` | CLI レコメンド生成（キーワードベース） | — |
 | `scripts/setup-hooks.mjs` | グローバルフックセットアップ | — |
-| `.claude/skills/recommend/SKILL.md` | AI レコメンドスキル（Sonnet、圧縮入力ベース） | Layer 4 (Sonnet) |
+| `.claude/skills/recommend/SKILL.md` | AI レコメンドスキル（Opus→Sonnet fallback） | Layer 3 (AI) |
 | `src/components/Menu/UsageRecommend.tsx` | Desktop UI コンポーネント（Kolb サイクル） |
 | `src/components/Menu/recommendUtils.ts` | レコメンドロジック（Haiku分類消費、フォールバック推薦、シナリオマッチ） |
 | `src/components/Menu/ProgressLabel.tsx` | プログレスアニメーション（パルスドット） |
