@@ -135,32 +135,36 @@ export function UsageRecommend() {
       )}
       {aiError && <p className="mx-4 mb-2 text-xs text-red-500 dark:text-red-400">{aiError}</p>}
 
-      {/* Growth coaching — compact summary for 3+ analyses, single line for 2nd */}
+      {/* Growth coaching — compact summary for 4+ analyses, coaching message fallback */}
       {growthInsight &&
-        (growthInsight.analysisCount >= 4 &&
-        (growthInsight.improved.length > 0 || growthInsight.newIssues.length > 0) ? (
+      growthInsight.analysisCount >= 4 &&
+      (growthInsight.improved.length > 0 || growthInsight.newIssues.length > 0) ? (
+        <div className="mx-4 mb-1.5 rounded-lg border border-stone-200 bg-stone-50 px-3 py-2 dark:border-stone-700 dark:bg-stone-900/50">
+          <p className="text-xs font-medium text-claude-dark dark:text-stone-200">
+            {growthInsight.maturityChange.direction === 'improving' ? '📈' : '📊'} {locale.recommend.improvementReport}
+          </p>
+          {growthInsight.improved.length > 0 && (
+            <p className="mt-1 text-[11px] text-green-600 dark:text-green-400">
+              ✓ {locale.recommend.improved}: {growthInsight.improved.map((i) => i.pattern).join('、')}
+            </p>
+          )}
+          {growthInsight.newIssues.length > 0 && (
+            <p className="mt-0.5 text-[11px] text-amber-600 dark:text-amber-400">
+              → {locale.recommend.nextChallenge}: {growthInsight.newIssues.map((i) => i.pattern).join('、')}
+            </p>
+          )}
+        </div>
+      ) : (
+        coachingMessage && (
           <div className="mx-4 mb-1.5 rounded-lg border border-stone-200 bg-stone-50 px-3 py-2 dark:border-stone-700 dark:bg-stone-900/50">
             <p className="text-xs font-medium text-claude-dark dark:text-stone-200">
-              {growthInsight.maturityChange.direction === 'improving' ? '📈' : '📊'}{' '}
+              {growthInsight?.maturityChange.direction === 'improving' ? '📈' : '📊'}{' '}
               {locale.recommend.improvementReport}
             </p>
-            {growthInsight.improved.length > 0 && (
-              <p className="mt-1 text-[11px] text-green-600 dark:text-green-400">
-                ✓ {locale.recommend.improved}: {growthInsight.improved.map((i) => i.pattern).join('、')}
-              </p>
-            )}
-            {growthInsight.newIssues.length > 0 && (
-              <p className="mt-0.5 text-[11px] text-amber-600 dark:text-amber-400">
-                → {locale.recommend.nextChallenge}: {growthInsight.newIssues.map((i) => i.pattern).join('、')}
-              </p>
-            )}
+            <p className="mt-1 text-[11px] text-stone-600 dark:text-stone-300">{coachingMessage}</p>
           </div>
-        ) : coachingMessage ? (
-          <p className="mx-4 mb-1.5 text-xs text-stone-500 dark:text-stone-400">
-            {growthInsight.maturityChange.direction === 'improving' && '📈 '}
-            {coachingMessage}
-          </p>
-        ) : null)}
+        )
+      )}
 
       {/* Insight: one key observation from work patterns (Haiku-powered when available) */}
       {analysis &&

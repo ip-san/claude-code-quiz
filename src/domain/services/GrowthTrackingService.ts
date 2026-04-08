@@ -10,6 +10,7 @@ import { locale } from '@/config/locale'
 import { theme } from '@/config/theme'
 
 const STORAGE_KEY = `${theme.storagePrefix}-pattern-history`
+const INSIGHT_CACHE_KEY = `${theme.storagePrefix}-growth-insight`
 const MAX_SNAPSHOTS = 10
 
 /** 保存する1回分のスナップショット */
@@ -189,6 +190,31 @@ export class GrowthTrackingService {
       newIssues,
       maturityChange,
       analysisCount: history.length + 1,
+    }
+  }
+
+  /**
+   * 直近の GrowthInsight を保存（キャッシュ復元用）
+   */
+  static saveInsight(insight: GrowthInsight): void {
+    try {
+      localStorage.setItem(INSIGHT_CACHE_KEY, JSON.stringify(insight))
+    } catch {
+      /* ignore */
+    }
+  }
+
+  /**
+   * 保存済みの GrowthInsight を復元する。
+   * loadFromCache 時に使用（再計算・再保存を避ける）。
+   */
+  static loadCachedInsight(): GrowthInsight | null {
+    try {
+      const stored = localStorage.getItem(INSIGHT_CACHE_KEY)
+      if (!stored) return null
+      return JSON.parse(stored) as GrowthInsight
+    } catch {
+      return null
     }
   }
 

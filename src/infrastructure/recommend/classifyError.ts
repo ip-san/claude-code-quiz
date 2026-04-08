@@ -13,7 +13,12 @@ export type RecommendErrorType = 'cli_not_found' | 'auth_required' | 'model_unav
 export function classifyCliError(errorMessage: string): RecommendErrorType {
   const msg = errorMessage.toLowerCase()
 
-  if (msg.includes('enoent') || msg.includes('not found') || msg.includes('command not found')) {
+  if (
+    msg.includes('enoent') ||
+    msg.includes('enotdir') ||
+    msg.includes('not found') ||
+    msg.includes('command not found')
+  ) {
     return 'cli_not_found'
   }
 

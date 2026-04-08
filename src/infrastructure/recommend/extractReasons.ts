@@ -26,11 +26,9 @@ export function extractReasonsFromStdout(stdout: string): ExtractedReasons | nul
   // Pattern 2: `ID`: reason (backtick-wrapped)
   const p2 = /`([a-z]+-\d+)`[：:]\s*(.+)/g
 
-  // biome-ignore lint/suspicious/noAssignInExpressions: standard regex exec loop pattern
   for (let match = p1.exec(stdout); match !== null; match = p1.exec(stdout)) {
     reasons[match[1]] = match[2].trim()
   }
-  // biome-ignore lint/suspicious/noAssignInExpressions: standard regex exec loop pattern
   for (let match = p2.exec(stdout); match !== null; match = p2.exec(stdout)) {
     if (!reasons[match[1]]) reasons[match[1]] = match[2].trim()
   }

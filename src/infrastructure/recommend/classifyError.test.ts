@@ -16,6 +16,10 @@ describe('classifyCliError', () => {
     expect(classifyCliError('spawn claude ENOENT')).toBe('cli_not_found')
   })
 
+  it('detects ENOTDIR (packaged app path issue)', () => {
+    expect(classifyCliError('spawn ENOTDIR')).toBe('cli_not_found')
+  })
+
   it('detects "not found" message', () => {
     expect(classifyCliError('claude: not found')).toBe('cli_not_found')
   })

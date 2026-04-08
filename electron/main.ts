@@ -35,6 +35,7 @@ import { basename, join } from 'path'
 import { classifyCliError } from '../src/infrastructure/recommend/classifyError'
 import { mergeReasons } from '../src/infrastructure/recommend/mergeReasons'
 import { electronLocale as loc } from './locale'
+import { analyzeUsageFromContents, getCachedRecommendData } from './recommend-handlers'
 
 /**
  * 【ハードウェアアクセラレーション無効化】
@@ -57,6 +58,34 @@ let mainWindow: BrowserWindow | null = null
  */
 // app.isPackaged が最も信頼性の高い判定方法
 const isDev = !app.isPackaged
+
+// パッケージ版 Electron は shell の PATH を継承しないため、
+// claude CLI 等のユーザーインストール済み CLI を見つけられない。
+// 一般的なインストールパスを補完する。
+if (!isDev) {
+  const isWin = process.platform === 'win32'
+  const sep = isWin ? ';' : ':'
+  const home = homedir()
+  const extraPaths = isWin
+    ? [
+        join(home, 'AppData', 'Local', 'Programs', 'claude-code'),
+        join(home, 'AppData', 'Roaming', 'npm'),
+        join(home, '.local', 'bin'),
+        'C:\\Program Files\\ClaudeCode',
+      ]
+    : [
+        '/usr/local/bin',
+        '/opt/homebrew/bin',
+        join(home, '.local', 'bin'),
+        join(home, '.npm-global', 'bin'),
+        '/Applications/cmux.app/Contents/Resources/bin',
+      ]
+  const currentPath = process.env.PATH ?? ''
+  const missing = extraPaths.filter((p) => !currentPath.includes(p))
+  if (missing.length > 0) {
+    process.env.PATH = `${currentPath}${sep}${missing.join(sep)}`
+  }
+}
 
 /**
  * ASAR unpack されたファイルへのパス。
@@ -416,71 +445,13 @@ ipcMain.handle('analyze-usage', async (_event, daysBack: number): Promise<UsageA
 
     if (sessionFiles.length === 0) return null
 
-    // Parse sessions
-    const tools: Record<string, number> = {}
-    const prompts: string[] = []
-    const files = new Set<string>()
-
-    for (const file of sessionFiles) {
-      const lines = readFileSync(file, 'utf8').split('\n').filter(Boolean)
-      for (const line of lines) {
-        try {
-          const j = JSON.parse(line)
-          if (j.type === 'user' && j.message?.content) {
-            const text =
-              typeof j.message.content === 'string'
-                ? j.message.content
-                : j.message.content
-                    .filter((c: { type: string }) => c.type === 'text')
-                    .map((c: { text: string }) => c.text)
-                    .join(' ')
-            if (text.length > 5) prompts.push(text)
-          }
-          if (j.message?.content && Array.isArray(j.message.content)) {
-            for (const c of j.message.content) {
-              if (c.type === 'tool_use') {
-                tools[c.name] = (tools[c.name] || 0) + 1
-                if (c.input?.file_path) files.add(basename(c.input.file_path))
-                if (c.input?.command) prompts.push(c.input.command)
-              }
-            }
-          }
-        } catch {
-          /* skip */
-        }
-      }
-    }
-
-    // Score categories
-    const allText = [...prompts, ...files, ...Object.keys(tools)].join(' ')
-    const categoryScores: Record<string, number> = {}
-    for (const [cat, keywords] of Object.entries(CATEGORY_KEYWORDS)) {
-      categoryScores[cat] = keywords.reduce((score, kw) => {
-        const regex = new RegExp(kw.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), 'gi')
-        return score + (allText.match(regex) || []).length
-      }, 0)
-    }
-
-    // Detect topics
-    const topics: { topic: string; hits: number }[] = []
-    for (const [topic, keywords] of Object.entries(TOPIC_KEYWORDS)) {
-      const hits = keywords.filter((kw) => allText.toLowerCase().includes(kw.toLowerCase())).length
-      if (hits >= 1) topics.push({ topic, hits })
-    }
-    topics.sort((a, b) => b.hits - a.hits)
-
-    // Sample prompts for display
-    const promptSamples = prompts
-      .filter((p) => p.length > 10 && p.length < 200 && !p.startsWith('node ') && !p.startsWith('git '))
-      .slice(0, 5)
+    // Read all session file contents
+    const contents = sessionFiles.map((f) => readFileSync(f, 'utf8'))
+    const result = analyzeUsageFromContents(contents, CATEGORY_KEYWORDS, TOPIC_KEYWORDS)
 
     return {
-      tools,
-      topics,
-      categoryScores,
+      ...result,
       recommendedIds: [], // Renderer will compute based on quiz data
-      sessionCount: sessionFiles.length,
-      promptSamples,
     }
   } catch {
     return null
@@ -1027,52 +998,10 @@ IDのみのJSON配列で返してください。説明不要。`
 // Cached Recommendations (from SessionEnd hook)
 // ============================================================
 
-ipcMain.handle(
-  'get-cached-recommend',
-  async (): Promise<{
-    date: string
-    sessionCount: number
-    questionCount: number
-    ids: string[]
-    topCategories: string[]
-    topics: { topic: string; hits: number }[]
-    promptSamples: string[]
-    reasons?: Record<string, string>
-    coachingMessage?: string
-  } | null> => {
-    try {
-      const storeDir = join(homedir(), '.claude-quiz-recommend')
-      const filePath = join(storeDir, 'latest-recommend.json')
-      const content = readFileSync(filePath, 'utf8')
-      const data = JSON.parse(content)
-      // Return if within last 7 days
-      const dataDate = new Date(data.date).getTime()
-      const sevenDaysAgo = Date.now() - 7 * 24 * 60 * 60 * 1000
-      if (dataDate < sevenDaysAgo) return null
-      // Enrich promptSamples from rolling-7d.json (has more variety)
-      try {
-        const rolling = JSON.parse(readFileSync(join(storeDir, 'rolling-7d.json'), 'utf8'))
-        if (rolling.prompts?.length > 0) {
-          data.promptSamples = rolling.prompts
-        }
-      } catch {
-        /* rolling not available — use recommend's own samples */
-      }
-      // Enrich coachingMessage from reasons.json if missing
-      if (!data.coachingMessage) {
-        try {
-          const reasonsData = JSON.parse(readFileSync(join(storeDir, 'reasons.json'), 'utf8'))
-          if (reasonsData.coachingMessage) data.coachingMessage = reasonsData.coachingMessage
-        } catch {
-          /* reasons.json not available */
-        }
-      }
-      return data
-    } catch {
-      return null
-    }
-  }
-)
+ipcMain.handle('get-cached-recommend', async () => {
+  const storeDir = join(homedir(), '.claude-quiz-recommend')
+  return getCachedRecommendData(storeDir, { readFileSync: (p, e) => readFileSync(p, e) })
+})
 
 // ============================================================
 // Real-time Session Monitoring (proactive struggle detection)

@@ -167,6 +167,48 @@ export const SUPPLEMENTARY_DOCS = [
 ]
 
 // ============================================================
+// Session Analysis Keywords (used by collect-session.mjs, session-analysis.mjs)
+// ============================================================
+
+/** Category → keyword mapping for session prompt scoring. */
+export const CATEGORY_KEYWORDS = {
+  memory: ['CLAUDE.md', 'claude.md', 'memory', 'MEMORY.md', '/memory', '/init', 'rules/', '@import'],
+  skills: ['skill', 'SKILL.md', '/batch', '/loop', '/schedule', 'context: fork', 'frontmatter'],
+  tools: ['Read', 'Write', 'Edit', 'Bash', 'Grep', 'Glob', 'WebFetch', 'tool_use'],
+  commands: [
+    '/compact',
+    '/clear',
+    '/resume',
+    '/model',
+    '/context',
+    '/branch',
+    '/voice',
+    '/rewind',
+    'claude -p',
+    '--bare',
+  ],
+  extensions: ['MCP', 'mcp', 'hook', 'Hook', 'plugin', 'subagent', 'Agent', 'Chrome', 'Slack'],
+  session: ['コンテキスト', 'token', 'compact', 'checkpoint', 'resume', 'session', 'fork', 'worktree', 'effort'],
+  keyboard: ['Ctrl+', 'Shift+', 'Alt+', 'Esc', 'Tab', 'shortcut', 'vim', 'keybind'],
+  bestpractices: ['plan mode', 'Plan', 'verify', 'test', 'review', 'IMPORTANT', 'best practice'],
+}
+
+/** Topic → keyword mapping for session topic detection. */
+export const TOPIC_KEYWORDS = {
+  'CLAUDE.mdの書き方': ['CLAUDE.md', '/init', 'ルール', '指示'],
+  コンテキスト管理: ['コンテキスト', '/compact', '/clear', 'context', '圧縮'],
+  MCP: ['MCP', 'mcp', 'ツール連携', 'stdio'],
+  Hooks: ['hook', 'Hook', 'フック', 'PreToolUse', 'PostToolUse'],
+  サブエージェント: ['subagent', 'サブエージェント', 'Agent', 'worktree', '並列'],
+  Skills: ['skill', 'SKILL.md', 'スキル', 'frontmatter'],
+  デバッグ: ['debug', 'デバッグ', 'エラー', 'error', 'バグ'],
+  テスト: ['test', 'テスト', 'vitest', 'playwright'],
+  'CI/CD': ['CI', 'GitHub Actions', 'deploy', 'デプロイ'],
+  セキュリティ: ['security', 'セキュリティ', 'permission', 'sandbox'],
+  コスト管理: ['cost', 'コスト', '料金', 'effort'],
+}
+
+// ============================================================
 // URL Validation
 // ============================================================
 

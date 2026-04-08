@@ -81,71 +81,80 @@ export function useRecommendation() {
 
   // ── Cache loading ──────────────────────────────────────────
 
-  const loadFromCache = useCallback(async (): Promise<boolean> => {
-    const cached = await window.electronAPI?.getCachedRecommend?.()
-    if (!cached || cached.ids.length === 0) return false
+  const loadFromCache = useCallback(
+    async (options?: { freshAnalysis?: boolean }): Promise<boolean> => {
+      const cached = await window.electronAPI?.getCachedRecommend?.()
+      if (!cached || cached.ids.length === 0) return false
 
-    const cachedAnalysis: AnalysisResult = {
-      tools: {},
-      topics: cached.topics,
-      categoryScores: Object.fromEntries(cached.topCategories.map((c, i) => [c, 100 - i * 10])),
-      recommendedIds: cached.ids,
-      sessionCount: cached.sessionCount,
-      promptSamples: cached.promptSamples ?? [],
-    }
+      const cachedAnalysis: AnalysisResult = {
+        tools: {},
+        topics: cached.topics,
+        categoryScores: Object.fromEntries(cached.topCategories.map((c, i) => [c, 100 - i * 10])),
+        recommendedIds: cached.ids,
+        sessionCount: cached.sessionCount,
+        promptSamples: cached.promptSamples ?? [],
+      }
 
-    const aiReasons = cached.reasons
-    if (aiReasons && Object.keys(aiReasons).length > 0) {
-      const progress = useQuizStore.getState().userProgress
-      const questionMap = new Map(allQuestions.map((q) => [q.id, q]))
-      const recs: RecommendedQuestion[] = cached.ids
-        .map((id) => {
-          const q = questionMap.get(id)
-          if (!q) return null
-          return {
-            id,
-            question: q.question,
-            category: q.category,
-            reason: aiReasons[id] ?? '',
-            signals: [locale.recommendUtils.aiSelected],
-          }
+      const aiReasons = cached.reasons
+      if (aiReasons && Object.keys(aiReasons).length > 0) {
+        const progress = useQuizStore.getState().userProgress
+        const questionMap = new Map(allQuestions.map((q) => [q.id, q]))
+        const recs: RecommendedQuestion[] = cached.ids
+          .map((id) => {
+            const q = questionMap.get(id)
+            if (!q) return null
+            return {
+              id,
+              question: q.question,
+              category: q.category,
+              reason: aiReasons[id] ?? '',
+              signals: [locale.recommendUtils.aiSelected],
+            }
+          })
+          .filter(Boolean) as RecommendedQuestion[]
+        // Deprioritize already-correct questions even in AI-selected recommendations
+        recs.sort((a, b) => {
+          const aCorrect = progress.isCorrectlyAnswered(a.id) ? 1 : 0
+          const bCorrect = progress.isCorrectlyAnswered(b.id) ? 1 : 0
+          return aCorrect - bCorrect
         })
-        .filter(Boolean) as RecommendedQuestion[]
-      // Deprioritize already-correct questions even in AI-selected recommendations
-      recs.sort((a, b) => {
-        const aCorrect = progress.isCorrectlyAnswered(a.id) ? 1 : 0
-        const bCorrect = progress.isCorrectlyAnswered(b.id) ? 1 : 0
-        return aCorrect - bCorrect
-      })
-      setRecommendations(recs)
-      setUnusedCategories([])
-      setAnalysis(cachedAnalysis)
-    } else {
-      // Fallback: compute recommendations locally when AI reasons are not available
-      const progress = useQuizStore.getState().userProgress
-      const { recs, unused } = computeRecommendations({ ...cachedAnalysis }, allQuestions, undefined, progress)
-      setRecommendations(recs)
-      setUnusedCategories(unused)
-      setAnalysis(cachedAnalysis)
-    }
+        setRecommendations(recs)
+        setUnusedCategories([])
+        setAnalysis(cachedAnalysis)
+      } else {
+        // Fallback: compute recommendations locally when AI reasons are not available
+        const progress = useQuizStore.getState().userProgress
+        const { recs, unused } = computeRecommendations({ ...cachedAnalysis }, allQuestions, undefined, progress)
+        setRecommendations(recs)
+        setUnusedCategories(unused)
+        setAnalysis(cachedAnalysis)
+      }
 
-    // Growth tracking: compare with previous analysis and save snapshot
-    // Growth tracking with quiz correlation — use Haiku classification if available
-    const prompts = cachedAnalysis.promptSamples ?? []
-    const classified = await window.electronAPI?.getClassifiedPrompts?.()
-    setClassifiedData(classified ?? null)
-    const patterns = detectWorkPatterns(prompts, classified)
-    setWorkPatterns(patterns)
+      // Work patterns (needed for display in both cases)
+      const prompts = cachedAnalysis.promptSamples ?? []
+      const classified = await window.electronAPI?.getClassifiedPrompts?.()
+      setClassifiedData(classified ?? null)
+      const patterns = detectWorkPatterns(prompts, classified)
+      setWorkPatterns(patterns)
 
-    const insight = GrowthTrackingService.compareWithPrevious(patterns, prompts)
-    setGrowthInsight(insight)
-    GrowthTrackingService.saveSnapshot(patterns, prompts)
+      if (options?.freshAnalysis) {
+        // Fresh analysis: compare with previous, save snapshot + insight
+        const insight = GrowthTrackingService.compareWithPrevious(patterns, prompts)
+        setGrowthInsight(insight)
+        GrowthTrackingService.saveSnapshot(patterns, prompts)
+        if (insight) GrowthTrackingService.saveInsight(insight)
+      } else {
+        // Cache restore: use previously saved insight (no recalculation)
+        setGrowthInsight(GrowthTrackingService.loadCachedInsight())
+      }
 
-    // Coaching message from Sonnet (via /recommend skill output)
-    setCoachingMessage(cached.coachingMessage ?? null)
+      // Coaching message from Sonnet (via /recommend skill output)
+      setCoachingMessage(cached.coachingMessage ?? null)
 
-    return true
-  }, [allQuestions])
+      return true
+    },
+    [allQuestions]
+  )
 
   // ── Initial analysis ───────────────────────────────────────
 
@@ -216,7 +225,7 @@ export function useRecommendation() {
     }
 
     stopTimer()
-    if (await loadFromCache()) {
+    if (await loadFromCache({ freshAnalysis: true })) {
       haptics.medium()
       notifyRecommendComplete()
       setLoading(false)
@@ -259,7 +268,7 @@ export function useRecommendation() {
         stopTimer()
         setRegenerating(false)
         setLoading(false)
-        if (result?.success && (await loadFromCache())) {
+        if (result?.success && (await loadFromCache({ freshAnalysis: true }))) {
           setRegenerated(true)
           haptics.medium()
           notifyRecommendComplete()
@@ -420,7 +429,7 @@ export function useRecommendation() {
         ?.runRecommendSkill?.()
         .then(async (result) => {
           setLoading(false)
-          if (result?.success && (await loadFromCache())) {
+          if (result?.success && (await loadFromCache({ freshAnalysis: true }))) {
             haptics.medium()
             notifyRecommendComplete()
           }
