@@ -252,7 +252,7 @@
         }
       ],
       "correctIndex": 3,
-      "explanation": "YAMLフロントマターの`paths`フィールドでglobパターンを指定できます。例：\n\n{{diagram:0}}\n\n```yaml\npaths:\n  - \"src/api/**/*.ts\"\n```",
+      "explanation": "YAMLフロントマターの`paths`フィールドでglobパターンを指定できます。\n\n{{diagram:0}}\n\n例：\n```yaml\npaths:\n  - \"src/api/**/*.ts\"\n```",
       "referenceUrl": "https://code.claude.com/docs/ja/memory#path-specific-rules",
       "diagrams": [
         {
@@ -420,7 +420,7 @@
         }
       ],
       "correctIndex": 2,
-      "explanation": "ドキュメントでは「prune it regularly」と推奨されており、\n\n{{diagram:0}}\n\nClaudeが既に正しく動作している指示は削除し、特定ドメインの知識やワークフローはSkillsに移動することで、`CLAUDE.md`の肥大化を防げます。1ファイルあたり200行未満を目標とすることをドキュメントは推奨しています。",
+      "explanation": "ドキュメントでは「prune it regularly」と推奨されています。\n\n{{diagram:0}}\n\nClaudeが既に正しく動作している指示は削除し、特定ドメインの知識やワークフローはSkillsに移動することで、`CLAUDE.md`の肥大化を防げます。1ファイルあたり200行未満を目標とすることをドキュメントは推奨しています。",
       "referenceUrl": "https://code.claude.com/docs/ja/best-practices",
       "diagrams": [
         {
@@ -1812,7 +1812,7 @@
         }
       ],
       "correctIndex": 1,
-      "explanation": "`/compact`は会話履歴を要約・圧縮してコンテキストを回復するコマンドです。オプションで「データベース関連の議論に焦点を当てて」のようにフォーカス指示も追加できます。`/rewind`はチェックポイントに基づくundo（会話+ファイル変更の復元）、`/clear`は完全削除、`Ctrl+L`は画面表示のみのクリアで、それぞれ目的が異なります。\n\n{{diagram:0}}",
+      "explanation": "`/compact`は会話履歴を要約・圧縮してコンテキストを回復するコマンドです。オプションで「データベース関連の議論に焦点を当てて」のようにフォーカス指示も追加できます。\n\n{{diagram:0}}\n\n`/rewind`はチェックポイントに基づくundo（会話+ファイル変更の復元）、`/clear`は完全削除、`Ctrl+L`は画面表示のみのクリアで、それぞれ目的が異なります。",
       "referenceUrl": "https://code.claude.com/docs/ja/interactive-mode",
       "tags": [
         "overview",
@@ -2409,7 +2409,7 @@
         }
       ],
       "correctIndex": 0,
-      "explanation": "`/stats`は日別の使用統計、セッション履歴、連続使用日数（ストリーク）、モデル使用傾向を視覚化するダッシュボードです。`/cost`は現在のセッションと累計のトークン使用量を詳細に表示します。`/usage`はサブスクリプションプラン利用者向けにプランの使用制限やレート制限の状態を確認するコマンドです。\n\n{{diagram:0}}",
+      "explanation": "`/stats`は日別の使用統計、セッション履歴、連続使用日数（ストリーク）、モデル使用傾向を視覚化するダッシュボードです。\n\n{{diagram:0}}\n\n`/cost`は現在のセッションと累計のトークン使用量を詳細に表示します。`/usage`はサブスクリプションプラン利用者向けにプランの使用制限やレート制限の状態を確認するコマンドです。",
       "referenceUrl": "https://code.claude.com/docs/ja/interactive-mode",
       "diagrams": [
         {
@@ -2687,7 +2687,7 @@
         }
       ],
       "correctIndex": 2,
-      "explanation": "Claude CodeはMCPの`list_changed`通知をサポートしています。MCPサーバーがこの通知を送信すると、Claude Codeは自動的に利用可能なツール、プロンプト、リソースの一覧を更新します。\n\n{{diagram:0}}\n\n再接続や再起動は不要です。",
+      "explanation": "Claude CodeはMCPの`list_changed`通知をサポートしています。MCPサーバーがこの通知を送信すると、Claude Codeは自動的に利用可能なツール、プロンプト、リソースの一覧を更新します。 再接続や再起動は不要です。\n\n{{diagram:0}}",
       "category": "extensions",
       "difficulty": "intermediate",
       "referenceUrl": "https://code.claude.com/docs/ja/mcp",
@@ -5075,7 +5075,7 @@
         }
       ],
       "correctIndex": 1,
-      "explanation": "`claude -r`（`--resume`）はセッション一覧を表示して選択できるため、どのセッションか不明な場合に適しています。`claude -c`（`--continue`）は現在のディレクトリの最新セッションを選択画面なしで即座に再開するため、直前の作業の続きに最適です。\n\n{{diagram:0}}",
+      "explanation": "`claude -r`（`--resume`）はセッション一覧を表示して選択できるため、どのセッションか不明な場合に適しています。\n\n{{diagram:0}}\n\n`claude -c`（`--continue`）は現在のディレクトリの最新セッションを選択画面なしで即座に再開するため、直前の作業の続きに最適です。",
       "category": "commands",
       "difficulty": "beginner",
       "referenceUrl": "https://code.claude.com/docs/ja/interactive-mode",
@@ -5639,7 +5639,7 @@
         }
       ],
       "correctIndex": 2,
-      "explanation": "終了コード0は成功、2はブロッキングエラー（`stderr`の送信先はイベントによって異なり、`PreToolUse`等ではClaudeへのフィードバック、`Notification`等ではユーザーへの表示）、その他は非ブロッキングエラーです。\n\n{{diagram:0}}",
+      "explanation": "フックの終了コード0は成功（処理続行）、終了コード2はブロッキングエラー（`stderr`の送信先はイベントによって異なります）です。\n\n{{diagram:0}}\n\nその他の終了コードは非ブロッキングエラーとして扱われます。",
       "referenceUrl": "https://code.claude.com/docs/ja/hooks",
       "diagrams": [
         {
@@ -6935,7 +6935,7 @@
         }
       ],
       "correctIndex": 2,
-      "explanation": "`Ctrl+D`はEOF（End of File）を送信してセッションを終了します。`Ctrl+C`は現在のClaudeの応答を中断しますがセッションは継続します。`/exit`はスラッシュコマンドによるセッション終了です。\n\n{{diagram:0}}",
+      "explanation": "`Ctrl+D`はEOF（End of File）を送信してセッションを終了します。\n\n{{diagram:0}}\n\n`Ctrl+C`は現在のClaudeの応答を中断しますが、セッションは終了しません。`Esc`キーはプロンプト入力をキャンセルし、入力内容をクリアします。",
       "referenceUrl": "https://code.claude.com/docs/ja/interactive-mode",
       "diagrams": [
         {
@@ -8666,7 +8666,7 @@
         }
       ],
       "correctIndex": 2,
-      "explanation": "MCPサーバーが公開するプロンプトは/mcp__<server>__<prompt>の形式でスラッシュコマンドとして利用できます。\n\n{{diagram:0}}\n\n引数はスペース区切りで渡します。",
+      "explanation": "MCPサーバーが公開するプロンプトは/mcp__<server>__<prompt>の形式でスラッシュコマンドとして利用できます。 引数はスペース区切りで渡します。\n\n{{diagram:0}}",
       "referenceUrl": "https://code.claude.com/docs/ja/mcp",
       "diagrams": [
         {
@@ -9292,7 +9292,7 @@
         }
       ],
       "correctIndex": 2,
-      "explanation": "`/usage` コマンドはサブスクリプションプラン専用のコマンドで、プランの使用制限（リミット）とレート制限のステータスを確認できます。\n\n{{diagram:0}}\n\nAPIキー利用時には使用できません。",
+      "explanation": "`/usage` コマンドはサブスクリプションプラン専用のコマンドで、プランの使用制限（リミット）とレート制限のステータスを確認できます。APIキー利用時には使用できません。\n\n{{diagram:0}}",
       "category": "commands",
       "difficulty": "beginner",
       "referenceUrl": "https://code.claude.com/docs/ja/interactive-mode",
@@ -9396,7 +9396,7 @@
         }
       ],
       "correctIndex": 0,
-      "explanation": "`Ctrl+U`はreadline標準の行削除操作です。削除したテキストはkill ringに保存されるため、`Ctrl+Y`で復元できます。`Ctrl+C`（入力キャンセル）との違いは、`Ctrl+U`は行内容のみ消去しプロンプト入力を継続できる点です。\n\n{{diagram:0}}",
+      "explanation": "`Ctrl+W`はカーソル前の単語を削除し、kill ringに保存します。削除した単語は`Ctrl+Y`で復元できます。\n\n{{diagram:0}}\n\n`Ctrl+C`（入力キャンセル）との違いは、`Ctrl+W`は選択的な単語削除であるのに対し、`Ctrl+C`は入力全体のキャンセルである点です。",
       "referenceUrl": "https://code.claude.com/docs/ja/interactive-mode",
       "diagrams": [
         {
@@ -9657,7 +9657,7 @@
         }
       ],
       "correctIndex": 3,
-      "explanation": "リファクタリングは小さくテスト可能な単位（small, testable increments）で段階的に進め、\n\n{{diagram:0}}\n\n各ステップでテストを実行して動作を確認することが推奨されます。",
+      "explanation": "リファクタリングは小さくテスト可能な単位（small, testable increments）で段階的に進めることが推奨されます。\n\n{{diagram:0}}\n\n各ステップでテストを実行して動作を確認してください。",
       "referenceUrl": "https://code.claude.com/docs/ja/common-workflows",
       "diagrams": [
         {
@@ -9830,7 +9830,7 @@
         }
       ],
       "correctIndex": 0,
-      "explanation": "`MEMORY.md`（先頭200行または25KB、先に到達した方）はセッション開始時に読み込まれますが、\n\n{{diagram:0}}\n\nトピック別ファイル（`debugging.md`、`api-conventions.md`等）は関連コンテキストが必要になった時にオンデマンドで読み込まれます。",
+      "explanation": "`MEMORY.md`（先頭200行または25KB、先に到達した方）はセッション開始時に読み込まれます。\n\n{{diagram:0}}\n\n一方、トピック別ファイル（`debugging.md`、`api-conventions.md`等）は関連コンテキストが必要になった時にオンデマンドで読み込まれます。",
       "referenceUrl": "https://code.claude.com/docs/ja/memory",
       "diagrams": [
         {
@@ -9953,7 +9953,7 @@
         }
       ],
       "correctIndex": 3,
-      "explanation": "User設定は`~/.claude/settings.json`（個人）、Project設定は`.claude/settings.json`（チーム共有）、Local設定は`.claude/settings.local.json`（個人のプロジェクト設定）に保存されます。\n\n{{diagram:0}}",
+      "explanation": "API Keys設定はUser、Project、Localの3つのスコープで構成されます。\n\n{{diagram:0}}\n\nLocal設定（`.claude/settings.local.json`）はgit管理外のため、個人のAPIキーを安全に設定できます。",
       "referenceUrl": "https://code.claude.com/docs/ja/settings",
       "diagrams": [
         {
@@ -14838,7 +14838,7 @@
         }
       ],
       "correctIndex": 1,
-      "explanation": "GitHub ActionsのPRイベントをトリガーにして、`claude -p`でdiffの内容をレビューさせることで、\n\n{{diagram:0}}\n\n自動化されたコードレビューワークフローを構築できます。",
+      "explanation": "GitHub ActionsのPRイベントをトリガーにして、`claude -p`でdiffの内容をレビューさせることができます。\n\n{{diagram:0}}\n\nこれにより自動化されたコードレビューワークフローを構築できます。",
       "referenceUrl": "https://code.claude.com/docs/ja/common-workflows",
       "hint": "CI/CDでの非対話モードとGitHubのイベントトリガーを組み合わせます。",
       "diagrams": [
@@ -15310,7 +15310,7 @@
         }
       ],
       "correctIndex": 0,
-      "explanation": "プラグイン機能（`/plugin`コマンド）はclaude `--version`でバージョンを確認し、古い場合は\n\n{{diagram:0}}\n\nbrew upgrade claude-code（Homebrew）やnpm update -g @anthropic-ai/claude-code（npm）で最新バージョンに更新する必要があります。",
+      "explanation": "プラグイン機能（`/plugin`コマンド）はclaude `--version`でバージョンを確認する必要があります。\n\n{{diagram:0}}\n\n古い場合はbrew upgrade claude-code（Homebrew）やnpm update -g @anthropic-ai/claude-code（npm）で最新バージョンに更新してください。",
       "category": "commands",
       "difficulty": "beginner",
       "referenceUrl": "https://code.claude.com/docs/ja/discover-plugins",
@@ -17306,7 +17306,7 @@
         }
       ],
       "correctIndex": 2,
-      "explanation": "Claude Codeの設定スコープの優先順位は、最も高い順に：\n\n{{diagram:0}}\n\n(1) マネージド設定（管理者が設定、上書き不可）、(2) コマンドライン引数、(3) ローカルプロジェクト設定（`.claude/settings.local.json`）、(4) 共有プロジェクト設定（`.claude/settings.json`）、(5) ユーザー設定（`~/.claude/settings.json`）です。",
+      "explanation": "Claude Codeの設定スコープの優先順位は5段階あります。\n\n{{diagram:0}}\n\n最も高い順に：(1) マネージド設定（管理者が設定、上書き不可）、(2) コマンドライン引数、(3) ローカルプロジェクト設定（`.claude/settings.local.json`）、(4) 共有プロジェクト設定（`.claude/settings.json`）、(5) ユーザー設定（`~/.claude/settings.json`）です。",
       "referenceUrl": "https://code.claude.com/docs/ja/settings",
       "diagrams": [
         {
@@ -20131,7 +20131,7 @@
         }
       ],
       "correctIndex": 3,
-      "explanation": "`/output-style` コマンドで出力スタイルを変更できます。引数なしで実行すると対話メニューが表示され、`/output-style [style]`（例: `/output-style explanatory`）で直接切り替えも可能です。変更は `.claude/settings.local.json` の `outputStyle` フィールドに保存されます。組み込みスタイルには Default、Explanatory、Learning の3種類があり、\n\n{{diagram:0}}\n\nカスタムスタイルの作成も可能です。",
+      "explanation": "`/output-style` コマンドで出力スタイルを変更できます。引数なしで実行すると対話メニューが表示され、`/output-style [style]`（例: `/output-style explanatory`）で直接切り替えも可能です。変更は `.claude/settings.local.json` の `outputStyle` フィールドに保存されます。組み込みスタイルには Default、Explanatory、Learning の3種類があります。\n\n{{diagram:0}}\n\nカスタムスタイルの作成も可能です。",
       "referenceUrl": "https://code.claude.com/docs/ja/output-styles",
       "diagrams": [
         {
@@ -23600,7 +23600,7 @@
         }
       ],
       "correctIndex": 0,
-      "explanation": "devcontainer の参照実装は `devcontainer.json`（VS Code Dev Containers の環境定義）、`Dockerfile`（コンテナイメージの構築、Node.js 20・git・ZSH・fzf を含む）、`init-firewall.sh`（デフォルト拒否のファイアウォールポリシー）の3つで構成されます。\n\n{{diagram:0}}",
+      "explanation": "Dev Containerは`devcontainer.json`（設定とカスタマイズ）、`Dockerfile`（環境定義）、`.devcontainer/`ディレクトリの3つで構成されます。\n\n{{diagram:0}}",
       "referenceUrl": "https://code.claude.com/docs/ja/devcontainer",
       "diagrams": [
         {
@@ -24472,7 +24472,7 @@
         }
       ],
       "correctIndex": 1,
-      "explanation": "`REVIEW.md`はレビュー専用のガイダンスファイルです。`CLAUDE.md`はレビューを含むすべてのClaude Code操作に適用されるため、\n\n{{diagram:0}}\n\nレビューだけに適用したいルール（スタイルガイド、フラグすべき項目、スキップすべきファイル等）は`REVIEW.md`に分離できます。",
+      "explanation": "`REVIEW.md`はレビュー専用のガイダンスファイルです。`CLAUDE.md`はレビューを含むすべてのClaude Code操作に適用されます。\n\n{{diagram:0}}\n\nそのため、レビューだけに適用したいルール（スタイルガイド、フラグすべき項目、スキップすべきファイル等）は`REVIEW.md`に分離できます。",
       "referenceUrl": "https://code.claude.com/docs/ja/code-review",
       "diagrams": [
         {
@@ -27169,7 +27169,7 @@
         }
       ],
       "correctIndex": 3,
-      "explanation": "`Esc+Esc` または `/rewind` を使ってメッセージチェックポイントを選択し、「ここから要約」（Summarize from here）を選ぶと、\n\n{{diagram:0}}\n\nそのポイント以降のメッセージが凝縮され、以前のコンテキストは保持されます。これにより、序盤の重要な指示を維持しながら、中盤の冗長な部分のみを圧縮できます。",
+      "explanation": "`Esc+Esc` または `/rewind` を使ってメッセージチェックポイントを選択し、「ここから要約」（Summarize from here）を選びます。\n\n{{diagram:0}}\n\nすると、そのポイント以降のメッセージが凝縮され、以前のコンテキストは保持されます。これにより、序盤の重要な指示を維持しながら、中盤の冗長な部分のみを圧縮できます。",
       "referenceUrl": "https://code.claude.com/docs/ja/best-practices",
       "diagrams": [
         {
@@ -27696,7 +27696,7 @@
         }
       ],
       "correctIndex": 3,
-      "explanation": "`/copy` コマンドでコードブロックが含まれる場合、インタラクティブピッカーが表示されます。ピッカーで `w` キーを押すと、選択内容をクリップボードではなくファイルに書き出すことができます。\n\n{{diagram:0}}\n\nこれは SSH 接続時に特に便利です。",
+      "explanation": "`/copy` コマンドでコードブロックが含まれる場合、インタラクティブピッカーが表示されます。ピッカーで `w` キーを押すと、選択内容をクリップボードではなくファイルに書き出すことができます。これは SSH 接続時に特に便利です。\n\n{{diagram:0}}",
       "referenceUrl": "https://code.claude.com/docs/ja/commands",
       "diagrams": [
         {
@@ -29026,7 +29026,7 @@
         }
       ],
       "correctIndex": 0,
-      "explanation": "Chrome 拡張機能「Claude in Chrome」をインストールすると、`claude --chrome` または `/chrome` で起動でき、\n\n{{diagram:0}}\n\nClaude Code からブラウザのコンソールエラーや DOM の状態を読み取り、Web アプリのデバッグ・テスト・ブラウザ操作の自動化が可能になります。Google Chrome と Microsoft Edge をサポートしています。",
+      "explanation": "Chrome 拡張機能「Claude in Chrome」をインストールすると、`claude --chrome` または `/chrome` で起動できます。\n\n{{diagram:0}}\n\nClaude Code からブラウザのコンソールエラーや DOM の状態を読み取り、Web アプリのデバッグ・テスト・ブラウザ操作の自動化が可能になります。Google Chrome と Microsoft Edge をサポートしています。",
       "referenceUrl": "https://code.claude.com/docs/ja/chrome",
       "diagrams": [
         {
@@ -29323,7 +29323,7 @@
         }
       ],
       "correctIndex": 2,
-      "explanation": "`/voice` の要件は: (1) Claude Code v2.1.69 以上、(2) claude.ai アカウントでの認証（API キーやサードパーティプロバイダー経由では不可）、(3) ローカルマイクアクセス。macOS、Linux、Windows をサポートしますが、リモート環境（Web 版 Claude Code）や SSH セッションでは使用できません。\n\n{{diagram:0}}",
+      "explanation": "`/voice` の要件は: (1) Claude Code v2.1.69 以上、(2) claude.ai アカウントでの認証（API キーやサードパーティプロバイダー経由では不可）、(3) ローカルマイクアクセス。\n\n{{diagram:0}}\n\nmacOS、Linux、Windows をサポートしますが、リモート環境（Web 版 Claude Code）や SSH セッションでは使用できません。",
       "referenceUrl": "https://code.claude.com/docs/ja/interactive-mode",
       "diagrams": [
         {
