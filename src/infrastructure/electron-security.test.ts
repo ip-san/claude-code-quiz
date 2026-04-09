@@ -243,3 +243,35 @@ describe('Electron Security: PATH modification safety', () => {
     expect(pathBlock).toContain('`${currentPath}${sep}${missing.join(sep)}`')
   })
 })
+
+describe('Electron IPC: channel contract', () => {
+  // ipcMain.handle() may put the channel name on the same line or the next line:
+  //   ipcMain.handle('channel-name', ...)        <- single-line
+  //   ipcMain.handle(\n  'channel-name',\n  ...) <- multi-line
+  // The regex /ipcMain\.handle\(\s*'([^']+)'/ handles both forms via \s* (whitespace incl. newlines).
+  it('すべての preload invoke チャネルが main.ts に handler 定義を持つこと', () => {
+    const preloadChannels = [...preloadSource.matchAll(/ipcRenderer\.invoke\('([^']+)'/g)].map((m) => m[1])
+    const mainChannels = [...mainSource.matchAll(/ipcMain\.handle\(\s*'([^']+)'/g)].map((m) => m[1])
+    const missing = preloadChannels.filter((ch) => !mainChannels.includes(ch))
+    expect(missing, `preload channels without main handler: ${missing.join(', ')}`).toEqual([])
+  })
+
+  it('すべての main handler チャネルが preload.ts に invoke 定義を持つこと', () => {
+    const mainChannels = [...mainSource.matchAll(/ipcMain\.handle\(\s*'([^']+)'/g)].map((m) => m[1])
+    const preloadInvokes = [...preloadSource.matchAll(/ipcRenderer\.invoke\('([^']+)'/g)].map((m) => m[1])
+    const preloadSends = [...preloadSource.matchAll(/ipcRenderer\.send\('([^']+)'/g)].map((m) => m[1])
+    const allPreload = new Set([...preloadInvokes, ...preloadSends])
+    const orphaned = mainChannels.filter((ch) => !allPreload.has(ch))
+    expect(orphaned, `main handlers not invoked by preload: ${orphaned.join(', ')}`).toEqual([])
+  })
+
+  it('preload が contextBridge.exposeInMainWorld で electronAPI を公開していること', () => {
+    expect(preloadSource).toContain("contextBridge.exposeInMainWorld('electronAPI'")
+  })
+
+  it('IPC チャネル名にタイポや不整合がないこと（一意性チェック）', () => {
+    const mainChannels = [...mainSource.matchAll(/ipcMain\.handle\(\s*'([^']+)'/g)].map((m) => m[1])
+    const duplicates = mainChannels.filter((ch, i) => mainChannels.indexOf(ch) !== i)
+    expect(duplicates, `duplicate handler registrations: ${duplicates.join(', ')}`).toEqual([])
+  })
+})

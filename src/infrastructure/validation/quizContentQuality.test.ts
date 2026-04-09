@@ -488,6 +488,134 @@ describe('Quiz Content Quality', () => {
         .filter((e) => (((e.diagram as Record<string, unknown>).columns as unknown[])?.length ?? 0) < 2)
       expect(violations.map((e) => e.id)).toEqual([])
     })
+
+    it('terminalダイアグラムが1個以上のlinesを持つこと', () => {
+      const violations = diagramEntries
+        .filter((e) => e.diagram.type === 'terminal')
+        .filter((e) => (((e.diagram as Record<string, unknown>).lines as unknown[])?.length ?? 0) < 1)
+      expect(violations.map((e) => e.id)).toEqual([])
+    })
+
+    it('configダイアグラムがfilepathとlinesを持つこと', () => {
+      const violations = diagramEntries
+        .filter((e) => e.diagram.type === 'config')
+        .filter((e) => {
+          const d = e.diagram as Record<string, unknown>
+          return !d.filepath || ((d.lines as unknown[])?.length ?? 0) < 1
+        })
+      expect(violations.map((e) => e.id)).toEqual([])
+    })
+
+    it('layerダイアグラムが2個以上のlayersを持つこと', () => {
+      const violations = diagramEntries
+        .filter((e) => e.diagram.type === 'layer')
+        .filter((e) => (((e.diagram as Record<string, unknown>).layers as unknown[])?.length ?? 0) < 2)
+      expect(violations.map((e) => e.id)).toEqual([])
+    })
+
+    it('networkダイアグラムがnodesとedgesを持つこと', () => {
+      const violations = diagramEntries
+        .filter((e) => e.diagram.type === 'network')
+        .filter((e) => {
+          const d = e.diagram as Record<string, unknown>
+          return ((d.nodes as unknown[])?.length ?? 0) < 1 || !Array.isArray(d.edges)
+        })
+      expect(violations.map((e) => e.id)).toEqual([])
+    })
+
+    it('sequenceダイアグラムがactorsとmessagesを持つこと', () => {
+      const violations = diagramEntries
+        .filter((e) => e.diagram.type === 'sequence')
+        .filter((e) => {
+          const d = e.diagram as Record<string, unknown>
+          return ((d.actors as unknown[])?.length ?? 0) < 1 || ((d.messages as unknown[])?.length ?? 0) < 1
+        })
+      expect(violations.map((e) => e.id)).toEqual([])
+    })
+
+    it('treeダイアグラムがrootを持つこと', () => {
+      const violations = diagramEntries
+        .filter((e) => e.diagram.type === 'tree')
+        .filter((e) => !(e.diagram as Record<string, unknown>).root)
+      expect(violations.map((e) => e.id)).toEqual([])
+    })
+
+    it('formulaダイアグラムがcomponentsとresultを持つこと', () => {
+      const violations = diagramEntries
+        .filter((e) => e.diagram.type === 'formula')
+        .filter((e) => {
+          const d = e.diagram as Record<string, unknown>
+          return ((d.components as unknown[])?.length ?? 0) < 1 || !d.result
+        })
+      expect(violations.map((e) => e.id)).toEqual([])
+    })
+
+    it('matrixダイアグラムがrows,cols,cellsを持つこと', () => {
+      const violations = diagramEntries
+        .filter((e) => e.diagram.type === 'matrix')
+        .filter((e) => {
+          const d = e.diagram as Record<string, unknown>
+          return (
+            ((d.rows as unknown[])?.length ?? 0) < 1 ||
+            ((d.cols as unknown[])?.length ?? 0) < 1 ||
+            ((d.cells as unknown[])?.length ?? 0) < 1
+          )
+        })
+      expect(violations.map((e) => e.id)).toEqual([])
+    })
+
+    it('swimlaneダイアグラムがlanesを持つこと', () => {
+      const violations = diagramEntries
+        .filter((e) => e.diagram.type === 'swimlane')
+        .filter((e) => (((e.diagram as Record<string, unknown>).lanes as unknown[])?.length ?? 0) < 1)
+      expect(violations.map((e) => e.id)).toEqual([])
+    })
+  })
+
+  describe('ダイアグラムの完全性', () => {
+    it('すべての問題に diagrams 配列が存在すること', () => {
+      const violations = quizzes.filter((q) => {
+        const d = (q as Record<string, unknown>).diagrams
+        return !Array.isArray(d) || (d as unknown[]).length === 0
+      })
+      expect(violations.map((q) => q.id)).toEqual([])
+    })
+
+    it('すべての問題が2つのダイアグラムを持つこと', () => {
+      const violations = quizzes.filter((q) => {
+        const d = (q as Record<string, unknown>).diagrams
+        return !Array.isArray(d) || (d as unknown[]).length !== 2
+      })
+      expect(violations.map((q) => q.id)).toEqual([])
+    })
+
+    it('explanation の {{diagram:N}} 参照が diagrams 配列の範囲内であること', () => {
+      const violations: string[] = []
+      quizzes.forEach((q) => {
+        const diagramsLen = ((q as Record<string, unknown>).diagrams as unknown[] | undefined)?.length ?? 0
+        const refs = [...q.explanation.matchAll(/\{\{diagram:(\d+)\}\}/g)]
+        refs.forEach((match) => {
+          const idx = parseInt(match[1], 10)
+          if (idx >= diagramsLen) {
+            violations.push(`${q.id}: {{diagram:${idx}}} but diagrams.length=${diagramsLen}`)
+          }
+        })
+      })
+      expect(violations, `範囲外の diagram 参照: ${violations.join(', ')}`).toEqual([])
+    })
+
+    it('{{diagram:N}} に不正な形式がないこと', () => {
+      const violations: string[] = []
+      quizzes.forEach((q) => {
+        const malformed = [...q.explanation.matchAll(/\{\{diagram:[^}]*\}\}/g)]
+          .map((m) => m[0])
+          .filter((marker) => !/^\{\{diagram:\d+\}\}$/.test(marker))
+        if (malformed.length > 0) {
+          violations.push(`${q.id}: ${malformed.join(', ')}`)
+        }
+      })
+      expect(violations, `不正な diagram マーカー: ${violations.join(', ')}`).toEqual([])
+    })
   })
 
   // ── Scenario reference integrity ──────────────────────────

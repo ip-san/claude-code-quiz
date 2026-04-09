@@ -35,6 +35,7 @@ import { homedir } from 'os'
 import { basename, join } from 'path'
 import { classifyCliError } from '../src/infrastructure/recommend/classifyError'
 import { mergeReasons } from '../src/infrastructure/recommend/mergeReasons'
+import { isNewerVersion } from '../src/lib/isNewerVersion'
 import { electronLocale as loc } from './locale'
 import { analyzeUsageFromContents, getCachedRecommendData } from './recommend-handlers'
 
@@ -854,14 +855,7 @@ let cachedUpdateCheck: {
   releaseUrl: string | null
 } | null = null
 
-function isNewerVersion(latest: string, current: string): boolean {
-  const parse = (v: string): number[] => v.replace(/^v/, '').split('.').map(Number)
-  const [lMaj = 0, lMin = 0, lPat = 0] = parse(latest)
-  const [cMaj = 0, cMin = 0, cPat = 0] = parse(current)
-  if (lMaj !== cMaj) return lMaj > cMaj
-  if (lMin !== cMin) return lMin > cMin
-  return lPat > cPat
-}
+// isNewerVersion は src/lib/isNewerVersion.ts に抽出済み
 
 interface UpdateCheckResult {
   hasUpdate: boolean

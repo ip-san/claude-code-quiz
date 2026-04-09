@@ -7,6 +7,24 @@ import {
   validateUserProgress,
 } from './QuizValidator'
 
+/** Minimal valid diagrams fixture for test quiz items */
+const TEST_DIAGRAMS = [
+  {
+    type: 'flow' as const,
+    steps: [
+      { text: 'A', sub: '' },
+      { text: 'B', sub: '' },
+    ],
+  },
+  {
+    type: 'comparison' as const,
+    columns: [
+      { heading: 'X', items: ['a'] },
+      { heading: 'Y', items: ['b'] },
+    ],
+  },
+]
+
 describe('QuizValidator', () => {
   describe('validateQuizFile()', () => {
     it('should validate valid quiz file JSON', () => {
@@ -23,6 +41,7 @@ describe('QuizValidator', () => {
             explanation: 'Claude Code is a CLI tool.',
             category: 'tools',
             difficulty: 'beginner',
+            diagrams: TEST_DIAGRAMS,
           },
         ],
       })
@@ -45,6 +64,7 @@ describe('QuizValidator', () => {
           explanation: 'Test',
           category: 'tools',
           difficulty: 'beginner',
+          diagrams: TEST_DIAGRAMS,
         },
       ])
 
@@ -98,6 +118,7 @@ describe('QuizValidator', () => {
             explanation: 'Test',
             category: 'tools',
             difficulty: 'beginner',
+            diagrams: TEST_DIAGRAMS,
           },
         ],
       })
@@ -119,6 +140,7 @@ describe('QuizValidator', () => {
             explanation: 'Test',
             category: 'tools',
             difficulty: 'beginner',
+            diagrams: TEST_DIAGRAMS,
           },
         ],
       })
@@ -140,6 +162,7 @@ describe('QuizValidator', () => {
             explanation: 'Test',
             category: 'tools',
             difficulty: 'beginner',
+            diagrams: TEST_DIAGRAMS,
           },
         ],
       })
@@ -161,6 +184,7 @@ describe('QuizValidator', () => {
             explanation: 'Test',
             category: 'tools',
             difficulty: 'expert', // Invalid
+            diagrams: TEST_DIAGRAMS,
           },
         ],
       })
@@ -181,6 +205,7 @@ describe('QuizValidator', () => {
             explanation: 'Test',
             category: 'tools',
             difficulty: 'beginner',
+            diagrams: TEST_DIAGRAMS,
             referenceUrl: 'not-a-url',
           },
         ],
@@ -206,6 +231,7 @@ describe('QuizValidator', () => {
             explanation: 'Test',
             category: 'tools',
             difficulty: 'advanced',
+            diagrams: TEST_DIAGRAMS,
             referenceUrl: 'https://example.com',
             aiPrompt: 'Custom prompt',
             tags: ['tag1', 'tag2'],
@@ -337,6 +363,7 @@ describe('QuizValidator', () => {
             explanation: 'Test',
             category: 'tools',
             difficulty: 'beginner',
+            diagrams: TEST_DIAGRAMS,
           },
         ],
         createdAt: 1700000000000,
@@ -364,6 +391,7 @@ describe('QuizValidator', () => {
             explanation: 'Test',
             category: 'tools',
             difficulty: 'beginner',
+            diagrams: TEST_DIAGRAMS,
           },
         ],
         createdAt: 1700000000000,
@@ -390,6 +418,7 @@ describe('QuizValidator', () => {
             explanation: 'Test',
             category: 'tools',
             difficulty: 'beginner',
+            diagrams: TEST_DIAGRAMS,
           },
         ],
         createdAt: 1700000000000,
@@ -430,6 +459,7 @@ describe('QuizItemSchema', () => {
       aiPrompt: 'Explain Claude in detail.',
       category: 'tools',
       difficulty: 'beginner',
+      diagrams: TEST_DIAGRAMS,
       tags: ['ai', 'assistant'],
     }
 
@@ -447,6 +477,7 @@ describe('QuizItemSchema', () => {
       explanation: 'Test',
       category: 'tools',
       difficulty: 'beginner',
+      diagrams: TEST_DIAGRAMS,
     }
 
     const result = QuizItemSchema.safeParse(item)
@@ -467,6 +498,7 @@ describe('QuizFileSchema', () => {
           explanation: 'Test',
           category: 'tools',
           difficulty: 'beginner',
+          diagrams: TEST_DIAGRAMS,
         },
       ],
     }
@@ -490,6 +522,7 @@ describe('QuizFileSchema', () => {
           explanation: 'Test',
           category: 'tools',
           difficulty: 'intermediate',
+          diagrams: TEST_DIAGRAMS,
         },
       ],
     }

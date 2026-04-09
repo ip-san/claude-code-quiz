@@ -66,12 +66,11 @@ function SingleDiagram({ diagram }: { diagram: DiagramData }) {
 }
 
 interface DiagramRendererProps {
-  diagram?: DiagramData | undefined
-  diagrams?: readonly DiagramData[] | undefined
+  diagrams: readonly DiagramData[]
 }
 
-export function DiagramRenderer({ diagram, diagrams }: DiagramRendererProps) {
-  const items = diagrams && diagrams.length > 0 ? diagrams : diagram ? [diagram] : []
+export function DiagramRenderer({ diagrams }: DiagramRendererProps) {
+  const items = diagrams
   if (items.length === 0) return null
 
   return (
