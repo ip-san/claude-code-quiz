@@ -10,6 +10,7 @@ export type QuizModeId =
   | 'random'
   | 'quick'
   | 'weak'
+  | 'unanswered'
   | 'custom'
   | 'bookmark'
   | 'review'
@@ -34,6 +35,7 @@ export const ALL_MODE_IDS: readonly QuizModeId[] = [
   'random',
   'quick',
   'weak',
+  'unanswered',
   'custom',
   'bookmark',
   'review',
@@ -161,6 +163,16 @@ export const PREDEFINED_QUIZ_MODES: QuizMode[] = [
     description: '正答率の低い問題を優先出題',
     icon: '🔥',
     questionCount: 20,
+    timeLimit: null,
+    shuffleQuestions: true,
+    shuffleOptions: false,
+  }),
+  QuizMode.create({
+    id: 'unanswered',
+    name: '未正解に挑戦',
+    description: 'まだ正解していない問題をカテゴリ別に',
+    icon: '❓',
+    questionCount: null,
     timeLimit: null,
     shuffleQuestions: true,
     shuffleOptions: false,

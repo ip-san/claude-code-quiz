@@ -305,8 +305,19 @@ export interface LocaleConfig {
     readonly terminalReplay: string
     readonly terminalCopy: string
     readonly config: string
+    readonly network: string
+    readonly sequence: string
+    readonly layer: string
+    readonly swimlane: string
+    readonly venn: string
+    readonly matrix: string
+    readonly tree: string
+    readonly formula: string
     readonly highPriority: string
     readonly lowPriority: string
+    readonly outerOverrides: string
+    readonly innerBase: string
+    readonly time: string
     readonly switchTrigger: (trigger: string) => string
     readonly switchSuffix: string
   }

@@ -107,19 +107,175 @@ node scripts/fetch-docs.mjs --assemble --pages settings,checkpointing,overview,q
 - マーカーなしの場合は解説末尾にまとめて表示
 - 1問に最大3つまで
 
-**6つのタイプ:**
+**14のタイプ:**
 
 | タイプ | 用途 | フィールド |
 |--------|------|----------|
-| `hierarchy` | スコープ優先順位・階層 | `items: [{text, sub}]` |
+| `hierarchy` | スコープ優先順位・階層（ピラミッド型） | `items: [{text, sub}]` |
 | `flow` | 時系列・手順・パイプライン | `steps: [{text, sub}]` |
 | `cycle` | 循環状態遷移 | `trigger`, `states: [{text, sub}]` |
 | `comparison` | 比較・対照（2〜4カラム） | `columns: [{heading, items}]` |
 | `terminal` | コマンド実行例 | `lines: [{type, text}]` |
 | `config` | 設定ファイル例 | `filepath`, `lines: [{text, highlight?}]` |
+| `network` | 接続関係・アーキテクチャ（ボックス＆アロー） | `nodes: [{id, text, sub}]`, `edges: [{from, to, label, dashed?}]` |
+| `sequence` | アクター間メッセージの時系列 | `actors: [string]`, `messages: [{from, to, text, dashed?}]` |
+| `layer` | 入れ子の包含関係（外側が上書き） | `layers: [{text, sub}]` |
+| `swimlane` | 並列処理のタイムライン | `lanes: [{name, segments: [{start, end, text}]}]`, `totalSteps?` |
+| `venn` | 集合の重なり・概念の共通点（2〜3集合） | `sets: [{text, items?}]`, `intersectionLabel?` |
+| `matrix` | 2D Feature×条件グリッド（✓/✗/テキスト） | `rows: [string]`, `cols: [string]`, `cells: [[string]]`, `rowHeader?`, `colHeader?` |
+| `tree` | ディレクトリ構造・ファイルツリー | `root: {text, sub?, children?: [{text, sub?, children?}]}` |
+| `formula` | トークン計算・構成の内訳 | `result`, `components: [{text, sub?, highlight?}]`, `operator?` |
+
+**タイプの使い分けガイド:**
+
+- **接続関係** → `network`（MCP Client↔Server、Agent↔Tool、Plugin 構成図）
+- **リクエスト/レスポンスの時系列** → `sequence`（Hook 実行順序、MCP プロトコル、SDK フロー）
+- **スコープの包含・上書き関係** → `layer`（Settings 5段階、CLAUDE.md 4段階、Sandbox ネットワーク制御）
+- **並列実行の可視化** → `swimlane`（Agent Teams 並列起動、Ctrl+B バックグラウンド、CI/CD パイプライン）
+- **概念の重なり・境界** → `venn`（Skills vs Agents、Permission modes、Hook vs Plugin の機能範囲）
+- **優先度の上下関係** → `hierarchy`（既存。layer と迷った場合: 上書き関係=layer、単なる重要度順=hierarchy）
+- **手順の逐次実行** → `flow`（既存。sequence と迷った場合: 複数アクター間=sequence、単一プロセス=flow）
+- **Feature×条件の対応表** → `matrix`（comparison と迷った場合: 2軸のグリッド=matrix、カラム別リスト=comparison）
+- **ディレクトリ構造** → `tree`（`.claude/` フォルダ構成、プロジェクト構造、ファイルの配置場所）
+- **計算式・構成内訳** → `formula`（トークン計算、コンテキストウィンドウ構成、スコア算出方法）
 
 構造的概念を含む問題にのみ追加。単純な事実確認には不要。
 図+ターミナルなど、複数ダイアグラムの組み合わせも有効。
+
+**`network` の例:**
+```json
+{
+  "type": "network",
+  "label": "MCP アーキテクチャ",
+  "nodes": [
+    { "id": "client", "text": "Claude Code", "sub": "MCP Client" },
+    { "id": "server", "text": "MCP Server", "sub": "外部ツール" },
+    { "id": "tool", "text": "Tool A" }
+  ],
+  "edges": [
+    { "from": "client", "to": "server", "label": "request" },
+    { "from": "server", "to": "client", "label": "response", "dashed": true },
+    { "from": "server", "to": "tool", "label": "execute" }
+  ]
+}
+```
+
+**`sequence` の例:**
+```json
+{
+  "type": "sequence",
+  "label": "Hook 実行フロー",
+  "actors": ["User", "Claude", "Hook", "Tool"],
+  "messages": [
+    { "from": 0, "to": 1, "text": "prompt" },
+    { "from": 1, "to": 2, "text": "PreToolUse" },
+    { "from": 2, "to": 1, "text": "allow", "dashed": true },
+    { "from": 1, "to": 3, "text": "execute" },
+    { "from": 3, "to": 1, "text": "result", "dashed": true },
+    { "from": 1, "to": 2, "text": "PostToolUse" }
+  ]
+}
+```
+
+**`layer` の例:**
+```json
+{
+  "type": "layer",
+  "label": "Settings スコープ（外側が優先）",
+  "layers": [
+    { "text": "Managed", "sub": "企業管理者" },
+    { "text": "CLI flags", "sub": "--model 等" },
+    { "text": "Local", "sub": ".claude/settings.local.json" },
+    { "text": "Project", "sub": ".claude/settings.json" },
+    { "text": "User", "sub": "~/.claude/settings.json" }
+  ]
+}
+```
+
+**`swimlane` の例:**
+```json
+{
+  "type": "swimlane",
+  "label": "Agent Teams 並列実行",
+  "lanes": [
+    { "name": "Explore", "segments": [{ "start": 0, "end": 3, "text": "調査" }] },
+    { "name": "Test", "segments": [{ "start": 1, "end": 5, "text": "テスト実行" }] },
+    { "name": "Review", "segments": [{ "start": 3, "end": 6, "text": "レビュー" }] }
+  ],
+  "totalSteps": 6
+}
+```
+
+**`venn` の例:**
+```json
+{
+  "type": "venn",
+  "label": "Skills と Agents の関係",
+  "sets": [
+    { "text": "Skills", "items": ["プロンプト定義", "引数対応"] },
+    { "text": "Agents", "items": ["並列実行", "worktree分離"] }
+  ],
+  "intersectionLabel": "再利用可能な自動化"
+}
+```
+
+**`matrix` の例:**
+```json
+{
+  "type": "matrix",
+  "label": "パーミッションモード別の機能",
+  "rowHeader": "機能",
+  "colHeader": "モード",
+  "rows": ["ファイル編集", "Bash実行", "MCP呼び出し"],
+  "cols": ["plan", "default", "auto"],
+  "cells": [
+    ["✗", "確認あり", "✓"],
+    ["✗", "確認あり", "✓"],
+    ["✗", "確認あり", "✓"]
+  ]
+}
+```
+
+**`tree` の例:**
+```json
+{
+  "type": "tree",
+  "label": ".claude/ ディレクトリ構成",
+  "root": {
+    "text": ".claude/",
+    "children": [
+      { "text": "settings.json", "sub": "プロジェクト設定" },
+      { "text": "settings.local.json", "sub": "ローカル設定" },
+      {
+        "text": "skills/",
+        "children": [
+          { "text": "my-skill/", "children": [
+            { "text": "SKILL.md", "sub": "スキル定義" }
+          ]}
+        ]
+      },
+      { "text": "agents/", "children": [
+        { "text": "reviewer.md", "sub": "エージェント定義" }
+      ]}
+    ]
+  }
+}
+```
+
+**`formula` の例:**
+```json
+{
+  "type": "formula",
+  "label": "コンテキスト使用率の計算",
+  "result": "used_percentage",
+  "components": [
+    { "text": "input_tokens", "sub": "入力" },
+    { "text": "cache_creation", "sub": "キャッシュ作成" },
+    { "text": "cache_read", "sub": "キャッシュ読取" }
+  ],
+  "operator": "+"
+}
+```
 
 ## Categories (8 categories)
 

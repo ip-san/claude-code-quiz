@@ -390,25 +390,52 @@ node scripts/quiz-utils.mjs merge-proposals
 - **severity: info**（機械チェック `quiz:lint distractor` と併用）
 
 ### I. ダイアグラムの品質（diagrams フィールド）
-- `diagrams` 配列がある場合、各ダイアグラムのタイプが問題の概念に合っているか（hierarchy=階層/優先順位, flow=手順/時系列, cycle=循環状態, comparison=比較対照, terminal=コマンド例, config=設定例）
-- diagrams の `items`/`steps`/`states`/`columns`/`lines` の内容が explanation と一致しているか
+- `diagrams` 配列がある場合、各ダイアグラムのタイプが問題の概念に合っているか
+  - **テキストベース（6種）:** hierarchy=階層/優先順位, flow=手順/時系列, cycle=循環状態, comparison=比較対照, terminal=コマンド例, config=設定例
+  - **グラフィカル（5種）:** network=接続関係/アーキテクチャ, sequence=アクター間メッセージ時系列, layer=入れ子包含関係, swimlane=並列処理タイムライン, venn=集合の重なり
+  - **データ表現（3種）:** matrix=2D Feature×条件グリッド, tree=ディレクトリ構造/ファイルツリー, formula=トークン計算/構成内訳
+- diagrams のデータフィールド内容が explanation と一致しているか
+  - テキストベース: `items`/`steps`/`states`/`columns`/`lines`
+  - グラフィカル: `nodes`+`edges`/`actors`+`messages`/`layers`/`lanes`/`sets`
+  - データ表現: `rows`+`cols`+`cells`/`root`(再帰)/`result`+`components`
 - diagrams の `label` が概念を正確に表現しているか
 - diagrams の `sub` テキストが正確な情報か（25文字以内推奨）
 - cycle の `trigger` が正しいキー/コマンドか
-- **マーカーチェック**: explanation 中の `{{diagram:N}}` マーカーが `diagrams[N]` に対応しているか。範囲外の��ンデックス参照がないか
+- network の `edges` の `from`/`to` が `nodes` の `id` と一致しているか
+- sequence の `messages` の `from`/`to` が `actors` 配列のインデックス範囲内か
+- venn の `sets` が2〜3個の範囲内か
+- **マーカーチェック**: explanation 中の `{{diagram:N}}` マーカーが `diagrams[N]` に対応しているか。範囲外のインデックス参照がないか
 - **マーカー位置**: マーカーが解説の「導入/概念説明」と「詳細/補足」の間に配置されているか
 - **冗長性チェック**: 解説が80字未満で図が解説の単なる繰り返しになっていないか → 該当する場合は diagrams 削除を提案
-- **過密チェック**: comparison列が5個以上、flow/hierarchyの要素が6個以上は情報過多 → グループ化や列統合を提案
-- **severity:** major=内容がドキュメントと不一致/マーカー範囲外, info=label改善・冗長性・過密の指摘
+- **過密チェック**: comparison列が5個以上、flow/hierarchyの要素が6個以上、network ノードが8個以上、sequence メッセージが10個以上は情報過多 → グループ化や簡略化を提案
+- **タイプ適合チェック**: より適切なタイプがないか確認（例: 上書き関係を hierarchy で表現 → layer が適切、複数アクター間の手順を flow で表現 → sequence が適切）
+- **severity:** major=内容がドキュメントと不一致/マーカー範囲外/ID参照不一致, info=label改善・冗長性・過密・タイプ変更の指摘
 
 ### J. ダイアグラム追加の検討（diagrams なしの問題）
 - explanation が以下のパターンを含む場合、diagrams 追加を提案する:
   - **flow**: 手順・プロセス・ワークフロー（「まず→次に→最後に」「ステップ」「フロー」）
-  - **hierarchy**: 優先順位・スコープ階層・レイヤー（「優先」「上位→下位」「override」）
+  - **hierarchy**: 優先度の上下関係（「高い→低い」「重要度」）
   - **comparison**: 2つ以上の対比（「一方…他方」「X vs Y」「違い」「に対して」）
   - **cycle**: 繰り返しプロセス（「サイクル」「ループ」「繰り返し」）
   - **terminal**: コマンド実行例（「コマンド」「入力」「実行」+ 既存ダイアグラムとの組み合わせ）
   - **config**: 設定ファイル例（「設定」「config」「json/yaml」）
+  - **network**: コンポーネント間の接続（「接続」「通信」「アーキテクチャ」「Client↔Server」「ツール連携」）
+  - **sequence**: 複数アクター間のやり取り（「リクエスト→レスポンス」「Hook実行順序」「プロトコル」「イベント発火→処理→結果」）
+  - **layer**: スコープの包含・上書き関係（「上書き」「override」「スコープ」「外側→内側」「Managed > Project > User」）
+  - **swimlane**: 並列処理（「同時に」「並列」「バックグラウンド」「Agent Teams」）
+  - **venn**: 概念の共通点と差異（「共通」「重なり」「境界」「Skills と Agents の違い」「機能の範囲」）
+  - **matrix**: 2軸の対応関係（「〜別に見ると」「モードごとに」「✓/✗」「対応/非対応」「プラットフォーム別」）
+  - **tree**: ディレクトリ構造・ファイル配置（「`.claude/`」「ディレクトリ構成」「フォルダ」「ファイル配置」）
+  - **formula**: 計算式・構成要素（「計算」「算出」「構成」「トークン」「合計」「内訳」）
+- **タイプ選択の優先ルール（迷った場合）:**
+  - 上書き/包含関係 → `layer`（hierarchy ではなく layer）
+  - 複数アクター間の時系列 → `sequence`（flow ではなく sequence）
+  - コンポーネント間の双方向通信 → `network`（flow ではなく network）
+  - 概念の重なりを示したい → `venn`（comparison ではなく venn）
+  - 並列実行を時間軸で見せたい → `swimlane`（flow ではなく swimlane）
+  - 2軸のグリッドで対応関係 → `matrix`（comparison ではなく matrix）
+  - ディレクトリ構造・ファイルツリー → `tree`（hierarchy ではなく tree）
+  - 計算式や構成内訳 → `formula`（flow ではなく formula）
 - 複数ダイアグラムの組み合わせ（図+ターミナル例など）も積極的に提案
 - 以下の場合は追加しない:
   - 解説が80字未満（情報が少なすぎて図が冗長になる）

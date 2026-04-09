@@ -104,6 +104,8 @@ export const DOC_PAGES = [
   // Auto-discovered from llms.txt (2026-04-04)
   { name: 'desktop-scheduled-tasks', url: 'https://code.claude.com/docs/en/desktop-scheduled-tasks' },
   { name: 'ultraplan', url: 'https://code.claude.com/docs/en/ultraplan' },
+  // Auto-discovered from llms.txt (2026-04-09)
+  { name: 'web-quickstart', url: 'https://code.claude.com/docs/en/web-quickstart' },
   // Agent SDK (different domain)
   { name: 'agent-sdk-overview', url: 'https://platform.claude.com/docs/en/agent-sdk/overview' },
 ]

@@ -9,6 +9,7 @@ import {
   HelpCircle,
   Layers,
   List,
+  ListChecks,
   Menu,
   Moon,
   RefreshCw,
@@ -58,6 +59,7 @@ export function MenuHeader({
   const [updateStatus, setUpdateStatus] = useState<'checking' | 'latest' | 'error' | null>(null)
   const updateTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
   const [showCategoryPicker, setShowCategoryPicker] = useState(false)
+  const [showUnansweredPicker, setShowUnansweredPicker] = useState(false)
 
   // 外部からメニューを開く（クイズモード展開状態）
   useEffect(() => {
@@ -246,7 +248,12 @@ export function MenuHeader({
                 {modesExpanded && (
                   <div className="pb-1">
                     {PREDEFINED_QUIZ_MODES.filter(
-                      (m) => m.id !== 'review' && m.id !== 'bookmark' && m.id !== 'scenario' && m.id !== 'quick'
+                      (m) =>
+                        m.id !== 'review' &&
+                        m.id !== 'bookmark' &&
+                        m.id !== 'scenario' &&
+                        m.id !== 'quick' &&
+                        m.id !== 'unanswered'
                     ).map((mode) => (
                       <button
                         key={mode.id}
@@ -275,6 +282,16 @@ export function MenuHeader({
                   label={locale.menuHeader.scenarioLabel}
                   sublabel={locale.menuHeader.scenarioDesc}
                   onClick={() => handleMenuAction(() => setViewState('scenarioSelect'))}
+                />
+                <MenuItem
+                  icon={<ListChecks className="h-4.5 w-4.5" />}
+                  label={locale.menuHeader.unansweredChallenge}
+                  sublabel={locale.menuHeader.unansweredChallengeDesc}
+                  onClick={() => {
+                    haptics.light()
+                    setMenuOpen(false)
+                    setShowUnansweredPicker(true)
+                  }}
                 />
                 <MenuItem
                   icon={<BookOpenCheck className="h-4.5 w-4.5" />}
@@ -387,6 +404,13 @@ export function MenuHeader({
 
       <KeyboardShortcutHelp isOpen={showShortcuts} onClose={() => setShowShortcuts(false)} />
       {showCategoryPicker && <CategoryPicker onClose={() => setShowCategoryPicker(false)} />}
+      {showUnansweredPicker && (
+        <CategoryPicker
+          onClose={() => setShowUnansweredPicker(false)}
+          mode="unanswered"
+          title={locale.menuHeader.unansweredChallenge}
+        />
+      )}
     </>
   )
 }

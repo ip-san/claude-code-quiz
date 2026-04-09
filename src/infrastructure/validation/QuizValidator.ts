@@ -136,6 +136,123 @@ const ConfigDiagramSchema = z.object({
   lines: z.array(ConfigLineSchema).min(1).max(15),
 })
 
+const NetworkNodeSchema = z.object({
+  id: z.string().min(1),
+  text: z.string().min(1),
+  sub: z.string().optional(),
+})
+
+const NetworkEdgeSchema = z.object({
+  from: z.string().min(1),
+  to: z.string().min(1),
+  label: z.string().optional(),
+  dashed: z.boolean().optional(),
+})
+
+const NetworkDiagramSchema = z.object({
+  type: z.literal('network'),
+  label: z.string().optional(),
+  nodes: z.array(NetworkNodeSchema).min(2).max(12),
+  edges: z.array(NetworkEdgeSchema).min(1).max(20),
+})
+
+const SequenceMessageSchema = z.object({
+  from: z.number().int().min(0),
+  to: z.number().int().min(0),
+  text: z.string().min(1),
+  dashed: z.boolean().optional(),
+})
+
+const SequenceDiagramSchema = z.object({
+  type: z.literal('sequence'),
+  label: z.string().optional(),
+  actors: z.array(z.string().min(1)).min(2).max(6),
+  messages: z.array(SequenceMessageSchema).min(1).max(12),
+})
+
+const LayerDiagramSchema = z.object({
+  type: z.literal('layer'),
+  label: z.string().optional(),
+  layers: z.array(DiagramItemSchema).min(2).max(8),
+})
+
+const SwimlaneLaneSchema = z.object({
+  name: z.string().min(1),
+  segments: z
+    .array(
+      z.object({
+        start: z.number().min(0),
+        end: z.number().min(0),
+        text: z.string().optional(),
+      })
+    )
+    .min(1)
+    .max(6),
+})
+
+const SwimlaneDiagramSchema = z.object({
+  type: z.literal('swimlane'),
+  label: z.string().optional(),
+  lanes: z.array(SwimlaneLaneSchema).min(2).max(8),
+  totalSteps: z.number().min(1).optional(),
+})
+
+const VennSetSchema = z.object({
+  text: z.string().min(1),
+  items: z.array(z.string().min(1)).optional(),
+})
+
+const VennDiagramSchema = z.object({
+  type: z.literal('venn'),
+  label: z.string().optional(),
+  sets: z.array(VennSetSchema).min(2).max(3),
+  intersectionLabel: z.string().optional(),
+})
+
+const MatrixDiagramSchema = z.object({
+  type: z.literal('matrix'),
+  label: z.string().optional(),
+  rowHeader: z.string().optional(),
+  colHeader: z.string().optional(),
+  rows: z.array(z.string().min(1)).min(2).max(10),
+  cols: z.array(z.string().min(1)).min(2).max(8),
+  cells: z.array(z.array(z.string())),
+})
+
+interface TreeNodeInput {
+  text: string
+  sub?: string | undefined
+  children?: TreeNodeInput[] | undefined
+}
+
+const TreeNodeSchema: z.ZodType<TreeNodeInput> = z.lazy(() =>
+  z.object({
+    text: z.string().min(1),
+    sub: z.string().optional(),
+    children: z.array(TreeNodeSchema).optional(),
+  })
+)
+
+const TreeDiagramSchema = z.object({
+  type: z.literal('tree'),
+  label: z.string().optional(),
+  root: TreeNodeSchema,
+})
+
+const FormulaComponentSchema = z.object({
+  text: z.string().min(1),
+  sub: z.string().optional(),
+  highlight: z.boolean().optional(),
+})
+
+const FormulaDiagramSchema = z.object({
+  type: z.literal('formula'),
+  label: z.string().optional(),
+  result: z.string().min(1),
+  components: z.array(FormulaComponentSchema).min(2).max(8),
+  operator: z.string().optional(),
+})
+
 export const DiagramSchema = z.discriminatedUnion('type', [
   HierarchyDiagramSchema,
   FlowDiagramSchema,
@@ -143,6 +260,14 @@ export const DiagramSchema = z.discriminatedUnion('type', [
   ComparisonDiagramSchema,
   TerminalDiagramSchema,
   ConfigDiagramSchema,
+  NetworkDiagramSchema,
+  SequenceDiagramSchema,
+  LayerDiagramSchema,
+  SwimlaneDiagramSchema,
+  VennDiagramSchema,
+  MatrixDiagramSchema,
+  TreeDiagramSchema,
+  FormulaDiagramSchema,
 ])
 
 export type DiagramData = z.infer<typeof DiagramSchema>

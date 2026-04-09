@@ -158,6 +158,66 @@ describe('Electron Packaging: Build configuration', () => {
   })
 })
 
+describe('Electron Packaging: asarUnpack consistency', () => {
+  const asarUnpack = packageJson.build.asarUnpack as string[]
+  const buildFiles = packageJson.build.files as string[]
+
+  it('every asarUnpack pattern is also in build.files', () => {
+    // files に含まれないパターンは ASAR に入らないため unpack 指定が無意味
+    for (const pattern of asarUnpack) {
+      expect(buildFiles, `asarUnpack pattern "${pattern}" is missing from build.files`).toContain(pattern)
+    }
+  })
+
+  it('all getUnpackedPath() file accesses are covered by asarUnpack', () => {
+    // getUnpackedPath() 経由でアクセスされるファイルを静的解析で抽出
+    const unpackedAccesses = [
+      ...mainSource.matchAll(/join\(getUnpackedPath\(\)\s*,\s*['"]([^'"]+)['"]\s*(?:,\s*['"]([^'"]+)['"])*/g),
+    ]
+    expect(unpackedAccesses.length).toBeGreaterThan(0)
+
+    for (const match of unpackedAccesses) {
+      const topDir = match[1] // e.g. 'scripts', 'src', '.claude'
+      const covered = asarUnpack.some((pattern) => pattern.startsWith(topDir) || pattern.startsWith(`.${topDir}`))
+      expect(covered, `getUnpackedPath() access to "${match[0]}" not covered by asarUnpack`).toBe(true)
+    }
+  })
+
+  it('getUnpackedPath() as cwd requires .claude/skills to be unpacked', () => {
+    // recommend skill は getUnpackedPath() を cwd として実行する
+    expect(mainSource).toContain('cwd: getUnpackedPath()')
+    expect(asarUnpack).toContainEqual(expect.stringContaining('.claude/skills'))
+  })
+})
+
+describe('Electron Packaging: getUnpackedPath() enforcement', () => {
+  it('does not use app.getAppPath() for files that need unpacking', () => {
+    // getUnpackedPath() 定義行と loadFile/appRoot（ASAR内で読めるファイル）を除外し、
+    // app.getAppPath() が scripts/ や src/data/ へのアクセスに使われていないことを検証
+    const lines = mainSource.split('\n')
+    const violations: string[] = []
+    for (let i = 0; i < lines.length; i++) {
+      const line = lines[i]
+      if (!line.includes('app.getAppPath()')) continue
+      // 許可: getUnpackedPath() の定義内
+      if (line.includes('.replace(')) continue
+      // 許可: loadFile (dist/ は ASAR 内で読める)
+      if (line.includes('loadFile')) continue
+      // 許可: appRoot 定義（build/ アイコンは ASAR 内で読める）
+      if (line.includes('appRoot')) continue
+      // 許可: notificationIcon（build/ アイコン）
+      if (line.includes('icon')) continue
+      // 許可: コメント行
+      if (line.trimStart().startsWith('//') || line.trimStart().startsWith('*')) continue
+      violations.push(`line ${i + 1}: ${line.trim()}`)
+    }
+    expect(
+      violations,
+      `app.getAppPath() used where getUnpackedPath() should be:\n${violations.join('\n')}`
+    ).toHaveLength(0)
+  })
+})
+
 describe('Electron Security: PATH modification safety', () => {
   it('only adds well-known paths', () => {
     // Extract PATH modification block

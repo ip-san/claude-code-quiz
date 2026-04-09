@@ -3,8 +3,16 @@ import { ComparisonDiagram } from './ComparisonDiagram'
 import { ConfigDiagram } from './ConfigDiagram'
 import { CycleDiagram } from './CycleDiagram'
 import { FlowDiagram } from './FlowDiagram'
+import { FormulaDiagram } from './FormulaDiagram'
 import { HierarchyDiagram } from './HierarchyDiagram'
+import { LayerDiagram } from './LayerDiagram'
+import { MatrixDiagram } from './MatrixDiagram'
+import { NetworkDiagram } from './NetworkDiagram'
+import { SequenceDiagram } from './SequenceDiagram'
+import { SwimlaneDiagram } from './SwimlaneDiagram'
 import { TerminalDiagram } from './TerminalDiagram'
+import { TreeDiagram } from './TreeDiagram'
+import { VennDiagram } from './VennDiagram'
 
 function SingleDiagram({ diagram }: { diagram: DiagramData }) {
   switch (diagram.type) {
@@ -20,6 +28,38 @@ function SingleDiagram({ diagram }: { diagram: DiagramData }) {
       return <TerminalDiagram label={diagram.label} lines={diagram.lines} />
     case 'config':
       return <ConfigDiagram label={diagram.label} filepath={diagram.filepath} lines={diagram.lines} />
+    case 'network':
+      return <NetworkDiagram label={diagram.label} nodes={diagram.nodes} edges={diagram.edges} />
+    case 'sequence':
+      return <SequenceDiagram label={diagram.label} actors={diagram.actors} messages={diagram.messages} />
+    case 'layer':
+      return <LayerDiagram label={diagram.label} layers={diagram.layers} />
+    case 'swimlane':
+      return <SwimlaneDiagram label={diagram.label} lanes={diagram.lanes} totalSteps={diagram.totalSteps} />
+    case 'venn':
+      return <VennDiagram label={diagram.label} sets={diagram.sets} intersectionLabel={diagram.intersectionLabel} />
+    case 'matrix':
+      return (
+        <MatrixDiagram
+          label={diagram.label}
+          rowHeader={diagram.rowHeader}
+          colHeader={diagram.colHeader}
+          rows={diagram.rows}
+          cols={diagram.cols}
+          cells={diagram.cells}
+        />
+      )
+    case 'tree':
+      return <TreeDiagram label={diagram.label} root={diagram.root} />
+    case 'formula':
+      return (
+        <FormulaDiagram
+          label={diagram.label}
+          result={diagram.result}
+          components={diagram.components}
+          operator={diagram.operator}
+        />
+      )
     default:
       return null
   }

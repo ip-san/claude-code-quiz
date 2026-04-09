@@ -441,7 +441,22 @@ describe('Quiz Content Quality', () => {
     const diagramEntries = quizzes.flatMap((q) => (q.diagrams ?? []).map((d) => ({ id: q.id, diagram: d })))
 
     it('diagramフィールドが有効なtypeを持つこと', () => {
-      const validTypes = ['hierarchy', 'flow', 'cycle', 'comparison', 'terminal', 'config']
+      const validTypes = [
+        'hierarchy',
+        'flow',
+        'cycle',
+        'comparison',
+        'terminal',
+        'config',
+        'network',
+        'sequence',
+        'layer',
+        'swimlane',
+        'venn',
+        'matrix',
+        'tree',
+        'formula',
+      ]
       const violations = diagramEntries.filter((e) => !validTypes.includes(e.diagram.type))
       expect(violations.map((e) => e.id)).toEqual([])
     })
