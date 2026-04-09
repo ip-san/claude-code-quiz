@@ -1,5 +1,6 @@
 import { Bookmark, ExternalLink, Lightbulb, RotateCcw } from 'lucide-react'
 import { useEffect, useMemo, useRef, useState } from 'react'
+import { useShallow } from 'zustand/react/shallow'
 import { locale } from '@/config/locale'
 import { AdaptiveDifficultyService } from '@/domain/services/AdaptiveDifficultyService'
 import { QuizSessionService } from '@/domain/services/QuizSessionService'
@@ -48,7 +49,25 @@ export function QuizCard({
     useHint,
     dismissChapterIntro,
     dismissChapterComplete,
-  } = useQuizStore()
+  } = useQuizStore(
+    useShallow((state) => ({
+      getCurrentQuestion: state.getCurrentQuestion,
+      sessionState: state.sessionState,
+      selectAnswer: state.selectAnswer,
+      toggleAnswer: state.toggleAnswer,
+      submitAnswer: state.submitAnswer,
+      nextQuestion: state.nextQuestion,
+      previousQuestion: state.previousQuestion,
+      goToQuestion: state.goToQuestion,
+      finishTest: state.finishTest,
+      retryQuestion: state.retryQuestion,
+      endSession: state.endSession,
+      toggleBookmark: state.toggleBookmark,
+      useHint: state.useHint,
+      dismissChapterIntro: state.dismissChapterIntro,
+      dismissChapterComplete: state.dismissChapterComplete,
+    }))
+  )
 
   const quiz = getCurrentQuestion()
   const selectedAnswer = sessionState?.selectedAnswer ?? null

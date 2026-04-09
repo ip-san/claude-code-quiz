@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { useShallow } from 'zustand/react/shallow'
 import { locale } from '@/config/locale'
 import { theme } from '@/config/theme'
 import { getMasteryLevel } from '@/domain/services/MasteryLevelService'
@@ -22,7 +23,9 @@ interface CertificateGeneratorProps {
 export function CertificateGenerator({ score, total, percentage, mode }: CertificateGeneratorProps) {
   const [name, setName] = useCertificateName()
   const [generating, setGenerating] = useState(false)
-  const { userProgress, getCategoryStats } = useQuizStore()
+  const { userProgress, getCategoryStats } = useQuizStore(
+    useShallow((state) => ({ userProgress: state.userProgress, getCategoryStats: state.getCategoryStats }))
+  )
 
   const isEligible = isCertificateEligible(mode, percentage)
   if (!isEligible) return null

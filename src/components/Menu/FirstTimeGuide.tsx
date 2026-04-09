@@ -1,4 +1,5 @@
 import { BookOpen, ChevronRight, Map as MapIcon } from 'lucide-react'
+import { useShallow } from 'zustand/react/shallow'
 import { locale } from '@/config/locale'
 import { haptics } from '@/lib/haptics'
 import { useQuizStore } from '@/stores/quizStore'
@@ -18,7 +19,9 @@ interface FirstTimeGuideProps {
  * - 「すでに活用されている方へ」→ ハンバーガーメニューをクイズモード展開状態で開く
  */
 export function FirstTimeGuide({ onOpenModes }: FirstTimeGuideProps) {
-  const { startSession, setViewState } = useQuizStore()
+  const { startSession, setViewState } = useQuizStore(
+    useShallow((state) => ({ startSession: state.startSession, setViewState: state.setViewState }))
+  )
 
   return (
     <div className="mb-5 space-y-3">

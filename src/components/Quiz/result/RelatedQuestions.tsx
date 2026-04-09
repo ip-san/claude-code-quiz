@@ -1,5 +1,6 @@
 import { ArrowRight } from 'lucide-react'
 import { useMemo } from 'react'
+import { useShallow } from 'zustand/react/shallow'
 import { locale } from '@/config/locale'
 import type { Question } from '@/domain/entities/Question'
 import { getDifficultyLabel } from '@/lib/badgeStyles'
@@ -17,7 +18,9 @@ interface RelatedQuestionsProps {
  * 理解を段階的に深める導線を作る。
  */
 export function RelatedQuestions({ currentQuestion, allQuestions }: RelatedQuestionsProps) {
-  const { userProgress, startSessionWithIds } = useQuizStore()
+  const { userProgress, startSessionWithIds } = useQuizStore(
+    useShallow((state) => ({ userProgress: state.userProgress, startSessionWithIds: state.startSessionWithIds }))
+  )
 
   const related = useMemo(() => {
     // 同じカテゴリで未回答 or 不正解の問題を優先

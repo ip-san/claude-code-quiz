@@ -12,6 +12,7 @@ import {
   XCircle,
 } from 'lucide-react'
 import { useEffect, useState } from 'react'
+import { useShallow } from 'zustand/react/shallow'
 import { locale } from '@/config/locale'
 import type { Question } from '@/domain/entities/Question'
 import { platformAPI } from '@/lib/platformAPI'
@@ -78,7 +79,9 @@ function AnimatedSection({
 }
 
 export function Feedback({ quiz, isCorrect }: FeedbackProps) {
-  const { sessionState, userProgress } = useQuizStore()
+  const { sessionState, userProgress } = useQuizStore(
+    useShallow((state) => ({ sessionState: state.sessionState, userProgress: state.userProgress }))
+  )
   const [copied, setCopied] = useState(false)
   const [markdownCopied, setMarkdownCopied] = useState(false)
   const [animate, setAnimate] = useState(false)

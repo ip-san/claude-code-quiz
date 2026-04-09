@@ -1,5 +1,6 @@
 import { ChevronDown, ChevronUp } from 'lucide-react'
 import { useCallback, useEffect, useRef, useState } from 'react'
+import { useShallow } from 'zustand/react/shallow'
 import { locale } from '@/config/locale'
 import { getMasteryLevel } from '@/domain/services/MasteryLevelService'
 import { SessionInsightService } from '@/domain/services/SessionInsightService'
@@ -28,7 +29,18 @@ export function ProgressDashboard() {
     resetUserProgress,
     loadUserProgress,
     exportProgressCsv,
-  } = useQuizStore()
+  } = useQuizStore(
+    useShallow((state) => ({
+      allQuestions: state.allQuestions,
+      userProgress: state.userProgress,
+      getCategoryStats: state.getCategoryStats,
+      setViewState: state.setViewState,
+      startSession: state.startSession,
+      resetUserProgress: state.resetUserProgress,
+      loadUserProgress: state.loadUserProgress,
+      exportProgressCsv: state.exportProgressCsv,
+    }))
+  )
 
   const [exportStatus, setExportStatus] = useState<string | null>(null)
   const [showCharts, setShowCharts] = useState(false)

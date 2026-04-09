@@ -1,5 +1,6 @@
 import { ArrowRight, BookOpen } from 'lucide-react'
 import { useEffect, useMemo, useState } from 'react'
+import { useShallow } from 'zustand/react/shallow'
 import { QuizCard } from '@/components/Quiz/QuizCard'
 import { locale } from '@/config/locale'
 import { SCENARIOS, type ScenarioData } from '@/data/scenarios'
@@ -37,7 +38,9 @@ function ScenarioNarrative({ text, onNext, stepLabel }: { text: string; onNext: 
  * 4. User dismisses epilogue → nextQuestion() → result screen
  */
 export function ScenarioView({ scenario, isModalOpen }: { scenario: ScenarioData; isModalOpen: boolean }) {
-  const { sessionState, nextQuestion } = useQuizStore()
+  const { sessionState, nextQuestion } = useQuizStore(
+    useShallow((state) => ({ sessionState: state.sessionState, nextQuestion: state.nextQuestion }))
+  )
   const currentQuestionIndex = sessionState?.currentIndex ?? 0
 
   const questionCount = scenario.steps.filter((s) => s.type === 'question').length
@@ -135,7 +138,9 @@ export function ScenarioView({ scenario, isModalOpen }: { scenario: ScenarioData
 
 /** Scenario selection list for menu */
 export function ScenarioList({ onSelect }: { onSelect: (scenarioId: string) => void }) {
-  const { userProgress, allQuestions } = useQuizStore()
+  const { userProgress, allQuestions } = useQuizStore(
+    useShallow((state) => ({ userProgress: state.userProgress, allQuestions: state.allQuestions }))
+  )
 
   return (
     <div className="space-y-3">

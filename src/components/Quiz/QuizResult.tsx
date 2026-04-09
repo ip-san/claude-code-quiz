@@ -1,5 +1,6 @@
 import { ArrowRight, BookOpen, ChevronDown, Home, RotateCcw, Share2, Star, Target } from 'lucide-react'
 import { useEffect, useMemo, useState } from 'react'
+import { useShallow } from 'zustand/react/shallow'
 import { locale } from '@/config/locale'
 import { theme } from '@/config/theme'
 import { DailyGoalService } from '@/domain/services/DailyGoalService'
@@ -39,7 +40,20 @@ export function QuizResult() {
     sessionWrongAnswers,
     userProgress,
     getCategoryStats,
-  } = useQuizStore()
+  } = useQuizStore(
+    useShallow((state) => ({
+      sessionState: state.sessionState,
+      endSession: state.endSession,
+      allQuestions: state.allQuestions,
+      startSession: state.startSession,
+      retrySession: state.retrySession,
+      startReviewSession: state.startReviewSession,
+      sessionConfig: state.sessionConfig,
+      sessionWrongAnswers: state.sessionWrongAnswers,
+      userProgress: state.userProgress,
+      getCategoryStats: state.getCategoryStats,
+    }))
+  )
 
   const categoryStats = useMemo(() => getCategoryStats(), [getCategoryStats])
 

@@ -1,5 +1,6 @@
 import { ArrowLeft, XCircle } from 'lucide-react'
 import { lazy, Suspense, useCallback, useEffect, useMemo, useRef, useState } from 'react'
+import { useShallow } from 'zustand/react/shallow'
 import { AppLogo } from '@/components/Layout/AppLogo'
 import { InstallPrompt } from '@/components/Layout/InstallPrompt'
 import { OfflineIndicator } from '@/components/Layout/OfflineIndicator'
@@ -60,7 +61,18 @@ export default function App() {
     endSession,
     suspendSession,
     startSessionWithIds,
-  } = useQuizStore()
+  } = useQuizStore(
+    useShallow((state) => ({
+      viewState: state.viewState,
+      getProgress: state.getProgress,
+      sessionState: state.sessionState,
+      isLoading: state.isLoading,
+      initialize: state.initialize,
+      endSession: state.endSession,
+      suspendSession: state.suspendSession,
+      startSessionWithIds: state.startSessionWithIds,
+    }))
+  )
   const [showWelcome, setShowWelcome] = useState(() => !hasSeenWelcome())
   const [showTutorial, setShowTutorial] = useState(() => !hasSeenTutorial())
   const [microQuizTip, setMicroQuizTip] = useState<string | null>(null)
@@ -266,7 +278,9 @@ export default function App() {
 
 /** Quiz content switcher — renders ScenarioView or QuizCard based on mode */
 function QuizContent({ isModalOpen }: { isModalOpen: boolean }) {
-  const { sessionState, activeScenarioId } = useQuizStore()
+  const { sessionState, activeScenarioId } = useQuizStore(
+    useShallow((state) => ({ sessionState: state.sessionState, activeScenarioId: state.activeScenarioId }))
+  )
   const mode = sessionState?.config.mode
 
   if (mode === 'scenario' && activeScenarioId) {
@@ -285,7 +299,9 @@ function QuizContent({ isModalOpen }: { isModalOpen: boolean }) {
 
 /** Scenario selection screen */
 function ScenarioSelectView() {
-  const { endSession, startScenarioSession } = useQuizStore()
+  const { endSession, startScenarioSession } = useQuizStore(
+    useShallow((state) => ({ endSession: state.endSession, startScenarioSession: state.startScenarioSession }))
+  )
   return (
     <div className="min-h-dvh bg-claude-cream dark:bg-stone-900">
       <div className="sticky top-0 z-10 border-b border-stone-200 bg-white/80 backdrop-blur-xs dark:border-stone-700 dark:bg-stone-800/80">
@@ -309,7 +325,14 @@ function ScenarioSelectView() {
 
 /** Study First view wrapper — connects store to StudyFirstView */
 function StudyFirstViewWrapper() {
-  const { allQuestions, userProgress, endSession, startSession } = useQuizStore()
+  const { allQuestions, userProgress, endSession, startSession } = useQuizStore(
+    useShallow((state) => ({
+      allQuestions: state.allQuestions,
+      userProgress: state.userProgress,
+      endSession: state.endSession,
+      startSession: state.startSession,
+    }))
+  )
   return (
     <StudyFirstView
       allQuestions={allQuestions}
@@ -333,7 +356,14 @@ function QuizView({
   timeRemaining: number | null
   microQuizTip?: string | null
 }) {
-  const { endSession, suspendSession, sessionState, sessionLabel } = useQuizStore()
+  const { endSession, suspendSession, sessionState, sessionLabel } = useQuizStore(
+    useShallow((state) => ({
+      endSession: state.endSession,
+      suspendSession: state.suspendSession,
+      sessionState: state.sessionState,
+      sessionLabel: state.sessionLabel,
+    }))
+  )
   const isReviewMode = sessionState?.isReviewMode ?? false
   const isOverviewMode = sessionState?.config.mode === 'overview'
   const isCustomMode = sessionState?.config.mode === 'custom'
