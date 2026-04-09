@@ -1,4 +1,5 @@
 import { ArrowRight } from 'lucide-react'
+import { useShallow } from 'zustand/react/shallow'
 import { locale } from '@/config/locale'
 import { PREDEFINED_CATEGORIES } from '@/domain/valueObjects/Category'
 import type { QuizModeId } from '@/domain/valueObjects/QuizMode'
@@ -16,7 +17,13 @@ interface NextRecommendationProps {
  * 完了したモードとスコアに応じて次のアクションを提案
  */
 export function NextRecommendation({ mode, percentage }: NextRecommendationProps) {
-  const { allQuestions, getCategoryStats, startSession } = useQuizStore()
+  const { allQuestions, getCategoryStats, startSession } = useQuizStore(
+    useShallow((state) => ({
+      allQuestions: state.allQuestions,
+      getCategoryStats: state.getCategoryStats,
+      startSession: state.startSession,
+    }))
+  )
   const categoryStats = getCategoryStats()
 
   // Find weakest category

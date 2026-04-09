@@ -1,5 +1,6 @@
 import { Bookmark, ChevronDown, ChevronUp, ExternalLink, Filter, Play, Search, X } from 'lucide-react'
 import { useMemo, useState } from 'react'
+import { useShallow } from 'zustand/react/shallow'
 import { QuizText } from '@/components/Quiz/QuizText'
 import { locale } from '@/config/locale'
 import { getCategoryById, PREDEFINED_CATEGORIES } from '@/domain/valueObjects/Category'
@@ -16,7 +17,14 @@ import { useQuizStore } from '@/stores/quizStore'
  * カテゴリフィルタでテキスト検索を絞り込める。
  */
 export function QuizSearch() {
-  const { allQuestions, startSessionWithIds, toggleBookmark, userProgress } = useQuizStore()
+  const { allQuestions, startSessionWithIds, toggleBookmark, userProgress } = useQuizStore(
+    useShallow((state) => ({
+      allQuestions: state.allQuestions,
+      startSessionWithIds: state.startSessionWithIds,
+      toggleBookmark: state.toggleBookmark,
+      userProgress: state.userProgress,
+    }))
+  )
   const [query, setQuery] = useState('')
   const [isOpen, setIsOpen] = useState(false)
   const [expandedId, setExpandedId] = useState<string | null>(null)

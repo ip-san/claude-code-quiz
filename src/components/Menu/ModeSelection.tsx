@@ -1,5 +1,6 @@
 import { ChevronRight } from 'lucide-react'
 import { useEffect, useMemo, useState } from 'react'
+import { useShallow } from 'zustand/react/shallow'
 import { locale } from '@/config/locale'
 import { SpacedRepetitionService } from '@/domain/services/SpacedRepetitionService'
 import { haptics } from '@/lib/haptics'
@@ -18,7 +19,14 @@ import { UpdateBanner } from './UpdateBanner'
 import { UsageRecommend } from './UsageRecommend'
 
 export function ModeSelection() {
-  const { allQuestions, startSession, startSessionWithIds, userProgress } = useQuizStore()
+  const { allQuestions, startSession, startSessionWithIds, userProgress } = useQuizStore(
+    useShallow((state) => ({
+      allQuestions: state.allQuestions,
+      startSession: state.startSession,
+      startSessionWithIds: state.startSessionWithIds,
+      userProgress: state.userProgress,
+    }))
+  )
 
   const [snapshotDismissed, setSnapshotDismissed] = useState(() => hasSeenSnapshotToday())
   const [openMenuWithModes, setOpenMenuWithModes] = useState(false)

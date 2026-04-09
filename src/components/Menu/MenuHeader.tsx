@@ -17,6 +17,7 @@ import {
   X,
 } from 'lucide-react'
 import { useEffect, useRef, useState } from 'react'
+import { useShallow } from 'zustand/react/shallow'
 import { KeyboardShortcutHelp } from '@/components/Layout/KeyboardShortcutHelp'
 import { locale } from '@/config/locale'
 import { theme } from '@/config/theme'
@@ -50,7 +51,15 @@ export function MenuHeader({
   openWithModes,
   onMenuOpened,
 }: MenuHeaderProps) {
-  const { setViewState, openReaderWithFilter, userProgress, startSession, getBookmarkedCount } = useQuizStore()
+  const { setViewState, openReaderWithFilter, userProgress, startSession, getBookmarkedCount } = useQuizStore(
+    useShallow((state) => ({
+      setViewState: state.setViewState,
+      openReaderWithFilter: state.openReaderWithFilter,
+      userProgress: state.userProgress,
+      startSession: state.startSession,
+      getBookmarkedCount: state.getBookmarkedCount,
+    }))
+  )
   const bookmarkedCount = getBookmarkedCount()
   const [currentTheme, setCurrentTheme] = useState<Theme>(() => getStoredTheme())
   const [showShortcuts, setShowShortcuts] = useState(false)

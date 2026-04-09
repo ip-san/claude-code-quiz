@@ -1,5 +1,6 @@
 import { ArrowLeft, Search, X } from 'lucide-react'
 import { useEffect, useMemo, useRef, useState } from 'react'
+import { useShallow } from 'zustand/react/shallow'
 import { locale } from '@/config/locale'
 import { getCategoryById } from '@/domain/valueObjects/Category'
 import type { DifficultyLevel } from '@/domain/valueObjects/Difficulty'
@@ -19,7 +20,15 @@ function getDocPage(url: string | undefined): string | null {
 }
 
 export function ExplanationReader() {
-  const { allQuestions, userProgress, toggleBookmark, setViewState, readerInitialFilter } = useQuizStore()
+  const { allQuestions, userProgress, toggleBookmark, setViewState, readerInitialFilter } = useQuizStore(
+    useShallow((state) => ({
+      allQuestions: state.allQuestions,
+      userProgress: state.userProgress,
+      toggleBookmark: state.toggleBookmark,
+      setViewState: state.setViewState,
+      readerInitialFilter: state.readerInitialFilter,
+    }))
+  )
 
   const [searchQuery, setSearchQuery] = useState('')
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null)

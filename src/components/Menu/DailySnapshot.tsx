@@ -1,5 +1,6 @@
 import { Clock, X, Zap } from 'lucide-react'
 import { useMemo } from 'react'
+import { useShallow } from 'zustand/react/shallow'
 import { locale } from '@/config/locale'
 import { theme } from '@/config/theme'
 import { DailyGoalService } from '@/domain/services/DailyGoalService'
@@ -23,7 +24,13 @@ interface DailySnapshotProps {
  * 1日1回表示、スキップ可能。
  */
 export function DailySnapshot({ onDismiss }: DailySnapshotProps) {
-  const { userProgress, allQuestions, startSession } = useQuizStore()
+  const { userProgress, allQuestions, startSession } = useQuizStore(
+    useShallow((state) => ({
+      userProgress: state.userProgress,
+      allQuestions: state.allQuestions,
+      startSession: state.startSession,
+    }))
+  )
 
   const snapshot = useMemo(() => {
     const now = Date.now()

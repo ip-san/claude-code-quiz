@@ -1,4 +1,5 @@
 import { PlayCircle, Trash2 } from 'lucide-react'
+import { useShallow } from 'zustand/react/shallow'
 import { locale } from '@/config/locale'
 import { getQuizModeById } from '@/domain/valueObjects/QuizMode'
 import { useQuizStore } from '@/stores/quizStore'
@@ -7,7 +8,13 @@ import { useQuizStore } from '@/stores/quizStore'
  * 前回の途中セッションがある場合にメニュー画面に表示するバナー
  */
 export function ResumeSessionBanner() {
-  const { savedSession, resumeSession, discardSavedSession } = useQuizStore()
+  const { savedSession, resumeSession, discardSavedSession } = useQuizStore(
+    useShallow((state) => ({
+      savedSession: state.savedSession,
+      resumeSession: state.resumeSession,
+      discardSavedSession: state.discardSavedSession,
+    }))
+  )
 
   if (!savedSession) return null
 

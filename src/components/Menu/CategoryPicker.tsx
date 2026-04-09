@@ -1,4 +1,5 @@
 import { useEffect } from 'react'
+import { useShallow } from 'zustand/react/shallow'
 import { locale } from '@/config/locale'
 import { PREDEFINED_CATEGORIES } from '@/domain/valueObjects/Category'
 import type { QuizModeId } from '@/domain/valueObjects/QuizMode'
@@ -19,7 +20,14 @@ interface CategoryPickerProps {
  * カテゴリ別学習 / 未回答モードで共有
  */
 export function CategoryPicker({ onClose, mode = 'category', title }: CategoryPickerProps) {
-  const { startSession, getCategoryStats, allQuestions, userProgress } = useQuizStore()
+  const { startSession, getCategoryStats, allQuestions, userProgress } = useQuizStore(
+    useShallow((state) => ({
+      startSession: state.startSession,
+      getCategoryStats: state.getCategoryStats,
+      allQuestions: state.allQuestions,
+      userProgress: state.userProgress,
+    }))
+  )
   const categoryStats = getCategoryStats()
   const isUnanswered = mode === 'unanswered'
 
