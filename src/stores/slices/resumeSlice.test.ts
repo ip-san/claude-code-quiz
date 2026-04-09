@@ -2,6 +2,7 @@
  * ResumeSlice unit tests — suspend, resume, discard, review session
  */
 import { beforeEach, describe, expect, it } from 'vitest'
+import { UserProgress } from '@/domain/entities/UserProgress'
 import { useQuizStore } from '../quizStore'
 
 // Helper: answer the current question (handles both single and multi-select)
@@ -40,6 +41,7 @@ describe('resumeSlice', () => {
       savedSession: null,
       activeScenarioId: null,
       sessionLabel: null,
+      userProgress: UserProgress.empty(),
     })
     await useQuizStore.getState().initialize()
   })

@@ -6,6 +6,7 @@
  * H5 (navigation isAnswered/isCorrect restoration)
  */
 import { beforeEach, describe, expect, it } from 'vitest'
+import { UserProgress } from '@/domain/entities/UserProgress'
 import { useQuizStore } from '../quizStore'
 
 // Helper: initialize store and return it
@@ -41,6 +42,7 @@ describe('sessionSlice', () => {
       savedSession: null,
       activeScenarioId: null,
       sessionLabel: null,
+      userProgress: UserProgress.empty(),
     })
     await initStore()
   })

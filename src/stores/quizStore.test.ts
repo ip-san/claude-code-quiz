@@ -1,4 +1,5 @@
 import { beforeEach, describe, expect, it } from 'vitest'
+import { UserProgress } from '@/domain/entities/UserProgress'
 import { useQuizStore } from './quizStore'
 
 describe('quizStore', () => {
@@ -9,6 +10,7 @@ describe('quizStore', () => {
       sessionState: null,
       sessionWrongAnswers: [],
       savedSession: null,
+      userProgress: UserProgress.empty(),
     })
   })
 

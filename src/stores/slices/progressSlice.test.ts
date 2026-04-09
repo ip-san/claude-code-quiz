@@ -2,6 +2,7 @@
  * ProgressSlice unit tests — category stats, filtering, daily goal, reset
  */
 import { beforeEach, describe, expect, it } from 'vitest'
+import { UserProgress } from '@/domain/entities/UserProgress'
 import { PREDEFINED_CATEGORIES } from '@/domain/valueObjects/Category'
 import { useQuizStore } from '../quizStore'
 
@@ -13,6 +14,7 @@ describe('progressSlice', () => {
       sessionState: null,
       sessionWrongAnswers: [],
       savedSession: null,
+      userProgress: UserProgress.empty(),
     })
     await useQuizStore.getState().initialize()
   })
