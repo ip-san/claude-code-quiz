@@ -36,7 +36,7 @@ export function MasteryLevel({ overallAccuracy, totalAttempts, totalXp, category
   }
 
   return (
-    <div className="mb-4 rounded-2xl bg-white p-4 shadow-sm dark:bg-stone-800">
+    <div className="mb-4 rounded-2xl bg-white p-4 shadow-xs dark:bg-stone-800">
       <div className="flex items-center gap-3">
         <span className="text-3xl">{current.icon}</span>
         <div className="flex-1">

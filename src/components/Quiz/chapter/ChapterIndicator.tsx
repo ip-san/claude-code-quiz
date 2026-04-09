@@ -15,7 +15,7 @@ interface ChapterIndicatorProps {
  */
 export function ChapterIndicator({ chapter, totalChapters, onShowIntro }: ChapterIndicatorProps) {
   return (
-    <div className="mb-4 rounded-xl border border-claude-orange/20 bg-gradient-to-r from-claude-orange/5 to-transparent px-4 py-3">
+    <div className="mb-4 rounded-xl border border-claude-orange/20 bg-linear-to-r from-claude-orange/5 to-transparent px-4 py-3">
       <div className="flex items-center gap-3">
         <span className="text-2xl">{chapter.icon}</span>
         <div className="flex-1">

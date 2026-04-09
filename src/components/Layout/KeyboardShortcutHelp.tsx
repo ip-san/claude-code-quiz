@@ -92,7 +92,7 @@ export function KeyboardShortcutHelp({ isOpen, onClose }: KeyboardShortcutHelpPr
                     {item.keys.map((key, j) => (
                       <kbd
                         key={j}
-                        className="inline-flex min-w-[1.75rem] items-center justify-center rounded-md border border-stone-300 bg-stone-50 px-1.5 py-0.5 text-xs font-medium text-stone-600 dark:border-stone-600 dark:bg-stone-700 dark:text-stone-300"
+                        className="inline-flex min-w-7 items-center justify-center rounded-md border border-stone-300 bg-stone-50 px-1.5 py-0.5 text-xs font-medium text-stone-600 dark:border-stone-600 dark:bg-stone-700 dark:text-stone-300"
                       >
                         {key}
                       </kbd>
@@ -107,7 +107,7 @@ export function KeyboardShortcutHelp({ isOpen, onClose }: KeyboardShortcutHelpPr
         </div>
 
         <div className="mt-4 text-center text-xs text-stone-500">
-          <kbd className="rounded border border-stone-300 bg-stone-50 px-1.5 py-0.5 text-xs dark:border-stone-600 dark:bg-stone-700">
+          <kbd className="rounded-sm border border-stone-300 bg-stone-50 px-1.5 py-0.5 text-xs dark:border-stone-600 dark:bg-stone-700">
             ?
           </kbd>{' '}
           {locale.shortcuts.showAnytime}

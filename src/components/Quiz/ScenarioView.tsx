@@ -9,7 +9,7 @@ import { useQuizStore } from '@/stores/quizStore'
 function ScenarioNarrative({ text, onNext, stepLabel }: { text: string; onNext: () => void; stepLabel: string }) {
   return (
     <div className="mx-auto max-w-2xl">
-      <div className="rounded-2xl bg-gradient-to-br from-blue-50 to-indigo-50 p-6 shadow-sm dark:from-stone-800 dark:to-stone-800">
+      <div className="rounded-2xl bg-linear-to-br from-blue-50 to-indigo-50 p-6 shadow-xs dark:from-stone-800 dark:to-stone-800">
         <div className="mb-3 flex items-center gap-2 text-xs font-medium text-blue-600 dark:text-blue-400">
           <BookOpen className="h-4 w-4" />
           {stepLabel}
@@ -154,7 +154,7 @@ export function ScenarioList({ onSelect }: { onSelect: (scenarioId: string) => v
           <button
             key={sc.id}
             onClick={() => onSelect(sc.id)}
-            className="tap-highlight flex w-full items-start gap-3 rounded-2xl bg-white p-4 text-left shadow-sm transition-transform active:scale-[0.98] dark:bg-stone-800"
+            className="tap-highlight flex w-full items-start gap-3 rounded-2xl bg-white p-4 text-left shadow-xs transition-transform active:scale-[0.98] dark:bg-stone-800"
           >
             <span className="mt-0.5 text-2xl">{sc.icon}</span>
             <div className="flex-1">

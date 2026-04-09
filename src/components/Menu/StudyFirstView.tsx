@@ -102,7 +102,7 @@ export function StudyFirstView({ allQuestions, userProgress, onBack, onStartQuiz
         {/* Explanation */}
         <div className="mb-5 rounded-2xl border border-blue-200 bg-blue-50 p-4 dark:border-blue-800 dark:bg-blue-900/20">
           <div className="flex items-start gap-3">
-            <BookOpen className="mt-0.5 h-5 w-5 flex-shrink-0 text-blue-500" />
+            <BookOpen className="mt-0.5 h-5 w-5 shrink-0 text-blue-500" />
             <div>
               <p className="text-sm font-semibold text-blue-800 dark:text-blue-300">
                 {locale.studyFirst.howToLearnTitle}
@@ -125,7 +125,7 @@ export function StudyFirstView({ allQuestions, userProgress, onBack, onStartQuiz
               }}
               className="tap-highlight flex w-full items-center gap-4 rounded-2xl border border-stone-200 bg-white p-4 text-left transition-all hover:border-claude-orange/30 dark:border-stone-700 dark:bg-stone-800"
             >
-              <div className="flex h-12 w-12 flex-shrink-0 items-center justify-center rounded-xl bg-claude-orange/10">
+              <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-claude-orange/10">
                 <span className="text-2xl">{ch.icon}</span>
               </div>
               <div className="flex-1">
@@ -140,7 +140,7 @@ export function StudyFirstView({ allQuestions, userProgress, onBack, onStartQuiz
                   {locale.common.questionSuffix}
                 </p>
               </div>
-              <ArrowRight className="h-4 w-4 flex-shrink-0 text-stone-300 dark:text-stone-600" />
+              <ArrowRight className="h-4 w-4 shrink-0 text-stone-300 dark:text-stone-600" />
             </button>
           ))}
         </div>
@@ -187,7 +187,7 @@ function StudyReader({
       {/* Content */}
       <div className="flex-1 px-4 py-6">
         <div className="mx-auto max-w-3xl">
-          <div className="animate-view-enter rounded-2xl bg-white p-6 shadow-sm dark:bg-stone-800">
+          <div className="animate-view-enter rounded-2xl bg-white p-6 shadow-xs dark:bg-stone-800">
             {/* Chapter icon + title */}
             <div className="mb-5 text-center">
               <span className="text-4xl">{chapter.icon}</span>
@@ -218,7 +218,7 @@ function StudyReader({
       </div>
 
       {/* Bottom button */}
-      <div className="sticky bottom-0 border-t border-stone-200 bg-white/80 px-4 py-3 backdrop-blur-sm dark:border-stone-700 dark:bg-stone-800/80">
+      <div className="sticky bottom-0 border-t border-stone-200 bg-white/80 px-4 py-3 backdrop-blur-xs dark:border-stone-700 dark:bg-stone-800/80">
         <div className="mx-auto max-w-3xl">
           <button
             onClick={() => {

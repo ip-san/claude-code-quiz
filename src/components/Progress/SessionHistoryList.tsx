@@ -58,7 +58,7 @@ export function SessionHistoryList({ sessions, limit = 10 }: SessionHistoryListP
             >
               <div className="flex items-center gap-3">
                 <span className="text-xs text-stone-500">{formatDate(session.completedAt)}</span>
-                <span className="rounded bg-stone-100 px-2 py-0.5 text-xs text-stone-600 dark:bg-stone-700 dark:text-stone-300">
+                <span className="rounded-sm bg-stone-100 px-2 py-0.5 text-xs text-stone-600 dark:bg-stone-700 dark:text-stone-300">
                   {MODE_LABELS[session.mode] ?? session.mode}
                 </span>
                 {session.categoryFilter && <span className="text-xs text-stone-500">{session.categoryFilter}</span>}

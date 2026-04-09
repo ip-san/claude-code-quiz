@@ -133,7 +133,7 @@ export function ChapterProgressMap({
               onClick={() => setSelectedChapter(isSelected ? null : ch.id)}
               className={`tap-highlight rounded-xl border p-3 text-left transition-all ${
                 isSelected
-                  ? 'border-claude-orange bg-claude-orange/5 shadow-sm dark:bg-claude-orange/10'
+                  ? 'border-claude-orange bg-claude-orange/5 shadow-xs dark:bg-claude-orange/10'
                   : 'border-stone-200 bg-white dark:border-stone-700 dark:bg-stone-800'
               }`}
             >

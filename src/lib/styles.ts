@@ -15,7 +15,7 @@ export const cardStyles = {
   /** 標準カード: 白背景 + stone-200 ボーダー */
   base: 'rounded-2xl border border-stone-200 bg-white dark:border-stone-700 dark:bg-stone-800',
   /** shadow 付き */
-  elevated: 'rounded-2xl border border-stone-200 bg-white shadow-sm dark:border-stone-700 dark:bg-stone-800',
+  elevated: 'rounded-2xl border border-stone-200 bg-white shadow-xs dark:border-stone-700 dark:bg-stone-800',
   /** パディング込み */
   padded: 'rounded-2xl border border-stone-200 bg-white p-4 dark:border-stone-700 dark:bg-stone-800',
 } as const
@@ -42,5 +42,5 @@ export const pageStyles = {
 /** ヘッダー */
 export const headerStyles = {
   sticky:
-    'sticky top-0 z-10 border-b border-stone-200 bg-claude-cream/95 backdrop-blur-sm dark:border-stone-700 dark:bg-stone-900/95',
+    'sticky top-0 z-10 border-b border-stone-200 bg-claude-cream/95 backdrop-blur-xs dark:border-stone-700 dark:bg-stone-900/95',
 } as const

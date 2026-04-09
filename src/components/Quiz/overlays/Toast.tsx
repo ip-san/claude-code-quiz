@@ -25,7 +25,7 @@ export function Toast({ phase, style, icon, message, gradient, offsetY }: ToastP
 
   return (
     <div {...toastContainerProps} style={containerStyle ?? toastContainerProps.style}>
-      <div className={`rounded-full bg-gradient-to-r ${gradient} px-5 py-2.5 shadow-lg`} style={style}>
+      <div className={`rounded-full bg-linear-to-r ${gradient} px-5 py-2.5 shadow-lg`} style={style}>
         <div className="flex items-center gap-2 text-white">
           {icon}
           <span className="text-sm font-bold">{message}</span>

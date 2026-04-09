@@ -288,7 +288,7 @@ function ScenarioSelectView() {
   const { endSession, startScenarioSession } = useQuizStore()
   return (
     <div className="min-h-dvh bg-claude-cream dark:bg-stone-900">
-      <div className="sticky top-0 z-10 border-b border-stone-200 bg-white/80 backdrop-blur-sm dark:border-stone-700 dark:bg-stone-800/80">
+      <div className="sticky top-0 z-10 border-b border-stone-200 bg-white/80 backdrop-blur-xs dark:border-stone-700 dark:bg-stone-800/80">
         <div className="mx-auto max-w-3xl px-4 pb-2 pt-3">
           <div className="flex items-center gap-3">
             <button onClick={endSession} className="tap-highlight rounded-full p-1" aria-label="戻る">

@@ -22,7 +22,7 @@ export function ResumeSessionBanner() {
       : ''
 
   return (
-    <div className="mb-5 animate-slide-down rounded-2xl border border-claude-orange/30 bg-gradient-to-r from-claude-orange/10 to-claude-orange/5 p-4 dark:from-claude-orange/15 dark:to-claude-orange/5">
+    <div className="mb-5 animate-slide-down rounded-2xl border border-claude-orange/30 bg-linear-to-r from-claude-orange/10 to-claude-orange/5 p-4 dark:from-claude-orange/15 dark:to-claude-orange/5">
       <div className="mb-2 flex items-center gap-2">
         <span className="text-xl">{modeIcon}</span>
         <div className="flex-1">

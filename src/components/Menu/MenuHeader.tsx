@@ -171,7 +171,7 @@ export function MenuHeader({
         </div>
         <div className="text-center">
           <h1 className="mb-1 text-2xl font-bold">
-            <span className="bg-gradient-to-r from-claude-orange to-orange-400 bg-clip-text text-transparent">
+            <span className="bg-linear-to-r from-claude-orange to-orange-400 bg-clip-text text-transparent">
               {theme.appName}
             </span>
           </h1>

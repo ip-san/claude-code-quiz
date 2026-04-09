@@ -72,7 +72,7 @@ export function CategoryBreakthroughBadge({ questions, answerHistory, userProgre
       {breakthroughs.map((bt) => (
         <div
           key={bt.categoryName}
-          className="flex items-center justify-center gap-2 rounded-2xl bg-gradient-to-r from-green-400 to-emerald-500 px-4 py-2.5 text-white shadow-md animate-bounce-in"
+          className="flex items-center justify-center gap-2 rounded-2xl bg-linear-to-r from-green-400 to-emerald-500 px-4 py-2.5 text-white shadow-md animate-bounce-in"
         >
           <TrendingUp className="h-5 w-5" />
           <span className="text-sm font-bold">

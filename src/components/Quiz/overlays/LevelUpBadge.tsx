@@ -33,7 +33,7 @@ export function LevelUpBadge({ previousXp, currentXp }: LevelUpBadgeProps) {
 
   return (
     <div
-      className="mb-4 animate-bounce-in rounded-2xl border border-amber-300 bg-gradient-to-r from-amber-50 to-yellow-50 p-4 text-center dark:border-amber-500/30 dark:from-amber-500/10 dark:to-yellow-500/10"
+      className="mb-4 animate-bounce-in rounded-2xl border border-amber-300 bg-linear-to-r from-amber-50 to-yellow-50 p-4 text-center dark:border-amber-500/30 dark:from-amber-500/10 dark:to-yellow-500/10"
       role="status"
       aria-live="polite"
     >

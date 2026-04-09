@@ -23,7 +23,7 @@ export function OptionButton({
 }: OptionButtonProps) {
   const getStyles = () => {
     if (!isAnswered) {
-      return isSelected ? 'border-claude-orange bg-claude-orange/5 shadow-sm' : 'border-stone-200 dark:border-stone-700'
+      return isSelected ? 'border-claude-orange bg-claude-orange/5 shadow-xs' : 'border-stone-200 dark:border-stone-700'
     }
 
     if (isCorrect) {
@@ -54,7 +54,7 @@ export function OptionButton({
       return (
         <div
           key="correct"
-          className="check-icon-enter flex h-7 w-7 flex-shrink-0 items-center justify-center rounded-full bg-green-500"
+          className="check-icon-enter flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-green-500"
           aria-hidden="true"
         >
           <svg width="18" height="18" viewBox="0 0 18 18" fill="none" className="check-stroke-draw">
@@ -74,7 +74,7 @@ export function OptionButton({
       return (
         <div
           key="wrong"
-          className="wrong-icon-enter flex h-7 w-7 flex-shrink-0 items-center justify-center rounded-full bg-red-500"
+          className="wrong-icon-enter flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-red-500"
           aria-hidden="true"
         >
           <X className="h-4 w-4 text-white" />
@@ -108,7 +108,7 @@ export function OptionButton({
       if (isSelected) {
         return (
           <CheckSquare
-            className={`h-6 w-6 flex-shrink-0 ${
+            className={`h-6 w-6 shrink-0 ${
               isAnswered ? (isCorrect ? 'text-green-500' : 'text-red-500') : 'text-claude-orange'
             }`}
             aria-hidden="true"
@@ -116,16 +116,13 @@ export function OptionButton({
         )
       }
       return (
-        <Square
-          className={`h-6 w-6 flex-shrink-0 ${isAnswered ? 'text-stone-300' : 'text-stone-400'}`}
-          aria-hidden="true"
-        />
+        <Square className={`h-6 w-6 shrink-0 ${isAnswered ? 'text-stone-300' : 'text-stone-400'}`} aria-hidden="true" />
       )
     }
 
     return (
       <span
-        className={`flex h-7 w-7 flex-shrink-0 items-center justify-center rounded-full text-sm font-medium ${
+        className={`flex h-7 w-7 shrink-0 items-center justify-center rounded-full text-sm font-medium ${
           isSelected && !isAnswered
             ? 'bg-claude-orange text-white'
             : 'bg-stone-200 text-stone-700 dark:bg-stone-600 dark:text-stone-200'

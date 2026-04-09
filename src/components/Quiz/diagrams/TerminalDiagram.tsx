@@ -69,7 +69,7 @@ export function TerminalDiagram({ label, lines }: TerminalDiagramProps) {
           {isPlaying && (
             <button
               onClick={skipAnimation}
-              className="flex shrink-0 items-center gap-1 rounded px-1.5 py-0.5 text-[10px] text-stone-400 transition-colors hover:bg-stone-700 hover:text-stone-200"
+              className="flex shrink-0 items-center gap-1 rounded-sm px-1.5 py-0.5 text-[10px] text-stone-400 transition-colors hover:bg-stone-700 hover:text-stone-200"
             >
               <SkipForward className="h-3 w-3" />
               <span className="hidden sm:inline">{locale.diagrams.terminalSkip}</span>
@@ -79,7 +79,7 @@ export function TerminalDiagram({ label, lines }: TerminalDiagramProps) {
             <>
               <button
                 onClick={replayAnimation}
-                className="flex shrink-0 items-center gap-1 rounded px-1.5 py-0.5 text-[10px] text-stone-400 transition-colors hover:bg-stone-700 hover:text-stone-200"
+                className="flex shrink-0 items-center gap-1 rounded-sm px-1.5 py-0.5 text-[10px] text-stone-400 transition-colors hover:bg-stone-700 hover:text-stone-200"
               >
                 <Play className="h-3 w-3" />
                 <span className="hidden sm:inline">{locale.diagrams.terminalReplay}</span>
@@ -94,7 +94,7 @@ export function TerminalDiagram({ label, lines }: TerminalDiagramProps) {
                     setTimeout(() => setCopied(false), 1500)
                   }
                 }}
-                className="flex shrink-0 items-center gap-1 rounded px-1.5 py-0.5 text-[10px] text-stone-400 transition-colors hover:bg-stone-700 hover:text-stone-200"
+                className="flex shrink-0 items-center gap-1 rounded-sm px-1.5 py-0.5 text-[10px] text-stone-400 transition-colors hover:bg-stone-700 hover:text-stone-200"
                 aria-label={locale.diagrams.terminalCopy}
               >
                 {copied ? <Check className="h-3 w-3 text-green-400" /> : <Clipboard className="h-3 w-3" />}

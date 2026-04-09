@@ -26,7 +26,7 @@ export function TeamShareGuide({ percentage, mode }: TeamShareGuideProps) {
   const handleCopy = () => copy(shareMessage)
 
   return (
-    <div className="mt-6 rounded-2xl border border-purple-200 bg-gradient-to-b from-purple-50 to-indigo-50 p-5 text-left dark:border-purple-500/30 dark:from-purple-500/10 dark:to-indigo-500/10">
+    <div className="mt-6 rounded-2xl border border-purple-200 bg-linear-to-b from-purple-50 to-indigo-50 p-5 text-left dark:border-purple-500/30 dark:from-purple-500/10 dark:to-indigo-500/10">
       <div className="mb-3 flex items-center gap-2">
         <Users className="h-5 w-5 text-purple-500" />
         <p className="text-sm font-bold text-purple-700 dark:text-purple-300">{locale.teamShare.heading}</p>
@@ -38,7 +38,7 @@ export function TeamShareGuide({ percentage, mode }: TeamShareGuideProps) {
       <div className="mb-4 space-y-2">
         {theme.teamShareSteps.map((step, i) => (
           <div key={step} className="flex items-start gap-2">
-            <span className="flex h-5 w-5 flex-shrink-0 items-center justify-center rounded-full bg-purple-500 text-xs font-bold text-white">
+            <span className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-purple-500 text-xs font-bold text-white">
               {i + 1}
             </span>
             <p className="text-sm text-stone-600 dark:text-stone-400">{step}</p>

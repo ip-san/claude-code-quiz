@@ -40,7 +40,7 @@ export function CycleDiagram({ label, trigger, states }: CycleDiagramProps) {
                 width="16"
                 height="12"
                 viewBox="0 0 16 12"
-                className="flex-shrink-0 text-claude-orange/50"
+                className="shrink-0 text-claude-orange/50"
                 aria-hidden="true"
                 style={{ opacity: isVisible ? 1 : 0, animationDelay: getItemDelay(i) }}
               >
@@ -73,7 +73,7 @@ export function CycleDiagram({ label, trigger, states }: CycleDiagramProps) {
           width="20"
           height="14"
           viewBox="0 0 20 14"
-          className="flex-shrink-0 text-claude-orange/40"
+          className="shrink-0 text-claude-orange/40"
           aria-hidden="true"
           style={{ opacity: isVisible ? 1 : 0, animationDelay: getItemDelay(states.length) }}
         >
@@ -89,7 +89,7 @@ export function CycleDiagram({ label, trigger, states }: CycleDiagramProps) {
 
       {trigger && (
         <p className="mt-1 text-center text-[10px] text-stone-500 dark:text-stone-500">
-          <code className="rounded bg-stone-100 px-1 py-0.5 font-mono text-stone-600 dark:bg-stone-700 dark:text-stone-300">
+          <code className="rounded-sm bg-stone-100 px-1 py-0.5 font-mono text-stone-600 dark:bg-stone-700 dark:text-stone-300">
             {trigger}
           </code>{' '}
           {locale.diagrams.switchSuffix}

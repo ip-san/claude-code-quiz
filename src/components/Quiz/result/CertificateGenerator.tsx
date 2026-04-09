@@ -74,7 +74,7 @@ export function CertificateGenerator({ score, total, percentage, mode }: Certifi
   ]
 
   return (
-    <div className={`mb-4 rounded-2xl border bg-gradient-to-r p-4 text-center ${uiColors[levelIndex]}`}>
+    <div className={`mb-4 rounded-2xl border bg-linear-to-r p-4 text-center ${uiColors[levelIndex]}`}>
       <div className="mb-2 text-3xl">{mastery.icon}</div>
       <p className={`mb-1 text-sm font-bold ${textColors[levelIndex]}`}>{design.title}</p>
       <p className={`mb-3 text-xs ${subTextColors[levelIndex]}`}>{locale.certificate.canIssue}</p>

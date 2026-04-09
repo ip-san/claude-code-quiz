@@ -116,7 +116,7 @@ export function LearningRecommendation({ categoryStats, totalAttempts, onStartSe
   return (
     <div className="mb-6 rounded-2xl border border-blue-200 bg-blue-50 p-4 dark:border-blue-500/30 dark:bg-blue-500/10">
       <div className="flex items-start gap-3">
-        <div className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-xl bg-white shadow-sm dark:bg-stone-800">
+        <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-white shadow-xs dark:bg-stone-800">
           {recommendation.icon}
         </div>
         <div className="flex-1">

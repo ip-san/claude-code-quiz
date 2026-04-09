@@ -25,7 +25,7 @@ export function StreakMilestoneBadge({ currentStreak, previousStreak }: StreakMi
   if (!milestone) return null
 
   return (
-    <div className="animate-pulse-success rounded-xl border border-amber-200 bg-gradient-to-r from-amber-50 to-yellow-50 px-5 py-4 text-center shadow-sm">
+    <div className="animate-pulse-success rounded-xl border border-amber-200 bg-linear-to-r from-amber-50 to-yellow-50 px-5 py-4 text-center shadow-xs">
       <div className="mb-1 text-3xl">{milestone.emoji}</div>
       <p className="text-sm font-bold text-amber-700">{milestone.label}</p>
       <p className="text-xs text-amber-600">{locale.streakBanner.streakAchieved(currentStreak)}</p>
@@ -54,7 +54,7 @@ export function DailyGoalBadge({ previousTodayCount, currentTodayCount, dailyGoa
   if (!isNewlyAchieved) return null
 
   return (
-    <div className="animate-pulse-success rounded-xl border border-green-200 bg-gradient-to-r from-green-50 to-emerald-50 px-5 py-4 text-center shadow-sm">
+    <div className="animate-pulse-success rounded-xl border border-green-200 bg-linear-to-r from-green-50 to-emerald-50 px-5 py-4 text-center shadow-xs">
       <div className="mb-1 text-3xl">🎯</div>
       <p className="text-sm font-bold text-green-700">{locale.streakBanner.dailyGoalDone}</p>
       <p className="text-xs text-green-600">{locale.streakBanner.dailyGoalProgress(currentTodayCount, dailyGoal)}</p>

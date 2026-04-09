@@ -44,7 +44,7 @@ export function ChapterIntro({ chapter, onStart }: ChapterIntroProps) {
       {isFirstChapter && (
         <div className="rounded-2xl border border-green-200 bg-green-50 p-4 dark:border-green-800 dark:bg-green-900/20">
           <div className="flex items-start gap-3">
-            <Brain className="mt-0.5 h-5 w-5 flex-shrink-0 text-green-600 dark:text-green-400" />
+            <Brain className="mt-0.5 h-5 w-5 shrink-0 text-green-600 dark:text-green-400" />
             <div>
               <p className="text-sm font-semibold text-green-800 dark:text-green-300">
                 {locale.chapterIntro.mistakesOkTitle}
@@ -57,7 +57,7 @@ export function ChapterIntro({ chapter, onStart }: ChapterIntroProps) {
 
       {/* Learning points */}
       {details && (
-        <div className="rounded-2xl bg-white p-4 shadow-sm dark:bg-stone-800">
+        <div className="rounded-2xl bg-white p-4 shadow-xs dark:bg-stone-800">
           <div className="mb-3 flex items-center gap-2">
             <BookOpen className="h-4 w-4 text-claude-orange" />
             <p className="text-sm font-semibold text-claude-dark dark:text-stone-200">
@@ -67,7 +67,7 @@ export function ChapterIntro({ chapter, onStart }: ChapterIntroProps) {
           <ul className="space-y-2">
             {details.learningPoints.map((point, i) => (
               <li key={i} className="flex items-start gap-2.5">
-                <CheckCircle2 className="mt-0.5 h-4 w-4 flex-shrink-0 text-claude-orange/60" />
+                <CheckCircle2 className="mt-0.5 h-4 w-4 shrink-0 text-claude-orange/60" />
                 <span className="text-sm text-stone-600 dark:text-stone-300">{point}</span>
               </li>
             ))}

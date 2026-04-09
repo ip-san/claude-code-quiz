@@ -41,7 +41,7 @@ export function ReaderFilters({
       <div className="-mx-4 flex gap-1.5 overflow-x-auto px-4 scrollbar-hide">
         <button
           onClick={() => onCategoryChange(null)}
-          className={`tap-highlight flex-shrink-0 rounded-full px-3 py-1 text-xs font-medium transition-colors ${
+          className={`tap-highlight shrink-0 rounded-full px-3 py-1 text-xs font-medium transition-colors ${
             selectedCategory === null
               ? 'bg-claude-orange text-white'
               : 'bg-stone-100 text-stone-600 dark:bg-stone-700 dark:text-stone-300'
@@ -53,7 +53,7 @@ export function ReaderFilters({
           <button
             key={cat.id}
             onClick={() => onCategoryChange(selectedCategory === cat.id ? null : cat.id)}
-            className={`tap-highlight flex-shrink-0 rounded-full px-3 py-1 text-xs font-medium transition-colors ${
+            className={`tap-highlight shrink-0 rounded-full px-3 py-1 text-xs font-medium transition-colors ${
               selectedCategory === cat.id
                 ? 'bg-claude-orange text-white'
                 : 'bg-stone-100 text-stone-600 dark:bg-stone-700 dark:text-stone-300'
@@ -69,7 +69,7 @@ export function ReaderFilters({
         <div className="-mx-4 flex gap-1.5 overflow-x-auto px-4 scrollbar-hide">
           <button
             onClick={() => onDocPageChange(null)}
-            className={`tap-highlight flex-shrink-0 rounded-full px-2.5 py-1 text-[10px] font-medium transition-colors ${
+            className={`tap-highlight shrink-0 rounded-full px-2.5 py-1 text-[10px] font-medium transition-colors ${
               !selectedDocPage
                 ? 'bg-stone-700 text-white dark:bg-stone-300 dark:text-stone-900'
                 : 'bg-stone-100 text-stone-500 dark:bg-stone-700 dark:text-stone-400'
@@ -81,7 +81,7 @@ export function ReaderFilters({
             <button
               key={page}
               onClick={() => onDocPageChange(selectedDocPage === page ? null : page)}
-              className={`tap-highlight flex-shrink-0 rounded-full px-2.5 py-1 text-[10px] font-medium transition-colors ${
+              className={`tap-highlight shrink-0 rounded-full px-2.5 py-1 text-[10px] font-medium transition-colors ${
                 selectedDocPage === page
                   ? 'bg-stone-700 text-white dark:bg-stone-300 dark:text-stone-900'
                   : 'bg-stone-100 text-stone-500 dark:bg-stone-700 dark:text-stone-400'

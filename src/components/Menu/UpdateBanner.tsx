@@ -22,9 +22,9 @@ export function UpdateBanner() {
   if (!updateInfo || dismissed) return null
 
   return (
-    <div className="mb-5 animate-slide-down rounded-2xl border border-blue-300/30 bg-gradient-to-r from-blue-50 to-blue-50/50 p-4 dark:border-blue-500/30 dark:from-blue-500/10 dark:to-blue-500/5">
+    <div className="mb-5 animate-slide-down rounded-2xl border border-blue-300/30 bg-linear-to-r from-blue-50 to-blue-50/50 p-4 dark:border-blue-500/30 dark:from-blue-500/10 dark:to-blue-500/5">
       <div className="flex items-center gap-3">
-        <Download className="h-5 w-5 flex-shrink-0 text-blue-500" />
+        <Download className="h-5 w-5 shrink-0 text-blue-500" />
         <p className="flex-1 text-sm font-medium text-claude-dark dark:text-stone-200">
           {locale.updateBanner.message(updateInfo.latestVersion)}
         </p>

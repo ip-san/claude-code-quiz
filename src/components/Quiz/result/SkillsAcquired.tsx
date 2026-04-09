@@ -43,7 +43,7 @@ export function SkillsAcquired({ questions, answerHistory }: SkillsAcquiredProps
       <div className="space-y-1.5">
         {acquiredSkills.map((skill) => (
           <div key={skill.id} className="flex items-start gap-2">
-            <CheckCircle className="mt-0.5 h-4 w-4 flex-shrink-0 text-green-500" />
+            <CheckCircle className="mt-0.5 h-4 w-4 shrink-0 text-green-500" />
             <p className="text-sm text-stone-700 dark:text-stone-300">{skill.description}</p>
           </div>
         ))}

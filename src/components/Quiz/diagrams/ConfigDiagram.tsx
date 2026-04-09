@@ -27,7 +27,7 @@ export function ConfigDiagram({ label, filepath, lines }: ConfigDiagramProps) {
     <div ref={containerRef} aria-label={label ?? locale.diagrams.config}>
       {label && <p className="mb-2 text-xs font-medium text-stone-500 dark:text-stone-400">{label}</p>}
       {/* Editor window */}
-      <div className="overflow-hidden rounded-lg border border-stone-300 bg-white shadow-sm dark:border-stone-600 dark:bg-stone-800">
+      <div className="overflow-hidden rounded-lg border border-stone-300 bg-white shadow-xs dark:border-stone-600 dark:bg-stone-800">
         {/* Tab bar */}
         <div className="flex items-center gap-1.5 border-b border-stone-200 bg-stone-100 px-3 py-1.5 dark:border-stone-600 dark:bg-stone-700">
           <FileCode2 className="h-3 w-3 text-stone-400" />
@@ -44,7 +44,7 @@ export function ConfigDiagram({ label, filepath, lines }: ConfigDiagramProps) {
               style={{ animationDelay: getItemDelay(i) }}
             >
               {/* Line number */}
-              <span className="inline-block w-7 flex-shrink-0 select-none text-right text-stone-400 dark:text-stone-500">
+              <span className="inline-block w-7 shrink-0 select-none text-right text-stone-400 dark:text-stone-500">
                 {i + 1}
               </span>
               {/* Content */}

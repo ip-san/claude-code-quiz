@@ -154,7 +154,7 @@ export function ExplanationReader() {
                 setDisplayCount(INITIAL_DISPLAY_COUNT)
               }}
               placeholder={locale.search.placeholder}
-              className="flex-1 bg-transparent text-sm text-claude-dark outline-none placeholder:text-stone-400 dark:text-stone-200"
+              className="flex-1 bg-transparent text-sm text-claude-dark outline-hidden placeholder:text-stone-400 dark:text-stone-200"
               aria-label={locale.search.label}
             />
             {searchQuery && (
@@ -214,7 +214,7 @@ export function ExplanationReader() {
           ) : groupedByCategory ? (
             groupedByCategory.map((group) => (
               <div key={group.categoryId}>
-                <div className="sticky top-0 z-[5] border-b border-stone-200 bg-stone-50/95 px-4 py-2 backdrop-blur-sm dark:border-stone-700 dark:bg-stone-800/95">
+                <div className="sticky top-0 z-5 border-b border-stone-200 bg-stone-50/95 px-4 py-2 backdrop-blur-xs dark:border-stone-700 dark:bg-stone-800/95">
                   <span className="text-xs font-semibold text-stone-500 dark:text-stone-400">
                     {group.icon} {group.label} ({group.questions.length})
                   </span>

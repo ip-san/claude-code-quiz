@@ -142,7 +142,7 @@ export function QuizResult() {
 
         {/* First session completion — show BEFORE score to lead with encouragement */}
         {!isReviewMode && userProgress.sessionHistory.length <= 1 && (
-          <div className="mb-4 rounded-2xl bg-gradient-to-r from-claude-orange/10 to-blue-500/10 p-4 text-center">
+          <div className="mb-4 rounded-2xl bg-linear-to-r from-claude-orange/10 to-blue-500/10 p-4 text-center">
             <p className="text-lg font-bold text-claude-dark">{`🎉 ${locale.result.firstCongrats}`}</p>
             <p className="mt-1 text-sm text-claude-gray">{locale.result.firstMessage}</p>
           </div>

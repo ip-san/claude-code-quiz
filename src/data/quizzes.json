@@ -15120,7 +15120,7 @@
           "steps": [
             {
               "text": "Ctrl+K / Ctrl+U でテキスト削除",
-              "sub": "kill ring に保存"
+              "sub": "kill ring-3 に保存"
             },
             {
               "text": "Ctrl+Y で貼り付け",

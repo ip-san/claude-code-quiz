@@ -177,7 +177,7 @@ export function QuizCard({
   // Empty state when no quiz data
   if (!quiz) {
     return (
-      <div className="rounded-2xl bg-gradient-to-br from-stone-50 to-stone-100 p-8 text-center dark:from-stone-800 dark:to-stone-900">
+      <div className="rounded-2xl bg-linear-to-br from-stone-50 to-stone-100 p-8 text-center dark:from-stone-800 dark:to-stone-900">
         <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-2xl bg-claude-orange/10">
           <span className="text-3xl">🔍</span>
         </div>
@@ -258,7 +258,7 @@ export function QuizCard({
           <div className="flex gap-2">
             {category && (
               <span
-                className="flex items-center gap-1 rounded px-2 py-1 text-xs font-medium"
+                className="flex items-center gap-1 rounded-sm px-2 py-1 text-xs font-medium"
                 style={{
                   backgroundColor: `${getColorHex(category.color ?? 'gray')}15`,
                   color: getColorHex(category.color ?? 'gray'),
@@ -269,20 +269,20 @@ export function QuizCard({
               </span>
             )}
             {quiz.difficulty && (
-              <span className={`rounded px-2 py-1 text-xs font-medium ${getDifficultyStyle(quiz.difficulty)}`}>
+              <span className={`rounded-sm px-2 py-1 text-xs font-medium ${getDifficultyStyle(quiz.difficulty)}`}>
                 {getDifficultyLabel(quiz.difficulty)}
               </span>
             )}
             {isAdaptive && currentIndex === 0 && (
               <span
-                className="rounded bg-indigo-500/10 px-2 py-1 text-xs font-medium text-indigo-500"
+                className="rounded-sm bg-indigo-500/10 px-2 py-1 text-xs font-medium text-indigo-500"
                 title={locale.quizCard.adaptiveTooltip}
               >
                 {locale.quizCard.adaptiveLabel}
               </span>
             )}
             {isReviewMode && (
-              <span className="rounded bg-amber-100 px-2 py-1 text-xs font-medium text-amber-700">
+              <span className="rounded-sm bg-amber-100 px-2 py-1 text-xs font-medium text-amber-700">
                 {locale.quizCard.reviewBadge}
               </span>
             )}

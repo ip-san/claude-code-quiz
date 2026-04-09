@@ -23,7 +23,7 @@ export function FirstTimeGuide({ onOpenModes }: FirstTimeGuideProps) {
   return (
     <div className="mb-5 space-y-3">
       {/* 初心者向け */}
-      <div className="rounded-2xl border-2 border-claude-orange/30 bg-gradient-to-r from-claude-orange/5 to-transparent p-4 dark:border-claude-orange/40 dark:from-claude-orange/10">
+      <div className="rounded-2xl border-2 border-claude-orange/30 bg-linear-to-r from-claude-orange/5 to-transparent p-4 dark:border-claude-orange/40 dark:from-claude-orange/10">
         <p className="mb-1 text-xs font-semibold text-claude-orange">{locale.firstTimeGuide.beginnerLabel}</p>
         <p className="mb-4 text-sm text-claude-dark dark:text-stone-200">{locale.firstTimeGuide.beginnerDesc}</p>
         <div className="space-y-2">
@@ -32,9 +32,9 @@ export function FirstTimeGuide({ onOpenModes }: FirstTimeGuideProps) {
               haptics.light()
               startSession({ mode: 'overview' })
             }}
-            className="tap-highlight flex w-full items-center gap-3 rounded-2xl bg-claude-orange px-4 py-3 text-left shadow-sm"
+            className="tap-highlight flex w-full items-center gap-3 rounded-2xl bg-claude-orange px-4 py-3 text-left shadow-xs"
           >
-            <MapIcon className="h-5 w-5 flex-shrink-0 text-white/80" />
+            <MapIcon className="h-5 w-5 shrink-0 text-white/80" />
             <div>
               <p className="text-sm font-semibold text-white">{locale.firstTimeGuide.quizLearnLabel}</p>
               <p className="text-xs text-white/70">{locale.firstTimeGuide.quizLearnDesc}</p>
@@ -47,7 +47,7 @@ export function FirstTimeGuide({ onOpenModes }: FirstTimeGuideProps) {
             }}
             className="tap-highlight flex w-full items-center gap-3 rounded-2xl border border-claude-orange/30 bg-white px-4 py-3 text-left dark:bg-stone-800"
           >
-            <BookOpen className="h-5 w-5 flex-shrink-0 text-claude-orange" />
+            <BookOpen className="h-5 w-5 shrink-0 text-claude-orange" />
             <div>
               <p className="text-sm font-semibold text-claude-dark dark:text-stone-200">
                 {locale.firstTimeGuide.readFirstLabel}

@@ -121,7 +121,7 @@ export function UsageRecommend() {
               style={{ width: `${Math.min((elapsed / 120) * 100, 100)}%` }}
             />
           </div>
-          <span className="flex-shrink-0 text-[10px] text-stone-500">{locale.recommend.secondsLabel(elapsed)}</span>
+          <span className="shrink-0 text-[10px] text-stone-500">{locale.recommend.secondsLabel(elapsed)}</span>
         </div>
       )}
       {regenerated && (
@@ -130,7 +130,7 @@ export function UsageRecommend() {
           className="tap-highlight mx-4 mb-1.5 flex w-[calc(100%-2rem)] animate-[fade-in_0.3s_ease-out] items-center justify-between rounded-lg bg-green-50 px-3 py-1.5 text-left text-xs text-green-700 dark:bg-green-500/10 dark:text-green-400"
         >
           <span>{locale.recommend.updated}</span>
-          <X className="h-3 w-3 flex-shrink-0 opacity-50" />
+          <X className="h-3 w-3 shrink-0 opacity-50" />
         </button>
       )}
       {aiError && <p className="mx-4 mb-2 text-xs text-red-500 dark:text-red-400">{aiError}</p>}
@@ -258,7 +258,7 @@ export function UsageRecommend() {
             </p>
             <p className="truncate text-[11px] text-stone-500 dark:text-stone-400">{scenarioResult.reason}</p>
           </div>
-          <Play className="h-3.5 w-3.5 flex-shrink-0 fill-claude-orange text-claude-orange" />
+          <Play className="h-3.5 w-3.5 shrink-0 fill-claude-orange text-claude-orange" />
         </button>
       )}
 
@@ -304,7 +304,7 @@ export function UsageRecommend() {
           className={`h-5 w-9 rounded-full transition-colors ${monitoring ? 'bg-green-500' : 'bg-stone-300 dark:bg-stone-600'}`}
         >
           <div
-            className={`h-5 w-5 rounded-full bg-white shadow transition-transform ${monitoring ? 'translate-x-4' : 'translate-x-0'}`}
+            className={`h-5 w-5 rounded-full bg-white shadow-sm transition-transform ${monitoring ? 'translate-x-4' : 'translate-x-0'}`}
           />
         </div>
       </button>

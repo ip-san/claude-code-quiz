@@ -100,12 +100,12 @@ export function QuizSearch() {
                   onClick={() => setExpandedId(isExpanded ? null : r.id)}
                   className="tap-highlight flex w-full items-start gap-2 px-4 py-3 text-left"
                 >
-                  <span className="mt-0.5 flex-shrink-0 text-sm">{cat?.icon}</span>
+                  <span className="mt-0.5 shrink-0 text-sm">{cat?.icon}</span>
                   <span className="flex-1 text-sm leading-snug text-claude-dark dark:text-stone-200">{r.question}</span>
                   {isExpanded ? (
-                    <ChevronUp className="mt-0.5 h-4 w-4 flex-shrink-0 text-stone-400" />
+                    <ChevronUp className="mt-0.5 h-4 w-4 shrink-0 text-stone-400" />
                   ) : (
-                    <ChevronDown className="mt-0.5 h-4 w-4 flex-shrink-0 text-stone-400" />
+                    <ChevronDown className="mt-0.5 h-4 w-4 shrink-0 text-stone-400" />
                   )}
                 </button>
                 {isExpanded && (
@@ -175,7 +175,7 @@ export function QuizSearch() {
             setExpandedId(null)
           }}
           placeholder={locale.search.inputPlaceholder}
-          className="flex-1 bg-transparent text-sm text-claude-dark outline-none placeholder:text-stone-400 dark:text-stone-200"
+          className="flex-1 bg-transparent text-sm text-claude-dark outline-hidden placeholder:text-stone-400 dark:text-stone-200"
           autoFocus
           aria-label={locale.search.label}
         />
@@ -270,14 +270,14 @@ export function QuizSearch() {
                         onClick={() => setExpandedId(isExpanded ? null : r.id)}
                         className="tap-highlight flex w-full items-start gap-2 px-4 py-2.5 text-left"
                       >
-                        <span className="mt-0.5 flex-shrink-0 text-sm">{cat?.icon}</span>
+                        <span className="mt-0.5 shrink-0 text-sm">{cat?.icon}</span>
                         <span className="flex-1 text-sm leading-snug text-claude-dark dark:text-stone-200">
                           {r.question.length > 80 ? r.question.slice(0, 80) + '...' : r.question}
                         </span>
                         {isExpanded ? (
-                          <ChevronUp className="mt-0.5 h-4 w-4 flex-shrink-0 text-stone-400" />
+                          <ChevronUp className="mt-0.5 h-4 w-4 shrink-0 text-stone-400" />
                         ) : (
-                          <ChevronDown className="mt-0.5 h-4 w-4 flex-shrink-0 text-stone-400" />
+                          <ChevronDown className="mt-0.5 h-4 w-4 shrink-0 text-stone-400" />
                         )}
                       </button>
                       {/* Expanded: answer + explanation */}

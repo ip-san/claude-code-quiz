@@ -23,7 +23,7 @@ export function PersonalBest({ sessionHistory, currentPercentage }: PersonalBest
   if (!isNewRecord) return null
 
   return (
-    <div className="mb-4 flex items-center justify-center gap-2 rounded-2xl bg-gradient-to-r from-yellow-400 to-amber-500 px-4 py-3 text-white shadow-lg">
+    <div className="mb-4 flex items-center justify-center gap-2 rounded-2xl bg-linear-to-r from-yellow-400 to-amber-500 px-4 py-3 text-white shadow-lg">
       <Trophy className="h-6 w-6" />
       <span className="text-base font-bold">{locale.personalBest.updated}</span>
       <span className="text-sm opacity-80">{currentPercentage}%</span>

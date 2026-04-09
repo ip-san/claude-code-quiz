@@ -244,7 +244,7 @@ export function Feedback({ quiz, isCorrect }: FeedbackProps) {
           className="mb-4 rounded-2xl border border-red-200 bg-red-50 p-4"
         >
           <div className="flex items-start gap-2">
-            <AlertTriangle className="mt-0.5 h-5 w-5 flex-shrink-0 text-amber-500" />
+            <AlertTriangle className="mt-0.5 h-5 w-5 shrink-0 text-amber-500" />
             <div>
               <p className="mb-1 font-medium text-claude-dark">{locale.feedback.whyWrong}</p>
               {wrongSelected.map((opt, i) => (
@@ -268,7 +268,7 @@ export function Feedback({ quiz, isCorrect }: FeedbackProps) {
         className="mb-4 rounded-2xl border border-red-200 bg-red-50 p-4"
       >
         <div className="flex items-start gap-2">
-          <AlertTriangle className="mt-0.5 h-5 w-5 flex-shrink-0 text-amber-500" />
+          <AlertTriangle className="mt-0.5 h-5 w-5 shrink-0 text-amber-500" />
           <div>
             <p className="mb-1 font-medium text-claude-dark">{locale.feedback.whyWrong}</p>
             <p className="text-sm leading-relaxed text-stone-600 dark:text-stone-300">
@@ -393,7 +393,7 @@ export function Feedback({ quiz, isCorrect }: FeedbackProps) {
               onClick={() => handleCopyAIPrompt(type)}
               className="tap-highlight flex items-start gap-3 rounded-xl border border-stone-200 bg-white px-3 py-2.5 text-left dark:border-stone-600 dark:bg-stone-700"
             >
-              <Icon className="mt-0.5 h-4 w-4 flex-shrink-0 text-blue-400" aria-hidden="true" />
+              <Icon className="mt-0.5 h-4 w-4 shrink-0 text-blue-400" aria-hidden="true" />
               <div>
                 <p className="text-sm font-medium text-claude-dark">{label}</p>
                 <p className="text-[11px] text-stone-500 dark:text-stone-500">{description}</p>

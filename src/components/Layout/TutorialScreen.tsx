@@ -99,7 +99,7 @@ function SlideVisual({ type }: { type: SlideData['visualType'] }) {
           {[Code2, FileText, Terminal, Shield].map((Icon, i) => (
             <div
               key={locale.tutorial.capabilities[i].label}
-              className="flex flex-col items-center gap-2 rounded-xl bg-white p-3 shadow-sm dark:bg-stone-800"
+              className="flex flex-col items-center gap-2 rounded-xl bg-white p-3 shadow-xs dark:bg-stone-800"
             >
               <div className="text-claude-orange">
                 <Icon className="h-5 w-5" />
@@ -115,8 +115,8 @@ function SlideVisual({ type }: { type: SlideData['visualType'] }) {
       return (
         <div className="space-y-2">
           {locale.tutorial.pathSteps.map((item, i) => (
-            <div key={i + 1} className="flex items-center gap-3 rounded-xl bg-white p-3 shadow-sm dark:bg-stone-800">
-              <div className="flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-full bg-claude-orange/10 text-sm font-bold text-claude-orange">
+            <div key={i + 1} className="flex items-center gap-3 rounded-xl bg-white p-3 shadow-xs dark:bg-stone-800">
+              <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-claude-orange/10 text-sm font-bold text-claude-orange">
                 {i + 1}
               </div>
               <div>

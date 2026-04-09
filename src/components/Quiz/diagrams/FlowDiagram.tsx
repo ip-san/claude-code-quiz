@@ -61,7 +61,7 @@ export function FlowDiagram({ label, steps }: FlowDiagramProps) {
                 style={{ animationDelay: getItemDelay(i) }}
               >
                 {/* Step number badge */}
-                <span className="flex h-5 w-5 flex-shrink-0 items-center justify-center rounded-full bg-claude-orange/20 text-[10px] font-bold text-claude-orange">
+                <span className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-claude-orange/20 text-[10px] font-bold text-claude-orange">
                   {i + 1}
                 </span>
                 <div className="flex-1">

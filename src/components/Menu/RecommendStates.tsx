@@ -22,7 +22,7 @@ export function SetupBanner({
   return (
     <div className="mb-5 rounded-2xl border border-stone-200 bg-white px-4 py-3 dark:border-stone-700 dark:bg-stone-800">
       <div className="flex items-start gap-3">
-        <Sparkles className="mt-0.5 h-5 w-5 flex-shrink-0 text-claude-orange" />
+        <Sparkles className="mt-0.5 h-5 w-5 shrink-0 text-claude-orange" />
         <div className="flex-1">
           <p className="text-sm font-medium text-claude-dark dark:text-stone-200">{L.setupTitle}</p>
           <p className="mt-1 text-xs text-stone-500 dark:text-stone-400">{L.setupDesc}</p>
@@ -91,7 +91,7 @@ export function AnalyzeButton({
       {loading && (
         <div className="h-1 bg-stone-100 dark:bg-stone-700">
           <div
-            className="h-full rounded-r-full bg-gradient-to-r from-claude-orange to-amber-400 transition-[width] duration-1000 ease-linear"
+            className="h-full rounded-r-full bg-linear-to-r from-claude-orange to-amber-400 transition-[width] duration-1000 ease-linear"
             style={{ width: `${progress}%` }}
           />
         </div>
