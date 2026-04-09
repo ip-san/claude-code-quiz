@@ -57,13 +57,11 @@ export default defineConfig({
     outDir: 'dist-web',
     emptyOutDir: true,
     chunkSizeWarningLimit: 600,
-    rollupOptions: {
+    rolldownOptions: {
       output: {
-        manualChunks: {
-          // Split quiz data (largest payload) into separate chunk
-          'quiz-data': ['./src/data/quizzes.json'],
-          // Split React + core libs
-          vendor: ['react', 'react-dom'],
+        manualChunks(id: string) {
+          if (id.includes('quizzes.json')) return 'quiz-data'
+          if (id.includes('node_modules/react-dom') || id.includes('node_modules/react/')) return 'vendor'
         },
       },
     },

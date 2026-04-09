@@ -138,7 +138,7 @@ export default defineConfig({
     outDir: 'dist',
     emptyOutDir: true,
     chunkSizeWarningLimit: 600,
-    rollupOptions: {
+    rolldownOptions: {
       // virtual:pwa-register is only available in web builds (vite-plugin-pwa)
       // Externalize it so the Electron build doesn't fail on this virtual module
       external: ['virtual:pwa-register'],
