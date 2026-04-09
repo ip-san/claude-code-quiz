@@ -18,7 +18,7 @@ export function XpToast({ totalXp, onComplete }: XpToastProps) {
   const { phase, trigger, style } = useToastPhase(1000, onComplete)
   const prevXpRef = useRef<number | null>(null)
   const gainRef = useRef(0)
-  const delayRef = useRef<ReturnType<typeof setTimeout>>()
+  const delayRef = useRef<ReturnType<typeof setTimeout>>(undefined)
 
   useEffect(() => {
     // Skip first render — just record initial value

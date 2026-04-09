@@ -34,7 +34,7 @@ export function ShareImageGenerator({
   masteryIcon,
 }: ShareImageGeneratorProps) {
   const [status, setStatus] = useState<ShareStatus>('idle')
-  const resetTimerRef = useRef<ReturnType<typeof setTimeout>>()
+  const resetTimerRef = useRef<ReturnType<typeof setTimeout>>(undefined)
 
   // Cleanup timeout on unmount
   useEffect(() => () => clearTimeout(resetTimerRef.current), [])
