@@ -72,7 +72,7 @@ export function WelcomeScreen({ onComplete }: WelcomeScreenProps) {
                 </div>
                 <div>
                   <p className="text-sm font-semibold text-claude-dark">{feature.title}</p>
-                  <p className="text-xs text-claude-gray">{feature.desc}</p>
+                  <p className="text-xs text-stone-600 dark:text-stone-400">{feature.desc}</p>
                 </div>
               </div>
             )
