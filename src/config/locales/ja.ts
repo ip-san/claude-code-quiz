@@ -34,6 +34,12 @@ export const ja: LocaleConfig = {
     reload: '再読込',
   },
 
+  updateBanner: {
+    message: (version: string) => `新しいバージョン ${version} が利用可能です`,
+    download: 'ダウンロード',
+    dismiss: '閉じる',
+  },
+
   offline: {
     indicator: 'オフラインモード',
   },

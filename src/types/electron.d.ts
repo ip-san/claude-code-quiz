@@ -37,6 +37,11 @@ interface ElectronAPI {
     context: string
   ) => Promise<{ success: boolean; result?: string; error?: string }>
   showNotification: (title: string, body: string) => Promise<void>
+  checkForUpdate: () => Promise<{
+    hasUpdate: boolean
+    latestVersion: string | null
+    releaseUrl: string | null
+  } | null>
   setupGlobalHooks: (remove: boolean) => Promise<{ success: boolean; error?: string }>
   checkGlobalHooks: () => Promise<boolean>
   getClassifiedPrompts: () => Promise<{

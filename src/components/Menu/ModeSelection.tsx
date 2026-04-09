@@ -14,6 +14,7 @@ import { NotificationOptIn } from './NotificationOptIn'
 import { QuickActions } from './QuickActions'
 import { QuizSearch } from './QuizSearch'
 import { ResumeSessionBanner } from './ResumeSessionBanner'
+import { UpdateBanner } from './UpdateBanner'
 import { UsageRecommend } from './UsageRecommend'
 
 export function ModeSelection() {
@@ -44,6 +45,9 @@ export function ModeSelection() {
     <div className="flex min-h-dvh flex-col bg-claude-cream dark:bg-stone-900">
       <div className="flex-1 overflow-y-auto px-4 pb-8 pt-6 sm:px-6 sm:pt-8">
         <div className="mx-auto w-full sm:max-w-2xl lg:max-w-4xl">
+          {/* Update available banner (Electron only) */}
+          <UpdateBanner />
+
           {/* Resume session banner */}
           <ResumeSessionBanner />
 

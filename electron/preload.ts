@@ -163,6 +163,14 @@ const electronAPI = {
     return ipcRenderer.invoke('show-notification', title, body)
   },
 
+  checkForUpdate: (): Promise<{
+    hasUpdate: boolean
+    latestVersion: string | null
+    releaseUrl: string | null
+  } | null> => {
+    return ipcRenderer.invoke('check-for-update')
+  },
+
   /**
    * グローバルフックの設定/削除
    */

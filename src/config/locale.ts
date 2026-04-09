@@ -37,6 +37,13 @@ export interface LocaleConfig {
     readonly reload: string
   }
 
+  // === App Update Banner (Electron) ===
+  readonly updateBanner: {
+    readonly message: (version: string) => string
+    readonly download: string
+    readonly dismiss: string
+  }
+
   // === Offline ===
   readonly offline: {
     readonly indicator: string

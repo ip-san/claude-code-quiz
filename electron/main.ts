@@ -26,6 +26,7 @@ import {
   Notification as ElectronNotification,
   ipcMain,
   nativeImage,
+  net,
   shell,
 } from 'electron'
 import { existsSync, readdirSync, readFileSync, statSync, writeFileSync } from 'fs'
@@ -838,6 +839,71 @@ ipcMain.handle('show-notification', (_event: unknown, title: string, body: strin
   }
   // System beep as fallback (macOS notification center may suppress Electron notifications)
   shell.beep()
+})
+
+// ============================================================
+// Update Check (GitHub Releases)
+// ============================================================
+
+const GITHUB_REPO = 'ip-san/claude-code-quiz'
+const GITHUB_API_LATEST = `https://api.github.com/repos/${GITHUB_REPO}/releases/latest`
+
+let cachedUpdateCheck: {
+  checkedAt: number
+  latestVersion: string | null
+  releaseUrl: string | null
+} | null = null
+
+function isNewerVersion(latest: string, current: string): boolean {
+  const parse = (v: string): number[] => v.replace(/^v/, '').split('.').map(Number)
+  const [lMaj = 0, lMin = 0, lPat = 0] = parse(latest)
+  const [cMaj = 0, cMin = 0, cPat = 0] = parse(current)
+  if (lMaj !== cMaj) return lMaj > cMaj
+  if (lMin !== cMin) return lMin > cMin
+  return lPat > cPat
+}
+
+interface UpdateCheckResult {
+  hasUpdate: boolean
+  latestVersion: string | null
+  releaseUrl: string | null
+}
+
+ipcMain.handle('check-for-update', async (): Promise<UpdateCheckResult | null> => {
+  const CACHE_TTL = 24 * 60 * 60 * 1000
+  const currentVersion = app.getVersion()
+
+  if (cachedUpdateCheck && Date.now() - cachedUpdateCheck.checkedAt < CACHE_TTL) {
+    return {
+      hasUpdate: cachedUpdateCheck.latestVersion
+        ? isNewerVersion(cachedUpdateCheck.latestVersion, currentVersion)
+        : false,
+      latestVersion: cachedUpdateCheck.latestVersion,
+      releaseUrl: cachedUpdateCheck.releaseUrl,
+    }
+  }
+
+  try {
+    const response = await net.fetch(GITHUB_API_LATEST, {
+      headers: { 'User-Agent': `claude-code-quiz/${currentVersion}` },
+    })
+    if (!response.ok) return null
+
+    const data = (await response.json()) as { tag_name: string; html_url: string }
+    cachedUpdateCheck = {
+      checkedAt: Date.now(),
+      latestVersion: data.tag_name,
+      releaseUrl: data.html_url,
+    }
+
+    return {
+      hasUpdate: isNewerVersion(data.tag_name, currentVersion),
+      latestVersion: data.tag_name,
+      releaseUrl: data.html_url,
+    }
+  } catch {
+    return null
+  }
 })
 
 // ============================================================
