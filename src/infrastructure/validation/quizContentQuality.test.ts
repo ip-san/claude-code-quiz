@@ -211,7 +211,7 @@ describe('Quiz Content Quality', () => {
     it('特定のインデックスに35%以上集中していないこと', () => {
       const counts = new Map<number, number>()
       singleQuizzes.forEach((q) => {
-        const ci = q.correctIndex!
+        const ci = q.correctIndex ?? 0
         counts.set(ci, (counts.get(ci) ?? 0) + 1)
       })
       const total = singleQuizzes.length
@@ -226,7 +226,7 @@ describe('Quiz Content Quality', () => {
     })
 
     it('少なくとも3つ以上の異なるインデックスが使用されていること', () => {
-      const usedIndices = new Set(singleQuizzes.map((q) => q.correctIndex!))
+      const usedIndices = new Set(singleQuizzes.map((q) => q.correctIndex ?? 0))
       expect(usedIndices.size).toBeGreaterThanOrEqual(3)
     })
   })
@@ -234,7 +234,7 @@ describe('Quiz Content Quality', () => {
   describe('wrongFeedback の構造（単一選択問題）', () => {
     it('正解選択肢に wrongFeedback が付いていないこと', () => {
       const violations = singleQuizzes.filter((q) => {
-        const correct = q.options[q.correctIndex!]
+        const correct = q.options[q.correctIndex ?? 0]
         return 'wrongFeedback' in correct && correct.wrongFeedback !== undefined
       })
       const ids = violations.map((q) => q.id)
@@ -392,13 +392,13 @@ describe('Quiz Content Quality', () => {
     })
 
     it('すべてのoverview問題にソート用タグがあること', () => {
-      const missingOrder = overviewQuizzes.filter((q) => !q.tags!.some((t: string) => /^overview-\d+$/.test(t)))
+      const missingOrder = overviewQuizzes.filter((q) => !(q.tags ?? []).some((t: string) => /^overview-\d+$/.test(t)))
       const ids = missingOrder.map((q) => q.id)
       expect(ids, `ソートタグがない: ${ids.join(', ')}`).toEqual([])
     })
 
     it('ソート用タグに重複がないこと', () => {
-      const orderTags = overviewQuizzes.flatMap((q) => q.tags!.filter((t: string) => /^overview-\d+$/.test(t)))
+      const orderTags = overviewQuizzes.flatMap((q) => (q.tags ?? []).filter((t: string) => /^overview-\d+$/.test(t)))
       const duplicates = orderTags.filter((t: string, i: number) => orderTags.indexOf(t) !== i)
       expect(duplicates, `重複タグ: ${duplicates.join(', ')}`).toEqual([])
     })

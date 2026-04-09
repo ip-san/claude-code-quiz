@@ -325,19 +325,33 @@ test.describe('Quiz App E2E', () => {
   })
 
   test('unanswered mode shows category picker with progress', async ({ page }) => {
+    // First answer a question to generate progress (mode is hidden for first-time users)
     await goToMenu(page)
+    await startRandomQuiz(page)
+    await page.locator('[role="option"], [role="checkbox"]').first().click()
+    await page.getByRole('button', { name: '回答する' }).click()
+    await page.getByRole('button', { name: /中止/ }).click()
+    await page
+      .getByRole('button', { name: /中止する/ })
+      .last()
+      .click()
 
-    // Open hamburger → find unanswered item
+    // Dismiss resume session banner to avoid interference
+    const discard = page.getByRole('button', { name: /破棄/ })
+    if (await discard.isVisible({ timeout: 2000 }).catch(() => false)) {
+      await discard.click()
+    }
+
+    // Open hamburger → expand quiz modes → click unanswered
     await page.getByRole('button', { name: 'メニューを開く' }).click()
     const menu = page.getByRole('dialog', { name: 'メニュー' })
+    await menu.getByRole('button', { name: /クイズモード/ }).click()
+    await menu.getByRole('button', { name: /未正解に挑戦/ }).click()
 
-    // Scroll down if needed and click unanswered
-    const unansweredItem = menu.getByRole('button', { name: /未正解に挑戦/ })
-    await expect(unansweredItem).toBeVisible({ timeout: 3000 })
-    await unansweredItem.click()
-
-    // Category picker should show with progress info
-    await expect(page.getByText(/正解済み/)).toBeVisible({ timeout: 3000 })
+    // Category picker dialog should show with progress info
+    const picker = page.getByRole('dialog', { name: /未正解に挑戦/ })
+    await expect(picker).toBeVisible({ timeout: 3000 })
+    await expect(picker.getByText(/正解済み/)).toBeVisible({ timeout: 3000 })
   })
 
   test('app loads without errors', async ({ page }) => {

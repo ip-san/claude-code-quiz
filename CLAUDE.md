@@ -25,9 +25,9 @@ bun run dev:web       # Web版開発サーバー
 bun run build:web     # Web版プロダクションビルド
 
 # 品質チェック
-bun run check         # 型チェック + lint + 775テスト + 752問チェック（一括）
+bun run check         # 型チェック + lint + 776テスト + 752問チェック（一括）
 bun run check:all     # check + docs:validate + cpd（CI用フルチェック）
-bun test              # ユニット + Store テスト（775テスト、Vitest）
+bun test              # ユニット + Store テスト（776テスト、Vitest）
 bun run test:e2e      # E2E + Visual Regression テスト（66テスト、Playwright）
 bun run cpd           # コードクローン検出（jscpd、2%以下）
 

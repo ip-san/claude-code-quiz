@@ -4,19 +4,28 @@
 import { beforeEach, describe, expect, it } from 'vitest'
 import { useQuizStore } from '../quizStore'
 
-// Helper: answer the current question
+// Helper: answer the current question (handles both single and multi-select)
 function answerCurrentQuestion(correct: boolean) {
   const state = useQuizStore.getState()
   const session = state.sessionState!
   const q = session.questions[session.currentIndex]
   const ci = q.correctIndex
-  const correctSet = new Set(Array.isArray(ci) ? ci : [ci])
+  const isMulti = Array.isArray(ci)
 
   if (correct) {
-    state.selectAnswer(Array.isArray(ci) ? ci[0] : ci)
+    if (isMulti) {
+      for (const idx of ci as number[]) state.toggleAnswer(idx)
+    } else {
+      state.selectAnswer(ci)
+    }
   } else {
+    const correctSet = new Set(isMulti ? ci : [ci])
     const wrongIndex = q.options.findIndex((_, i) => !correctSet.has(i))
-    state.selectAnswer(wrongIndex)
+    if (isMulti) {
+      state.toggleAnswer(wrongIndex)
+    } else {
+      state.selectAnswer(wrongIndex)
+    }
   }
   state.submitAnswer()
 }

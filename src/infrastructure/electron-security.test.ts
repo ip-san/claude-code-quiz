@@ -9,7 +9,18 @@ import { describe, expect, it } from 'vitest'
 
 const mainSource = readFileSync('electron/main.ts', 'utf8')
 const preloadSource = readFileSync('electron/preload.ts', 'utf8')
-const packageJson = JSON.parse(readFileSync('package.json', 'utf8'))
+
+interface PackageJsonBuild {
+  appId: string
+  asar?: boolean
+  files: string[]
+  mac?: Record<string, unknown>
+  win?: Record<string, unknown>
+  linux?: Record<string, unknown>
+  asarUnpack: string[]
+}
+
+const packageJson: { build: PackageJsonBuild } = JSON.parse(readFileSync('package.json', 'utf8'))
 
 describe('Electron Security: BrowserWindow configuration', () => {
   it('nodeIntegration is disabled', () => {
@@ -136,7 +147,7 @@ describe('Electron Packaging: Build configuration', () => {
   })
 
   it('files list does not include source code', () => {
-    const files = buildConfig.files as string[]
+    const files = buildConfig.files
     // Should not ship raw TypeScript source
     expect(files).not.toContain('src/**/*')
     expect(files).not.toContain('electron/**/*')
@@ -149,7 +160,7 @@ describe('Electron Packaging: Build configuration', () => {
   })
 
   it('asarUnpack only includes necessary files', () => {
-    const unpack = buildConfig.asarUnpack as string[]
+    const unpack = buildConfig.asarUnpack
     expect(unpack).toBeDefined()
     // Should NOT unpack everything
     expect(unpack).not.toContain('**/*')
@@ -159,8 +170,8 @@ describe('Electron Packaging: Build configuration', () => {
 })
 
 describe('Electron Packaging: asarUnpack consistency', () => {
-  const asarUnpack = packageJson.build.asarUnpack as string[]
-  const buildFiles = packageJson.build.files as string[]
+  const asarUnpack = packageJson.build.asarUnpack
+  const buildFiles = packageJson.build.files
 
   it('every asarUnpack pattern is also in build.files', () => {
     // files に含まれないパターンは ASAR に入らないため unpack 指定が無意味
