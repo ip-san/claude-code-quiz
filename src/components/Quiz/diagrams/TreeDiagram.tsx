@@ -32,7 +32,7 @@ export function TreeDiagram({ label, root }: TreeDiagramProps) {
 
   let nodeIndex = 0
 
-  const renderNode = (node: TreeNode, depth: number, isLast: boolean, prefix: string): JSX.Element => {
+  const renderNode = (node: TreeNode, depth: number, isLast: boolean, prefix: string): React.JSX.Element => {
     const currentIndex = nodeIndex++
     const connector = depth === 0 ? '' : isLast ? '└─ ' : '├─ '
     const childPrefix = depth === 0 ? '' : prefix + (isLast ? '   ' : '│  ')
