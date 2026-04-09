@@ -287,9 +287,13 @@ export function useRecommendation() {
 
   const setupHooks = useCallback(async () => {
     const result = await window.electronAPI?.setupGlobalHooks(false)
+    console.log('[setupHooks] result:', result)
     if (result?.success) {
       setSetupDone(true)
+      setHooksInstalled(true)
       haptics.medium()
+    } else {
+      console.error('[setupHooks] failed:', result?.error)
     }
   }, [])
 
