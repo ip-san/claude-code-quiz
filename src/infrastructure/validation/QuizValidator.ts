@@ -445,11 +445,13 @@ export interface ValidationResult<T> {
 }
 
 /** Zod の safeParse 結果を ValidationResult に変換（共通ヘルパー） */
-function toValidationResult<T>(result: z.SafeParseReturnType<unknown, T>): ValidationResult<T> {
+function toValidationResult<T>(
+  result: { success: true; data: T } | { success: false; error: z.ZodError }
+): ValidationResult<T> {
   if (result.success) return { success: true, data: result.data }
-  const errors = result.error.errors.map((err) => {
-    const path = err.path.join('.')
-    return path ? `${path}: ${err.message}` : err.message
+  const errors = result.error.issues.map((issue) => {
+    const path = issue.path.join('.')
+    return path ? `${path}: ${issue.message}` : issue.message
   })
   return { success: false, errors }
 }
