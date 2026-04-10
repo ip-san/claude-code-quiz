@@ -1,16 +1,12 @@
 import { ArrowRight, BookOpen, ChevronDown, Home, RotateCcw, Share2, Star, Target } from 'lucide-react'
-import { useEffect, useMemo, useState } from 'react'
-import { useShallow } from 'zustand/react/shallow'
+import { useState } from 'react'
 import { locale } from '@/config/locale'
 import { theme } from '@/config/theme'
 import { DailyGoalService } from '@/domain/services/DailyGoalService'
 import { getMasteryLevel } from '@/domain/services/MasteryLevelService'
-import { getOverviewRecommendation } from '@/domain/services/RecommendationService'
-import { getScoreMessage } from '@/domain/services/ScoreMessageService'
 import { getChapterFromTags } from '@/domain/valueObjects/OverviewChapter'
 import { CERTIFICATE_THRESHOLDS } from '@/domain/valueObjects/ScoreThresholds'
 import { trackShare } from '@/lib/analytics'
-import { APP_CONFIG, useQuizStore } from '@/stores/quizStore'
 import { CategoryBreakthroughBadge } from './overlays/CategoryBreakthroughBadge'
 import { ConfettiEffect } from './overlays/ConfettiEffect'
 import { LevelUpBadge } from './overlays/LevelUpBadge'
@@ -22,127 +18,47 @@ import { ScoreRing } from './result/ScoreRing'
 import { ShareImageGenerator } from './result/ShareImageGenerator'
 import { SkillsAcquired } from './result/SkillsAcquired'
 import { TeamShareGuide } from './result/TeamShareGuide'
-
-// Star visualization constants
-const STAR_COUNT = 5
-const STAR_PERCENTAGE_DIVISOR = 20
-const prefersReducedMotion =
-  typeof window !== 'undefined' && window.matchMedia('(prefers-reduced-motion: reduce)').matches
+import { STAR_COUNT, STAR_PERCENTAGE_DIVISOR, useQuizResult } from './useQuizResult'
 
 export function QuizResult() {
   const {
+    // Animation state
+    displayPercent,
+    showStars,
+    showContent,
+    noMotion,
+
+    // Derived values
+    percentage,
+    isPassing,
+    filledStars,
+    recommendation,
+    result,
+    isFirstSession,
+
+    // Store state
     sessionState,
-    endSession,
-    startSession,
-    retrySession,
-    startReviewSession,
     sessionConfig,
     sessionWrongAnswers,
     userProgress,
-    getCategoryStats,
-  } = useQuizStore(
-    useShallow((state) => ({
-      sessionState: state.sessionState,
-      endSession: state.endSession,
-      allQuestions: state.allQuestions,
-      startSession: state.startSession,
-      retrySession: state.retrySession,
-      startReviewSession: state.startReviewSession,
-      sessionConfig: state.sessionConfig,
-      sessionWrongAnswers: state.sessionWrongAnswers,
-      userProgress: state.userProgress,
-      getCategoryStats: state.getCategoryStats,
-    }))
-  )
+    categoryStats,
+    score,
+    answeredCount,
+    totalQuestions,
+    hasUnanswered,
+    hintsUsedCount,
+    isReviewMode,
+    hasWrongAnswers,
+    isOverviewMode,
 
-  const categoryStats = useMemo(() => getCategoryStats(), [getCategoryStats])
-
-  const score = sessionState?.score ?? 0
-  const answeredCount = sessionState?.answeredCount ?? 0
-  const totalQuestions = sessionState?.questions.length ?? 0
-  const hasUnanswered = answeredCount < totalQuestions
-  const hintsUsedCount = sessionState?.hintsUsedCount ?? 0
-  const isReviewMode = sessionState?.isReviewMode ?? false
-  const hasWrongAnswers = sessionWrongAnswers.length > 0
-  const isOverviewMode = sessionConfig.mode === 'overview'
-  const isFirstSession = userProgress.sessionHistory.length <= 1
-
-  // Animated count-up
-  const [displayPercent, setDisplayPercent] = useState(0)
-  const [showStars, setShowStars] = useState(false)
-  const [showContent, setShowContent] = useState(false)
-
-  // Prevent NaN when no questions answered (edge case: timer expired immediately)
-  const percentage = answeredCount > 0 ? Math.round((score / answeredCount) * 100) : 0
-  const isPassing = percentage >= APP_CONFIG.passingScore
-
-  const noMotion = prefersReducedMotion
-
-  // Count-up animation
-  // biome-ignore lint/correctness/useExhaustiveDependencies: re-run when noMotion preference changes
-  useEffect(() => {
-    if (noMotion) {
-      setDisplayPercent(percentage)
-      setShowStars(true)
-      setShowContent(true)
-      return
-    }
-
-    // Animate percentage counter (score ring handles its own animation)
-    const duration = 800
-    const steps = 25
-    const interval = duration / steps
-    let step = 0
-
-    const timer = setInterval(() => {
-      step++
-      const progress = step / steps
-      const eased = 1 - Math.pow(1 - progress, 3)
-      setDisplayPercent(Math.round(percentage * eased))
-
-      if (step >= steps) {
-        clearInterval(timer)
-        setDisplayPercent(percentage)
-        setTimeout(() => setShowStars(true), 100)
-        setTimeout(() => setShowContent(true), 400)
-      }
-    }, interval)
-
-    return () => clearInterval(timer)
-  }, [percentage, noMotion])
-
-  // Recommendation for overview mode: find weakest category from wrong answers
-  const recommendation = useMemo(() => {
-    if (!isOverviewMode || isReviewMode) return null
-    return getOverviewRecommendation(sessionWrongAnswers, sessionState?.questions ?? [])
-  }, [isOverviewMode, isReviewMode, sessionWrongAnswers, sessionState?.questions])
-
-  const result = getScoreMessage(percentage)
-
-  const handleRetry = () => {
-    retrySession()
-  }
-
-  const handleBackToMenu = () => {
-    endSession()
-  }
-
-  const handleStartCategorySession = (categoryId: string) => {
-    startSession({
-      mode: 'category',
-      categoryFilter: categoryId,
-      questionCount: null,
-      timeLimit: null,
-      shuffleQuestions: true,
-      shuffleOptions: false,
-    })
-  }
-
-  const handleStartFullTest = () => {
-    startSession({ mode: 'full' })
-  }
-
-  const filledStars = Math.ceil(percentage / STAR_PERCENTAGE_DIVISOR)
+    // Handlers
+    handleRetry,
+    handleBackToMenu,
+    handleStartCategorySession,
+    handleStartFullTest,
+    startReviewSession,
+    startSession,
+  } = useQuizResult()
 
   return (
     <div className="min-h-dvh overflow-y-auto px-4 py-8 sm:flex sm:items-center sm:justify-center">
@@ -433,7 +349,7 @@ function ShareSection({
           {'share' in navigator && (
             <button
               onClick={() => {
-                const stars = '⭐'.repeat(Math.ceil(percentage / 20))
+                const stars = '⭐'.repeat(Math.ceil(percentage / STAR_PERCENTAGE_DIVISOR))
                 navigator
                   .share({
                     title: theme.appName,

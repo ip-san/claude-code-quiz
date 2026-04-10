@@ -1,5 +1,5 @@
 import { locale } from '@/config/locale'
-import { useDiagramAnimation } from './useDiagramAnimation'
+import { BaseDiagram } from './BaseDiagram'
 
 interface TreeNode {
   text: string
@@ -24,63 +24,67 @@ function countNodes(node: TreeNode): number {
  */
 export function TreeDiagram({ label, root }: TreeDiagramProps) {
   const total = countNodes(root)
-  const { containerRef, isVisible, getItemDelay } = useDiagramAnimation({
-    itemCount: total,
-    staggerMs: 80,
-    initialDelayMs: 150,
-  })
-
-  let nodeIndex = 0
-
-  const renderNode = (node: TreeNode, depth: number, isLast: boolean, prefix: string): React.JSX.Element => {
-    const currentIndex = nodeIndex++
-    const connector = depth === 0 ? '' : isLast ? '└─ ' : '├─ '
-    const childPrefix = depth === 0 ? '' : prefix + (isLast ? '   ' : '│  ')
-
-    const isDir = (node.children?.length ?? 0) > 0
-    // Colors by depth
-    const textColor =
-      depth === 0
-        ? 'text-claude-orange'
-        : isDir
-          ? 'text-blue-600 dark:text-blue-400'
-          : 'text-stone-700 dark:text-stone-300'
-
-    return (
-      <div key={currentIndex}>
-        <div
-          className={`flex items-baseline gap-0 font-mono leading-relaxed ${isVisible ? 'animate-diagram-slide-right' : 'opacity-0'}`}
-          style={{ animationDelay: getItemDelay(currentIndex) }}
-        >
-          {/* Prefix lines (│ characters) */}
-          {depth > 0 && (
-            <span className="whitespace-pre text-[11px] text-stone-400 dark:text-stone-600">
-              {prefix}
-              {connector}
-            </span>
-          )}
-          {/* Icon */}
-          <span className="mr-1 text-[11px]" aria-hidden="true">
-            {depth === 0 ? '📁' : isDir ? '📂' : '📄'}
-          </span>
-          {/* Node text */}
-          <span className={`text-[11px] font-semibold ${textColor}`}>{node.text}</span>
-          {node.sub && <span className="ml-1.5 text-[10px] text-stone-500 dark:text-stone-500">{node.sub}</span>}
-        </div>
-        {/* Children */}
-        {node.children?.map((child, i) =>
-          renderNode(child, depth + 1, i === (node.children?.length ?? 0) - 1, childPrefix)
-        )}
-      </div>
-    )
-  }
 
   return (
-    <div ref={containerRef} aria-label={label ?? locale.diagrams.tree}>
-      {label && <p className="mb-2 text-xs font-medium text-stone-500 dark:text-stone-400">{label}</p>}
-      <div className="overflow-x-auto rounded-lg border border-stone-200 bg-white/50 px-3 py-2 dark:border-stone-700 dark:bg-stone-800/50">
-        {renderNode(root, 0, true, '')}
-      </div>
-    </div>
+    <BaseDiagram
+      label={label}
+      defaultLabel={locale.diagrams.tree}
+      itemCount={total}
+      staggerMs={80}
+      initialDelayMs={150}
+    >
+      {({ isVisible, getItemDelay }) => {
+        let nodeIndex = 0
+
+        const renderNode = (node: TreeNode, depth: number, isLast: boolean, prefix: string): React.JSX.Element => {
+          const currentIndex = nodeIndex++
+          const connector = depth === 0 ? '' : isLast ? '└─ ' : '├─ '
+          const childPrefix = depth === 0 ? '' : prefix + (isLast ? '   ' : '│  ')
+
+          const isDir = (node.children?.length ?? 0) > 0
+          // Colors by depth
+          const textColor =
+            depth === 0
+              ? 'text-claude-orange'
+              : isDir
+                ? 'text-blue-600 dark:text-blue-400'
+                : 'text-stone-700 dark:text-stone-300'
+
+          return (
+            <div key={currentIndex}>
+              <div
+                className={`flex items-baseline gap-0 font-mono leading-relaxed ${isVisible ? 'animate-diagram-slide-right' : 'opacity-0'}`}
+                style={{ animationDelay: getItemDelay(currentIndex) }}
+              >
+                {/* Prefix lines (│ characters) */}
+                {depth > 0 && (
+                  <span className="whitespace-pre text-[11px] text-stone-400 dark:text-stone-600">
+                    {prefix}
+                    {connector}
+                  </span>
+                )}
+                {/* Icon */}
+                <span className="mr-1 text-[11px]" aria-hidden="true">
+                  {depth === 0 ? '📁' : isDir ? '📂' : '📄'}
+                </span>
+                {/* Node text */}
+                <span className={`text-[11px] font-semibold ${textColor}`}>{node.text}</span>
+                {node.sub && <span className="ml-1.5 text-[10px] text-stone-500 dark:text-stone-500">{node.sub}</span>}
+              </div>
+              {/* Children */}
+              {node.children?.map((child, i) =>
+                renderNode(child, depth + 1, i === (node.children?.length ?? 0) - 1, childPrefix)
+              )}
+            </div>
+          )
+        }
+
+        return (
+          <div className="overflow-x-auto rounded-lg border border-stone-200 bg-white/50 px-3 py-2 dark:border-stone-700 dark:bg-stone-800/50">
+            {renderNode(root, 0, true, '')}
+          </div>
+        )
+      }}
+    </BaseDiagram>
   )
 }

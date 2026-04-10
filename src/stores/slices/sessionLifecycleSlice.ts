@@ -1,10 +1,8 @@
 /**
- * Session Slice - Quiz session lifecycle
+ * Session Lifecycle Slice - Quiz session start, end, and timer management
  *
- * Handles: startSession, startSessionWithIds, startScenarioSession,
- * submitAnswer, nextQuestion, previousQuestion, goToQuestion,
- * finishTest, endSession, retryQuestion, retrySession,
- * selectAnswer, toggleAnswer, useHint, updateTimer
+ * Handles: startSession, startSessionWithIds, startScenarioSession, retrySession,
+ * endSession, finishTest, updateTimer, dismissChapterIntro, dismissChapterComplete
  */
 
 import { SCENARIOS } from '@/data/scenarios'
@@ -12,12 +10,11 @@ import { Question } from '@/domain/entities/Question'
 import { DailyGoalService } from '@/domain/services/DailyGoalService'
 import { type QuizSessionConfig, QuizSessionService, type QuizSessionState } from '@/domain/services/QuizSessionService'
 import { getQuizModeById } from '@/domain/valueObjects/QuizMode'
-import { getProgressRepository } from '@/infrastructure'
 import { getSessionRepository } from '@/infrastructure/persistence/SessionRepository'
-import { trackAnswer, trackQuizQuit, trackQuizStart, trackSearch } from '@/lib/analytics'
+import { trackQuizQuit, trackQuizStart, trackSearch } from '@/lib/analytics'
 import { APP_CONFIG, recordCompletedSession, type StoreGet, type StoreSet, saveSessionSnapshot } from '../utils'
 
-export interface SessionSlice {
+export interface SessionLifecycleSlice {
   sessionConfig: QuizSessionConfig
   sessionState: QuizSessionState | null
   sessionWrongAnswers: { questionId: string; selectedAnswer: number; selectedAnswers?: number[] | undefined }[]
@@ -28,27 +25,15 @@ export interface SessionSlice {
   startSessionWithIds: (questionIds: string[], label?: string) => void
   startScenarioSession: (scenarioId: string) => void
   retrySession: () => void
-  retryQuestion: () => void
-  selectAnswer: (index: number) => void
-  toggleAnswer: (index: number) => void
-  submitAnswer: () => void
-  nextQuestion: () => void
-  previousQuestion: () => void
-  goToQuestion: (index: number) => void
   finishTest: () => void
   endSession: () => void
   updateTimer: () => void
-  useHint: () => void
   dismissChapterIntro: () => void
   dismissChapterComplete: () => void
-
-  // Computed getters
-  getCurrentQuestion: () => Question | null
-  getProgress: () => { current: number; total: number }
 }
 
 /** セッション初期状態にユーザー進捗のスナップショットを付与（3箇所で共通） */
-function enrichWithProgress(
+export function enrichWithProgress(
   initialState: QuizSessionState,
   userProgress: import('@/domain/entities/UserProgress').UserProgress
 ): QuizSessionState {
@@ -60,7 +45,7 @@ function enrichWithProgress(
   }
 }
 
-export const createSessionSlice = (set: StoreSet, get: StoreGet): SessionSlice => ({
+export const createSessionLifecycleSlice = (set: StoreSet, get: StoreGet): SessionLifecycleSlice => ({
   sessionConfig: QuizSessionService.createDefaultConfig(),
   sessionState: null,
   sessionWrongAnswers: [],
@@ -243,250 +228,6 @@ export const createSessionSlice = (set: StoreSet, get: StoreGet): SessionSlice =
     }
   },
 
-  retryQuestion: () => {
-    const state = get()
-    if (!state.sessionState) return
-
-    const newSessionState = QuizSessionService.retryQuestion(state.sessionState)
-    set({ sessionState: newSessionState })
-
-    if (!newSessionState.isReviewMode) {
-      saveSessionSnapshot(newSessionState, state.sessionWrongAnswers, () => ({
-        activeScenarioId: get().activeScenarioId,
-        sessionLabel: get().sessionLabel,
-      }))
-    }
-  },
-
-  selectAnswer: (index) => {
-    const state = get()
-    if (!state.sessionState) return
-
-    const newSessionState = QuizSessionService.selectAnswer(state.sessionState, index)
-    set({ sessionState: newSessionState })
-  },
-
-  toggleAnswer: (index) => {
-    const state = get()
-    if (!state.sessionState) return
-
-    const newSessionState = QuizSessionService.toggleAnswer(state.sessionState, index)
-    set({ sessionState: newSessionState })
-  },
-
-  submitAnswer: () => {
-    const state = get()
-    if (!state.sessionState) return
-
-    const result = QuizSessionService.submitAnswer(state.sessionState)
-    if (!result) return
-
-    const { newState, isCorrect } = result
-    const currentQuestion = QuizSessionService.getCurrentQuestion(state.sessionState)
-
-    if (currentQuestion) {
-      trackAnswer(currentQuestion.id, currentQuestion.category, currentQuestion.difficulty, isCorrect)
-
-      if (state.sessionState.isReviewMode) {
-        set({ sessionState: newState })
-        return
-      }
-
-      const isRetry = state.sessionState.answerHistory.has(state.sessionState.currentIndex)
-      const updatedProgress = state.userProgress.recordAnswer(
-        currentQuestion.id,
-        currentQuestion.category,
-        isCorrect,
-        isRetry
-      )
-
-      const filteredWrongAnswers = state.sessionWrongAnswers.filter((w) => w.questionId !== currentQuestion.id)
-      const newWrongAnswers = isCorrect
-        ? filteredWrongAnswers
-        : [
-            ...filteredWrongAnswers,
-            {
-              questionId: currentQuestion.id,
-              selectedAnswer: state.sessionState.selectedAnswer ?? -1,
-              selectedAnswers: currentQuestion.isMultiSelect ? [...state.sessionState.selectedAnswers] : undefined,
-            },
-          ]
-
-      // In defer mode (実力テスト), auto-advance to next unanswered question after submission
-      let stateToSave = newState
-      if (newState.deferFeedback) {
-        let nextIdx = newState.currentIndex + 1
-        while (nextIdx < newState.questions.length && newState.answerHistory.has(nextIdx)) {
-          nextIdx++
-        }
-        if (nextIdx < newState.questions.length) {
-          stateToSave = {
-            ...newState,
-            currentIndex: nextIdx,
-            selectedAnswer: null,
-            selectedAnswers: Object.freeze([]),
-            isAnswered: false,
-            isCorrect: null,
-            hintUsed: false,
-          }
-        }
-      }
-
-      set({
-        sessionState: stateToSave,
-        userProgress: updatedProgress,
-        sessionWrongAnswers: newWrongAnswers,
-      })
-
-      getProgressRepository()
-        .save(updatedProgress)
-        .catch((error) => {
-          console.error('Failed to save progress:', error)
-        })
-
-      saveSessionSnapshot(stateToSave, newWrongAnswers, () => ({
-        activeScenarioId: get().activeScenarioId,
-        sessionLabel: get().sessionLabel,
-      }))
-    } else {
-      set({ sessionState: newState })
-    }
-  },
-
-  nextQuestion: () => {
-    const state = get()
-    if (!state.sessionState) return
-
-    if (state.sessionState.deferFeedback) {
-      const session = state.sessionState
-      if (session.currentIndex < session.questions.length - 1) {
-        const nextIdx = session.currentIndex + 1
-        const record = session.answerHistory.get(nextIdx)
-        const newState = {
-          ...session,
-          currentIndex: nextIdx,
-          selectedAnswer: record?.selectedAnswer ?? null,
-          selectedAnswers: record?.selectedAnswers ?? Object.freeze([]),
-          isAnswered: false,
-          isCorrect: null,
-          hintUsed: false,
-        }
-        set({ sessionState: newState })
-        saveSessionSnapshot(newState, state.sessionWrongAnswers, () => ({
-          activeScenarioId: get().activeScenarioId,
-          sessionLabel: get().sessionLabel,
-        }))
-      }
-      return
-    }
-
-    const session = state.sessionState
-
-    if (session.currentIndex >= session.questions.length - 1 && !session.isAnswered) {
-      return
-    }
-
-    const newSessionState = QuizSessionService.nextQuestion(session)
-
-    if (newSessionState.isCompleted) {
-      getSessionRepository().clear()
-      recordCompletedSession(
-        newSessionState,
-        () => get().userProgress,
-        (p) => set({ userProgress: p }),
-        get().activeScenarioId
-      )
-      set({
-        sessionState: newSessionState,
-        viewState: 'result',
-      })
-    } else {
-      set({ sessionState: newSessionState })
-      if (!newSessionState.isReviewMode) {
-        saveSessionSnapshot(newSessionState, get().sessionWrongAnswers, () => ({
-          activeScenarioId: get().activeScenarioId,
-          sessionLabel: get().sessionLabel,
-        }))
-      }
-    }
-  },
-
-  previousQuestion: () => {
-    const state = get()
-    if (!state.sessionState) return
-    const session = state.sessionState
-    if (session.currentIndex <= 0) return
-
-    const prevIdx = session.currentIndex - 1
-
-    if (session.isReviewMode) {
-      const question = session.questions[prevIdx]
-      if (question?.isMultiSelect) {
-        const userMultiAnswer = session.reviewUserMultiAnswers[prevIdx] ?? []
-        set({
-          sessionState: {
-            ...session,
-            currentIndex: prevIdx,
-            selectedAnswer: null,
-            selectedAnswers: Object.freeze([...userMultiAnswer]),
-            isAnswered: true,
-            isCorrect: question.isCorrectMultiAnswer([...userMultiAnswer]),
-            hintUsed: false,
-          },
-        })
-      } else {
-        const userAnswer = session.reviewUserAnswers[prevIdx] ?? null
-        set({
-          sessionState: {
-            ...session,
-            currentIndex: prevIdx,
-            selectedAnswer: userAnswer,
-            selectedAnswers: Object.freeze([]),
-            isAnswered: true,
-            isCorrect: question && userAnswer !== null ? question.isCorrectAnswer(userAnswer) : null,
-            hintUsed: false,
-          },
-        })
-      }
-      return
-    }
-
-    const record = session.answerHistory.get(prevIdx)
-
-    set({
-      sessionState: {
-        ...session,
-        currentIndex: prevIdx,
-        selectedAnswer: record?.selectedAnswer ?? null,
-        selectedAnswers: record?.selectedAnswers ?? Object.freeze([]),
-        isAnswered: record !== undefined,
-        isCorrect: record?.isCorrect ?? null,
-        hintUsed: false,
-      },
-    })
-  },
-
-  goToQuestion: (index: number) => {
-    const state = get()
-    if (!state.sessionState) return
-    const session = state.sessionState
-    if (index < 0 || index >= session.questions.length) return
-
-    const record = session.answerHistory.get(index)
-
-    set({
-      sessionState: {
-        ...session,
-        currentIndex: index,
-        selectedAnswer: record?.selectedAnswer ?? null,
-        selectedAnswers: record?.selectedAnswers ?? Object.freeze([]),
-        isAnswered: record !== undefined,
-        isCorrect: record?.isCorrect ?? null,
-        hintUsed: false,
-      },
-    })
-  },
-
   finishTest: () => {
     const state = get()
     if (!state.sessionState) return
@@ -570,14 +311,6 @@ export const createSessionSlice = (set: StoreSet, get: StoreGet): SessionSlice =
     }
   },
 
-  useHint: () => {
-    const state = get()
-    if (!state.sessionState) return
-    // biome-ignore lint/correctness/useHookAtTopLevel: QuizSessionService.useHint is not a React Hook
-    const newSessionState = QuizSessionService.useHint(state.sessionState)
-    set({ sessionState: newSessionState })
-  },
-
   dismissChapterIntro: () => {
     const state = get()
     if (!state.sessionState) return
@@ -609,19 +342,5 @@ export const createSessionSlice = (set: StoreSet, get: StoreGet): SessionSlice =
         sessionLabel: get().sessionLabel,
       }))
     }
-  },
-
-  getCurrentQuestion: () => {
-    const state = get()
-    if (!state.sessionState) return null
-    return QuizSessionService.getCurrentQuestion(state.sessionState)
-  },
-
-  getProgress: () => {
-    const state = get()
-    if (!state.sessionState) {
-      return { current: 0, total: 0 }
-    }
-    return QuizSessionService.getProgress(state.sessionState)
   },
 })

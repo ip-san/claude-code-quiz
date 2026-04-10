@@ -1,5 +1,5 @@
 import { locale } from '@/config/locale'
-import { useDiagramAnimation } from './useDiagramAnimation'
+import { BaseDiagram } from './BaseDiagram'
 
 interface VennSet {
   text: string
@@ -18,11 +18,6 @@ interface VennDiagramProps {
  * 2〜3つの集合に対応。
  */
 export function VennDiagram({ label, sets, intersectionLabel }: VennDiagramProps) {
-  const { containerRef, isVisible, getItemDelay } = useDiagramAnimation({
-    itemCount: sets.length + 1,
-    staggerMs: 200,
-  })
-
   if (sets.length < 2 || sets.length > 3) return null
 
   // Set colors with transparency
@@ -64,89 +59,90 @@ export function VennDiagram({ label, sets, intersectionLabel }: VennDiagramProps
       ]
 
   return (
-    <div ref={containerRef} aria-label={label ?? locale.diagrams.venn}>
-      {label && <p className="mb-2 text-xs font-medium text-stone-500 dark:text-stone-400">{label}</p>}
-      <div className="overflow-x-auto">
-        <svg
-          width={svgW}
-          height={svgH}
-          viewBox={`0 0 ${svgW} ${svgH}`}
-          className="mx-auto"
-          role="img"
-          aria-label={label ?? locale.diagrams.venn}
-        >
-          {/* Circles */}
-          {sets.map((_set, i) => {
-            const pos = circlePositions[i]
-            const color = setColors[i]
-            return (
-              <g
-                key={i}
-                className={isVisible ? 'animate-diagram-scale-in' : 'opacity-0'}
-                style={{ animationDelay: getItemDelay(i), transformOrigin: `${pos.x}px ${pos.y}px` }}
-              >
-                <circle cx={pos.x} cy={pos.y} r={r} fill={color.fill} stroke={color.stroke} strokeWidth="1.5" />
-              </g>
-            )
-          })}
+    <BaseDiagram label={label} defaultLabel={locale.diagrams.venn} itemCount={sets.length + 1} staggerMs={200}>
+      {({ isVisible, getItemDelay }) => (
+        <div className="overflow-x-auto">
+          <svg
+            width={svgW}
+            height={svgH}
+            viewBox={`0 0 ${svgW} ${svgH}`}
+            className="mx-auto"
+            role="img"
+            aria-label={label ?? locale.diagrams.venn}
+          >
+            {/* Circles */}
+            {sets.map((_set, i) => {
+              const pos = circlePositions[i]
+              const color = setColors[i]
+              return (
+                <g
+                  key={i}
+                  className={isVisible ? 'animate-diagram-scale-in' : 'opacity-0'}
+                  style={{ animationDelay: getItemDelay(i), transformOrigin: `${pos.x}px ${pos.y}px` }}
+                >
+                  <circle cx={pos.x} cy={pos.y} r={r} fill={color.fill} stroke={color.stroke} strokeWidth="1.5" />
+                </g>
+              )
+            })}
 
-          {/* Set labels */}
-          {sets.map((set, i) => {
-            const lpos = labelPositions[i]
-            return (
-              <g
-                key={`label-${i}`}
+            {/* Set labels */}
+            {sets.map((set, i) => {
+              const lpos = labelPositions[i]
+              return (
+                <g
+                  key={`label-${i}`}
+                  style={{
+                    opacity: isVisible ? 1 : 0,
+                    transition: `opacity 0.4s ease ${parseInt(getItemDelay(i))}ms`,
+                  }}
+                >
+                  <text
+                    x={lpos.x}
+                    y={lpos.y}
+                    textAnchor="middle"
+                    className="fill-claude-dark dark:fill-stone-200"
+                    fontSize="11"
+                    fontWeight="600"
+                  >
+                    {set.text}
+                  </text>
+                  {/* Items listed below set name */}
+                  {set.items?.map((item, j) => (
+                    <text
+                      key={j}
+                      x={lpos.x}
+                      y={lpos.y + 13 + j * 11}
+                      textAnchor="middle"
+                      className="fill-stone-500 dark:fill-stone-400"
+                      fontSize="8"
+                    >
+                      {item}
+                    </text>
+                  ))}
+                </g>
+              )
+            })}
+
+            {/* Intersection label */}
+            {intersectionLabel && (
+              <text
+                x={cx}
+                y={is3 ? cy : cy + 4}
+                textAnchor="middle"
+                className="fill-claude-dark dark:fill-stone-200"
+                fontSize="9"
+                fontWeight="600"
                 style={{
                   opacity: isVisible ? 1 : 0,
-                  transition: `opacity 0.4s ease ${parseInt(getItemDelay(i))}ms`,
+                  transition: `opacity 0.4s ease ${parseInt(getItemDelay(sets.length))}ms`,
                 }}
               >
-                <text
-                  x={lpos.x}
-                  y={lpos.y}
-                  textAnchor="middle"
-                  className="fill-claude-dark dark:fill-stone-200"
-                  fontSize="11"
-                  fontWeight="600"
-                >
-                  {set.text}
-                </text>
-                {/* Items listed below set name */}
-                {set.items?.map((item, j) => (
-                  <text
-                    key={j}
-                    x={lpos.x}
-                    y={lpos.y + 13 + j * 11}
-                    textAnchor="middle"
-                    className="fill-stone-500 dark:fill-stone-400"
-                    fontSize="8"
-                  >
-                    {item}
-                  </text>
-                ))}
-              </g>
-            )
-          })}
-
-          {/* Intersection label */}
-          {intersectionLabel && (
-            <text
-              x={cx}
-              y={is3 ? cy : cy + 4}
-              textAnchor="middle"
-              className="fill-claude-dark dark:fill-stone-200"
-              fontSize="9"
-              fontWeight="600"
-              style={{
-                opacity: isVisible ? 1 : 0,
-                transition: `opacity 0.4s ease ${parseInt(getItemDelay(sets.length))}ms`,
-              }}
-            >
-              {intersectionLabel}
-            </text>
-          )}
-        </svg>
-      </div>
-    </div>
+                {intersectionLabel}
+              </text>
+            )}
+          </svg>
+        </div>
+      )}
+    </BaseDiagram>
   )
 }

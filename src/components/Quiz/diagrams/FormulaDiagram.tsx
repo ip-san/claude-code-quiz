@@ -1,5 +1,5 @@
 import { locale } from '@/config/locale'
-import { useDiagramAnimation } from './useDiagramAnimation'
+import { BaseDiagram } from './BaseDiagram'
 
 interface FormulaComponent {
   text: string
@@ -20,11 +20,6 @@ interface FormulaDiagramProps {
  * components を operator で結合し、result に等しいことを示す。
  */
 export function FormulaDiagram({ label, result, components, operator = '+' }: FormulaDiagramProps) {
-  const { containerRef, isVisible, getItemDelay } = useDiagramAnimation({
-    itemCount: components.length + 1,
-    staggerMs: 150,
-  })
-
   if (components.length === 0) return null
 
   // Colors for components
@@ -53,59 +48,60 @@ export function FormulaDiagram({ label, result, components, operator = '+' }: Fo
   ]
 
   return (
-    <div ref={containerRef} aria-label={label ?? locale.diagrams.formula}>
-      {label && <p className="mb-2 text-xs font-medium text-stone-500 dark:text-stone-400">{label}</p>}
-      <div className="flex flex-wrap items-center justify-center gap-1.5">
-        {components.map((comp, i) => {
-          const color = comp.highlight ? componentColors[0] : componentColors[(i % (componentColors.length - 1)) + 1]
+    <BaseDiagram label={label} defaultLabel={locale.diagrams.formula} itemCount={components.length + 1} staggerMs={150}>
+      {({ isVisible, getItemDelay }) => (
+        <div className="flex flex-wrap items-center justify-center gap-1.5">
+          {components.map((comp, i) => {
+            const color = comp.highlight ? componentColors[0] : componentColors[(i % (componentColors.length - 1)) + 1]
 
-          return (
-            <div key={i} className="flex items-center gap-1.5">
-              {/* Operator between components */}
-              {i > 0 && (
-                <span
-                  className="text-sm font-bold text-stone-400 dark:text-stone-500"
-                  style={{
-                    opacity: isVisible ? 1 : 0,
-                    transition: `opacity 0.3s ease ${parseInt(getItemDelay(i))}ms`,
-                  }}
+            return (
+              <div key={i} className="flex items-center gap-1.5">
+                {/* Operator between components */}
+                {i > 0 && (
+                  <span
+                    className="text-sm font-bold text-stone-400 dark:text-stone-500"
+                    style={{
+                      opacity: isVisible ? 1 : 0,
+                      transition: `opacity 0.3s ease ${parseInt(getItemDelay(i))}ms`,
+                    }}
+                  >
+                    {operator}
+                  </span>
+                )}
+                {/* Component box */}
+                <div
+                  className={`rounded-lg border px-2.5 py-1.5 text-center transition-none ${color.bg} ${color.border} ${
+                    isVisible ? 'animate-diagram-scale-in' : 'opacity-0'
+                  }`}
+                  style={{ animationDelay: getItemDelay(i) }}
                 >
-                  {operator}
-                </span>
-              )}
-              {/* Component box */}
-              <div
-                className={`rounded-lg border px-2.5 py-1.5 text-center transition-none ${color.bg} ${color.border} ${
-                  isVisible ? 'animate-diagram-scale-in' : 'opacity-0'
-                }`}
-                style={{ animationDelay: getItemDelay(i) }}
-              >
-                <div className={`text-[11px] font-semibold ${color.text}`}>{comp.text}</div>
-                {comp.sub && <div className="text-[9px] text-stone-500 dark:text-stone-500">{comp.sub}</div>}
+                  <div className={`text-[11px] font-semibold ${color.text}`}>{comp.text}</div>
+                  {comp.sub && <div className="text-[9px] text-stone-500 dark:text-stone-500">{comp.sub}</div>}
+                </div>
               </div>
-            </div>
-          )
-        })}
+            )
+          })}
 
-        {/* Equals sign + result */}
-        <span
-          className="text-sm font-bold text-stone-400 dark:text-stone-500"
-          style={{
-            opacity: isVisible ? 1 : 0,
-            transition: `opacity 0.3s ease ${parseInt(getItemDelay(components.length))}ms`,
-          }}
-        >
-          ＝
-        </span>
-        <div
-          className={`rounded-lg border border-claude-orange/50 bg-claude-orange/15 px-3 py-1.5 text-center transition-none ${
-            isVisible ? 'animate-diagram-scale-in' : 'opacity-0'
-          }`}
-          style={{ animationDelay: getItemDelay(components.length) }}
-        >
-          <div className="text-[11px] font-bold text-claude-orange">{result}</div>
+          {/* Equals sign + result */}
+          <span
+            className="text-sm font-bold text-stone-400 dark:text-stone-500"
+            style={{
+              opacity: isVisible ? 1 : 0,
+              transition: `opacity 0.3s ease ${parseInt(getItemDelay(components.length))}ms`,
+            }}
+          >
+            ＝
+          </span>
+          <div
+            className={`rounded-lg border border-claude-orange/50 bg-claude-orange/15 px-3 py-1.5 text-center transition-none ${
+              isVisible ? 'animate-diagram-scale-in' : 'opacity-0'
+            }`}
+            style={{ animationDelay: getItemDelay(components.length) }}
+          >
+            <div className="text-[11px] font-bold text-claude-orange">{result}</div>
+          </div>
         </div>
-      </div>
-    </div>
+      )}
+    </BaseDiagram>
   )
 }

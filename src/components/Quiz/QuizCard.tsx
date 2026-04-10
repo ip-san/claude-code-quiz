@@ -1,15 +1,10 @@
 import { Bookmark, ExternalLink, Lightbulb, RotateCcw } from 'lucide-react'
-import { useEffect, useMemo, useRef, useState } from 'react'
-import { useShallow } from 'zustand/react/shallow'
 import { locale } from '@/config/locale'
-import { AdaptiveDifficultyService } from '@/domain/services/AdaptiveDifficultyService'
-import { QuizSessionService } from '@/domain/services/QuizSessionService'
 import { getCategoryById } from '@/domain/valueObjects/Category'
-import { getChapterFromTags, OVERVIEW_CHAPTERS } from '@/domain/valueObjects/OverviewChapter'
+import { OVERVIEW_CHAPTERS } from '@/domain/valueObjects/OverviewChapter'
 import { getDifficultyLabel, getDifficultyStyle } from '@/lib/badgeStyles'
 import { getColorHex } from '@/lib/colors'
 import { haptics } from '@/lib/haptics'
-import { useSwipe } from '@/lib/useSwipe'
 import { useQuizStore } from '@/stores/quizStore'
 import { ChapterComplete } from './chapter/ChapterComplete'
 import { ChapterIndicator } from './chapter/ChapterIndicator'
@@ -24,6 +19,7 @@ import { XpToast } from './overlays/XpToast'
 import { QuizBottomBar } from './QuizBottomBar'
 import { QuizText } from './QuizText'
 import { RelatedQuestions } from './result/RelatedQuestions'
+import { useQuizCard } from './useQuizCard'
 
 export function QuizCard({
   isModalOpen = false,
@@ -34,8 +30,42 @@ export function QuizCard({
   onLastQuestionNext?: (() => void) | undefined
 }) {
   const {
-    getCurrentQuestion,
+    // Store state
+    quiz,
     sessionState,
+    selectedAnswer,
+    selectedAnswers,
+    isAnswered,
+    isCorrect,
+    isReviewMode,
+    deferFeedback,
+    hintUsed,
+    isBookmarked,
+    isAdaptive,
+    totalXp,
+    isMultiSelect,
+    currentIndex,
+    canGoBack,
+
+    // Chapter state
+    isOverviewMode: _isOverviewMode,
+    currentChapter,
+    showChapterIntro,
+    showChapterComplete,
+    chapterScore,
+    showChapterIndicator,
+
+    // Overlay state
+    showCorrectOverlay,
+
+    // Consecutive tracking
+    consecutiveCorrect,
+    consecutiveWrong,
+
+    // Swipe handlers
+    swipeHandlers,
+
+    // Store actions
     selectAnswer,
     toggleAnswer,
     submitAnswer,
@@ -49,66 +79,7 @@ export function QuizCard({
     useHint,
     dismissChapterIntro,
     dismissChapterComplete,
-  } = useQuizStore(
-    useShallow((state) => ({
-      getCurrentQuestion: state.getCurrentQuestion,
-      sessionState: state.sessionState,
-      selectAnswer: state.selectAnswer,
-      toggleAnswer: state.toggleAnswer,
-      submitAnswer: state.submitAnswer,
-      nextQuestion: state.nextQuestion,
-      previousQuestion: state.previousQuestion,
-      goToQuestion: state.goToQuestion,
-      finishTest: state.finishTest,
-      retryQuestion: state.retryQuestion,
-      endSession: state.endSession,
-      toggleBookmark: state.toggleBookmark,
-      useHint: state.useHint,
-      dismissChapterIntro: state.dismissChapterIntro,
-      dismissChapterComplete: state.dismissChapterComplete,
-    }))
-  )
-
-  const quiz = getCurrentQuestion()
-  const selectedAnswer = sessionState?.selectedAnswer ?? null
-  const selectedAnswers = sessionState?.selectedAnswers ?? []
-  const isAnswered = sessionState?.isAnswered ?? false
-  const isCorrect = sessionState?.isCorrect ?? null
-  const isReviewMode = sessionState?.isReviewMode ?? false
-  const deferFeedback = sessionState?.deferFeedback ?? false
-  const hintUsed = sessionState?.hintUsed ?? false
-  const isBookmarked = useQuizStore((state) => (quiz ? state.userProgress.isBookmarked(quiz.id) : false))
-  const isAdaptive = useQuizStore((state) => {
-    const mode = state.sessionConfig.mode
-    return (mode === 'random' || mode === 'category') && AdaptiveDifficultyService.isAdaptiveReady(state.userProgress)
-  })
-  const totalXp = useQuizStore((state) => state.userProgress.totalXp)
-  const isMultiSelect = quiz?.isMultiSelect ?? false
-  const currentIndex = sessionState?.currentIndex ?? 0
-  const canGoBack = currentIndex > 0
-
-  // Chapter state from domain layer (overview mode only)
-  const isOverviewMode = sessionState?.config.mode === 'overview'
-  const chapterState = sessionState?.overviewChapterState ?? null
-  const currentChapter = useMemo(() => {
-    if (!chapterState) return null
-    return OVERVIEW_CHAPTERS.find((c) => c.id === chapterState.currentChapterId) ?? null
-  }, [chapterState])
-  const showChapterIntro = chapterState?.chapterPhase === 'intro' && currentChapter
-  const showChapterComplete = chapterState?.chapterPhase === 'complete' && currentChapter
-  const chapterScore = useMemo(() => {
-    if (!showChapterComplete || !sessionState || !currentChapter) return { score: 0, total: 0 }
-    return QuizSessionService.getChapterScore(sessionState, currentChapter.id)
-  }, [showChapterComplete, sessionState, currentChapter])
-
-  // Chapter indicator: show "Ch.N" badge when chapter changes
-  const previousChapter = useMemo(() => {
-    if (!isOverviewMode || !sessionState || sessionState.currentIndex === 0) return null
-    const prevQuestion = sessionState.questions[sessionState.currentIndex - 1]
-    return prevQuestion ? getChapterFromTags(prevQuestion.tags) : null
-  }, [isOverviewMode, sessionState])
-  const showChapterIndicator =
-    isOverviewMode && currentChapter && currentChapter.id !== previousChapter?.id && !showChapterIntro
+  } = useQuizCard({ isModalOpen, onLastQuestionNext })
 
   // Keyboard navigation (extracted to custom hook)
   useQuizKeyboard({
@@ -127,71 +98,8 @@ export function QuizCard({
     retryQuestion,
   })
 
-  // Track consecutive correct/wrong answers for toasts
-  const [consecutiveCorrect, setConsecutiveCorrect] = useState(0)
-  const [consecutiveWrong, setConsecutiveWrong] = useState(0)
-  const prevIsAnsweredRef = useRef(false)
-
-  // Scroll to top on question change
-  // biome-ignore lint/correctness/useExhaustiveDependencies: currentIndex change is the intentional trigger
-  useEffect(() => {
-    window.scrollTo(0, 0)
-  }, [currentIndex])
-
-  // Reset streak on new session (questions array identity changes)
-  const questionsRef = useRef(sessionState?.questions)
-  useEffect(() => {
-    if (sessionState?.questions !== questionsRef.current) {
-      questionsRef.current = sessionState?.questions
-      setConsecutiveCorrect(0)
-      setConsecutiveWrong(0)
-    }
-  }, [sessionState?.questions])
-
-  // Haptic feedback + overlay on answer result
-  const [showCorrectOverlay, setShowCorrectOverlay] = useState(false)
-  useEffect(() => {
-    // Only trigger on fresh answer submission (isAnswered: false → true)
-    const isNewSubmission = isAnswered && !prevIsAnsweredRef.current
-    prevIsAnsweredRef.current = isAnswered
-
-    if (isNewSubmission && isCorrect !== null) {
-      if (isCorrect) {
-        haptics.success()
-        if (!deferFeedback) setShowCorrectOverlay(true)
-        setConsecutiveCorrect((prev) => prev + 1)
-        setConsecutiveWrong(0)
-      } else {
-        haptics.error()
-        setConsecutiveCorrect(0)
-        setConsecutiveWrong((prev) => prev + 1)
-      }
-    } else if (!isAnswered) {
-      setShowCorrectOverlay(false)
-    }
-  }, [isAnswered, isCorrect, deferFeedback])
-
   // Slide-in animation key (changes on each question)
   const questionKey = quiz?.id ?? 'empty'
-
-  // Swipe to navigate questions (respects chapter boundary and scenario epilogue)
-  // Swipe/next: domain layer handles chapter boundaries via overviewChapterState
-  const swipeHandlers = useSwipe({
-    onSwipeLeft: () => {
-      haptics.light()
-      if (onLastQuestionNext) {
-        onLastQuestionNext()
-      } else {
-        nextQuestion()
-      }
-    },
-    onSwipeRight: () => {
-      if (canGoBack) {
-        haptics.light()
-        previousQuestion()
-      }
-    },
-  })
 
   // Empty state when no quiz data
   if (!quiz) {

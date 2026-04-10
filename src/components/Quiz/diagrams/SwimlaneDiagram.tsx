@@ -1,5 +1,6 @@
 import { locale } from '@/config/locale'
-import { useDiagramAnimation } from './useDiagramAnimation'
+import { BaseDiagram } from './BaseDiagram'
+import { SvgArrowDefs } from './SvgArrowDefs'
 
 interface SwimlaneLane {
   name: string
@@ -17,11 +18,6 @@ interface SwimlaneDiagramProps {
  * Agent Teams、Ctrl+B バックグラウンド処理、CI/CD パイプラインに最適。
  */
 export function SwimlaneDiagram({ label, lanes, totalSteps }: SwimlaneDiagramProps) {
-  const { containerRef, isVisible, getItemDelay } = useDiagramAnimation({
-    itemCount: lanes.length,
-    staggerMs: 150,
-  })
-
   if (lanes.length === 0) return null
 
   // Determine total range
@@ -50,120 +46,110 @@ export function SwimlaneDiagram({ label, lanes, totalSteps }: SwimlaneDiagramPro
   const toX = (step: number) => barLeft + (step / maxStep) * barW
 
   return (
-    <div ref={containerRef} aria-label={label ?? locale.diagrams.swimlane}>
-      {label && <p className="mb-2 text-xs font-medium text-stone-500 dark:text-stone-400">{label}</p>}
-      <div className="overflow-x-auto">
-        <svg
-          width={svgW}
-          height={svgH}
-          viewBox={`0 0 ${svgW} ${svgH}`}
-          className="mx-auto"
-          role="img"
-          aria-label={label ?? locale.diagrams.swimlane}
-        >
-          {/* Lanes */}
-          {lanes.map((lane, i) => {
-            const y = padY + i * (laneH + laneGap)
-            const color = laneColors[i % laneColors.length]
+    <BaseDiagram label={label} defaultLabel={locale.diagrams.swimlane} itemCount={lanes.length} staggerMs={150}>
+      {({ isVisible, getItemDelay }) => (
+        <div className="overflow-x-auto">
+          <svg
+            width={svgW}
+            height={svgH}
+            viewBox={`0 0 ${svgW} ${svgH}`}
+            className="mx-auto"
+            role="img"
+            aria-label={label ?? locale.diagrams.swimlane}
+          >
+            <SvgArrowDefs id="swim-arrow" markerWidth={7} markerHeight={5} orient="auto" />
 
-            return (
-              <g
-                key={i}
-                style={{
-                  opacity: isVisible ? 1 : 0,
-                  transition: `opacity 0.4s ease ${parseInt(getItemDelay(i))}ms`,
-                }}
-              >
-                {/* Lane label */}
-                <text
-                  x={labelW - 4}
-                  y={y + laneH / 2 + 4}
-                  textAnchor="end"
-                  className="fill-claude-dark dark:fill-stone-200"
-                  fontSize="10"
-                  fontWeight="600"
+            {/* Lanes */}
+            {lanes.map((lane, i) => {
+              const y = padY + i * (laneH + laneGap)
+              const color = laneColors[i % laneColors.length]
+
+              return (
+                <g
+                  key={i}
+                  style={{
+                    opacity: isVisible ? 1 : 0,
+                    transition: `opacity 0.4s ease ${parseInt(getItemDelay(i))}ms`,
+                  }}
                 >
-                  {lane.name}
-                </text>
+                  {/* Lane label */}
+                  <text
+                    x={labelW - 4}
+                    y={y + laneH / 2 + 4}
+                    textAnchor="end"
+                    className="fill-claude-dark dark:fill-stone-200"
+                    fontSize="10"
+                    fontWeight="600"
+                  >
+                    {lane.name}
+                  </text>
 
-                {/* Track background */}
-                <rect
-                  x={barLeft}
-                  y={y}
-                  width={barW}
-                  height={laneH}
-                  rx="4"
-                  fill="rgba(156,163,175,0.08)"
-                  stroke="rgba(156,163,175,0.2)"
-                  strokeWidth="0.5"
-                />
+                  {/* Track background */}
+                  <rect
+                    x={barLeft}
+                    y={y}
+                    width={barW}
+                    height={laneH}
+                    rx="4"
+                    fill="rgba(156,163,175,0.08)"
+                    stroke="rgba(156,163,175,0.2)"
+                    strokeWidth="0.5"
+                  />
 
-                {/* Segments */}
-                {lane.segments.map((seg, j) => {
-                  const sx = toX(seg.start)
-                  const ex = toX(seg.end)
-                  const segW = Math.max(ex - sx, 4)
-                  return (
-                    <g key={j}>
-                      <rect
-                        x={sx}
-                        y={y + 3}
-                        width={segW}
-                        height={laneH - 6}
-                        rx="3"
-                        fill={color.bg}
-                        stroke={color.fill}
-                        strokeWidth="1"
-                      />
-                      {seg.text && segW > 20 && (
-                        <text
-                          x={sx + segW / 2}
-                          y={y + laneH / 2 + 3}
-                          textAnchor="middle"
-                          className="fill-claude-dark dark:fill-stone-200"
-                          fontSize="8"
-                          fontWeight="500"
-                        >
-                          {seg.text}
-                        </text>
-                      )}
-                    </g>
-                  )
-                })}
-              </g>
-            )
-          })}
+                  {/* Segments */}
+                  {lane.segments.map((seg, j) => {
+                    const sx = toX(seg.start)
+                    const ex = toX(seg.end)
+                    const segW = Math.max(ex - sx, 4)
+                    return (
+                      <g key={j}>
+                        <rect
+                          x={sx}
+                          y={y + 3}
+                          width={segW}
+                          height={laneH - 6}
+                          rx="3"
+                          fill={color.bg}
+                          stroke={color.fill}
+                          strokeWidth="1"
+                        />
+                        {seg.text && segW > 20 && (
+                          <text
+                            x={sx + segW / 2}
+                            y={y + laneH / 2 + 3}
+                            textAnchor="middle"
+                            className="fill-claude-dark dark:fill-stone-200"
+                            fontSize="8"
+                            fontWeight="500"
+                          >
+                            {seg.text}
+                          </text>
+                        )}
+                      </g>
+                    )
+                  })}
+                </g>
+              )
+            })}
 
-          {/* Time axis arrow */}
-          <g style={{ opacity: isVisible ? 1 : 0, transition: 'opacity 0.4s ease 500ms' }}>
-            <line
-              x1={barLeft}
-              y1={svgH - 10}
-              x2={barLeft + barW}
-              y2={svgH - 10}
-              stroke="#9CA3AF"
-              strokeWidth="1"
-              markerEnd="url(#swim-arrow)"
-            />
-            <defs>
-              <marker
-                id="swim-arrow"
-                viewBox="0 0 10 7"
-                refX="10"
-                refY="3.5"
-                markerWidth="7"
-                markerHeight="5"
-                orient="auto"
-              >
-                <path d="M 0 0 L 10 3.5 L 0 7 z" fill="#9CA3AF" />
-              </marker>
-            </defs>
-            <text x={barLeft + barW + 4} y={svgH - 6} className="fill-stone-500 dark:fill-stone-400" fontSize="9">
-              {locale.diagrams.time}
-            </text>
-          </g>
-        </svg>
-      </div>
-    </div>
+            {/* Time axis arrow */}
+            <g style={{ opacity: isVisible ? 1 : 0, transition: 'opacity 0.4s ease 500ms' }}>
+              <line
+                x1={barLeft}
+                y1={svgH - 10}
+                x2={barLeft + barW}
+                y2={svgH - 10}
+                stroke="#9CA3AF"
+                strokeWidth="1"
+                markerEnd="url(#swim-arrow)"
+              />
+              <text x={barLeft + barW + 4} y={svgH - 6} className="fill-stone-500 dark:fill-stone-400" fontSize="9">
+                {locale.diagrams.time}
+              </text>
+            </g>
+          </svg>
+        </div>
+      )}
+    </BaseDiagram>
   )
 }

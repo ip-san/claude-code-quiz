@@ -1,5 +1,5 @@
 import { locale } from '@/config/locale'
-import { useDiagramAnimation } from './useDiagramAnimation'
+import { BaseDiagram } from './BaseDiagram'
 
 interface ComparisonDiagramProps {
   label?: string | undefined
@@ -7,16 +7,10 @@ interface ComparisonDiagramProps {
 }
 
 export function ComparisonDiagram({ label, columns }: ComparisonDiagramProps) {
-  const { containerRef, isVisible, getItemDelay } = useDiagramAnimation({
-    itemCount: columns.length,
-    staggerMs: 150,
-  })
-
   return (
-    <div ref={containerRef} aria-label={label ?? locale.diagrams.comparison}>
-      {columns.length === 0 ? null : (
-        <>
-          {label && <p className="mb-2 text-xs font-medium text-stone-500">{label}</p>}
+    <BaseDiagram label={label} defaultLabel={locale.diagrams.comparison} itemCount={columns.length} staggerMs={150}>
+      {({ isVisible, getItemDelay }) =>
+        columns.length === 0 ? null : (
           <div
             className="grid gap-2 overflow-x-auto"
             style={{ gridTemplateColumns: `repeat(${columns.length}, minmax(80px, 1fr))` }}
@@ -54,8 +48,8 @@ export function ComparisonDiagram({ label, columns }: ComparisonDiagramProps) {
               </div>
             ))}
           </div>
-        </>
-      )}
-    </div>
+        )
+      }
+    </BaseDiagram>
   )
 }

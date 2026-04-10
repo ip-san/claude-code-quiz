@@ -16,20 +16,16 @@ import {
   Sun,
   X,
 } from 'lucide-react'
-import { useEffect, useRef, useState } from 'react'
-import { useShallow } from 'zustand/react/shallow'
 import { KeyboardShortcutHelp } from '@/components/Layout/KeyboardShortcutHelp'
 import { locale } from '@/config/locale'
 import { theme } from '@/config/theme'
-import { DailyGoalService } from '@/domain/services/DailyGoalService'
 import { PREDEFINED_QUIZ_MODES } from '@/domain/valueObjects/QuizMode'
 import { haptics } from '@/lib/haptics'
 import { isElectron } from '@/lib/platformAPI'
-import { applyTheme, getStoredTheme, setStoredTheme, type Theme } from '@/lib/theme'
-import { useQuizStore } from '@/stores/quizStore'
 import { AnimatedCounter } from './AnimatedCounter'
 import { CategoryPicker } from './CategoryPicker'
 import { MenuItem } from './MenuItem'
+import { useMenuHeader } from './useMenuHeader'
 
 interface MenuHeaderProps {
   totalQuestions: number
@@ -51,94 +47,33 @@ export function MenuHeader({
   openWithModes,
   onMenuOpened,
 }: MenuHeaderProps) {
-  const { setViewState, openReaderWithFilter, userProgress, startSession, getBookmarkedCount } = useQuizStore(
-    useShallow((state) => ({
-      setViewState: state.setViewState,
-      openReaderWithFilter: state.openReaderWithFilter,
-      userProgress: state.userProgress,
-      startSession: state.startSession,
-      getBookmarkedCount: state.getBookmarkedCount,
-    }))
-  )
-  const bookmarkedCount = getBookmarkedCount()
-  const [currentTheme, setCurrentTheme] = useState<Theme>(() => getStoredTheme())
-  const [showShortcuts, setShowShortcuts] = useState(false)
-  const [menuOpen, setMenuOpen] = useState(false)
-  const [modesExpanded, setModesExpanded] = useState(false)
-  const [updateStatus, setUpdateStatus] = useState<'checking' | 'latest' | 'error' | null>(null)
-  const updateTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
-  const [showCategoryPicker, setShowCategoryPicker] = useState(false)
-  const [showUnansweredPicker, setShowUnansweredPicker] = useState(false)
-
-  // 外部からメニューを開く（クイズモード展開状態）
-  useEffect(() => {
-    if (openWithModes) {
-      setMenuOpen(true)
-      setModesExpanded(true)
-      onMenuOpened?.()
-    }
-  }, [openWithModes, onMenuOpened])
-
-  // Escape キーでメニューを閉じる
-  useEffect(() => {
-    if (!menuOpen) return
-    const handleKeyDown = (e: KeyboardEvent) => {
-      if (e.key === 'Escape') {
-        e.preventDefault()
-        setMenuOpen(false)
-      }
-    }
-    window.addEventListener('keydown', handleKeyDown)
-    return () => window.removeEventListener('keydown', handleKeyDown)
-  }, [menuOpen])
-
-  const streak = userProgress.streakDays
-  const today = DailyGoalService.getTodayString()
-  const todayCount = userProgress.getDailyCount(today)
-  const dailyGoal = userProgress.dailyGoal
-  const goalProgress = Math.min(DailyGoalService.getProgress(todayCount, dailyGoal) * 100, 100)
-  const goalAchieved = goalProgress >= 100
-
-  const toggleTheme = () => {
-    const next: Theme = currentTheme === 'dark' ? 'light' : 'dark'
-    setStoredTheme(next)
-    applyTheme(next)
-    setCurrentTheme(next)
-  }
-
-  const handleMenuAction = (action: () => void) => {
-    haptics.light()
-    setMenuOpen(false)
-    action()
-  }
-
-  useEffect(() => {
-    return () => {
-      if (updateTimerRef.current) clearTimeout(updateTimerRef.current)
-    }
-  }, [])
-
-  const handleUpdateCheck = async () => {
-    if (updateStatus === 'checking') return
-    haptics.light()
-    setUpdateStatus('checking')
-    try {
-      const reg = await navigator.serviceWorker?.getRegistration()
-      if (reg) {
-        await reg.update()
-        await new Promise((r) => setTimeout(r, 1000))
-        if (reg.waiting) {
-          window.location.reload()
-          return
-        }
-      }
-      setUpdateStatus('latest')
-      updateTimerRef.current = setTimeout(() => setUpdateStatus(null), 3000)
-    } catch {
-      setUpdateStatus('error')
-      updateTimerRef.current = setTimeout(() => setUpdateStatus(null), 3000)
-    }
-  }
+  const {
+    bookmarkedCount,
+    setViewState,
+    openReaderWithFilter,
+    startSession,
+    currentTheme,
+    toggleTheme,
+    menuOpen,
+    openMenu,
+    closeMenu,
+    modesExpanded,
+    toggleModesExpanded,
+    updateStatus,
+    handleUpdateCheck,
+    showShortcuts,
+    setShowShortcuts,
+    showCategoryPicker,
+    setShowCategoryPicker,
+    showUnansweredPicker,
+    setShowUnansweredPicker,
+    handleMenuAction,
+    streak,
+    todayCount,
+    dailyGoal,
+    goalProgress,
+    goalAchieved,
+  } = useMenuHeader({ openWithModes, onMenuOpened })
 
   return (
     <>
@@ -146,10 +81,7 @@ export function MenuHeader({
       <div className="mb-5">
         <div className="mb-2 flex items-center justify-between">
           <button
-            onClick={() => {
-              setModesExpanded(false)
-              setMenuOpen(true)
-            }}
+            onClick={openMenu}
             className="tap-highlight rounded-full p-2 text-stone-500"
             aria-label={locale.menuHeader.openMenu}
           >
@@ -211,9 +143,9 @@ export function MenuHeader({
         >
           <div
             className="absolute inset-0 bg-black/40"
-            onClick={() => setMenuOpen(false)}
+            onClick={closeMenu}
             onKeyDown={(e) => {
-              if (e.key === 'Escape') setMenuOpen(false)
+              if (e.key === 'Escape') closeMenu()
             }}
             role="presentation"
           />
@@ -221,7 +153,7 @@ export function MenuHeader({
             <div className="flex items-center justify-between border-b border-stone-200 px-4 py-3 dark:border-stone-700">
               <span className="text-sm font-bold text-claude-dark dark:text-stone-200">{theme.appName}</span>
               <button
-                onClick={() => setMenuOpen(false)}
+                onClick={closeMenu}
                 className="tap-highlight rounded-full p-1.5 text-stone-400"
                 aria-label={locale.menuHeader.closeMenu}
               >
@@ -243,7 +175,7 @@ export function MenuHeader({
               {/* Quiz modes */}
               <MenuSection title={locale.menuHeader.learningSection}>
                 <button
-                  onClick={() => setModesExpanded(!modesExpanded)}
+                  onClick={toggleModesExpanded}
                   className="tap-highlight flex w-full items-center gap-3 px-4 py-3 text-left text-sm text-claude-dark dark:text-stone-200"
                 >
                   <span className="text-stone-400">🎮</span>
@@ -269,7 +201,7 @@ export function MenuHeader({
                         onClick={() => {
                           if (mode.id === 'category') {
                             haptics.light()
-                            setMenuOpen(false)
+                            closeMenu()
                             setShowCategoryPicker(true)
                           } else {
                             handleMenuAction(() => startSession({ mode: mode.id }))
@@ -298,7 +230,7 @@ export function MenuHeader({
                   sublabel={locale.menuHeader.unansweredChallengeDesc}
                   onClick={() => {
                     haptics.light()
-                    setMenuOpen(false)
+                    closeMenu()
                     setShowUnansweredPicker(true)
                   }}
                 />

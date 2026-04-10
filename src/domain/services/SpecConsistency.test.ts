@@ -10,14 +10,16 @@ import { describe, expect, it } from 'vitest'
 import { SCENARIO_CATEGORY_MAP } from '@/components/Menu/recommendUtils'
 import { locale } from '@/config/locale'
 import { SCENARIOS } from '@/data/scenarios'
+import type { QuizItemData } from '@/infrastructure/validation/QuizValidator'
+import type { Question } from '../entities/Question'
 import { PREDEFINED_CATEGORIES } from '../valueObjects/Category'
 import { getOverviewQuestionsOrdered, OVERVIEW_CHAPTERS } from '../valueObjects/OverviewChapter'
 import { ALL_MODE_IDS, PREDEFINED_QUIZ_MODES } from '../valueObjects/QuizMode'
 import { QuizSessionService } from './QuizSessionService'
 
 // Load quiz data for integration-level checks
-const quizData = JSON.parse(readFileSync('src/data/quizzes.json', 'utf8'))
-const allQuestions = quizData.quizzes
+const quizData = JSON.parse(readFileSync('src/data/quizzes.json', 'utf8')) as { quizzes: QuizItemData[] }
+const allQuestions: QuizItemData[] = quizData.quizzes
 
 describe('Spec Consistency: QuizMode definitions', () => {
   it('mode description mentioning a number matches questionCount', () => {
@@ -112,20 +114,20 @@ describe('Spec Consistency: Session state persistence', () => {
 
 describe('Spec Consistency: Overview mode chapters', () => {
   it('all overview questions belong to exactly one chapter', () => {
-    const overviewQuestions = allQuestions.filter((q: any) => q.tags?.includes('overview'))
+    const overviewQuestions = allQuestions.filter((q) => q.tags?.includes('overview'))
 
     for (const q of overviewQuestions) {
-      const chapterTags = (q.tags as string[]).filter((t: string) => t.startsWith('overview-ch-'))
+      const chapterTags = (q.tags ?? []).filter((t) => t.startsWith('overview-ch-'))
       expect(chapterTags.length, `${q.id} should belong to exactly one chapter, has ${chapterTags.length}`).toBe(1)
     }
   })
 
   it('chapter definitions cover all overview questions', () => {
-    const overviewQuestions = allQuestions.filter((q: any) => q.tags?.includes('overview'))
+    const overviewQuestions = allQuestions.filter((q) => q.tags?.includes('overview'))
     const coveredIds = new Set<string>()
 
     for (const ch of OVERVIEW_CHAPTERS) {
-      const chapterQs = overviewQuestions.filter((q: any) => q.tags.includes(ch.tag))
+      const chapterQs = overviewQuestions.filter((q) => (q.tags ?? []).includes(ch.tag))
       for (const q of chapterQs) coveredIds.add(q.id)
     }
 
@@ -142,20 +144,24 @@ describe('Spec Consistency: Overview mode chapters', () => {
 
   it('overview chapter state is managed in domain layer, not UI', () => {
     const quizCardSource = readFileSync('src/components/Quiz/QuizCard.tsx', 'utf8')
-    // QuizCard should NOT have local state for chapter management
+    // Logic extracted to useQuizCard hook — check both files
+    const useQuizCardSource = readFileSync('src/components/Quiz/useQuizCard.ts', 'utf8')
+    // QuizCard (or its hook) should NOT have local state for chapter management
     expect(quizCardSource).not.toContain('useState<Set<number>>(new Set())')
-    // Should read from domain state
-    expect(quizCardSource).toContain('overviewChapterState')
+    expect(useQuizCardSource).not.toContain('useState<Set<number>>(new Set())')
+    // Should read from domain state (may live in the hook after refactoring)
+    const combined = quizCardSource + useQuizCardSource
+    expect(combined).toContain('overviewChapterState')
   })
 })
 
 describe('Spec Consistency: QuizSessionService chapter transitions', () => {
   it('nextQuestion detects chapter boundary in overview mode', () => {
     const questions = getOverviewQuestionsOrdered(
-      allQuestions.map((q: any) => ({
+      allQuestions.map((q) => ({
         ...q,
         tags: q.tags ?? [],
-        options: (q.options ?? []).map((o: any) => ({ text: o.text })),
+        options: (q.options ?? []).map((o) => ({ text: o.text })),
         isMultiSelect: Array.isArray(q.correctIndex),
         isCorrectAnswer: () => false,
         isCorrectMultiAnswer: () => false,
@@ -164,7 +170,7 @@ describe('Spec Consistency: QuizSessionService chapter transitions', () => {
     if (questions.length === 0) return
 
     const config = { ...QuizSessionService.createDefaultConfig(), mode: 'overview' as const }
-    const state = QuizSessionService.createInitialState(questions as any, config)
+    const state = QuizSessionService.createInitialState(questions as unknown as Question[], config)
 
     expect(state.overviewChapterState).not.toBeNull()
     expect(state.overviewChapterState?.chapterPhase).toBe('intro')
@@ -173,17 +179,17 @@ describe('Spec Consistency: QuizSessionService chapter transitions', () => {
 
   it('dismissChapterIntro transitions to questions phase', () => {
     const questions = getOverviewQuestionsOrdered(
-      allQuestions.map((q: any) => ({
+      allQuestions.map((q) => ({
         ...q,
         tags: q.tags ?? [],
-        options: (q.options ?? []).map((o: any) => ({ text: o.text })),
+        options: (q.options ?? []).map((o) => ({ text: o.text })),
         isMultiSelect: false,
         isCorrectAnswer: () => false,
         isCorrectMultiAnswer: () => false,
       }))
     )
     const config = { ...QuizSessionService.createDefaultConfig(), mode: 'overview' as const }
-    const state = QuizSessionService.createInitialState(questions as any, config)
+    const state = QuizSessionService.createInitialState(questions as unknown as Question[], config)
 
     const afterDismiss = QuizSessionService.dismissChapterIntro(state)
     expect(afterDismiss.overviewChapterState?.chapterPhase).toBe('questions')
@@ -333,23 +339,30 @@ describe('Spec Consistency: isCorrectlyAnswered usage', () => {
 
 describe('Spec Consistency: Session state reset on start', () => {
   // Use implementation line markers to extract correct source blocks
-  const source = readFileSync('src/stores/slices/sessionSlice.ts', 'utf8')
-  const lines = source.split('\n')
+  const lifecycleSource = readFileSync('src/stores/slices/sessionLifecycleSlice.ts', 'utf8')
+  const lifecycleLines = lifecycleSource.split('\n')
+
+  const answerSource = readFileSync('src/stores/slices/sessionAnswerSlice.ts', 'utf8')
+  const answerLines = answerSource.split('\n')
 
   // Find implementation lines (indented with 2 spaces, not interface definitions)
-  function findImplBlock(startFn: string, endFn: string): string {
+  // Skip lines before the export const createXxxSlice = ... line (past interface definition)
+  function findImplBlock(lines: string[], startFn: string, endFn: string): string {
     const startPattern = new RegExp(`^  ${startFn}`)
     const endPattern = new RegExp(`^  ${endFn}`)
+    // Find the line where the slice creator function starts (export const create...)
+    const creatorStart = lines.findIndex((l) => /^export const create\w+Slice/.test(l))
+    const implStart = creatorStart >= 0 ? creatorStart : 0
     let startIdx = -1
     let endIdx = lines.length
-    for (let i = 0; i < lines.length; i++) {
-      if (startPattern.test(lines[i]) && i > 60) {
+    for (let i = implStart; i < lines.length; i++) {
+      if (startPattern.test(lines[i])) {
         startIdx = i
         break
       }
     }
     for (let i = startIdx + 1; i < lines.length; i++) {
-      if (endPattern.test(lines[i]) && i > 60) {
+      if (endPattern.test(lines[i])) {
         endIdx = i
         break
       }
@@ -358,39 +371,42 @@ describe('Spec Consistency: Session state reset on start', () => {
   }
 
   it('startSession resets activeScenarioId and sessionLabel', () => {
-    const block = findImplBlock('startSession:', 'startSessionWithIds:')
+    const block = findImplBlock(lifecycleLines, 'startSession:', 'startSessionWithIds:')
     expect(block, 'startSession should reset activeScenarioId').toContain('activeScenarioId: null')
     expect(block, 'startSession should reset sessionLabel').toContain('sessionLabel: null')
   })
 
   it('startScenarioSession resets sessionLabel', () => {
-    const block = findImplBlock('startScenarioSession:', 'retrySession:')
+    const block = findImplBlock(lifecycleLines, 'startScenarioSession:', 'retrySession:')
     expect(block, 'startScenarioSession should reset sessionLabel').toContain('sessionLabel: null')
   })
 
   it('retryQuestion saves session snapshot', () => {
-    const block = findImplBlock('retryQuestion:', 'selectAnswer:')
+    const block = findImplBlock(answerLines, 'retryQuestion:', 'selectAnswer:')
     expect(block, 'retryQuestion should call saveSessionSnapshot').toContain('saveSessionSnapshot')
   })
 })
 
 describe('Spec Consistency: Navigation restores answer state', () => {
-  const source = readFileSync('src/stores/slices/sessionSlice.ts', 'utf8')
+  const source = readFileSync('src/stores/slices/sessionAnswerSlice.ts', 'utf8')
   const lines = source.split('\n')
 
   function findImplBlock(startFn: string, endFn: string): string {
     const startPattern = new RegExp(`^  ${startFn}`)
     const endPattern = new RegExp(`^  ${endFn}`)
+    // Find the line where the slice creator function starts (export const create...)
+    const creatorStart = lines.findIndex((l) => /^export const create\w+Slice/.test(l))
+    const implStart = creatorStart >= 0 ? creatorStart : 0
     let startIdx = -1
     let endIdx = lines.length
-    for (let i = 0; i < lines.length; i++) {
-      if (startPattern.test(lines[i]) && i > 60) {
+    for (let i = implStart; i < lines.length; i++) {
+      if (startPattern.test(lines[i])) {
         startIdx = i
         break
       }
     }
     for (let i = startIdx + 1; i < lines.length; i++) {
-      if (endPattern.test(lines[i]) && i > 60) {
+      if (endPattern.test(lines[i])) {
         endIdx = i
         break
       }
@@ -405,7 +421,7 @@ describe('Spec Consistency: Navigation restores answer state', () => {
   })
 
   it('goToQuestion restores isAnswered from answerHistory', () => {
-    const block = findImplBlock('goToQuestion:', 'finishTest:')
+    const block = findImplBlock('goToQuestion:', 'useHint:')
     expect(block).not.toContain('isAnswered: false')
     expect(block).toContain('record !== undefined')
   })

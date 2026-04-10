@@ -1,5 +1,5 @@
 import { locale } from '@/config/locale'
-import { useDiagramAnimation } from './useDiagramAnimation'
+import { BaseDiagram } from './BaseDiagram'
 
 interface HierarchyDiagramProps {
   label?: string | undefined
@@ -11,10 +11,6 @@ interface HierarchyDiagramProps {
  * 上ほど幅が狭く優先度が高い。色グラデーションで重要度を示す。
  */
 export function HierarchyDiagram({ label, items }: HierarchyDiagramProps) {
-  const { containerRef, isVisible, getItemDelay } = useDiagramAnimation({
-    itemCount: items.length,
-  })
-
   // Color gradient: top (most important) is orange, bottom fades to gray
   const getColor = (index: number, total: number) => {
     if (index === 0) return { bg: 'bg-claude-orange/15', border: 'border-claude-orange/40', text: 'text-claude-orange' }
@@ -33,48 +29,53 @@ export function HierarchyDiagram({ label, items }: HierarchyDiagramProps) {
   }
 
   return (
-    <div ref={containerRef} aria-label={label ?? locale.diagrams.hierarchy}>
-      {label && <p className="mb-2 text-xs font-medium text-stone-500 dark:text-stone-400">{label}</p>}
-      <div className="flex flex-col items-center gap-0.5">
-        {items.map((item, i) => {
-          const color = getColor(i, items.length)
-          // Pyramid: width narrows at top (reversed: top=narrow=high priority)
-          const widthPercent = 50 + (i / Math.max(items.length - 1, 1)) * 50
+    <BaseDiagram label={label} defaultLabel={locale.diagrams.hierarchy} itemCount={items.length}>
+      {({ isVisible, getItemDelay }) => (
+        <>
+          <div className="flex flex-col items-center gap-0.5">
+            {items.map((item, i) => {
+              const color = getColor(i, items.length)
+              // Pyramid: width narrows at top (reversed: top=narrow=high priority)
+              const widthPercent = 50 + (i / Math.max(items.length - 1, 1)) * 50
 
-          return (
-            <div key={i} className="flex w-full flex-col items-center">
-              {/* Connector line */}
-              {i > 0 && (
-                <div
-                  className="h-2 w-px bg-stone-300 dark:bg-stone-600"
-                  style={{ opacity: isVisible ? 1 : 0, animationDelay: getItemDelay(i) }}
-                  aria-hidden="true"
-                />
-              )}
-              {/* Item — trapezoid feel via variable width */}
-              <div
-                className={`rounded-lg border px-3 py-1.5 text-center transition-none ${color.bg} ${color.border} ${
-                  isVisible ? 'animate-diagram-scale-in' : 'opacity-0'
-                }`}
-                style={{ width: `${widthPercent}%`, animationDelay: getItemDelay(i) }}
-              >
-                <span className={`text-xs font-semibold ${i === 0 ? 'text-claude-orange' : color.text}`}>
-                  {item.text}
-                </span>
-                {item.sub && <span className="ml-1.5 text-[10px] text-stone-500 dark:text-stone-500">{item.sub}</span>}
-              </div>
-            </div>
-          )
-        })}
-      </div>
-      {/* Priority indicator */}
-      <div
-        className="mt-1.5 flex items-center justify-between text-[10px] text-stone-500 dark:text-stone-500"
-        aria-hidden="true"
-      >
-        <span>{locale.diagrams.highPriority}</span>
-        <span>{locale.diagrams.lowPriority}</span>
-      </div>
-    </div>
+              return (
+                <div key={i} className="flex w-full flex-col items-center">
+                  {/* Connector line */}
+                  {i > 0 && (
+                    <div
+                      className="h-2 w-px bg-stone-300 dark:bg-stone-600"
+                      style={{ opacity: isVisible ? 1 : 0, animationDelay: getItemDelay(i) }}
+                      aria-hidden="true"
+                    />
+                  )}
+                  {/* Item — trapezoid feel via variable width */}
+                  <div
+                    className={`rounded-lg border px-3 py-1.5 text-center transition-none ${color.bg} ${color.border} ${
+                      isVisible ? 'animate-diagram-scale-in' : 'opacity-0'
+                    }`}
+                    style={{ width: `${widthPercent}%`, animationDelay: getItemDelay(i) }}
+                  >
+                    <span className={`text-xs font-semibold ${i === 0 ? 'text-claude-orange' : color.text}`}>
+                      {item.text}
+                    </span>
+                    {item.sub && (
+                      <span className="ml-1.5 text-[10px] text-stone-500 dark:text-stone-500">{item.sub}</span>
+                    )}
+                  </div>
+                </div>
+              )
+            })}
+          </div>
+          {/* Priority indicator */}
+          <div
+            className="mt-1.5 flex items-center justify-between text-[10px] text-stone-500 dark:text-stone-500"
+            aria-hidden="true"
+          >
+            <span>{locale.diagrams.highPriority}</span>
+            <span>{locale.diagrams.lowPriority}</span>
+          </div>
+        </>
+      )}
+    </BaseDiagram>
   )
 }

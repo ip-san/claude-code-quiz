@@ -1,5 +1,5 @@
 import { locale } from '@/config/locale'
-import { useDiagramAnimation } from './useDiagramAnimation'
+import { BaseDiagram } from './BaseDiagram'
 
 interface MatrixDiagramProps {
   label?: string | undefined
@@ -16,11 +16,6 @@ interface MatrixDiagramProps {
  * cells[row][col] に "✓", "✗", テキストを配置。
  */
 export function MatrixDiagram({ label, rowHeader, colHeader, rows, cols, cells }: MatrixDiagramProps) {
-  const { containerRef, isVisible, getItemDelay } = useDiagramAnimation({
-    itemCount: rows.length + 1,
-    staggerMs: 100,
-  })
-
   if (rows.length === 0 || cols.length === 0) return null
 
   // Color cell based on content
@@ -33,57 +28,60 @@ export function MatrixDiagram({ label, rowHeader, colHeader, rows, cols, cells }
   }
 
   return (
-    <div ref={containerRef} aria-label={label ?? locale.diagrams.matrix}>
-      {label && <p className="mb-2 text-xs font-medium text-stone-500 dark:text-stone-400">{label}</p>}
-      <div className="overflow-x-auto">
-        <table className="w-full border-collapse text-[10px]">
-          <thead>
-            <tr
-              className={isVisible ? 'animate-diagram-fade-up' : 'opacity-0'}
-              style={{ animationDelay: getItemDelay(0) }}
-            >
-              {/* Top-left corner */}
-              <th className="rounded-tl-lg border border-stone-200 bg-stone-50 px-2 py-1.5 text-left font-medium text-stone-500 dark:border-stone-700 dark:bg-stone-800 dark:text-stone-400">
-                {rowHeader && colHeader ? `${rowHeader} ＼ ${colHeader}` : (rowHeader ?? colHeader ?? '')}
-              </th>
-              {cols.map((col, j) => (
-                <th
-                  key={j}
-                  className={`border border-stone-200 px-2 py-1.5 text-center font-semibold dark:border-stone-700 ${
-                    j === 0 ? 'bg-claude-orange/10 text-claude-dark' : 'bg-stone-50 text-claude-dark dark:bg-stone-800'
-                  }`}
-                >
-                  {col}
-                </th>
-              ))}
-            </tr>
-          </thead>
-          <tbody>
-            {rows.map((row, i) => (
+    <BaseDiagram label={label} defaultLabel={locale.diagrams.matrix} itemCount={rows.length + 1} staggerMs={100}>
+      {({ isVisible, getItemDelay }) => (
+        <div className="overflow-x-auto">
+          <table className="w-full border-collapse text-[10px]">
+            <thead>
               <tr
-                key={i}
                 className={isVisible ? 'animate-diagram-fade-up' : 'opacity-0'}
-                style={{ animationDelay: getItemDelay(i + 1) }}
+                style={{ animationDelay: getItemDelay(0) }}
               >
-                <th className="border border-stone-200 bg-stone-50 px-2 py-1.5 text-left font-semibold text-claude-dark dark:border-stone-700 dark:bg-stone-800">
-                  {row}
+                {/* Top-left corner */}
+                <th className="rounded-tl-lg border border-stone-200 bg-stone-50 px-2 py-1.5 text-left font-medium text-stone-500 dark:border-stone-700 dark:bg-stone-800 dark:text-stone-400">
+                  {rowHeader && colHeader ? `${rowHeader} ＼ ${colHeader}` : (rowHeader ?? colHeader ?? '')}
                 </th>
-                {cols.map((_, j) => {
-                  const value = cells[i]?.[j] ?? ''
-                  return (
-                    <td
-                      key={j}
-                      className={`border border-stone-200 px-2 py-1.5 text-center font-medium dark:border-stone-700 ${getCellStyle(value)}`}
-                    >
-                      {value}
-                    </td>
-                  )
-                })}
+                {cols.map((col, j) => (
+                  <th
+                    key={j}
+                    className={`border border-stone-200 px-2 py-1.5 text-center font-semibold dark:border-stone-700 ${
+                      j === 0
+                        ? 'bg-claude-orange/10 text-claude-dark'
+                        : 'bg-stone-50 text-claude-dark dark:bg-stone-800'
+                    }`}
+                  >
+                    {col}
+                  </th>
+                ))}
               </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
-    </div>
+            </thead>
+            <tbody>
+              {rows.map((row, i) => (
+                <tr
+                  key={i}
+                  className={isVisible ? 'animate-diagram-fade-up' : 'opacity-0'}
+                  style={{ animationDelay: getItemDelay(i + 1) }}
+                >
+                  <th className="border border-stone-200 bg-stone-50 px-2 py-1.5 text-left font-semibold text-claude-dark dark:border-stone-700 dark:bg-stone-800">
+                    {row}
+                  </th>
+                  {cols.map((_, j) => {
+                    const value = cells[i]?.[j] ?? ''
+                    return (
+                      <td
+                        key={j}
+                        className={`border border-stone-200 px-2 py-1.5 text-center font-medium dark:border-stone-700 ${getCellStyle(value)}`}
+                      >
+                        {value}
+                      </td>
+                    )
+                  })}
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      )}
+    </BaseDiagram>
   )
 }

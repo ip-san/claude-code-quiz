@@ -189,18 +189,24 @@ describe('ScenarioView epilogue integration guard', () => {
   })
 
   it('QuizCard swipe handler respects onLastQuestionNext', () => {
+    // Logic extracted to useQuizCard hook — check both files
     const quizCardCode = readFileSync('src/components/Quiz/QuizCard.tsx', 'utf8')
+    const useQuizCardCode = readFileSync('src/components/Quiz/useQuizCard.ts', 'utf8')
     // Swipe-left must check onLastQuestionNext before calling nextQuestion
-    expect(quizCardCode).toMatch(/onSwipeLeft.*onLastQuestionNext/s)
+    // May live in the component or its custom hook
+    const combined = quizCardCode + useQuizCardCode
+    expect(combined).toMatch(/onSwipeLeft.*onLastQuestionNext/s)
   })
 
   it('saveSessionSnapshot receives sessionLabel from store', () => {
-    const sessionCode = readFileSync('src/stores/slices/sessionSlice.ts', 'utf8')
+    const lifecycleCode = readFileSync('src/stores/slices/sessionLifecycleSlice.ts', 'utf8')
+    const answerCode = readFileSync('src/stores/slices/sessionAnswerSlice.ts', 'utf8')
+    const sessionCode = lifecycleCode + answerCode
     const resumeCode = readFileSync('src/stores/slices/resumeSlice.ts', 'utf8')
     // Every saveSessionSnapshot call (excluding import) must include sessionLabel
     const sessionCalls = (sessionCode.match(/saveSessionSnapshot\(/g) || []).length
     const sessionWithLabel = (sessionCode.match(/sessionLabel: get\(\)\.sessionLabel/g) || []).length
-    expect(sessionWithLabel, 'sessionSlice: all calls must include sessionLabel').toBe(sessionCalls)
+    expect(sessionWithLabel, 'session slices: all calls must include sessionLabel').toBe(sessionCalls)
 
     const resumeCalls = (resumeCode.match(/saveSessionSnapshot\(/g) || []).length
     const resumeWithLabel = (resumeCode.match(/sessionLabel: get\(\)\.sessionLabel/g) || []).length

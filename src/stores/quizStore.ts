@@ -50,7 +50,8 @@ import { setUserProperties } from '@/lib/analytics'
 import { createBookmarkSlice } from './slices/bookmarkSlice'
 import { createProgressSlice } from './slices/progressSlice'
 import { createResumeSlice } from './slices/resumeSlice'
-import { createSessionSlice } from './slices/sessionSlice'
+import { createSessionAnswerSlice } from './slices/sessionAnswerSlice'
+import { createSessionLifecycleSlice } from './slices/sessionLifecycleSlice'
 import { createViewSlice } from './slices/viewSlice'
 // Shared types and config
 import { APP_CONFIG, type QuizStore } from './utils'
@@ -62,7 +63,8 @@ import { APP_CONFIG, type QuizStore } from './utils'
 export const useQuizStore = create<QuizStore>((set, get) => ({
   // Compose slices
   ...createViewSlice(set, get),
-  ...createSessionSlice(set, get),
+  ...createSessionLifecycleSlice(set, get),
+  ...createSessionAnswerSlice(set, get),
   ...createProgressSlice(set, get),
   ...createBookmarkSlice(set, get),
   ...createResumeSlice(set, get),
