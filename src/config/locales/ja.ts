@@ -523,6 +523,7 @@ export const ja: LocaleConfig = {
     learningSection: '学習',
     referenceSection: 'リファレンス',
     settingsSection: '設定',
+    aboutApp: 'このアプリについて',
   },
 
   weakPointDetail: {

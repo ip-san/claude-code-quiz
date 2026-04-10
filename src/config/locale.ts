@@ -543,6 +543,7 @@ export interface LocaleConfig {
     readonly learningSection: string
     readonly referenceSection: string
     readonly settingsSection: string
+    readonly aboutApp: string
   }
 
   // === Weak Point (extended) ===
