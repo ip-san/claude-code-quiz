@@ -111,12 +111,15 @@ describe('quizStore', () => {
 
     it('should record answer and update score', () => {
       const state = useQuizStore.getState()
-      // Find a single-select question to avoid multi-select complexity
       const q = state.sessionState!.questions[0]
       const ci = q.correctIndex
 
       // Select correct answer (handle both single and multi-select)
-      state.selectAnswer(Array.isArray(ci) ? ci : ci)
+      if (Array.isArray(ci)) {
+        for (const idx of ci) state.toggleAnswer(idx)
+      } else {
+        state.selectAnswer(ci)
+      }
       state.submitAnswer()
 
       const updated = useQuizStore.getState()
