@@ -323,6 +323,7 @@ export function findRecommendedScenario(
   }
 
   // Fallback: category-based matching
+  if (scored.length === 0) return null
   const topScore = scored[0].score
   const topMatches = scored.filter((s) => s.score === topScore)
   const pick = topMatches[Math.floor(Math.random() * topMatches.length)]

@@ -146,6 +146,7 @@ export const createSessionLifecycleSlice = (set: StoreSet, get: StoreGet): Sessi
       sessionState,
       sessionWrongAnswers: [],
       savedSession: null,
+      activeScenarioId: null,
       sessionLabel: label ?? null,
       viewState: 'quiz',
     })

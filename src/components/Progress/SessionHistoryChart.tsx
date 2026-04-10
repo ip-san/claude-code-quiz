@@ -40,7 +40,7 @@ export function SessionHistoryChart({ sessions }: SessionHistoryChartProps) {
   const minY = 0
 
   const points = recent.map((s, i) => ({
-    x: PADDING.left + (i / (recent.length - 1)) * INNER_WIDTH,
+    x: PADDING.left + (i / Math.max(recent.length - 1, 1)) * INNER_WIDTH,
     y: PADDING.top + INNER_HEIGHT - ((s.percentage - minY) / (maxY - minY)) * INNER_HEIGHT,
     percentage: s.percentage,
   }))

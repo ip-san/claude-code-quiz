@@ -5,6 +5,15 @@ import { beforeEach, describe, expect, it } from 'vitest'
 import { UserProgress } from '@/domain/entities/UserProgress'
 import { useQuizStore } from '../quizStore'
 
+/** シングルセレクト問題のIDをN個取得 */
+function getSingleSelectIds(count: number): string[] {
+  const all = useQuizStore.getState().allQuestions
+  return all
+    .filter((q) => !Array.isArray(q.correctIndex))
+    .slice(0, count)
+    .map((q) => q.id)
+}
+
 // Helper: answer the current question (handles both single and multi-select)
 function answerCurrentQuestion(correct: boolean) {
   const state = useQuizStore.getState()
@@ -48,7 +57,7 @@ describe('resumeSlice', () => {
 
   describe('suspendSession', () => {
     it('saves session to localStorage and returns to menu', () => {
-      useQuizStore.getState().startSession({ mode: 'random', questionCount: 5 })
+      useQuizStore.getState().startSessionWithIds(getSingleSelectIds(5))
       answerCurrentQuestion(true)
 
       useQuizStore.getState().suspendSession()
@@ -62,7 +71,7 @@ describe('resumeSlice', () => {
     })
 
     it('does not save completed session', () => {
-      useQuizStore.getState().startSession({ mode: 'random', questionCount: 1 })
+      useQuizStore.getState().startSessionWithIds(getSingleSelectIds(1))
       answerCurrentQuestion(true)
       useQuizStore.getState().finishTest()
 
@@ -75,7 +84,7 @@ describe('resumeSlice', () => {
 
   describe('resumeSession', () => {
     it('restores session state from savedSession', () => {
-      useQuizStore.getState().startSession({ mode: 'random', questionCount: 5 })
+      useQuizStore.getState().startSessionWithIds(getSingleSelectIds(5))
 
       // Answer 2 questions
       answerCurrentQuestion(true)
@@ -98,7 +107,7 @@ describe('resumeSlice', () => {
     })
 
     it('restores answerHistory as Map with correct entries', () => {
-      useQuizStore.getState().startSession({ mode: 'random', questionCount: 3 })
+      useQuizStore.getState().startSessionWithIds(getSingleSelectIds(3))
       answerCurrentQuestion(true)
       useQuizStore.getState().nextQuestion()
       answerCurrentQuestion(false)
@@ -120,7 +129,7 @@ describe('resumeSlice', () => {
 
   describe('discardSavedSession', () => {
     it('clears savedSession and localStorage', () => {
-      useQuizStore.getState().startSession({ mode: 'random', questionCount: 3 })
+      useQuizStore.getState().startSessionWithIds(getSingleSelectIds(3))
       answerCurrentQuestion(true)
       useQuizStore.getState().suspendSession()
 
@@ -133,7 +142,7 @@ describe('resumeSlice', () => {
 
   describe('startReviewSession', () => {
     it('creates review session from wrong answers', () => {
-      useQuizStore.getState().startSession({ mode: 'random', questionCount: 3 })
+      useQuizStore.getState().startSessionWithIds(getSingleSelectIds(3))
 
       // Answer all wrong
       for (let i = 0; i < 3; i++) {
@@ -152,7 +161,7 @@ describe('resumeSlice', () => {
     })
 
     it('does nothing when no wrong answers', () => {
-      useQuizStore.getState().startSession({ mode: 'random', questionCount: 1 })
+      useQuizStore.getState().startSessionWithIds(getSingleSelectIds(1))
       answerCurrentQuestion(true)
       useQuizStore.getState().finishTest()
 

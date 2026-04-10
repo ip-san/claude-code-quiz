@@ -39,7 +39,7 @@ export function ChapterProgressMap({
         const p = userProgress.questionProgress[q.id]
         if (p && p.attempts > 0) {
           answered++
-          if (p.lastCorrect) correct++
+          if (userProgress.isCorrectlyAnswered(q.id)) correct++
         }
       }
       const total = chapterQuestions.length

@@ -9,6 +9,15 @@ import { beforeEach, describe, expect, it } from 'vitest'
 import { UserProgress } from '@/domain/entities/UserProgress'
 import { useQuizStore } from '../quizStore'
 
+/** シングルセレクト問題のIDをN個取得 */
+function getSingleSelectIds(count: number): string[] {
+  const all = useQuizStore.getState().allQuestions
+  return all
+    .filter((q) => !Array.isArray(q.correctIndex))
+    .slice(0, count)
+    .map((q) => q.id)
+}
+
 // Helper: initialize store and return it
 async function initStore() {
   await useQuizStore.getState().initialize()
@@ -57,7 +66,7 @@ describe('sessionSlice', () => {
 
   describe('C1: retryQuestion saves session snapshot', () => {
     it('should persist session state after retry', () => {
-      useQuizStore.getState().startSession({ mode: 'random', questionCount: 3 })
+      useQuizStore.getState().startSessionWithIds(getSingleSelectIds(3))
       answerCurrentQuestion(false)
 
       // localStorage should have a snapshot from submitAnswer
@@ -111,7 +120,7 @@ describe('sessionSlice', () => {
       useQuizStore.setState({ activeScenarioId: 'old-scenario', sessionLabel: 'old-label' })
 
       // Start a regular session
-      useQuizStore.getState().startSession({ mode: 'random', questionCount: 3 })
+      useQuizStore.getState().startSessionWithIds(getSingleSelectIds(3))
 
       const state = useQuizStore.getState()
       expect(state.activeScenarioId).toBeNull()
@@ -136,7 +145,7 @@ describe('sessionSlice', () => {
 
   describe('H5: navigation restores isAnswered/isCorrect from answerHistory', () => {
     it('previousQuestion should show answered state for answered questions', () => {
-      useQuizStore.getState().startSession({ mode: 'random', questionCount: 5 })
+      useQuizStore.getState().startSessionWithIds(getSingleSelectIds(5))
 
       // Answer first question correctly
       answerCurrentQuestion(true)
@@ -156,7 +165,7 @@ describe('sessionSlice', () => {
     })
 
     it('goToQuestion should show answered state for answered questions', () => {
-      useQuizStore.getState().startSession({ mode: 'random', questionCount: 5 })
+      useQuizStore.getState().startSessionWithIds(getSingleSelectIds(5))
 
       // Answer first question incorrectly
       answerCurrentQuestion(false)
@@ -172,7 +181,7 @@ describe('sessionSlice', () => {
     })
 
     it('navigation to unanswered question shows unanswered state', () => {
-      useQuizStore.getState().startSession({ mode: 'random', questionCount: 5 })
+      useQuizStore.getState().startSessionWithIds(getSingleSelectIds(5))
 
       // Answer first question
       answerCurrentQuestion(true)
@@ -188,7 +197,7 @@ describe('sessionSlice', () => {
 
   describe('finishTest recalculates score from answerHistory', () => {
     it('should produce correct final score from history', () => {
-      useQuizStore.getState().startSession({ mode: 'random', questionCount: 3 })
+      useQuizStore.getState().startSessionWithIds(getSingleSelectIds(3))
 
       // Answer all 3 questions
       for (let i = 0; i < 3; i++) {
@@ -204,7 +213,7 @@ describe('sessionSlice', () => {
     })
 
     it('should return to menu with 0 answered questions', () => {
-      useQuizStore.getState().startSession({ mode: 'random', questionCount: 3 })
+      useQuizStore.getState().startSessionWithIds(getSingleSelectIds(3))
       // Finish without answering anything
       useQuizStore.getState().finishTest()
       expect(useQuizStore.getState().viewState).toBe('menu')

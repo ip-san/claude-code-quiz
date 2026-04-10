@@ -2,6 +2,15 @@ import { beforeEach, describe, expect, it } from 'vitest'
 import { UserProgress } from '@/domain/entities/UserProgress'
 import { useQuizStore } from './quizStore'
 
+/** シングルセレクト問題のIDをN個取得 */
+function getSingleSelectIds(count: number): string[] {
+  const all = useQuizStore.getState().allQuestions
+  return all
+    .filter((q) => !Array.isArray(q.correctIndex))
+    .slice(0, count)
+    .map((q) => q.id)
+}
+
 describe('quizStore', () => {
   beforeEach(() => {
     // Reset store to initial state
@@ -37,7 +46,7 @@ describe('quizStore', () => {
     })
 
     it('should start a random session with 20 questions', () => {
-      useQuizStore.getState().startSession({ mode: 'random' })
+      useQuizStore.getState().startSessionWithIds(getSingleSelectIds(20))
       const state = useQuizStore.getState()
       expect(state.viewState).toBe('quiz')
       expect(state.sessionState).not.toBeNull()
@@ -70,7 +79,7 @@ describe('quizStore', () => {
     })
 
     it('should override questionCount', () => {
-      useQuizStore.getState().startSession({ mode: 'random', questionCount: 5 })
+      useQuizStore.getState().startSessionWithIds(getSingleSelectIds(5))
       expect(useQuizStore.getState().sessionState!.questions.length).toBe(5)
     })
   })
@@ -106,7 +115,7 @@ describe('quizStore', () => {
   describe('submitAnswer', () => {
     beforeEach(async () => {
       await useQuizStore.getState().initialize()
-      useQuizStore.getState().startSession({ mode: 'random', questionCount: 3 })
+      useQuizStore.getState().startSessionWithIds(getSingleSelectIds(3))
     })
 
     it('should record answer and update score', () => {
@@ -148,7 +157,7 @@ describe('quizStore', () => {
   describe('endSession', () => {
     beforeEach(async () => {
       await useQuizStore.getState().initialize()
-      useQuizStore.getState().startSession({ mode: 'random', questionCount: 1 })
+      useQuizStore.getState().startSessionWithIds(getSingleSelectIds(1))
     })
 
     it('should return to menu and clear session', () => {
@@ -163,7 +172,7 @@ describe('quizStore', () => {
   describe('navigation', () => {
     beforeEach(async () => {
       await useQuizStore.getState().initialize()
-      useQuizStore.getState().startSession({ mode: 'random', questionCount: 5 })
+      useQuizStore.getState().startSessionWithIds(getSingleSelectIds(5))
     })
 
     it('nextQuestion advances currentIndex', () => {

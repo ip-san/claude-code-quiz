@@ -22,6 +22,9 @@ export const SCORE_COLORS = {
   fair: 50,
 } as const
 
+/** カテゴリマスタリー判定しきい値（Opus 分析トリガー） */
+export const MASTERY_THRESHOLD = 90
+
 /**
  * スコアに応じた色分け判定
  */

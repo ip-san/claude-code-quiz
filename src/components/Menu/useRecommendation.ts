@@ -4,6 +4,7 @@ import { theme } from '@/config/theme'
 import type { Question } from '@/domain/entities/Question'
 import type { UserProgress } from '@/domain/entities/UserProgress'
 import { type GrowthInsight, GrowthTrackingService } from '@/domain/services/GrowthTrackingService'
+import { MASTERY_THRESHOLD } from '@/domain/valueObjects/ScoreThresholds'
 import { haptics } from '@/lib/haptics'
 import { useQuizStore } from '@/stores/quizStore'
 import {
@@ -360,8 +361,7 @@ export function useRecommendation() {
       }
     }
 
-    // Trigger 4: Category mastery — a category just reached 90%+ accuracy
-    const MASTERY_THRESHOLD = 90
+    // Trigger 4: Category mastery — a category just reached MASTERY_THRESHOLD accuracy
     const masteryKey = `${theme.storagePrefix}-opus-mastery-notified`
     const notifiedCats: string[] = JSON.parse(localStorage.getItem(masteryKey) ?? '[]')
     for (const [cat, cp] of Object.entries(progress.categoryProgress)) {
@@ -413,7 +413,12 @@ export function useRecommendation() {
   // biome-ignore lint/correctness/useExhaustiveDependencies: re-check after setup
   useEffect(() => {
     if (!window.electronAPI?.checkGlobalHooks) return
-    window.electronAPI.checkGlobalHooks().then(setHooksInstalled)
+    window.electronAPI
+      .checkGlobalHooks()
+      .then(setHooksInstalled)
+      .catch(() => {
+        /* non-critical — hooks check failure should not surface to user */
+      })
   }, [setupDone])
 
   const confirmReanalyze = useCallback(() => {
