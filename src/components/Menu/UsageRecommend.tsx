@@ -21,7 +21,12 @@ export function UsageRecommend() {
   const [monitoring, setMonitoring] = useState(false)
 
   useEffect(() => {
-    window.electronAPI?.getRealtimeMonitoring?.().then((v) => setMonitoring(v)).catch(() => {})
+    window.electronAPI
+      ?.getRealtimeMonitoring?.()
+      .then((v) => setMonitoring(v))
+      .catch(() => {
+        /* non-critical: Electron IPC may fail */
+      })
   }, [])
 
   const toggleMonitoring = useCallback(async () => {

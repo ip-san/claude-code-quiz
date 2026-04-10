@@ -12,11 +12,16 @@ export function UpdateBanner() {
 
   useEffect(() => {
     if (!isElectron) return
-    window.electronAPI?.checkForUpdate().then((result) => {
-      if (result?.hasUpdate && result.latestVersion && result.releaseUrl) {
-        setUpdateInfo({ latestVersion: result.latestVersion, releaseUrl: result.releaseUrl })
-      }
-    }).catch(() => {})
+    window.electronAPI
+      ?.checkForUpdate()
+      .then((result) => {
+        if (result?.hasUpdate && result.latestVersion && result.releaseUrl) {
+          setUpdateInfo({ latestVersion: result.latestVersion, releaseUrl: result.releaseUrl })
+        }
+      })
+      .catch(() => {
+        /* non-critical: Electron IPC may fail */
+      })
   }, [])
 
   if (!updateInfo || dismissed) return null
