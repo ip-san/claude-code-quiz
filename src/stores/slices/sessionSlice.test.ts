@@ -24,10 +24,18 @@ function answerCurrentQuestion(correct: boolean) {
   const correctSet = new Set(Array.isArray(ci) ? ci : [ci])
 
   if (correct) {
-    state.selectAnswer(Array.isArray(ci) ? ci[0] : ci)
+    if (Array.isArray(ci)) {
+      for (const idx of ci) state.toggleAnswer(idx)
+    } else {
+      state.selectAnswer(ci)
+    }
   } else {
     const wrongIndex = q.options.findIndex((_, i) => !correctSet.has(i))
-    state.selectAnswer(wrongIndex)
+    if (Array.isArray(ci)) {
+      state.toggleAnswer(wrongIndex)
+    } else {
+      state.selectAnswer(wrongIndex)
+    }
   }
   state.submitAnswer()
 }
