@@ -106,8 +106,9 @@ export default function App() {
         const idList = ids.split(',').filter(Boolean)
         if (idList.length > 0) {
           startSessionWithIds(idList, 'レコメンド')
-          // Clean URL without reload
-          window.history.replaceState({}, '', window.location.pathname)
+          try {
+            window.history.replaceState({}, '', window.location.pathname)
+          } catch { /* cross-origin iframe */ }
         }
       }
     })

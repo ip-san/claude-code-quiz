@@ -16,7 +16,7 @@ export function UpdateBanner() {
       if (result?.hasUpdate && result.latestVersion && result.releaseUrl) {
         setUpdateInfo({ latestVersion: result.latestVersion, releaseUrl: result.releaseUrl })
       }
-    })
+    }).catch(() => {})
   }, [])
 
   if (!updateInfo || dismissed) return null

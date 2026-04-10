@@ -86,6 +86,7 @@ export const useQuizStore = create<QuizStore>((set, get) => ({
    * デフォルトデータにフォールバックする。
    */
   initialize: async () => {
+    if (get().allQuestions.length > 0) return // Already initialized
     set({ isLoading: true })
 
     try {

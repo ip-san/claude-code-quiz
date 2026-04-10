@@ -21,7 +21,7 @@ export function UsageRecommend() {
   const [monitoring, setMonitoring] = useState(false)
 
   useEffect(() => {
-    window.electronAPI?.getRealtimeMonitoring?.().then((v) => setMonitoring(v))
+    window.electronAPI?.getRealtimeMonitoring?.().then((v) => setMonitoring(v)).catch(() => {})
   }, [])
 
   const toggleMonitoring = useCallback(async () => {

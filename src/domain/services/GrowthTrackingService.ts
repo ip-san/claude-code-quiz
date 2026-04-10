@@ -212,7 +212,11 @@ export class GrowthTrackingService {
     try {
       const stored = localStorage.getItem(INSIGHT_CACHE_KEY)
       if (!stored) return null
-      return JSON.parse(stored) as GrowthInsight
+      const parsed: unknown = JSON.parse(stored)
+      if (!parsed || typeof parsed !== 'object' || !('improved' in parsed) || !('analysisCount' in parsed)) {
+        return null
+      }
+      return parsed as GrowthInsight
     } catch {
       return null
     }
@@ -225,7 +229,12 @@ export class GrowthTrackingService {
     try {
       const stored = localStorage.getItem(STORAGE_KEY)
       if (!stored) return []
-      return JSON.parse(stored) as PatternSnapshot[]
+      const parsed: unknown = JSON.parse(stored)
+      if (!Array.isArray(parsed)) return []
+      return parsed.filter(
+        (item): item is PatternSnapshot =>
+          item && typeof item === 'object' && 'date' in item && 'patterns' in item
+      )
     } catch {
       return []
     }
