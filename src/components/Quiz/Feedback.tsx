@@ -11,20 +11,12 @@ import {
   Sparkles,
   XCircle,
 } from 'lucide-react'
-import { useEffect, useState } from 'react'
-import { useShallow } from 'zustand/react/shallow'
 import { locale } from '@/config/locale'
 import type { Question } from '@/domain/entities/Question'
-import { platformAPI } from '@/lib/platformAPI'
-import { useQuizStore } from '@/stores/quizStore'
 import { ExplanationWithDiagrams } from './ExplanationWithDiagrams'
 import { MemoryRetentionBar } from './MemoryRetentionBar'
 import { QuizText } from './QuizText'
-
-type PromptType = 'explain' | 'practical' | 'compare'
-
-const prefersReducedMotion =
-  typeof window !== 'undefined' && window.matchMedia('(prefers-reduced-motion: reduce)').matches
+import { type PromptType, useFeedback } from './useFeedback'
 
 const PROMPT_TYPES: Array<{ type: PromptType; label: string; icon: typeof BookOpen; description: string }> = [
   {
@@ -79,77 +71,23 @@ function AnimatedSection({
 }
 
 export function Feedback({ quiz, isCorrect }: FeedbackProps) {
-  const { sessionState, userProgress } = useQuizStore(
-    useShallow((state) => ({ sessionState: state.sessionState, userProgress: state.userProgress }))
-  )
-  const [copied, setCopied] = useState(false)
-  const [markdownCopied, setMarkdownCopied] = useState(false)
-  const [animate, setAnimate] = useState(false)
-  const [showPrompts, setShowPrompts] = useState(false)
-
-  const selectedAnswer = sessionState?.selectedAnswer ?? null
-  const selectedAnswers = sessionState?.selectedAnswers ?? []
-  const selectedOption = selectedAnswer !== null ? quiz.options[selectedAnswer] : null
-  const isReviewMode = sessionState?.isReviewMode ?? false
-  const isMultiSelect = quiz.isMultiSelect
-
-  const noMotion = prefersReducedMotion
-
-  // Trigger animations after mount
-  // biome-ignore lint/correctness/useExhaustiveDependencies: re-run when noMotion preference changes
-  useEffect(() => {
-    if (noMotion) {
-      setAnimate(true)
-      return
-    }
-    const id = requestAnimationFrame(() => setAnimate(true))
-    return () => cancelAnimationFrame(id)
-  }, [noMotion])
-
-  const handleOpenReference = async () => {
-    if (!quiz.referenceUrl) return
-
-    try {
-      const success = await platformAPI.openExternal(quiz.referenceUrl)
-      if (!success) {
-        console.warn('Failed to open reference URL')
-      }
-    } catch (error) {
-      console.error('Error opening reference URL:', error)
-    }
-  }
-
-  const handleCopyAIPrompt = async (type: PromptType) => {
-    try {
-      const prompt = quiz.generateAIPromptByType(type)
-
-      const success = await platformAPI.copyToClipboard(prompt)
-      if (success) {
-        setCopied(true)
-        setTimeout(() => setCopied(false), 2000)
-      } else {
-        console.warn('Failed to copy to clipboard')
-      }
-    } catch (error) {
-      console.error('Error copying to clipboard:', error)
-    }
-  }
-
-  const handleCopyMarkdown = async () => {
-    try {
-      const markdown = quiz.toMarkdown()
-
-      const success = await platformAPI.copyToClipboard(markdown)
-      if (success) {
-        setMarkdownCopied(true)
-        setTimeout(() => setMarkdownCopied(false), 2000)
-      } else {
-        console.warn('Failed to copy to clipboard')
-      }
-    } catch (error) {
-      console.error('Error copying to clipboard:', error)
-    }
-  }
+  const {
+    userProgress,
+    selectedAnswer,
+    selectedAnswers,
+    selectedOption,
+    isReviewMode,
+    isMultiSelect,
+    animate,
+    noMotion,
+    copied,
+    markdownCopied,
+    showPrompts,
+    setShowPrompts,
+    handleOpenReference,
+    handleCopyAIPrompt,
+    handleCopyMarkdown,
+  } = useFeedback(quiz)
 
   // Build ordered sections for staggered animation
   const sections: React.ReactNode[] = []
@@ -369,7 +307,7 @@ export function Feedback({ quiz, isCorrect }: FeedbackProps) {
     </AnimatedSection>
   )
 
-  // 6: AI prompt picker — shown for both correct and incorrect
+  // 7: AI prompt picker — shown for both correct and incorrect
   sections.push(
     <AnimatedSection key="ai-prompts" order={sections.length} animate={animate} noMotion={noMotion} className="mt-3">
       <button

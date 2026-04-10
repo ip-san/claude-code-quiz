@@ -1,11 +1,8 @@
 import { Bookmark, ChevronDown, ChevronUp, ExternalLink, Filter, Play, Search, X } from 'lucide-react'
-import { useMemo, useState } from 'react'
-import { useShallow } from 'zustand/react/shallow'
 import { QuizText } from '@/components/Quiz/QuizText'
 import { locale } from '@/config/locale'
 import { getCategoryById, PREDEFINED_CATEGORIES } from '@/domain/valueObjects/Category'
-import { haptics } from '@/lib/haptics'
-import { useQuizStore } from '@/stores/quizStore'
+import { useQuizSearch } from './useQuizSearch'
 
 /**
  * クイズ検索コンポーネント
@@ -17,41 +14,27 @@ import { useQuizStore } from '@/stores/quizStore'
  * カテゴリフィルタでテキスト検索を絞り込める。
  */
 export function QuizSearch() {
-  const { allQuestions, startSessionWithIds, toggleBookmark, userProgress } = useQuizStore(
-    useShallow((state) => ({
-      allQuestions: state.allQuestions,
-      startSessionWithIds: state.startSessionWithIds,
-      toggleBookmark: state.toggleBookmark,
-      userProgress: state.userProgress,
-    }))
-  )
-  const [query, setQuery] = useState('')
-  const [isOpen, setIsOpen] = useState(false)
-  const [expandedId, setExpandedId] = useState<string | null>(null)
-  const [showAll, setShowAll] = useState(false)
-  const [categoryFilter, setCategoryFilter] = useState<string | null>(null)
-  const [showFilters, setShowFilters] = useState(false)
-
-  const allResults = useMemo(() => {
-    if (query.length < 2 && !categoryFilter) return []
-    let results = allQuestions
-    if (categoryFilter) {
-      results = results.filter((quiz) => quiz.category === categoryFilter)
-    }
-    if (query.length >= 2) {
-      const q = query.toLowerCase()
-      results = results.filter(
-        (quiz) =>
-          quiz.question.toLowerCase().includes(q) ||
-          quiz.explanation.toLowerCase().includes(q) ||
-          quiz.options.some((opt) => opt.text.toLowerCase().includes(q))
-      )
-    }
-    return results
-  }, [allQuestions, query, categoryFilter])
-
-  // Display limit for the list, but quiz launch uses ALL results
-  const displayResults = allResults.slice(0, 10)
+  const {
+    query,
+    isOpen,
+    expandedId,
+    showAll,
+    categoryFilter,
+    showFilters,
+    allResults,
+    displayResults,
+    userProgress,
+    setQuery,
+    setExpandedId,
+    setShowAll,
+    setCategoryFilter,
+    setShowFilters,
+    openSearch,
+    closeSearch,
+    launchSession,
+    launchSessionAndClose,
+    handleToggleBookmark,
+  } = useQuizSearch()
 
   // Full-screen view for all results
   if (showAll) {
@@ -70,16 +53,12 @@ export function QuizSearch() {
           </div>
           <div className="flex items-center gap-2">
             <button
-              onClick={() => {
-                haptics.light()
-                startSessionWithIds(
+              onClick={() =>
+                launchSession(
                   allResults.map((r) => r.id),
                   query
                 )
-                setShowAll(false)
-                setIsOpen(false)
-                setQuery('')
-              }}
+              }
               className="tap-highlight inline-flex items-center gap-1.5 rounded-xl bg-claude-orange px-3 py-1.5 text-xs font-medium text-white"
             >
               <Play className="h-3 w-3 fill-white" />
@@ -119,7 +98,7 @@ export function QuizSearch() {
                 {isExpanded && (
                   <div className="border-t border-stone-100 bg-stone-50/50 px-4 py-3 dark:border-stone-700 dark:bg-stone-900/50">
                     <p className="mb-2 text-xs font-medium text-green-600 dark:text-green-400">
-                      ✓ {r.options[r.correctIndex]?.text}
+                      &#10003; {r.options[r.correctIndex]?.text}
                     </p>
                     <p className="text-xs leading-relaxed text-stone-600 dark:text-stone-400">
                       <QuizText text={r.explanation} />
@@ -137,10 +116,7 @@ export function QuizSearch() {
                         </a>
                       )}
                       <button
-                        onClick={() => {
-                          haptics.light()
-                          toggleBookmark(r.id)
-                        }}
+                        onClick={() => handleToggleBookmark(r.id)}
                         className="inline-flex items-center gap-1 text-xs text-stone-500"
                       >
                         <Bookmark
@@ -162,7 +138,7 @@ export function QuizSearch() {
   if (!isOpen) {
     return (
       <button
-        onClick={() => setIsOpen(true)}
+        onClick={openSearch}
         className="tap-highlight mb-5 flex w-full items-center gap-2 rounded-2xl border border-stone-200 bg-white px-4 py-3 text-sm text-stone-400 dark:border-stone-700 dark:bg-stone-800"
       >
         <Search className="h-4 w-4" />
@@ -195,13 +171,7 @@ export function QuizSearch() {
           <Filter className="h-4 w-4" />
         </button>
         <button
-          onClick={() => {
-            setQuery('')
-            setCategoryFilter(null)
-            setShowFilters(false)
-            setIsOpen(false)
-            setExpandedId(null)
-          }}
+          onClick={closeSearch}
           className="tap-highlight rounded-full p-2 text-stone-400"
           aria-label={locale.search.closeLabel}
         >
@@ -251,15 +221,12 @@ export function QuizSearch() {
                   {locale.search.resultsSuffix}
                 </span>
                 <button
-                  onClick={() => {
-                    haptics.light()
-                    startSessionWithIds(
+                  onClick={() =>
+                    launchSessionAndClose(
                       allResults.map((r) => r.id),
                       query
                     )
-                    setIsOpen(false)
-                    setQuery('')
-                  }}
+                  }
                   className="tap-highlight inline-flex items-center gap-1.5 rounded-lg bg-claude-orange px-3 py-1.5 text-xs font-medium text-white"
                 >
                   <Play className="h-3 w-3 fill-white" />
@@ -292,7 +259,7 @@ export function QuizSearch() {
                       {isExpanded && (
                         <div className="border-t border-stone-100 bg-stone-50/50 px-4 py-3 dark:border-stone-700 dark:bg-stone-900/50">
                           <p className="mb-2 text-xs font-medium text-green-600 dark:text-green-400">
-                            ✓ {r.options[r.correctIndex]?.text}
+                            &#10003; {r.options[r.correctIndex]?.text}
                           </p>
                           <p className="text-xs leading-relaxed text-stone-600 dark:text-stone-400">
                             <QuizText text={r.explanation} />
@@ -310,10 +277,7 @@ export function QuizSearch() {
                               </a>
                             )}
                             <button
-                              onClick={() => {
-                                haptics.light()
-                                toggleBookmark(r.id)
-                              }}
+                              onClick={() => handleToggleBookmark(r.id)}
                               className="inline-flex items-center gap-1 text-xs text-stone-500"
                             >
                               <Bookmark

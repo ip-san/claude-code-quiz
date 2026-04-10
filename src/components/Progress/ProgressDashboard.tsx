@@ -1,106 +1,43 @@
 import { ChevronDown, ChevronUp } from 'lucide-react'
-import { useCallback, useEffect, useRef, useState } from 'react'
-import { useShallow } from 'zustand/react/shallow'
 import { locale } from '@/config/locale'
-import { getMasteryLevel } from '@/domain/services/MasteryLevelService'
-import { SessionInsightService } from '@/domain/services/SessionInsightService'
 import { type Category, PREDEFINED_CATEGORIES } from '@/domain/valueObjects/Category'
 import { PASSING_SCORE, SCORE_COLORS } from '@/domain/valueObjects/ScoreThresholds'
-import { getProgressRepository } from '@/infrastructure/persistence/LocalStorageProgressRepository'
 import { getColorHex } from '@/lib/colors'
-import { platformAPI } from '@/lib/platformAPI'
 import { buttonStyles, cardStyles, headerStyles, pageStyles } from '@/lib/styles'
-import { useQuizStore } from '@/stores/quizStore'
 import { CategoryTrendChart } from './CategoryTrendChart'
 import { CertificateHistory } from './CertificateHistory'
 import { LearningRecommendation } from './LearningRecommendation'
 import { MasteryLevel } from './MasteryLevel'
 import { SessionHistoryChart } from './SessionHistoryChart'
 import { SessionHistoryList } from './SessionHistoryList'
+import { useProgressDashboard } from './useProgressDashboard'
 import { WeakPointInsight } from './WeakPointInsight'
 
 export function ProgressDashboard() {
   const {
     allQuestions,
     userProgress,
-    getCategoryStats,
     setViewState,
     startSession,
-    resetUserProgress,
-    loadUserProgress,
-    exportProgressCsv,
-  } = useQuizStore(
-    useShallow((state) => ({
-      allQuestions: state.allQuestions,
-      userProgress: state.userProgress,
-      getCategoryStats: state.getCategoryStats,
-      setViewState: state.setViewState,
-      startSession: state.startSession,
-      resetUserProgress: state.resetUserProgress,
-      loadUserProgress: state.loadUserProgress,
-      exportProgressCsv: state.exportProgressCsv,
-    }))
-  )
-
-  const [exportStatus, setExportStatus] = useState<string | null>(null)
-  const [showCharts, setShowCharts] = useState(false)
-  const [showCategories, setShowCategories] = useState(false)
-  const [showDataManagement, setShowDataManagement] = useState(false)
-  const statusTimeoutRef = useRef<NodeJS.Timeout | null>(null)
-
-  useEffect(() => {
-    return () => {
-      if (statusTimeoutRef.current) clearTimeout(statusTimeoutRef.current)
-    }
-  }, [])
-
-  const showStatus = useCallback((message: string, duration = 3000) => {
-    if (statusTimeoutRef.current) clearTimeout(statusTimeoutRef.current)
-    setExportStatus(message)
-    statusTimeoutRef.current = setTimeout(() => {
-      setExportStatus(null)
-      statusTimeoutRef.current = null
-    }, duration)
-  }, [])
-
-  const categoryStats = getCategoryStats()
-  const overallAccuracy = userProgress.getOverallAccuracy()
-  const hasNoProgress = userProgress.totalAttempts === 0
-
-  const handleExport = async () => {
-    try {
-      const progressRepo = getProgressRepository()
-      const jsonData = await progressRepo.export()
-      const result = await platformAPI.exportProgress(jsonData)
-      if (result.success) showStatus(locale.progress.exported)
-      else if ('error' in result && result.error !== 'cancelled')
-        showStatus(`${locale.progress.errorPrefix}: ${result.error}`, 5000)
-    } catch {
-      showStatus(locale.progress.exportFailed, 5000)
-    }
-  }
-
-  const handleImport = async () => {
-    try {
-      const result = await platformAPI.importProgress()
-      if (result.success && result.data) {
-        if (window.confirm(locale.progress.confirmOverwrite)) {
-          const progressRepo = getProgressRepository()
-          const success = await progressRepo.import(result.data)
-          if (success) {
-            await loadUserProgress()
-            showStatus(locale.progress.imported)
-          } else {
-            showStatus(locale.progress.invalidFile, 5000)
-          }
-        }
-      } else if (result.error !== 'cancelled') {
-        showStatus(`${locale.progress.errorPrefix}: ${result.error}`, 5000)
-      }
-    } catch {
-      showStatus(locale.progress.importFailed, 5000)
-    }
-  }
+    categoryStats,
+    overallAccuracy,
+    hasNoProgress,
+    masteryIndex,
+    trendInfo,
+    teachableCategories,
+    exportStatus,
+    isStatusError,
+    showCharts,
+    showCategories,
+    showDataManagement,
+    setShowCharts,
+    setShowCategories,
+    setShowDataManagement,
+    handleExport,
+    handleImport,
+    handleExportCsv,
+    handleReset,
+  } = useProgressDashboard()
 
   return (
     <div className={`min-h-dvh ${pageStyles.cream}`}>
@@ -162,7 +99,7 @@ export function ProgressDashboard() {
           {!hasNoProgress && (
             <CertificateHistory
               sessionHistory={userProgress.sessionHistory}
-              masteryIndex={getMasteryLevel(overallAccuracy, userProgress.totalAttempts, categoryStats).index}
+              masteryIndex={masteryIndex}
               overallAccuracy={overallAccuracy}
             />
           )}
@@ -207,30 +144,25 @@ export function ProgressDashboard() {
               <div className="mt-4">
                 <CategoryTrendChart sessions={userProgress.sessionHistory} />
               </div>
-              {(() => {
-                const trend = SessionInsightService.getImprovementTrend(userProgress.sessionHistory)
-                const best = SessionInsightService.getBestScore(userProgress.sessionHistory)
-                if (trend === null && best === null) return null
-                return (
-                  <div className="mt-4 flex flex-wrap gap-3">
-                    {best !== null && (
-                      <div className={`flex-1 ${cardStyles.base} p-4`}>
-                        <div className="mb-1 text-xs text-stone-500">{locale.progress.bestAccuracy}</div>
-                        <div className="text-2xl font-bold text-claude-orange">{best}%</div>
+              {(trendInfo.trend !== null || trendInfo.best !== null) && (
+                <div className="mt-4 flex flex-wrap gap-3">
+                  {trendInfo.best !== null && (
+                    <div className={`flex-1 ${cardStyles.base} p-4`}>
+                      <div className="mb-1 text-xs text-stone-500">{locale.progress.bestAccuracy}</div>
+                      <div className="text-2xl font-bold text-claude-orange">{trendInfo.best}%</div>
+                    </div>
+                  )}
+                  {trendInfo.trend !== null && (
+                    <div className={`flex-1 ${cardStyles.base} p-4`}>
+                      <div className="mb-1 text-xs text-stone-500">{locale.progress.growthTrend}</div>
+                      <div className={`text-2xl font-bold ${trendInfo.trend >= 0 ? 'text-green-600' : 'text-red-500'}`}>
+                        {trendInfo.trend >= 0 ? '+' : ''}
+                        {trendInfo.trend}%
                       </div>
-                    )}
-                    {trend !== null && (
-                      <div className={`flex-1 ${cardStyles.base} p-4`}>
-                        <div className="mb-1 text-xs text-stone-500">{locale.progress.growthTrend}</div>
-                        <div className={`text-2xl font-bold ${trend >= 0 ? 'text-green-600' : 'text-red-500'}`}>
-                          {trend >= 0 ? '+' : ''}
-                          {trend}%
-                        </div>
-                      </div>
-                    )}
-                  </div>
-                )
-              })()}
+                    </div>
+                  )}
+                </div>
+              )}
               {userProgress.sessionHistory.length > 0 && (
                 <div className="mt-4">
                   <h3 className="mb-2 text-sm font-semibold text-stone-500">{locale.progress.recentSessions}</h3>
@@ -248,31 +180,21 @@ export function ProgressDashboard() {
               onToggle={() => setShowCategories(!showCategories)}
             >
               {/* Teaching readiness */}
-              {(() => {
-                const teachable = PREDEFINED_CATEGORIES.filter((cat) => {
-                  const stats = categoryStats[cat.id]
-                  if (!stats || stats.attemptedQuestions < 5) return false
-                  return (
-                    Math.round((stats.correctAnswers / stats.attemptedQuestions) * 100) >= SCORE_COLORS.excellent + 10
-                  )
-                })
-                if (teachable.length === 0) return null
-                return (
-                  <div className="mb-4 rounded-2xl border border-purple-200 bg-purple-50/50 p-4 dark:border-purple-500/30 dark:bg-purple-500/10">
-                    <p className="mb-2 text-sm font-bold text-purple-700 dark:text-purple-300">{`🎓 ${locale.progress.teachable}`}</p>
-                    <div className="flex flex-wrap gap-2">
-                      {teachable.map((cat) => (
-                        <span
-                          key={cat.id}
-                          className="inline-flex items-center gap-1 rounded-full bg-purple-100 px-3 py-1 text-sm font-medium text-purple-700 dark:bg-purple-500/20 dark:text-purple-300"
-                        >
-                          {cat.icon} {cat.name}
-                        </span>
-                      ))}
-                    </div>
+              {teachableCategories.length > 0 && (
+                <div className="mb-4 rounded-2xl border border-purple-200 bg-purple-50/50 p-4 dark:border-purple-500/30 dark:bg-purple-500/10">
+                  <p className="mb-2 text-sm font-bold text-purple-700 dark:text-purple-300">{`🎓 ${locale.progress.teachable}`}</p>
+                  <div className="flex flex-wrap gap-2">
+                    {teachableCategories.map((cat) => (
+                      <span
+                        key={cat.id}
+                        className="inline-flex items-center gap-1 rounded-full bg-purple-100 px-3 py-1 text-sm font-medium text-purple-700 dark:bg-purple-500/20 dark:text-purple-300"
+                      >
+                        {cat.icon} {cat.name}
+                      </span>
+                    ))}
                   </div>
-                )
-              })()}
+                </div>
+              )}
               <div className="space-y-3">
                 {PREDEFINED_CATEGORIES.map((category: Category) => {
                   const stats = categoryStats[category.id]
@@ -334,29 +256,13 @@ export function ProgressDashboard() {
                   {`📤 ${locale.progress.importLabel}`}
                 </button>
               </div>
-              <button
-                onClick={async () => {
-                  try {
-                    await exportProgressCsv()
-                    showStatus(locale.progress.csvExported)
-                  } catch {
-                    showStatus(locale.progress.csvExportFailed, 5000)
-                  }
-                }}
-                className={`${buttonStyles.secondary} w-full`}
-              >
+              <button onClick={handleExportCsv} className={`${buttonStyles.secondary} w-full`}>
                 {`📊 ${locale.progress.csvExport}`}
               </button>
               {exportStatus && (
                 <div
                   className={`rounded-2xl px-4 py-2 text-center text-sm ${
-                    exportStatus === locale.progress.exportFailed ||
-                    exportStatus === locale.progress.importFailed ||
-                    exportStatus === locale.progress.invalidFile ||
-                    exportStatus === locale.progress.csvExportFailed ||
-                    exportStatus.startsWith(locale.progress.errorPrefix)
-                      ? 'bg-red-500/20 text-red-400'
-                      : 'bg-green-500/20 text-green-400'
+                    isStatusError ? 'bg-red-500/20 text-red-400' : 'bg-green-500/20 text-green-400'
                   }`}
                   role="status"
                   aria-live="polite"
@@ -365,11 +271,7 @@ export function ProgressDashboard() {
                 </div>
               )}
               <button
-                onClick={async () => {
-                  if (window.confirm(locale.progress.confirmReset)) {
-                    await resetUserProgress()
-                  }
-                }}
+                onClick={handleReset}
                 className="tap-highlight w-full rounded-2xl border border-red-600/50 px-6 py-3 font-semibold text-red-400"
               >
                 {locale.progress.resetLabel}
