@@ -9,7 +9,9 @@ import { readFileSync } from 'node:fs'
 import { describe, expect, it } from 'vitest'
 import { SCENARIO_CATEGORY_MAP } from '@/components/Menu/recommendUtils'
 import { locale } from '@/config/locale'
+import { theme } from '@/config/theme'
 import { SCENARIOS } from '@/data/scenarios'
+import { CERTIFICATE_THRESHOLDS, SCORE_COLORS } from '@/domain/valueObjects/ScoreThresholds'
 import type { QuizItemData } from '@/infrastructure/validation/QuizValidator'
 import type { Question } from '../entities/Question'
 import { PREDEFINED_CATEGORIES } from '../valueObjects/Category'
@@ -302,6 +304,13 @@ describe('Spec Consistency: Locale completeness', () => {
       const hasRawThreshold = /accuracy\s*>=\s*(?:70|80|50)\b|progress\s*>=\s*(?:70|80|50)\b/.test(source)
       expect(hasRawThreshold, `${file} has hardcoded score threshold — use ScoreThresholds constants`).toBe(false)
     }
+  })
+
+  it('theme.scoreMessages boundaries match ScoreThresholds constants', () => {
+    const mins = theme.scoreMessages.map((m) => m.min).sort((a, b) => b - a)
+    expect(mins, 'scoreMessages must include CERTIFICATE_THRESHOLDS.full').toContain(CERTIFICATE_THRESHOLDS.full)
+    expect(mins, 'scoreMessages must include SCORE_COLORS.good (PASSING_SCORE)').toContain(SCORE_COLORS.good)
+    expect(mins, 'scoreMessages must include SCORE_COLORS.fair').toContain(SCORE_COLORS.fair)
   })
 })
 

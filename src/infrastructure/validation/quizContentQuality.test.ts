@@ -581,10 +581,11 @@ describe('Quiz Content Quality', () => {
       expect(violations.map((q) => q.id)).toEqual([])
     })
 
-    it('すべての問題が2つのダイアグラムを持つこと', () => {
+    it('すべての問題が1〜3個のダイアグラムを持つこと（QuizValidator.ts と同一制約）', () => {
       const violations = quizzes.filter((q) => {
         const d = (q as Record<string, unknown>).diagrams
-        return !Array.isArray(d) || (d as unknown[]).length !== 2
+        const len = Array.isArray(d) ? (d as unknown[]).length : 0
+        return len < 1 || len > 3
       })
       expect(violations.map((q) => q.id)).toEqual([])
     })
