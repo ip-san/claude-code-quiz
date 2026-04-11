@@ -22,19 +22,32 @@ color: blue
 ## 手順
 
 1. `.claude/tmp/quizzes/{category}.json` を Read で読み込む
-2. **Haiku 事前フィルタ結果を確認**（あれば）:
+2. **決定論的 lint 結果を確認**（あれば）:
    ```bash
    cat .claude/tmp/pre-verify-results.json 2>/dev/null
    ```
-   `matched` に含まれるIDは Haiku が事実一致を確認済み → **チェック A（事実の正確性）と B（用語の正確性）をスキップ**し、C-H のみ適用。
-   `flagged` に含まれるIDは不一致の疑い → **チェック A-H を全て適用**（重点的に検証）。
-   `pre-verify-results.json` が存在しない場合は従来通り全チェック適用。
+   - `model` が `"deterministic-lint"` の場合: lint スクリプトによる機械チェック済み
+   - `matched` に含まれるIDは全 lint チェック通過 → 下表の「matched」行に従う
+   - `flagged` に含まれるIDは `tier` フィールドで検証スコープが決まる（下表参照）
+   - `tier: "autofix"` の問題は `sonnetTargets` に含まれないため検証不要
+   - `pre-verify-results.json` が存在しない場合は従来通り全チェック適用
 3. ドキュメントを取得:
    ```bash
    node scripts/fetch-docs.mjs --assemble {category}
    ```
 4. `.claude/skills/quiz-refine/known-issues.md` を Read で読み込む
-5. 対象問題ごとに検証チェックリストを適用（上記フィルタに従う）
+5. 対象問題ごとに検証チェックリストを適用（下表に従う）
+
+### lint 結果に基づくチェックスコープ
+
+| ステータス | tier | 適用チェック | 根拠 |
+|-----------|------|------------|------|
+| flagged | `fact` | **A-B**-D-G + lint 指摘重点 | 用語がドキュメントに見つからない・矛盾検出。事実確認が必須 |
+| flagged | `quality` | D-G-H のみ | distractor/difficulty の品質問題。事実確認A-Bは不要 |
+| flagged | `autofix` | — (対象外) | backtick等の自動修正済み。sonnetTargets に含まれない |
+| matched + content-changed | — | A-B-D-G | 内容変更あり。事実確認が主目的 |
+| matched + doc-changed | — | A-B | ドキュメント変更追従 |
+| matched (--full) | — | D-G のみ | C/E/F/H は lint 通過済み |
 
 ## 検証チェックリスト
 

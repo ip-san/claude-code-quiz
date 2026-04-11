@@ -108,7 +108,9 @@ export default function App() {
           startSessionWithIds(idList, 'レコメンド')
           try {
             window.history.replaceState({}, '', window.location.pathname)
-          } catch { /* cross-origin iframe */ }
+          } catch {
+            /* cross-origin iframe */
+          }
         }
       }
     })

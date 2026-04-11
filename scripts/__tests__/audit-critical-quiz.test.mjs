@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { buildAuditClaims, parseAuditResponse, updatePreVerifyResults } from '../audit-matched-quiz.mjs'
+import { buildAuditClaims, parseAuditResponse, updatePreVerifyResults } from '../audit-critical-quiz.mjs'
 
 describe('parseAuditResponse', () => {
   it('parses clean JSON array', () => {

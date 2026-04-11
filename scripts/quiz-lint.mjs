@@ -846,11 +846,12 @@ function printTerminologyReport(issues) {
 const args = process.argv.slice(2)
 const command = args[0] || 'all'
 const dryRun = args.includes('--dry-run')
+const jsonMode = args.includes('--json')
 
 if (
   !['backtick', 'url', 'terminology', 'quality', 'distractor', 'difficulty', 'filter-report', 'all'].includes(command)
 ) {
-  console.log('Usage: node scripts/quiz-lint.mjs <command> [--dry-run]')
+  console.log('Usage: node scripts/quiz-lint.mjs <command> [--dry-run] [--json]')
   console.log('Commands: backtick, url, terminology, quality, distractor, difficulty, filter-report <path>, all')
   process.exit(1)
 }
@@ -869,55 +870,90 @@ if (command === 'filter-report') {
   process.exit(0)
 }
 
-console.log('=== Quiz Lint ===\n')
+// Collect results for all checks
+const jsonResults = {}
+
+if (!jsonMode) console.log('=== Quiz Lint ===\n')
 
 if (command === 'backtick' || command === 'all') {
-  console.log(`[Backtick] ${dryRun ? '(dry-run)' : '(auto-fix)'}`)
-  const fixes = lintBackticks(data.quizzes, dryRun)
-  printBacktickReport(fixes)
+  if (!jsonMode) console.log(`[Backtick] ${dryRun ? '(dry-run)' : '(auto-fix)'}`)
+  const fixes = lintBackticks(data.quizzes, dryRun || jsonMode)
+  if (!jsonMode) printBacktickReport(fixes)
+  jsonResults.backtick = fixes.map((f) => ({
+    id: f.id,
+    field: f.field,
+    status: dryRun || jsonMode ? 'flagged' : 'fixed',
+  }))
   totalFixes += fixes.length
   if (fixes.length > 0) hasIssues = true
-  console.log()
+  if (!jsonMode) console.log()
 }
 
 if (command === 'url' || command === 'all') {
-  console.log('[URL Anchors]')
+  if (!jsonMode) console.log('[URL Anchors]')
   const urlIssues = lintUrls(data.quizzes)
-  printUrlReport(urlIssues)
+  if (!jsonMode) printUrlReport(urlIssues)
+  jsonResults.url = urlIssues.map((i) => ({ id: i.id, type: i.type, status: 'flagged', detail: i.message }))
   if (urlIssues.length > 0) hasIssues = true
-  console.log()
+  if (!jsonMode) console.log()
 }
 
 if (command === 'terminology' || command === 'all') {
-  console.log('[Terminology]')
+  if (!jsonMode) console.log('[Terminology]')
   const termIssues = lintTerminology(data.quizzes)
-  printTerminologyReport(termIssues)
+  if (!jsonMode) printTerminologyReport(termIssues)
+  jsonResults.terminology = termIssues.map((i) => ({
+    id: i.id,
+    field: i.field,
+    type: i.type,
+    status: 'flagged',
+    detail: i.message,
+  }))
   if (termIssues.length > 0) hasIssues = true
-  console.log()
+  if (!jsonMode) console.log()
 }
 
 if (command === 'quality' || command === 'all') {
-  console.log('[Quality]')
+  if (!jsonMode) console.log('[Quality]')
   const qualityIssues = lintQuality(data.quizzes)
-  printQualityReport(qualityIssues)
+  if (!jsonMode) printQualityReport(qualityIssues)
+  jsonResults.quality = qualityIssues.map((i) => ({ id: i.id, type: i.type, status: 'flagged', detail: i.message }))
   if (qualityIssues.length > 0) hasIssues = true
-  console.log()
+  if (!jsonMode) console.log()
 }
 
 if (command === 'distractor' || command === 'all') {
-  console.log('[Distractor]')
+  if (!jsonMode) console.log('[Distractor]')
   const distractorIssues = lintDistractors(data.quizzes)
-  printDistractorReport(distractorIssues)
+  if (!jsonMode) printDistractorReport(distractorIssues)
+  jsonResults.distractor = distractorIssues.map((i) => ({
+    id: i.id,
+    type: i.type,
+    status: 'flagged',
+    detail: i.message,
+  }))
   if (distractorIssues.length > 0) hasIssues = true
-  console.log()
+  if (!jsonMode) console.log()
 }
 
 if (command === 'difficulty' || command === 'all') {
-  console.log('[Difficulty]')
+  if (!jsonMode) console.log('[Difficulty]')
   const difficultyIssues = lintDifficulty(data.quizzes)
-  printDifficultyReport(difficultyIssues)
+  if (!jsonMode) printDifficultyReport(difficultyIssues)
+  jsonResults.difficulty = difficultyIssues.map((i) => ({
+    id: i.id,
+    type: i.type,
+    status: 'flagged',
+    detail: i.message,
+  }))
   if (difficultyIssues.length > 0) hasIssues = true
-  console.log()
+  if (!jsonMode) console.log()
+}
+
+// JSON output mode
+if (jsonMode) {
+  console.log(JSON.stringify(jsonResults))
+  process.exit(0)
 }
 
 // Save if backtick fixes were applied (not dry-run)

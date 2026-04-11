@@ -232,8 +232,7 @@ export class GrowthTrackingService {
       const parsed: unknown = JSON.parse(stored)
       if (!Array.isArray(parsed)) return []
       return parsed.filter(
-        (item): item is PatternSnapshot =>
-          item && typeof item === 'object' && 'date' in item && 'patterns' in item
+        (item): item is PatternSnapshot => item && typeof item === 'object' && 'date' in item && 'patterns' in item
       )
     } catch {
       return []

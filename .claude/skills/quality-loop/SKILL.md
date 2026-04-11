@@ -146,12 +146,13 @@ Phase 1, 3, 5 では Agent ツールを使って複数エージェントを **�
 **前処理（逐次）:**
 1. `bun run docs:discover && bun run docs:fetch` を実行
 2. `bun run verify:diff` で検証対象を抽出
-3. 対象が10問以上なら **Haiku 事前フィルタ** を実行:
+3. **決定論的 lint 前処理** を実行:
    ```bash
-   node scripts/pre-verify-quiz.mjs
+   node scripts/pre-lint-quiz.mjs
    ```
-   → `.claude/tmp/pre-verify-results.json` が生成される
-   → Haiku 確認済み（matched）の問題はチェック A-B をスキップ
+   → `.claude/tmp/pre-verify-results.json` が生成される（LLM 不要、5秒で完了）
+   → lint 通過（matched）の問題は C/E/F/H スキップ、A-B-D-G のみ検証
+   → lint flagged の問題は A-H 全検証 + lint 指摘重点
 4. `.claude/tmp/verify-targets.json` を読み、カテゴリ別の対象問題数を確認
 
 **並列検証:**
@@ -162,12 +163,12 @@ Phase 1, 3, 5 では Agent ツールを使って複数エージェントを **�
 ```
 カテゴリ「{category}」の doc-changed / new 問題を検証してください。
 対象問題: {id_list}
-pre-verify 結果: .claude/tmp/pre-verify-results.json を参照（matched はチェック A-B スキップ）
+lint 結果: .claude/tmp/pre-verify-results.json を参照（matched は C/E/F/H スキップ、flagged は全検証）
 手順:
 1. node scripts/fetch-docs.mjs --assemble {category}
 2. .claude/tmp/quizzes/{category}.json を Read
 3. .claude/skills/quiz-refine/known-issues.md を Read
-4. チェックリストを適用（pre-verify 結果に従いスコープ調整）
+4. チェックリストを適用（lint 結果に従いスコープ調整）
 5. JSON形式で結果を報告（修正は行わない）
 ```
 

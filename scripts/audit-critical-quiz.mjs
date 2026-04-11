@@ -1,13 +1,12 @@
 #!/usr/bin/env node
 /**
- * Opus Batch Audit: Haiku "matched" 判定の独立検証
+ * Opus Batch Audit: Sonnet の critical/major 判定の偽陽性フィルタ
  *
- * pre-verify-results.json の matched 項目について、
- * Opus が Haiku の判定理由を精査し、不適切な判定をデモートする。
+ * quiz-verifier (Sonnet) が critical/major と判定した問題について、
+ * Opus が修正前に偽陽性でないか確認する。
  *
- * 出力:
- *   .claude/tmp/opus-audit-results.json（監査ログ）
- *   .claude/tmp/pre-verify-results.json（更新: demoted → sonnetTargets に追加）
+ * 入力: .claude/tmp/critical-findings.json（quiz-refine が Sonnet 結果から生成）
+ * 出力: .claude/tmp/opus-audit-results.json（監査ログ）
  *
  * フォールバック: ANTHROPIC_API_KEY 未設定 or API エラー時はスキップ（現行動作維持）
  */
@@ -94,16 +93,6 @@ async function main() {
   const { join } = await import('path')
 
   const PROJECT_DIR = process.cwd()
-
-  // Load .env.local if present (git-ignored)
-  const envLocalPath = join(PROJECT_DIR, '.env.local')
-  if (existsSync(envLocalPath)) {
-    for (const line of readFileSync(envLocalPath, 'utf8').split('\n')) {
-      const match = line.match(/^([A-Z_]+)=(.+)$/)
-      if (match && !process.env[match[1]]) process.env[match[1]] = match[2].trim()
-    }
-  }
-
   const TMP_DIR = join(PROJECT_DIR, '.claude', 'tmp')
   const PRE_VERIFY_FILE = join(TMP_DIR, 'pre-verify-results.json')
   const AUDIT_OUTPUT_FILE = join(TMP_DIR, 'opus-audit-results.json')
@@ -184,46 +173,20 @@ ${JSON.stringify(claims)}
 JSON配列で返してください。各要素: {"id": "xxx-NNN", "verdict": "confirm|demote", "reason": "判定理由（30文字以内）"}
 説明不要、JSON配列のみ。`
 
-  // ── Call Opus (SDK → claude -p fallback) ───────────────────
+  // ── Call Opus via claude -p (Max plan, effort=max) ─────────
 
-  async function callOpusSDK() {
-    const { default: Anthropic } = await import('@anthropic-ai/sdk')
-    const client = new Anthropic()
-
-    const response = await client.messages.create({
-      model: 'claude-opus-4-6',
-      max_tokens: 4096,
-      system: systemPrompt,
-      messages: [{ role: 'user', content: userPrompt }],
-    })
-
-    let text = ''
-    for (const block of response.content) {
-      if (block.type === 'text') text += block.text
-    }
-
-    return {
-      text,
-      model: 'claude-opus-4-6',
-      inputTokens: response.usage?.input_tokens || 0,
-      outputTokens: response.usage?.output_tokens || 0,
-    }
-  }
-
-  function callOpusClaudeP() {
+  function callOpus() {
     const promptFile = join(TMP_DIR, 'opus-audit-prompt.txt')
     writeFileSync(promptFile, `${systemPrompt}\n\n${userPrompt}`)
 
-    // Strip ANTHROPIC_API_KEY so claude -p uses Max plan, not API credits
-    const env = { ...process.env }
-    delete env.ANTHROPIC_API_KEY
-
-    const raw = execSync(`cat "${promptFile}" | claude -p - --model opus --output-format text`, {
-      timeout: 600_000,
-      encoding: 'utf8',
-      env,
-      stdio: ['pipe', 'pipe', 'pipe'],
-    })
+    const raw = execSync(
+      `cat "${promptFile}" | CLAUDE_CODE_EFFORT_LEVEL=max claude -p - --model opus --output-format text`,
+      {
+        timeout: 600_000,
+        encoding: 'utf8',
+        stdio: ['pipe', 'pipe', 'pipe'],
+      }
+    )
 
     let text = raw
     try {
@@ -233,23 +196,12 @@ JSON配列で返してください。各要素: {"id": "xxx-NNN", "verdict": "co
       // Not JSON wrapper
     }
 
-    return { text, model: 'claude-opus-4-6(claude-p)', inputTokens: 0, outputTokens: 0 }
+    return { text, model: 'claude-opus-4-6(effort=max)' }
   }
 
   try {
-    let result
-    if (process.env.ANTHROPIC_API_KEY) {
-      try {
-        console.log('  Using Anthropic SDK (Opus)...')
-        result = await callOpusSDK()
-      } catch (sdkErr) {
-        console.warn(`  SDK failed (${sdkErr.message?.slice(0, 80)}), falling back to claude -p...`)
-        result = callOpusClaudeP()
-      }
-    } else {
-      console.log('  Using claude -p (Opus)...')
-      result = callOpusClaudeP()
-    }
+    console.log('  Using claude -p (Opus, effort=max)...')
+    const result = callOpus()
 
     const auditVerdicts = parseAuditResponse(result.text)
     const confirmed = auditVerdicts.filter((v) => v.verdict === 'confirm')
@@ -261,8 +213,6 @@ JSON配列で返してください。各要素: {"id": "xxx-NNN", "verdict": "co
     const auditLog = {
       auditedAt: new Date().toISOString(),
       model: result.model,
-      inputTokens: result.inputTokens,
-      outputTokens: result.outputTokens,
       totalAudited: matchedItems.length,
       confirmed: confirmed.length,
       demoted: demoted.length,

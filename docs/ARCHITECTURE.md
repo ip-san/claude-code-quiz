@@ -419,7 +419,7 @@ Haiku が Opus に最大3回相談できる。`ANTHROPIC_API_KEY` 未設定時�
 
 適用先:
 - **レコメンド**: `collect-session.mjs` → `classify-prompts.mjs` → `aggregate-classifications.mjs` → `/recommend` スキル
-- **クイズ検証**: `verify:diff` → `pre-verify-quiz.mjs`（Advisor Strategy） → `quiz-verifier` エージェント ×8
+- **クイズ検証**: `verify:diff` → `pre-lint-quiz.mjs`（決定論的lint） → `quiz-verifier` エージェント ×8
 - 詳細は [利用履歴レコメンド](usage-recommend.md) を参照
 
 ## 技術スタック

@@ -185,14 +185,35 @@ function detectContradictions(clusters) {
 // ============================================================
 
 const verbose = process.argv.includes('--verbose')
+const jsonMode = process.argv.includes('--json')
 const data = loadQuizzes()
 const quizzes = data.quizzes
 
-console.log('=== Quiz Cross-Check ===')
-console.log(`Questions: ${quizzes.length}\n`)
-
 // Build clusters
 const clusters = buildTopicClusters(quizzes)
+
+// Detect contradictions
+const issues = detectContradictions(clusters)
+
+// JSON output mode
+if (jsonMode) {
+  const jsonResults = issues.map((issue) => {
+    // Extract quiz IDs from details
+    const quizIds = issue.details.map((d) => d.trim().match(/^(\w+-\d+):/)?.[1]).filter(Boolean)
+    return {
+      topic: issue.topic,
+      type: issue.type,
+      quizIds,
+      status: 'flagged',
+      detail: issue.message,
+    }
+  })
+  console.log(JSON.stringify(jsonResults))
+  process.exit(0)
+}
+
+console.log('=== Quiz Cross-Check ===')
+console.log(`Questions: ${quizzes.length}\n`)
 
 // Filter to multi-question clusters
 const multiClusters = [...clusters.entries()].filter(([, v]) => v.length >= 2)
@@ -207,9 +228,6 @@ if (verbose) {
     }
   }
 }
-
-// Detect contradictions
-const issues = detectContradictions(clusters)
 
 console.log(`\nContradictions detected: ${issues.length}`)
 

@@ -331,7 +331,7 @@ scripts/
 ├── collect-session.mjs     # セッション収集 + 前処理（Layer 1: 苦戦シグナル, 意図遷移）
 ├── classify-prompts.mjs    # Haiku バッチ分類（Layer 2: 意図/カテゴリ/苦戦度）
 ├── aggregate-classifications.mjs # 分類結果集計 + 圧縮入力生成（Layer 3）
-├── pre-verify-quiz.mjs     # Haiku 事実チェック事前フィルタ（クイズ検証用）
+├── pre-lint-quiz.mjs       # 決定論的 lint 前処理（クイズ検証用、LLM不要）
 ├── recommend.mjs           # CLI レコメンド生成
 ├── fetch-docs.mjs          # 公式ドキュメントキャッシュ
 ├── setup-hooks.mjs         # グローバルフックセットアップ

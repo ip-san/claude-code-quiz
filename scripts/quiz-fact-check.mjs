@@ -153,7 +153,7 @@ function searchInDocs(docs, term) {
 // Check and report
 // ============================================================
 
-function checkTerms(termMap, docs, label) {
+function checkTerms(termMap, docs, label, quiet = false) {
   const found = []
   const notFound = []
 
@@ -166,18 +166,20 @@ function checkTerms(termMap, docs, label) {
     }
   }
 
-  console.log(`\n=== ${label} ===`)
-  console.log(`  Total: ${termMap.size} unique terms`)
-  console.log(`  Found in docs: ${found.length}`)
-  console.log(`  NOT found in docs: ${notFound.length}`)
+  if (!quiet) {
+    console.log(`\n=== ${label} ===`)
+    console.log(`  Total: ${termMap.size} unique terms`)
+    console.log(`  Found in docs: ${found.length}`)
+    console.log(`  NOT found in docs: ${notFound.length}`)
 
-  if (notFound.length > 0) {
-    console.log(`\n  ⚠ Terms not found in cached documentation:`)
-    for (const { term, quizIds } of notFound.sort((a, b) => a.term.localeCompare(b.term))) {
-      console.log(`    ${term}`)
-      console.log(
-        `      Used in: ${quizIds.slice(0, 5).join(', ')}${quizIds.length > 5 ? ` (+${quizIds.length - 5} more)` : ''}`
-      )
+    if (notFound.length > 0) {
+      console.log(`\n  ⚠ Terms not found in cached documentation:`)
+      for (const { term, quizIds } of notFound.sort((a, b) => a.term.localeCompare(b.term))) {
+        console.log(`    ${term}`)
+        console.log(
+          `      Used in: ${quizIds.slice(0, 5).join(', ')}${quizIds.length > 5 ? ` (+${quizIds.length - 5} more)` : ''}`
+        )
+      }
     }
   }
 
@@ -188,10 +190,12 @@ function checkTerms(termMap, docs, label) {
 // Main
 // ============================================================
 
-const command = process.argv[2] || 'all'
+const args = process.argv.slice(2)
+const command = args.find((a) => !a.startsWith('--')) || 'all'
+const jsonMode = args.includes('--json')
 const validCommands = ['all', 'env', 'slash', 'flags', 'hooks', 'tools', 'config']
 if (!validCommands.includes(command)) {
-  console.log('Usage: node scripts/quiz-fact-check.mjs [all|env|slash|flags|hooks|tools|config]')
+  console.log('Usage: node scripts/quiz-fact-check.mjs [all|env|slash|flags|hooks|tools|config] [--json]')
   process.exit(1)
 }
 
@@ -199,40 +203,42 @@ const data = loadQuizzes()
 const terms = extractTermsFromQuizzes(data.quizzes)
 const docs = loadDocContent()
 
-console.log(`=== Quiz Fact-Check ===`)
-console.log(`Questions: ${data.quizzes.length}`)
-console.log(`Doc pages: ${Object.keys(docs).length}`)
+if (!jsonMode) {
+  console.log(`=== Quiz Fact-Check ===`)
+  console.log(`Questions: ${data.quizzes.length}`)
+  console.log(`Doc pages: ${Object.keys(docs).length}`)
+}
 
 let totalNotFound = 0
+const jsonResults = {}
 
-if (command === 'all' || command === 'env') {
-  const r = checkTerms(terms.envVars, docs, 'Environment Variables')
-  totalNotFound += r.notFound
+const checks = [
+  ['env', terms.envVars, 'Environment Variables'],
+  ['slash', terms.slashCmds, 'Slash Commands'],
+  ['flags', terms.cliFlags, 'CLI Flags'],
+  ['hooks', terms.hookEvents, 'Hook Events'],
+  ['tools', terms.toolNames, 'Tool Names'],
+  ['config', terms.configKeys, 'Config Keys'],
+]
+
+for (const [key, termMap, label] of checks) {
+  if (command === 'all' || command === key) {
+    const r = checkTerms(termMap, docs, label, jsonMode)
+    totalNotFound += r.notFound
+    if (jsonMode) {
+      jsonResults[key] = r.notFoundTerms.map((t) => ({
+        term: t.term,
+        quizIds: t.quizIds,
+        status: 'flagged',
+        type: 'term-not-in-docs',
+      }))
+    }
+  }
 }
 
-if (command === 'all' || command === 'slash') {
-  const r = checkTerms(terms.slashCmds, docs, 'Slash Commands')
-  totalNotFound += r.notFound
-}
-
-if (command === 'all' || command === 'flags') {
-  const r = checkTerms(terms.cliFlags, docs, 'CLI Flags')
-  totalNotFound += r.notFound
-}
-
-if (command === 'all' || command === 'hooks') {
-  const r = checkTerms(terms.hookEvents, docs, 'Hook Events')
-  totalNotFound += r.notFound
-}
-
-if (command === 'all' || command === 'tools') {
-  const r = checkTerms(terms.toolNames, docs, 'Tool Names')
-  totalNotFound += r.notFound
-}
-
-if (command === 'all' || command === 'config') {
-  const r = checkTerms(terms.configKeys, docs, 'Config Keys')
-  totalNotFound += r.notFound
+if (jsonMode) {
+  console.log(JSON.stringify(jsonResults))
+  process.exit(0)
 }
 
 console.log(`\n=== Summary ===`)

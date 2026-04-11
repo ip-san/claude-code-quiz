@@ -34327,7 +34327,7 @@
         }
       ],
       "correctIndex": 2,
-      "explanation": "フックスクリプトの exit code には3つの意味があります。\n\n{{diagram:0}}\n\nexit 0 はアクション続行、exit 2 はアクションブロック、それ以外はアクション続行（stderr はログに記録されるが Claude には表示されない）です。なお exit 2 の stderr の扱いはイベントにより異なり、PostToolUse/Stop では Claude へのフィードバック、UserPromptSubmit ではユーザー表示のみ（コンテキストに追加されない）となります。\n{{diagram:1}}",
+      "explanation": "フックスクリプトの exit code には3つの意味があります。\n\n{{diagram:0}}\n\nexit 0 はアクション続行、exit 2 はアクションブロック、それ以外はアクション続行（stderr はログに記録されるが Claude には表示されない）です。なお exit 2 の stderr の扱いはイベントにより異なり、`PostToolUse`/`Stop` では Claude へのフィードバック、`UserPromptSubmit` ではユーザー表示のみ（コンテキストに追加されない）となります。\n{{diagram:1}}",
       "referenceUrl": "https://code.claude.com/docs/ja/hooks-guide",
       "diagrams": [
         {
