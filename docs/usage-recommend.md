@@ -17,79 +17,81 @@ Desktop（Electron）アプリだからこそ可能な体験：
 
 ## 3層パイプラインアーキテクチャ
 
+```mermaid
+flowchart TD
+    subgraph L1["Layer 1: Script/$0"]
+        Hook["SessionEnd hook（自動）"]
+        Collect["collect-session.mjs<br/>struggleSignals, intentTransitions,<br/>promptsByCategory"]
+        Rolling["rolling-7d.json"]
+    end
+
+    subgraph L2["Layer 2: Haiku/~$0.004"]
+        Signals["session-analysis.mjs<br/>決定論的苦戦シグナル注入"]
+        Classify["classify-prompts.mjs<br/>50プロンプト意図分類<br/>+ 対話ペア参照"]
+        Aggregate["aggregate-classifications.mjs<br/>生データ構造化 + Opus分析読込"]
+        Compressed["compressed-input.json<br/>~8,000文字"]
+    end
+
+    subgraph L3["Layer 3: Opus→Sonnet/~$0.06"]
+        Recommend["/recommend skill<br/>因果推論 + 効果検証<br/>+ 15問選定 + コーチング"]
+        Output["latest-recommend.json"]
+    end
+
+    subgraph FB["フィードバック: Script/$0"]
+        Finish["セッション完了<br/>sessionLabel = レコメンド"]
+        Record["recordRecommendFeedback"]
+        GA4["GA4 recommend_feedback<br/>total, correct, accuracy"]
+        LS["localStorage<br/>recommend-feedback（直近30件）"]
+    end
+
+    subgraph RT["リアルタイム監視（トグル ON 時）"]
+        Watch["fs.watch + 10秒デバウンス"]
+        Notify["Haiku 通知文生成<br/>~$0.002/通知"]
+    end
+
+    subgraph Opus["特別トリガー（Opus→Sonnet fallback）"]
+        T1["initial: 初回プロファイリング"]
+        T2["stagnation: 停滞介入"]
+        T3["breakthrough: 急成長分析"]
+        T4["mastery: カテゴリ制覇"]
+        T5["monthly: 月次レビュー"]
+    end
+
+    Hook --> Collect --> Rolling
+    Rolling -->|spawn detached| Signals --> Classify --> Aggregate --> Compressed
+    Compressed -->|ユーザー主導| Recommend --> Output
+    Output --> Finish --> Record
+    Record --> GA4
+    Record --> LS
+    LS -.->|次回効果検証| Recommend
+    Watch --> Notify
+    Opus -->|統合| Compressed
 ```
-SessionEnd hook (自動)
-  → Layer 1: collect-session.mjs [Script/$0]
-      前処理: struggleSignals, intentTransitions, promptsByCategory
-      → rolling-7d.json (enriched)
-      → spawn Layer 2 (detached)
 
-  → Layer 2: classify-prompts.mjs [Haiku/~$0.004]
-      決定論的苦戦シグナルをヒントとして注入（session-analysis.mjs の出力）
-      50プロンプトを意図分類 (intent, category, struggle, phase, tip, aiStyle)
-      + 全体メタ分析 (developerRole, suggestedScenarios)
-      Claude の応答も対話ペアとして参照（苦戦判定の精度向上）
-      → classified-prompts.json
-      → chain aggregate-classifications.mjs [Script/$0] (同期実行)
-        生データ構造化（会話フロー + 個別分類 + 候補問題文を保持）
-        + Opus 分析ファイル読み込み（learner-type, stagnation, breakthrough, mastery, monthly）
-        → compressed-input.json (~8,000文字)
+**年間コスト:** ~$6（Haiku $2.74 + Sonnet $2.50 + Opus $0.76）
 
-分析ボタン (ユーザー主導)
-  → Layer 3: /recommend skill [Opus→Sonnet fallback/~$0.06]
-      生データから因果推論 + 前回効果検証 + 15問選定 + 理由言語化
-      + コーチングメッセージ生成（Opus分析を活用）
-      → latest-recommend.json
-
-リアルタイム監視 (トグル ON 時)
-  → Electron fs.watch [Script/$0] + Haiku [~$0.002/通知]
-      進行中セッションの苦戦検出 → Haiku で通知文生成 → デスクトップ通知
-
-特別トリガー (自動、全て Opus → Sonnet フォールバック)
-  → initial: 初回プロファイリング (1回/$0.02)
-  → stagnation: 停滞介入 (パターン3連続未改善時/$0.02)
-  → breakthrough: 急成長分析 (2パターン以上解消時/$0.02)
-  → mastery: カテゴリ制覇 (正答率90%超到達時/$0.02、カテゴリごとに1回)
-  → monthly: 月次レビュー (月初の初回分析時/$0.03)
-  ※ Opus が利用できないプランでは自動的に Sonnet で実行
-  ※ 分析結果は compressed-input.json に統合され、次回の /recommend で活用
-
-年間コスト: ~$6 (Haiku $2.74 + Sonnet $2.50 + Opus $0.76)
-
-フィードバック (レコメンドセッション完了時)
-  → recordRecommendFeedback [Script/$0]
-      sessionLabel === 'レコメンド' のセッション完了を検出
-      → GA4 recommend_feedback (total, correct, accuracy)
-      → localStorage recommend-feedback (直近30件)
-      → 次回 /recommend の効果検証で参照
-
-フォールバック:
-  Opus 利用不可 → Sonnet で自動代替
-  Haiku 利用不可 → スキップ（キーワードベース推薦にフォールバック）
-  Claude CLI 未インストール → レコメンド機能は無効（クイズ本体は動作）
-  オフライン → AI分析不可（クイズはSWキャッシュで動作）
-```
+**フォールバック:**
+- Opus 利用不可 → Sonnet で自動代替
+- Haiku 利用不可 → スキップ（キーワードベース推薦にフォールバック）
+- Claude CLI 未インストール → レコメンド機能は無効（クイズ本体は動作）
+- オフライン → AI分析不可（クイズは SW キャッシュで動作）
 
 ## データ収集の仕組み
 
-```
-あなたの Claude Code セッション
-  │
-  │ SessionStart/End hook（自動・バックグラウンド）
-  ↓
-~/.claude-quiz-recommend/
-  ├── sessions/
-  │   ├── 2026-04-03.json    ← 今日（複数セッション自動マージ）
-  │   ├── 2026-04-02.json    ← 昨日
-  │   └── ...                ← 毎日蓄積
-  │
-  ├── rolling-7d.json        ← 7日分を重み付き統合（最大50プロンプト）
-  │                             今日=1.0x → 昨日=0.62x → ... → 7日前=0.22x
-  │
-  └── latest-recommend.json  ← AI（Opus→Sonnet）が選んだ最新の15問
-        │
-        ↓
-  Desktop アプリのメニュー画面に自動表示
+```mermaid
+flowchart TD
+    Session["あなたの Claude Code セッション"]
+    Hook["SessionStart/End hook<br/>（自動・バックグラウンド）"]
+    Dir["~/.claude-quiz-recommend/"]
+    Sessions["sessions/<br/>2026-04-03.json（今日）<br/>2026-04-02.json（昨日）<br/>...毎日蓄積"]
+    Rolling["rolling-7d.json<br/>7日分を重み付き統合（最大50プロンプト）<br/>今日=1.0x → 昨日=0.62x → 7日前=0.22x"]
+    Latest["latest-recommend.json<br/>AI（Opus→Sonnet）が選んだ最新の15問"]
+    App["Desktop アプリのメニュー画面に自動表示"]
+
+    Session --> Hook --> Dir
+    Dir --> Sessions
+    Dir --> Rolling
+    Dir --> Latest --> App
 ```
 
 ## リアルタイムセッション監視
@@ -104,25 +106,20 @@ Claude Code で作業中に苦戦を検出すると、デスクトップ通知�
 
 ### 仕組み
 
-```
-Claude Code セッション（進行中）
-  │
-  │ JSONL トランスクリプト（リアルタイム書き込み）
-  │ ~/.claude/projects/{project}/*.jsonl
-  ↓
-Electron fs.watch（recursive、10秒デバウンス）
-  │
-  │ 直近20メッセージを分析
-  │ - ツールエラー回数
-  │ - 同一テーマの繰り返し
-  │ - User→Claude の対話ペア
-  ↓
-苦戦検出 → Haiku で通知文生成 → デスクトップ通知
-  │         タイトル・本文は Haiku が文脈に合わせて生成
-  │         フォールバック: locale の汎用メッセージ
-  │         クリックでアプリを開く
-  ↓
-30分間クールダウン（通知過多を防止）
+```mermaid
+flowchart TD
+    Session["Claude Code セッション（進行中）"]
+    JSONL["JSONL トランスクリプト<br/>~/.claude/projects/{project}/*.jsonl"]
+    Watch["Electron fs.watch<br/>recursive、10秒デバウンス"]
+    Analyze["直近20メッセージを分析<br/>- ツールエラー回数<br/>- 同一テーマの繰り返し<br/>- User→Claude の対話ペア"]
+    Detect{"苦戦検出?"}
+    Haiku["Haiku で通知文生成<br/>フォールバック: locale の汎用メッセージ"]
+    Notify["デスクトップ通知<br/>クリックでアプリを開く"]
+    Cool["30分間クールダウン"]
+
+    Session -->|リアルタイム書き込み| JSONL --> Watch --> Analyze --> Detect
+    Detect -->|Yes| Haiku --> Notify --> Cool
+    Detect -->|No| Watch
 ```
 
 ### 検出条件
@@ -460,17 +457,8 @@ bun run setup:hooks --remove
 | `recommend_action` | `start_quiz` | レコメンド→クイズの転換率 |
 | `top_categories` | `tools,session,...` | ユーザーが実際に使う機能 |
 
-イベント `recommend_feedback`:
-
-レコメンドセッション完了時に自動送信。推薦精度の効果測定に使用。
-
-| パラメータ | 型 | インサイト |
-|-----------|-----|----------|
-| `total` | number | レコメンド出題数 |
-| `correct` | number | 正解数 |
-| `accuracy` | number | 正答率（0-100） |
-
-送信元: `src/stores/utils.ts`（`recordRecommendFeedback`）。`usage_recommend` の `start_quiz` と組み合わせてレコメンド→学習→効果のファネルを測定。
+イベント `recommend_feedback`（レコメンドセッション完了時に自動送信）:
+パラメータ詳細は [analytics-events.md](analytics-events.md#recommend_feedback) を参照。
 
 ## ファイル一覧
 
@@ -505,22 +493,17 @@ bun run setup:hooks --remove
 
 ### フィードバックループ
 
-```
-① ログ分析 → detectWorkPatterns()
-   「同じ修正を繰り返し指示」×5回検出
-        ↓
-② パターンに紐づくクイズ推薦
-   memory カテゴリ 5問
-   💡 CLAUDE.md にルールを書けば毎回伝える必要がない
-        ↓
-③ ユーザーがクイズを解いて学ぶ
-        ↓
-④ 実務で CLAUDE.md を活用するようになる
-        ↓
-⑤ 次回分析 → 「繰り返し指示」が 5回→1回 に減少
-   📈「同じ修正を繰り返し指示」が改善（80%改善）
-        ↓
-⑥ 次の課題を提案 → 新しいカテゴリへ
+```mermaid
+flowchart TD
+    A["① ログ分析<br/>detectWorkPatterns()<br/>「同じ修正を繰り返し指示」×5回検出"]
+    B["② パターンに紐づくクイズ推薦<br/>memory カテゴリ 5問"]
+    C["③ ユーザーがクイズを解いて学ぶ"]
+    D["④ 実務で CLAUDE.md を活用するようになる"]
+    E["⑤ 次回分析<br/>「繰り返し指示」が 5回→1回 に減少<br/>80%改善"]
+    F["⑥ 次の課題を提案 → 新しいカテゴリへ"]
+
+    A --> B --> C --> D --> E --> F
+    F -.->|次サイクル| A
 ```
 
 ### 段階的表示（初見ユーザーに配慮）
