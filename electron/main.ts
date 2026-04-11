@@ -35,6 +35,7 @@ import { homedir } from 'os'
 import { basename, join } from 'path'
 import { classifyCliError } from '../src/infrastructure/recommend/classifyError'
 import { mergeReasons } from '../src/infrastructure/recommend/mergeReasons'
+import { findPlatformAssetUrl } from '../src/lib/findPlatformAssetUrl'
 import { isNewerVersion } from '../src/lib/isNewerVersion'
 import { electronLocale as loc } from './locale'
 import { analyzeUsageFromContents, getCachedRecommendData } from './recommend-handlers'
@@ -862,32 +863,7 @@ interface UpdateCheckResult {
   forceUpdate: boolean
 }
 
-/** GitHub Release の assets からプラットフォーム別の直接ダウンロード URL を抽出 */
-function findPlatformAssetUrl(assets: Array<{ name: string; browser_download_url: string }>): string | null {
-  const platform = process.platform
-  const arch = process.arch
-  for (const asset of assets) {
-    const name = asset.name.toLowerCase()
-    if (platform === 'darwin' && name.endsWith('.dmg')) {
-      // arm64 と x64 の区別: ファイル名に arch が含まれる場合はマッチさせる
-      if (name.includes(arch) || (!name.includes('arm64') && !name.includes('x64'))) {
-        return asset.browser_download_url
-      }
-    }
-    if (platform === 'win32' && name.endsWith('.exe')) {
-      return asset.browser_download_url
-    }
-    if (platform === 'linux' && name.endsWith('.appimage')) {
-      return asset.browser_download_url
-    }
-  }
-  // アーキテクチャ不問のフォールバック（macOS で arch 指定ファイルがない場合）
-  if (platform === 'darwin') {
-    const dmg = assets.find((a) => a.name.toLowerCase().endsWith('.dmg'))
-    if (dmg) return dmg.browser_download_url
-  }
-  return null
-}
+// findPlatformAssetUrl は src/lib/findPlatformAssetUrl.ts に抽出済み
 
 ipcMain.handle('check-for-update', async (): Promise<UpdateCheckResult | null> => {
   const CACHE_TTL = 24 * 60 * 60 * 1000
@@ -915,7 +891,7 @@ ipcMain.handle('check-for-update', async (): Promise<UpdateCheckResult | null> =
       assets?: Array<{ name: string; browser_download_url: string }>
     }
 
-    const downloadUrl = findPlatformAssetUrl(data.assets ?? [])
+    const downloadUrl = findPlatformAssetUrl(data.assets ?? [], process.platform, process.arch)
     // リリースノートに <!-- force-update --> マーカーがあれば強制更新
     const forceUpdate = !!data.body?.includes('<!-- force-update -->')
 
