@@ -20,6 +20,15 @@ import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'fs'
 import { join } from 'path'
 
 const PROJECT_DIR = process.cwd()
+
+// Load .env.local if present (git-ignored)
+const envLocalPath = join(PROJECT_DIR, '.env.local')
+if (existsSync(envLocalPath)) {
+  for (const line of readFileSync(envLocalPath, 'utf8').split('\n')) {
+    const match = line.match(/^([A-Z_]+)=(.+)$/)
+    if (match && !process.env[match[1]]) process.env[match[1]] = match[2].trim()
+  }
+}
 const TMP_DIR = join(PROJECT_DIR, '.claude', 'tmp')
 const TARGETS_FILE = join(TMP_DIR, 'verify-targets.json')
 const OUTPUT_FILE = join(TMP_DIR, 'pre-verify-results.json')
