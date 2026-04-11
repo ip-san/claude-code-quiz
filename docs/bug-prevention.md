@@ -74,6 +74,37 @@
 - E2E テスト — 「続きから」で正しい問題数になることを検証
 - **設計原則:** UIに表示される問題数 = セッションの実際の問題数
 
+### 7. スコア境界値の分散定義
+
+**事例:** `theme.scoreMessages` の `min: 80, 70, 50` と `ScoreThresholds.ts` の `CERTIFICATE_THRESHOLDS.full = 80`, `SCORE_COLORS.good = 70` が独立に定義
+
+**根本原因:** `theme.ts` は domain 層への依存を避ける設計だが、スコア境界値が二重管理になる
+
+**防御策:**
+- `SpecConsistency.test.ts` — `theme.scoreMessages` の境界値が `ScoreThresholds` 定数と一致することを検証
+- `MASTERY_THRESHOLD` も `ScoreThresholds.ts` に集約済み
+
+### 8. テストのランダム性によるフラッキーテスト
+
+**事例:** `startSession({ mode: 'random' })` でマルチセレクト問題が選ばれた時に `selectAnswer(配列)` が失敗
+
+**根本原因:** テストが `selectAnswer(number)` を前提としているが、ランダム出題でマルチセレクト問題（8問/752問）が混入
+
+**防御策:**
+- テストでは `startSessionWithIds(getSingleSelectIds(N))` を使用し、シングルセレクト問題のみでセッション開始
+- マルチセレクト対応ヘルパー `answerCurrentQuestion()` は `toggleAnswer` を使用
+
+### 9. JSON.parse の unsafe cast
+
+**事例:** `JSON.parse(stored) as GrowthInsight` で旧バージョンデータの構造不一致が検出されない
+
+**根本原因:** TypeScript の型キャストはランタイムでは無検証
+
+**防御策:**
+- `GrowthTrackingService.loadCachedInsight()` — parse 後に必須フィールドの存在チェック
+- `GrowthTrackingService.loadHistory()` — `Array.isArray` + `filter` で有効なエントリのみ返却
+- `SessionRepository.load()` — 手動バリデーション（既存）
+
 ## 品質ゲートの全体構成
 
 ```mermaid

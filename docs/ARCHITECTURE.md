@@ -303,40 +303,52 @@ export class LocalStorageProgressRepository implements IProgressRepository {
 - **React 外でも使用可能**: ドメインサービスからアクセス可能
 - **軽量**: バンドルサイズが小さい
 
-### ストア構成
+### ストア構成（Slice パターン）
 
-```typescript
-// src/stores/quizStore.ts
-interface QuizState {
-  // 状態
-  questions: Question[]
-  currentIndex: number
-  answers: Answer[]
-  progress: UserProgress
-
-  // アクション
-  startQuiz: (mode: QuizMode) => void
-  submitAnswer: (index: number) => void
-  nextQuestion: () => void
-  finishQuiz: () => void
-}
-
-export const useQuizStore = create<QuizState>((set, get) => ({
-  // 実装
-}))
+```mermaid
+flowchart LR
+  subgraph quizStore.ts
+    LS[sessionLifecycleSlice<br/>start/end/finish/timer]
+    AS[sessionAnswerSlice<br/>answer/navigation/hint]
+    PS[progressSlice<br/>進捗管理]
+    RS[resumeSlice<br/>中断・再開]
+  end
+  LS & AS & PS & RS --> Q[useQuizStore]
+  U[utils.ts<br/>saveSessionSnapshot] -.-> LS & AS
 ```
+
+各 Slice は単一責務で分離され、`quizStore.ts` で結合される。
+`sessionSlice` は627行から lifecycle（332行）+ answer（296行）に分割済み。
+
+### コンポーネント設計（フック抽出パターン）
+
+大きなコンポーネント（200行超）はカスタムフックに分離し、表示層を薄く保つ:
+
+```
+MenuHeader.tsx (415行)    ← useMenuHeader.ts (200行)
+QuizResult.tsx            ← useQuizResult.ts
+QuizCard.tsx              ← useQuizCard.ts
+Feedback.tsx              ← useFeedback.ts
+ProgressDashboard.tsx     ← useProgressDashboard.ts
+QuizSearch.tsx            ← useQuizSearch.ts
+```
+
+ダイアグラムコンポーネント（14種）は `BaseDiagram` ラッパー（render-props パターン）で
+`useDiagramAnimation` + ラベル表示 + `aria-label` を共通化。SVG の arrowhead 定義は
+`SvgArrowDefs` に集約。
 
 ### セレクターパターン
 
-不要な再レンダリングを防ぐため、必要な状態のみを購読：
+不要な再レンダリングを防ぐため、`useShallow` で必要な状態のみを購読：
 
 ```typescript
 // Bad: 全状態を購読
 const state = useQuizStore()
 
-// Good: 必要な状態のみ購読
-const currentQuestion = useQuizStore(state => state.questions[state.currentIndex])
-const submitAnswer = useQuizStore(state => state.submitAnswer)
+// Good: 必要な状態のみ購読（useShallow）
+const { sessionState, userProgress } = useQuizStore(
+  useShallow(state => ({ sessionState: state.sessionState, userProgress: state.userProgress }))
+)
 ```
 
 ## エージェントチーム
@@ -371,19 +383,43 @@ components/      ← ui-developer（worktree 隔離）
 
 ### AI モデル使い分けパイプライン
 
-コスト効率と精度を両立するため、4層のモデル使い分けを採用:
+コスト効率と精度を両立するため、段階的にモデルを使い分ける:
 
-| レイヤー | 実行者 | 役割 | コスト/回 |
-|---------|--------|------|----------|
-| Layer 1 | スクリプト | 前処理（統計、パターン検出、ノイズ除去） | $0 |
-| Layer 2 | Haiku | 分類・フィルタ（意図タグ付け、事実チェック） | ~$0.004 |
-| Layer 3 | スクリプト | 集計・圧縮（Layer 2 結果 → Sonnet 用入力） | $0 |
-| Layer 4 | Sonnet | 判断（因果推論、問題選定、理由言語化） | ~$0.03 |
-| 特別 | Opus | 高度分析（初回プロファイリング、月次レビュー、停滞介入） | ~$0.15 |
+```mermaid
+flowchart TD
+  subgraph "Layer 1: Script（$0）"
+    S1[統計・パターン検出・ノイズ除去]
+  end
+  subgraph "Layer 2: Haiku + Opus Advisor"
+    H[Haiku<br/>分類・事実チェック]
+    O_ADV[Opus Advisor<br/>判断に迷う時だけ相談]
+    H -->|uncertain| O_ADV
+    O_ADV -->|判定結果| H
+  end
+  subgraph "Layer 3: Script（$0）"
+    S2[集計・圧縮 → Sonnet 用入力]
+  end
+  subgraph "Layer 4: Sonnet"
+    SON[因果推論・問題選定・理由言語化]
+  end
+  subgraph "Layer 5: Opus（特別トリガー）"
+    OPUS[初回プロファイリング<br/>月次レビュー<br/>停滞介入・急成長分析]
+  end
+
+  S1 --> H
+  H --> S2
+  S2 --> SON
+  SON -.->|needsOpusReview| OPUS
+```
+
+**Advisor Strategy（Layer 2）:** Haiku が executor、Opus が advisor。
+Anthropic SDK の `advisor_20260301` ツールにより、1回の API コール内で
+Haiku が Opus に最大3回相談できる。`ANTHROPIC_API_KEY` 未設定時は
+`claude -p` (Haiku のみ) にフォールバック。
 
 適用先:
 - **レコメンド**: `collect-session.mjs` → `classify-prompts.mjs` → `aggregate-classifications.mjs` → `/recommend` スキル
-- **クイズ検証**: `verify:diff` → `pre-verify-quiz.mjs` → `quiz-verifier` エージェント ×8
+- **クイズ検証**: `verify:diff` → `pre-verify-quiz.mjs`（Advisor Strategy） → `quiz-verifier` エージェント ×8
 - 詳細は [利用履歴レコメンド](usage-recommend.md) を参照
 
 ## 技術スタック
