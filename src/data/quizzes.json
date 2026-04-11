@@ -1476,7 +1476,7 @@
       ],
       "correctIndex": 3,
       "explanation": "`allowed-tools`フィールドで、Skillがアクティブな間、指定したツールをパーミッション確認なしで使用できるようにします。\n\n{{diagram:0}}\n\n例：`Read`, `Grep`, `Glob`。リストにないツールは通常のパーミッション設定に従います（完全な使用禁止にはなりません）。\n{{diagram:1}}",
-      "referenceUrl": "https://code.claude.com/docs/ja/skills#restrict-tool-access",
+      "referenceUrl": "https://code.claude.com/docs/ja/skills#restrict-claudes-skill-access",
       "diagrams": [
         {
           "type": "config",
