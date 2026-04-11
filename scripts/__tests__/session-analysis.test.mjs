@@ -272,6 +272,37 @@ describe('analyzeTranscriptContent', () => {
     const result = analyzeTranscriptContent(content)
     expect(result.struggleSignals.level).toBe('none')
   })
+
+  it('level=mild when lengthRatio is exactly 1.8', () => {
+    // Front half: short prompts (~15 chars each)
+    // Back half: long prompts (~27 chars each) → ratio = 27/15 = 1.8
+    const short = 'short message!!'
+    const long = 'a much longer prompt message'
+    const content = makeContent([short, short, long, long])
+    const result = analyzeTranscriptContent(content)
+    expect(result.struggleSignals.lengthRatio).toBeGreaterThanOrEqual(1.8)
+    expect(result.struggleSignals.repeatedPrompts).toBe(0)
+    expect(result.struggleSignals.consecutiveErrors).toBe(0)
+    expect(result.struggleSignals.frustrationHits).toBe(0)
+    expect(result.struggleSignals.level).toBe('mild')
+  })
+
+  it('level=strong when consecutiveErrors is exactly 3', () => {
+    const lines = [
+      JSON.stringify({ type: 'user', message: { content: 'ファイルの内容を確認して テスト' } }),
+      JSON.stringify({ message: { role: 'assistant', content: [{ type: 'tool_use', name: 'Bash', input: {} }] } }),
+      JSON.stringify({ type: 'tool_result', is_error: true }),
+      JSON.stringify({ message: { role: 'assistant', content: [{ type: 'tool_use', name: 'Bash', input: {} }] } }),
+      JSON.stringify({ type: 'tool_result', is_error: true }),
+      JSON.stringify({ message: { role: 'assistant', content: [{ type: 'tool_use', name: 'Bash', input: {} }] } }),
+      JSON.stringify({ type: 'tool_result', is_error: true }),
+    ].join('\n')
+    const result = analyzeTranscriptContent(lines)
+    expect(result.struggleSignals.consecutiveErrors).toBe(3)
+    expect(result.struggleSignals.repeatedPrompts).toBe(0)
+    expect(result.struggleSignals.frustrationHits).toBe(0)
+    expect(result.struggleSignals.level).toBe('strong')
+  })
 })
 
 // ── mergeDailySessions ─────────────────────────────────────

@@ -49,6 +49,7 @@ try {
   if (ss.consecutiveErrors >= 2) struggleHints.push(`連続エラー: 最大${ss.consecutiveErrors}回`)
   if (ss.frustrationHits > 0) struggleHints.push(`不満キーワード検出: ${ss.frustrationHits}回`)
   if (ss.resetSignals >= 2) struggleHints.push(`セッションリセット: ${ss.resetSignals}回`)
+  // ヒント注入は参考情報のため低めのしきい値（1.5）。実際の mild 判定は session-analysis.mjs で 1.8
   if (ss.lengthRatio >= 1.5) struggleHints.push(`プロンプト長が後半で増加: ${ss.lengthRatio}倍`)
   const struggleHintText =
     struggleHints.length > 0

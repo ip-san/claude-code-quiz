@@ -84,6 +84,54 @@ describe('realtime-struggle', () => {
       expect(s.consecutiveErrors).toBe(2)
       expect(output).toContain('別のアプローチ')
     })
+
+    it('handles undefined tool_response gracefully', () => {
+      const state = freshState()
+      const { state: s, output } = handlePostToolUse(state, {
+        hook_event_name: 'PostToolUse',
+      })
+      expect(s.consecutiveErrors).toBe(0)
+      expect(output).toBe('')
+    })
+
+    it('does not false-positive on "0 errors found"', () => {
+      const state = freshState()
+      const { state: s } = handlePostToolUse(state, {
+        hook_event_name: 'PostToolUse',
+        tool_response: '0 errors found, all tests passed',
+      })
+      expect(s.consecutiveErrors).toBe(0)
+    })
+
+    it('distinguishes exit code 0 (success) from exit code 1 (error)', () => {
+      const s0 = freshState()
+      const r0 = handlePostToolUse(s0, {
+        hook_event_name: 'PostToolUse',
+        tool_response: 'process exited with exit code 0',
+      })
+      expect(r0.state.consecutiveErrors).toBe(0)
+
+      const s1 = freshState()
+      const r1 = handlePostToolUse(s1, {
+        hook_event_name: 'PostToolUse',
+        tool_response: 'process exited with exit code 1',
+      })
+      expect(r1.state.consecutiveErrors).toBe(1)
+    })
+
+    it('re-fires strong message after cooldown expires', () => {
+      const state = freshState()
+      state.consecutiveErrors = 2
+      state.totalErrors = 2
+      // Set cooldown to 4 minutes ago (exceeds 3-minute cooldown)
+      state.lastClaudeStrongAt = new Date(Date.now() - 4 * 60 * 1000).toISOString()
+
+      const { output } = handlePostToolUse(state, {
+        hook_event_name: 'PostToolUse',
+        tool_response: { is_error: true },
+      })
+      expect(output).toContain('ステップバック')
+    })
   })
 
   // ── UserPromptSubmit (frustration & repeat detection) ───────
