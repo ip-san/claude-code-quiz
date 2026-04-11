@@ -1,8 +1,10 @@
 /**
- * リアルタイム苦戦検出フック — PostToolUse (Bash) / UserPromptSubmit 共用
+ * リアルタイム苦戦検出フック — PostToolUseFailure / PostToolUse / UserPromptSubmit 共用
  *
  * stdin から hook JSON を読み取り、苦戦シグナルを蓄積。
- * 閾値超過時に stdout へフィードバック（PostToolUse → Claude / UserPromptSubmit → ユーザー）。
+ * - PostToolUseFailure → JSON `reason`/`decision` で Claude にフィードバック
+ * - PostToolUse → 成功時に consecutiveErrors リセット（出力なし）
+ * - UserPromptSubmit → plain text stdout でユーザーにヒント表示
  *
  * 状態: ~/.claude-quiz-recommend/realtime-state.json
  */
@@ -71,35 +73,22 @@ export function saveState(state) {
 // ── Detection Logic (pure, testable) ─────────────────────────
 
 /**
- * PostToolUse (Bash) handler: detect consecutive errors.
+ * PostToolUseFailure (Bash) handler: count errors and give Claude feedback.
+ * PostToolUseFailure fires only on tool failure and provides `is_interrupt`.
+ * Output is JSON for Claude feedback (hooks.md L1046-1051: `reason` / `decision`).
+ *
  * @param {object} state - current struggle state
- * @param {object} hookInput - parsed stdin JSON from PostToolUse
- * @returns {{ state: object, output: string }} updated state + stdout message
+ * @param {object} hookInput - parsed stdin JSON from PostToolUseFailure
+ * @returns {{ state: object, json: object | null }} updated state + JSON output for Claude
  */
-export function handlePostToolUse(state, hookInput) {
-  const response = hookInput.tool_response ?? ''
-  const responseStr = typeof response === 'string' ? response : JSON.stringify(response)
-
-  // Check if this tool call had an error
-  const isError =
-    hookInput.tool_response?.is_error === true ||
-    // Bash exit code non-zero signals — line-start anchored to avoid "0 errors" false positives
-    /^(?:Error:|error:)|command not found|No such file|Permission denied|ENOENT|EACCES|exit code [1-9]/m.test(
-      responseStr.slice(0, 500)
-    )
-
-  // Skip user-interrupted tool calls
+export function handlePostToolUseFailure(state, hookInput) {
+  // Skip user-interrupted tool calls (is_interrupt is PostToolUseFailure-only, hooks.md L1092)
   if (hookInput.is_interrupt) {
-    return { state, output: '' }
+    return { state, json: null }
   }
 
-  if (isError) {
-    state.consecutiveErrors++
-    state.totalErrors++
-  } else {
-    // Success resets consecutive counter
-    state.consecutiveErrors = 0
-  }
+  state.consecutiveErrors++
+  state.totalErrors++
 
   // Check thresholds
   const now = Date.now()
@@ -109,16 +98,36 @@ export function handlePostToolUse(state, hookInput) {
       state.lastClaudeStrongAt = new Date().toISOString()
       return {
         state,
-        output:
-          '[苦戦検出] 連続エラー3回。現在のアプローチは機能していません。ステップバックして問題を再分析してください。',
+        json: {
+          decision: 'block',
+          reason:
+            '[苦戦検出] 連続エラー3回。現在のアプローチは機能していません。ステップバックして問題を再分析してください。',
+        },
       }
     }
   } else if (state.consecutiveErrors >= 2) {
     // mild — no cooldown for Claude feedback
-    return { state, output: '[苦戦検出] 連続エラー検出。別のアプローチを検討してください。' }
+    return {
+      state,
+      json: {
+        reason: '[苦戦検出] 連続エラー検出。別のアプローチを検討してください。',
+      },
+    }
   }
 
-  return { state, output: '' }
+  return { state, json: null }
+}
+
+/**
+ * PostToolUse (Bash) handler: reset consecutive errors on success.
+ * PostToolUse fires only on successful tool completion (hooks.md L1017).
+ *
+ * @param {object} state - current struggle state
+ * @returns {{ state: object }} updated state (no output)
+ */
+export function handlePostToolUseSuccess(state) {
+  state.consecutiveErrors = 0
+  return { state }
 }
 
 /**
@@ -232,10 +241,13 @@ async function main() {
   const state = loadState()
   const event = hookInput.hook_event_name
 
-  if (event === 'PostToolUse') {
-    const result = handlePostToolUse(state, hookInput)
+  if (event === 'PostToolUseFailure') {
+    const result = handlePostToolUseFailure(state, hookInput)
     saveState(result.state)
-    if (result.output) process.stdout.write(result.output)
+    if (result.json) process.stdout.write(JSON.stringify(result.json))
+  } else if (event === 'PostToolUse') {
+    const result = handlePostToolUseSuccess(state)
+    saveState(result.state)
   } else if (event === 'UserPromptSubmit') {
     const result = handleUserPromptSubmit(state, hookInput)
     saveState(result.state)

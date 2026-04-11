@@ -1,52 +1,49 @@
 import { describe, expect, it } from 'vitest'
-import { freshState, handlePostToolUse, handleUserPromptSubmit } from '../realtime-struggle.mjs'
+import {
+  freshState,
+  handlePostToolUseFailure,
+  handlePostToolUseSuccess,
+  handleUserPromptSubmit,
+} from '../realtime-struggle.mjs'
 
 describe('realtime-struggle', () => {
-  // ── PostToolUse (Bash error detection) ──────────────────────
+  // ── PostToolUseFailure (Bash error detection) ─────────────────
 
-  describe('handlePostToolUse', () => {
-    it('increments consecutiveErrors on tool error', () => {
+  describe('handlePostToolUseFailure', () => {
+    it('increments consecutiveErrors on tool failure', () => {
       const state = freshState()
-      const { state: s } = handlePostToolUse(state, {
-        hook_event_name: 'PostToolUse',
-        tool_response: { is_error: true, stderr: 'command not found' },
+      const { state: s } = handlePostToolUseFailure(state, {
+        hook_event_name: 'PostToolUseFailure',
+        error: 'command not found',
       })
       expect(s.consecutiveErrors).toBe(1)
       expect(s.totalErrors).toBe(1)
     })
 
-    it('resets consecutiveErrors on success', () => {
-      const state = freshState()
-      state.consecutiveErrors = 2
-      state.totalErrors = 2
-      const { state: s } = handlePostToolUse(state, {
-        hook_event_name: 'PostToolUse',
-        tool_response: 'success output',
-      })
-      expect(s.consecutiveErrors).toBe(0)
-      expect(s.totalErrors).toBe(2) // total preserved
-    })
-
-    it('outputs mild feedback at 2 consecutive errors', () => {
+    it('outputs mild JSON feedback at 2 consecutive errors', () => {
       const state = freshState()
       state.consecutiveErrors = 1
       state.totalErrors = 1
-      const { output } = handlePostToolUse(state, {
-        hook_event_name: 'PostToolUse',
-        tool_response: { is_error: true },
+      const { json } = handlePostToolUseFailure(state, {
+        hook_event_name: 'PostToolUseFailure',
+        error: 'exit code 1',
       })
-      expect(output).toContain('別のアプローチを検討')
+      expect(json).toBeTruthy()
+      expect(json.reason).toContain('別のアプローチを検討')
+      expect(json.decision).toBeUndefined() // mild = no decision
     })
 
-    it('outputs strong feedback at 3 consecutive errors', () => {
+    it('outputs strong JSON feedback at 3 consecutive errors', () => {
       const state = freshState()
       state.consecutiveErrors = 2
       state.totalErrors = 2
-      const { output } = handlePostToolUse(state, {
-        hook_event_name: 'PostToolUse',
-        tool_response: { is_error: true },
+      const { json } = handlePostToolUseFailure(state, {
+        hook_event_name: 'PostToolUseFailure',
+        error: 'exit code 1',
       })
-      expect(output).toContain('ステップバック')
+      expect(json).toBeTruthy()
+      expect(json.decision).toBe('block')
+      expect(json.reason).toContain('ステップバック')
     })
 
     it('respects strong cooldown for Claude feedback', () => {
@@ -55,68 +52,23 @@ describe('realtime-struggle', () => {
       state.totalErrors = 2
       state.lastClaudeStrongAt = new Date().toISOString() // just now
 
-      const { output } = handlePostToolUse(state, {
-        hook_event_name: 'PostToolUse',
-        tool_response: { is_error: true },
+      const { json } = handlePostToolUseFailure(state, {
+        hook_event_name: 'PostToolUseFailure',
+        error: 'exit code 1',
       })
       // Should NOT output strong message (cooldown active)
-      expect(output).toBe('')
+      expect(json).toBeNull()
     })
 
-    it('skips interrupted tool calls', () => {
+    it('skips interrupted tool calls (is_interrupt is PostToolUseFailure-only)', () => {
       const state = freshState()
-      const { state: s, output } = handlePostToolUse(state, {
-        hook_event_name: 'PostToolUse',
-        tool_response: { is_error: true },
+      const { state: s, json } = handlePostToolUseFailure(state, {
+        hook_event_name: 'PostToolUseFailure',
+        error: 'interrupted',
         is_interrupt: true,
       })
       expect(s.consecutiveErrors).toBe(0)
-      expect(output).toBe('')
-    })
-
-    it('detects errors from Bash exit code patterns', () => {
-      const state = freshState()
-      state.consecutiveErrors = 1
-      const { state: s, output } = handlePostToolUse(state, {
-        hook_event_name: 'PostToolUse',
-        tool_response: 'Error: ENOENT: no such file or directory',
-      })
-      expect(s.consecutiveErrors).toBe(2)
-      expect(output).toContain('別のアプローチ')
-    })
-
-    it('handles undefined tool_response gracefully', () => {
-      const state = freshState()
-      const { state: s, output } = handlePostToolUse(state, {
-        hook_event_name: 'PostToolUse',
-      })
-      expect(s.consecutiveErrors).toBe(0)
-      expect(output).toBe('')
-    })
-
-    it('does not false-positive on "0 errors found"', () => {
-      const state = freshState()
-      const { state: s } = handlePostToolUse(state, {
-        hook_event_name: 'PostToolUse',
-        tool_response: '0 errors found, all tests passed',
-      })
-      expect(s.consecutiveErrors).toBe(0)
-    })
-
-    it('distinguishes exit code 0 (success) from exit code 1 (error)', () => {
-      const s0 = freshState()
-      const r0 = handlePostToolUse(s0, {
-        hook_event_name: 'PostToolUse',
-        tool_response: 'process exited with exit code 0',
-      })
-      expect(r0.state.consecutiveErrors).toBe(0)
-
-      const s1 = freshState()
-      const r1 = handlePostToolUse(s1, {
-        hook_event_name: 'PostToolUse',
-        tool_response: 'process exited with exit code 1',
-      })
-      expect(r1.state.consecutiveErrors).toBe(1)
+      expect(json).toBeNull()
     })
 
     it('re-fires strong message after cooldown expires', () => {
@@ -126,11 +78,41 @@ describe('realtime-struggle', () => {
       // Set cooldown to 4 minutes ago (exceeds 3-minute cooldown)
       state.lastClaudeStrongAt = new Date(Date.now() - 4 * 60 * 1000).toISOString()
 
-      const { output } = handlePostToolUse(state, {
-        hook_event_name: 'PostToolUse',
-        tool_response: { is_error: true },
+      const { json } = handlePostToolUseFailure(state, {
+        hook_event_name: 'PostToolUseFailure',
+        error: 'exit code 1',
       })
-      expect(output).toContain('ステップバック')
+      expect(json.decision).toBe('block')
+      expect(json.reason).toContain('ステップバック')
+    })
+
+    it('returns null json when below threshold', () => {
+      const state = freshState()
+      const { json } = handlePostToolUseFailure(state, {
+        hook_event_name: 'PostToolUseFailure',
+        error: 'some error',
+      })
+      expect(json).toBeNull()
+      expect(state.consecutiveErrors).toBe(1)
+    })
+  })
+
+  // ── PostToolUse (success → reset) ─────────────────────────────
+
+  describe('handlePostToolUseSuccess', () => {
+    it('resets consecutiveErrors on success', () => {
+      const state = freshState()
+      state.consecutiveErrors = 3
+      state.totalErrors = 5
+      const { state: s } = handlePostToolUseSuccess(state)
+      expect(s.consecutiveErrors).toBe(0)
+      expect(s.totalErrors).toBe(5) // total preserved
+    })
+
+    it('is a no-op when already zero', () => {
+      const state = freshState()
+      const { state: s } = handlePostToolUseSuccess(state)
+      expect(s.consecutiveErrors).toBe(0)
     })
   })
 

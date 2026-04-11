@@ -39,7 +39,7 @@
         ]
       }
     ],
-    "PostToolUse": [
+    "PostToolUseFailure": [
       {
         "matcher": "Bash",
         "hooks": [
@@ -48,6 +48,18 @@
             "command": "node scripts/realtime-struggle.mjs",
             "timeout": 3,
             "statusMessage": "苦戦検出チェック..."
+          }
+        ]
+      }
+    ],
+    "PostToolUse": [
+      {
+        "matcher": "Bash",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node scripts/realtime-struggle.mjs",
+            "timeout": 3
           }
         ]
       },
