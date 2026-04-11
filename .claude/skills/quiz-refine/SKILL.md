@@ -156,6 +156,21 @@ node scripts/pre-verify-quiz.mjs
 
 **対象が10問未満の場合**: pre-verify をスキップし、全問を Sonnet で検証（少量なら直接検証の方が速い）。
 
+## Step 0d: Opus バッチ監査（オプション）
+
+matched が1件以上、かつ `ANTHROPIC_API_KEY` 設定済みの場合、Opus が Haiku の「事実一致」判定を独立監査する:
+
+```bash
+node scripts/audit-matched-quiz.mjs
+```
+
+出力: `.claude/tmp/opus-audit-results.json`（監査ログ）
+- `confirmed`: Opus も事実一致を確認 → Sonnet 検証スキップ維持
+- `demoted`: Opus が判定に異議 → `pre-verify-results.json` を更新し `sonnetTargets` に追加
+
+**コスト**: ~$0.30/回（86問の場合）
+**フォールバック**: API 未設定 or エラー時はスキップ（現行動作を維持）
+
 ## Step 1: 早期終了チェック
 
 `.claude/tmp/verify-targets.json` を Read で読み込む。
@@ -167,8 +182,9 @@ node scripts/pre-verify-quiz.mjs
 **targets が 0 件の場合**: 差分なし。「検証対象なし」と報告して**即座に終了**。
 
 `.claude/tmp/pre-verify-results.json` が存在する場合:
-- `sonnetTargets` のIDのみを検証対象とする（Haiku で OK と判定された問題はスキップ）
-- 「Pre-verify: N問スキップ（Haiku確認済み）」とログ出力
+- `sonnetTargets` のIDのみを検証対象とする（Haiku確認済み + Opus監査済みの問題はスキップ）
+- Opus 監査でデモートされた問題は自動的に `sonnetTargets` に含まれる
+- 「Pre-verify: N問スキップ（Haiku確認済み + Opus監査済み）」とログ出力
 
 targets > 0 の場合、対象カテゴリのドキュメントをキャッシュ:
 ```bash

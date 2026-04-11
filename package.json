@@ -57,6 +57,7 @@
     "verify:save": "node scripts/verify-state.mjs save",
     "verify:status": "node scripts/verify-state.mjs status",
     "verify:mapping": "node scripts/verify-state.mjs mapping",
+    "verify:audit": "node scripts/audit-matched-quiz.mjs",
     "quiz:lint": "node scripts/quiz-lint.mjs all",
     "quiz:lint:dry": "node scripts/quiz-lint.mjs all --dry-run",
     "quiz:lint:backtick": "node scripts/quiz-lint.mjs backtick",

@@ -75,17 +75,9 @@ if (allDocPages.size > 0) {
   }
 }
 
-// ── Build prompt ────────────────────────────────────────────
-const quizClaims = targetQuizzes.slice(0, 30).map((q) => ({
-  id: q.id,
-  question: q.question.slice(0, 100),
-  correctAnswer: q.options[q.correctIndex]?.text?.slice(0, 80) || '',
-  explanation: q.explanation?.slice(0, 100) || '',
-  category: q.category,
-}))
-
+// ── Build doc context ───────────────────────────────────────
 let docContext = ''
-for (const cat of categories.slice(0, 4)) {
+for (const cat of categories) {
   const pages = categoryDocMap[cat] || []
   if (pages.length === 0) {
     docContext += `\n## ${cat}\n(ドキュメントマッピングなし)\n`
@@ -97,7 +89,7 @@ for (const cat of categories.slice(0, 4)) {
       encoding: 'utf8',
       stdio: ['ignore', 'pipe', 'pipe'],
     })
-    docContext += `\n## ${cat}\n${doc.slice(0, 2000)}\n`
+    docContext += `\n## ${cat}\n${doc.slice(0, 3000)}\n`
   } catch {
     docContext += `\n## ${cat}\n(ドキュメント取得失敗)\n`
   }
@@ -116,39 +108,60 @@ advisor に相談すべき場面:
 - 数値やデフォルト値の正確性に自信がない
 - 複数の解釈が可能な場合`
 
-const userPrompt = `## ドキュメント（抜粋）
-${docContext.slice(0, 8000)}
+// ── Batch helpers ───────────────────────────────────────────
+const BATCH_SIZE = 50
+
+function buildBatchClaims(quizBatch) {
+  return quizBatch.map((q) => ({
+    id: q.id,
+    question: q.question.slice(0, 100),
+    correctAnswer: q.options[q.correctIndex]?.text?.slice(0, 80) || '',
+    explanation: q.explanation?.slice(0, 100) || '',
+    category: q.category,
+  }))
+}
+
+function buildUserPrompt(claims) {
+  return `## ドキュメント（抜粋）
+${docContext.slice(0, 12000)}
 
 ## クイズ問題
-${JSON.stringify(quizClaims)}
+${JSON.stringify(claims)}
 
-JSON配列で返してください。各要素: {"id": "xxx-NNN", "verdict": "ok|flag|uncertain", "reason": "判定理由（10文字以内）"}
+JSON配列で返してください。各要素: {"id": "xxx-NNN", "verdict": "ok|flag|uncertain", "reason": "判定理由（ok は40文字以内で根拠記述、flag/uncertain は10文字以内）", "matchedDoc": "一致したドキュメントセクション名（ok のみ）"}
 説明不要、JSON配列のみ。`
+}
+
+function parseJsonArray(text) {
+  text = text.replace(/```json\s*/g, '').replace(/```\s*/g, '')
+  const match = text.match(/\[[\s\S]*\]/)
+  return match ? JSON.parse(match[0]) : []
+}
 
 // ── Call API with Advisor Strategy ──────────────────────────
 let results = []
 let usedAdvisor = false
+let advisorBatchCount = 0
 
-async function callWithAdvisor() {
+async function callWithAdvisor(claims) {
   const { default: Anthropic } = await import('@anthropic-ai/sdk')
   const client = new Anthropic()
 
   const response = await client.messages.create({
     model: 'claude-haiku-4-5-20251001',
-    max_tokens: 4096,
+    max_tokens: 8192,
     system: systemPrompt,
     tools: [
       {
         type: 'advisor_20260301',
         name: 'advisor',
         model: 'claude-opus-4-6',
-        advisor: 3, // max 3 consultations per request
+        advisor: 3,
       },
     ],
-    messages: [{ role: 'user', content: userPrompt }],
+    messages: [{ role: 'user', content: buildUserPrompt(claims) }],
   })
 
-  // Extract text from response (advisor calls are handled internally)
   let text = ''
   for (const block of response.content) {
     if (block.type === 'text') {
@@ -156,25 +169,26 @@ async function callWithAdvisor() {
     }
   }
 
-  // Check if advisor was used
-  usedAdvisor = response.usage?.advisor_output_tokens > 0
-
-  // Parse JSON array
-  text = text.replace(/```json\s*/g, '').replace(/```\s*/g, '')
-  const match = text.match(/\[[\s\S]*\]/)
-  if (match) {
-    return JSON.parse(match[0])
+  if (response.usage?.advisor_output_tokens > 0) {
+    usedAdvisor = true
+    advisorBatchCount++
   }
-  return []
+
+  return parseJsonArray(text)
 }
 
-async function callWithClaudeP() {
+async function callWithClaudeP(claims) {
   const promptFile = join(TMP_DIR, 'pre-verify-prompt.txt')
-  writeFileSync(promptFile, `${systemPrompt}\n\n${userPrompt}`)
+  writeFileSync(promptFile, `${systemPrompt}\n\n${buildUserPrompt(claims)}`)
+
+  // Strip ANTHROPIC_API_KEY so claude -p uses Max plan, not API credits
+  const env = { ...process.env }
+  delete env.ANTHROPIC_API_KEY
 
   const raw = execSync(`cat "${promptFile}" | claude -p - --model haiku --output-format text`, {
     timeout: 90_000,
     encoding: 'utf8',
+    env,
     stdio: ['pipe', 'pipe', 'pipe'],
   })
 
@@ -185,31 +199,50 @@ async function callWithClaudeP() {
   } catch {
     // Not JSON wrapper
   }
-  text = text.replace(/```json\s*/g, '').replace(/```\s*/g, '')
-  const match = text.match(/\[[\s\S]*\]/)
-  return match ? JSON.parse(match[0]) : []
+  return parseJsonArray(text)
 }
 
-try {
-  if (process.env.ANTHROPIC_API_KEY) {
-    console.log('  Using Advisor Strategy (Haiku + Opus advisor)...')
-    results = await callWithAdvisor()
-  } else {
-    console.log('  Using claude -p fallback (Haiku only)...')
-    results = await callWithClaudeP()
-  }
-} catch (err) {
-  console.error('Pre-verify call failed:', err.message)
-  // Try fallback if advisor failed
-  if (process.env.ANTHROPIC_API_KEY) {
-    try {
-      console.log('  Advisor failed, falling back to claude -p...')
-      results = await callWithClaudeP()
-    } catch {
-      results = quizClaims.map((q) => ({ id: q.id, verdict: 'uncertain', reason: '呼び出し失敗' }))
+// ── Process all batches ─────────────────────────────────────
+const totalBatches = Math.ceil(targetQuizzes.length / BATCH_SIZE)
+let useAdvisorApi = !!process.env.ANTHROPIC_API_KEY
+console.log(`  Processing ${totalBatches} batches (${BATCH_SIZE} questions each)...`)
+
+for (let i = 0; i < targetQuizzes.length; i += BATCH_SIZE) {
+  const batch = targetQuizzes.slice(i, i + BATCH_SIZE)
+  const batchNum = Math.floor(i / BATCH_SIZE) + 1
+  const claims = buildBatchClaims(batch)
+
+  try {
+    let batchResults
+    if (useAdvisorApi) {
+      if (batchNum === 1) console.log('  Using Advisor Strategy (Haiku + Opus advisor)...')
+      batchResults = await callWithAdvisor(claims)
+    } else {
+      if (batchNum === 1) console.log('  Using claude -p (Haiku only)...')
+      batchResults = await callWithClaudeP(claims)
     }
-  } else {
-    results = quizClaims.map((q) => ({ id: q.id, verdict: 'uncertain', reason: '呼び出し失敗' }))
+    results.push(...batchResults)
+    console.log(`  Batch ${batchNum}/${totalBatches}: ${batchResults.length} results`)
+  } catch (err) {
+    // Advisor API failed — try claude -p fallback
+    if (useAdvisorApi) {
+      console.warn(
+        `  Batch ${batchNum}/${totalBatches} Advisor failed, switching to claude -p: ${err.message?.slice(0, 80)}`
+      )
+      useAdvisorApi = false
+      try {
+        const batchResults = await callWithClaudeP(claims)
+        results.push(...batchResults)
+        console.log(`  Batch ${batchNum}/${totalBatches}: ${batchResults.length} results (claude -p)`)
+        continue
+      } catch (fallbackErr) {
+        console.error(`  Batch ${batchNum}/${totalBatches} fallback also failed: ${fallbackErr.message?.slice(0, 80)}`)
+      }
+    } else {
+      console.error(`  Batch ${batchNum}/${totalBatches} failed: ${err.message?.slice(0, 200)}`)
+      if (err.stderr) console.error(`  STDERR: ${err.stderr.slice(0, 300)}`)
+    }
+    results.push(...claims.map((q) => ({ id: q.id, verdict: 'uncertain', reason: '呼び出し失敗' })))
   }
 }
 
@@ -225,16 +258,9 @@ for (const q of targetQuizzes) {
   if (!r || r.verdict === 'uncertain') {
     uncertain.push({ id: q.id, reason: r?.reason || '判定不能' })
   } else if (r.verdict === 'ok') {
-    matched.push({ id: q.id })
+    matched.push({ id: q.id, reason: r.reason || '', matchedDoc: r.matchedDoc || '' })
   } else {
     flagged.push({ id: q.id, reason: r.reason || '不一致の疑い' })
-  }
-}
-
-// Questions beyond the 30-item batch are uncertain
-for (const q of targetQuizzes.slice(30)) {
-  if (!resultMap.has(q.id)) {
-    uncertain.push({ id: q.id, reason: 'バッチ上限超過' })
   }
 }
 
@@ -242,7 +268,8 @@ for (const q of targetQuizzes.slice(30)) {
 mkdirSync(TMP_DIR, { recursive: true })
 const output = {
   preVerifiedAt: new Date().toISOString(),
-  model: usedAdvisor ? 'haiku+opus-advisor' : 'haiku',
+  model: usedAdvisor ? `haiku+opus-advisor(${advisorBatchCount}batches)` : 'haiku',
+  totalBatches,
   total: targetQuizzes.length,
   matched: matched,
   flagged: flagged,
