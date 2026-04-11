@@ -41,6 +41,17 @@
     ],
     "PostToolUse": [
       {
+        "matcher": "Bash",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node scripts/realtime-struggle.mjs",
+            "timeout": 3,
+            "statusMessage": "苦戦検出チェック..."
+          }
+        ]
+      },
+      {
         "matcher": "Write|Edit",
         "hooks": [
           {
@@ -65,6 +76,15 @@
             "type": "command",
             "command": "PROMPT=$(cat | jq -r '.prompt // empty' 2>/dev/null); [ -z \"$PROMPT\" ] && exit 0; LEN=${#PROMPT}; [ \"$LEN\" -gt 2000 ] && echo \"💡 プロンプトが${LEN}文字です。分割を検討してください\" || exit 0",
             "timeout": 2
+          }
+        ]
+      },
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node scripts/realtime-struggle.mjs",
+            "timeout": 3
           }
         ]
       }

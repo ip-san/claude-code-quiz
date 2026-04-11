@@ -3,7 +3,7 @@
  * ファイル I/O に依存せず、テスタブル。
  */
 
-import { CATEGORY_KEYWORDS, TOPIC_KEYWORDS } from './topic-config.mjs'
+import { CATEGORY_KEYWORDS, FRUSTRATION_REGEX, TOPIC_KEYWORDS } from './topic-config.mjs'
 
 // ── JSONL Parsing ──────────────────────────────────────────
 
@@ -175,8 +175,7 @@ export function analyzeTranscriptContent(content) {
   }
 
   // Detect frustration keywords
-  const frustrationKeywords =
-    /なぜ|どうして|違う|おかしい|壊れ|動かない|エラー|失敗|ダメ|うまくいかない|wrong|broken|doesn't work|failed|error/i
+  const frustrationKeywords = FRUSTRATION_REGEX
   const frustrationHits = meaningful.filter((p) => frustrationKeywords.test(p)).length
 
   // Detect session reset signals (/clear, /compact frequency)

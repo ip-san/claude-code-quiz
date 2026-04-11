@@ -169,6 +169,14 @@ export const SUPPLEMENTARY_DOCS = [
 ]
 
 // ============================================================
+// Struggle Detection (shared by session-analysis.mjs, realtime-struggle.mjs)
+// ============================================================
+
+/** Frustration keyword regex for struggle signal detection. */
+export const FRUSTRATION_REGEX =
+  /なぜ|どうして|違う|おかしい|壊れ|動かない|エラー|失敗|ダメ|うまくいかない|wrong|broken|doesn't work|failed|error/i
+
+// ============================================================
 // Session Analysis Keywords (used by collect-session.mjs, session-analysis.mjs)
 // ============================================================
 
