@@ -61,16 +61,16 @@ node scripts/fetch-docs.mjs --assemble --pages settings,checkpointing,overview,q
 
 ### カテゴリ別ドキュメントページ対応表
 
-| カテゴリ | `--pages` 引数 |
-|---------|---------------|
-| memory | `memory,server-managed-settings` |
-| skills | `skills,how-claude-code-works,agent-teams` |
-| tools | `how-claude-code-works,settings,vs-code,jetbrains` |
-| commands | `interactive-mode,quickstart,overview,cli-reference,headless,github-actions,gitlab-ci-cd,scheduled-tasks` |
-| extensions | `mcp,hooks,hooks-guide,discover-plugins,plugins,plugins-reference,plugin-marketplaces,sub-agents,chrome,slack` |
-| session | `settings,checkpointing,overview,quickstart,model-config,sandboxing,fast-mode,remote-control,desktop,devcontainer` |
-| keyboard | `interactive-mode,keybindings,statusline,terminal-config,output-styles` |
-| bestpractices | `best-practices,common-workflows,quickstart` |
+| カテゴリ | Weight | `--pages` 引数 |
+|---------|--------|---------------|
+| memory | 15% | `memory,server-managed-settings` |
+| skills | 15% | `skills,how-claude-code-works,agent-teams` |
+| tools | 15% | `how-claude-code-works,settings,vs-code,jetbrains` |
+| commands | 15% | `interactive-mode,quickstart,overview,cli-reference,headless,github-actions,gitlab-ci-cd,scheduled-tasks` |
+| extensions | 15% | `mcp,hooks,hooks-guide,discover-plugins,plugins,plugins-reference,plugin-marketplaces,sub-agents,chrome,slack` |
+| session | 10% | `settings,checkpointing,overview,quickstart,model-config,sandboxing,fast-mode,remote-control,desktop,devcontainer` |
+| keyboard | 10% | `interactive-mode,keybindings,statusline,terminal-config,output-styles` |
+| bestpractices | 10% | `best-practices,common-workflows,quickstart` |
 
 ## Output Format
 
@@ -126,169 +126,17 @@ node scripts/fetch-docs.mjs --assemble --pages settings,checkpointing,overview,q
 | `tree` | ディレクトリ構造・ファイルツリー | `root: {text, sub?, children?: [{text, sub?, children?}]}` |
 | `formula` | トークン計算・構成の内訳 | `result`, `components: [{text, sub?, highlight?}]`, `operator?` |
 
-**タイプの使い分けガイド:**
+**タイプの使い分けガイド（迷った場合の優先）:**
 
-- **接続関係** → `network`（MCP Client↔Server、Agent↔Tool、Plugin 構成図）
-- **リクエスト/レスポンスの時系列** → `sequence`（Hook 実行順序、MCP プロトコル、SDK フロー）
-- **スコープの包含・上書き関係** → `layer`（Settings 5段階、CLAUDE.md 4段階、Sandbox ネットワーク制御）
-- **並列実行の可視化** → `swimlane`（Agent Teams 並列起動、Ctrl+B バックグラウンド、CI/CD パイプライン）
-- **概念の重なり・境界** → `venn`（Skills vs Agents、Permission modes、Hook vs Plugin の機能範囲）
-- **優先度の上下関係** → `hierarchy`（既存。layer と迷った場合: 上書き関係=layer、単なる重要度順=hierarchy）
-- **手順の逐次実行** → `flow`（既存。sequence と迷った場合: 複数アクター間=sequence、単一プロセス=flow）
-- **Feature×条件の対応表** → `matrix`（comparison と迷った場合: 2軸のグリッド=matrix、カラム別リスト=comparison）
-- **ディレクトリ構造** → `tree`（`.claude/` フォルダ構成、プロジェクト構造、ファイルの配置場所）
-- **計算式・構成内訳** → `formula`（トークン計算、コンテキストウィンドウ構成、スコア算出方法）
+- 接続関係 → `network` / 時系列メッセージ → `sequence`（複数アクター間） / 手順 → `flow`（単一プロセス）
+- 包含・上書き関係 → `layer` / 重要度順 → `hierarchy` / 概念の重なり → `venn`
+- 並列処理 → `swimlane` / 2軸グリッド → `matrix` / カラム比較 → `comparison`
+- ディレクトリ構造 → `tree` / 計算式・内訳 → `formula`
 
 構造的概念を含む問題にのみ追加。単純な事実確認には不要。
 図+ターミナルなど、複数ダイアグラムの組み合わせも有効。
 
-**`network` の例:**
-```json
-{
-  "type": "network",
-  "label": "MCP アーキテクチャ",
-  "nodes": [
-    { "id": "client", "text": "Claude Code", "sub": "MCP Client" },
-    { "id": "server", "text": "MCP Server", "sub": "外部ツール" },
-    { "id": "tool", "text": "Tool A" }
-  ],
-  "edges": [
-    { "from": "client", "to": "server", "label": "request" },
-    { "from": "server", "to": "client", "label": "response", "dashed": true },
-    { "from": "server", "to": "tool", "label": "execute" }
-  ]
-}
-```
-
-**`sequence` の例:**
-```json
-{
-  "type": "sequence",
-  "label": "Hook 実行フロー",
-  "actors": ["User", "Claude", "Hook", "Tool"],
-  "messages": [
-    { "from": 0, "to": 1, "text": "prompt" },
-    { "from": 1, "to": 2, "text": "PreToolUse" },
-    { "from": 2, "to": 1, "text": "allow", "dashed": true },
-    { "from": 1, "to": 3, "text": "execute" },
-    { "from": 3, "to": 1, "text": "result", "dashed": true },
-    { "from": 1, "to": 2, "text": "PostToolUse" }
-  ]
-}
-```
-
-**`layer` の例:**
-```json
-{
-  "type": "layer",
-  "label": "Settings スコープ（外側が優先）",
-  "layers": [
-    { "text": "Managed", "sub": "企業管理者" },
-    { "text": "CLI flags", "sub": "--model 等" },
-    { "text": "Local", "sub": ".claude/settings.local.json" },
-    { "text": "Project", "sub": ".claude/settings.json" },
-    { "text": "User", "sub": "~/.claude/settings.json" }
-  ]
-}
-```
-
-**`swimlane` の例:**
-```json
-{
-  "type": "swimlane",
-  "label": "Agent Teams 並列実行",
-  "lanes": [
-    { "name": "Explore", "segments": [{ "start": 0, "end": 3, "text": "調査" }] },
-    { "name": "Test", "segments": [{ "start": 1, "end": 5, "text": "テスト実行" }] },
-    { "name": "Review", "segments": [{ "start": 3, "end": 6, "text": "レビュー" }] }
-  ],
-  "totalSteps": 6
-}
-```
-
-**`venn` の例:**
-```json
-{
-  "type": "venn",
-  "label": "Skills と Agents の関係",
-  "sets": [
-    { "text": "Skills", "items": ["プロンプト定義", "引数対応"] },
-    { "text": "Agents", "items": ["並列実行", "worktree分離"] }
-  ],
-  "intersectionLabel": "再利用可能な自動化"
-}
-```
-
-**`matrix` の例:**
-```json
-{
-  "type": "matrix",
-  "label": "パーミッションモード別の機能",
-  "rowHeader": "機能",
-  "colHeader": "モード",
-  "rows": ["ファイル編集", "Bash実行", "MCP呼び出し"],
-  "cols": ["plan", "default", "auto"],
-  "cells": [
-    ["✗", "確認あり", "✓"],
-    ["✗", "確認あり", "✓"],
-    ["✗", "確認あり", "✓"]
-  ]
-}
-```
-
-**`tree` の例:**
-```json
-{
-  "type": "tree",
-  "label": ".claude/ ディレクトリ構成",
-  "root": {
-    "text": ".claude/",
-    "children": [
-      { "text": "settings.json", "sub": "プロジェクト設定" },
-      { "text": "settings.local.json", "sub": "ローカル設定" },
-      {
-        "text": "skills/",
-        "children": [
-          { "text": "my-skill/", "children": [
-            { "text": "SKILL.md", "sub": "スキル定義" }
-          ]}
-        ]
-      },
-      { "text": "agents/", "children": [
-        { "text": "reviewer.md", "sub": "エージェント定義" }
-      ]}
-    ]
-  }
-}
-```
-
-**`formula` の例:**
-```json
-{
-  "type": "formula",
-  "label": "コンテキスト使用率の計算",
-  "result": "used_percentage",
-  "components": [
-    { "text": "input_tokens", "sub": "入力" },
-    { "text": "cache_creation", "sub": "キャッシュ作成" },
-    { "text": "cache_read", "sub": "キャッシュ読取" }
-  ],
-  "operator": "+"
-}
-```
-
-## Categories (8 categories)
-
-| ID | 名前 | Weight | 主なドキュメントページ |
-|----|------|--------|----------------------|
-| memory | Memory (CLAUDE.md) | 15% | memory, server-managed-settings |
-| skills | Skills | 15% | skills, how-claude-code-works, agent-teams |
-| tools | Tools | 15% | how-claude-code-works, settings, vs-code, jetbrains |
-| commands | Commands | 15% | interactive-mode, cli-reference, headless, github-actions, gitlab-ci-cd, scheduled-tasks |
-| extensions | Extensions | 15% | mcp, hooks, hooks-guide, discover-plugins, plugins, plugins-reference, plugin-marketplaces, chrome, slack |
-| session | Session & Context | 10% | settings, checkpointing, model-config, sandboxing, fast-mode, remote-control, desktop, devcontainer |
-| keyboard | Keyboard & UI | 10% | interactive-mode, keybindings, statusline, terminal-config, output-styles |
-| bestpractices | Best Practices | 10% | best-practices, common-workflows |
+**JSON 例は `diagram-examples.md` を Read して参照。** network, sequence, layer, swimlane, venn, matrix, tree, formula の8タイプ分。
 
 ## ID Conventions
 
@@ -415,16 +263,9 @@ npm run quiz:search -- "キーワード"  # 特定トピックの既存問題を
 
 **重要な確定値（2026-04-04 docs 再確認済み）:**
 
-- **プラグインのソースタイプは5種類**: relative path, `github`, `url`, `git-subdir`, `npm`。`pip` は存在しない（known-issues.md 誤記修正済み）
-- **`CLAUDE.md` のスコープは4段階**: Managed > Project > User > Local（`CLAUDE.local.md` は Local scope として docs に記載あり）。`settings.json` の5段階と混同しないこと
-- **Hook イベントは26種類**: `PermissionDenied`（auto mode classifier がツール呼び出しを拒否した時）を含む全26種
-- **`defaultMode` の有効値は6つ**: `default`, `acceptEdits`, `plan`, `auto`, `dontAsk`, `bypassPermissions`
-
-**重要な確定値（2026-04-04 再確認済み）:**
-
-- **プラグインのソースタイプは5種類**: relative path, `github`, `url`, `git-subdir`, `npm`。**`pip` は存在しない**
-- **`CLAUDE.md` のスコープは4段階**: Managed > Project > User > Local（`CLAUDE.local.md` は Local scope として記載あり）。`settings.json` の5段階（Managed > CLI > Local > Project > User）と混同しないこと
-- **Hook イベントは26種類**: `PermissionDenied`（auto mode classifier がツール呼び出しを拒否した時）を含む全26種（ext-085 参照）
+- **プラグインのソースタイプは5種類**: relative path, `github`, `url`, `git-subdir`, `npm`。`pip` は存在しない
+- **`CLAUDE.md` のスコープは4段階**: Managed > Project > User > Local。`settings.json` の5段階（Managed > CLI > Local > Project > User）と混同しないこと
+- **Hook イベントは26種類**: `PermissionDenied` を含む全26種
 - **`defaultMode` の有効値は6つ**: `default`, `acceptEdits`, `plan`, `auto`, `dontAsk`, `bypassPermissions`
 
 ### 内部一貫性チェック（生成直後に必ず確認）
