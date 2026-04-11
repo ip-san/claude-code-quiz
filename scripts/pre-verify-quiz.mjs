@@ -1,17 +1,18 @@
 #!/usr/bin/env node
 /**
- * Layer 2 for quiz verification: Haiku による事実チェック事前フィルタ
+ * Layer 2 for quiz verification: Haiku + Opus Advisor による事実チェック
  *
- * verify-targets.json の対象問題を公式ドキュメントと突き合わせ、
- * Haiku に事実レベルの一致/不一致を判定させる。
+ * Anthropic SDK の Advisor Strategy を使用:
+ * - Haiku が executor として問題をバッチ検証
+ * - 判断に迷う問題は Opus advisor に即座に相談
+ * - 1回の API コール内で完結（レイテンシ短縮）
  *
  * 出力: .claude/tmp/pre-verify-results.json
  *   - matched: 事実一致（Sonnet 検証スキップ可能）
  *   - flagged: 不一致の疑い（Sonnet で精査必要）
  *   - uncertain: 判定不能（Sonnet で精査必要）
  *
- * 品質保証: Haiku は「OK」判定のみ信頼。「NG」「不明」は全て Sonnet に渡す。
- * → 偽陰性（見逃し）のリスクなし。偽陽性（不要な精査）は許容。
+ * フォールバック: ANTHROPIC_API_KEY 未設定時は claude -p (Haiku) にフォールバック
  */
 
 import { execSync } from 'child_process'
@@ -43,13 +44,12 @@ if (targetIds.size === 0) {
 const quizData = JSON.parse(readFileSync(QUIZ_FILE, 'utf8'))
 const targetQuizzes = quizData.quizzes.filter((q) => targetIds.has(q.id))
 
-console.log(`Pre-verifying ${targetQuizzes.length} questions with Haiku...`)
+console.log(`Pre-verifying ${targetQuizzes.length} questions...`)
 
 // ── Fetch docs for target categories ────────────────────────
 const categories = [...new Set(targetQuizzes.map((q) => q.category))]
 const categoryDocMap = targets.categoryDocMap || {}
 
-// Pre-fetch docs using page names from categoryDocMap
 const allDocPages = new Set()
 for (const cat of categories) {
   const pages = categoryDocMap[cat] || []
@@ -66,8 +66,7 @@ if (allDocPages.size > 0) {
   }
 }
 
-// ── Build Haiku prompt ──────────────────────────────────────
-// Batch: send quiz claims + doc excerpts, ask for fact match
+// ── Build prompt ────────────────────────────────────────────
 const quizClaims = targetQuizzes.slice(0, 30).map((q) => ({
   id: q.id,
   question: q.question.slice(0, 100),
@@ -76,7 +75,6 @@ const quizClaims = targetQuizzes.slice(0, 30).map((q) => ({
   category: q.category,
 }))
 
-// Get doc content for context (heavily compressed — Haiku only needs key facts)
 let docContext = ''
 for (const cat of categories.slice(0, 4)) {
   const pages = categoryDocMap[cat] || []
@@ -96,16 +94,20 @@ for (const cat of categories.slice(0, 4)) {
   }
 }
 
-const prompt = `あなたはクイズの事実チェッカーです。以下のクイズ問題の「正解」と「解説」が、ドキュメントの内容と事実レベルで一致しているか判定してください。
+const systemPrompt = `あなたはクイズの事実チェッカーです。以下のクイズ問題の「正解」と「解説」が、ドキュメントの内容と事実レベルで一致しているか判定してください。
 
 ## 判定ルール
 - "ok": 正解と解説がドキュメントの内容と明確に一致
 - "flag": 不一致の可能性がある（数値、名称、動作が異なる）
 - "uncertain": ドキュメントに該当情報がない、または判定できない
 
-**重要: 迷ったら "uncertain" にしてください。見逃しより誤検出の方が安全です。**
+**重要: 迷ったら advisor ツールに相談してください。advisor はより高度な推論ができるモデルです。**
+advisor に相談すべき場面:
+- ドキュメントの記述があいまいで判断に迷う
+- 数値やデフォルト値の正確性に自信がない
+- 複数の解釈が可能な場合`
 
-## ドキュメント（抜粋）
+const userPrompt = `## ドキュメント（抜粋）
 ${docContext.slice(0, 8000)}
 
 ## クイズ問題
@@ -114,20 +116,59 @@ ${JSON.stringify(quizClaims)}
 JSON配列で返してください。各要素: {"id": "xxx-NNN", "verdict": "ok|flag|uncertain", "reason": "判定理由（10文字以内）"}
 説明不要、JSON配列のみ。`
 
-// ── Call Haiku via stdin ─────────────────────────────────────
-// Prompt is too long for shell argument, so pipe it via stdin
-const promptFile = join(TMP_DIR, 'pre-verify-prompt.txt')
-writeFileSync(promptFile, prompt)
-
+// ── Call API with Advisor Strategy ──────────────────────────
 let results = []
-try {
+let usedAdvisor = false
+
+async function callWithAdvisor() {
+  const { default: Anthropic } = await import('@anthropic-ai/sdk')
+  const client = new Anthropic()
+
+  const response = await client.messages.create({
+    model: 'claude-haiku-4-5-20251001',
+    max_tokens: 4096,
+    system: systemPrompt,
+    tools: [
+      {
+        type: 'advisor_20260301',
+        name: 'advisor',
+        model: 'claude-opus-4-6',
+        advisor: 3, // max 3 consultations per request
+      },
+    ],
+    messages: [{ role: 'user', content: userPrompt }],
+  })
+
+  // Extract text from response (advisor calls are handled internally)
+  let text = ''
+  for (const block of response.content) {
+    if (block.type === 'text') {
+      text += block.text
+    }
+  }
+
+  // Check if advisor was used
+  usedAdvisor = response.usage?.advisor_output_tokens > 0
+
+  // Parse JSON array
+  text = text.replace(/```json\s*/g, '').replace(/```\s*/g, '')
+  const match = text.match(/\[[\s\S]*\]/)
+  if (match) {
+    return JSON.parse(match[0])
+  }
+  return []
+}
+
+async function callWithClaudeP() {
+  const promptFile = join(TMP_DIR, 'pre-verify-prompt.txt')
+  writeFileSync(promptFile, `${systemPrompt}\n\n${userPrompt}`)
+
   const raw = execSync(`cat "${promptFile}" | claude -p - --model haiku --output-format text`, {
     timeout: 90_000,
     encoding: 'utf8',
     stdio: ['pipe', 'pipe', 'pipe'],
   })
 
-  // Parse response (strip markdown fences)
   let text = raw
   try {
     const wrapper = JSON.parse(raw)
@@ -137,13 +178,30 @@ try {
   }
   text = text.replace(/```json\s*/g, '').replace(/```\s*/g, '')
   const match = text.match(/\[[\s\S]*\]/)
-  if (match) {
-    results = JSON.parse(match[0])
+  return match ? JSON.parse(match[0]) : []
+}
+
+try {
+  if (process.env.ANTHROPIC_API_KEY) {
+    console.log('  Using Advisor Strategy (Haiku + Opus advisor)...')
+    results = await callWithAdvisor()
+  } else {
+    console.log('  Using claude -p fallback (Haiku only)...')
+    results = await callWithClaudeP()
   }
 } catch (err) {
-  console.error('Haiku call failed:', err.message)
-  // All uncertain on failure
-  results = quizClaims.map((q) => ({ id: q.id, verdict: 'uncertain', reason: 'Haiku呼び出し失敗' }))
+  console.error('Pre-verify call failed:', err.message)
+  // Try fallback if advisor failed
+  if (process.env.ANTHROPIC_API_KEY) {
+    try {
+      console.log('  Advisor failed, falling back to claude -p...')
+      results = await callWithClaudeP()
+    } catch {
+      results = quizClaims.map((q) => ({ id: q.id, verdict: 'uncertain', reason: '呼び出し失敗' }))
+    }
+  } else {
+    results = quizClaims.map((q) => ({ id: q.id, verdict: 'uncertain', reason: '呼び出し失敗' }))
+  }
 }
 
 // ── Categorize results ──────────────────────────────────────
@@ -175,20 +233,19 @@ for (const q of targetQuizzes.slice(30)) {
 mkdirSync(TMP_DIR, { recursive: true })
 const output = {
   preVerifiedAt: new Date().toISOString(),
-  model: 'haiku',
+  model: usedAdvisor ? 'haiku+opus-advisor' : 'haiku',
   total: targetQuizzes.length,
   matched: matched,
   flagged: flagged,
   uncertain: uncertain,
-  // Sonnet needs to check: flagged + uncertain
   sonnetTargets: [...flagged, ...uncertain].map((r) => r.id),
-  // Safe to skip (Haiku confirmed OK)
   skipCount: matched.length,
 }
 
 writeFileSync(OUTPUT_FILE, JSON.stringify(output, null, 2))
 
 console.log(`✓ Pre-verify: ${matched.length} OK, ${flagged.length} flagged, ${uncertain.length} uncertain`)
+if (usedAdvisor) console.log('  (Opus advisor was consulted)')
 console.log(
   `  → Sonnet targets: ${output.sonnetTargets.length} (${Math.round((1 - output.sonnetTargets.length / targetQuizzes.length) * 100)}% reduction)`
 )

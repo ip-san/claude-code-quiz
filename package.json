@@ -94,6 +94,7 @@
     "zustand": "^5.0.12"
   },
   "devDependencies": {
+    "@anthropic-ai/sdk": "^0.88.0",
     "@axe-core/playwright": "^4.11.1",
     "@biomejs/biome": "^2.4.11",
     "@google-analytics/admin": "^9.0.1",
