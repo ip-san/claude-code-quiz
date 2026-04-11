@@ -164,6 +164,114 @@ describe('analyzeTranscriptContent', () => {
     expect(result.struggleSignals.promptCount).toBeGreaterThan(0)
     expect(result.struggleSignals.lengthRatio).not.toBe(1)
   })
+
+  it('detects repeated prompts (same text 3+ times)', () => {
+    const repeated = 'この操作がうまくいきません'
+    const content = makeContent([repeated, repeated, repeated, 'MCP の設定を確認'])
+    const result = analyzeTranscriptContent(content)
+    expect(result.struggleSignals.repeatedPrompts).toBe(1)
+  })
+
+  it('does not count repeated prompts below threshold', () => {
+    const content = makeContent(['プロンプトA テスト用', 'プロンプトA テスト用', 'プロンプトB テスト用'])
+    const result = analyzeTranscriptContent(content)
+    expect(result.struggleSignals.repeatedPrompts).toBe(0)
+  })
+
+  it('detects consecutive errors from tool results', () => {
+    const lines = [
+      JSON.stringify({ type: 'user', message: { content: 'ファイルを修正して' } }),
+      JSON.stringify({ message: { role: 'assistant', content: [{ type: 'tool_use', name: 'Bash', input: {} }] } }),
+      JSON.stringify({ type: 'tool_result', is_error: true }),
+      JSON.stringify({ message: { role: 'assistant', content: [{ type: 'tool_use', name: 'Bash', input: {} }] } }),
+      JSON.stringify({ type: 'tool_result', is_error: true }),
+      JSON.stringify({ message: { role: 'assistant', content: [{ type: 'tool_use', name: 'Bash', input: {} }] } }),
+      JSON.stringify({ type: 'tool_result', is_error: true }),
+    ].join('\n')
+    const result = analyzeTranscriptContent(lines)
+    expect(result.struggleSignals.consecutiveErrors).toBe(3)
+  })
+
+  it('resets consecutive error count on user message', () => {
+    const lines = [
+      JSON.stringify({ message: { role: 'assistant', content: [{ type: 'tool_use', name: 'Bash', input: {} }] } }),
+      JSON.stringify({ type: 'tool_result', is_error: true }),
+      JSON.stringify({ type: 'user', message: { content: '別のアプローチで試して' } }),
+      JSON.stringify({ message: { role: 'assistant', content: [{ type: 'tool_use', name: 'Bash', input: {} }] } }),
+      JSON.stringify({ type: 'tool_result', is_error: true }),
+    ].join('\n')
+    const result = analyzeTranscriptContent(lines)
+    expect(result.struggleSignals.consecutiveErrors).toBe(1)
+  })
+
+  it('detects frustration keywords in Japanese', () => {
+    const content = makeContent([
+      'エラーが出て動かないです テスト用',
+      'おかしいですね失敗した',
+      '正常なプロンプト テスト用',
+    ])
+    const result = analyzeTranscriptContent(content)
+    expect(result.struggleSignals.frustrationHits).toBe(2)
+  })
+
+  it('detects frustration keywords in English', () => {
+    const content = makeContent(["it doesn't work at all", 'the build is broken now', '正常なプロンプト テスト用'])
+    const result = analyzeTranscriptContent(content)
+    expect(result.struggleSignals.frustrationHits).toBe(2)
+  })
+
+  it('counts reset signals from /clear, /compact, /rewind', () => {
+    const lines = [
+      JSON.stringify({ type: 'user', message: { content: '/clear' } }),
+      JSON.stringify({ type: 'user', message: { content: '/compact' } }),
+      JSON.stringify({ type: 'user', message: { content: '/rewind to checkpoint' } }),
+      JSON.stringify({ type: 'user', message: { content: 'CLAUDE.md を確認したい テスト用' } }),
+    ].join('\n')
+    const result = analyzeTranscriptContent(lines)
+    expect(result.struggleSignals.resetSignals).toBe(3)
+  })
+
+  it('level=strong when repeatedPrompts >= 1', () => {
+    const repeated = 'この問題が何度も出ます テスト'
+    const content = makeContent([repeated, repeated, repeated])
+    const result = analyzeTranscriptContent(content)
+    expect(result.struggleSignals.level).toBe('strong')
+  })
+
+  it('level=strong when frustrationHits >= 3', () => {
+    const content = makeContent([
+      'エラーが出た テスト用テスト',
+      '動かない テストです テスト',
+      '失敗した テスト テスト用',
+    ])
+    const result = analyzeTranscriptContent(content)
+    expect(result.struggleSignals.frustrationHits).toBeGreaterThanOrEqual(3)
+    expect(result.struggleSignals.level).toBe('strong')
+  })
+
+  it('level=mild when frustrationHits == 1', () => {
+    const content = makeContent(['エラーが出ました テスト用テスト', '正常なプロンプトです テスト用'])
+    const result = analyzeTranscriptContent(content)
+    expect(result.struggleSignals.frustrationHits).toBe(1)
+    expect(result.struggleSignals.level).toBe('mild')
+  })
+
+  it('level=mild when resetSignals >= 2', () => {
+    const lines = [
+      JSON.stringify({ type: 'user', message: { content: '/clear' } }),
+      JSON.stringify({ type: 'user', message: { content: '/compact' } }),
+      JSON.stringify({ type: 'user', message: { content: 'CLAUDE.md を確認したい テスト用' } }),
+    ].join('\n')
+    const result = analyzeTranscriptContent(lines)
+    expect(result.struggleSignals.resetSignals).toBe(2)
+    expect(result.struggleSignals.level).toBe('mild')
+  })
+
+  it('level=none when no struggle signals', () => {
+    const content = makeContent(['CLAUDE.md にルールを追加したい テスト', 'hook の設定方法は？ テスト用テスト'])
+    const result = analyzeTranscriptContent(content)
+    expect(result.struggleSignals.level).toBe('none')
+  })
 })
 
 // ── mergeDailySessions ─────────────────────────────────────
@@ -174,7 +282,15 @@ describe('mergeDailySessions', () => {
     categoryScores: { memory: 10, tools: 5 },
     topics: [{ topic: 'MCP', hits: 3 }],
     promptSamples: ['prompt 1', 'prompt 2'],
-    struggleSignals: { promptCount: 5, lengthRatio: 1.2 },
+    struggleSignals: {
+      promptCount: 5,
+      lengthRatio: 1.2,
+      repeatedPrompts: 0,
+      consecutiveErrors: 1,
+      frustrationHits: 1,
+      resetSignals: 0,
+      level: 'mild',
+    },
   }
   const session2 = {
     tools: { Read: 3, Bash: 1 },
@@ -184,7 +300,15 @@ describe('mergeDailySessions', () => {
       { topic: 'Hooks', hits: 2 },
     ],
     promptSamples: ['prompt 3'],
-    struggleSignals: { promptCount: 3, lengthRatio: 0.8 },
+    struggleSignals: {
+      promptCount: 3,
+      lengthRatio: 0.8,
+      repeatedPrompts: 1,
+      consecutiveErrors: 2,
+      frustrationHits: 0,
+      resetSignals: 1,
+      level: 'strong',
+    },
   }
 
   it('merges tools counts', () => {
@@ -215,6 +339,52 @@ describe('mergeDailySessions', () => {
     const merged = mergeDailySessions([session1, session2])
     expect(merged.struggleSignals.promptCount).toBe(8)
     expect(merged.struggleSignals.lengthRatio).toBe(1)
+  })
+
+  it('sums repeatedPrompts across sessions', () => {
+    const merged = mergeDailySessions([session1, session2])
+    expect(merged.struggleSignals.repeatedPrompts).toBe(1) // 0 + 1
+  })
+
+  it('takes max consecutiveErrors', () => {
+    const merged = mergeDailySessions([session1, session2])
+    expect(merged.struggleSignals.consecutiveErrors).toBe(2) // max(1, 2)
+  })
+
+  it('sums frustrationHits', () => {
+    const merged = mergeDailySessions([session1, session2])
+    expect(merged.struggleSignals.frustrationHits).toBe(1) // 1 + 0
+  })
+
+  it('sums resetSignals', () => {
+    const merged = mergeDailySessions([session1, session2])
+    expect(merged.struggleSignals.resetSignals).toBe(1) // 0 + 1
+  })
+
+  it('recomputes level from merged values', () => {
+    const merged = mergeDailySessions([session1, session2])
+    // repeatedPrompts=1 → strong
+    expect(merged.struggleSignals.level).toBe('strong')
+  })
+
+  it('computes level=none when all signals are zero', () => {
+    const calm = {
+      tools: {},
+      categoryScores: {},
+      topics: [],
+      promptSamples: [],
+      struggleSignals: {
+        promptCount: 2,
+        lengthRatio: 1,
+        repeatedPrompts: 0,
+        consecutiveErrors: 0,
+        frustrationHits: 0,
+        resetSignals: 0,
+        level: 'none',
+      },
+    }
+    const merged = mergeDailySessions([calm, calm])
+    expect(merged.struggleSignals.level).toBe('none')
   })
 
   it('handles empty sessions', () => {

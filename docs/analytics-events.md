@@ -311,6 +311,20 @@ XP レベルアップ（30XP 以上の獲得時に発火）。
 
 **分析用途:** レコメンド機能の利用状況。分析→一覧表示→クイズ開始のファネル分析。
 
+### recommend_feedback
+
+レコメンドセッション完了時のフィードバック（Electron 限定）。レコメンドで出題された問題の正誤結果を記録し、推薦精度の改善に活用。
+
+| パラメータ | 型 | 値 |
+|-----------|-----|-----|
+| `total` | number | 出題された問題数 |
+| `correct` | number | 正解数 |
+| `accuracy` | number | 正答率（0-100） |
+
+**送信元:** `src/stores/utils.ts`（`recordRecommendFeedback`）。`sessionLabel === 'レコメンド'` のセッション完了時に自動送信。
+
+**分析用途:** レコメンド推薦の的中率。accuracy が低い場合はパイプラインの分類精度改善が必要。`usage_recommend` の `start_quiz` と組み合わせてレコメンド→学習→効果のファネルを測定。
+
 ## GA4 カスタム定義
 
 全て `node gtm/setup-ga4.mjs <property-id>` で自動登録される。手動設定不要。
@@ -396,6 +410,9 @@ XP レベルアップ（30XP 以上の獲得時に発火）。
 達成  ──→ レベルアップ / ストリーク / デイリーゴール / カテゴリベスト / シナリオ完了
           level_up           streak_         daily_goal_     category_       scenario_
                              milestone       achieved        best            complete
+
+レコメンド ──→ 推薦 / フィードバック
+               usage_recommend    recommend_feedback
 ```
 
 ## イベント追加手順

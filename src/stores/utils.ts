@@ -14,7 +14,7 @@ import {
   type SavedAnswerRecord,
   type SavedSessionData,
 } from '@/infrastructure/persistence/SessionRepository'
-import { setUserProperties, trackQuizComplete, trackScenarioComplete } from '@/lib/analytics'
+import { setUserProperties, trackQuizComplete, trackRecommendFeedback, trackScenarioComplete } from '@/lib/analytics'
 
 // ============================================================
 // View State
@@ -270,4 +270,39 @@ export function recordCompletedSession(
   setUserProperties({
     total_quizzes: updatedProgress.sessionHistory.length,
   })
+}
+
+/**
+ * Record feedback for a completed recommend session.
+ * Stores per-question results in localStorage for the recommend pipeline to read.
+ */
+export function recordRecommendFeedback(sessionState: QuizSessionState): void {
+  const results: Array<{ id: string; correct: boolean; category: string }> = []
+  for (const [idx, record] of sessionState.answerHistory) {
+    const question = sessionState.questions[idx]
+    if (!question) continue
+    results.push({ id: question.id, correct: record.isCorrect, category: question.category })
+  }
+
+  if (results.length === 0) return
+
+  const entry = {
+    date: new Date().toISOString().slice(0, 10),
+    total: results.length,
+    correct: results.filter((r) => r.correct).length,
+    accuracy: Math.round((results.filter((r) => r.correct).length / results.length) * 100),
+    results,
+  }
+
+  // Send to GA4 for analytics
+  trackRecommendFeedback(entry.total, entry.correct, entry.accuracy)
+
+  try {
+    const existing = JSON.parse(localStorage.getItem('recommend-feedback') || '[]')
+    existing.push(entry)
+    // Keep last 30 entries
+    localStorage.setItem('recommend-feedback', JSON.stringify(existing.slice(-30)))
+  } catch {
+    localStorage.setItem('recommend-feedback', JSON.stringify([entry]))
+  }
 }

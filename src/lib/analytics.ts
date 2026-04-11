@@ -244,6 +244,15 @@ export function trackRecommend(
   })
 }
 
+/** レコメンド結果フィードバック（レコメンドセッション完了時） */
+export function trackRecommendFeedback(total: number, correct: number, accuracy: number): void {
+  pushEvent('recommend_feedback', {
+    total,
+    correct,
+    accuracy,
+  })
+}
+
 /** XP レベルアップ（大きなXP獲得時） */
 export function trackLevelUp(xpGained: number, totalXp: number): void {
   pushEvent('level_up', { xp_gained: xpGained, total_xp: totalXp })

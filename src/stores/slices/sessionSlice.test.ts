@@ -5,9 +5,14 @@
  * H3 (startSession state reset), H4 (startScenarioSession label reset),
  * H5 (navigation isAnswered/isCorrect restoration)
  */
-import { beforeEach, describe, expect, it } from 'vitest'
+import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { UserProgress } from '@/domain/entities/UserProgress'
 import { useQuizStore } from '../quizStore'
+
+vi.mock('@/lib/analytics', async (importOriginal) => {
+  const actual = (await importOriginal()) as Record<string, unknown>
+  return { ...actual, trackRecommendFeedback: vi.fn() }
+})
 
 /** シングルセレクト問題のIDをN個取得 */
 function getSingleSelectIds(count: number): string[] {
@@ -218,6 +223,36 @@ describe('sessionSlice', () => {
       useQuizStore.getState().finishTest()
       expect(useQuizStore.getState().viewState).toBe('menu')
       expect(useQuizStore.getState().sessionState).toBeNull()
+    })
+
+    it('should record recommend feedback when sessionLabel is レコメンド', () => {
+      useQuizStore.getState().startSessionWithIds(getSingleSelectIds(2))
+      useQuizStore.setState({ sessionLabel: 'レコメンド' })
+
+      answerCurrentQuestion(true)
+      useQuizStore.getState().nextQuestion()
+      answerCurrentQuestion(false)
+
+      useQuizStore.getState().finishTest()
+
+      const stored = JSON.parse(localStorage.getItem('recommend-feedback')!)
+      expect(stored).toHaveLength(1)
+      expect(stored[0].total).toBe(2)
+      expect(stored[0].correct).toBe(1)
+      expect(stored[0].accuracy).toBe(50)
+    })
+
+    it('should not record recommend feedback for non-recommend sessions', () => {
+      useQuizStore.getState().startSessionWithIds(getSingleSelectIds(2))
+      // sessionLabel defaults to null
+
+      answerCurrentQuestion(true)
+      useQuizStore.getState().nextQuestion()
+      answerCurrentQuestion(true)
+
+      useQuizStore.getState().finishTest()
+
+      expect(localStorage.getItem('recommend-feedback')).toBeNull()
     })
   })
 

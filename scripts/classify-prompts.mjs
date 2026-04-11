@@ -42,6 +42,19 @@ try {
     process.exit(0)
   }
 
+  // ── Build struggle hints from deterministic analysis ──────
+  const ss = rolling.struggleSignals || {}
+  const struggleHints = []
+  if (ss.repeatedPrompts > 0) struggleHints.push(`同じプロンプトの繰り返し: ${ss.repeatedPrompts}回`)
+  if (ss.consecutiveErrors >= 2) struggleHints.push(`連続エラー: 最大${ss.consecutiveErrors}回`)
+  if (ss.frustrationHits > 0) struggleHints.push(`不満キーワード検出: ${ss.frustrationHits}回`)
+  if (ss.resetSignals >= 2) struggleHints.push(`セッションリセット: ${ss.resetSignals}回`)
+  if (ss.lengthRatio >= 1.5) struggleHints.push(`プロンプト長が後半で増加: ${ss.lengthRatio}倍`)
+  const struggleHintText =
+    struggleHints.length > 0
+      ? `\n## 事前分析による苦戦シグナル\n${struggleHints.map((h) => `- ${h}`).join('\n')}\n上記を参考に struggle を判定してください。ただし最終判断は会話の文脈に基づいてください。\n`
+      : ''
+
   // ── Build Haiku prompt ────────────────────────────────────
   // Include conversation flows WITH assistant responses for accurate struggle detection
   const flowContext = (rolling.conversationFlows || [])
@@ -100,7 +113,7 @@ tip の例:
 - Claude が的外れな回答をしてユーザーが再質問した場合は struggle=mild/strong
 - [エラー] マークはツール実行が失敗したことを示す
 
-## 会話の流れ（User と Claude の対話）
+${struggleHintText}## 会話の流れ（User と Claude の対話）
 ${flowContext || 'なし'}
 
 ## プロンプト一覧

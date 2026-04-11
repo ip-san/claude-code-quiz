@@ -139,22 +139,65 @@ export function analyzeTranscriptContent(content) {
     .map((p) => p.trim())
     .slice(-20)
 
-  // Struggle signals
+  // Struggle signals (deterministic detection)
   const meaningful = prompts.filter(
     (p) => p.length > 10 && !p.startsWith('node ') && !p.startsWith('git ') && !/^[!/]/.test(p)
   )
 
+  const lengthRatio =
+    meaningful.length >= 4
+      ? (() => {
+          const half = Math.floor(meaningful.length / 2)
+          const frontAvg = meaningful.slice(0, half).reduce((s, p) => s + p.length, 0) / half
+          const backAvg = meaningful.slice(half).reduce((s, p) => s + p.length, 0) / (meaningful.length - half)
+          return frontAvg > 0 ? Math.round((backAvg / frontAvg) * 100) / 100 : 1
+        })()
+      : 1
+
+  // Detect repeated prompts (same text 3+ times = strong struggle)
+  const promptCounts = new Map()
+  for (const p of meaningful) {
+    const key = p.slice(0, 60).toLowerCase()
+    promptCounts.set(key, (promptCounts.get(key) || 0) + 1)
+  }
+  const repeatedCount = [...promptCounts.values()].filter((c) => c >= 3).length
+
+  // Detect consecutive errors
+  let maxConsecutiveErrors = 0
+  let currentErrors = 0
+  for (const c of conversations) {
+    if (c.hasError) {
+      currentErrors++
+      maxConsecutiveErrors = Math.max(maxConsecutiveErrors, currentErrors)
+    } else if (c.role === 'user') {
+      currentErrors = 0
+    }
+  }
+
+  // Detect frustration keywords
+  const frustrationKeywords =
+    /なぜ|どうして|違う|おかしい|壊れ|動かない|エラー|失敗|ダメ|うまくいかない|wrong|broken|doesn't work|failed|error/i
+  const frustrationHits = meaningful.filter((p) => frustrationKeywords.test(p)).length
+
+  // Detect session reset signals (/clear, /compact frequency)
+  const resetSignals = prompts.filter((p) => /^\/(clear|compact|rewind)/.test(p)).length
+
+  // Compute overall struggle level
+  let struggleLevel = 'none'
+  if (repeatedCount >= 1 || maxConsecutiveErrors >= 3 || frustrationHits >= 3) {
+    struggleLevel = 'strong'
+  } else if (maxConsecutiveErrors >= 2 || frustrationHits >= 1 || lengthRatio >= 1.8 || resetSignals >= 2) {
+    struggleLevel = 'mild'
+  }
+
   const struggleSignals = {
     promptCount: meaningful.length,
-    lengthRatio:
-      meaningful.length >= 4
-        ? (() => {
-            const half = Math.floor(meaningful.length / 2)
-            const frontAvg = meaningful.slice(0, half).reduce((s, p) => s + p.length, 0) / half
-            const backAvg = meaningful.slice(half).reduce((s, p) => s + p.length, 0) / (meaningful.length - half)
-            return frontAvg > 0 ? Math.round((backAvg / frontAvg) * 100) / 100 : 1
-          })()
-        : 1,
+    lengthRatio,
+    repeatedPrompts: repeatedCount,
+    consecutiveErrors: maxConsecutiveErrors,
+    frustrationHits,
+    resetSignals,
+    level: struggleLevel,
   }
 
   return { tools, categoryScores, topics, promptSamples, promptCount: prompts.length, conversations, struggleSignals }
@@ -187,6 +230,10 @@ export function mergeDailySessions(sessions) {
   let totalPromptCount = 0
   let totalLengthRatio = 0
   let ratioCount = 0
+  let totalRepeated = 0
+  let maxErrors = 0
+  let totalFrustration = 0
+  let totalResets = 0
   for (const sess of sessions) {
     if (sess.struggleSignals) {
       totalPromptCount += sess.struggleSignals.promptCount || 0
@@ -194,8 +241,17 @@ export function mergeDailySessions(sessions) {
         totalLengthRatio += sess.struggleSignals.lengthRatio
         ratioCount++
       }
+      totalRepeated += sess.struggleSignals.repeatedPrompts || 0
+      maxErrors = Math.max(maxErrors, sess.struggleSignals.consecutiveErrors || 0)
+      totalFrustration += sess.struggleSignals.frustrationHits || 0
+      totalResets += sess.struggleSignals.resetSignals || 0
     }
   }
+
+  const avgLengthRatio = ratioCount > 0 ? Math.round((totalLengthRatio / ratioCount) * 100) / 100 : 1
+  let mergedLevel = 'none'
+  if (totalRepeated >= 1 || maxErrors >= 3 || totalFrustration >= 3) mergedLevel = 'strong'
+  else if (maxErrors >= 2 || totalFrustration >= 1 || avgLengthRatio >= 1.8 || totalResets >= 2) mergedLevel = 'mild'
 
   return {
     tools: merged.tools,
@@ -206,7 +262,12 @@ export function mergeDailySessions(sessions) {
     promptSamples: merged.promptSamples.slice(-30),
     struggleSignals: {
       promptCount: totalPromptCount,
-      lengthRatio: ratioCount > 0 ? Math.round((totalLengthRatio / ratioCount) * 100) / 100 : 1,
+      lengthRatio: avgLengthRatio,
+      repeatedPrompts: totalRepeated,
+      consecutiveErrors: maxErrors,
+      frustrationHits: totalFrustration,
+      resetSignals: totalResets,
+      level: mergedLevel,
     },
   }
 }

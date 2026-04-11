@@ -25,6 +25,7 @@ SessionEnd hook (自動)
       → spawn Layer 2 (detached)
 
   → Layer 2: classify-prompts.mjs [Haiku/~$0.004]
+      決定論的苦戦シグナルをヒントとして注入（session-analysis.mjs の出力）
       50プロンプトを意図分類 (intent, category, struggle, phase, tip, aiStyle)
       + 全体メタ分析 (developerRole, suggestedScenarios)
       Claude の応答も対話ペアとして参照（苦戦判定の精度向上）
@@ -54,6 +55,13 @@ SessionEnd hook (自動)
   ※ 分析結果は compressed-input.json に統合され、次回の /recommend で活用
 
 年間コスト: ~$6 (Haiku $2.74 + Sonnet $2.50 + Opus $0.76)
+
+フィードバック (レコメンドセッション完了時)
+  → recordRecommendFeedback [Script/$0]
+      sessionLabel === 'レコメンド' のセッション完了を検出
+      → GA4 recommend_feedback (total, correct, accuracy)
+      → localStorage recommend-feedback (直近30件)
+      → 次回 /recommend の効果検証で参照
 
 フォールバック:
   Opus 利用不可 → Sonnet で自動代替
@@ -193,7 +201,26 @@ Electron fs.watch（recursive、10秒デバウンス）
 
 #### Stage 2: 苦戦シグナル検出
 
-教育データマイニング研究（Crossley et al. EDM 2016, Botelho et al. IEEE TLT 2019）に基づく5つのシグナルを検出し、強度（低/中/高）を判定します：
+2層構造で苦戦を検出します。
+
+**Layer A: 決定論的メトリクス**（`session-analysis.mjs`）
+
+スクリプトが機械的に算出する定量シグナル。Haiku 分類前に「事前分析による苦戦シグナル」としてプロンプトに注入され、AI 分類の精度を向上させます。
+
+| メトリクス | 検出方法 | しきい値 |
+|-----------|---------|---------|
+| `repeatedPrompts` | 先頭60文字の一致で3回以上繰り返されたユニークプロンプト数 | >= 1 → strong |
+| `consecutiveErrors` | 連続するツール実行エラーの最大数 | >= 3 → strong, >= 2 → mild |
+| `frustrationHits` | 「エラー」「動かない」「broken」等のキーワード検出数 | >= 3 → strong, >= 1 → mild |
+| `resetSignals` | `/clear`, `/compact`, `/rewind` の使用回数 | >= 2 → mild |
+| `lengthRatio` | 後半プロンプトの平均長 / 前半の比 | >= 1.8 → mild |
+| `level` | 上記の総合判定 | `"none"` / `"mild"` / `"strong"` |
+
+日次の複数セッションは `mergeDailySessions` で集約（sum/max）し、レベルを再計算します。
+
+**Layer B: AI 分類**（Haiku + Sonnet）
+
+教育データマイニング研究（Crossley et al. EDM 2016, Botelho et al. IEEE TLT 2019）に基づく5つのシグナルを、会話の文脈から検出し、強度（低/中/高）を判定します：
 
 | シグナル | 検出方法 | 推薦への変換 |
 |---------|---------|------------|
@@ -360,6 +387,7 @@ bun run recommend            # 手動でレコメンド生成（CLI）
 | `sessions/{date}.json` | 日別のセッションデータ | SessionStart/End ごと |
 | `rolling-7d.json` | 7日分の重み付き統合データ（最大50ユニークプロンプト） | 同上 |
 | `latest-recommend.json` | AI が選んだ最新レコメンド | `/recommend` 実行時 |
+| `localStorage: recommend-feedback` | レコメンドセッションの正誤結果（直近30件） | レコメンドセッション完了時 |
 
 **日別ファイル**は無期限に残ります（手動削除可）。
 
@@ -432,6 +460,18 @@ bun run setup:hooks --remove
 | `recommend_action` | `start_quiz` | レコメンド→クイズの転換率 |
 | `top_categories` | `tools,session,...` | ユーザーが実際に使う機能 |
 
+イベント `recommend_feedback`:
+
+レコメンドセッション完了時に自動送信。推薦精度の効果測定に使用。
+
+| パラメータ | 型 | インサイト |
+|-----------|-----|----------|
+| `total` | number | レコメンド出題数 |
+| `correct` | number | 正解数 |
+| `accuracy` | number | 正答率（0-100） |
+
+送信元: `src/stores/utils.ts`（`recordRecommendFeedback`）。`usage_recommend` の `start_quiz` と組み合わせてレコメンド→学習→効果のファネルを測定。
+
 ## ファイル一覧
 
 | ファイル | 役割 | レイヤー |
@@ -439,7 +479,8 @@ bun run setup:hooks --remove
 | `scripts/collect-session.mjs` | セッション収集 + 前処理（苦戦シグナル・意図遷移・カテゴリ別プロンプト） | Layer 1 (Script) |
 | `scripts/classify-prompts.mjs` | Haiku バッチ分類 + aggregate 同期実行 | Layer 2 (Haiku+Script) |
 | `scripts/aggregate-classifications.mjs` | 分類結果集計 + compressed-input.json 生成 | Layer 2 内で実行 |
-| `scripts/session-analysis.mjs` | セッション分析純粋関数（6本） | Layer 1-2 共通 |
+| `scripts/session-analysis.mjs` | セッション分析純粋関数 + 決定論的苦戦メトリクス | Layer 1-2 共通 |
+| `src/stores/utils.ts` | `recordRecommendFeedback` — レコメンドフィードバック記録 | Feedback |
 | `electron/recommend-handlers.ts` | IPC ハンドラ（DI パターン） | Electron |
 | `scripts/recommend.mjs` | CLI レコメンド生成（キーワードベース） | — |
 | `scripts/setup-hooks.mjs` | グローバルフックセットアップ | — |

@@ -12,7 +12,14 @@ import { type QuizSessionConfig, QuizSessionService, type QuizSessionState } fro
 import { getQuizModeById } from '@/domain/valueObjects/QuizMode'
 import { getSessionRepository } from '@/infrastructure/persistence/SessionRepository'
 import { trackQuizQuit, trackQuizStart, trackSearch } from '@/lib/analytics'
-import { APP_CONFIG, recordCompletedSession, type StoreGet, type StoreSet, saveSessionSnapshot } from '../utils'
+import {
+  APP_CONFIG,
+  recordCompletedSession,
+  recordRecommendFeedback,
+  type StoreGet,
+  type StoreSet,
+  saveSessionSnapshot,
+} from '../utils'
 
 export interface SessionLifecycleSlice {
   sessionConfig: QuizSessionConfig
@@ -269,6 +276,12 @@ export const createSessionLifecycleSlice = (set: StoreSet, get: StoreGet): Sessi
       (p) => set({ userProgress: p }),
       get().activeScenarioId
     )
+
+    // Record recommend feedback if this was a recommend session
+    if (get().sessionLabel === 'レコメンド') {
+      recordRecommendFeedback(completedState)
+    }
+
     set({
       sessionState: completedState,
       viewState: 'result',

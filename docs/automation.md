@@ -329,7 +329,8 @@ gtm/
 scripts/
 ├── quiz-utils.mjs          # クイズ管理（stats, coverage, check, edit, randomize）
 ├── collect-session.mjs     # セッション収集 + 前処理（Layer 1: 苦戦シグナル, 意図遷移）
-├── classify-prompts.mjs    # Haiku バッチ分類（Layer 2: 意図/カテゴリ/苦戦度）
+├── session-analysis.mjs    # セッション分析純粋関数（苦戦シグナル + 決定論的メトリクス）
+├── classify-prompts.mjs    # Haiku バッチ分類（Layer 2: 意図/カテゴリ/苦戦度 + 苦戦ヒント注入）
 ├── aggregate-classifications.mjs # 分類結果集計 + 圧縮入力生成（Layer 3）
 ├── pre-lint-quiz.mjs       # 決定論的 lint 前処理（クイズ検証用、LLM不要）
 ├── recommend.mjs           # CLI レコメンド生成
