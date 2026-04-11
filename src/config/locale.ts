@@ -40,7 +40,9 @@ export interface LocaleConfig {
   // === App Update Banner (Electron) ===
   readonly updateBanner: {
     readonly message: (version: string) => string
+    readonly forceMessage: (version: string) => string
     readonly download: string
+    readonly openRelease: string
     readonly dismiss: string
   }
 

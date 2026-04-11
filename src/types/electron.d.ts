@@ -41,6 +41,8 @@ interface ElectronAPI {
     hasUpdate: boolean
     latestVersion: string | null
     releaseUrl: string | null
+    downloadUrl: string | null
+    forceUpdate: boolean
   } | null>
   setupGlobalHooks: (remove: boolean) => Promise<{ success: boolean; error?: string }>
   checkGlobalHooks: () => Promise<boolean>

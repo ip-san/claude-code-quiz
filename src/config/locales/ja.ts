@@ -36,7 +36,9 @@ export const ja: LocaleConfig = {
 
   updateBanner: {
     message: (version: string) => `新しいバージョン ${version} が利用可能です`,
+    forceMessage: (version: string) => `重要な更新 ${version} があります。最新版をインストールしてください`,
     download: 'ダウンロード',
+    openRelease: 'リリースページ',
     dismiss: '閉じる',
   },
 

@@ -167,6 +167,8 @@ const electronAPI = {
     hasUpdate: boolean
     latestVersion: string | null
     releaseUrl: string | null
+    downloadUrl: string | null
+    forceUpdate: boolean
   } | null> => {
     return ipcRenderer.invoke('check-for-update')
   },

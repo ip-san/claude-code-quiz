@@ -30,7 +30,9 @@ vi.mock('@/config/locale', () => ({
   locale: {
     updateBanner: {
       message: (v: string) => `新しいバージョン ${v} が利用可能です`,
+      forceMessage: (v: string) => `重要な更新 ${v} があります`,
       download: 'ダウンロード',
+      openRelease: 'リリースページ',
       dismiss: '閉じる',
     },
   },
@@ -54,12 +56,17 @@ afterEach(() => {
 
 // ── 更新がある場合 ────────────────────────────────────────────────────────────
 
-describe('更新がある場合', () => {
+describe('更新がある場合（直接ダウンロード URL あり）', () => {
+  const downloadUrl = 'https://github.com/example/releases/download/v2.0.0/app-mac-arm64.dmg'
+  const releaseUrl = 'https://github.com/example/releases/tag/v2.0.0'
+
   it('バナーが表示されること', async () => {
     const mockCheckForUpdate = vi.fn().mockResolvedValue({
       hasUpdate: true,
       latestVersion: 'v2.0.0',
-      releaseUrl: 'https://github.com/example/releases/tag/v2.0.0',
+      releaseUrl,
+      downloadUrl,
+      forceUpdate: false,
     })
     ;(window.electronAPI as NonNullable<typeof window.electronAPI>).checkForUpdate = mockCheckForUpdate
 
@@ -72,28 +79,47 @@ describe('更新がある場合', () => {
     expect(mockCheckForUpdate).toHaveBeenCalledTimes(1)
   })
 
-  it('ダウンロードボタンがopenExternalを呼ぶこと', async () => {
-    const releaseUrl = 'https://github.com/example/releases/tag/v2.0.0'
+  it('ダウンロードボタンが直接ダウンロード URL を開くこと', async () => {
     const mockOpenExternal = vi.fn().mockResolvedValue(true)
     const mockCheckForUpdate = vi.fn().mockResolvedValue({
       hasUpdate: true,
       latestVersion: 'v2.0.0',
       releaseUrl,
+      downloadUrl,
+      forceUpdate: false,
     })
     ;(window.electronAPI as NonNullable<typeof window.electronAPI>).checkForUpdate = mockCheckForUpdate
     ;(window.electronAPI as NonNullable<typeof window.electronAPI>).openExternal = mockOpenExternal
 
     render(<UpdateBanner />)
 
-    // バナーが表示されるまで待つ
     await waitFor(() => {
       expect(screen.queryByText('新しいバージョン v2.0.0 が利用可能です')).not.toBeNull()
     })
 
-    // ダウンロードボタンは blue-500 のメインアクションボタン（aria-label なし）
-    // role="button" かつクラスに bg-blue-500 を含む要素を取得する
-    const downloadButton = screen.getByRole('button', { name: /ダウンロード/ })
-    fireEvent.click(downloadButton)
+    fireEvent.click(screen.getByRole('button', { name: /ダウンロード/ }))
+    expect(mockOpenExternal).toHaveBeenCalledWith(downloadUrl)
+  })
+
+  it('リリースページボタンがリリース URL を開くこと', async () => {
+    const mockOpenExternal = vi.fn().mockResolvedValue(true)
+    const mockCheckForUpdate = vi.fn().mockResolvedValue({
+      hasUpdate: true,
+      latestVersion: 'v2.0.0',
+      releaseUrl,
+      downloadUrl,
+      forceUpdate: false,
+    })
+    ;(window.electronAPI as NonNullable<typeof window.electronAPI>).checkForUpdate = mockCheckForUpdate
+    ;(window.electronAPI as NonNullable<typeof window.electronAPI>).openExternal = mockOpenExternal
+
+    render(<UpdateBanner />)
+
+    await waitFor(() => {
+      expect(screen.queryByText('新しいバージョン v2.0.0 が利用可能です')).not.toBeNull()
+    })
+
+    fireEvent.click(screen.getByRole('button', { name: /リリースページ/ }))
     expect(mockOpenExternal).toHaveBeenCalledWith(releaseUrl)
   })
 
@@ -101,7 +127,9 @@ describe('更新がある場合', () => {
     const mockCheckForUpdate = vi.fn().mockResolvedValue({
       hasUpdate: true,
       latestVersion: 'v2.0.0',
-      releaseUrl: 'https://github.com/example/releases/tag/v2.0.0',
+      releaseUrl,
+      downloadUrl,
+      forceUpdate: false,
     })
     ;(window.electronAPI as NonNullable<typeof window.electronAPI>).checkForUpdate = mockCheckForUpdate
 
@@ -111,10 +139,75 @@ describe('更新がある場合', () => {
       expect(screen.queryByText('新しいバージョン v2.0.0 が利用可能です')).not.toBeNull()
     })
 
-    // 閉じるボタン（aria-label="閉じる"）をクリック
     fireEvent.click(screen.getByLabelText('閉じる'))
-
     expect(screen.queryByText('新しいバージョン v2.0.0 が利用可能です')).toBeNull()
+  })
+})
+
+describe('直接ダウンロード URL がない場合', () => {
+  it('リリースページボタンのみ表示されること', async () => {
+    const releaseUrl = 'https://github.com/example/releases/tag/v2.0.0'
+    const mockOpenExternal = vi.fn().mockResolvedValue(true)
+    const mockCheckForUpdate = vi.fn().mockResolvedValue({
+      hasUpdate: true,
+      latestVersion: 'v2.0.0',
+      releaseUrl,
+      downloadUrl: null,
+      forceUpdate: false,
+    })
+    ;(window.electronAPI as NonNullable<typeof window.electronAPI>).checkForUpdate = mockCheckForUpdate
+    ;(window.electronAPI as NonNullable<typeof window.electronAPI>).openExternal = mockOpenExternal
+
+    render(<UpdateBanner />)
+
+    await waitFor(() => {
+      expect(screen.queryByText('新しいバージョン v2.0.0 が利用可能です')).not.toBeNull()
+    })
+
+    expect(screen.queryByRole('button', { name: /ダウンロード/ })).toBeNull()
+    fireEvent.click(screen.getByRole('button', { name: /リリースページ/ }))
+    expect(mockOpenExternal).toHaveBeenCalledWith(releaseUrl)
+  })
+})
+
+describe('強制更新', () => {
+  it('閉じるボタンが表示されないこと', async () => {
+    const mockCheckForUpdate = vi.fn().mockResolvedValue({
+      hasUpdate: true,
+      latestVersion: 'v3.0.0',
+      releaseUrl: 'https://github.com/example/releases/tag/v3.0.0',
+      downloadUrl: 'https://github.com/example/releases/download/v3.0.0/app.dmg',
+      forceUpdate: true,
+    })
+    ;(window.electronAPI as NonNullable<typeof window.electronAPI>).checkForUpdate = mockCheckForUpdate
+
+    render(<UpdateBanner />)
+
+    await waitFor(() => {
+      expect(screen.queryByText(/重要な更新 v3.0.0/)).not.toBeNull()
+    })
+
+    expect(screen.queryByLabelText('閉じる')).toBeNull()
+  })
+
+  it('dismiss しても再表示されること', async () => {
+    const mockCheckForUpdate = vi.fn().mockResolvedValue({
+      hasUpdate: true,
+      latestVersion: 'v3.0.0',
+      releaseUrl: 'https://github.com/example/releases/tag/v3.0.0',
+      downloadUrl: null,
+      forceUpdate: true,
+    })
+    ;(window.electronAPI as NonNullable<typeof window.electronAPI>).checkForUpdate = mockCheckForUpdate
+
+    render(<UpdateBanner />)
+
+    await waitFor(() => {
+      expect(screen.queryByText(/重要な更新 v3.0.0/)).not.toBeNull()
+    })
+
+    // 閉じるボタンがないので dismiss できない — バナーは常に表示
+    expect(screen.queryByText(/重要な更新 v3.0.0/)).not.toBeNull()
   })
 })
 
@@ -126,6 +219,8 @@ describe('更新がない場合', () => {
       hasUpdate: false,
       latestVersion: 'v1.0.0',
       releaseUrl: 'https://github.com/example/releases/tag/v1.0.0',
+      downloadUrl: null,
+      forceUpdate: false,
     })
     ;(window.electronAPI as NonNullable<typeof window.electronAPI>).checkForUpdate = mockCheckForUpdate
 

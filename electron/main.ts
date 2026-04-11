@@ -849,11 +849,8 @@ ipcMain.handle('show-notification', (_event: unknown, title: string, body: strin
 const GITHUB_REPO = 'ip-san/claude-code-quiz'
 const GITHUB_API_LATEST = `https://api.github.com/repos/${GITHUB_REPO}/releases/latest`
 
-let cachedUpdateCheck: {
-  checkedAt: number
-  latestVersion: string | null
-  releaseUrl: string | null
-} | null = null
+let cachedUpdateCheck: UpdateCheckResult | null = null
+let cachedUpdateCheckedAt = 0
 
 // isNewerVersion は src/lib/isNewerVersion.ts に抽出済み
 
@@ -861,19 +858,47 @@ interface UpdateCheckResult {
   hasUpdate: boolean
   latestVersion: string | null
   releaseUrl: string | null
+  downloadUrl: string | null
+  forceUpdate: boolean
+}
+
+/** GitHub Release の assets からプラットフォーム別の直接ダウンロード URL を抽出 */
+function findPlatformAssetUrl(assets: Array<{ name: string; browser_download_url: string }>): string | null {
+  const platform = process.platform
+  const arch = process.arch
+  for (const asset of assets) {
+    const name = asset.name.toLowerCase()
+    if (platform === 'darwin' && name.endsWith('.dmg')) {
+      // arm64 と x64 の区別: ファイル名に arch が含まれる場合はマッチさせる
+      if (name.includes(arch) || (!name.includes('arm64') && !name.includes('x64'))) {
+        return asset.browser_download_url
+      }
+    }
+    if (platform === 'win32' && name.endsWith('.exe')) {
+      return asset.browser_download_url
+    }
+    if (platform === 'linux' && name.endsWith('.appimage')) {
+      return asset.browser_download_url
+    }
+  }
+  // アーキテクチャ不問のフォールバック（macOS で arch 指定ファイルがない場合）
+  if (platform === 'darwin') {
+    const dmg = assets.find((a) => a.name.toLowerCase().endsWith('.dmg'))
+    if (dmg) return dmg.browser_download_url
+  }
+  return null
 }
 
 ipcMain.handle('check-for-update', async (): Promise<UpdateCheckResult | null> => {
   const CACHE_TTL = 24 * 60 * 60 * 1000
   const currentVersion = app.getVersion()
 
-  if (cachedUpdateCheck && Date.now() - cachedUpdateCheck.checkedAt < CACHE_TTL) {
+  if (cachedUpdateCheck && Date.now() - cachedUpdateCheckedAt < CACHE_TTL) {
     return {
+      ...cachedUpdateCheck,
       hasUpdate: cachedUpdateCheck.latestVersion
         ? isNewerVersion(cachedUpdateCheck.latestVersion, currentVersion)
         : false,
-      latestVersion: cachedUpdateCheck.latestVersion,
-      releaseUrl: cachedUpdateCheck.releaseUrl,
     }
   }
 
@@ -883,18 +908,27 @@ ipcMain.handle('check-for-update', async (): Promise<UpdateCheckResult | null> =
     })
     if (!response.ok) return null
 
-    const data = (await response.json()) as { tag_name: string; html_url: string }
-    cachedUpdateCheck = {
-      checkedAt: Date.now(),
-      latestVersion: data.tag_name,
-      releaseUrl: data.html_url,
+    const data = (await response.json()) as {
+      tag_name: string
+      html_url: string
+      body?: string
+      assets?: Array<{ name: string; browser_download_url: string }>
     }
 
-    return {
+    const downloadUrl = findPlatformAssetUrl(data.assets ?? [])
+    // リリースノートに <!-- force-update --> マーカーがあれば強制更新
+    const forceUpdate = !!data.body?.includes('<!-- force-update -->')
+
+    cachedUpdateCheck = {
       hasUpdate: isNewerVersion(data.tag_name, currentVersion),
       latestVersion: data.tag_name,
       releaseUrl: data.html_url,
+      downloadUrl,
+      forceUpdate,
     }
+    cachedUpdateCheckedAt = Date.now()
+
+    return cachedUpdateCheck
   } catch {
     return null
   }
