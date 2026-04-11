@@ -5,6 +5,7 @@ import {
   BookOpenCheck,
   ChevronDown,
   ChevronUp,
+  Download,
   GraduationCap,
   HelpCircle,
   Layers,
@@ -61,6 +62,10 @@ export function MenuHeader({
     toggleModesExpanded,
     updateStatus,
     handleUpdateCheck,
+    electronUpdateStatus,
+    electronDownloadUrl,
+    electronReleaseUrl,
+    handleElectronUpdateCheck,
     showShortcuts,
     setShowShortcuts,
     showCategoryPicker,
@@ -308,11 +313,36 @@ export function MenuHeader({
                   </div>
                 )}
                 {isElectron ? (
-                  <MenuItem
-                    icon={<RefreshCw className="h-4.5 w-4.5" />}
-                    label={locale.menuHeader.reloadApp}
-                    onClick={() => handleMenuAction(() => window.location.reload())}
-                  />
+                  electronUpdateStatus === 'available' ? (
+                    <MenuItem
+                      icon={<Download className="h-4.5 w-4.5 text-blue-500" />}
+                      label={locale.menuHeader.downloadUpdate}
+                      onClick={() =>
+                        handleMenuAction(() => {
+                          const url = electronDownloadUrl ?? electronReleaseUrl
+                          if (url) window.electronAPI?.openExternal(url)
+                        })
+                      }
+                    />
+                  ) : (
+                    <MenuItem
+                      icon={
+                        <RefreshCw
+                          className={`h-4.5 w-4.5 ${electronUpdateStatus === 'checking' ? 'animate-spin' : ''}`}
+                        />
+                      }
+                      label={
+                        electronUpdateStatus === 'checking'
+                          ? locale.menuHeader.checking
+                          : electronUpdateStatus === 'latest'
+                            ? locale.menuHeader.latestVersion
+                            : electronUpdateStatus === 'error'
+                              ? locale.menuHeader.checkFailed
+                              : locale.menuHeader.updateCheck
+                      }
+                      onClick={handleElectronUpdateCheck}
+                    />
+                  )
                 ) : (
                   <MenuItem
                     icon={<RefreshCw className={`h-4.5 w-4.5 ${updateStatus === 'checking' ? 'animate-spin' : ''}`} />}

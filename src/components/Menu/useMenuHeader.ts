@@ -3,9 +3,12 @@ import { useShallow } from 'zustand/react/shallow'
 import { DailyGoalService } from '@/domain/services/DailyGoalService'
 import { type QuizSessionConfig } from '@/domain/services/QuizSessionService'
 import { haptics } from '@/lib/haptics'
+import { isElectron } from '@/lib/platformAPI'
 import { applyTheme, getStoredTheme, setStoredTheme, type Theme } from '@/lib/theme'
 import { useQuizStore } from '@/stores/quizStore'
 import { type ViewState } from '@/stores/utils'
+
+type ElectronUpdateStatus = 'checking' | 'available' | 'latest' | 'error' | null
 
 interface UseMenuHeaderOptions {
   openWithModes?: boolean | undefined
@@ -29,9 +32,14 @@ export interface MenuHeaderState {
   // Modes expand
   modesExpanded: boolean
   toggleModesExpanded: () => void
-  // Update check
+  // Update check (PWA)
   updateStatus: 'checking' | 'latest' | 'error' | null
   handleUpdateCheck: () => Promise<void>
+  // Update check (Electron)
+  electronUpdateStatus: ElectronUpdateStatus
+  electronDownloadUrl: string | null
+  electronReleaseUrl: string | null
+  handleElectronUpdateCheck: () => Promise<void>
   // Overlays
   showShortcuts: boolean
   setShowShortcuts: (v: boolean) => void
@@ -67,6 +75,9 @@ export function useMenuHeader({ openWithModes, onMenuOpened }: UseMenuHeaderOpti
   const [menuOpen, setMenuOpen] = useState(false)
   const [modesExpanded, setModesExpanded] = useState(false)
   const [updateStatus, setUpdateStatus] = useState<'checking' | 'latest' | 'error' | null>(null)
+  const [electronUpdateStatus, setElectronUpdateStatus] = useState<ElectronUpdateStatus>(null)
+  const [electronDownloadUrl, setElectronDownloadUrl] = useState<string | null>(null)
+  const [electronReleaseUrl, setElectronReleaseUrl] = useState<string | null>(null)
   const updateTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
   const [showCategoryPicker, setShowCategoryPicker] = useState(false)
   const [showUnansweredPicker, setShowUnansweredPicker] = useState(false)
@@ -161,6 +172,46 @@ export function useMenuHeader({ openWithModes, onMenuOpened }: UseMenuHeaderOpti
     }
   }, [updateStatus])
 
+  const electronUpdateTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
+  const handleElectronUpdateCheck = useCallback(async () => {
+    if (electronUpdateStatus === 'checking') return
+    haptics.light()
+    setElectronUpdateStatus('checking')
+    try {
+      const result = await window.electronAPI?.checkForUpdate()
+      if (result?.hasUpdate && result.latestVersion) {
+        setElectronDownloadUrl(result.downloadUrl)
+        setElectronReleaseUrl(result.releaseUrl)
+        setElectronUpdateStatus('available')
+      } else {
+        setElectronUpdateStatus('latest')
+        if (electronUpdateTimerRef.current) clearTimeout(electronUpdateTimerRef.current)
+        electronUpdateTimerRef.current = setTimeout(() => setElectronUpdateStatus(null), 3000)
+      }
+    } catch {
+      setElectronUpdateStatus('error')
+      if (electronUpdateTimerRef.current) clearTimeout(electronUpdateTimerRef.current)
+      electronUpdateTimerRef.current = setTimeout(() => setElectronUpdateStatus(null), 3000)
+    }
+  }, [electronUpdateStatus])
+
+  // Electron: 初回起動時に自動チェック
+  useEffect(() => {
+    if (!isElectron) return
+    window.electronAPI
+      ?.checkForUpdate()
+      .then((result) => {
+        if (result?.hasUpdate && result.latestVersion) {
+          setElectronDownloadUrl(result.downloadUrl)
+          setElectronReleaseUrl(result.releaseUrl)
+          setElectronUpdateStatus('available')
+        }
+      })
+      .catch(() => {
+        /* non-critical */
+      })
+  }, [])
+
   return {
     // Store values
     bookmarkedCount,
@@ -178,9 +229,14 @@ export function useMenuHeader({ openWithModes, onMenuOpened }: UseMenuHeaderOpti
     // Modes expand
     modesExpanded,
     toggleModesExpanded,
-    // Update check
+    // Update check (PWA)
     updateStatus,
     handleUpdateCheck,
+    // Update check (Electron)
+    electronUpdateStatus,
+    electronDownloadUrl,
+    electronReleaseUrl,
+    handleElectronUpdateCheck,
     // Overlays
     showShortcuts,
     setShowShortcuts,

@@ -522,6 +522,7 @@ export const ja: LocaleConfig = {
     bookmarkList: 'ブックマーク一覧',
     bookmarkListDesc: '保存した問題の解説を確認',
     reloadApp: 'アプリをリロード',
+    downloadUpdate: '最新版をダウンロード',
     learningSection: '学習',
     referenceSection: 'リファレンス',
     settingsSection: '設定',

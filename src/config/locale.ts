@@ -542,6 +542,7 @@ export interface LocaleConfig {
     readonly bookmarkList: string
     readonly bookmarkListDesc: string
     readonly reloadApp: string
+    readonly downloadUpdate: string
     readonly learningSection: string
     readonly referenceSection: string
     readonly settingsSection: string
