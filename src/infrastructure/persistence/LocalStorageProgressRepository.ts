@@ -1,4 +1,5 @@
 import { theme } from '@/config/theme'
+import { trackError } from '@/lib/analytics'
 import { UserProgress } from '../../domain/entities/UserProgress'
 import type { IProgressRepository } from '../../domain/repositories/IProgressRepository'
 import { validateUserProgress } from '../validation/QuizValidator'
@@ -38,6 +39,7 @@ export class LocalStorageProgressRepository implements IProgressRepository {
       return UserProgress.create(result.data)
     } catch (error) {
       console.error('Failed to load progress:', error)
+      trackError(error instanceof Error ? error.message : String(error), 'progress_load')
       return UserProgress.empty()
     }
   }
@@ -55,6 +57,7 @@ export class LocalStorageProgressRepository implements IProgressRepository {
       localStorage.setItem(STORAGE_KEY, JSON.stringify(data))
     } catch (error) {
       console.error('Failed to save progress:', error)
+      trackError(error instanceof Error ? error.message : String(error), 'progress_save')
       // Re-throw so callers can handle (e.g., show user notification)
       throw error
     }
