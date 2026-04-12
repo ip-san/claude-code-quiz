@@ -14,7 +14,13 @@ import {
   type SavedAnswerRecord,
   type SavedSessionData,
 } from '@/infrastructure/persistence/SessionRepository'
-import { setUserProperties, trackQuizComplete, trackRecommendFeedback, trackScenarioComplete } from '@/lib/analytics'
+import {
+  reportError,
+  setUserProperties,
+  trackQuizComplete,
+  trackRecommendFeedback,
+  trackScenarioComplete,
+} from '@/lib/analytics'
 
 // ============================================================
 // View State
@@ -255,7 +261,9 @@ export function recordCompletedSession(
   }
 
   updateStore(updatedProgress)
-  getProgressRepository().save(updatedProgress).catch(console.error)
+  getProgressRepository()
+    .save(updatedProgress)
+    .catch((error) => reportError(error, 'progress_save_finish', 'Failed to save progress on session finish'))
 
   const accuracy =
     sessionState.answeredCount > 0 ? Math.round((sessionState.score / sessionState.answeredCount) * 100) : 0

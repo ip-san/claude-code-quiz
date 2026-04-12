@@ -9,7 +9,7 @@ import { Question } from '@/domain/entities/Question'
 import { QuizSessionService } from '@/domain/services/QuizSessionService'
 import { getProgressRepository } from '@/infrastructure'
 import { getSessionRepository } from '@/infrastructure/persistence/SessionRepository'
-import { trackAnswer } from '@/lib/analytics'
+import { reportError, trackAnswer } from '@/lib/analytics'
 import { recordCompletedSession, type StoreGet, type StoreSet, saveSessionSnapshot } from '../utils'
 
 export interface SessionAnswerSlice {
@@ -125,9 +125,7 @@ export const createSessionAnswerSlice = (set: StoreSet, get: StoreGet): SessionA
 
       getProgressRepository()
         .save(updatedProgress)
-        .catch((error) => {
-          console.error('Failed to save progress:', error)
-        })
+        .catch((error) => reportError(error, 'progress_save_answer', 'Failed to save progress after answer'))
 
       saveSessionSnapshot(stateToSave, newWrongAnswers, () => ({
         activeScenarioId: get().activeScenarioId,
