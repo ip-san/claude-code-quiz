@@ -278,28 +278,51 @@ export function trackCategoryBest(category: string, previousAccuracy: number, ne
   pushEvent('category_best', { category, previous_accuracy: previousAccuracy, new_accuracy: newAccuracy })
 }
 
-/** エラーレートリミッター（同一エラーをウィンドウ内で最大 maxCount 回に制限） */
+/**
+ * エラーレートリミッター（同一エラーをウィンドウ内で最大 maxCount 回に制限）
+ *
+ * - 各キーが maxCount に達するとそれ以降はブロック
+ * - キーごとの初回ブロック時のみ onFirstDrop コールバックを発火（可視化用）
+ * - Map サイズが maxKeys に達したら期限切れエントリを GC（メモリリーク対策）
+ */
 export class ErrorRateLimiter {
-  private counts = new Map<string, { count: number; resetAt: number }>()
+  private counts = new Map<string, { count: number; dropped: number; resetAt: number }>()
   constructor(
     private maxCount: number = 5,
-    private windowMs: number = 60_000
+    private windowMs: number = 60_000,
+    private maxKeys: number = 200,
+    private onFirstDrop?: (key: string) => void
   ) {}
 
   /** 送信可能なら true、レート超過なら false */
   allow(key: string, now: number = Date.now()): boolean {
     const entry = this.counts.get(key)
     if (entry && now < entry.resetAt) {
-      if (entry.count >= this.maxCount) return false
+      if (entry.count >= this.maxCount) {
+        entry.dropped++
+        if (entry.dropped === 1) this.onFirstDrop?.(key)
+        return false
+      }
       entry.count++
       return true
     }
-    this.counts.set(key, { count: 1, resetAt: now + this.windowMs })
+    // New entry or expired — GC if we're growing unbounded
+    if (this.counts.size >= this.maxKeys) this.gc(now)
+    this.counts.set(key, { count: 1, dropped: 0, resetAt: now + this.windowMs })
     return true
+  }
+
+  private gc(now: number): void {
+    for (const [key, entry] of this.counts) {
+      if (now >= entry.resetAt) this.counts.delete(key)
+    }
   }
 }
 
-const errorLimiter = new ErrorRateLimiter()
+const errorLimiter = new ErrorRateLimiter(5, 60_000, 200, (key) => {
+  // Emit a one-shot signal so we know rate limiting kicked in (per key, per window)
+  pushEvent('app_error_rate_limited', { error_key: key.substring(0, 200) })
+})
 
 /** アプリエラー（開発環境では送信しない、同一エラーは1分間に最大5回まで） */
 export function trackError(message: string, source: string, action: 'caught' | 'uncaught' = 'uncaught'): void {

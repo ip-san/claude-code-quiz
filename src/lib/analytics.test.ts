@@ -53,4 +53,52 @@ describe('ErrorRateLimiter', () => {
     // Resets after 60s
     expect(limiter.allow('err', now + 60_001)).toBe(true)
   })
+
+  it('fires onFirstDrop callback once per key per window', () => {
+    const drops: string[] = []
+    const limiter = new ErrorRateLimiter(2, 1000, 200, (key) => drops.push(key))
+    const now = 1000
+
+    limiter.allow('err-a', now)
+    limiter.allow('err-a', now)
+    expect(drops).toEqual([])
+
+    // First drop fires callback
+    limiter.allow('err-a', now)
+    expect(drops).toEqual(['err-a'])
+
+    // Subsequent drops in same window do NOT fire again
+    limiter.allow('err-a', now)
+    limiter.allow('err-a', now)
+    expect(drops).toEqual(['err-a'])
+
+    // After window expires and re-fills, can fire again
+    limiter.allow('err-a', now + 1001) // refill
+    limiter.allow('err-a', now + 1001) // 2nd
+    limiter.allow('err-a', now + 1001) // drop → fires
+    expect(drops).toEqual(['err-a', 'err-a'])
+  })
+
+  it('garbage-collects expired entries when maxKeys is reached', () => {
+    const limiter = new ErrorRateLimiter(5, 1000, 3) // maxKeys=3
+    const now = 1000
+
+    limiter.allow('err-a', now)
+    limiter.allow('err-b', now)
+    limiter.allow('err-c', now)
+    // Map is now at maxKeys=3
+
+    // Fast-forward past window — entries are expired but still in Map
+    const later = now + 1500
+
+    // Adding a new key triggers GC of expired entries
+    limiter.allow('err-d', later)
+
+    // err-a/b/c were expired and GC'd; err-d remains
+    // Verify: err-a should be treated as new (allowed), not blocked
+    for (let i = 0; i < 5; i++) {
+      expect(limiter.allow('err-a', later + i)).toBe(true)
+    }
+    expect(limiter.allow('err-a', later + 5)).toBe(false)
+  })
 })

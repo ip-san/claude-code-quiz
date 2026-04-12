@@ -47,5 +47,6 @@ test-results/
 playwright-report/
 .claude/worktrees/
 .claude/scheduled_tasks.lock
+.claire/
 build/icon.ico
 .lighthouseci/
