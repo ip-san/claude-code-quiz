@@ -105,6 +105,29 @@
 - `GrowthTrackingService.loadHistory()` — `Array.isArray` + `filter` で有効なエントリのみ返却
 - `SessionRepository.load()` — 手動バリデーション（既存）
 
+### 10. テレメトリイベントの暴走と silent drop（2026-04-12）
+
+**事例:** Vite HMR の `unhandledrejection`（"send was called before connect"）が `trackError` 経由で 1日 6,705 件 GA4 に送信。DEV と production の区別がなく、レート制限もない。
+
+**根本原因:** エラーハンドラがテレメトリ送信を直接呼び出し、外部要因（HMR 切断、ネットワーク断）の影響を吸収する仕組みがない。
+
+**防御策（多層防御パターン）:**
+- **Layer 1 — DEV ガード:** `import.meta.env.DEV` で開発時の送信を完全停止（`src/lib/analytics.ts` `trackError`）
+- **Layer 2 — レートリミット:** 同一エラー（`source:message[0:100]`）を 1 分間に 5 件まで（`ErrorRateLimiter` クラス）
+- **Layer 3 — Drop 可視化:** ウィンドウごとに 1 回 `app_error_rate_limited` を発火（silent drop の隠蔽防止）
+- **Layer 4 — メモリ保護:** リミッター内部の Map は `maxKeys=200` 到達時に lazy GC（長寿命 Electron セッション対策）
+- **設計原則:** テレメトリ送信は「production で何が起きても安全」を前提に多層で守る。エラー系は `pushEvent` の GTM_ID チェックだけに頼らない
+
+**観測カバレッジ:**
+- データ消失系の `console.error` は `trackError` を併用する（`app_init` / `progress_load` / `progress_save` / `session_save`）
+- 観測点が増えてもレートリミッターがあるためログ汚染リスクは低い
+
+**ボット汚染（同セッションで判明）:**
+- GitHub Pages の PWA は active users の **約 99% がボット**（2,436 中 `real_user` 検出は 8）
+- すべての分析クエリで `customEvent:platform IN ('pwa', 'electron')` でフィルタする
+- 詳細: `.claude/skills/analytics-insight/SKILL.md` Step 0
+- MCP サーバー（`mcp/ga4-server.mjs`）は `dimensionFilter.values: [...]` で `inListFilter` をサポート
+
 ## 品質ゲートの全体構成
 
 ```mermaid
