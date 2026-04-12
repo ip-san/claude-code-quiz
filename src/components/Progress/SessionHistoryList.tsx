@@ -1,7 +1,15 @@
 import { locale } from '@/config/locale'
 import type { SessionRecord } from '@/domain/entities/UserProgress'
-import { PASSING_SCORE, SCORE_COLORS } from '@/domain/valueObjects/ScoreThresholds'
+import { getScoreLevel } from '@/domain/valueObjects/ScoreThresholds'
 import { cardStyles } from '@/lib/styles'
+
+/** Score level → Tailwind text color. Boundaries are owned by getScoreLevel(). */
+const SCORE_LEVEL_TEXT_COLOR: Record<ReturnType<typeof getScoreLevel>, string> = {
+  excellent: 'text-green-600',
+  good: 'text-blue-600',
+  fair: 'text-orange-600',
+  poor: 'text-red-600',
+}
 
 interface SessionHistoryListProps {
   sessions: readonly SessionRecord[]
@@ -20,10 +28,7 @@ function formatDate(timestamp: number): string {
 }
 
 function getScoreColor(percentage: number): string {
-  if (percentage >= SCORE_COLORS.excellent) return 'text-green-600'
-  if (percentage >= PASSING_SCORE) return 'text-blue-600'
-  if (percentage >= SCORE_COLORS.fair) return 'text-orange-600'
-  return 'text-red-600'
+  return SCORE_LEVEL_TEXT_COLOR[getScoreLevel(percentage)]
 }
 
 /**
