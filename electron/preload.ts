@@ -252,6 +252,16 @@ const electronAPI = {
     ipcRenderer.on('open-recommend', handler)
     return () => ipcRenderer.removeListener('open-recommend', handler)
   },
+
+  /**
+   * Main プロセスの uncaughtException / unhandledRejection を受け取る
+   * Renderer 側で trackError() に流して GA4 に送信する
+   */
+  onMainProcessError: (callback: (data: { message: string; source: string }) => void): (() => void) => {
+    const handler = (_event: unknown, data: { message: string; source: string }) => callback(data)
+    ipcRenderer.on('main-process-error', handler)
+    return () => ipcRenderer.removeListener('main-process-error', handler)
+  },
 } as const
 
 /**

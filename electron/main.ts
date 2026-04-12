@@ -52,6 +52,29 @@ app.disableHardwareAcceleration()
 let mainWindow: BrowserWindow | null = null
 
 /**
+ * Main プロセスのエラーを Renderer に転送して GA4 で観測する
+ *
+ * Main プロセスは Node.js なので window.dataLayer に直接書けない。
+ * webContents.send() で Renderer に渡し、そちらの trackError() に流す。
+ * Renderer 起動前のエラーは取りこぼすが、それは元々 silent だった分。
+ */
+function forwardMainErrorToRenderer(error: unknown, source: string): void {
+  const message = error instanceof Error ? error.message : String(error)
+  console.error(`[main:${source}]`, error)
+  if (mainWindow && !mainWindow.isDestroyed()) {
+    mainWindow.webContents.send('main-process-error', { message, source })
+  }
+}
+
+process.on('uncaughtException', (error) => {
+  forwardMainErrorToRenderer(error, 'main_uncaught_exception')
+})
+
+process.on('unhandledRejection', (reason) => {
+  forwardMainErrorToRenderer(reason, 'main_unhandled_rejection')
+})
+
+/**
  * 開発/本番環境の判定
  *
  * 【判定ロジック】

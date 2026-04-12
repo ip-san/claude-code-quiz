@@ -62,6 +62,7 @@ interface ElectronAPI {
   getRealtimeMonitoring: () => Promise<boolean>
   onStartMicroQuiz: (callback: (data: { questionId: string; tip: string }) => void) => () => void
   onOpenRecommend: (callback: () => void) => () => void
+  onMainProcessError: (callback: (data: { message: string; source: string }) => void) => () => void
   getCachedRecommend: () => Promise<import('@/infrastructure/recommend/recommendHandlers').CachedRecommendData | null>
 }
 

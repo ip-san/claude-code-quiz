@@ -27,6 +27,11 @@ window.addEventListener('unhandledrejection', (e) => {
   trackError(String(e.reason), 'unhandled_rejection')
 })
 
+// Forward main-process errors (Electron only) into the same trackError pipeline
+window.electronAPI?.onMainProcessError(({ message, source }) => {
+  trackError(message, source)
+})
+
 const root = document.getElementById('root')
 if (!root) throw new Error('Root element not found')
 
