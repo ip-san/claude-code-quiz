@@ -45,7 +45,7 @@ import { create } from 'zustand'
 // Infrastructure imports
 import { getProgressRepository, getQuizRepository } from '@/infrastructure'
 import { getSessionRepository } from '@/infrastructure/persistence/SessionRepository'
-import { setUserProperties, trackError } from '@/lib/analytics'
+import { reportError, setUserProperties } from '@/lib/analytics'
 // Slices
 import { createBookmarkSlice } from './slices/bookmarkSlice'
 import { createProgressSlice } from './slices/progressSlice'
@@ -115,8 +115,7 @@ export const useQuizStore = create<QuizStore>((set, get) => ({
         total_quizzes: progress.sessionHistory.length,
       })
     } catch (error) {
-      console.error('Failed to initialize:', error)
-      trackError(error instanceof Error ? error.message : String(error), 'app_init')
+      reportError(error, 'app_init', 'Failed to initialize')
       set({ isLoading: false })
     }
   },

@@ -1,5 +1,5 @@
-import { describe, expect, it } from 'vitest'
-import { ErrorRateLimiter } from './analytics'
+import { afterEach, describe, expect, it, vi } from 'vitest'
+import { ErrorRateLimiter, reportError } from './analytics'
 
 describe('ErrorRateLimiter', () => {
   it('allows up to maxCount calls for the same key within the window', () => {
@@ -100,5 +100,39 @@ describe('ErrorRateLimiter', () => {
       expect(limiter.allow('err-a', later + i)).toBe(true)
     }
     expect(limiter.allow('err-a', later + 5)).toBe(false)
+  })
+})
+
+describe('reportError', () => {
+  let consoleErrorSpy: ReturnType<typeof vi.spyOn>
+
+  afterEach(() => {
+    consoleErrorSpy?.mockRestore()
+  })
+
+  it('logs Error instance with context label and uses .message', () => {
+    consoleErrorSpy = vi.spyOn(console, 'error').mockImplementation(vi.fn())
+    const err = new Error('disk full')
+    reportError(err, 'test_source', 'Save failed')
+
+    expect(consoleErrorSpy).toHaveBeenCalledWith('Save failed:', err)
+  })
+
+  it('logs without label when contextLabel is omitted', () => {
+    consoleErrorSpy = vi.spyOn(console, 'error').mockImplementation(vi.fn())
+    const err = new Error('boom')
+    reportError(err, 'test_source')
+
+    expect(consoleErrorSpy).toHaveBeenCalledWith(err)
+  })
+
+  it('coerces non-Error values via String()', () => {
+    consoleErrorSpy = vi.spyOn(console, 'error').mockImplementation(vi.fn())
+    reportError('string error', 'test_source', 'Got string')
+    reportError(42, 'test_source', 'Got number')
+    reportError({ kind: 'oops' }, 'test_source', 'Got object')
+
+    expect(consoleErrorSpy).toHaveBeenCalledTimes(3)
+    // No throw — coverage of the String(error) fallback path
   })
 })

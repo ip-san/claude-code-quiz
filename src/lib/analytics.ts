@@ -336,3 +336,20 @@ export function trackError(message: string, source: string, action: 'caught' | '
     error_source: source,
   })
 }
+
+/**
+ * try/catch 内のエラーを console と GA4 の両方にレポートするヘルパー。
+ *
+ * - error は unknown 型を Error.message or String() に正規化
+ * - 任意の contextLabel を console.error に前置（人間向け文脈）
+ * - trackError には action='caught' を渡す（明示的にハンドル済み）
+ *
+ * @example
+ * try { ... } catch (e) { reportError(e, 'progress_save', 'Failed to save progress') }
+ */
+export function reportError(error: unknown, source: string, contextLabel?: string): void {
+  const message = error instanceof Error ? error.message : String(error)
+  if (contextLabel) console.error(`${contextLabel}:`, error)
+  else console.error(error)
+  trackError(message, source, 'caught')
+}

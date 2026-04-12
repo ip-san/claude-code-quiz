@@ -6,7 +6,7 @@
  */
 
 import { theme } from '@/config/theme'
-import { trackError } from '@/lib/analytics'
+import { reportError } from '@/lib/analytics'
 import type { QuizSessionConfig } from '../../domain/services/QuizSessionService'
 import { migrateQuestionIds as migrateSessionIds } from './idMigration'
 
@@ -49,8 +49,7 @@ export class SessionRepository {
     try {
       localStorage.setItem(STORAGE_KEY, JSON.stringify(data))
     } catch (error) {
-      console.error('Failed to save session:', error)
-      trackError(error instanceof Error ? error.message : String(error), 'session_save')
+      reportError(error, 'session_save', 'Failed to save session')
     }
   }
 
