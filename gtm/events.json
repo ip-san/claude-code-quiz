@@ -85,8 +85,13 @@
     },
     {
       "name": "app_error",
-      "description": "アプリエラー（未処理例外・レンダリングエラー）",
+      "description": "アプリエラー（未処理例外・レンダリングエラー）。同一エラーは1分間に最大5回まで送信（DEV環境では送信なし）",
       "params": ["action", "error_message", "error_source", "platform"]
+    },
+    {
+      "name": "app_error_rate_limited",
+      "description": "エラーレートリミット発動シグナル。同一エラーキーが上限到達時にウィンドウ毎に1回だけ発火（silent dropの可視化）",
+      "params": ["error_key", "platform"]
     },
     {
       "name": "usage_recommend",

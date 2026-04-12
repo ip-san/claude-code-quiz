@@ -294,7 +294,23 @@ XP レベルアップ（30XP 以上の獲得時に発火）。
 - `src/components/Layout/ErrorBoundary.tsx`（React レンダリングエラー）
 - `src/main.tsx`（グローバル `window.onerror` + `unhandledrejection`）
 
+**送信制御:**
+- DEV 環境（`bun run dev`）では送信されない（Vite HMR ノイズ防止）
+- 同一エラー（`source:message[0:100]`）は 1 分間に最大 5 件まで送信。超過分は drop し、ウィンドウ毎に 1 回 `app_error_rate_limited` を発火
+
 **分析用途:** 頻出エラーの検出とバグ修正の優先度判断。`/quality-loop` のステップ 0 で最優先チェック。
+
+### app_error_rate_limited
+
+エラーレートリミット発動シグナル。`app_error` の silent drop を可視化する。
+
+| パラメータ | 型 | 値 |
+|-----------|-----|-----|
+| `error_key` | string | レート制限の対象キー（`source:message[0:100]`、200文字に切詰め） |
+
+**送信元:** `src/lib/analytics.ts`（`ErrorRateLimiter.onFirstDrop`）
+
+**分析用途:** 同一エラーが 1 分 5 回上限に達している = `app_error` の表示数より実際の発生数は多い。`error_key` から該当エラーを特定する。
 
 ### usage_recommend
 

@@ -61,7 +61,8 @@ MCP ツールを使って GA4 からデータを取得する。
 | reader_open | 解説リーダー利用 | platform |
 | share_result | 結果シェア | method, platform |
 | certificate_download | 修了証ダウンロード | quiz_mode, platform |
-| app_error | アプリエラー | error_message, error_source, platform |
+| app_error | アプリエラー（同一エラー1分5回上限・DEV送信なし） | action, error_message, error_source, platform |
+| app_error_rate_limited | エラーレートリミット発動シグナル | error_key, platform |
 
 GA4 組み込みディメンション（`customEvent:` 不要）: `eventName`, `date`, `deviceCategory`, `city`
 
@@ -101,12 +102,13 @@ GA4 組み込みディメンション（`customEvent:` 不要）: `eventName`, `
 - プラットフォーム固有の問題がないか
 
 #### エラー分析
-- **app_error イベントの有無を必ず確認する**
+- **app_error と app_error_rate_limited の両方を確認する**
 - `ga4_report(dimensions: ["customEvent:error_source", "customEvent:error_message"], metrics: ["eventCount"], dimensionFilter: {dimension: "eventName", value: "app_error"})` で取得
 - **頻出エラー** → 即時修正が必要なバグ
 - **error_source 別の傾向** → react_boundary（レンダリング）vs window_error（JS例外）vs unhandled_rejection（非同期）
 - **プラットフォーム別** → PWA 固有のエラーがないか
 - エラーが 0 件の場合は「エラーなし」と報告
+- **app_error_rate_limited が発火している場合** → 同一エラーが1分5回上限に達している = 実数は表示数より多い。`error_key` から該当エラーを特定し、個別件数の小ささだけで判断しない
 
 ### Step 3: アクション提案
 
