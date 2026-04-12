@@ -5,6 +5,7 @@ import type { Question } from '@/domain/entities/Question'
 import type { UserProgress } from '@/domain/entities/UserProgress'
 import { type GrowthInsight, GrowthTrackingService } from '@/domain/services/GrowthTrackingService'
 import { MASTERY_THRESHOLD } from '@/domain/valueObjects/ScoreThresholds'
+import { reportError } from '@/lib/analytics'
 import { haptics } from '@/lib/haptics'
 import { useQuizStore } from '@/stores/quizStore'
 import {
@@ -293,7 +294,7 @@ export function useRecommendation() {
       setHooksInstalled(true)
       haptics.medium()
     } else {
-      console.error('[setupHooks] failed:', result?.error)
+      reportError(result?.error ?? 'unknown', 'setup_hooks', '[setupHooks] failed')
     }
   }, [])
 

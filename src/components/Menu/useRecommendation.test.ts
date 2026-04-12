@@ -146,7 +146,11 @@ describe('loadFromCache integration logic', () => {
 // ── setupHooks ────────────────────────────────────────────────────────────────
 
 describe('useRecommendation: setupHooks', () => {
+  let consoleErrorSpy: ReturnType<typeof vi.spyOn>
+
   beforeEach(() => {
+    // Suppress expected error logs from intentional failure paths below
+    consoleErrorSpy = vi.spyOn(console, 'error').mockImplementation(vi.fn())
     window.electronAPI = {
       setupGlobalHooks: vi.fn(),
       checkGlobalHooks: vi.fn().mockResolvedValue(false),
@@ -158,6 +162,7 @@ describe('useRecommendation: setupHooks', () => {
 
   afterEach(() => {
     window.electronAPI = undefined as any
+    consoleErrorSpy?.mockRestore()
     vi.clearAllMocks()
   })
 
