@@ -24,7 +24,7 @@ export function XpToast({ totalXp, onComplete }: XpToastProps) {
     // Skip first render — just record initial value
     if (prevXpRef.current === null) {
       prevXpRef.current = totalXp
-      return
+      return () => clearTimeout(delayRef.current)
     }
     const gain = totalXp - prevXpRef.current
     prevXpRef.current = totalXp

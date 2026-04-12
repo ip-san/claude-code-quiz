@@ -80,9 +80,13 @@ export const createResumeSlice = (set: StoreSet, get: StoreGet): ResumeSlice => 
     // Restore overview chapter state from saved data, or rebuild from questions
     let overviewChapterState = sessionState.overviewChapterState
     if (saved.overviewChapterState && overviewChapterState) {
+      const savedChapterId = saved.overviewChapterState.currentChapterId
+      const validChapterId = overviewChapterState.chapters.some((ch) => ch.chapterId === savedChapterId)
+        ? savedChapterId
+        : 0
       overviewChapterState = {
         chapters: overviewChapterState.chapters, // Recomputed from questions
-        currentChapterId: saved.overviewChapterState.currentChapterId,
+        currentChapterId: validChapterId,
         chapterPhase: saved.overviewChapterState.chapterPhase,
         dismissedIntros: new Set(saved.overviewChapterState.dismissedIntros),
         dismissedCompletes: new Set(saved.overviewChapterState.dismissedCompletes),

@@ -125,6 +125,32 @@ describe('resumeSlice', () => {
       useQuizStore.getState().resumeSession()
       expect(useQuizStore.getState().viewState).toBe('menu')
     })
+
+    it('falls back currentChapterId to 0 when saved chapter no longer exists', () => {
+      // Start overview session which creates overviewChapterState
+      useQuizStore.getState().startSession({ mode: 'overview' })
+      const session = useQuizStore.getState().sessionState!
+      if (!session.overviewChapterState) return // skip if no chapters
+
+      // Suspend to create savedSession
+      useQuizStore.getState().suspendSession()
+      const saved = useQuizStore.getState().savedSession!
+
+      // Tamper with saved data: set currentChapterId to non-existent chapter
+      const tampered = {
+        ...saved,
+        overviewChapterState: {
+          ...saved.overviewChapterState!,
+          currentChapterId: 999,
+        },
+      }
+      useQuizStore.setState({ savedSession: tampered })
+
+      // Resume — should fall back to chapter 0
+      useQuizStore.getState().resumeSession()
+      const resumed = useQuizStore.getState().sessionState!
+      expect(resumed.overviewChapterState?.currentChapterId).toBe(0)
+    })
   })
 
   describe('discardSavedSession', () => {

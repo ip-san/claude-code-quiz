@@ -254,6 +254,23 @@ describe('sessionSlice', () => {
 
       expect(localStorage.getItem('recommend-feedback')).toBeNull()
     })
+
+    it('should be idempotent when called multiple times', () => {
+      useQuizStore.getState().startSessionWithIds(getSingleSelectIds(2))
+      answerCurrentQuestion(true)
+      useQuizStore.getState().nextQuestion()
+      answerCurrentQuestion(false)
+
+      useQuizStore.getState().finishTest()
+      const stateAfterFirst = useQuizStore.getState().sessionState!
+      expect(stateAfterFirst.isCompleted).toBe(true)
+      expect(stateAfterFirst.score).toBe(1)
+
+      // Second call should be a no-op
+      useQuizStore.getState().finishTest()
+      const stateAfterSecond = useQuizStore.getState().sessionState!
+      expect(stateAfterSecond).toBe(stateAfterFirst)
+    })
   })
 
   describe('previousQuestion boundary', () => {

@@ -238,7 +238,7 @@ export const createSessionLifecycleSlice = (set: StoreSet, get: StoreGet): Sessi
 
   finishTest: () => {
     const state = get()
-    if (!state.sessionState) return
+    if (!state.sessionState || state.sessionState.isCompleted) return
 
     const historySize = state.sessionState.answerHistory.size
 
