@@ -270,7 +270,26 @@ export const DiagramSchema = z.discriminatedUnion('type', [
   FormulaDiagramSchema,
 ])
 
-export type DiagramData = z.infer<typeof DiagramSchema>
+// DiagramData type is owned by the domain layer (single source of truth).
+// Re-exported here for backward compat; new code should import from
+// '@/domain/valueObjects/Diagram'. The compile-time assertion below
+// guarantees the Zod schema's inferred shape stays in sync with the
+// domain type — if they diverge, the export fails to compile.
+import type { DiagramData as _DomainDiagramData } from '@/domain/valueObjects/Diagram'
+
+// Bidirectional structural assertion — fails to compile if Zod schema
+// and domain type drift apart. The function is never called; it exists
+// purely as a type-level guard.
+function _assertDiagramSchemaMatchesDomain(value: z.infer<typeof DiagramSchema>): _DomainDiagramData {
+  return value
+}
+function _assertDomainMatchesDiagramSchema(value: _DomainDiagramData): z.infer<typeof DiagramSchema> {
+  return value
+}
+// Reference both functions so unused-export rules don't fire
+export const __diagramTypeAssertions = [_assertDiagramSchemaMatchesDomain, _assertDomainMatchesDiagramSchema] as const
+
+export type { DiagramData } from '@/domain/valueObjects/Diagram'
 
 // ============================================================
 // Quiz Item Schema

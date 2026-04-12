@@ -1,4 +1,4 @@
-import type { DiagramData } from '@/infrastructure/validation/QuizValidator'
+import type { DiagramData } from '@/domain/valueObjects/Diagram'
 import { DiagramRenderer } from './diagrams/DiagramRenderer'
 import { QuizText } from './QuizText'
 

@@ -23,7 +23,7 @@
  */
 
 import { theme } from '@/config/theme'
-import type { DiagramData } from '../../infrastructure/validation/QuizValidator'
+import type { DiagramData } from '../valueObjects/Diagram'
 import type { DifficultyLevel } from '../valueObjects/Difficulty'
 
 /**

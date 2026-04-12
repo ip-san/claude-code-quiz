@@ -24,9 +24,7 @@ const LAYER_RULES = {
 
 // Known exceptions (tech debt, tracked for future refactoring)
 // Format: "exact/file/path -> forbidden_layer"
-const KNOWN_VIOLATIONS = new Set([
-  'domain/entities/Question.ts -> infrastructure', // QuizValidator used for Zod schema
-])
+const KNOWN_VIOLATIONS = new Set([])
 
 function getAllFiles(dir, ext) {
   const results = []

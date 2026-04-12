@@ -1,4 +1,4 @@
-import type { DiagramData } from '@/infrastructure/validation/QuizValidator'
+import type { DiagramData } from '@/domain/valueObjects/Diagram'
 import { ComparisonDiagram } from './ComparisonDiagram'
 import { ConfigDiagram } from './ConfigDiagram'
 import { CycleDiagram } from './CycleDiagram'
