@@ -137,7 +137,11 @@ export default defineConfig({
   build: {
     outDir: 'dist',
     emptyOutDir: true,
-    chunkSizeWarningLimit: 600,
+    // quiz-data chunk (~1.7 MB raw / ~360 KB gzipped) holds the full quizzes.json
+    // payload. It is auto-split into its own chunk by Vite, so the initial JS load
+    // stays small (24 KB brotlied per size-limit). Bumping the warning above the
+    // current quiz-data size, with margin, to silence false-positive noise.
+    chunkSizeWarningLimit: 2000,
     rolldownOptions: {
       // virtual:pwa-register is only available in web builds (vite-plugin-pwa)
       // Externalize it so the Electron build doesn't fail on this virtual module

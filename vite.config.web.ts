@@ -56,7 +56,10 @@ export default defineConfig({
   build: {
     outDir: 'dist-web',
     emptyOutDir: true,
-    chunkSizeWarningLimit: 600,
+    // quiz-data chunk (~1.7 MB raw / ~360 KB gzipped) is intentionally split out.
+    // Initial JS stays small (24 KB brotlied per size-limit); the warning would
+    // be a perpetual false positive at the default 600 KB threshold.
+    chunkSizeWarningLimit: 2000,
     rolldownOptions: {
       output: {
         manualChunks(id: string) {
