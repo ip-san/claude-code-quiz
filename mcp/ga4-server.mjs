@@ -125,10 +125,11 @@ async function runReport(args) {
   }
 
   if (args.dimensionFilter) {
+    const { dimension, value, values } = args.dimensionFilter
     request.dimensionFilter = {
       filter: {
-        fieldName: args.dimensionFilter.dimension,
-        stringFilter: { value: args.dimensionFilter.value },
+        fieldName: dimension,
+        ...(values && values.length > 0 ? { inListFilter: { values } } : { stringFilter: { value: value ?? '' } }),
       },
     }
   }
@@ -283,10 +284,13 @@ server.tool(
     dimensionFilter: z
       .object({
         dimension: z.string(),
-        value: z.string(),
+        value: z.string().optional(),
+        values: z.array(z.string()).optional(),
       })
       .optional()
-      .describe('ディメンションフィルタ。例: {"dimension": "eventName", "value": "quiz_complete"}'),
+      .describe(
+        'ディメンションフィルタ。単一値: {"dimension": "eventName", "value": "quiz_complete"}。複数値: {"dimension": "customEvent:platform", "values": ["pwa", "electron"]}（ボット除外に有用）'
+      ),
     limit: z.number().default(100).describe('結果の最大行数（デフォルト: 100）'),
   },
   async (args) => {

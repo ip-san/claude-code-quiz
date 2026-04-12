@@ -20,6 +20,27 @@ GA4 の分析データからユーザー行動を分析し、改善アクショ�
 
 ## 分析手順
 
+### Step 0: ボット除外（必須）
+
+GitHub Pages の PWA は大量のボット/クローラーアクセスを受ける（直近観測で **約99% がボット**: 2,436 active users 中 `real_user` 検出は 8 人のみ）。素のメトリクスは過大評価されているため、**実ユーザーの判定基準を必ず適用する**:
+
+- 実ユーザー = `customEvent:platform` が `pwa` または `electron` を持つユーザー
+- `(not set)` プラットフォームのイベントはボット由来とみなす
+
+ボット除外フィルタの例:
+```json
+{
+  "dimensionFilter": {
+    "dimension": "customEvent:platform",
+    "values": ["pwa", "electron"]
+  }
+}
+```
+
+`values` 配列を渡すと `inListFilter`、`value` を渡すと `stringFilter`。`real_user` イベントを発火したユーザーに絞ることも可能だが、計算コストが高いので platform フィルタを既定とする。
+
+すべての主要分析クエリでこのフィルタを適用すること。素のサマリー値は「内訳の参考」として併記する程度にとどめる。
+
 ### Step 1: データ取得
 
 MCP ツールを使って GA4 からデータを取得する。
