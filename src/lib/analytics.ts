@@ -278,8 +278,35 @@ export function trackCategoryBest(category: string, previousAccuracy: number, ne
   pushEvent('category_best', { category, previous_accuracy: previousAccuracy, new_accuracy: newAccuracy })
 }
 
-/** アプリエラー */
+/** エラーレートリミッター（同一エラーをウィンドウ内で最大 maxCount 回に制限） */
+export class ErrorRateLimiter {
+  private counts = new Map<string, { count: number; resetAt: number }>()
+  constructor(
+    private maxCount: number = 5,
+    private windowMs: number = 60_000
+  ) {}
+
+  /** 送信可能なら true、レート超過なら false */
+  allow(key: string, now: number = Date.now()): boolean {
+    const entry = this.counts.get(key)
+    if (entry && now < entry.resetAt) {
+      if (entry.count >= this.maxCount) return false
+      entry.count++
+      return true
+    }
+    this.counts.set(key, { count: 1, resetAt: now + this.windowMs })
+    return true
+  }
+}
+
+const errorLimiter = new ErrorRateLimiter()
+
+/** アプリエラー（開発環境では送信しない、同一エラーは1分間に最大5回まで） */
 export function trackError(message: string, source: string, action: 'caught' | 'uncaught' = 'uncaught'): void {
+  if (import.meta.env.DEV) return
+  const key = `${source}:${message.substring(0, 100)}`
+  if (!errorLimiter.allow(key)) return
+
   pushEvent('app_error', {
     action,
     error_message: message.substring(0, 200),

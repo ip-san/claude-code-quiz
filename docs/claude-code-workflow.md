@@ -10,7 +10,7 @@
 ### 意識していること
 
 - **具体的に書く** — 「きれいなコードを書いて」ではなく「Biome のルールに従い、Tailwind の `dark:` プレフィックスを全色に付ける」
-- **数値を入れる** — 「テストを書いて」ではなく「Vitest で 490 テスト、Playwright で 66 E2E テストが通る状態を維持」
+- **数値を入れる** — 「テストを書いて」ではなく「Vitest で 954 テスト、Playwright で 66 E2E テストが通る状態を維持」
 - **`docs:validate` で数値を自動検証** — CLAUDE.md に書いた数値が実装とズレたら CI で落ちる。嘘の指示を防ぐ仕組み
 - **ディレクトリ構造を明記** — Claude がファイルを探す時間を節約。新しいディレクトリを追加したら CLAUDE.md も更新する
 - **ID 命名規則を書く** — クイズ ID の `mem-`, `skill-` 等のプレフィックスルールを明記。Claude が自動生成する時にルールに従う
@@ -68,9 +68,9 @@ Claude Code の公式ドキュメントは頻繁に更新されるため、ク�
 
 ## エージェントチーム
 
-`--team` フラグで独立したステップを並列実行する。`.claude/agents/` に 14 体のエージェントを定義。
+`--team` フラグで独立したステップを並列実行する。`.claude/agents/` に 12 体のエージェントを定義。
 
-### 品質チーム（8体）
+### 品質チーム（6体）
 
 品質チェック・検証・分析を並列化する。
 
@@ -79,9 +79,7 @@ Claude Code の公式ドキュメントは頻繁に更新されるため、ク�
 | `quiz-verifier` | カテゴリ別クイズ検証 | `/quiz-refine --team` で最大8並列 |
 | `quality-gate` | テスト・サイズ品質ゲート | `/quality-loop --team` Phase 5 |
 | `doc-watcher` | ドキュメント変更検出 | Phase 1 |
-| `stats-syncer` | CLAUDE.md 統計値同期 | Phase 4 |
 | `quiz-pipeline` | 生成→検証パイプライン | 問題追加時のフルオーケストレーション |
-| `parallel-test-runner` | テスト並列実行 | Phase 5 |
 | `facts-checker` | Verified Facts 鮮度チェック | 月次 |
 | `difficulty-calibrator` | GA4 難易度キャリブレーション | 月次 |
 

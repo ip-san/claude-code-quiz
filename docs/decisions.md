@@ -57,7 +57,7 @@ flowchart LR
 
 - **Domain 層が他に依存しない** — ビジネスルール（出題ロジック、SRS アルゴリズム）が UI フレームワークに縛られない
 - **リポジトリパターン** — `IProgressRepository` インターフェースを Domain に置き、localStorage 実装を Infrastructure に置くことで、ストレージの差し替えが容易
-- **テスタビリティ** — Domain 層は React や localStorage に依存しないため、490 テスト中 314 テストが純粋なドメインテスト
+- **テスタビリティ** — Domain 層は React や localStorage に依存しないため、954 テスト中 398 テストが純粋なドメインテスト
 - クイズアプリとしては「過剰設計」に見えるかもしれないが、752 問 × 10 モード × SRS × 進捗管理の複雑さには見合っている
 
 ---
@@ -182,7 +182,7 @@ ESLint + Prettier の組み合わせは設定ファイルが多く、プラグ�
 ### 理由
 
 - 1 ツールで lint + format を統一。`.eslintrc`, `.prettierrc`, `.eslintignore` が不要
-- Rust 製で高速（`bun run check` が型チェック + lint + 490 テスト + 752 問チェックで約 5 秒）
+- Rust 製で高速（`bun run check` が型チェック + lint + 954 テスト + 752 問チェックで約 5 秒）
 - ESLint の主要ルールをカバーしており、移行コストが低かった
 - `biome.json` 1 ファイルで全設定が完結
 

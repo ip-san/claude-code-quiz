@@ -80,7 +80,7 @@ Critical は自動修正、High は修正案提示、Suggestion は報告のみ�
 
 ## エージェントチーム（`.claude/agents/`）
 
-`--team` フラグやオーケストレーターを通じて並列実行される専門エージェント。14体。
+`--team` フラグやオーケストレーターを通じて並列実行される専門エージェント。12体。
 
 ### 品質チーム
 
@@ -89,9 +89,7 @@ Critical は自動修正、High は修正案提示、Suggestion は報告のみ�
 | `quiz-verifier` | sonnet | カテゴリ別クイズ検証（最大8並列） |
 | `quality-gate` | sonnet | テスト・サイズ品質ゲート |
 | `doc-watcher` | sonnet | ドキュメント変更検出・影響分析 |
-| `stats-syncer` | haiku | CLAUDE.md 統計値同期 |
 | `quiz-pipeline` | opus | 生成→検証パイプラインオーケストレーション |
-| `parallel-test-runner` | haiku | テスト並列実行 |
 | `facts-checker` | sonnet | MEMORY.md Verified Facts 鮮度チェック |
 | `difficulty-calibrator` | sonnet | GA4 正答率と difficulty ラベルの乖離検出 |
 
