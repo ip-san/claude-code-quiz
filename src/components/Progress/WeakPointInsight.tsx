@@ -5,7 +5,7 @@ import type { Question } from '@/domain/entities/Question'
 import type { UserProgress } from '@/domain/entities/UserProgress'
 import { PREDEFINED_CATEGORIES } from '@/domain/valueObjects/Category'
 import type { QuizModeId } from '@/domain/valueObjects/QuizMode'
-import { PASSING_SCORE } from '@/domain/valueObjects/ScoreThresholds'
+import { calculateAccuracy, PASSING_SCORE } from '@/domain/valueObjects/ScoreThresholds'
 
 interface WeakPointInsightProps {
   allQuestions: readonly Question[]
@@ -48,7 +48,7 @@ export function WeakPointInsight({ allQuestions, userProgress, categoryStats, on
     return PREDEFINED_CATEGORIES.map((cat) => {
       const stats = categoryStats[cat.id]
       if (!stats || stats.attemptedQuestions < 3) return null
-      const accuracy = Math.round((stats.correctAnswers / stats.attemptedQuestions) * 100)
+      const accuracy = calculateAccuracy(stats.correctAnswers, stats.attemptedQuestions)
       const wrongCount = stats.attemptedQuestions - stats.correctAnswers
       if (accuracy >= PASSING_SCORE) return null
 
@@ -71,7 +71,7 @@ export function WeakPointInsight({ allQuestions, userProgress, categoryStats, on
         .map((s) => ({
           ...s,
           label: slugToLabel(s.slug),
-          accuracy: s.attempted > 0 ? Math.round((s.correct / s.attempted) * 100) : 0,
+          accuracy: calculateAccuracy(s.correct, s.attempted),
         }))
         .filter((s) => s.accuracy < PASSING_SCORE) // 弱いサブトピックのみ
         .sort((a, b) => a.accuracy - b.accuracy)

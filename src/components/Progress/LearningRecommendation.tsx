@@ -3,7 +3,7 @@ import { useMemo } from 'react'
 import { locale } from '@/config/locale'
 import { PREDEFINED_CATEGORIES } from '@/domain/valueObjects/Category'
 import type { QuizModeId } from '@/domain/valueObjects/QuizMode'
-import { PASSING_SCORE } from '@/domain/valueObjects/ScoreThresholds'
+import { calculateAccuracy, PASSING_SCORE } from '@/domain/valueObjects/ScoreThresholds'
 
 interface CategoryStat {
   totalQuestions: number
@@ -39,7 +39,7 @@ export function LearningRecommendation({ categoryStats, totalAttempts, onStartSe
         continue
       }
 
-      const accuracy = Math.round((stats.correctAnswers / Math.max(stats.attemptedQuestions, 1)) * 100)
+      const accuracy = calculateAccuracy(stats.correctAnswers, stats.attemptedQuestions)
 
       if (accuracy < PASSING_SCORE) allMastered = false
 

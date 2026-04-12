@@ -4,7 +4,7 @@ import { locale } from '@/config/locale'
 import { getMasteryLevel } from '@/domain/services/MasteryLevelService'
 import { SessionInsightService } from '@/domain/services/SessionInsightService'
 import { PREDEFINED_CATEGORIES } from '@/domain/valueObjects/Category'
-import { SCORE_COLORS } from '@/domain/valueObjects/ScoreThresholds'
+import { calculateAccuracy, SCORE_COLORS } from '@/domain/valueObjects/ScoreThresholds'
 import { getProgressRepository } from '@/infrastructure/persistence/LocalStorageProgressRepository'
 import { platformAPI } from '@/lib/platformAPI'
 import { useQuizStore } from '@/stores/quizStore'
@@ -106,7 +106,7 @@ export function useProgressDashboard(): UseProgressDashboardReturn {
   const teachableCategories = PREDEFINED_CATEGORIES.filter((cat) => {
     const stats = categoryStats[cat.id]
     if (!stats || stats.attemptedQuestions < 5) return false
-    return Math.round((stats.correctAnswers / stats.attemptedQuestions) * 100) >= SCORE_COLORS.excellent + 10
+    return calculateAccuracy(stats.correctAnswers, stats.attemptedQuestions) >= SCORE_COLORS.excellent + 10
   })
 
   // ── Status error detection ─────────────────────────────────────────────

@@ -28,7 +28,7 @@ import { PREDEFINED_CATEGORIES } from '../valueObjects/Category'
 import type { DifficultyLevel } from '../valueObjects/Difficulty'
 import { getChapterFromTags } from '../valueObjects/OverviewChapter'
 import type { QuizModeId } from '../valueObjects/QuizMode'
-import { PASSING_SCORE } from '../valueObjects/ScoreThresholds'
+import { calculateAccuracy, PASSING_SCORE } from '../valueObjects/ScoreThresholds'
 import { AdaptiveDifficultyService } from './AdaptiveDifficultyService'
 import { SpacedRepetitionService } from './SpacedRepetitionService'
 
@@ -848,8 +848,7 @@ export class QuizSessionService {
    * スコアをパーセンテージで計算
    */
   static calculateScorePercentage(state: QuizSessionState): number {
-    if (state.answeredCount === 0) return 0
-    return Math.round((state.score / state.answeredCount) * 100)
+    return calculateAccuracy(state.score, state.answeredCount)
   }
 
   /**

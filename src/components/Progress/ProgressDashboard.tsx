@@ -1,7 +1,7 @@
 import { ChevronDown, ChevronUp } from 'lucide-react'
 import { locale } from '@/config/locale'
 import { type Category, PREDEFINED_CATEGORIES } from '@/domain/valueObjects/Category'
-import { PASSING_SCORE, SCORE_COLORS } from '@/domain/valueObjects/ScoreThresholds'
+import { calculateAccuracy, PASSING_SCORE, SCORE_COLORS } from '@/domain/valueObjects/ScoreThresholds'
 import { getColorHex } from '@/lib/colors'
 import { buttonStyles, cardStyles, headerStyles, pageStyles } from '@/lib/styles'
 import { CategoryTrendChart } from './CategoryTrendChart'
@@ -198,9 +198,7 @@ export function ProgressDashboard() {
               <div className="space-y-3">
                 {PREDEFINED_CATEGORIES.map((category: Category) => {
                   const stats = categoryStats[category.id]
-                  const progress = stats
-                    ? Math.round((stats.correctAnswers / Math.max(stats.attemptedQuestions, 1)) * 100)
-                    : 0
+                  const progress = stats ? calculateAccuracy(stats.correctAnswers, stats.attemptedQuestions) : 0
                   const attempted = stats?.attemptedQuestions ?? 0
                   const total = stats?.totalQuestions ?? 0
                   return (

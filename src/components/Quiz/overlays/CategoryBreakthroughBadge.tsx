@@ -5,6 +5,7 @@ import type { Question } from '@/domain/entities/Question'
 import type { UserProgress } from '@/domain/entities/UserProgress'
 import type { AnswerRecord } from '@/domain/services/QuizSessionService'
 import { getCategoryById } from '@/domain/valueObjects/Category'
+import { calculateAccuracy } from '@/domain/valueObjects/ScoreThresholds'
 import { trackCategoryBest } from '@/lib/analytics'
 
 interface CategoryBreakthroughBadgeProps {
@@ -34,7 +35,7 @@ export function CategoryBreakthroughBadge({ questions, answerHistory, userProgre
     const results: { categoryName: string; icon: string; prev: number; now: number }[] = []
     categoryResults.forEach((result, catId) => {
       if (result.total < 3) return // 3問未満はノイズが大きいのでスキップ
-      const nowAccuracy = Math.round((result.correct / result.total) * 100)
+      const nowAccuracy = calculateAccuracy(result.correct, result.total)
       // 過去のカテゴリ正答率を計算（questionProgress は Record<string, QuestionProgress>）
       let prevCorrect = 0
       let prevTotal = 0

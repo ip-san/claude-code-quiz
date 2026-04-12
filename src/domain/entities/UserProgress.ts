@@ -1,4 +1,5 @@
 import { XpService } from '../services/XpService'
+import { calculateAccuracy } from '../valueObjects/ScoreThresholds'
 import { calculateNextReview } from '../valueObjects/SrsInterval'
 
 /**
@@ -249,7 +250,7 @@ export class UserProgress {
       totalQuestions: existingCategory?.totalQuestions ?? 0,
       attemptedQuestions,
       correctAnswers,
-      accuracy: attemptedQuestions > 0 ? Math.round((correctAnswers / attemptedQuestions) * 100) : 0,
+      accuracy: calculateAccuracy(correctAnswers, attemptedQuestions),
     }
 
     // Calculate new streak
@@ -370,7 +371,7 @@ export class UserProgress {
   getQuestionAccuracy(questionId: string): number | null {
     const qp = this.questionProgress[questionId]
     if (!qp || qp.attempts === 0) return null
-    return Math.round((qp.correctCount / qp.attempts) * 100)
+    return calculateAccuracy(qp.correctCount, qp.attempts)
   }
 
   /**
@@ -449,7 +450,7 @@ export class UserProgress {
     totalQuestions: number,
     categoryBreakdown?: Record<string, CategoryBreakdown>
   ): UserProgress {
-    const percentage = totalQuestions > 0 ? Math.round((score / totalQuestions) * 100) : 0
+    const percentage = calculateAccuracy(score, totalQuestions)
     const record: SessionRecord = {
       id: `${Date.now()}-${Math.random().toString(36).slice(2, 8)}`,
       completedAt: Date.now(),

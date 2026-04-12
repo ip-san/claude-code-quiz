@@ -7,6 +7,7 @@
 
 import type { Question } from '../entities/Question'
 import type { UserProgress } from '../entities/UserProgress'
+import { calculateAccuracy } from '../valueObjects/ScoreThresholds'
 
 export class ProgressExportService {
   /** ヘッダー行 + データ行を CSV 文字列に結合 */
@@ -25,7 +26,7 @@ export class ProgressExportService {
       const qp = progress.questionProgress[q.id]
       const attempts = qp?.attempts ?? 0
       const correctCount = qp?.correctCount ?? 0
-      const accuracy = attempts > 0 ? Math.round((correctCount / attempts) * 100) : 0
+      const accuracy = calculateAccuracy(correctCount, attempts)
       const lastAttempt = qp?.lastAttemptAt ? new Date(qp.lastAttemptAt).toISOString() : ''
       return [q.id, q.category, q.difficulty, attempts, correctCount, accuracy, lastAttempt]
     })
@@ -61,7 +62,7 @@ export class ProgressExportService {
           const qp = progress.questionProgress[q.id]
           return sum + (qp?.attempts ?? 0)
         }, 0)
-      const accuracy = totalAttempts > 0 ? Math.round((stats.correct / totalAttempts) * 100) : 0
+      const accuracy = calculateAccuracy(stats.correct, totalAttempts)
       return [category, stats.total, stats.attempted, accuracy]
     })
 
