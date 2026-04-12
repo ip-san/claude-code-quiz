@@ -4,6 +4,7 @@ import { locale } from '@/config/locale'
 import type { Question } from '@/domain/entities/Question'
 import type { UserProgress } from '@/domain/entities/UserProgress'
 import { getOverviewQuestionsOrdered, OVERVIEW_CHAPTERS } from '@/domain/valueObjects/OverviewChapter'
+import { calculateAccuracy } from '@/domain/valueObjects/ScoreThresholds'
 import { haptics } from '@/lib/haptics'
 
 interface ChapterProgressMapProps {
@@ -43,9 +44,9 @@ export function ChapterProgressMap({
         }
       }
       const total = chapterQuestions.length
-      const accuracy = answered > 0 ? Math.round((correct / answered) * 100) : 0
+      const accuracy = calculateAccuracy(correct, answered)
       const isComplete = answered === total && total > 0
-      const correctPct = total > 0 ? Math.round((correct / total) * 100) : 0
+      const correctPct = calculateAccuracy(correct, total)
 
       // "続きから" は最初の未正解問題から開始
       let resumeIndex = startIndex

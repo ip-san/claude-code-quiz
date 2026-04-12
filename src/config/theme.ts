@@ -525,11 +525,6 @@ const claudeCodeTheme: ThemeConfig = {
 /** 現在のテーマ設定。別テーマに切り替える場合はここを差し替える */
 export const theme: ThemeConfig = claudeCodeTheme
 
-/** テーマからカテゴリ数を取得するヘルパー */
-export function getCategoryCount(): number {
-  return theme.categories.length
-}
-
 /** カテゴリIDからスキル説明を取得 */
 export function getSkillDescription(categoryId: string): string {
   return theme.categories.find((c) => c.id === categoryId)?.skillDescription ?? ''

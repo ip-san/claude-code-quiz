@@ -1,7 +1,7 @@
 import { ArrowRight, Home, Trophy } from 'lucide-react'
 import { locale } from '@/config/locale'
 import type { OverviewChapter } from '@/domain/valueObjects/OverviewChapter'
-import { PASSING_SCORE } from '@/domain/valueObjects/ScoreThresholds'
+import { calculateAccuracy, PASSING_SCORE } from '@/domain/valueObjects/ScoreThresholds'
 import { haptics } from '@/lib/haptics'
 
 interface ChapterCompleteProps {
@@ -20,7 +20,7 @@ interface ChapterCompleteProps {
  * 達成感を出し、「続ける/やめる」の選択肢を提供する。
  */
 export function ChapterComplete({ chapter, score, total, onContinue, onQuit, isLastChapter }: ChapterCompleteProps) {
-  const percentage = total > 0 ? Math.round((score / total) * 100) : 0
+  const percentage = calculateAccuracy(score, total)
 
   return (
     <div className="flex min-h-[60vh] flex-col items-center justify-center px-6 animate-view-enter">

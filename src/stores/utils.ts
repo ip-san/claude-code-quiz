@@ -8,6 +8,7 @@ import type { UserProgress } from '@/domain/entities/UserProgress'
 import { type QuizSessionConfig, type QuizSessionState } from '@/domain/services/QuizSessionService'
 import { XpService } from '@/domain/services/XpService'
 import type { QuizModeId } from '@/domain/valueObjects/QuizMode'
+import { calculateAccuracy } from '@/domain/valueObjects/ScoreThresholds'
 import { getProgressRepository } from '@/infrastructure'
 import {
   getSessionRepository,
@@ -265,8 +266,7 @@ export function recordCompletedSession(
     .save(updatedProgress)
     .catch((error) => reportError(error, 'progress_save_finish', 'Failed to save progress on session finish'))
 
-  const accuracy =
-    sessionState.answeredCount > 0 ? Math.round((sessionState.score / sessionState.answeredCount) * 100) : 0
+  const accuracy = calculateAccuracy(sessionState.score, sessionState.answeredCount)
   const durationSec = sessionState.startedAt ? Math.round((Date.now() - sessionState.startedAt) / 1000) : 0
   trackQuizComplete(sessionState.config.mode, sessionState.score, sessionState.answeredCount, accuracy, durationSec)
 

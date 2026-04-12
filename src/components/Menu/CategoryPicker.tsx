@@ -3,7 +3,7 @@ import { useShallow } from 'zustand/react/shallow'
 import { locale } from '@/config/locale'
 import { PREDEFINED_CATEGORIES } from '@/domain/valueObjects/Category'
 import type { QuizModeId } from '@/domain/valueObjects/QuizMode'
-import { SCORE_COLORS } from '@/domain/valueObjects/ScoreThresholds'
+import { calculateAccuracy, SCORE_COLORS } from '@/domain/valueObjects/ScoreThresholds'
 import { haptics } from '@/lib/haptics'
 import { useQuizStore } from '@/stores/quizStore'
 
@@ -158,7 +158,7 @@ function UnansweredProgress({
 }) {
   const total = allQuestions.length
   const correct = allQuestions.filter((q) => userProgress.isCorrectlyAnswered(q.id)).length
-  const pct = total > 0 ? Math.round((correct / total) * 100) : 0
+  const pct = calculateAccuracy(correct, total)
 
   return (
     <div className="mb-3">

@@ -2,6 +2,7 @@ import { useEffect, useMemo, useState } from 'react'
 import { useShallow } from 'zustand/react/shallow'
 import { getOverviewRecommendation } from '@/domain/services/RecommendationService'
 import { getScoreMessage } from '@/domain/services/ScoreMessageService'
+import { calculateAccuracy } from '@/domain/valueObjects/ScoreThresholds'
 import { APP_CONFIG, useQuizStore } from '@/stores/quizStore'
 
 // Star visualization constants
@@ -88,7 +89,7 @@ export function useQuizResult(): UseQuizResultReturn {
   const isFirstSession = userProgress.sessionHistory.length <= 1
 
   // Prevent NaN when no questions answered (edge case: timer expired immediately)
-  const percentage = answeredCount > 0 ? Math.round((score / answeredCount) * 100) : 0
+  const percentage = calculateAccuracy(score, answeredCount)
   const isPassing = percentage >= APP_CONFIG.passingScore
 
   const noMotion = prefersReducedMotion

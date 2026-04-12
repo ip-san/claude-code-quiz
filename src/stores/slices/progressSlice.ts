@@ -7,6 +7,7 @@ import { UserProgress } from '@/domain/entities/UserProgress'
 import { ProgressExportService } from '@/domain/services/ProgressExportService'
 import { PREDEFINED_CATEGORIES } from '@/domain/valueObjects/Category'
 import type { DifficultyLevel } from '@/domain/valueObjects/Difficulty'
+import { calculateAccuracy } from '@/domain/valueObjects/ScoreThresholds'
 import { getProgressRepository } from '@/infrastructure'
 import { platformAPI } from '@/lib/platformAPI'
 import type { StoreGet, StoreSet } from '../utils'
@@ -91,7 +92,7 @@ export const createProgressSlice = (set: StoreSet, get: StoreGet): ProgressSlice
         totalQuestions: categoryQuestions.length,
         attemptedQuestions: attemptedQuestions.length,
         correctAnswers,
-        accuracy: attemptedQuestions.length > 0 ? Math.round((correctAnswers / attemptedQuestions.length) * 100) : 0,
+        accuracy: calculateAccuracy(correctAnswers, attemptedQuestions.length),
       }
     }
 
