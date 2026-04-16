@@ -121,6 +121,7 @@ const VALID_DOC_PAGES = [
   'platforms',
   'costs',
   'web-scheduled-tasks',
+  'desktop-scheduled-tasks',
   'computer-use',
   'data-usage',
   'fullscreen',
