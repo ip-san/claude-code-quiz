@@ -324,9 +324,28 @@ const errorLimiter = new ErrorRateLimiter(5, 60_000, 200, (key) => {
   pushEvent('app_error_rate_limited', { error_key: key.substring(0, 200) })
 })
 
-/** アプリエラー（開発環境では送信しない、同一エラーは1分間に最大5回まで） */
+/**
+ * 非アクションなノイズエラーの denylist（Layer 0 フィルタ）。
+ *
+ * これらはユーザー影響がなく、レートリミッタ閾値の下で恒常的に流れるため
+ * DEV ガード + rate limit では完全には抑えられない。GA4 汚染を防ぐため
+ * 送信前に弾く。
+ */
+export const NOISY_ERROR_PATTERNS: readonly RegExp[] = [
+  // Vite HMR / ブラウザ内 WebSocket 切断（Electron パッケージ版でも稀に流入）
+  /send was called before connect/i,
+  // SharedWorker は本アプリで使用しない（CSP/blob によるブラウザ側のブロック）
+  /Failed to construct 'SharedWorker'/i,
+]
+
+export function isNoisyError(message: string): boolean {
+  return NOISY_ERROR_PATTERNS.some((pattern) => pattern.test(message))
+}
+
+/** アプリエラー（開発環境では送信しない、既知ノイズは弾く、同一エラーは1分間に最大5回まで） */
 export function trackError(message: string, source: string, action: 'caught' | 'uncaught' = 'uncaught'): void {
   if (import.meta.env.DEV) return
+  if (isNoisyError(message)) return
   const key = `${source}:${message.substring(0, 100)}`
   if (!errorLimiter.allow(key)) return
 

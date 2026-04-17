@@ -1,5 +1,5 @@
 import { afterEach, describe, expect, it, vi } from 'vitest'
-import { ErrorRateLimiter, reportError } from './analytics'
+import { ErrorRateLimiter, isNoisyError, reportError } from './analytics'
 
 describe('ErrorRateLimiter', () => {
   it('allows up to maxCount calls for the same key within the window', () => {
@@ -100,6 +100,27 @@ describe('ErrorRateLimiter', () => {
       expect(limiter.allow('err-a', later + i)).toBe(true)
     }
     expect(limiter.allow('err-a', later + 5)).toBe(false)
+  })
+})
+
+describe('isNoisyError', () => {
+  it('matches Vite HMR WebSocket disconnect noise', () => {
+    expect(isNoisyError('Error: send was called before connect')).toBe(true)
+    expect(isNoisyError('send was called before connect')).toBe(true)
+  })
+
+  it('matches SharedWorker construction failures', () => {
+    expect(
+      isNoisyError(
+        "SecurityError: Failed to construct 'SharedWorker': Access to the script at 'blob:http://localhost:5173/...' is denied."
+      )
+    ).toBe(true)
+  })
+
+  it('does not match actionable app errors', () => {
+    expect(isNoisyError('TypeError: Cannot read properties of undefined')).toBe(false)
+    expect(isNoisyError('Failed to save progress: QuotaExceededError')).toBe(false)
+    expect(isNoisyError('')).toBe(false)
   })
 })
 

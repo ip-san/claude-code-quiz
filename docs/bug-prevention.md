@@ -112,6 +112,7 @@
 **根本原因:** エラーハンドラがテレメトリ送信を直接呼び出し、外部要因（HMR 切断、ネットワーク断）の影響を吸収する仕組みがない。
 
 **防御策（多層防御パターン）:**
+- **Layer 0 — ノイズ denylist:** `NOISY_ERROR_PATTERNS` で既知の非アクションなエラー（Vite HMR "send was called before connect"、`SharedWorker` 構築失敗）を送信前に弾く。レートリミッタ閾値の下で恒常的に流れるため DEV ガード + rate limit では完全には抑えられない（2026-04-17 追加、7日で 7,284 件観測）
 - **Layer 1 — DEV ガード:** `import.meta.env.DEV` で開発時の送信を完全停止（`src/lib/analytics.ts` `trackError`）
 - **Layer 2 — レートリミット:** 同一エラー（`source:message[0:100]`）を 1 分間に 5 件まで（`ErrorRateLimiter` クラス）
 - **Layer 3 — Drop 可視化:** ウィンドウごとに 1 回 `app_error_rate_limited` を発火（silent drop の隠蔽防止）

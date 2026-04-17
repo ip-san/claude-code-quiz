@@ -300,6 +300,7 @@ v4.43.0 以前の known-issues では「exit code 2 の一般ルールで UserPr
 - key-016 の diagram.label が "Extended Thinking動作" となっており、known-issues に記載の用語ガイドライン（Opus 4.6/Sonnet 4.6 固有の動作には "adaptive reasoning" を使用）と不整合 → quiz:edit コマンドが diagram.label フィールドをサポートしていないため、quiz-utils.mjs に diagram サブフィールドの編集サポートを追加する
 - cmd-033 が「`claude commit` サブコマンドは存在しません」と正しく否定しているのに terminology checker がフラグし続ける。毎回 known-issue 確認が必要 → quiz-lint.mjs の terminology チェックに「存在しない」「ではありません」等の否定コンテキスト共起パターンを除外する
 - key-011 が `Ctrl+F` を全バックグラウンドエージェント停止ショートカットとして記載していたが、正しくは `Ctrl+X Ctrl+K`（コードバインディング）。interactive-mode ドキュメントで明確に定義されている → generate-quiz-data SKILL.md のキーボードショートカットセクションに `Ctrl+X Ctrl+K`（全バックグラウンドエージェント停止）を明記
+- cmd-033 の explanation「`claude commit` サブコマンドは存在しません」を terminology checker が毎回フラグ。known-issues にも複数回記載されている → quiz-lint.mjs の terminology チェックに「存在しません」「ではありません」「未提供」等の否定コンテキスト共起パターンを除外ルールとして追加
 
 ## /memory と /context の役割の違い
 
@@ -389,3 +390,23 @@ v4.43.0 以前の known-issues では「exit code 2 の一般ルールで UserPr
 ## 自動スキャンパターンの精度向上
 
 - grep ベースのパターンマッチングで false positive が多発（PostToolUse+ブロック、Ctrl+B+bashなど） → 否定的文脈でのキーワード使用を区別するチェックを追加
+
+## `scripts/pre-verify-quiz.mjs` is missing
+
+- SKILL.md Step 0c は `node scripts/pre-verify-quiz.mjs` を呼び出すが、ファイルは存在しない（`scripts/pre-lint-quiz.mjs` のみ存在） → SKILL.md の Step 0c を削除するか、pre-verify-quiz.mjs を新規作成（Haiku で事前 OK/flag 判定）。あるいは既存の pre-lint-quiz.mjs に統合する記述に更新
+
+## 762問全件スキャン時の逐次処理が非現実的
+
+- 今回のように広範な docs 変更（30ページ）で content-hash が変わると、全762問が verify 対象となり、逐次 Sonnet 検証は時間・コスト面で非現実的 → verify:diff に `doc-changed` のみで拾われた問題は lint-level の差分検査に留め、実質的な content-changed のみ Sonnet 検証に回す閾値設計を検討。あるいは team モード必須化
+
+## format-giveaway 是正の機械的パターン
+
+- 正解のみバッククォート、不正解プレーンテキストの4問（key-006, ses-016, ses-064, ses-078）は、不正解内の技術用語・名詞にバッククォートを追加するだけで解消 → quiz:lint の auto-fix に、同一問題内で正解のみがバッククォート含有の場合に不正解内の候補語（技術用語辞書との一致）へバッククォート付与を試みる自動修正を追加。あるいは generate-quiz-data SKILL.md に「distractor にも技術用語にはバッククォートを付ける」ガイドラインを明記
+
+## correct-too-long が91件、distractor-too-short が47件、高止まり
+
+- 専用改善バッチの必要性が known-issues.md に何度も記載されているが、未着手 → `/quiz-balance-distractors` のような専用スキル/スクリプトを新規作成し、quality-loop に組み込む
+
+## 難易度不整合が55件
+
+- advanced→beginner の reclassify が55問で検出。多くは単純な事実問題で advanced 扱い → difficulty-calibrator エージェントの自動実行を quality-loop に組み込み、score<=-1 は自動で降格、score>=+2 は昇格を提案する
