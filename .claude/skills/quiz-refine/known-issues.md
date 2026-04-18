@@ -62,6 +62,7 @@
 - **各イベントセクションの decision control テーブルを個別確認すること。一般ルールで一括判定してはいけない**
 - ext-029 の explanation がブロッキング可能なイベントを9つ列挙していたが、`Elicitation` と `ElicitationResult` の2つが欠落していた（docs では11イベントがブロッキング可能） → known-issues.md のブロッキング対応イベントリストを9→11に更新（Elicitation, ElicitationResult を追加）
 - Hook イベントタイプが22種から25種に増加。`TaskCreated`、`CwdChanged`、`FileChanged` の3イベントが追加された → known-issues.md の Hook イベント総数を 22→25 に更新。ブロッキング対応イベントも 11→12 に更新（TaskCreated 追加）
+- ext-029 が「12イベント」と記述し、PreCompact をブロッキング不可リストに分類していた。docs (hooks.md, exit code 2 behavior per event) では PreCompact = "Yes" (Blocks compaction)。実際は **13 イベント** がブロッキング可能 → known-issues.md の「Hook イベント総数」セクションでブロッキング可能を 12→**13** に修正。13 イベント = PreToolUse, UserPromptSubmit, PermissionRequest, Stop, SubagentStop, TeammateIdle, TaskCreated, TaskCompleted, ConfigChange, PreCompact, WorktreeCreate, Elicitation, ElicitationResult
 
 ## UserPromptSubmit の reason 送信先（v4.43.1 で確定）
 
@@ -211,6 +212,7 @@ v4.43.0 以前の known-issues では「exit code 2 の一般ルールで UserPr
 - ses-045とses-102の両方がeffort levelのデフォルト値を"high"と記述していたが、ドキュメント(model-config)では Pro/Max=medium、その他(API key/Team/Enterprise/Bedrock/Vertex AI/Foundry)=high と明記。**Team は medium ではなく high**
 - ses-045 と ses-102 がエフォートレベルを「3段階」(low/medium/high) と記述していたが、docs (model-config page) では第4レベル `max` (Opus 4.6専用、セッション単位、永続化されない) と `/effort auto` (デフォルトリセット) が追加されている。また ses-102 の explanation が設定方法を「3つ」と記述していたが、`/effort` コマンドと `--effort` CLI フラグの追加で4つになっている → generate-quiz-data SKILL.md にエフォートレベルの4段階 + auto、および設定方法4種を明記する
 - key-016, ses-045 のエフォートレベル値が low/medium/high の3つのみで、max と auto が欠落していた → generate-quiz-data SKILL.md にエフォートレベルの5値 (low/medium/high/max/auto) と、設定方法5種（/effort, --effort, env var, settings, /model slider）を明記
+- ses-045 の explanation/wrongFeedback と diagram が「max=Opus 4.6専用」「4段階」と記述していたが、ドキュメント (model-config) では Opus 4.7 にも `max` がサポートされ、さらに `xhigh` (Opus 4.7のみ) が追加されている。Opus 4.7 のデフォルトは `xhigh`。 → known-issues.md の「effort level default value」「モデル固有機能のスコープ」セクションを Opus 4.7 を含む3モデル対応に更新。`max` は3モデルサポート、`xhigh` は Opus 4.7専用、Opus 4.7 のデフォルトは `xhigh`、Opus 4.6/Sonnet 4.6 はプラン依存（Pro/Max=medium、その他=high）
 
 ## 存在しないCLIサブコマンド
 
@@ -394,6 +396,7 @@ v4.43.0 以前の known-issues では「exit code 2 の一般ルールで UserPr
 ## `scripts/pre-verify-quiz.mjs` is missing
 
 - SKILL.md Step 0c は `node scripts/pre-verify-quiz.mjs` を呼び出すが、ファイルは存在しない（`scripts/pre-lint-quiz.mjs` のみ存在） → SKILL.md の Step 0c を削除するか、pre-verify-quiz.mjs を新規作成（Haiku で事前 OK/flag 判定）。あるいは既存の pre-lint-quiz.mjs に統合する記述に更新
+- SKILL.md Step 0c は `node scripts/pre-verify-quiz.mjs` を呼び出すが、ファイルは存在しない (前回も known-issues に記録あり) → SKILL.md の Step 0c を削除するか、pre-verify-quiz.mjs を新規作成 (Haiku で事前 OK/flag 判定)。あるいは既存の pre-lint-quiz.mjs に統合する記述に更新
 
 ## 762問全件スキャン時の逐次処理が非現実的
 
@@ -410,3 +413,19 @@ v4.43.0 以前の known-issues では「exit code 2 の一般ルールで UserPr
 ## 難易度不整合が55件
 
 - advanced→beginner の reclassify が55問で検出。多くは単純な事実問題で advanced 扱い → difficulty-calibrator エージェントの自動実行を quality-loop に組み込み、score<=-1 は自動で降格、score>=+2 は昇格を提案する
+
+## `default` モデルエイリアスのプラン別マッピング更新
+
+- ses-103 が「Max/Team Premium のデフォルトは Opus 4.6」と記述していたが、ドキュメントは「Max/Team Premium → Opus 4.7」「Pro/Team Standard/Enterprise/Anthropic API → Sonnet 4.6」「Bedrock/Vertex/Foundry → Sonnet 4.5」と更新済み → known-issues.md に「`default` モデルのプラン別マッピング (2026-04-17 確認)」セクションを追加し、上記 3 階層を明記
+
+## quiz:edit が `\n` をエスケープしてしまう
+
+- `node scripts/quiz-utils.mjs edit <id> explanation '...\n...'` を実行すると、`\n` が `\\n` (literal backslash-n) として保存される。explanation 内の改行が読み込み時に意図通り表示されなくなる → scripts/quiz-utils.mjs の edit コマンドで explanation/question/wrongFeedback フィールドに値をセットする前に `value.replace(/\\n/g, '\n')` で literal `\n` を実際の改行に変換する処理を追加。あるいは usage に「実改行は `$'\\n'` (zsh ANSI-C quoting) を使うか、Edit ツールを使え」と注意を加える
+
+## 1Mコンテキスト対応モデルリストの更新
+
+- ses-105 explanation と diagram が「Opus 4.6 と Sonnet 4.6 が 1M コンテキストをサポート」と記述していたが、docs (model-config) は「Opus 4.7, Opus 4.6, Sonnet 4.6」の 3 モデル → known-issues.md に「1M コンテキスト対応モデル」セクションを追加し、`Opus 4.7 / Opus 4.6 / Sonnet 4.6` の3モデルと、Opus 4.7 における自動 1M アップグレード（Max/Team/Enterprise）を明記
+
+## TaskCompleted explanation の backtick close 漏れ
+
+- ext-053 の explanation 冒頭が `\`TaskCompletedイベントは...\`TaskUpdate\`` と、`TaskCompleted` の後ろの閉じバッククォートが欠落していた → quiz-lint.mjs のバッククォート整合性チェックで「`<word>` の `` の総数が偶数でない」場合をエラー報告する。または「`Foo` で始まり、 `Bar` の前に閉じが見つからない」パターンを警告
