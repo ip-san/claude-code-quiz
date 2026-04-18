@@ -89,20 +89,24 @@ Critical は自動修正、High は修正案提示、Suggestion は報告のみ�
 | `quiz-verifier` | sonnet | カテゴリ別クイズ検証（最大8並列） |
 | `quality-gate` | sonnet | テスト・サイズ品質ゲート |
 | `doc-watcher` | sonnet | ドキュメント変更検出・影響分析 |
-| `quiz-pipeline` | opus | 生成→検証パイプラインオーケストレーション |
-| `facts-checker` | sonnet | MEMORY.md Verified Facts 鮮度チェック |
-| `difficulty-calibrator` | sonnet | GA4 正答率と difficulty ラベルの乖離検出 |
+| `quiz-pipeline` | sonnet | 生成→検証パイプラインオーケストレーション |
+| `facts-checker` | **opus** | Verified Facts 鮮度チェック + `--cross-quiz` で 1M context 横断判定 |
+| `difficulty-calibrator` | **opus** | GA4 正答率と difficulty ラベルの乖離検出（統計解釈+教育判断） |
+
+Opus は `facts-checker` / `difficulty-calibrator` の2体のみ。他は全て Sonnet。`scripts/check-skills.mjs` の `OPUS_ALLOWLIST` がドリフトを機械的に防止する。
 
 ### 開発チーム
 
 | エージェント | モデル | スクラムロール | worktree |
 |-------------|--------|-------------|----------|
-| `dev-orchestrator` | opus | スクラムマスター | なし |
-| `domain-developer` | opus | バックエンド開発 | 隔離 |
-| `store-developer` | opus | 状態管理開発 | 隔離 |
-| `ui-developer` | opus | フロントエンド開発 | 隔離 |
+| `dev-orchestrator` | sonnet | スクラムマスター | なし |
+| `domain-developer` | sonnet | バックエンド開発 | 隔離 |
+| `store-developer` | sonnet | 状態管理開発 | 隔離 |
+| `ui-developer` | sonnet | フロントエンド開発 | 隔離 |
 | `test-developer` | sonnet | QA | 隔離 |
 | `code-reviewer-agent` | sonnet | テックリード | なし（読取専用） |
+
+モデル方針: オーケストレーション・ルーティング・実装は Sonnet（Opus ファンアウトのコスト爆発を防止）。深い推論が要る監査タスクのみ Opus。
 
 ### 全体像（更新版）
 
@@ -188,6 +192,18 @@ Claude Code から GA4 Data API に直接クエリできる MCP サーバー。
 | `ga4_realtime` | リアルタイムデータ | 「今アクティブなユーザーは？」 |
 
 設定: `~/.claude/settings.json` の `mcpServers` に登録済み。
+
+## スケジュールトリガー（リモート実行）
+
+Claude Code の `/schedule` で登録したリモートエージェント。Anthropic のクラウド環境で cron 起動される。
+
+| トリガー | スケジュール | モデル | 役割 |
+|---------|------------|--------|------|
+| `monthly-facts-drift-audit` | 毎月1日 09:02 JST | Opus 4.7 | `docs/verified-facts.md` のドキュメント drift を検出、HIGH 影響があれば自動で PR を開く |
+
+管理 URL: https://claude.ai/code/scheduled
+
+**なぜリモート実行か:** 月次 cross-quiz 監査は Opus 4.7 の 1M context を使うため単発コストが高い（~$3〜7.5/回）。手動実行だと忘れるか過剰実行するかのどちらかになるため、月1回の cron で確実に走らせる運用に寄せている。
 
 ## スクリプト
 

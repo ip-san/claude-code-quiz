@@ -234,6 +234,9 @@ Step 2・3 でクイズデータが変わると、CLAUDE.md の統計値（問�
 # チームモード（並列実行で高速化）
 /quality-loop --team
 
+# 月次モード（Verified Facts cross-quiz 監査を含む、~$7.5/回）
+/quality-loop --monthly
+
 # 特定ステップをスキップ
 /quality-loop --skip-analytics
 /quality-loop --skip-review
@@ -244,6 +247,7 @@ Step 2・3 でクイズデータが変わると、CLAUDE.md の統計値（問�
 # 組み合わせ
 /quality-loop --team --skip-analytics --skip-generate
 /quality-loop --team --dry-run
+/quality-loop --team --monthly     # チーム並列 + 月次監査
 
 # ドライラン
 /quality-loop --dry-run
@@ -259,6 +263,15 @@ Step 2・3 でクイズデータが変わると、CLAUDE.md の統計値（問�
 /quiz-refine                       # クイズ検証
 /quiz-refine --full                # 全問スキャン
 ```
+
+### 月次モード（`--monthly`）
+
+Phase 3 の前に `facts-checker --cross-quiz`（Opus 4.7、1M context）を走らせ、`docs/verified-facts.md` と MEMORY.md に記録された事実がドキュメント更新で drift していないかを監査する。drift が見つかると、per-category クイズ JSON を 1M context に一括ロードして影響クイズを特定する。
+
+- **コスト:** 1回 ~$3〜7.5（実測: 149K tokens で $3 程度）
+- **成果物:** `.claude/tmp/facts-cross-quiz-report.md`（HIGH/MEDIUM/LOW impact のクイズ ID）
+- **drift 検出後の同期義務:** MEMORY.md（個人ローカル）と `docs/verified-facts.md`（git 管理）の**両方**を同時更新する。片方のみ更新すると次回の cross-quiz で誤検出が増える
+- **自動化:** Claude Code の `/schedule` で月1回のリモート実行を登録可能（現在 `monthly-facts-drift-audit` が登録済み、毎月1日 09:02 JST）
 
 ## 結果レポート
 
