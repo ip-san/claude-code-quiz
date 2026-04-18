@@ -32461,7 +32461,7 @@
       "options": [
         {
           "text": "ターミナルで `/teleport` コマンドを実行する",
-          "wrongFeedback": "`/teleport` はウェブセッションをローカルターミナルに移動するための CLI フラグ（`--teleport`）です。VS Code 拡張機能ではパスト会話のリモートタブからアクセスします。"
+          "wrongFeedback": "`/teleport` はターミナルで利用できるスラッシュコマンド（Web セッションピッカーを表示）で、別途 CLI フラグ `claude --teleport` も存在します。いずれも VS Code 拡張機能のフローではなく、VS Code ではパスト会話ドロップダウンの「Remote」タブからアクセスします。"
         },
         {
           "text": "パスト会話ドロップダウンを開き、「Remote」タブから web セッションを選択する"
