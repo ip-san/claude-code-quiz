@@ -54,6 +54,8 @@ Phase 5（並列）: [check:all] [size] [E2E]
 
 Phase 1, 3, 5 では Agent ツールを使って複数エージェントを **同一メッセージ内で同時に** `run_in_background: true` で起動する。全エージェントの完了通知を待ってから次のフェーズに進む。
 
+**モデル明示ルール:** `Agent()` 呼び出しには必ず `model` パラメータを指定する。省略すると親の model を継承するため、Opus セッションから大量のサブエージェントを起動するとコストが膨らむ。デフォルトは下記「モデル選択ガイドライン」に従い、`ga4-analyzer`/`stats-baseline`/`code-reviewer`/`quiz-verifier`/`full-check`/`bundle-size`/`e2e-test`/`skills-check` は `model: "sonnet"`、`facts-checker`/`difficulty-calibrator` のみ `model: "opus"`（Opus 不可時は `"sonnet"`）。
+
 ---
 
 ## Phase 1 / ステップ 0+1: 分析・レビュー

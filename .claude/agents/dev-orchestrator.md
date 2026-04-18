@@ -1,7 +1,7 @@
 ---
 name: dev-orchestrator
 description: 開発チームのオーケストレーター。スクラムのスプリント計画→実装→レビュー→統合のフローを管理する。新機能追加やリファクタリング時に使用。
-model: opus
+model: sonnet
 tools: Read, Write, Edit, Bash, Grep, Glob, Agent, Skill
 permissionMode: auto
 maxTurns: 60

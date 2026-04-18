@@ -1,7 +1,7 @@
 ---
 name: quiz-pipeline
 description: クイズ問題の生成→検証→統計同期を一括パイプラインで実行する。問題追加時のワークフロー全体をオーケストレーションする。
-model: opus
+model: sonnet
 tools: Read, Write, Edit, Bash, Grep, Glob, Agent, Skill
 permissionMode: auto
 maxTurns: 50
