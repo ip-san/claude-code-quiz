@@ -393,10 +393,10 @@ v4.43.0 以前の known-issues では「exit code 2 の一般ルールで UserPr
 
 - grep ベースのパターンマッチングで false positive が多発（PostToolUse+ブロック、Ctrl+B+bashなど） → 否定的文脈でのキーワード使用を区別するチェックを追加
 
-## `scripts/pre-verify-quiz.mjs` is missing
+## `scripts/pre-verify-quiz.mjs` is missing ✅ RESOLVED (2026-04-18)
 
-- SKILL.md Step 0c は `node scripts/pre-verify-quiz.mjs` を呼び出すが、ファイルは存在しない（`scripts/pre-lint-quiz.mjs` のみ存在） → SKILL.md の Step 0c を削除するか、pre-verify-quiz.mjs を新規作成（Haiku で事前 OK/flag 判定）。あるいは既存の pre-lint-quiz.mjs に統合する記述に更新
-- SKILL.md Step 0c は `node scripts/pre-verify-quiz.mjs` を呼び出すが、ファイルは存在しない (前回も known-issues に記録あり) → SKILL.md の Step 0c を削除するか、pre-verify-quiz.mjs を新規作成 (Haiku で事前 OK/flag 判定)。あるいは既存の pre-lint-quiz.mjs に統合する記述に更新
+- SKILL.md Step 0c は `node scripts/pre-verify-quiz.mjs` を呼び出すが、ファイルは存在しない（`scripts/pre-lint-quiz.mjs` のみ存在）
+- **解決**: commit `ee41ea1` で Step 0c の参照を `pre-lint-quiz.mjs` に差し替え。Haiku 事前フィルタはアスピレーショナルだったため記述を削減、決定論的 lint の使い方を明記。Step 0d は将来の Opus バッチ監査用に予約枠として最小記述で残す
 
 ## 762問全件スキャン時の逐次処理が非現実的
 
@@ -414,17 +414,20 @@ v4.43.0 以前の known-issues では「exit code 2 の一般ルールで UserPr
 
 - advanced→beginner の reclassify が55問で検出。多くは単純な事実問題で advanced 扱い → difficulty-calibrator エージェントの自動実行を quality-loop に組み込み、score<=-1 は自動で降格、score>=+2 は昇格を提案する
 
-## `default` モデルエイリアスのプラン別マッピング更新
+## `default` モデルエイリアスのプラン別マッピング更新 ✅ RESOLVED (2026-04-18)
 
-- ses-103 が「Max/Team Premium のデフォルトは Opus 4.6」と記述していたが、ドキュメントは「Max/Team Premium → Opus 4.7」「Pro/Team Standard/Enterprise/Anthropic API → Sonnet 4.6」「Bedrock/Vertex/Foundry → Sonnet 4.5」と更新済み → known-issues.md に「`default` モデルのプラン別マッピング (2026-04-17 確認)」セクションを追加し、上記 3 階層を明記
+- ses-103 が「Max/Team Premium のデフォルトは Opus 4.6」と記述していたが、ドキュメントは「Max/Team Premium → Opus 4.7」「Pro/Team Standard/Enterprise/Anthropic API → Sonnet 4.6」「Bedrock/Vertex/Foundry → Sonnet 4.5」と更新済み
+- **解決**: commit `0048e98` で ses-103 を修正、MEMORY.md + `docs/verified-facts.md` にプラン別マッピングを citation 付きで記録
 
-## quiz:edit が `\n` をエスケープしてしまう
+## quiz:edit が `\n` をエスケープしてしまう ✅ RESOLVED (2026-04-18)
 
-- `node scripts/quiz-utils.mjs edit <id> explanation '...\n...'` を実行すると、`\n` が `\\n` (literal backslash-n) として保存される。explanation 内の改行が読み込み時に意図通り表示されなくなる → scripts/quiz-utils.mjs の edit コマンドで explanation/question/wrongFeedback フィールドに値をセットする前に `value.replace(/\\n/g, '\n')` で literal `\n` を実際の改行に変換する処理を追加。あるいは usage に「実改行は `$'\\n'` (zsh ANSI-C quoting) を使うか、Edit ツールを使え」と注意を加える
+- `node scripts/quiz-utils.mjs edit <id> explanation '...\n...'` を実行すると、`\n` が `\\n` (literal backslash-n) として保存される
+- **解決**: commit `ee41ea1` で `scripts/quiz-utils.mjs` の edit コマンドに `\n` / `\t` / `\\` のアンエスケープ処理を追加
 
-## 1Mコンテキスト対応モデルリストの更新
+## 1Mコンテキスト対応モデルリストの更新 ✅ RESOLVED (2026-04-18)
 
-- ses-105 explanation と diagram が「Opus 4.6 と Sonnet 4.6 が 1M コンテキストをサポート」と記述していたが、docs (model-config) は「Opus 4.7, Opus 4.6, Sonnet 4.6」の 3 モデル → known-issues.md に「1M コンテキスト対応モデル」セクションを追加し、`Opus 4.7 / Opus 4.6 / Sonnet 4.6` の3モデルと、Opus 4.7 における自動 1M アップグレード（Max/Team/Enterprise）を明記
+- ses-105 explanation と diagram が「Opus 4.6 と Sonnet 4.6 が 1M コンテキストをサポート」と記述していたが、docs (model-config) は「Opus 4.7, Opus 4.6, Sonnet 4.6」の 3 モデル
+- **解決**: commit `0048e98` で ses-105 を修正、MEMORY.md + `docs/verified-facts.md` に 3 モデル対応として記録
 
 ## TaskCompleted explanation の backtick close 漏れ
 
