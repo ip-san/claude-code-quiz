@@ -100,38 +100,26 @@ npm run verify:diff -- memory tools
 
 MEMORY.md の「Verified Facts」セクションと `known-issues.md` を比較し、MEMORY に記載されているがknown-issues に未反映の事実があれば known-issues.md に追記する。これにより検証エージェントが最新の確認済み事実を参照できる。
 
-## Step 0c: Haiku 事前フィルタ（オプション）
+## Step 0c: 決定論的 lint 前処理（推奨）
 
-差分検出で対象が10問以上ある場合、Haiku で事実チェックの事前フィルタを実行する:
+対象が10問以上ある場合、LLM 不要の決定論的チェックで事前に flag を絞る:
 
 ```bash
-node scripts/pre-verify-quiz.mjs
+node scripts/pre-lint-quiz.mjs
 ```
 
 出力: `.claude/tmp/pre-verify-results.json`
-- `matched`: Haiku が「ドキュメントと事実一致」と判定 → **Sonnet 検証をスキップ**
-- `flagged`: 不一致の疑い → Sonnet で必ず精査
-- `uncertain`: 判定不能 → Sonnet で必ず精査
-- `sonnetTargets`: flagged + uncertain のIDリスト
+- `matched`: lint クリア → Sonnet 検証で A-B-D-G のみに絞る（C/E/F/H スキップ可）
+- `flagged`: backtick / distractor / factCheck 等で要注意 → A-H 全検証 + lint 指摘重点
+- `sonnetTargets`: flagged + autofix を除いた問題の ID リスト（Sonnet 検証対象）
 
-**品質保証**: Haiku は「OK」判定のみ信頼する。「flag」「uncertain」は全て Sonnet に渡すため、見逃しリスクはゼロ。
+**品質保証**: lint は決定論的なので見逃しリスクなし。Sonnet 検証は matched でも最低限動く。
 
-**対象が10問未満の場合**: pre-verify をスキップし、全問を Sonnet で検証（少量なら直接検証の方が速い）。
+**対象が10問未満の場合**: skip して全問 Sonnet 検証（少量なら直接の方が速い）。
 
 ## Step 0d: Opus バッチ監査（オプション）
 
-matched が1件以上、かつ `ANTHROPIC_API_KEY` 設定済みの場合、Opus が Haiku の「事実一致」判定を独立監査する:
-
-```bash
-node scripts/audit-matched-quiz.mjs
-```
-
-出力: `.claude/tmp/opus-audit-results.json`（監査ログ）
-- `confirmed`: Opus も事実一致を確認 → Sonnet 検証スキップ維持
-- `demoted`: Opus が判定に異議 → `pre-verify-results.json` を更新し `sonnetTargets` に追加
-
-**コスト**: ~$0.30/回（86問の場合）
-**フォールバック**: API 未設定 or エラー時はスキップ（現行動作を維持）
+`scripts/audit-critical-quiz.mjs` が存在する場合、Haiku/Sonnet の判定を Opus が独立監査する運用（現在は未使用）。将来的な再有効化に備えた予約ステップ。
 
 ## Step 1: 早期終了チェック
 

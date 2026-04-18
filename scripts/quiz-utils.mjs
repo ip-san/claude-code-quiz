@@ -314,7 +314,10 @@ function edit() {
   }
 
   const [id, field, ...valueParts] = args
-  const value = valueParts.join(' ')
+  // Shell-joined args keep backslash escapes literal ("\\n"). Unescape them so
+  // CLI callers can pass explanations with newlines without needing raw LF
+  // bytes, which most terminals strip before they reach argv.
+  const value = valueParts.join(' ').replace(/\\n/g, '\n').replace(/\\t/g, '\t').replace(/\\\\/g, '\\')
   const data = loadQuizzes()
   const quiz = data.quizzes.find((q) => q.id === id)
 

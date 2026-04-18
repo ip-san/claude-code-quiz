@@ -61,6 +61,12 @@ for (const dir of readdirSync(SKILLS_DIR)) {
 }
 
 // ── Check agents ─────────────────────────────────────────────
+
+// Only these agents are allowed to default to Opus. Everything else should be
+// Sonnet (cheap), because Opus fan-out from a parent Opus session multiplies
+// cost fast. Adding a new Opus agent needs a deliberate update here.
+const OPUS_ALLOWLIST = new Set(['facts-checker', 'difficulty-calibrator'])
+
 for (const file of readdirSync(AGENTS_DIR).filter((f) => f.endsWith('.md'))) {
   const content = readFileSync(join(AGENTS_DIR, file), 'utf8')
   const name = file.replace('.md', '')
@@ -72,6 +78,13 @@ for (const file of readdirSync(AGENTS_DIR).filter((f) => f.endsWith('.md'))) {
     if (!fm.includes('name:')) errors.push(`agent/${name}: missing 'name'`)
     if (!fm.includes('description:')) errors.push(`agent/${name}: missing 'description'`)
     if (!fm.includes('model:')) warnings.push(`agent/${name}: no 'model' specified (will inherit parent)`)
+
+    const modelMatch = fm.match(/^model:\s*(\S+)/m)
+    if (modelMatch && modelMatch[1] === 'opus' && !OPUS_ALLOWLIST.has(name)) {
+      warnings.push(
+        `agent/${name}: uses 'model: opus' but is not in OPUS_ALLOWLIST. Orchestration/routing/implementation agents should be 'sonnet'. If this agent genuinely needs deep reasoning, add it to OPUS_ALLOWLIST in check-skills.mjs.`
+      )
+    }
   }
 }
 

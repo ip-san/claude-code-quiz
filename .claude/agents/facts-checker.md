@@ -87,11 +87,16 @@ ls .claude/tmp/quizzes/ || node scripts/verify-state.mjs diff
 
 **c. 1M context を活かした一括判定**
 
-候補 ID が出たら、候補を含むカテゴリ JSON を全て Read で context に載せ（Opus 4.7 なら 762問+主要docsで ~500K tokens に収まる）、以下を一度に判定する:
+**必須**: 候補 ID が1つでもヒットしたカテゴリは、そのカテゴリの per-category JSON 全体を Read で context に載せる（部分 Read は禁止、全体像が見えないとクロス判定できない）。複数カテゴリが該当する場合は最低 4 カテゴリ、最大 8 カテゴリ全てをロードする。Opus 4.7 の 1M context なら 8 カテゴリ全問（~500K tokens）+ 主要 docs（~200K tokens）を同時保持可能。
 
-- 各候補クイズの `question` / `options[].text` / `explanation` / `wrongFeedback` が drifted fact の **旧状態に依存**しているか
-- drifted fact の **新状態**と照合して、修正が必要なフィールドを特定
-- 矛盾している**別のクイズとの整合性**も併せて確認（同一 fact について違うことを言っている問題ペアがあれば flag）
+**判定ステップ**（コンテキストロード後に一度にやる）:
+
+1. 各候補クイズの `question` / `options[].text` / `explanation` / `wrongFeedback` が drifted fact の **旧状態に依存**しているかチェック
+2. drifted fact の **新状態**と照合して、修正が必要なフィールドを特定
+3. **クロス検証（1M context の主目的）**: 同一 fact について異なる記述をしている問題ペアを洗い出す。例: Q1 が「Opus 4.6 は `max` 専用」、Q2 が「`max` は 4.7/4.6 両方」→ ペアで報告
+4. **無言ドリフト検出**: 候補に入らなかった問題でも、ロード済みコンテキストで引っかかる記述があれば追加報告
+
+**アンチパターン**: カテゴリ JSON を1問ずつ Read する、キーワード grep の結果だけで判定する、候補 ID の周辺だけを確認する。これらは 1M context を活かせていない。
 
 ### 6. クロスクイズ報告
 
