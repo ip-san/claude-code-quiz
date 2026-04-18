@@ -218,3 +218,52 @@ flowchart TD
 - スキルの棲み分け: 汎用スキル（`~/.claude/skills/`）にプロジェクト固有の記述を入れず、プロジェクトスキル（`.claude/skills/`）が汎用スキルを呼び出す構成で拡張性を維持
 
 日常的にこれらのスキルをどう使っているかは [Claude Code 活用ワークフロー](claude-code-workflow.md) を参照。
+
+---
+
+## ADR-9: エージェントのモデル振り分けポリシー
+
+### 決定
+
+エージェントのモデル選定は以下の原則に従う:
+
+- **Sonnet をデフォルト**: オーケストレーション、ルーティング、実装、並列検証は全て `model: sonnet`
+- **Opus は深い推論を要する監査のみ**: `facts-checker`（事実鮮度チェック）と `difficulty-calibrator`（統計解釈）の 2 体に限定
+- **`OPUS_ALLOWLIST` による機械的ドリフト防止**: `scripts/check-skills.mjs` に allowlist を定義し、それ以外の agent が `model: opus` で追加されたら警告
+- **Agent 呼び出し時は必ず `model` を明示**: 省略すると親の model を継承し、Opus セッションからのファンアウトでコストが爆発する
+
+### 背景
+
+2026-04 当初、dev-orchestrator / quiz-pipeline / domain-developer / store-developer / ui-developer の 5 体が `model: opus` で定義されていた。これらはタスク分解とコード生成が主業務で深い推論は不要。`--team` モードで並列起動すると Opus の同時実行数が 5-8 体に膨らみ、単発の /quality-loop --team が数ドル規模のコストになっていた。
+
+一方、`facts-checker` と `difficulty-calibrator` は微妙なニュアンス差異や統計解釈が必要で、Sonnet では見逃すケースがあった。
+
+### 仕組み
+
+```
+通常セッション（Opus 4.7 / Sonnet 4.6）
+  ├─ /quality-loop --team 起動
+  │   ├─ dev-orchestrator (sonnet) ← ルーティング
+  │   ├─ quiz-pipeline (sonnet)    ← パイプライン制御
+  │   ├─ quiz-verifier × N (sonnet) ← 並列検証
+  │   └─ code-reviewer-agent (sonnet)
+  │
+  └─ /quality-loop --monthly 起動
+      └─ facts-checker --cross-quiz (opus) ← 1M context で深い判定
+```
+
+### 理由
+
+- **コスト最適化**: Opus 比率を 5/12 → 2/12 に削減。`--team` 並列実行時のコストが 60-70% 削減
+- **Opus の価値を深い推論に集中**: 「全体像を俯瞰して微妙な矛盾を見つける」タスクだけに Opus を使うことで、料金対効果が最大化
+- **ドリフト防止**: 将来 Claude Code をよく知らない貢献者が新 agent を Opus で追加するのを `check-skills.mjs` が機械的に警告
+- **1M context の活用**: 月次の facts-checker は 1M context を使った全問横断判定で、複数プロンプトの Sonnet 検証では見えない矛盾を発見（2026-04-17 初回実行で 6 件の drift 発見）
+
+### 実例
+
+- `dev-orchestrator` / `quiz-pipeline` を opus→sonnet に降格（`4d64534`）
+- `OPUS_ALLOWLIST = Set(['facts-checker', 'difficulty-calibrator'])` を導入（`ee41ea1`）
+- `scripts/review-diagrams.sh` の `--model claude-opus-4-6` を 4.7 に更新（`5a5100e`）
+- 月次 cross-quiz 監査のリモートトリガー `monthly-facts-drift-audit` を登録（2026-04-18）
+
+詳細は [品質改善ループ](quality-loop.md) と [自動化アーキテクチャ](automation.md) を参照。
