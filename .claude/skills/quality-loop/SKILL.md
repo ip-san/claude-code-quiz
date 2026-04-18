@@ -21,8 +21,9 @@ GA4分析・コード品質・クイズ品質を一括でチェックし、最�
 - `--skip-gate`: ステップ4・5（統計同期・最終検証ゲート）をスキップ
 - `--dry-run`: ステップ2で追加推奨の分析のみ行い、実際の生成はしない
 - `--team`: エージェントチームモード（独立ステップを並列実行）
+- `--monthly`: 月次モード。ステップ3の前に `facts-checker --cross-quiz`（Opus 1M context）を実行し、Verified Facts の drift と影響クイズを先に特定する。コスト ~$7.5/回なので通常のループには含めない
 
-フラグなしの場合は全ステップを逐次実行する。
+フラグなしの場合は全ステップを逐次実行する（`--monthly` なし）。
 
 ---
 
@@ -130,6 +131,25 @@ Phase 1, 3, 5 では Agent ツールを使って複数エージェントを **�
 - 「追加不要」「追加推奨（--dry-run のため未実行）」「追加済み（N問、カテゴリ: ...）」のいずれかを出力
 
 ---
+
+## ステップ 2.5（`--monthly` 時のみ）: Verified Facts クロスクイズ監査
+
+`--monthly` 指定時、Phase 3 の前に `facts-checker` を `--cross-quiz` モードで起動:
+
+```
+Agent(
+  subagent_type: "facts-checker",
+  model: "opus",          // Opus 不可時は "sonnet"
+  prompt: "--cross-quiz モードで起動。MEMORY.md Verified Facts の鮮度と、drift した事実に依存するクイズを 1M context で一括判定してください。"
+)
+```
+
+**処理内容:**
+- MEMORY.md の Verified Facts を docs と照合（通常の facts-check）
+- drift が見つかった fact について、per-category クイズ JSON を Opus の 1M context に一括ロードし、影響を受ける可能性のあるクイズを特定
+- 出力: high/medium/low impact のクイズ ID リスト + 推奨 `/quiz-refine` コマンド
+
+**成果物:** `.claude/tmp/facts-cross-quiz-report.md`。Phase 3（`/quiz-refine`）は high impact のカテゴリを優先対象にする。
 
 ## Phase 3 / ステップ3: クイズ検証・修正
 
