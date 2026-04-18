@@ -196,7 +196,7 @@ JSON配列で返してください。各要素: {"id": "xxx-NNN", "verdict": "co
       // Not JSON wrapper
     }
 
-    return { text, model: 'claude-opus-4-6(effort=max)' }
+    return { text, model: 'claude-opus-4-7(effort=max)' }
   }
 
   try {

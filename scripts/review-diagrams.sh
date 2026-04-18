@@ -105,7 +105,7 @@ PROMPT_EOF
 
   claude -p "$PROMPT" \
     --allowedTools "Read,Bash,Grep,Glob,Edit,Write" \
-    --model claude-opus-4-6 \
+    --model claude-opus-4-7 \
     2>&1 | tee "$LOGFILE"
 
   # 修正数をカウント
