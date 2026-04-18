@@ -103,8 +103,8 @@
 - `claude --teleport`: CLI フラグとしても別途存在
 - `/summarize` は存在しない（`/rewind` メニュー内の "Summarize from here" に統合）
 - `/todos` も commands.md から削除済み
-- Agent teams: CLI と Agent SDK のみ。Desktop アプリでは**利用不可**
-- `dontAsk` permission mode: CLI のみ。Desktop では利用不可
+- Agent teams: CLI と Agent SDK のみ。Desktop アプリでは**利用不可**（`desktop.md` L508 "multi-agent orchestration is available via the CLI and Agent SDK, not in Desktop"）
+- `dontAsk` permission mode: CLI のみ。Desktop では利用不可（`desktop.md` L49）
 
 ---
 

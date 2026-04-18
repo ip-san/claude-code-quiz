@@ -151,6 +151,16 @@ Agent(
 
 **成果物:** `.claude/tmp/facts-cross-quiz-report.md`。Phase 3（`/quiz-refine`）は high impact のカテゴリを優先対象にする。
 
+**drift 検出後の同期手順（重要）:**
+
+facts-checker が drift を検出したら、MEMORY.md と `docs/verified-facts.md` の**両方**を同時に更新する:
+
+1. **MEMORY.md**（`~/.claude/projects/.../memory/MEMORY.md`、個人ローカル）: Claude が次セッションで正しい事実を参照できるよう更新。日付と再確認ソース（例: "2026-04-17 re-confirmed via facts-checker"）をコメントで添える
+2. **`docs/verified-facts.md`**（git 管理、チーム共有）: 同じ fact を同じ表現で更新。可能ならドキュメントの行番号（`desktop.md L508` 等）を引用として残す
+3. どちらか片方だけ更新すると、個人ローカルとチーム共有の間で drift が発生し、次回の cross-quiz で誤検出が増える
+
+**アンチパターン:** MEMORY.md だけ更新して `docs/verified-facts.md` を放置、またはその逆。
+
 ## Phase 3 / ステップ3: クイズ検証・修正
 
 **スキップ条件:** `--skip-refine` フラグ

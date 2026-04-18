@@ -33,6 +33,15 @@ MEMORY.md に記載された「確認済み事実」が現在のドキュメン�
 node scripts/fetch-docs.mjs --assemble --pages {page1},{page2},...
 ```
 
+**重要: fact が citation（例: "desktop.md L508"）を含む場合、その citation の page を**必ず**読み込むこと。** 主題のページ（例: agent-teams.md）だけを見て「確認不可」とするのは誤り。Claude Code の公式ドキュメントは、機能の制約を**「what's not available」セクション**で対偶的に記載することが多く（例: desktop.md の末尾、features-overview の比較表）、主題のページに書かれていない事実が多い。
+
+**確認不可と判定する前のチェックリスト:**
+- 主題ページ（例: agent-teams.md）で検索
+- プラットフォーム別ページ（`desktop.md` / `claude-code-on-the-web.md` の "What's not available" セクション）で検索
+- 機能比較ページ（`features-overview.md`）で検索
+- リリースノート（`changelog.md`）で検索
+- 上記すべてで見つからなければ「確認不可」と報告
+
 ### 3. 照合
 
 各 Verified Fact について:
