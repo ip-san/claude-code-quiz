@@ -216,6 +216,8 @@ GitHub Actions → GitHub Pages → PWA 自動配信
 
 `/quality-loop` で一括実行。`/loop 1h /quality-loop` で定期実行も可能。
 
+月1回は `/quality-loop --monthly` で Verified Facts の横断監査（Opus 4.7 + 1M context）を実行。[`docs/verified-facts.md`](docs/verified-facts.md) の事実とドキュメントの drift を検出し、影響するクイズを自動特定します。手動実行の他、`monthly-facts-drift-audit` トリガーで毎月 1 日 09:00 JST にリモート自動実行。
+
 詳細は [docs/quality-loop.md](docs/quality-loop.md) を参照。
 
 ## ドキュメント
@@ -224,7 +226,7 @@ GitHub Actions → GitHub Pages → PWA 自動配信
 
 | ドキュメント | 内容 |
 |-------------|------|
-| [設計判断の記録](docs/decisions.md) | なぜ PWA か、なぜ DDD か、なぜ GTM 経由か（8 つの ADR） |
+| [設計判断の記録](docs/decisions.md) | なぜ PWA か、なぜ DDD か、なぜ GTM 経由か、なぜ Sonnet デフォルトか（9 つの ADR） |
 | [アーキテクチャ](docs/ARCHITECTURE.md) | DDD レイヤー構成、PWA / Electron、状態管理 |
 | [開発ガイド](docs/DEVELOPMENT.md) | セットアップ、テスト、コードスタイル |
 | [クイズ管理](docs/QUIZ_MANAGEMENT.md) | 問題の追加・編集・検証手順 |
@@ -232,6 +234,7 @@ GitHub Actions → GitHub Pages → PWA 自動配信
 | [API・MCP 運用ガイド](docs/analytics-api-guide.md) | GTM/GA4 の API 管理と MCP サーバー |
 | [品質改善ループ](docs/quality-loop.md) | 自動化された改善サイクルの仕組み |
 | [自動化ツール一覧](docs/automation.md) | スキル・スクリプト・CI/CD の全体像 |
+| [Verified Facts](docs/verified-facts.md) | Claude Code ドキュメント照合済み事実（クイズ正確性の一次ソース） |
 
 ## ライセンス
 
