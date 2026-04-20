@@ -342,17 +342,21 @@ export const TERMINOLOGY_DICT = [
   // "Claude Code SDK" — skip if context is clearly historical (e.g., "旧称", "以前は")
   { wrong: 'Claude Code SDK', correct: 'Claude Agent SDK', caseInsensitive: false, skipIfHistorical: true },
   // Non-existent commands/features (only flag in explanation, not in wrong-answer options)
+  // skipIfNegated: true — explanations that legitimately teach "X does not exist"
+  //   have to quote X; don't flag them when "存在しません" / "does not exist" is nearby.
   {
     wrong: 'claude commit',
     correct: null,
     message: '`claude commit` サブコマンドは存在しません',
     skipWrongOptions: true,
+    skipIfNegated: true,
   },
   {
     wrong: /(?<!`)\/teleport(?!`)/,
     correct: null,
     message: '`/teleport` はスラッシュコマンドではなく `claude --teleport` CLIフラグです',
     skipWrongOptions: true,
+    skipIfNegated: true,
   },
   // Terminology precision
   { wrong: 'allowed_tools', correct: 'allowed-tools', caseInsensitive: false },

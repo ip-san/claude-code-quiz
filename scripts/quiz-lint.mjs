@@ -433,6 +433,22 @@ function lintTerminology(quizzes) {
           }
         }
 
+        // Skip when the term appears inside a negation window (within ~40 chars
+        // of "存在しません" / "is not" / "does not exist" etc.). Quizzes that
+        // teach "X does not exist" have to quote X, and should not be flagged
+        // for quoting it.
+        if (found && entry.skipIfNegated) {
+          const matchIndex = field.value.indexOf(matchedText)
+          const window = field.value.slice(Math.max(0, matchIndex - 40), matchIndex + matchedText.length + 40)
+          if (
+            /存在しません|存在しない|ありません|ではない|ではなく|does not exist|is not (a|an) |isn't a[n ]/i.test(
+              window
+            )
+          ) {
+            found = false
+          }
+        }
+
         if (found) {
           issues.push({
             id: quiz.id,
