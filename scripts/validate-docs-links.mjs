@@ -37,14 +37,16 @@ for (const file of ['README.md', ...docFiles.map((f) => `docs/${f}`)]) {
   }
 }
 
-// ── 3. Stale tool references: npm in docs (bun migration) ──
+// ── 3. Stale tool references: npm COMMAND usage in docs (bun migration) ──
+// Match command-like usage (`npm <verb>`), not bare mentions such as plugin source type names.
+const npmCommandPattern =
+  /\bnpm\s+(run|install|i\b|ci\b|test|start|exec|audit|publish|init|update|uninstall|remove|rm|view|info|link|pack|version)\b/
 for (const file of docFiles) {
   const content = readFileSync(`docs/${file}`, 'utf-8')
   const lines = content.split('\n')
   lines.forEach((line, i) => {
     if (
-      line.match(/\bnpm\b/) &&
-      !line.includes('npmjs.com') &&
+      npmCommandPattern.test(line) &&
       !line.includes('不使用') &&
       !line.includes('ではなく') &&
       !line.includes('instead') &&
@@ -59,7 +61,7 @@ for (const file of docFiles) {
 // Also check CLAUDE.md
 const claudeMd = readFileSync('CLAUDE.md', 'utf-8')
 claudeMd.split('\n').forEach((line, i) => {
-  if (line.match(/\bnpm\b/) && !line.includes('npmjs.com') && !line.includes('不使用') && !line.includes('ではなく')) {
+  if (npmCommandPattern.test(line) && !line.includes('不使用') && !line.includes('ではなく')) {
     errors.push(`Stale 'npm' in CLAUDE.md:${i + 1}: ${line.trim().substring(0, 60)}`)
   }
 })

@@ -314,13 +314,30 @@ describe('sessionSlice', () => {
 
   describe('deferFeedback auto-advance at final question', () => {
     it('should stay on final question when all answered in defer mode', () => {
-      useQuizStore.getState().startSession({ mode: 'full' })
+      // Use full mode (deferFeedback=true) with questionCount=2 for determinism.
+      // Default questionCount=100 makes the test assert an advance that depends on the full
+      // 762-question pool, which is unnecessary — 2 questions exercises the same auto-advance logic.
+      useQuizStore.getState().startSession({ mode: 'full', questionCount: 2 })
 
-      // Answer first 2 questions (defer mode auto-advances)
+      // First answer auto-advances from 0 → 1 (the final question)
       answerCurrentQuestion(true)
-      answerCurrentQuestion(true)
+      expect(useQuizStore.getState().sessionState!.currentIndex).toBe(1)
 
-      // Should have advanced
+      // Second answer should NOT advance past the final question
+      answerCurrentQuestion(true)
+      const s = useQuizStore.getState().sessionState!
+      expect(s.currentIndex).toBe(1)
+      expect(s.answerHistory.size).toBe(2)
+    })
+
+    it('should auto-advance through multiple answers in defer mode', () => {
+      // Covers the multi-step advance path: 0 → 1 → 2 with room to spare.
+      useQuizStore.getState().startSession({ mode: 'full', questionCount: 3 })
+
+      answerCurrentQuestion(true)
+      expect(useQuizStore.getState().sessionState!.currentIndex).toBe(1)
+
+      answerCurrentQuestion(true)
       const s = useQuizStore.getState().sessionState!
       expect(s.currentIndex).toBe(2)
       expect(s.answerHistory.size).toBe(2)

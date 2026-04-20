@@ -76,6 +76,7 @@ Claude Code Quiz プロジェクトのドキュメント一覧。
 | [品質改善ループ](quality-loop.md) | GA4 分析 → コードレビュー → クイズ生成 → 検証の自動サイクル |
 | [自動化ツール一覧](automation.md) | スキル、スクリプト、CI/CD パイプラインの全体像 |
 | [仕様バグ防止ガイド](bug-prevention.md) | バグパターン、防御策、品質ゲート、ハーネスフック |
+| [Verified Facts](verified-facts.md) | クイズ内容の正確性担保用、Claude Code 公式ドキュメント照合済み事実のアーカイブ |
 
 ## 関連リソース
 
