@@ -329,6 +329,7 @@ v4.43.0 以前の known-issues では「exit code 2 の一般ルールで UserPr
 - 220件の distractor issues が蓄積（correct-too-long: 115, format-giveaway: 46, distractor-too-short: 59） → 専用の distractor 品質改善パスを検討。正解選択肢の短縮または不正解選択肢への具体性追加
 - 39問のtarget問題に25文字未満のwrongFeedbackがあった（全体的な品質改善候補） → 専用の wrongFeedback 品質改善パスを検討。「なぜ誤りか」の説明を30文字以上に拡充
 - quiz:lint が220件の distractor issues を報告（correct-too-long: 115, format-giveaway: 48, distractor-too-short: 56） → 正解選択肢の短縮または不正解選択肢への具体性追加の専用パスを検討
+- `quiz:lint` が 55問で difficulty mismatch を検出。score=-1/-2（容易方向）が 54問、score=+2（難化方向）が 1問。全て Step 0a の lint 出力から機械的に抽出可能 → quiz-refine SKILL.md の Step 0a（lint 前処理）の直後に「difficulty auto-fix」ステップを追加。score<=-1 と score>=+2 を自動適用。ロジックを scripts/quiz-utils.mjs に統合し `npm run quiz:difficulty-fix` として expose
 
 ## Automated pattern scanning efficiency
 
@@ -409,6 +410,7 @@ v4.43.0 以前の known-issues では「exit code 2 の一般ルールで UserPr
 ## correct-too-long が91件、distractor-too-short が47件、高止まり
 
 - 専用改善バッチの必要性が known-issues.md に何度も記載されているが、未着手 → `/quiz-balance-distractors` のような専用スキル/スクリプトを新規作成し、quality-loop に組み込む
+- 既に known-issues.md 内で複数回記録されているが未解決。今回も 90件検出（distractor-too-short 47件も継続）。distractor 品質専用パスの必要性が継続している → `/quiz-balance-distractors` 専用スキルを作成。quality-loop に組み込む。または quiz:lint にバッククォート以外の auto-fix（正解短縮・不正解拡張の提案生成）を追加
 
 ## 難易度不整合が55件
 
@@ -432,3 +434,11 @@ v4.43.0 以前の known-issues では「exit code 2 の一般ルールで UserPr
 ## TaskCompleted explanation の backtick close 漏れ
 
 - ext-053 の explanation 冒頭が `\`TaskCompletedイベントは...\`TaskUpdate\`` と、`TaskCompleted` の後ろの閉じバッククォートが欠落していた → quiz-lint.mjs のバッククォート整合性チェックで「`<word>` の `` の総数が偶数でない」場合をエラー報告する。または「`Foo` で始まり、 `Bar` の前に閉じが見つからない」パターンを警告
+
+## Pre-lint fact tier の実態は "疑わしい語" の存在のみ
+
+- pre-lint-quiz.mjs が 56問を fact tier としてフラグしたが、10問以上を spot-check した結果、実際の誤りはゼロ。全て factCheck:flags/factCheck:env 等のキーワード一致のみで、否定文脈（「～は存在しない」）や正しい記述も含まれていた → pre-lint-quiz.mjs の fact tier 判定に「否定文脈の共起除外」を追加（cmd-033 known-issue と同じパターン）。または Sonnet 検証を省略して lint 出力をそのまま skill-proposals に転記し、人間が判断する運用へ変更
+
+## Team モード不在時の代替戦略
+
+- `--team` 指定にも関わらず Task ツールが現環境で利用不可。並列エージェント起動ができないため、762問全件の Sonnet 検証は実質不可能。結果として fact-tier 56問の spot-check と機械的 lint 修正に留まった → quiz-refine SKILL.md に「Task ツール利用不可時の fallback」を明記。pre-lint fact-tier のみを Sonnet 検証対象とし、quality-tier は lint 結果そのものを修正提案として扱う（Sonnet 検証スキップ）
