@@ -149,18 +149,50 @@ function searchInDocs(docs, term) {
   return results
 }
 
+// Match negation markers around a term occurrence. Quizzes that teach
+// "X does not exist" have to quote X, so the term-not-in-docs check should
+// not flag them.
+const NEGATION_RE =
+  /存在しません|存在しない|ありません|ではない|ではなく|サポートされていない|未提供|does not exist|is not (a|an) |isn't a[n ]|no such/i
+
+function isNegatedOccurrence(text, term) {
+  const idx = text.indexOf(term)
+  if (idx < 0) return false
+  const window = text.slice(Math.max(0, idx - 40), idx + term.length + 40)
+  return NEGATION_RE.test(window)
+}
+
+// Returns true if every occurrence of term across the given quizzes sits in
+// a negation window. Used to filter false-positive "term not in docs" flags.
+function allOccurrencesNegated(term, quizIds, allQuizzesById) {
+  for (const quizId of quizIds) {
+    const quiz = allQuizzesById.get(quizId)
+    if (!quiz) continue
+    const fields = getAllTextFields(quiz)
+    for (const field of fields) {
+      if (!field.value || !field.value.includes(term)) continue
+      if (!isNegatedOccurrence(field.value, term)) return false
+    }
+  }
+  return true
+}
+
 // ============================================================
 // Check and report
 // ============================================================
 
-function checkTerms(termMap, docs, label, quiet = false) {
+function checkTerms(termMap, docs, label, quiet = false, allQuizzesById = null) {
   const found = []
   const notFound = []
+  let negationSuppressed = 0
 
   for (const [term, quizIds] of termMap.entries()) {
     const pages = searchInDocs(docs, term)
     if (pages.length > 0) {
       found.push({ term, quizIds: [...quizIds], pages })
+    } else if (allQuizzesById && allOccurrencesNegated(term, quizIds, allQuizzesById)) {
+      // Every occurrence teaches "X does not exist" — suppress the flag.
+      negationSuppressed++
     } else {
       notFound.push({ term, quizIds: [...quizIds] })
     }
@@ -171,6 +203,10 @@ function checkTerms(termMap, docs, label, quiet = false) {
     console.log(`  Total: ${termMap.size} unique terms`)
     console.log(`  Found in docs: ${found.length}`)
     console.log(`  NOT found in docs: ${notFound.length}`)
+
+    if (negationSuppressed > 0) {
+      console.log(`  Suppressed (negation context): ${negationSuppressed}`)
+    }
 
     if (notFound.length > 0) {
       console.log(`\n  ⚠ Terms not found in cached documentation:`)
@@ -183,7 +219,7 @@ function checkTerms(termMap, docs, label, quiet = false) {
     }
   }
 
-  return { found: found.length, notFound: notFound.length, notFoundTerms: notFound }
+  return { found: found.length, notFound: notFound.length, notFoundTerms: notFound, negationSuppressed }
 }
 
 // ============================================================
@@ -202,6 +238,7 @@ if (!validCommands.includes(command)) {
 const data = loadQuizzes()
 const terms = extractTermsFromQuizzes(data.quizzes)
 const docs = loadDocContent()
+const allQuizzesById = new Map(data.quizzes.map((q) => [q.id, q]))
 
 if (!jsonMode) {
   console.log(`=== Quiz Fact-Check ===`)
@@ -223,7 +260,7 @@ const checks = [
 
 for (const [key, termMap, label] of checks) {
   if (command === 'all' || command === key) {
-    const r = checkTerms(termMap, docs, label, jsonMode)
+    const r = checkTerms(termMap, docs, label, jsonMode, allQuizzesById)
     totalNotFound += r.notFound
     if (jsonMode) {
       jsonResults[key] = r.notFoundTerms.map((t) => ({

@@ -166,6 +166,14 @@ End for
 
 `--team` 指定時、カテゴリ別に `quiz-verifier` エージェントを**最大8並列**で起動する。
 
+**フォールバック運用:** スキルが forked 実行中で Agent ツールが実質利用できない場合（forked コンテキストでは Task/Agent 呼び出しが失敗する環境がある）、以下の順で段階的にフォールバックする:
+
+1. **決定論的修正のみ適用** — `quiz-lint.mjs backtick` / difficulty 再分類 / URL アンカー / distractor autofix。LLM 不要。今回のフルスキャンで difficulty 55件を自動修正したパターン
+2. **fact-tier のスポットチェック** — pre-lint の fact tier のうち、`factCheck:slash` / `factCheck:flags` / `factCheck:env` のような具体性の高いものから 10〜20 問を Read で直接検証（ドキュメントキャッシュから該当 page を grep）
+3. **大規模 LLM 検証は `/quality-loop --monthly` に委譲** — 月次の Opus 1M context で全問横断判定。forked 内で無理に並列化しない
+
+この分離により、`--team --full` が forked 環境で失敗しても決定論的価値を提供でき、LLM コストは月次に集約される。
+
 ```
 For iteration = 1..N:
   Phase A: 全カテゴリの quiz-verifier エージェントを同時起動（run_in_background: true）

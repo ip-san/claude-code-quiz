@@ -16239,7 +16239,7 @@
           "wrongFeedback": "ファイル編集完了時に発火するのは`PostToolUse`イベントです。`TaskCompleted`はタスク管理ツールでタスクが完了マークされた時に発火する別のイベントです。"
         },
         {
-          "text": "Claudeの応答完了時（Stop イベントと同義）",
+          "text": "Claudeの応答完了時（`Stop` イベントと同義）",
           "wrongFeedback": "Claudeの応答完了時に発火するのは`Stop`イベントです。`TaskCompleted`はタスクが完了としてマークされた時（`TaskUpdate`ツールによるタスク完了時）に発火するイベントです。"
         },
         {
