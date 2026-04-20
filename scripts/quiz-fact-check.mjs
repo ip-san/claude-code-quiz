@@ -19,6 +19,7 @@
 import { existsSync, readdirSync, readFileSync } from 'fs'
 import { dirname, resolve } from 'path'
 import { fileURLToPath } from 'url'
+import { KNOWN_NONEXISTENT_TERMS, NEGATION_MARKERS } from './topic-config.mjs'
 
 const __dirname = dirname(fileURLToPath(import.meta.url))
 const ROOT = resolve(__dirname, '..')
@@ -149,17 +150,14 @@ function searchInDocs(docs, term) {
   return results
 }
 
-// Match negation markers around a term occurrence. Quizzes that teach
-// "X does not exist" have to quote X, so the term-not-in-docs check should
-// not flag them.
-const NEGATION_RE =
-  /存在しません|存在しない|ありません|ではない|ではなく|サポートされていない|未提供|does not exist|is not (a|an) |isn't a[n ]|no such/i
-
+// Quizzes that teach "X does not exist" have to quote X, so the
+// term-not-in-docs check should not flag them. Negation pattern is
+// centralized in topic-config.mjs for consistency with quiz-lint.mjs.
 function isNegatedOccurrence(text, term) {
   const idx = text.indexOf(term)
   if (idx < 0) return false
   const window = text.slice(Math.max(0, idx - 40), idx + term.length + 40)
-  return NEGATION_RE.test(window)
+  return NEGATION_MARKERS.test(window)
 }
 
 // Returns true if every occurrence of term across the given quizzes sits in
@@ -229,9 +227,9 @@ function checkTerms(termMap, docs, label, quiet = false, allQuizzesById = null) 
 const args = process.argv.slice(2)
 const command = args.find((a) => !a.startsWith('--')) || 'all'
 const jsonMode = args.includes('--json')
-const validCommands = ['all', 'env', 'slash', 'flags', 'hooks', 'tools', 'config']
+const validCommands = ['all', 'env', 'slash', 'flags', 'hooks', 'tools', 'config', 'known']
 if (!validCommands.includes(command)) {
-  console.log('Usage: node scripts/quiz-fact-check.mjs [all|env|slash|flags|hooks|tools|config] [--json]')
+  console.log('Usage: node scripts/quiz-fact-check.mjs [all|env|slash|flags|hooks|tools|config|known] [--json]')
   process.exit(1)
 }
 
@@ -239,6 +237,45 @@ const data = loadQuizzes()
 const terms = extractTermsFromQuizzes(data.quizzes)
 const docs = loadDocContent()
 const allQuizzesById = new Map(data.quizzes.map((q) => [q.id, q]))
+
+// ── Known-nonexistent-terms check ───────────────────────────────
+// Separate from the term-not-in-docs sweep: these are features we've
+// confirmed do NOT exist in Claude Code, so any positive mention in
+// a quiz is a factual error.
+function checkKnownNonexistent(quizzes, quiet = false) {
+  const hits = []
+  for (const entry of KNOWN_NONEXISTENT_TERMS) {
+    for (const quiz of quizzes) {
+      const fields = getAllTextFields(quiz)
+      for (const field of fields) {
+        if (!field.value || !field.value.includes(entry.term)) continue
+        if (isNegatedOccurrence(field.value, entry.term)) continue
+        // Skip distractor text: wrong answers are the natural place to list
+        // nonexistent features. Only flag them in the correct answer, the
+        // question stem, the explanation, or any wrongFeedback (feedback is
+        // supposed to teach, so claiming a nonexistent feature there is wrong).
+        const optMatch = field.key.match(/^options\[(\d+)\]\.text$/)
+        if (optMatch) {
+          const idx = Number(optMatch[1])
+          if (idx !== quiz.correctIndex) continue
+        }
+        hits.push({ id: quiz.id, field: field.key, term: entry.term, reason: entry.reason })
+      }
+    }
+  }
+  if (!quiet) {
+    console.log(`\n=== Known-Nonexistent Terms ===`)
+    if (hits.length === 0) {
+      console.log(`  ✓ No positive mentions of known-nonexistent features`)
+    } else {
+      console.log(`  ⚠ ${hits.length} positive mention(s) of features that do not exist:`)
+      for (const h of hits) {
+        console.log(`    ${h.id} [${h.field}]: "${h.term}" — ${h.reason}`)
+      }
+    }
+  }
+  return hits
+}
 
 if (!jsonMode) {
   console.log(`=== Quiz Fact-Check ===`)
@@ -273,16 +310,37 @@ for (const [key, termMap, label] of checks) {
   }
 }
 
+// Run known-nonexistent check (applies to "all" / "known" commands)
+let knownHits = []
+if (command === 'all' || command === 'known') {
+  knownHits = checkKnownNonexistent(data.quizzes, jsonMode)
+  if (jsonMode) {
+    jsonResults.knownNonexistent = knownHits.map((h) => ({
+      term: h.term,
+      quizIds: [h.id],
+      status: 'error',
+      type: 'positive-mention-of-nonexistent',
+      reason: h.reason,
+      field: h.field,
+    }))
+  }
+}
+
 if (jsonMode) {
   console.log(JSON.stringify(jsonResults))
   process.exit(0)
 }
 
 console.log(`\n=== Summary ===`)
-if (totalNotFound === 0) {
-  console.log('All extracted terms found in documentation.')
+if (totalNotFound === 0 && knownHits.length === 0) {
+  console.log('All extracted terms found in documentation and no positive mentions of nonexistent features.')
 } else {
-  console.log(`${totalNotFound} term(s) not found in cached docs.`)
-  console.log('Note: Terms may exist in docs not yet cached, or may be internal-only terms.')
-  console.log('Run `npm run docs:fetch` to refresh the cache, then re-check.')
+  if (totalNotFound > 0) {
+    console.log(`${totalNotFound} term(s) not found in cached docs.`)
+    console.log('Note: Terms may exist in docs not yet cached, or may be internal-only terms.')
+    console.log('Run `npm run docs:fetch` to refresh the cache, then re-check.')
+  }
+  if (knownHits.length > 0) {
+    console.log(`${knownHits.length} positive mention(s) of known-nonexistent features (factual errors).`)
+  }
 }

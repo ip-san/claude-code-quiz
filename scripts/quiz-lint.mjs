@@ -21,7 +21,13 @@
 import { existsSync, readdirSync, readFileSync, writeFileSync } from 'fs'
 import { dirname, resolve } from 'path'
 import { fileURLToPath } from 'url'
-import { ADDITIONAL_DOC_PREFIXES, BACKTICK_TERMS, DOC_URL_PREFIX, TERMINOLOGY_DICT } from './topic-config.mjs'
+import {
+  ADDITIONAL_DOC_PREFIXES,
+  BACKTICK_TERMS,
+  DOC_URL_PREFIX,
+  NEGATION_MARKERS,
+  TERMINOLOGY_DICT,
+} from './topic-config.mjs'
 
 const __dirname = dirname(fileURLToPath(import.meta.url))
 const ROOT = resolve(__dirname, '..')
@@ -436,15 +442,12 @@ function lintTerminology(quizzes) {
         // Skip when the term appears inside a negation window (within ~40 chars
         // of "存在しません" / "is not" / "does not exist" etc.). Quizzes that
         // teach "X does not exist" have to quote X, and should not be flagged
-        // for quoting it.
+        // for quoting it. Pattern lives in topic-config.mjs for consistency
+        // with quiz-fact-check.mjs.
         if (found && entry.skipIfNegated) {
           const matchIndex = field.value.indexOf(matchedText)
           const window = field.value.slice(Math.max(0, matchIndex - 40), matchIndex + matchedText.length + 40)
-          if (
-            /存在しません|存在しない|ありません|ではない|ではなく|does not exist|is not (a|an) |isn't a[n ]/i.test(
-              window
-            )
-          ) {
+          if (NEGATION_MARKERS.test(window)) {
             found = false
           }
         }

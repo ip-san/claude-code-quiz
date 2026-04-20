@@ -169,10 +169,30 @@ End for
 **フォールバック運用:** スキルが forked 実行中で Agent ツールが実質利用できない場合（forked コンテキストでは Task/Agent 呼び出しが失敗する環境がある）、以下の順で段階的にフォールバックする:
 
 1. **決定論的修正のみ適用** — `quiz-lint.mjs backtick` / difficulty 再分類 / URL アンカー / distractor autofix。LLM 不要。今回のフルスキャンで difficulty 55件を自動修正したパターン
-2. **fact-tier のスポットチェック** — pre-lint の fact tier のうち、`factCheck:slash` / `factCheck:flags` / `factCheck:env` のような具体性の高いものから 10〜20 問を Read で直接検証（ドキュメントキャッシュから該当 page を grep）
-3. **大規模 LLM 検証は `/quality-loop --monthly` に委譲** — 月次の Opus 1M context で全問横断判定。forked 内で無理に並列化しない
+2. **ヘッドレス verifier（`scripts/verify-category-headless.mjs`）** — Agent ツール不可時の推奨代替。`claude -p` を subprocess として呼び出すため forked context 制約を受けない:
+   ```bash
+   for cat in memory skills tools commands extensions session keyboard bestpractices; do
+     node scripts/verify-category-headless.mjs "$cat" --model=sonnet &
+   done
+   wait
+   ```
+   各カテゴリが独立プロセスなので真に並列実行可能。結果は `.claude/tmp/verify_{category}.json` に保存され、メインエージェントが集約して修正を適用する
+3. **fact-tier のスポットチェック** — pre-lint の fact tier のうち、`factCheck:slash` / `factCheck:flags` / `factCheck:env` のような具体性の高いものから 10〜20 問を Read で直接検証（ドキュメントキャッシュから該当 page を grep）
+4. **大規模 LLM 検証は `/quality-loop --monthly` に委譲** — 月次の Opus 1M context で全問横断判定。forked 内で無理に並列化しない
 
 この分離により、`--team --full` が forked 環境で失敗しても決定論的価値を提供でき、LLM コストは月次に集約される。
+
+**main-context からの sub-agent 起動例**（`/quiz-refine` を skill として呼ばず、メイン会話で直接 Agent を起動する場合）:
+
+```
+Agent(
+  subagent_type: "general-purpose",
+  model: "sonnet",
+  prompt: "以下の 15 問について quiz-verifier の役割でチェックリスト A-H を適用し、修正を quiz:edit で直接適用してください: [ID list]"
+)
+```
+
+この方式は 2026-04-20 の distractor rebalance で 15 問を Sonnet に処理させた実績あり（commit `f8145ce`）。forked skill 経由より確実。
 
 ```
 For iteration = 1..N:

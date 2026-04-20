@@ -369,3 +369,52 @@ export const TERMINOLOGY_DICT = [
     message: 'CLI では Agent ツールに改名済み（SDK の allowedTools では Task を使用）',
   },
 ]
+
+// ============================================================
+// Negation detection (shared by quiz-lint, quiz-fact-check, pre-lint)
+// ============================================================
+
+/**
+ * Patterns that indicate a term is being used in a negation context
+ * (e.g. "does not exist"). When a term match falls inside a ~40-char
+ * window of these markers, lint checks suppress the flag so quizzes
+ * that teach "X does not exist" don't get flagged for quoting X.
+ *
+ * Single source of truth — edits here propagate to every lint script
+ * via import. Don't duplicate this regex; import this constant and
+ * (optionally) isInNegationWindow instead.
+ */
+export const NEGATION_MARKERS =
+  /存在しません|存在しない|ありません|ではない|ではなく|サポートされていない|未提供|未サポート|does not exist|is not (a|an) |isn't a[n ]|no such/i
+
+/**
+ * Returns true if the term's first occurrence in `text` sits within
+ * `windowChars` of a negation marker (before or after).
+ */
+export function isInNegationWindow(text, term, windowChars = 40) {
+  const idx = typeof text === 'string' ? text.indexOf(term) : -1
+  if (idx < 0) return false
+  const start = Math.max(0, idx - windowChars)
+  const end = idx + term.length + windowChars
+  return NEGATION_MARKERS.test(text.slice(start, end))
+}
+
+// ============================================================
+// Known-nonexistent terms (error when used without negation)
+// ============================================================
+
+/**
+ * Features that genuinely don't exist in Claude Code. If a quiz mentions
+ * them in a positive context (no negation marker nearby), that's a
+ * factual error in the quiz — not just a style issue.
+ *
+ * quiz-fact-check.mjs checks this list after the normal "term-not-in-docs"
+ * sweep to catch the reverse pattern: the term happens to appear in a doc
+ * fragment but the quiz is still using it as if it were a real feature.
+ */
+export const KNOWN_NONEXISTENT_TERMS = [
+  { term: 'claude commit', reason: 'CLI サブコマンドではない（git commit を直接使う）' },
+  { term: '/summarize', reason: '存在しない。/rewind の "Summarize from here" に統合済み' },
+  { term: '/todos', reason: 'commands.md から削除済み（/tasks に統合）' },
+  { term: 'Azure Foundry', reason: '正式名称は "Microsoft Foundry"' },
+]
