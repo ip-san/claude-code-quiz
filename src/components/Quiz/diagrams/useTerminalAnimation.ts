@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
+import { usePrefersReducedMotion } from '@/lib/usePrefersReducedMotion'
 
 interface TerminalLine {
   type: 'command' | 'prompt' | 'response' | 'info'
@@ -34,8 +35,7 @@ interface AnimState {
 }
 
 export function useTerminalAnimation(lines: TerminalLine[], isVisible: boolean) {
-  const prefersReducedMotion =
-    typeof window !== 'undefined' && window.matchMedia('(prefers-reduced-motion: reduce)').matches
+  const prefersReducedMotion = usePrefersReducedMotion()
 
   const [animState, setAnimState] = useState<AnimState>({ phase: 'idle', lineIndex: 0, charIndex: 0 })
   const [isComplete, setIsComplete] = useState(prefersReducedMotion)

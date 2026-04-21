@@ -3,14 +3,12 @@ import { useShallow } from 'zustand/react/shallow'
 import { getOverviewRecommendation } from '@/domain/services/RecommendationService'
 import { getScoreMessage } from '@/domain/services/ScoreMessageService'
 import { calculateAccuracy } from '@/domain/valueObjects/ScoreThresholds'
+import { usePrefersReducedMotion } from '@/lib/usePrefersReducedMotion'
 import { APP_CONFIG, useQuizStore } from '@/stores/quizStore'
 
 // Star visualization constants
 export const STAR_COUNT = 5
 export const STAR_PERCENTAGE_DIVISOR = 20
-
-const prefersReducedMotion =
-  typeof window !== 'undefined' && window.matchMedia('(prefers-reduced-motion: reduce)').matches
 
 export interface UseQuizResultReturn {
   // Animation state
@@ -92,7 +90,7 @@ export function useQuizResult(): UseQuizResultReturn {
   const percentage = calculateAccuracy(score, answeredCount)
   const isPassing = percentage >= APP_CONFIG.passingScore
 
-  const noMotion = prefersReducedMotion
+  const noMotion = usePrefersReducedMotion()
 
   // Animated count-up state
   const [displayPercent, setDisplayPercent] = useState(0)

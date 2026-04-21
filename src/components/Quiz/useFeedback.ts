@@ -2,12 +2,10 @@ import { useEffect, useState } from 'react'
 import { useShallow } from 'zustand/react/shallow'
 import type { Question } from '@/domain/entities/Question'
 import { platformAPI } from '@/lib/platformAPI'
+import { usePrefersReducedMotion } from '@/lib/usePrefersReducedMotion'
 import { useQuizStore } from '@/stores/quizStore'
 
 export type PromptType = 'explain' | 'practical' | 'compare'
-
-const prefersReducedMotion =
-  typeof window !== 'undefined' && window.matchMedia('(prefers-reduced-motion: reduce)').matches
 
 export interface UseFeedbackReturn {
   // Store state
@@ -49,7 +47,7 @@ export function useFeedback(quiz: Question): UseFeedbackReturn {
   const isReviewMode = sessionState?.isReviewMode ?? false
   const isMultiSelect = quiz.isMultiSelect
 
-  const noMotion = prefersReducedMotion
+  const noMotion = usePrefersReducedMotion()
 
   // Trigger animations after mount
   // biome-ignore lint/correctness/useExhaustiveDependencies: re-run when noMotion preference changes
