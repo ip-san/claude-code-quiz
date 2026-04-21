@@ -368,6 +368,7 @@ v4.43.0 以前の known-issues では「exit code 2 の一般ルールで UserPr
 ## Distractor quality batch improvement
 
 - quiz:lint が 220 件の distractor issues を報告（correct-too-long: 115, format-giveaway: 46, distractor-too-short: 59）。正解選択肢が不正解の平均の2倍以上長い問題が多数 → 専用の distractor 品質改善パスを作成。正解選択肢の短縮または不正解選択肢への具体性追加
+- quiz:lint で distractor 120 件（correct-too-long 74 + distractor-too-short 46）を検出。known-issues.md に 5 回以上「専用パス必要」と記録されているが未着手。今回も SKILL.md の fix mode は critical/major のみを修正対象とするため、info severity の distractor は素通り → `/quiz-balance-distractors` 専用スキルを作成（quality-loop に組み込み）。入力は `quiz:lint distractor` の JSON 出力、処理は (a) 正解選択肢の短縮提案 または (b) 不正解選択肢の具体性追加、出力は `quiz:edit` 経由でバッチ適用
 
 ## 1Mコンテキスト料金の誤認パターン
 
@@ -442,3 +443,11 @@ v4.43.0 以前の known-issues では「exit code 2 の一般ルールで UserPr
 ## Team モード不在時の代替戦略
 
 - `--team` 指定にも関わらず Task ツールが現環境で利用不可。並列エージェント起動ができないため、762問全件の Sonnet 検証は実質不可能。結果として fact-tier 56問の spot-check と機械的 lint 修正に留まった → quiz-refine SKILL.md に「Task ツール利用不可時の fallback」を明記。pre-lint fact-tier のみを Sonnet 検証対象とし、quality-tier は lint 結果そのものを修正提案として扱う（Sonnet 検証スキップ）
+
+## Task/Agent ツール利用不可時のフォールバックを本フローのデフォルトに昇格
+
+- 762 問の full scan で Sonnet targets が 154 に絞られたが、forked skill context では Task/Agent ツールが利用できず、並列検証を起動できなかった。fact-tier 57 問のうち 20 問を spot-check した結果は全て正しく、`known-issues.md` 既記載の「pre-lint fact tier の実態は keyword hit のみ」パターンと一致 → quiz-refine SKILL.md の Step 0 直後に「forked-skill 判定 → Agent ツール不可時は fact-tier spot-check のみ → 修正なしで verify:save へ」の明示的パスを入れる。現行 SKILL.md は `--team` 失敗時のみフォールバックと読めるが、forked context では常時 Agent 利用不可のため、`scripts/verify-category-headless.mjs` を経由した subprocess 並列化を常用パスに昇格させる
+
+## pre-lint の tiers にラベル「mechanical-fixable」を追加
+
+- 今回の run では `tiers.fact=57, quality=97, autofix=0` と表示され、autofix ゼロに見えたが、実際は quiz:lint の distractor 120 件が機械的に改善可能。tier ラベルが現実と乖離 → scripts/pre-lint-quiz.mjs の tier 分類を拡張し、「distractor-fixable」「difficulty-fixable」「backtick-fixable」の 3 つのサブカウントを追加。Skill の summary 出力でも表示
