@@ -6,6 +6,7 @@
  * H5 (navigation isAnswered/isCorrect restoration)
  */
 import { beforeEach, describe, expect, it, vi } from 'vitest'
+import { locale } from '@/config/locale'
 import { UserProgress } from '@/domain/entities/UserProgress'
 import { useQuizStore } from '../quizStore'
 
@@ -227,7 +228,7 @@ describe('sessionSlice', () => {
 
     it('should record recommend feedback when sessionLabel is レコメンド', () => {
       useQuizStore.getState().startSessionWithIds(getSingleSelectIds(2))
-      useQuizStore.setState({ sessionLabel: 'レコメンド' })
+      useQuizStore.setState({ sessionLabel: locale.sessionLabels.recommend })
 
       answerCurrentQuestion(true)
       useQuizStore.getState().nextQuestion()

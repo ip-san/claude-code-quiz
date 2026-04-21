@@ -581,6 +581,14 @@ export const ja: LocaleConfig = {
     showAnytime: 'でいつでも表示',
   },
 
+  // Session labels double as both UI display and identity sentinels (e.g. `sessionLabel === recommend`
+  // triggers recommend-feedback recording). Change with care — callers rely on referential equality.
+  sessionLabels: {
+    recommend: 'レコメンド',
+    shared: '共有された問題',
+    microQuizTip: '💡 今の作業に役立つ問題',
+  },
+
   recommend: {
     analyzeLabel: 'あなたの利用履歴からレコメンド',
     analyzeDesc: 'AI があなたの作業意図を理解し、最適な復習問題を選びます',

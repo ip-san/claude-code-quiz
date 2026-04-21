@@ -9,11 +9,13 @@ import { hasSeenWelcome, WelcomeScreen } from '@/components/Layout/WelcomeScreen
 import { ModeSelection } from '@/components/Menu/ModeSelection'
 import { Timer } from '@/components/Quiz/chapter/Timer'
 import { QuizCard } from '@/components/Quiz/QuizCard'
+import { locale } from '@/config/locale'
 import { theme } from '@/config/theme'
 import { SCENARIOS } from '@/data/scenarios'
 import { getChapterFromTags } from '@/domain/valueObjects/OverviewChapter'
 import { isElectron } from '@/lib/platformAPI'
 import { headerStyles, pageStyles } from '@/lib/styles'
+import { applyUrlIntent, buildUrlSearch, parseUrlIntent } from '@/lib/urlSync'
 import { useFocusTrap } from '@/lib/useFocusTrap'
 import { useQuizStore } from '@/stores/quizStore'
 
@@ -56,21 +58,33 @@ export default function App() {
     viewState,
     getProgress,
     sessionState,
+    activeScenarioId,
+    readerInitialFilter,
     isLoading,
     initialize,
     endSession,
     suspendSession,
+    startSession,
     startSessionWithIds,
+    startScenarioSession,
+    setViewState,
+    openReaderWithFilter,
   } = useQuizStore(
     useShallow((state) => ({
       viewState: state.viewState,
       getProgress: state.getProgress,
       sessionState: state.sessionState,
+      activeScenarioId: state.activeScenarioId,
+      readerInitialFilter: state.readerInitialFilter,
       isLoading: state.isLoading,
       initialize: state.initialize,
       endSession: state.endSession,
       suspendSession: state.suspendSession,
+      startSession: state.startSession,
       startSessionWithIds: state.startSessionWithIds,
+      startScenarioSession: state.startScenarioSession,
+      setViewState: state.setViewState,
+      openReaderWithFilter: state.openReaderWithFilter,
     }))
   )
   const [showWelcome, setShowWelcome] = useState(() => !hasSeenWelcome())
@@ -81,7 +95,7 @@ export default function App() {
   useEffect(() => {
     const cleanup1 = window.electronAPI?.onStartMicroQuiz?.((data) => {
       setMicroQuizTip(data.tip || null)
-      startSessionWithIds([data.questionId], '💡 今の作業に役立つ問題')
+      startSessionWithIds([data.questionId], locale.sessionLabels.microQuizTip)
     })
     const cleanup2 = window.electronAPI?.onOpenRecommend?.(() => {
       // Just bring window to focus — recommend section is already visible in menu
@@ -97,24 +111,61 @@ export default function App() {
     if (viewState === 'menu') setMicroQuizTip(null)
   }, [viewState])
 
-  // Initialize store on mount + handle ?ids= URL parameter
+  // Initialize store on mount + dispatch the URL intent exactly once.
+  //
+  // The URL is captured BEFORE `initialize()` so the URL-writer effect can't
+  // clear it between the store's set({isLoading: false}) and our `.then()`.
+  // The ref guard makes React 18 Strict Mode's double-mount harmless.
+  const dispatchedRef = useRef(false)
   useEffect(() => {
+    if (dispatchedRef.current) return
+    dispatchedRef.current = true
+    const initialSearch = isElectron ? '' : window.location.search
     initialize().then(() => {
-      const params = new URLSearchParams(window.location.search)
-      const ids = params.get('ids')
-      if (ids) {
-        const idList = ids.split(',').filter(Boolean)
-        if (idList.length > 0) {
-          startSessionWithIds(idList, 'レコメンド')
-          try {
-            window.history.replaceState({}, '', window.location.pathname)
-          } catch {
-            /* cross-origin iframe */
-          }
+      if (isElectron) return
+      const intent = parseUrlIntent(initialSearch)
+      applyUrlIntent(
+        intent,
+        { startSession, startSessionWithIds, startScenarioSession, setViewState, openReaderWithFilter },
+        {
+          labels: { recommend: locale.sessionLabels.recommend, shared: locale.sessionLabels.shared },
+          onIdsDispatched: () => {
+            try {
+              window.history.replaceState({}, '', window.location.pathname)
+            } catch {
+              /* cross-origin iframe */
+            }
+          },
         }
-      }
+      )
     })
-  }, [initialize, startSessionWithIds])
+  }, [initialize, startSession, startSessionWithIds, startScenarioSession, setViewState, openReaderWithFilter])
+
+  // Keep the browser address bar in sync with the current view/session so users can copy & share.
+  // Deps are narrowed to the specific session fields that affect the URL so we don't
+  // rewrite on every answer / timer tick.
+  const currentQuestionId = sessionState?.questions[sessionState.currentIndex]?.id ?? null
+  const sessionMode = sessionState?.config.mode ?? null
+  const categoryFilter = sessionState?.config.categoryFilter ?? null
+  useEffect(() => {
+    if (isLoading || isElectron) return
+    const search = buildUrlSearch({
+      viewState,
+      sessionMode,
+      categoryFilter,
+      activeScenarioId,
+      currentQuestionId,
+      readerInitialFilter,
+    })
+    const target = `${window.location.pathname}${search}`
+    if (target !== `${window.location.pathname}${window.location.search}`) {
+      try {
+        window.history.replaceState(window.history.state, '', target)
+      } catch {
+        /* cross-origin iframe */
+      }
+    }
+  }, [viewState, sessionMode, categoryFilter, activeScenarioId, currentQuestionId, readerInitialFilter, isLoading])
 
   // Scroll to top on view change
   // biome-ignore lint/correctness/useExhaustiveDependencies: viewState change is the intentional trigger

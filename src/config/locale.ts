@@ -11,6 +11,13 @@
  */
 
 export interface LocaleConfig {
+  // === Session Labels (doubles as UI display + identity sentinel) ===
+  readonly sessionLabels: {
+    readonly recommend: string
+    readonly shared: string
+    readonly microQuizTip: string
+  }
+
   // === Common ===
   readonly common: {
     readonly start: string

@@ -5,6 +5,7 @@
  * endSession, finishTest, updateTimer, dismissChapterIntro, dismissChapterComplete
  */
 
+import { locale } from '@/config/locale'
 import { SCENARIOS } from '@/data/scenarios'
 import { Question } from '@/domain/entities/Question'
 import { DailyGoalService } from '@/domain/services/DailyGoalService'
@@ -278,7 +279,7 @@ export const createSessionLifecycleSlice = (set: StoreSet, get: StoreGet): Sessi
     )
 
     // Record recommend feedback if this was a recommend session
-    if (get().sessionLabel === 'レコメンド') {
+    if (get().sessionLabel === locale.sessionLabels.recommend) {
       recordRecommendFeedback(completedState)
     }
 

@@ -26,7 +26,7 @@ export default defineConfig({
     {
       name: 'chromium',
       use: { browserName: 'chromium' },
-      testMatch: /quiz-flow|menu/,
+      testMatch: /quiz-flow|menu|url-sharing/,
     },
     // Accessibility tests — desktop chromium
     {
