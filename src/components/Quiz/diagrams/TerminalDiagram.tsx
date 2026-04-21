@@ -22,6 +22,15 @@ function formatLinesForCopy(lines: TerminalLine[]): string {
     .join('\n')
 }
 
+/**
+ * Shared className for the skip / replay / copy buttons in the title bar.
+ * Mobile reserves a 32×32px tap target (≥ WCAG 2.5.8 / Apple HIG);
+ * desktop (≥ sm) collapses back to the compact look so the title bar
+ * stays visually tight when text labels are visible.
+ */
+const TITLEBAR_BTN =
+  'flex shrink-0 items-center justify-center gap-1 rounded-sm min-h-8 min-w-8 px-1.5 py-0.5 text-[10px] text-stone-400 transition-colors hover:bg-stone-700 hover:text-stone-200 sm:min-h-0 sm:min-w-0 sm:justify-start'
+
 /** Inner component so that useTerminalAnimation can be called as a top-level hook */
 function TerminalBody({ lines, isVisible }: { lines: TerminalLine[]; isVisible: boolean }) {
   const [copied, setCopied] = useState(false)
@@ -39,8 +48,10 @@ function TerminalBody({ lines, isVisible }: { lines: TerminalLine[]; isVisible: 
         {/* Skip / Replay button */}
         {isPlaying && (
           <button
+            type="button"
             onClick={skipAnimation}
-            className="flex shrink-0 items-center gap-1 rounded-sm px-1.5 py-0.5 text-[10px] text-stone-400 transition-colors hover:bg-stone-700 hover:text-stone-200"
+            className={TITLEBAR_BTN}
+            aria-label={locale.diagrams.terminalSkip}
           >
             <SkipForward className="h-3 w-3" />
             <span className="hidden sm:inline">{locale.diagrams.terminalSkip}</span>
@@ -49,13 +60,16 @@ function TerminalBody({ lines, isVisible }: { lines: TerminalLine[]; isVisible: 
         {isComplete && (
           <>
             <button
+              type="button"
               onClick={replayAnimation}
-              className="flex shrink-0 items-center gap-1 rounded-sm px-1.5 py-0.5 text-[10px] text-stone-400 transition-colors hover:bg-stone-700 hover:text-stone-200"
+              className={TITLEBAR_BTN}
+              aria-label={locale.diagrams.terminalReplay}
             >
               <Play className="h-3 w-3" />
               <span className="hidden sm:inline">{locale.diagrams.terminalReplay}</span>
             </button>
             <button
+              type="button"
               onClick={async () => {
                 const text = formatLinesForCopy(lines)
                 if (!text) return
@@ -65,7 +79,7 @@ function TerminalBody({ lines, isVisible }: { lines: TerminalLine[]; isVisible: 
                   setTimeout(() => setCopied(false), 1500)
                 }
               }}
-              className="flex shrink-0 items-center gap-1 rounded-sm px-1.5 py-0.5 text-[10px] text-stone-400 transition-colors hover:bg-stone-700 hover:text-stone-200"
+              className={TITLEBAR_BTN}
               aria-label={locale.diagrams.terminalCopy}
             >
               {copied ? <Check className="h-3 w-3 text-green-400" /> : <Clipboard className="h-3 w-3" />}
