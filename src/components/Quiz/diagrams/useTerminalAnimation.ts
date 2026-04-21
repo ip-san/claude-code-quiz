@@ -46,20 +46,34 @@ export function useTerminalAnimation(lines: TerminalLine[], isVisible: boolean) 
   const accumulatorRef = useRef(0)
   const stateRef = useRef<AnimState>({ phase: 'idle', lineIndex: 0, charIndex: 0 })
 
-  const startAnimation = useCallback(() => {
-    if (prefersReducedMotion || lines.length === 0) {
-      setIsComplete(true)
-      setIsPlaying(false)
-      return
-    }
-    const initial: AnimState = { phase: 'initial-delay', lineIndex: 0, charIndex: 0 }
-    stateRef.current = initial
-    setAnimState(initial)
-    setIsComplete(false)
-    setIsPlaying(true)
-    lastTickRef.current = 0
-    accumulatorRef.current = 0
-  }, [lines.length, prefersReducedMotion])
+  // Tracks a user-initiated replay so the animation runs even when the OS
+  // has `prefers-reduced-motion: reduce` enabled. Auto-play still honours
+  // the system preference; only an explicit button click overrides it.
+  const forceReplayRef = useRef(false)
+
+  const startAnimation = useCallback(
+    (options: { force?: boolean } = {}) => {
+      if (lines.length === 0) {
+        setIsComplete(true)
+        setIsPlaying(false)
+        return
+      }
+      if (prefersReducedMotion && !options.force) {
+        setIsComplete(true)
+        setIsPlaying(false)
+        return
+      }
+      forceReplayRef.current = options.force === true
+      const initial: AnimState = { phase: 'initial-delay', lineIndex: 0, charIndex: 0 }
+      stateRef.current = initial
+      setAnimState(initial)
+      setIsComplete(false)
+      setIsPlaying(true)
+      lastTickRef.current = 0
+      accumulatorRef.current = 0
+    },
+    [lines.length, prefersReducedMotion]
+  )
 
   // Auto-play on first visibility
   const hasAutoPlayed = useRef(false)
@@ -190,12 +204,18 @@ export function useTerminalAnimation(lines: TerminalLine[], isVisible: boolean) 
 
   const replayAnimation = useCallback(() => {
     cancelAnimationFrame(rafRef.current)
-    startAnimation()
+    // Explicit user intent — override `prefers-reduced-motion` so the replay button
+    // actually does something on devices (e.g. iOS with "Reduce Motion" turned on).
+    startAnimation({ force: true })
   }, [startAnimation])
 
   const getLineState = useCallback(
     (index: number): LineState => {
-      if (prefersReducedMotion || isComplete) {
+      // `prefersReducedMotion` short-circuits display to static — but not during a
+      // user-initiated replay (forceReplayRef), otherwise the replay button would
+      // be visually inert on reduced-motion devices.
+      const reducedAndIdle = prefersReducedMotion && !forceReplayRef.current
+      if (reducedAndIdle || isComplete) {
         return { visible: true, typingChars: null, justRevealed: false }
       }
 
