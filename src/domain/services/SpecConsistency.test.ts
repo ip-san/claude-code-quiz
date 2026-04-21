@@ -445,3 +445,75 @@ describe('Spec Consistency: hasPassed uses PASSING_SCORE', () => {
     expect(source).toContain('PASSING_SCORE')
   })
 })
+
+describe('Spec Consistency: URL sharing coverage', () => {
+  // Hardcoded oracle: every shareable ViewState listed in stores/utils.ts ViewState union.
+  // If a new ViewState is added, this list MUST be updated together with buildUrlSearch/parseUrlIntent.
+  const ALL_VIEW_STATES = [
+    'menu',
+    'quiz',
+    'result',
+    'progress',
+    'reader',
+    'scenarioSelect',
+    'studyFirst',
+    'tutorial',
+  ] as const
+
+  it('ViewState union and this test oracle stay in sync', () => {
+    const utilsSource = readFileSync('src/stores/utils.ts', 'utf8')
+    // Extract the `| 'value'` alternatives from `export type ViewState =`
+    const match = utilsSource.match(/export type ViewState\s*=\s*((?:\n\s*\|[^\n]+)+)/)
+    expect(match, 'ViewState union block not found in src/stores/utils.ts').not.toBeNull()
+    const declared = match![1]
+      .split('\n')
+      .map((l) => l.match(/'([^']+)'/)?.[1])
+      .filter((v): v is string => v !== undefined)
+      .sort()
+    expect(declared).toEqual([...ALL_VIEW_STATES].sort())
+  })
+
+  it('every non-menu ViewState has a branch in buildUrlSearch OR the quiz-view fallback', async () => {
+    const { buildUrlSearch, parseUrlIntent } = await import('@/lib/urlSync')
+    for (const viewState of ALL_VIEW_STATES) {
+      // Representative state per view: gives enough signal for the branch to fire
+      const currentQuestionId = viewState === 'quiz' ? 'mem-001' : null
+      const sessionMode = viewState === 'quiz' ? ('category' as const) : null
+      const categoryFilter = viewState === 'quiz' ? 'memory' : null
+      const search = buildUrlSearch({
+        viewState,
+        sessionMode,
+        categoryFilter,
+        activeScenarioId: null,
+        currentQuestionId,
+        readerInitialFilter: null,
+      })
+      if (viewState === 'menu') {
+        expect(search, `menu should emit empty search`).toBe('')
+      } else {
+        expect(search, `${viewState} must emit a non-empty URL`).not.toBe('')
+        // And it must round-trip back to a non-null intent
+        expect(parseUrlIntent(search), `${search} must parse back to an intent`).not.toBeNull()
+      }
+    }
+  })
+
+  it('every QuizModeId except category/custom can be reached via parseUrlIntent', async () => {
+    const { parseUrlIntent } = await import('@/lib/urlSync')
+    for (const id of ALL_MODE_IDS) {
+      if (id === 'category' || id === 'custom') continue
+      const intent = parseUrlIntent(`?mode=${id}`)
+      if (id === 'scenario') {
+        expect(intent, '?mode=scenario opens the scenario list').toEqual({ kind: 'scenarioSelect' })
+      } else {
+        expect(intent, `?mode=${id} parses as a mode intent`).toEqual({ kind: 'mode', mode: id })
+      }
+    }
+  })
+
+  it('locale.sessionLabels.shared is a display label (not referenced as a sentinel elsewhere)', () => {
+    const slice = readFileSync('src/stores/slices/sessionLifecycleSlice.ts', 'utf8')
+    // recommend IS a sentinel (triggers feedback recording); shared should never be compared.
+    expect(slice).not.toMatch(/sessionLabels\.shared/)
+  })
+})
