@@ -111,6 +111,8 @@ export function useQuizResult(): UseQuizResultReturn {
     const steps = 25
     const interval = duration / steps
     let step = 0
+    let starsTimer: ReturnType<typeof setTimeout> | null = null
+    let contentTimer: ReturnType<typeof setTimeout> | null = null
 
     const timer = setInterval(() => {
       step++
@@ -121,12 +123,16 @@ export function useQuizResult(): UseQuizResultReturn {
       if (step >= steps) {
         clearInterval(timer)
         setDisplayPercent(percentage)
-        setTimeout(() => setShowStars(true), 100)
-        setTimeout(() => setShowContent(true), 400)
+        starsTimer = setTimeout(() => setShowStars(true), 100)
+        contentTimer = setTimeout(() => setShowContent(true), 400)
       }
     }, interval)
 
-    return () => clearInterval(timer)
+    return () => {
+      clearInterval(timer)
+      if (starsTimer) clearTimeout(starsTimer)
+      if (contentTimer) clearTimeout(contentTimer)
+    }
   }, [percentage, noMotion])
 
   // Recommendation for overview mode: find weakest category from wrong answers
