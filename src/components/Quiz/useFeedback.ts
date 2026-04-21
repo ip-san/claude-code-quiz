@@ -50,7 +50,6 @@ export function useFeedback(quiz: Question): UseFeedbackReturn {
   const noMotion = usePrefersReducedMotion()
 
   // Trigger animations after mount
-  // biome-ignore lint/correctness/useExhaustiveDependencies: re-run when noMotion preference changes
   useEffect(() => {
     if (noMotion) {
       setAnimate(true)
