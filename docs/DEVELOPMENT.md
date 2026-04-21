@@ -89,6 +89,7 @@ claude-code-quiz/
 | `electron/preload.ts` | Renderer と Main の橋渡し（contextBridge） |
 | `src/stores/quizStore.ts` | アプリケーション状態管理（Zustand） |
 | `src/data/quizzes.json` | クイズ問題データ |
+| `src/lib/urlSync.ts` | PWA のアドレスバー ↔ 画面状態の双方向同期（`?q=`/`?category=`/`?mode=`/`?scenario=`/`?view=`）。テスト: `urlSync.test.ts` + `e2e/url-sharing.spec.ts` |
 | `vite.config.ts` | Vite + Electron ビルド設定 |
 
 ## 開発ワークフロー

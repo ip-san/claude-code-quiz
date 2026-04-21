@@ -128,6 +128,16 @@ Claude Code を導入しても、チームが使いこなせなければ投資�
 
 https://ip-san.github.io/claude-code-quiz/ にアクセスするだけ。スマホのホーム画面に追加でアプリとして使えます。
 
+**URL でピンポイントにシェア**: アドレスバーが現在の画面を反映するので、Slack 等にそのまま貼り付けてシェアできます。
+
+| URL | 開く画面 |
+|-----|---------|
+| `/?q=mem-015` | その 1 問だけで起動 |
+| `/?category=memory` | memory カテゴリ学習 |
+| `/?mode=weak` / `?mode=overview` etc. | 各モードで起動 |
+| `/?mode=scenario` / `?scenario=<id>` | 実践シナリオ一覧 / 指定シナリオ |
+| `/?view=progress` / `?view=reader` | 進捗ダッシュボード / 解説リーダー |
+
 ### 開発
 
 ```bash

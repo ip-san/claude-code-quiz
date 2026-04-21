@@ -55,6 +55,15 @@ bun run lighthouse     # Lighthouse CI
 - **Opus トリガー（5種）:** initial（初回プロファイリング）/ stagnation（停滞介入）/ breakthrough（急成長分析）/ mastery（カテゴリ制覇）/ monthly（月次レビュー）。Opus 利用不可時は Sonnet で自動代替
 - **クイズ検証フィルタ:** `scripts/pre-lint-quiz.mjs`（決定論的lint）→ `quiz-verifier` エージェント（Sonnet精査）→ `scripts/audit-critical-quiz.mjs`（Opus偽陽性フィルタ、任意）
 
+## URL シェア（PWA）
+
+アドレスバーは `src/lib/urlSync.ts` が現在の画面と双方向同期する。`?q=<id>` / `?category=` / `?mode=` / `?scenario=` / `?view=progress|reader|study|result|tutorial`（+ `?view=reader&filter=bookmarked`）を受信可能。クイズ中は `?q=<現在の問題ID>` に自動書き換え（scenario モード除く）。Electron は対象外。
+
+- 純粋関数: `parseUrlIntent` / `buildUrlSearch` / `applyUrlIntent` / `viewTargetToViewState`
+- 新 `ViewState` / `QuizModeId` / `ViewIntentTarget` 追加時は urlSync.ts とテストを同時更新
+- 初期 URL は `initialize()` 前にキャプチャ + `useRef` ガードで race/StrictMode 二重ディスパッチを防止
+- シェア用セッションラベルは `locale.sessionLabels.{recommend,shared,microQuizTip}`（sentinel 兼任）
+
 ## セッション永続化の注意点
 
 IMPORTANT: `QuizSessionState` に新フィールドを追加したら以下の3箇所を必ず同時更新すること。
