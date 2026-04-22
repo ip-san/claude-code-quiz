@@ -3,11 +3,10 @@ import { defineConfig, devices } from '@playwright/test'
 /**
  * Multi-device E2E configuration
  *
- * - quiz-flow: functional tests on desktop chromium (17 tests)
- * - visual: layout regression on 7 devices × 4 screens × 2 themes
- *
- * Screens: welcome, menu (fixed layout — good for regression)
- *          quiz, reader (variable content — desktop only)
+ * - quiz-flow: functional tests on desktop chromium
+ * - visual: layout regression
+ *     * welcome + menu: all 7 devices × 2 themes (fixed layout)
+ *     * quiz + quiz-explanation + reader: desktop only × 2 themes (variable content)
  */
 export default defineConfig({
   testDir: './e2e',
