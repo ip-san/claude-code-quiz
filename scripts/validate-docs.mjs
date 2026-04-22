@@ -102,9 +102,13 @@ try {
       .filter((f) => f.endsWith('.md'))
       .map((f) => [join('docs', f), readFileSync(join('docs', f), 'utf8')])
     for (const [file, content] of [['CLAUDE.md', claudeMd], ['README.md', readmeMd], ...docsEntries]) {
-      const inlineMatches = content.match(/(\d+)テスト/g) || []
-      for (const m of inlineMatches) {
-        const n = parseInt(m)
+      // Per-match context check so "Playwright E2E（120テスト）" isn't mistaken for a stale Vitest count
+      for (const match of content.matchAll(/(\d+)テスト/g)) {
+        const n = parseInt(match[1])
+        const idx = match.index ?? 0
+        const before = content.slice(Math.max(0, idx - 30), idx)
+        const isE2EContext = /(E2E|Playwright|Visual Regression)/.test(before)
+        if (isE2EContext) continue
         if (n > 100 && Math.abs(n - testCount) > 1) {
           errors.push(`${file}: stale test count "${n}テスト", actual ${testCount}`)
           autoFixes.push({
@@ -141,8 +145,8 @@ try {
       const e2eMatches = content.match(/(\d+) ?テスト/g) || []
       for (const m of e2eMatches) {
         const n = parseInt(m)
-        // Flag E2E-range numbers (30-99) that are close to but don't match actual E2E count
-        if (n >= 30 && n < 100 && n !== e2eCount && Math.abs(n - e2eCount) < 20) {
+        // Flag E2E-range numbers (30-300) that are close to but don't match actual E2E count
+        if (n >= 30 && n < 300 && n !== e2eCount && Math.abs(n - e2eCount) < 30) {
           errors.push(`${file}: stale E2E test count "${m}", actual ${e2eCount}`)
           autoFixes.push({ label: `${file} E2E count ${n}`, old: n, new: e2eCount, file, _replaceAll: true })
         }

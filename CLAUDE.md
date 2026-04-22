@@ -11,7 +11,7 @@ PWA（ブラウザ・スマホ）と Electron（デスクトップ・AI連携）
 - **フロントエンド:** React + TypeScript + Vite + Tailwind CSS + Zustand
 - **配信:** PWA（GitHub Pages）+ Electron（デスクトップ）— 用途に応じて使い分け
 - **アナリティクス:** GTM + GA4 + MCP サーバー（`mcp/ga4-server.mjs`）
-- **テスト:** Vitest（1054テスト）+ Playwright E2E（78テスト）
+- **テスト:** Vitest（1054テスト）+ Playwright E2E（120テスト）
 - **AIパイプライン:** Script→Haiku→Script→Sonnet（+Opus 5トリガー）、年間~$6
 - **CI/CD:** GitHub Actions → GitHub Pages 自動デプロイ（GTM ID は Secret 管理）
 - **クイズデータ:** 762問（72ドキュメントページをカバー）
@@ -28,7 +28,7 @@ bun run build:web     # Web版プロダクションビルド
 bun run check         # 型チェック + lint + 1054テスト + 762問チェック（一括）
 bun run check:all     # check + docs:validate + cpd（CI用フルチェック）
 bun test              # ユニット + Store テスト（1054テスト、Vitest）
-bun run test:e2e      # E2E + Visual Regression テスト（78テスト、Playwright）
+bun run test:e2e      # E2E + Visual Regression テスト（120テスト、Playwright）
 bun run cpd           # コードクローン検出（jscpd、2%以下）
 
 # クイズ管理
