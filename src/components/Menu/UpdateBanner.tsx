@@ -16,9 +16,11 @@ export function UpdateBanner() {
 
   useEffect(() => {
     if (!isElectron) return
+    let cancelled = false
     window.electronAPI
       ?.checkForUpdate()
       .then((result) => {
+        if (cancelled) return
         if (result?.hasUpdate && result.forceUpdate && result.latestVersion && result.releaseUrl) {
           setUpdateInfo({
             latestVersion: result.latestVersion,
@@ -30,6 +32,9 @@ export function UpdateBanner() {
       .catch(() => {
         /* non-critical */
       })
+    return () => {
+      cancelled = true
+    }
   }, [])
 
   if (!updateInfo) return null
