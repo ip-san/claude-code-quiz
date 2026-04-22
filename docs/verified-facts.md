@@ -38,7 +38,8 @@
 ## Hooks
 
 ### Hook event types
-- **総数: 25**（2026-04-17 再確認。旧メモの「26」は誤り）
+- **総数: 26**（2026-04-23 再確認、`hooks.md` ## Hook events を grep。4-17 に一度「25」へ誤訂正したが、ext-085 の 26 が一貫して正しい）
+- 26 件: SessionStart, InstructionsLoaded, UserPromptSubmit, PreToolUse, PermissionRequest, PostToolUse, PostToolUseFailure, PermissionDenied, Notification, SubagentStart, SubagentStop, TaskCreated, TaskCompleted, Stop, StopFailure, TeammateIdle, ConfigChange, CwdChanged, FileChanged, WorktreeCreate, WorktreeRemove, PreCompact, PostCompact, SessionEnd, Elicitation, ElicitationResult
 - **Blocking events: 13**（PreCompact を含む）
 
 ### Hooks exit 2 の振る舞い
@@ -65,14 +66,14 @@
 - `~/.claude/CLAUDE.md` は User スコープ（Managed ではない）
 
 ### 環境変数
-- `CLAUDE_CODE_DISABLE_AUTO_MEMORY=0`: auto memory を強制有効化（gradual rollout 用）
+- `CLAUDE_CODE_DISABLE_AUTO_MEMORY=0`: auto memory を強制有効化（gradual rollout 用）。出典: `env-vars.md:70` + `memory.md:259`
 - `CLAUDE_CODE_ADDITIONAL_DIRECTORIES_CLAUDE_MD=1`: `--add-dir` フラグとの**併用必須**
 - `CLAUDE_CODE_SIMPLE=1`: minimal prompt、Bash/file のみ。`--mcp-config` 経由の MCP ツールは利用可
 - `CLAUDE_CODE_EFFORT_LEVEL`: 上記「モデル・エフォート関連」参照
 - `CLAUDE_AUTOCOMPACT_PCT_OVERRIDE`: 1-100（auto-compaction 発動閾値%）
 - `CLAUDE_CODE_SHELL_PREFIX`: "for logging or auditing"（nix-shell/Docker exec ではない）
 - `USE_BUILTIN_RIPGREP`: settings page に記載
-- `CLAUDE_CODE_CLIENT_CERT` / `CLIENT_KEY` / `CLIENT_KEY_PASSPHRASE`: mTLS 用
+- `CLAUDE_CODE_CLIENT_CERT` / `CLIENT_KEY` / `CLIENT_KEY_PASSPHRASE`: mTLS 用。出典: `env-vars.md:62-64` + `network-config.md:82-88`（settings.md には記載なし）
 - `MCP_TIMEOUT`: サーバー起動タイムアウト
 - `MCP_TOOL_TIMEOUT`: ツール実行タイムアウト（別変数）
 - `MAX_MCP_OUTPUT_TOKENS`: default 25,000 / warning 10,000
