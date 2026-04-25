@@ -45438,7 +45438,7 @@
       "question": "`CLAUDE.md`の`@import`で読み込むファイルパスに使用できるパスの種類として正しいのはどれですか？",
       "options": [
         {
-          "text": "環境変数を含むパスを指定できる（例: /Users/sesoko/.claude/rules.md）",
+          "text": "環境変数を含むパスを指定できる（例: /Users/user/.claude/rules.md）",
           "wrongFeedback": "`$HOME`や`$PWD`などの環境変数はインポートパスで展開されません。ホームディレクトリには`~`（チルダ）を使用します。"
         },
         {
