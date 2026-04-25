@@ -10,6 +10,23 @@ interface UseSwipeOptions {
 }
 
 /**
+ * Returns true if the touch target sits inside an ancestor that can scroll horizontally
+ * (overflow-x: auto/scroll AND scrollWidth > clientWidth). Used to suppress swipe
+ * navigation when the user's likely intent is to pan a wide diagram.
+ */
+function isInsideHorizontalScroller(target: EventTarget | null): boolean {
+  let el = target instanceof Element ? (target as HTMLElement) : null
+  while (el && el !== document.body) {
+    const overflowX = getComputedStyle(el).overflowX
+    if ((overflowX === 'auto' || overflowX === 'scroll') && el.scrollWidth > el.clientWidth) {
+      return true
+    }
+    el = el.parentElement
+  }
+  return false
+}
+
+/**
  * Lightweight swipe gesture hook for touch devices.
  * Distinguishes horizontal swipe from vertical scroll by angle.
  * Handles touch cancel and aborts swipe if vertical scroll is detected.
@@ -23,7 +40,7 @@ export function useSwipe({ onSwipeLeft, onSwipeRight, threshold = 50, disabled =
       if (disabled) return
       const touch = e.touches[0]
       touchStart.current = { x: touch.clientX, y: touch.clientY }
-      aborted.current = false
+      aborted.current = isInsideHorizontalScroller(e.target)
     },
     [disabled]
   )
