@@ -28,7 +28,7 @@ node scripts/quiz-utils.mjs coverage
 ```bash
 node -e "
 const q = require('./src/data/quizzes.json').quizzes;
-const prefixes = { memory:'mem', skills:'skill', tools:'tool', commands:'cmd', extensions:'ext', session:'ses', keyboard:'key', bestpractices:'bp' };
+const prefixes = { memory:'mem', skills:'skill', tools:'tool', commands:'cmd', extensions:'ext', session:'ses', keyboard:'key', bestpractices:'bp', sdk:'sdk' };
 for (const [cat, prefix] of Object.entries(prefixes)) {
   const ids = q.filter(x=>x.id.startsWith(prefix+'-')).map(x=>parseInt(x.id.split('-')[1])).sort((a,b)=>b-a);
   console.log(prefix + '-' + String(ids[0]+1).padStart(3,'0') + ' (next available for ' + cat + ')');
@@ -71,6 +71,7 @@ node scripts/fetch-docs.mjs --assemble --pages settings,checkpointing,overview,q
 | session | 10% | `settings,checkpointing,overview,quickstart,model-config,sandboxing,fast-mode,remote-control,desktop,devcontainer` |
 | keyboard | 10% | `interactive-mode,keybindings,statusline,terminal-config,output-styles` |
 | bestpractices | 10% | `best-practices,common-workflows,quickstart` |
+| sdk | 5% | `agent-sdk-overview,authentication,third-party-integrations` |
 
 ## Output Format
 
@@ -167,7 +168,7 @@ node scripts/fetch-docs.mjs --assemble --pages settings,checkpointing,overview,q
 
 ## ID Conventions
 
-- `mem-NNN`, `skill-NNN`, `tool-NNN`, `cmd-NNN`, `ext-NNN`, `ses-NNN`, `key-NNN`, `bp-NNN`
+- `mem-NNN`, `skill-NNN`, `tool-NNN`, `cmd-NNN`, `ext-NNN`, `ses-NNN`, `key-NNN`, `bp-NNN`, `sdk-NNN`
 - 既存の最大番号の続きから採番（重複禁止）
 
 ## Quality Requirements

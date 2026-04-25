@@ -593,7 +593,7 @@ export const SCENARIOS: readonly ScenarioData[] = [
         type: 'narrative',
         text: '2つの MCP サーバーが動いた。しかしセキュリティを考えると、どのツールに何の権限を与えるか慎重に設定する必要がある。CI 環境で使う場合はさらに制限を強めたい。',
       },
-      { type: 'question', questionId: 'ses-069' },
+      { type: 'question', questionId: 'sdk-001' },
       { type: 'question', questionId: 'ext-166' },
       {
         type: 'narrative',

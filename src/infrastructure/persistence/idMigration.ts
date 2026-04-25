@@ -17,6 +17,22 @@ const ID_MIGRATIONS: Record<string, string> = {
   'gs-009': 'bp-086',
   'gs-010': 'cmd-103',
   'gs-011': 'mem-053',
+  // 2026-04-25: SDK & Platform カテゴリ新設に伴う移動
+  // 進捗・ブックマーク・履歴の保持用。順序重要 — 上の gs-005→ses-167 を経由して sdk-006 へ
+  'ses-069': 'sdk-001',
+  'cmd-050': 'sdk-002',
+  'ses-080': 'sdk-003',
+  'ses-087': 'sdk-004',
+  'ses-097': 'sdk-005',
+  'ses-167': 'sdk-006',
+  'ext-113': 'sdk-007',
+  'ext-114': 'sdk-008',
+  'ext-115': 'sdk-009',
+  'ext-116': 'sdk-010',
+  'ext-117': 'sdk-011',
+  'ext-118': 'sdk-012',
+  'ext-119': 'sdk-013',
+  'ext-120': 'sdk-014',
 }
 
 export function migrateQuestionIds(json: string): string {

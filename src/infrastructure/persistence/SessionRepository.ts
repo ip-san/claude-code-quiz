@@ -58,7 +58,7 @@ export class SessionRepository {
       const stored = localStorage.getItem(STORAGE_KEY)
       if (!stored) return null
 
-      const migrated = stored.includes('"gs-') ? migrateSessionIds(stored) : stored
+      const migrated = migrateSessionIds(stored)
       if (migrated !== stored) {
         localStorage.setItem(STORAGE_KEY, migrated)
       }

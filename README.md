@@ -101,9 +101,9 @@ Claude Code を導入しても、チームが使いこなせなければ投資�
 | Memory | 68問 | CLAUDE.md、@import、メモリシステム |
 | Skills | 62問 | カスタムスキル、スラッシュコマンド |
 | Tools | 70問 | Read, Edit, Bash, Glob, Grep |
-| Commands | 105問 | CLI コマンド、フラグ |
-| Extensions | 167問 | MCP、Hooks、サブエージェント、プラグイン |
-| Session | 162問 | セッション管理、コンテキスト、履歴 |
+| Commands | 104問 | CLI コマンド、フラグ |
+| Extensions | 159問 | MCP、Hooks、サブエージェント、プラグイン |
+| Session | 157問 | セッション管理、コンテキスト、履歴 |
 | Keyboard | 54問 | ショートカット、Vim モード |
 | Best Practices | 74問 | 効果的な使い方、プロンプト設計 |
 

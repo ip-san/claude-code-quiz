@@ -5,7 +5,17 @@ const emptyCategoryStats = {}
 
 function makeCategoryStats(attempted: number, total: number) {
   const stats: Record<string, { attemptedQuestions: number; totalQuestions: number }> = {}
-  const categories = ['memory', 'skills', 'tools', 'commands', 'extensions', 'session', 'keyboard', 'bestpractices']
+  const categories = [
+    'memory',
+    'skills',
+    'tools',
+    'commands',
+    'extensions',
+    'session',
+    'keyboard',
+    'bestpractices',
+    'sdk',
+  ]
   for (const cat of categories) {
     stats[cat] = { attemptedQuestions: attempted, totalQuestions: total }
   }

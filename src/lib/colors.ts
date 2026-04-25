@@ -8,6 +8,7 @@ export const COLOR_MAP: Record<string, string> = {
   cyan: '#06b6d4',
   yellow: '#eab308',
   emerald: '#10b981',
+  indigo: '#6366f1',
   gray: '#6b7280',
 }
 

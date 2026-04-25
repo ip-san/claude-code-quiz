@@ -55,3 +55,4 @@ paths:
 | session | ses- | ses-001 |
 | keyboard | key- | key-001 |
 | bestpractices | bp- | bp-001 |
+| sdk | sdk- | sdk-001 |

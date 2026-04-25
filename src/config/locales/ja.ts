@@ -689,6 +689,10 @@ export const ja: LocaleConfig = {
         used: 'ベストプラクティスに関わる作業をしていました。知識を固めましょう',
         unused: '効果的な使い方のコツを知ると、Claude の回答品質が上がります',
       },
+      sdk: {
+        used: 'Agent SDK や Anthropic API、Console に関わる作業をしていました',
+        unused: 'Agent SDK や Claude API を使うと、Claude Code の機能をプログラムから呼び出せます',
+      },
     },
     categoryTerms: {
       memory: ['CLAUDE.md', 'ルール', '指示', 'メモリ', '/init', 'rules', '設定'],
@@ -699,6 +703,7 @@ export const ja: LocaleConfig = {
       session: ['コンテキスト', 'セッション', 'トークン', '圧縮', '復帰', 'モデル'],
       keyboard: ['ショートカット', 'Ctrl', 'Shift', 'キー', '操作'],
       bestpractices: ['テスト', 'レビュー', 'デバッグ', 'Plan', '設計', 'エラー', '影響', '確認'],
+      sdk: ['SDK', 'Agent SDK', 'Anthropic API', 'Claude API', 'Console', 'Workbench', 'API キー', 'authentication'],
     },
     fallbackReason: '関連する作業をしていました',
     repeatPattern: (intent) => `「${intent}」を繰り返し`,

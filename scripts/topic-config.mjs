@@ -164,6 +164,14 @@ export const CATEGORY_DOC_MAP = {
   ],
   keyboard: ['interactive-mode', 'common-workflows', 'keybindings', 'statusline', 'terminal-config', 'output-styles'],
   bestpractices: ['best-practices', 'model-config', 'common-workflows', 'sandboxing'],
+  sdk: [
+    'agent-sdk-overview',
+    'authentication',
+    'overview',
+    'quickstart',
+    'interactive-mode',
+    'third-party-integrations',
+  ],
 }
 
 /** Supplementary doc URLs (used by verify-state.mjs). */
@@ -211,6 +219,19 @@ export const CATEGORY_KEYWORDS = {
   session: ['コンテキスト', 'token', 'compact', 'checkpoint', 'resume', 'session', 'fork', 'worktree', 'effort'],
   keyboard: ['Ctrl+', 'Shift+', 'Alt+', 'Esc', 'Tab', 'shortcut', 'vim', 'keybind'],
   bestpractices: ['plan mode', 'Plan', 'verify', 'test', 'review', 'IMPORTANT', 'best practice'],
+  sdk: [
+    'Agent SDK',
+    'Anthropic API',
+    'Claude API',
+    '@anthropic-ai/sdk',
+    '@anthropic-ai/claude-agent-sdk',
+    'messages.create',
+    'Anthropic Console',
+    'Workbench',
+    'Managed Agents',
+    'API キー',
+    'API Key',
+  ],
 }
 
 /** Topic → keyword mapping for session topic detection. */

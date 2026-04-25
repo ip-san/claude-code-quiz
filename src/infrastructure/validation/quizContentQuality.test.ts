@@ -37,6 +37,7 @@ const ID_PREFIX_TO_CATEGORY: Record<string, string> = {
   ses: 'session',
   key: 'keyboard',
   bp: 'bestpractices',
+  sdk: 'sdk',
 }
 
 /** 有効なドキュメントページパス — トピック差し替え時は quizzes.json と一緒に更新すること */
@@ -404,9 +405,9 @@ describe('Quiz Content Quality', () => {
       expect(duplicates, `重複タグ: ${duplicates.join(', ')}`).toEqual([])
     })
 
-    it('全カテゴリが含まれていること', () => {
+    it('全カテゴリが含まれていること（sdk は中上級向けのため除外）', () => {
       const categories = new Set(overviewQuizzes.map((q) => q.category))
-      const missing = validCategoryIds.filter((c) => !categories.has(c))
+      const missing = validCategoryIds.filter((c) => c !== 'sdk' && !categories.has(c))
       expect(missing, `欠落カテゴリ: ${missing.join(', ')}`).toEqual([])
     })
   })

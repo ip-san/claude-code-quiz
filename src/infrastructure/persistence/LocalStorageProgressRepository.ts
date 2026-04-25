@@ -23,9 +23,8 @@ export class LocalStorageProgressRepository implements IProgressRepository {
         return UserProgress.empty()
       }
 
-      const needsMigration = stored.includes('"gs-')
-      const data = needsMigration ? migrateQuestionIds(stored) : stored
-      if (needsMigration) {
+      const data = migrateQuestionIds(stored)
+      if (data !== stored) {
         localStorage.setItem(STORAGE_KEY, data)
       }
 

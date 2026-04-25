@@ -50,6 +50,33 @@ describe('migrateQuestionIds', () => {
       },
     })
     const result = JSON.parse(migrateQuestionIds(input))
-    expect(result.questionProgress['ses-167']).toEqual({ attempts: 5, correctCount: 3 })
+    // gs-005 → ses-167 → sdk-006 (chained migration)
+    expect(result.questionProgress['sdk-006']).toEqual({ attempts: 5, correctCount: 3 })
+  })
+
+  it('migrates SDK & Platform category IDs', () => {
+    const input = JSON.stringify({
+      questionProgress: {
+        'ses-069': { attempts: 2 },
+        'cmd-050': { attempts: 1 },
+        'ext-114': { attempts: 3 },
+      },
+      bookmarkedQuestionIds: ['ses-097', 'ext-117'],
+    })
+    const result = JSON.parse(migrateQuestionIds(input))
+    expect(result.questionProgress).toHaveProperty('sdk-001')
+    expect(result.questionProgress).toHaveProperty('sdk-002')
+    expect(result.questionProgress).toHaveProperty('sdk-008')
+    expect(result.questionProgress).not.toHaveProperty('ses-069')
+    expect(result.bookmarkedQuestionIds).toContain('sdk-005')
+    expect(result.bookmarkedQuestionIds).toContain('sdk-011')
+  })
+
+  it('chains gs-005 → ses-167 → sdk-006', () => {
+    const input = JSON.stringify({ questionProgress: { 'gs-005': { attempts: 1 } } })
+    const result = JSON.parse(migrateQuestionIds(input))
+    expect(result.questionProgress).toHaveProperty('sdk-006')
+    expect(result.questionProgress).not.toHaveProperty('gs-005')
+    expect(result.questionProgress).not.toHaveProperty('ses-167')
   })
 })

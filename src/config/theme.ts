@@ -233,6 +233,15 @@ const claudeCodeTheme: ThemeConfig = {
       description: '効果的な使い方、プロンプト設計、ワークフロー',
       skillDescription: '実務で成果を出せる',
     },
+    {
+      id: 'sdk',
+      name: 'SDK & Platform',
+      icon: '🛠️',
+      color: 'indigo',
+      weight: 5,
+      description: 'Claude Agent SDK / Anthropic Console / Claude API による Claude Code の延長活用',
+      skillDescription: 'SDK と API で開発を自動化できる',
+    },
   ],
   masteryLevels: [
     { name: 'AI入門者', icon: '🌱', color: 'text-claude-orange', bg: 'bg-claude-orange/10', req: null },
