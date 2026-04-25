@@ -10968,10 +10968,10 @@
         },
         {
           "text": "全モデルで同じ固定の `MAX_THINKING_TOKENS` 予算が使用され、エフォートレベルによる調整は行われない",
-          "wrongFeedback": "Opus 4.6とSonnet 4.6ではエフォートレベル（low/medium/high/max）に基づく適応的推論が使われ、`MAX_THINKING_TOKENS`は無視されます。他モデルは固定の思考予算を使用します。"
+          "wrongFeedback": "Opus 4.7 / Opus 4.6 / Sonnet 4.6 ではエフォートレベル（low/medium/high/max/xhigh）に基づく適応的推論が使われ、`MAX_THINKING_TOKENS`は無視されます。他モデルは固定の思考予算を使用します。"
         },
         {
-          "text": "デフォルトで有効で、Opus 4.6とSonnet 4.6ではエフォートレベルに基づいて適応的に推論する（`MAX_THINKING_TOKENS`は無視される）"
+          "text": "デフォルトで有効で、Opus 4.7 / Opus 4.6 / Sonnet 4.6 ではエフォートレベルに基づいて適応的に推論する（`MAX_THINKING_TOKENS`は無視される）"
         },
         {
           "text": "デフォルトでは無効で、`settings.json`または環境変数で明示的にオンにする必要がある",
@@ -10979,7 +10979,7 @@
         }
       ],
       "correctIndex": 2,
-      "explanation": "アダプティブ推論はデフォルトで有効です。Opus 4.6とSonnet 4.6ではエフォートレベル（low/medium/high/max）に基づいて適応的に推論（adaptive reasoning）し、`MAX_THINKING_TOKENS`は無視されます。\n\n{{diagram:0}}\n\nmaxはOpus 4.6専用でセッション単位です。他モデルでは固定の思考予算を使用します。アダプティブ推論を無効化するには`CLAUDE_CODE_DISABLE_ADAPTIVE_THINKING=1`を設定し、その後`MAX_THINKING_TOKENS`でトークン数を制御できます。思考トークンは要約されても全て課金されます。\n{{diagram:1}}",
+      "explanation": "アダプティブ推論はデフォルトで有効です。Opus 4.7 / Opus 4.6 / Sonnet 4.6 ではエフォートレベル（low/medium/high/max/xhigh）に基づいて適応的に推論（adaptive reasoning）し、`MAX_THINKING_TOKENS`は無視されます。\n\n{{diagram:0}}\n\nmaxは Opus 4.7 / Opus 4.6 / Sonnet 4.6 で利用可能でセッション単位、xhighは Opus 4.7 専用です。他モデルでは固定の思考予算を使用します。アダプティブ推論を無効化するには`CLAUDE_CODE_DISABLE_ADAPTIVE_THINKING=1`を設定し、その後`MAX_THINKING_TOKENS`でトークン数を制御できます。思考トークンは要約されても全て課金されます。\n{{diagram:1}}",
       "referenceUrl": "https://code.claude.com/docs/ja/model-config",
       "diagrams": [
         {
@@ -10992,7 +10992,7 @@
             },
             {
               "text": "モデル判定",
-              "sub": "Opus/Sonnet 4.6"
+              "sub": "Opus 4.7 / 4.6 / Sonnet 4.6"
             },
             {
               "text": "アダプティブ推論",
@@ -11009,7 +11009,7 @@
           "label": "モデル別の推論動作",
           "columns": [
             {
-              "heading": "Opus/Sonnet 4.6",
+              "heading": "Opus 4.7/4.6/Sonnet 4.6",
               "items": [
                 "アダプティブ推論",
                 "effort levelで動的調整",
@@ -18294,7 +18294,7 @@
         }
       ],
       "correctIndex": 0,
-      "explanation": "`CLAUDE_CODE_EFFORT_LEVEL`はlow、medium、high、max、xhigh（Opus 4.7のみ）の段階に加え、autoでデフォルトリセットができます。\n\n{{diagram:0}}\n\nmaxはセッション単位で永続化されません（環境変数経由を除く）。デフォルトはOpus 4.7では`xhigh`、Opus 4.6/Sonnet 4.6ではプラン依存（Pro/Maxは`medium`、その他は`high`）です。lowにすると高速で簡潔な応答、highにするとより深い推論が行われます。\n{{diagram:1}}",
+      "explanation": "`CLAUDE_CODE_EFFORT_LEVEL`はlow、medium、high、max、xhigh（Opus 4.7のみ）の段階に加え、autoでデフォルトリセットができます。\n\n{{diagram:0}}\n\nmaxはセッション単位で永続化されません（環境変数経由を除く）。デフォルトはOpus 4.7では`xhigh`、Opus 4.6/Sonnet 4.6では`high`です（v2.1.117以降）。lowにすると高速で簡潔な応答、highにするとより深い推論が行われます。\n{{diagram:1}}",
       "referenceUrl": "https://code.claude.com/docs/ja/settings",
       "diagrams": [
         {
@@ -18315,7 +18315,7 @@
             },
             {
               "text": "medium",
-              "sub": "Pro/Maxのデフォルト(4.6)"
+              "sub": "中間レベル"
             },
             {
               "text": "low",
@@ -18329,7 +18329,7 @@
           "items": [
             {
               "text": "low, medium, high, max, auto（正解）",
-              "sub": "`CLAUDE_CODE_EFFORT_LEVEL`はlow、medium、high、max、xhigh（Opus 4.7のみ）の段階に加え、autoでデフォルトリセットができます。 maxはセッション単位で永続化されません（環境変数経由を除く）。デフォルトはOpus 4.7では`xhigh`、Opus 4.6/Sonnet 4.6ではプラン依存（Pro/Maxは`medium`、その他は`high`）です。lowにすると高速で簡潔な応答、highにするとより深い推論が行われます。"
+              "sub": "`CLAUDE_CODE_EFFORT_LEVEL`はlow、medium、high、max、xhigh（Opus 4.7のみ）の段階に加え、autoでデフォルトリセットができます。 maxはセッション単位で永続化されません（環境変数経由を除く）。デフォルトはOpus 4.7では`xhigh`、Opus 4.6/Sonnet 4.6では`high`です（v2.1.117以降）。lowにすると高速で簡潔な応答、highにするとより深い推論が行われます。"
             },
             {
               "text": "fast, normal, thorough",
@@ -22913,7 +22913,7 @@
         }
       ],
       "correctIndex": 1,
-      "explanation": "`Shift+Tab`（または一部の環境では`Alt+M`）を押すと、パーミッションモードを Normal → Auto-Accept Edits → Plan Mode の順にサイクルで切り替えることができます。\n\n{{diagram:0}}\n\nNormalモードではファイル編集やシェルコマンドの前に確認を求め、Auto-Accept Editsモードではファイル編集は自動で実行されますがコマンドは確認が必要です。Plan Modeでは読み取り専用のツールのみ使用可能で、実装計画を立てるのに適しています。\n{{diagram:1}}",
+      "explanation": "`Shift+Tab`（または一部の環境では`Alt+M`）を押すと、パーミッションモードを Normal → Auto-Accept Edits → Plan Mode の順にサイクルで切り替えることができます（有効化されていれば `auto` や `bypassPermissions` も同じサイクルに含まれます）。\n\n{{diagram:0}}\n\nNormalモードではファイル編集やシェルコマンドの前に確認を求め、Auto-Accept Editsモードではファイル編集は自動で実行されますがコマンドは確認が必要です。Plan Modeでは読み取り専用のツールのみ使用可能で、実装計画を立てるのに適しています。\n{{diagram:1}}",
       "category": "session",
       "difficulty": "beginner",
       "referenceUrl": "https://code.claude.com/docs/ja/interactive-mode",
@@ -22943,7 +22943,7 @@
           "items": [
             {
               "text": "`Shift+Tab`（または一部の環境では`Alt+M`）を押して、パーミッションモードをAuto-Acceptに切り替える（正解）",
-              "sub": "`Shift+Tab`（または一部の環境では`Alt+M`）を押すと、パーミッションモードを Normal → Auto-Accept Edits → Plan Mode の順にサイクルで切り替えることができます。 Normalモードではファイル編集やシェルコマンドの前に確認を求め、Auto-Accept Editsモードではファイル編集は自動で実行されますがコマンドは確認が必要です。Plan Modeでは読み取り専用のツールのみ使用可能で、実装計画を立てるのに適しています。"
+              "sub": "`Shift+Tab`（または一部の環境では`Alt+M`）を押すと、パーミッションモードを Normal → Auto-Accept Edits → Plan Mode の順にサイクルで切り替えることができます（有効化されていれば `auto` や `bypassPermissions` も同じサイクルに含まれます）。 Normalモードではファイル編集やシェルコマンドの前に確認を求め、Auto-Accept Editsモードではファイル編集は自動で実行されますがコマンドは確認が必要です。Plan Modeでは読み取り専用のツールのみ使用可能で、実装計画を立てるのに適しています。"
             },
             {
               "text": "`/config` コマンドでパーミッション設定を変更し、セッションを再起動する",
@@ -28547,7 +28547,7 @@
         }
       ],
       "correctIndex": 2,
-      "explanation": "Opus 4.6のエフォートレベルは6つの方法で設定できます：(1) `/effort` コマンド（`/effort low`、`/effort max`等）、(2) `/model` メニューの左右矢印キーでエフォートスライダーを調整、(3) `--effort` CLIフラグ（起動時に`claude --effort low`）、(4) 環境変数 `CLAUDE_CODE_EFFORT_LEVEL=low|medium|high|max|auto`、(5) 設定ファイルの `effortLevel` フィールド、(6) スキル/サブエージェントのフロントマターで `effort` フィールドを指定（そのスキルまたはサブエージェントがアクティブな間のオーバーライド）。\n\n{{diagram:0}}\n\nプロンプトに`--effort=low`を付けて送信するという使い方は存在しません。`--effort`はClaude Code起動時のCLIフラグです。デフォルトのエフォートレベルはプランによって異なり、Pro/Maxサブスクライバーはmedium、その他のユーザー（APIキー、Team、Enterprise、Bedrock/Vertex AI/Foundry等）はhighです。エフォートレベル機能はOpus 4.6とSonnet 4.6の両方でサポートされています。\n{{diagram:1}}",
+      "explanation": "Opus 4.6のエフォートレベルは6つの方法で設定できます：(1) `/effort` コマンド（`/effort low`、`/effort max`等）、(2) `/model` メニューの左右矢印キーでエフォートスライダーを調整、(3) `--effort` CLIフラグ（起動時に`claude --effort low`）、(4) 環境変数 `CLAUDE_CODE_EFFORT_LEVEL=low|medium|high|max|auto`、(5) 設定ファイルの `effortLevel` フィールド、(6) スキル/サブエージェントのフロントマターで `effort` フィールドを指定（そのスキルまたはサブエージェントがアクティブな間のオーバーライド）。\n\n{{diagram:0}}\n\nプロンプトに`--effort=low`を付けて送信するという使い方は存在しません。`--effort`はClaude Code起動時のCLIフラグです。デフォルトのエフォートレベルは Opus 4.7 では `xhigh`、Opus 4.6 / Sonnet 4.6 では `high` です（v2.1.117以降）。エフォートレベル機能は Opus 4.7 / Opus 4.6 / Sonnet 4.6 でサポートされており、`max` も同じ3モデルで利用可能、`xhigh` は Opus 4.7 専用です。\n{{diagram:1}}",
       "referenceUrl": "https://code.claude.com/docs/ja/model-config",
       "diagrams": [
         {
@@ -46260,26 +46260,26 @@
       "id": "skill-061",
       "category": "skills",
       "difficulty": "intermediate",
-      "question": "スキルのfrontmatterで`effort`フィールドに設定できる値として、Opus 4.6でのみ使用可能なオプションはどれですか？",
+      "question": "スキルのfrontmatterで`effort`フィールドに設定できる値として、Opus 4.7 でのみ使用可能なオプションはどれですか？",
       "options": [
         {
           "text": "`ultra`",
-          "wrongFeedback": "`ultra`というオプションは存在しません。`effort`フィールドのオプションは`low`、`medium`、`high`、`max`（Opus 4.6のみ）の4つです。"
+          "wrongFeedback": "`ultra`というオプションは存在しません。`effort`フィールドのオプションは`low`、`medium`、`high`、`max`、`xhigh`（Opus 4.7 のみ）です。"
         },
         {
-          "text": "`max`"
+          "text": "`xhigh`"
         },
         {
-          "text": "`high`",
-          "wrongFeedback": "`high`はすべてのモデルで使用可能です。Opus 4.6でのみ使用できるのは`max`です。`effort`フィールドのオプションは`low`、`medium`、`high`、`max`（Opus 4.6のみ）です。"
+          "text": "`max`",
+          "wrongFeedback": "`max`は Opus 4.7 / Opus 4.6 / Sonnet 4.6 で利用可能で、Opus 4.7 専用ではありません。Opus 4.7 のみで使用できるのは `xhigh` です。"
         },
         {
           "text": "`extreme`",
-          "wrongFeedback": "`extreme`というオプションは存在しません。`effort`フィールドのオプションは`low`、`medium`、`high`、`max`（Opus 4.6のみ）の4つです。"
+          "wrongFeedback": "`extreme`というオプションは存在しません。`effort`フィールドのオプションは`low`、`medium`、`high`、`max`、`xhigh`（Opus 4.7 のみ）です。"
         }
       ],
       "correctIndex": 1,
-      "explanation": "スキルのfrontmatterで`effort`フィールドを設定すると、セッションのeffortレベルを上書きできます。選択肢は`low`、`medium`、`high`、`max`の4つで、`max`はOpus 4.6でのみ使用可能です。\n\n{{diagram:0}}\n\nこれにより、高精度が必要なスキルにはより高いeffortを、軽量なスキルにはより低いeffortを割り当てることができます。\n{{diagram:1}}",
+      "explanation": "スキルのfrontmatterで`effort`フィールドを設定すると、セッションのeffortレベルを上書きできます。選択肢は`low`、`medium`、`high`、`max`、`xhigh`、`auto`で、`xhigh`は Opus 4.7 でのみ使用可能、`max`は Opus 4.7 / Opus 4.6 / Sonnet 4.6 で利用可能です。\n\n{{diagram:0}}\n\nこれにより、高精度が必要なスキルにはより高いeffortを、軽量なスキルにはより低いeffortを割り当てることができます。\n{{diagram:1}}",
       "referenceUrl": "https://code.claude.com/docs/ja/skills#frontmatter-reference",
       "diagrams": [
         {
@@ -46296,7 +46296,7 @@
               "text": "model: opus"
             },
             {
-              "text": "effort: max",
+              "text": "effort: xhigh",
               "highlight": true
             },
             {
@@ -46324,20 +46324,20 @@
           "label": "effortの正誤ポイント",
           "items": [
             {
-              "text": "`max`（正解）",
-              "sub": "スキルのfrontmatterで`effort`フィールドを設定すると、セッションのeffortレベルを上書きできます。選択肢は`low`、`medium`、`high`、`max`の4つで、`max`はOpus 4.6でのみ使用可能です。 これにより、高精度が必要なスキルにはより高いeffortを、軽量なスキルにはより低いeffortを割り当てることができます。"
+              "text": "`xhigh`（正解）",
+              "sub": "スキルのfrontmatterで`effort`フィールドを設定すると、セッションのeffortレベルを上書きできます。選択肢は`low`、`medium`、`high`、`max`、`xhigh`、`auto`で、`xhigh`は Opus 4.7 でのみ、`max`は Opus 4.7 / Opus 4.6 / Sonnet 4.6 で利用可能です。"
             },
             {
-              "text": "`high`",
-              "sub": "`high`はすべてのモデルで使用可能です。Opus 4.6でのみ使用できるのは`max`です。`effort`フィールドのオプションは`low`、`medium`、`high`、`max`（Opus 4.6のみ）です。"
+              "text": "`max`",
+              "sub": "`max`は Opus 4.7 / Opus 4.6 / Sonnet 4.6 で利用可能で、Opus 4.7 専用ではありません。Opus 4.7 のみで使用できるのは `xhigh` です。"
             },
             {
               "text": "`extreme`",
-              "sub": "`extreme`というオプションは存在しません。`effort`フィールドのオプションは`low`、`medium`、`high`、`max`（Opus 4.6のみ）の4つです。"
+              "sub": "`extreme`というオプションは存在しません。`effort`フィールドのオプションは`low`、`medium`、`high`、`max`、`xhigh`（Opus 4.7 のみ）です。"
             },
             {
               "text": "`ultra`",
-              "sub": "`ultra`というオプションは存在しません。`effort`フィールドのオプションは`low`、`medium`、`high`、`max`（Opus 4.6のみ）の4つです。"
+              "sub": "`ultra`というオプションは存在しません。`effort`フィールドのオプションは`low`、`medium`、`high`、`max`、`xhigh`（Opus 4.7 のみ）です。"
             }
           ]
         }
@@ -47962,10 +47962,10 @@
         },
         {
           "text": "`max` はすべてのモデルで使用できる",
-          "wrongFeedback": "`max` レベルは Opus 4.6 でのみ使用可能です"
+          "wrongFeedback": "`max` レベルは Opus 4.7 / Opus 4.6 / Sonnet 4.6 で利用可能で、それ以外のモデル（Haiku など）では使えません"
         },
         {
-          "text": "`max` は現在のセッションのみに適用され、Opus 4.6 が必要である"
+          "text": "`max` は現在のセッションのみに適用され、Opus 4.7 / Opus 4.6 / Sonnet 4.6 で利用可能である"
         },
         {
           "text": "`max` は `/effort` のデフォルト値である",
@@ -47973,7 +47973,7 @@
         }
       ],
       "correctIndex": 2,
-      "explanation": "`/effort` コマンドでは `low`, `medium`, `high`, `max`, `auto` を指定できます。\n\n{{diagram:0}}\n\n`low`, `medium`, `high` はセッション間で永続化されますが、`max` は現在のセッションのみに適用され、Opus 4.6 が必要です。`auto` はモデルのデフォルトにリセットします。\n{{diagram:1}}",
+      "explanation": "`/effort` コマンドでは `low`, `medium`, `high`, `max`, `auto` を指定できます。\n\n{{diagram:0}}\n\n`low`, `medium`, `high` はセッション間で永続化されますが、`max` は現在のセッションのみに適用され、Opus 4.7 / Opus 4.6 / Sonnet 4.6 で利用可能です。`auto` はモデルのデフォルトにリセットします。\n{{diagram:1}}",
       "referenceUrl": "https://code.claude.com/docs/ja/commands",
       "diagrams": [
         {
@@ -47985,7 +47985,7 @@
             },
             {
               "type": "info",
-              "text": "Effort level set to max (Opus 4.6 only)"
+              "text": "Effort level set to max (Opus 4.7 / 4.6 / Sonnet 4.6)"
             },
             {
               "type": "info",
@@ -47998,8 +47998,8 @@
           "label": "/effortの正誤ポイント",
           "items": [
             {
-              "text": "`max` は現在のセッションのみに適用され、Opus 4.6 が必要である（正解）",
-              "sub": "`/effort` コマンドでは `low`, `medium`, `high`, `max`, `auto` を指定できます。 `low`, `medium`, `high` はセッション間で永続化されますが、`max` は現在のセッションのみに適用され、Opus 4.6 が必要です。`auto` はモデルのデフォルトにリセットします。"
+              "text": "`max` は現在のセッションのみに適用（正解）",
+              "sub": "`/effort` コマンドでは `low`, `medium`, `high`, `max`, `auto` を指定できます。 `low`, `medium`, `high` はセッション間で永続化されますが、`max` は現在のセッションのみに適用され、Opus 4.7 / Opus 4.6 / Sonnet 4.6 で利用可能です。`auto` はモデルのデフォルトにリセットします。"
             },
             {
               "text": "`max` は `/effort` のデフォルト値である",
@@ -48011,7 +48011,7 @@
             },
             {
               "text": "`max` はすべてのモデルで使用できる",
-              "sub": "`max` レベルは Opus 4.6 でのみ使用可能です"
+              "sub": "`max` レベルは Opus 4.7 / Opus 4.6 / Sonnet 4.6 で利用可能で、Haiku などでは使えません"
             }
           ]
         }
