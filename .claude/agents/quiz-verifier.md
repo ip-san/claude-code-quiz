@@ -6,6 +6,7 @@ tools: Read, Grep, Glob, Bash
 permissionMode: auto
 maxTurns: 30
 color: blue
+memory: project
 ---
 
 あなたはクイズコンテンツの検証エージェントです。
@@ -117,3 +118,19 @@ severity が `critical` の issue を検出した場合、偽陽性（正しい�
 5. 確信が持てない場合は severity を `major` に下げ、`needsOpusReview: true` フラグを追加する
 
 リードエージェントは `needsOpusReview: true` の issue を Opus で最終確認する。
+
+## メモリ運用
+
+`.claude/agent-memory/quiz-verifier/MEMORY.md` を持つ（`memory: project`）。検証中に発見した:
+- 偽陽性パターン（critical 判定しがちだが実は正しい表現の癖）
+- ドキュメント側のニュアンス差（「非推奨」vs「推奨ではない」のような微差）
+- カテゴリ別の頻出指摘パターン（memory はアンカーズレが多い、tools は引数順序の混乱が多い等）
+- 公式ドキュメントの判別が難しい用語（CLI と Skill で同名のコマンド、別ページに散らばる定義など）
+
+を都度書き込み、次回起動時の判定精度を上げる。
+
+**運用ルール:**
+- 検証開始前に MEMORY.md を読み、該当カテゴリの過去パターンを参照する
+- critical 判定する前に「過去同じ表現で偽陽性を出したことはないか」を MEMORY.md で確認
+- セッション終了時に新しい発見があれば追記
+- MEMORY.md が 200 行/25KB を超えたら topic 別ファイル（例: `category-memory.md`, `false-positives.md`）に分割する
