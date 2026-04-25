@@ -105,24 +105,11 @@ export const ja: LocaleConfig = {
   },
 
   result: {
-    firstCongrats: 'はじめの一歩、おめでとうございます',
-    firstMessage: 'AI を学ぶ決断をしました。ここから毎日少しずつ伸びていきます。',
     reviewNote: '復習モード — スコア非反映',
-    starRating: 'つ星の評価',
-    nextRecommendation: '次のおすすめ',
-    tomorrowAction: '明日やること',
-    tomorrowMessage: '知識を行動に変えるのは、今です。小さな一歩が未来を変えます。',
     passing: '✅ 合格！',
     notPassing: '📚 もう少し！',
-    nextStep: 'Next Step',
-    learnedAction: '学んだ知識を実践してみましょう',
-    overviewCompleteDesc: '全体像を把握できました！実力テストで総合力を試してみましょう。',
-    categoryMistake: (icon, name, count) =>
-      `${icon} ${name}で${count}問間違えました。カテゴリ別学習で深掘りしてみましょう。`,
-    deepDive: (icon, name) => `${icon} ${name}を深掘り`,
     reviewWrong: (count) => `間違えた問題を復習（${count}問）`,
     retryAgain: 'もう一度挑戦する',
-    quickThree: 'もう3問だけ',
     shareButton: 'シェア',
     textShare: 'テキストでシェア',
     answerProgress: (answered, total, unanswered) => `${answered}/${total}問に回答（${unanswered}問未回答）`,
@@ -255,14 +242,6 @@ export const ja: LocaleConfig = {
     levelReached: (name, req) => `${name}レベル到達（${req}）`,
     nextLevel: (icon, name, req) => `次: ${icon} ${name}（${req}）`,
     xpGained: (gain) => `+${gain} XP 獲得！`,
-  },
-
-  teamShare: {
-    heading: 'チームに広げる',
-    intro:
-      'あなたが学んだことを、チームにも共有しましょう。AI 駆動開発は一人では完結しません。チーム全体で取り組むことで、本当の変革が起こります。',
-    copyButton: 'チームへの提案メッセージをコピー',
-    copyHint: 'Slack やメールにそのまま貼り付けられます',
   },
 
   skills: {

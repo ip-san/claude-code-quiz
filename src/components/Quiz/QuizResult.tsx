@@ -1,10 +1,9 @@
-import { ArrowRight, BookOpen, ChevronDown, Home, RotateCcw, Share2, Star, Target } from 'lucide-react'
+import { BookOpen, ChevronDown, Home, RotateCcw, Share2 } from 'lucide-react'
 import { useState } from 'react'
 import { locale } from '@/config/locale'
 import { theme } from '@/config/theme'
 import { DailyGoalService } from '@/domain/services/DailyGoalService'
 import { getMasteryLevel } from '@/domain/services/MasteryLevelService'
-import { getChapterFromTags } from '@/domain/valueObjects/OverviewChapter'
 import { CERTIFICATE_THRESHOLDS } from '@/domain/valueObjects/ScoreThresholds'
 import { trackShare } from '@/lib/analytics'
 import { CategoryBreakthroughBadge } from './overlays/CategoryBreakthroughBadge'
@@ -17,13 +16,11 @@ import { PersonalBest } from './result/PersonalBest'
 import { ScoreRing } from './result/ScoreRing'
 import { ShareImageGenerator } from './result/ShareImageGenerator'
 import { SkillsAcquired } from './result/SkillsAcquired'
-import { TeamShareGuide } from './result/TeamShareGuide'
-import { STAR_COUNT, STAR_PERCENTAGE_DIVISOR, useQuizResult } from './useQuizResult'
+import { STAR_PERCENTAGE_DIVISOR, useQuizResult } from './useQuizResult'
 
 export function QuizResult() {
   const {
     // Animation state
-    displayPercent,
     showStars,
     showContent,
     noMotion,
@@ -31,8 +28,6 @@ export function QuizResult() {
     // Derived values
     percentage,
     isPassing,
-    filledStars,
-    recommendation,
     result,
     isFirstSession,
 
@@ -49,15 +44,11 @@ export function QuizResult() {
     hintsUsedCount,
     isReviewMode,
     hasWrongAnswers,
-    isOverviewMode,
 
     // Handlers
     handleRetry,
     handleBackToMenu,
-    handleStartCategorySession,
-    handleStartFullTest,
     startReviewSession,
-    startSession,
   } = useQuizResult()
 
   return (
@@ -70,14 +61,6 @@ export function QuizResult() {
         {/* Confetti on perfect/excellent score */}
         {percentage >= CERTIFICATE_THRESHOLDS.full && !noMotion && <ConfettiEffect />}
 
-        {/* First session completion — show BEFORE score to lead with encouragement */}
-        {!isReviewMode && userProgress.sessionHistory.length <= 1 && (
-          <div className="mb-4 rounded-2xl bg-linear-to-r from-claude-orange/10 to-blue-500/10 p-4 text-center">
-            <p className="text-lg font-bold text-claude-dark">{`🎉 ${locale.result.firstCongrats}`}</p>
-            <p className="mt-1 text-sm text-claude-gray">{locale.result.firstMessage}</p>
-          </div>
-        )}
-
         {/* Score Ring */}
         <div className={`mb-4 ${noMotion ? '' : 'animate-bounce-in'}`}>
           <ScoreRing
@@ -89,11 +72,10 @@ export function QuizResult() {
           />
         </div>
 
-        {/* Title + percentage + pass/fail — compact header */}
+        {/* Title + pass/fail — compact header */}
         <h2 className={`mb-1 text-xl font-bold sm:text-2xl ${result.color}`}>{result.title}</h2>
-        <p className="mb-1 text-sm text-stone-500">{result.message}</p>
+        <p className="mb-2 text-sm text-stone-500">{result.message}</p>
         <div className="mb-4 inline-flex flex-wrap items-center justify-center gap-2">
-          <span className={`text-lg font-bold ${result.color}`}>{displayPercent}%</span>
           <span
             className={`rounded-full px-2.5 py-0.5 text-xs font-medium ${
               isPassing ? 'bg-green-500/10 text-green-600' : 'bg-red-500/10 text-red-500'
@@ -117,47 +99,25 @@ export function QuizResult() {
         <PersonalBest sessionHistory={userProgress.sessionHistory} currentPercentage={percentage} />
         {isReviewMode && <p className="mb-4 text-xs text-stone-500">{locale.result.reviewNote}</p>}
 
-        {/* Category breakthrough badges */}
+        {/* Achievement badges — grouped as one cluster */}
         {showStars && !isReviewMode && sessionState && (
-          <CategoryBreakthroughBadge
-            questions={sessionState.questions}
-            answerHistory={sessionState.answerHistory}
-            userProgress={userProgress}
-          />
-        )}
-
-        {/* Stars visualization - staggered pop-in */}
-        <div
-          className="mb-6 flex justify-center gap-1"
-          role="img"
-          aria-label={`${filledStars}${locale.result.starRating}`}
-        >
-          {[...Array(STAR_COUNT)].map((_, i) => (
-            <Star
-              key={i}
-              className={`h-8 w-8 ${
-                showStars && i < filledStars ? 'fill-yellow-500 text-yellow-500' : 'text-stone-300'
-              } ${showStars && !noMotion && i < filledStars ? 'animate-star-pop' : ''}`}
-              style={showStars && !noMotion && i < filledStars ? { animationDelay: `${i * 100}ms` } : undefined}
-              aria-hidden="true"
+          <div className="mb-4 space-y-2">
+            <CategoryBreakthroughBadge
+              questions={sessionState.questions}
+              answerHistory={sessionState.answerHistory}
+              userProgress={userProgress}
             />
-          ))}
-        </div>
-
-        {/* Achievement badges */}
-        {showStars && !isReviewMode && (
-          <>
-            <LevelUpBadge previousXp={sessionState?.initialXp ?? 0} currentXp={userProgress.totalXp} />
+            <LevelUpBadge previousXp={sessionState.initialXp ?? 0} currentXp={userProgress.totalXp} />
             <StreakMilestoneBadge
               currentStreak={userProgress.streakDays}
-              previousStreak={sessionState?.initialStreakDays ?? 0}
+              previousStreak={sessionState.initialStreakDays ?? 0}
             />
             <DailyGoalBadge
-              previousTodayCount={sessionState?.initialTodayCount ?? 0}
+              previousTodayCount={sessionState.initialTodayCount ?? 0}
               currentTodayCount={userProgress.getDailyCount(DailyGoalService.getTodayString())}
               dailyGoal={userProgress.dailyGoal}
             />
-          </>
+          </div>
         )}
 
         {/* Content below stars fades in after stars */}
@@ -165,44 +125,8 @@ export function QuizResult() {
           className={noMotion || showContent ? 'opacity-100' : 'opacity-0'}
           style={{ transition: noMotion ? 'none' : 'opacity 0.3s ease-out' }}
         >
-          {/* Recommendation for overview mode */}
-          {recommendation && (
-            <div className="mb-6 rounded-xl border border-indigo-200 bg-indigo-50 p-4 text-left">
-              <p className="mb-2 text-xs font-semibold text-indigo-500">{locale.result.nextRecommendation}</p>
-              {recommendation.type === 'perfect' ? (
-                <>
-                  <p className="mb-3 text-sm text-stone-600 dark:text-stone-300">
-                    {locale.result.overviewCompleteDesc}
-                  </p>
-                  <button
-                    onClick={handleStartFullTest}
-                    className="inline-flex items-center gap-1.5 rounded-lg bg-indigo-500 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-indigo-600"
-                  >
-                    <Target className="h-4 w-4" />
-                    {locale.nextRecommend.fullTest}
-                    <ArrowRight className="h-4 w-4" />
-                  </button>
-                </>
-              ) : (
-                <>
-                  <p className="mb-3 text-sm text-stone-600 dark:text-stone-300">
-                    {locale.result.categoryMistake(
-                      recommendation.categoryIcon ?? '',
-                      recommendation.categoryName ?? '',
-                      recommendation.wrongCount ?? 0
-                    )}
-                  </p>
-                  <button
-                    onClick={() => recommendation.categoryId && handleStartCategorySession(recommendation.categoryId)}
-                    className="inline-flex items-center gap-1.5 rounded-lg bg-indigo-500 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-indigo-600"
-                  >
-                    {locale.result.deepDive(recommendation.categoryIcon ?? '', recommendation.categoryName ?? '')}
-                    <ArrowRight className="h-4 w-4" />
-                  </button>
-                </>
-              )}
-            </div>
-          )}
+          {/* Next recommendation — single unified CTA */}
+          {!isReviewMode && !isFirstSession && <NextRecommendation mode={sessionConfig.mode} percentage={percentage} />}
 
           {/* Skills acquired — hidden on first session to keep it simple */}
           {!isReviewMode && !isFirstSession && sessionState && (
@@ -218,9 +142,6 @@ export function QuizResult() {
               mode={sessionConfig.mode}
             />
           )}
-
-          {/* Next recommendation — hidden on first session */}
-          {!isReviewMode && !isFirstSession && <NextRecommendation mode={sessionConfig.mode} percentage={percentage} />}
 
           {/* Action buttons — primary CTAs first, share collapsed */}
           <div className="flex flex-col gap-3">
@@ -240,14 +161,6 @@ export function QuizResult() {
               <RotateCcw className="h-5 w-5" />
               {locale.result.retryAgain}
             </button>
-            {!isReviewMode && (
-              <button
-                onClick={() => startSession({ mode: 'quick' })}
-                className="tap-highlight inline-flex w-full items-center justify-center gap-2 rounded-2xl border-2 border-green-500 px-6 py-3 text-sm font-semibold text-green-600 dark:border-green-400 dark:text-green-400"
-              >
-                {`⚡ ${locale.result.quickThree}`}
-              </button>
-            )}
             <div className="flex gap-3">
               <button
                 onClick={handleBackToMenu}
@@ -266,49 +179,6 @@ export function QuizResult() {
               />
             </div>
           </div>
-
-          {/* Next step — connect learning to action (hidden on first session) */}
-          {!isReviewMode &&
-            !isFirstSession &&
-            (() => {
-              // For overview mode: show action item from the last completed chapter
-              if (isOverviewMode && sessionState) {
-                const lastQuestion = sessionState.questions[sessionState.questions.length - 1]
-                const lastChapter = lastQuestion ? getChapterFromTags(lastQuestion.tags) : null
-                const actionItem = lastChapter?.actionItem
-                if (actionItem) {
-                  return (
-                    <div className="mt-6 rounded-2xl border border-green-300 bg-green-50 p-4 text-left dark:border-green-500/30 dark:bg-green-500/10">
-                      <p className="mb-1 text-xs font-semibold text-green-600 dark:text-green-400">
-                        {locale.result.tomorrowAction}
-                      </p>
-                      <p className="mb-3 text-sm text-claude-dark">{actionItem}</p>
-                      <p className="text-xs text-stone-500">{locale.result.tomorrowMessage}</p>
-                    </div>
-                  )
-                }
-              }
-
-              // For other modes: general CTA
-              return (
-                <div className="mt-6 rounded-2xl border border-claude-orange/20 bg-claude-orange/5 p-4 text-center dark:border-claude-orange/30 dark:bg-claude-orange/10">
-                  <p className="mb-1 text-xs font-semibold text-claude-orange">Next Step</p>
-                  <p className="mb-3 text-sm text-claude-dark">{locale.result.learnedAction}</p>
-                  <a
-                    href={theme.officialDocsUrl}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="tap-highlight inline-flex items-center gap-1.5 rounded-xl bg-claude-orange/10 px-4 py-2 text-sm font-medium text-claude-orange dark:bg-claude-orange/20"
-                  >
-                    {theme.officialDocsLabel}
-                    <ArrowRight className="h-4 w-4" />
-                  </a>
-                </div>
-              )
-            })()}
-
-          {/* Team sharing guide — individual learning → team transformation */}
-          {!isReviewMode && <TeamShareGuide percentage={percentage} mode={sessionConfig.mode} />}
         </div>
       </div>
     </div>
@@ -341,7 +211,7 @@ function ShareSection({
         className="tap-highlight inline-flex w-full items-center justify-center gap-2 rounded-2xl border border-stone-300 px-4 py-3 text-sm font-semibold text-stone-600 dark:border-stone-600 dark:text-stone-300"
       >
         <Share2 className="h-4 w-4" />
-        シェア
+        {locale.result.shareButton}
         <ChevronDown className={`h-3 w-3 transition-transform ${open ? 'rotate-180' : ''}`} />
       </button>
       {open && (
@@ -364,7 +234,7 @@ function ShareSection({
               className="tap-highlight inline-flex w-full items-center justify-center gap-2 rounded-xl border border-stone-200 px-4 py-2.5 text-sm text-stone-600 dark:border-stone-700 dark:text-stone-300"
             >
               <Share2 className="h-4 w-4" />
-              テキストでシェア
+              {locale.result.textShare}
             </button>
           )}
           <ShareImageGenerator

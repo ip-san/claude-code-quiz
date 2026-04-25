@@ -121,23 +121,11 @@ export interface LocaleConfig {
 
   // === Quiz Result ===
   readonly result: {
-    readonly firstCongrats: string
-    readonly firstMessage: string
     readonly reviewNote: string
-    readonly starRating: string
-    readonly nextRecommendation: string
-    readonly tomorrowAction: string
-    readonly tomorrowMessage: string
     readonly passing: string
     readonly notPassing: string
-    readonly nextStep: string
-    readonly learnedAction: string
-    readonly overviewCompleteDesc: string
-    readonly categoryMistake: (icon: string, name: string, count: number) => string
-    readonly deepDive: (icon: string, name: string) => string
     readonly reviewWrong: (count: number) => string
     readonly retryAgain: string
-    readonly quickThree: string
     readonly shareButton: string
     readonly textShare: string
     readonly answerProgress: (answered: number, total: number, unanswered: number) => string
@@ -270,14 +258,6 @@ export interface LocaleConfig {
     readonly levelReached: (name: string, req: string) => string
     readonly nextLevel: (icon: string, name: string, req: string) => string
     readonly xpGained: (gain: number) => string
-  }
-
-  // === Team Share ===
-  readonly teamShare: {
-    readonly heading: string
-    readonly intro: string
-    readonly copyButton: string
-    readonly copyHint: string
   }
 
   // === Skills Acquired ===

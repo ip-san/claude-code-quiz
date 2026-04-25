@@ -101,10 +101,6 @@ export interface ThemeConfig {
     readonly title: string
     readonly desc: string
   }[]
-  /** チーム共有メッセージテンプレート（${percentage} でスコアを差し込み） */
-  readonly teamShareTemplate: string
-  /** チーム共有アクションステップ */
-  readonly teamShareSteps: readonly string[]
   /** localStorage キーのプレフィックス */
   readonly storagePrefix: string
   /** 全体像モードのチャプター定義 */
@@ -267,22 +263,6 @@ const claudeCodeTheme: ThemeConfig = {
       title: 'あなたのペースで成長',
       desc: 'スマホでいつでも学習。毎日少しずつで、着実にスキルアップ',
     },
-  ],
-  teamShareTemplate: `Claude Code Quiz で AI コーディングアシスタントの基本を学びました（正答率 \${percentage}%）。
-
-チームで AI 駆動開発を始めるために、まずこの3つから取り組みませんか？
-
-1. 各自が Claude Code Quiz を完了する（スマホで10分）
-2. プロジェクトに CLAUDE.md を作成して開発ルールを共有する
-3. 週1回「AI で何を自動化できたか」を共有する場を設ける
-
-クイズはこちら → https://ip-san.github.io/claude-code-quiz/
-
-#ClaudeCode #AI駆動開発 #DX推進`,
-  teamShareSteps: [
-    'チームメンバーにこのクイズを共有する',
-    'プロジェクトに CLAUDE.md を作成してルールを統一する',
-    '週1回「AIで何を自動化できたか」共有会を設ける',
   ],
   storagePrefix: 'claude-code-quiz',
   overviewChapters: [
