@@ -200,16 +200,29 @@ if (totalModes > 0 && totalModes < 9) {
   errors.push(`Mode table may be incomplete: found ${totalModes} modes (expected 9)`)
 }
 
+// CLAUDE.md + path-scoped rules under .claude/rules/ form one logical project rulebook
+let projectRules = claudeMd
+try {
+  const ruleFiles = readdirSync('.claude/rules', { withFileTypes: true })
+    .filter((d) => d.isFile() && d.name.endsWith('.md'))
+    .map((d) => d.name)
+  for (const file of ruleFiles) {
+    projectRules += `\n${readFileSync(`.claude/rules/${file}`, 'utf8')}`
+  }
+} catch {
+  // .claude/rules may not exist
+}
+
 // ── ViewState check ─────────────────────────────────────────
-// Verify all ViewState values used in code are mentioned in CLAUDE.md
+// Verify all ViewState values used in code are mentioned in CLAUDE.md or rules
 const storeContent = readFileSync('src/stores/quizStore.ts', 'utf8')
 const viewStateMatch = storeContent.match(/type ViewState = (.+)/)
 if (viewStateMatch) {
   const states = viewStateMatch[1].match(/'(\w+)'/g)?.map((s) => s.replace(/'/g, '')) ?? []
   for (const state of states) {
     if (state === 'menu' || state === 'quiz' || state === 'result') continue // core states, not features
-    if (!claudeMd.toLowerCase().includes(state.toLowerCase())) {
-      errors.push(`ViewState '${state}' exists in code but is not mentioned in CLAUDE.md`)
+    if (!projectRules.toLowerCase().includes(state.toLowerCase())) {
+      errors.push(`ViewState '${state}' exists in code but is not mentioned in CLAUDE.md or .claude/rules/`)
     }
   }
 }
@@ -220,8 +233,8 @@ try {
     .filter((d) => d.isDirectory())
     .map((d) => d.name)
   for (const skill of skillDirs) {
-    if (!claudeMd.includes(skill)) {
-      errors.push(`Skill '${skill}' exists in .claude/skills/ but is not mentioned in CLAUDE.md`)
+    if (!projectRules.includes(skill)) {
+      errors.push(`Skill '${skill}' exists in .claude/skills/ but is not mentioned in CLAUDE.md or .claude/rules/`)
     }
   }
 } catch {
