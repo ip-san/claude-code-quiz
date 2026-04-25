@@ -132,6 +132,15 @@ const VALID_DOC_PAGES = [
   'ultraplan',
   'zero-data-retention',
   'changelog',
+  // Newly discovered pages (2026-04-26)
+  'routines',
+  'errors',
+  'plugin-dependencies',
+  'ultrareview',
+  'admin-setup',
+  'auto-mode-config',
+  'debug-your-config',
+  'web-quickstart',
   // platform.claude.com pages
   'agent-sdk/overview',
   'agents-and-tools/agent-skills/best-practices',

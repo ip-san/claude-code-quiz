@@ -2,7 +2,7 @@
 
 <img src="build/icon.svg" alt="Claude Code Quiz" width="64" height="64">
 
-Claude Code の機能と使い方を **762問のクイズ** で学ぶアプリ。スマホでもPCでも。
+Claude Code の機能と使い方を **775問のクイズ** で学ぶアプリ。スマホでもPCでも。
 
 **今すぐ試す（ブラウザ版）:** https://ip-san.github.io/claude-code-quiz/
 
@@ -94,18 +94,18 @@ Claude Code を導入しても、チームが使いこなせなければ投資�
 | 読んでから解く | 解説を先に読んでからクイズに挑戦（初心者向け） |
 | 実践シナリオ | 実務シナリオに沿ってClaude Codeを学ぶ |
 
-### 8つのカテゴリ（762問）
+### 8つのカテゴリ（775問）
 
 | カテゴリ | 問題数 | 内容 |
 |---------|--------|------|
-| Memory | 68問 | CLAUDE.md、@import、メモリシステム |
+| Memory | 69問 | CLAUDE.md、@import、メモリシステム |
 | Skills | 62問 | カスタムスキル、スラッシュコマンド |
 | Tools | 70問 | Read, Edit, Bash, Glob, Grep |
-| Commands | 104問 | CLI コマンド、フラグ |
-| Extensions | 159問 | MCP、Hooks、サブエージェント、プラグイン |
-| Session | 157問 | セッション管理、コンテキスト、履歴 |
+| Commands | 106問 | CLI コマンド、フラグ |
+| Extensions | 161問 | MCP、Hooks、サブエージェント、プラグイン |
+| Session | 161問 | セッション管理、コンテキスト、履歴 |
 | Keyboard | 54問 | ショートカット、Vim モード |
-| Best Practices | 74問 | 効果的な使い方、プロンプト設計 |
+| Best Practices | 77問 | 効果的な使い方、プロンプト設計 |
 
 ### 初心者サポート
 
