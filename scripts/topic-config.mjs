@@ -112,6 +112,10 @@ export const DOC_PAGES = [
   { name: 'errors', url: 'https://code.claude.com/docs/en/errors' },
   { name: 'plugin-dependencies', url: 'https://code.claude.com/docs/en/plugin-dependencies' },
   { name: 'ultrareview', url: 'https://code.claude.com/docs/en/ultrareview' },
+  // Auto-discovered from llms.txt (2026-04-25)
+  { name: 'admin-setup', url: 'https://code.claude.com/docs/en/admin-setup' },
+  { name: 'auto-mode-config', url: 'https://code.claude.com/docs/en/auto-mode-config' },
+  { name: 'debug-your-config', url: 'https://code.claude.com/docs/en/debug-your-config' },
   // Agent SDK (different domain)
   { name: 'agent-sdk-overview', url: 'https://platform.claude.com/docs/en/agent-sdk/overview' },
 ]
