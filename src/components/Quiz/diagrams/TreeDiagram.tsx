@@ -80,7 +80,7 @@ export function TreeDiagram({ label, root }: TreeDiagramProps) {
         }
 
         return (
-          <div className="overflow-x-auto rounded-lg border border-stone-200 bg-white/50 px-3 py-2 dark:border-stone-700 dark:bg-stone-800/50">
+          <div className="overflow-x-auto rounded-lg border border-stone-200 bg-stone-50/60 px-3 py-2 dark:border-stone-700 dark:bg-stone-800/50">
             {renderNode(root, 0, true, '')}
           </div>
         )

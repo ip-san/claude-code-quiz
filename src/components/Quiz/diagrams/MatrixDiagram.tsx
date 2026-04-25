@@ -24,7 +24,7 @@ export function MatrixDiagram({ label, rowHeader, colHeader, rows, cols, cells }
     if (v === '✓' || v === '○') return 'bg-green-50 text-green-700 dark:bg-green-500/10 dark:text-green-400'
     if (v === '✗' || v === '×' || v === '−') return 'bg-red-50 text-red-600 dark:bg-red-500/10 dark:text-red-400'
     if (v === '△' || v === '?') return 'bg-amber-50 text-amber-700 dark:bg-amber-500/10 dark:text-amber-400'
-    return 'bg-white text-stone-700 dark:bg-stone-800 dark:text-stone-300'
+    return 'bg-stone-50/80 text-stone-700 dark:bg-stone-800 dark:text-stone-300'
   }
 
   return (

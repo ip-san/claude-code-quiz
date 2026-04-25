@@ -41,7 +41,7 @@ export function ComparisonDiagram({ label, columns }: ComparisonDiagramProps) {
                       <span className="mt-0.5 text-stone-400" aria-hidden="true">
                         -
                       </span>
-                      <span>{item}</span>
+                      <span className="break-words">{item}</span>
                     </li>
                   ))}
                 </ul>

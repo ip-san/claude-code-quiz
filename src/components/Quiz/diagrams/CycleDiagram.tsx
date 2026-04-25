@@ -59,7 +59,9 @@ export function CycleDiagram({ label, trigger, states }: CycleDiagramProps) {
                 >
                   <div className="text-[11px] font-semibold text-claude-dark">{state.text}</div>
                   {state.sub && (
-                    <div className="max-w-[80px] text-[9px] text-stone-500 dark:text-stone-500">{state.sub}</div>
+                    <div className="max-w-[96px] break-words text-[9px] text-stone-500 dark:text-stone-500">
+                      {state.sub}
+                    </div>
                   )}
                 </div>
               </div>

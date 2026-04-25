@@ -22,7 +22,7 @@ export function ConfigDiagram({ label, filepath, lines }: ConfigDiagramProps) {
     <BaseDiagram label={label} defaultLabel={locale.diagrams.config} itemCount={lines.length} staggerMs={60}>
       {({ isVisible, getItemDelay }) => (
         /* Editor window */
-        <div className="overflow-hidden rounded-lg border border-stone-300 bg-white shadow-xs dark:border-stone-600 dark:bg-stone-800">
+        <div className="overflow-hidden rounded-lg border border-stone-300 bg-stone-50/80 shadow-xs dark:border-stone-600 dark:bg-stone-800">
           {/* Tab bar */}
           <div className="flex items-center gap-1.5 border-b border-stone-200 bg-stone-100 px-3 py-1.5 dark:border-stone-600 dark:bg-stone-700">
             <FileCode2 className="h-3 w-3 text-stone-400" />
@@ -44,7 +44,7 @@ export function ConfigDiagram({ label, filepath, lines }: ConfigDiagramProps) {
                 </span>
                 {/* Content */}
                 <pre
-                  className={`flex-1 whitespace-pre-wrap pl-2 ${
+                  className={`flex-1 whitespace-pre-wrap break-all pl-2 ${
                     line.highlight ? 'text-stone-800 dark:text-stone-100' : 'text-stone-600 dark:text-stone-300'
                   }`}
                 >
