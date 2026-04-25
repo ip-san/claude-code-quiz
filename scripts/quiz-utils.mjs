@@ -971,6 +971,105 @@ function ellipsisReport() {
   }
 }
 
+// === Diagram text shape lint ===
+// flow.steps[].text+sub の中途分割と hierarchy.items[].text の長文を検出。
+// 過去事例: text を機械的に N 字で切って続きを sub に逃した結果、
+// "permissionMod"+"e" のような単語分断が 521 件発生（2026-04-25）。
+// 過去事例: comparison→hierarchy 移行で option 全文を text に詰め、
+// ピラミッド型レイアウトから文字がはみ出した（133 items 影響）。
+const SENTENCE_ENDERS = new Set(['。', '、', '！', '？', '.', '!', '?', ')', '）', '】', '」', '』'])
+const CONTINUATION_CHAR = /[ぁ-んァ-ヴa-zA-Z0-9々ー一-龯]/
+const MID_WORD_LATIN = /[A-Za-z]$/
+const HIERARCHY_TEXT_MAX = 40
+
+function isMidSentenceSplit(text, sub) {
+  if (!text || !sub) return false
+  const lastChar = text.slice(-1)
+  const subFirst = sub.charAt(0)
+  if (SENTENCE_ENDERS.has(lastChar)) return false
+  if (!CONTINUATION_CHAR.test(subFirst)) return false
+  // strict: long text (>15) ending in kana/kanji and sub starting in kana/kanji = sentence cut
+  // strict: text ending in latin char and sub starting in latin = word cut (e.g. "permissionMod"+"e")
+  if (MID_WORD_LATIN.test(lastChar) && /^[A-Za-z]/.test(subFirst)) return true
+  if (text.length > 15 && /[ぁ-んァ-ヴ一-龯]/.test(lastChar) && /[ぁ-んァ-ヴ一-龯]/.test(subFirst)) return true
+  return false
+}
+
+function checkDiagramText() {
+  const args = process.argv.slice(3)
+  const reportOnly = args.includes('--report-only')
+  const data = loadQuizzes()
+  const splitHits = []
+  const longHits = []
+
+  for (const q of data.quizzes) {
+    const diagrams = getQuestionDiagrams(q)
+    diagrams.forEach((d, di) => {
+      if (d.type === 'flow' && Array.isArray(d.steps)) {
+        d.steps.forEach((s, si) => {
+          if (isMidSentenceSplit(s.text, s.sub)) {
+            splitHits.push({
+              id: q.id,
+              category: q.category,
+              path: `diagrams[${di}].steps[${si}]`,
+              text: s.text,
+              sub: s.sub,
+            })
+          }
+        })
+      }
+      if (d.type === 'hierarchy' && Array.isArray(d.items)) {
+        d.items.forEach((it, ii) => {
+          const len = (it.text || '').length
+          if (len > HIERARCHY_TEXT_MAX) {
+            longHits.push({
+              id: q.id,
+              category: q.category,
+              path: `diagrams[${di}].items[${ii}]`,
+              len,
+              text: it.text,
+            })
+          }
+        })
+      }
+    })
+  }
+
+  console.log('=== Diagram Text Shape Check ===')
+  console.log(`flow.steps mid-split:        ${splitHits.length}`)
+  console.log(`hierarchy.text > ${HIERARCHY_TEXT_MAX}ch:       ${longHits.length}`)
+
+  const fail = splitHits.length + longHits.length
+  if (splitHits.length > 0) {
+    console.log('\nFlow text/sub split (first 15):')
+    for (const h of splitHits.slice(0, 15)) {
+      console.log(`  ${h.id} [${h.path}]`)
+      console.log(`    text: ${JSON.stringify(h.text).slice(0, 80)}`)
+      console.log(`    sub:  ${JSON.stringify(h.sub).slice(0, 80)}`)
+    }
+    if (splitHits.length > 15) console.log(`  ... and ${splitHits.length - 15} more`)
+  }
+  if (longHits.length > 0) {
+    console.log('\nHierarchy long text (first 15):')
+    for (const h of longHits.slice(0, 15)) {
+      console.log(`  ${h.id} [${h.path}] (${h.len}ch) ${JSON.stringify(h.text).slice(0, 80)}`)
+    }
+    if (longHits.length > 15) console.log(`  ... and ${longHits.length - 15} more`)
+  }
+
+  if (fail > 0) {
+    console.log('\n⚠️  Diagram text shape issues detected.')
+    console.log('  • flow.steps[].text は完全な文断片、sub は ≤15字 の短い補足に。文の途中で text/sub に割らない')
+    console.log('  • hierarchy.items[].text は ≤40字 の短いラベル。長文は comparison/hierarchy.sub を使う')
+    if (reportOnly) {
+      console.log('\n(--report-only: exit 0 regardless of hits)')
+      return
+    }
+    process.exit(1)
+  }
+  console.log('\nOK: no diagram text shape issues.')
+}
+
 // === Main ===
 const command = process.argv[2]
 switch (command) {
@@ -1001,6 +1100,9 @@ switch (command) {
   case 'overlap':
     overlap()
     break
+  case 'check-diagram-text':
+    checkDiagramText()
+    break
   case 'check-ellipsis':
     checkEllipsis()
     break
@@ -1010,7 +1112,7 @@ switch (command) {
   default:
     console.log('Usage: node scripts/quiz-utils.mjs <command>')
     console.log(
-      'Commands: randomize, stats, coverage, check, search, edit, merge-proposals, section-coverage, overlap, check-ellipsis, ellipsis-report'
+      'Commands: randomize, stats, coverage, check, search, edit, merge-proposals, section-coverage, overlap, check-ellipsis, ellipsis-report, check-diagram-text'
     )
     process.exit(1)
 }

@@ -51,18 +51,24 @@ export function FlowDiagram({ label, steps }: FlowDiagramProps) {
                 )}
                 {/* Step card */}
                 <div
-                  className={`flex items-center gap-2.5 rounded-xl border px-3 py-2 transition-none ${color.bg} ${color.border} ${
+                  className={`flex items-start gap-2.5 rounded-xl border px-3 py-2 transition-none ${color.bg} ${color.border} ${
                     isVisible ? 'animate-diagram-slide-right' : 'opacity-0'
                   }`}
                   style={{ animationDelay: getItemDelay(i) }}
                 >
                   {/* Step number badge */}
-                  <span className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-claude-orange/20 text-[10px] font-bold text-claude-orange">
+                  <span className="mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-claude-orange/20 text-[10px] font-bold text-claude-orange">
                     {i + 1}
                   </span>
-                  <div className="flex-1">
-                    <div className="text-xs font-medium text-claude-dark">{step.text}</div>
-                    {step.sub && <div className="text-[10px] text-stone-500 dark:text-stone-500">{step.sub}</div>}
+                  <div className="min-w-0 flex-1">
+                    <div className="text-xs font-medium leading-relaxed text-claude-dark break-words dark:text-stone-200">
+                      {step.text}
+                    </div>
+                    {step.sub && (
+                      <div className="text-[10px] leading-relaxed text-stone-500 break-words dark:text-stone-400">
+                        {step.sub}
+                      </div>
+                    )}
                   </div>
                 </div>
               </div>

@@ -69,6 +69,8 @@
     "quiz:overlap": "node scripts/quiz-utils.mjs overlap",
     "quiz:check-ellipsis": "node scripts/quiz-utils.mjs check-ellipsis",
     "quiz:ellipsis-report": "node scripts/quiz-utils.mjs ellipsis-report",
+    "quiz:check-diagram-text": "node scripts/quiz-utils.mjs check-diagram-text",
+    "quiz:check-diagram-text:report": "node scripts/quiz-utils.mjs check-diagram-text --report-only",
     "quiz:fact-check": "node scripts/quiz-fact-check.mjs",
     "quiz:cross-check": "node scripts/quiz-cross-check.mjs",
     "generate-icons": "node scripts/generate-icons.mjs",

@@ -32,7 +32,7 @@ export function ExplanationWithDiagrams({
           <QuizText text={explanation} animated={animated} animationDelay={animationDelay} />
         </p>
         {diagrams.length > 0 && (
-          <div className="mt-3 border-t border-stone-200 pt-3 dark:border-stone-700">
+          <div className="mt-3 rounded-xl bg-stone-50/70 p-3 dark:bg-stone-900/40">
             <DiagramRenderer diagrams={diagrams} />
           </div>
         )}
@@ -79,13 +79,13 @@ export function ExplanationWithDiagrams({
         const diagram = diagrams[seg.index]
         if (!diagram) return null
         return (
-          <div key={i}>
+          <div key={i} className="rounded-xl bg-stone-50/70 p-3 dark:bg-stone-900/40">
             <DiagramRenderer diagrams={[diagram]} />
           </div>
         )
       })}
       {remainingDiagrams.length > 0 && (
-        <div className="border-t border-stone-200 pt-3 dark:border-stone-700">
+        <div className="rounded-xl bg-stone-50/70 p-3 dark:bg-stone-900/40">
           <DiagramRenderer diagrams={remainingDiagrams} />
         </div>
       )}

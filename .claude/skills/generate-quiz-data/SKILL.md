@@ -146,6 +146,25 @@ node scripts/fetch-docs.mjs --assemble --pages settings,checkpointing,overview,q
 - `comparison.columns[].items[]` は **完全文**で 80 文字以内に収める。長くなる説明文を載せたい場合は `comparison` ではなく `hierarchy`（`items: [{text, sub}]`）を使う。`sub` は長さ無制限。
 - 過去事例: 「`comparison.items` を AI 生成時に文字数で切り詰めて `…` を残した」せいで 423 ダイアグラム × 1520 行を再生成する作業が発生（2026-04-25）。再発防止のため新規生成時もこのルールを守ること。
 
+**ダイアグラム作成ルール（text/sub の意味論）:**
+
+- **YOU MUST** `flow.steps[].text` と `sub` を**1つの文を 2 分割するために使わない**。
+  - ❌ NG: `text: "サブエージェントのpermissionMod"` + `sub: "eはdefault、acceptEdits、a"`（単語 `permissionMode` を分断）
+  - ❌ NG: `text: ".claude/agents/はプロジェクト"` + `sub: "スコープでバージョン管理にコミット..."`（一文を途中で分断）
+  - ✅ OK: `text: "サブエージェントの permissionMode は5種類"` + `sub: "default / acceptEdits / auto / dontAsk / plan"`（text=完全な文、sub=技術名の列挙）
+  - ✅ OK: `text: ".claude/agents/ はプロジェクトスコープ"` + `sub: "バージョン管理にコミット"`（text=ラベル、sub=短い補足）
+- `sub` は **15字以内のテクニカルな補足**（型名・ファイル名・条件・短い例）。文の続きを `sub` に逃さない。
+- 文を続けたい場合は **2 つの step に分ける** か、`text` を完全な文にして `sub` を省く。
+
+**ダイアグラム作成ルール（hierarchy.items の長文禁止）:**
+
+- **YOU MUST** `hierarchy.items[].text` は **40 字以内の短いラベル**。option 全文や wrongFeedback 全文を text に詰めない。
+  - ❌ NG: `text: "frontmatterで\`memory: user\`を設定し、\`~/.claude/agent-memory/<name>/\`にクロスプロジェクトの知識を蓄積させる（正解）"`（86字、ピラミッド型レイアウトからはみ出す）
+  - ✅ OK: `text: "memory: user で永続知識を蓄積（正解）"` + `sub: "~/.claude/agent-memory/<name>/ に保存..."`
+- 長い説明を載せたい場合: `text` をキーフレーズに圧縮し、詳細は `sub` に置く（sub は長さ制限なし）。
+- 過去事例: 1c3f9d4 で comparison→hierarchy 移行時に option 全文を `text` に詰めた結果、133 items でセルから文字がはみ出した（2026-04-25）。再発防止のため新規生成時も text ≤40 字を守ること。
+- 検出: `bun run quiz:check-diagram-text` で flow split + hierarchy 長文の両方を一括チェック可能。
+
 ## ID Conventions
 
 - `mem-NNN`, `skill-NNN`, `tool-NNN`, `cmd-NNN`, `ext-NNN`, `ses-NNN`, `key-NNN`, `bp-NNN`
