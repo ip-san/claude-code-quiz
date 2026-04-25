@@ -51,17 +51,17 @@ export function NextRecommendation({ mode, percentage }: NextRecommendationProps
   let nextMode: QuizModeId = 'random'
   let categoryFilter: string | undefined
 
-  if (percentage < 50 && weakCategory) {
+  if (mode === 'overview' && percentage >= PASSING_SCORE) {
+    icon = '🏆'
+    title = locale.nextRecommend.fullTest
+    description = locale.nextRecommend.fullTestDesc
+    nextMode = 'full'
+  } else if (percentage < 50 && weakCategory) {
     icon = '📖'
     title = locale.recommendation.reviewAction(weakCategory.cat.name)
     description = locale.recommendation.reviewDesc(weakCategory.accuracy)
     nextMode = 'category'
     categoryFilter = weakCategory.cat.id
-  } else if (mode === 'overview' && percentage >= PASSING_SCORE) {
-    icon = '🏆'
-    title = locale.nextRecommend.fullTest
-    description = locale.nextRecommend.fullTestDesc
-    nextMode = 'full'
   } else if (mostUnanswered && mostUnanswered.unanswered > 10) {
     icon = '🗺️'
     title = locale.recommendation.unansweredTitle(mostUnanswered.cat.name, mostUnanswered.unanswered)

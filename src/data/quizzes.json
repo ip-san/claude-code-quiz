@@ -216,9 +216,8 @@
           "label": "CLAUDE.mdの実行例",
           "lines": [
             {
-              "prompt": "> ",
-              "command": "/init",
-              "note": ""
+              "type": "prompt",
+              "text": "/init"
             }
           ]
         }
@@ -2582,9 +2581,12 @@
           "label": "チェックポイント自動保存の実行例",
           "lines": [
             {
-              "prompt": "> ",
-              "command": "/rewind",
-              "note": "任意の時点に巻き戻しが可能です"
+              "type": "prompt",
+              "text": "/rewind"
+            },
+            {
+              "type": "info",
+              "text": "任意の時点に巻き戻しが可能です"
             }
           ]
         }
@@ -2924,19 +2926,24 @@
           "label": "コンテキスト管理フローの実行例",
           "lines": [
             {
-              "prompt": "> ",
-              "command": "/context",
-              "note": ""
+              "type": "prompt",
+              "text": "/context"
             },
             {
-              "prompt": "> ",
-              "command": "/compact",
-              "note": "逼迫するとClaudeの性能が低下するため定期的に"
+              "type": "prompt",
+              "text": "/compact"
             },
             {
-              "prompt": "> ",
-              "command": "/clear",
-              "note": "性能が低下するため定期的に確認し必要に応じて"
+              "type": "info",
+              "text": "逼迫するとClaudeの性能が低下するため定期的に"
+            },
+            {
+              "type": "prompt",
+              "text": "/clear"
+            },
+            {
+              "type": "info",
+              "text": "性能が低下するため定期的に確認し必要に応じて"
             }
           ]
         }
@@ -3073,19 +3080,24 @@
           "label": "コンテキスト管理コマンドの実行例",
           "lines": [
             {
-              "prompt": "> ",
-              "command": "/compact",
-              "note": ""
+              "type": "prompt",
+              "text": "/compact"
             },
             {
-              "prompt": "> ",
-              "command": "/rewind",
-              "note": "チェックポイントに基づくundo（会話+ファイル変"
+              "type": "prompt",
+              "text": "/rewind"
             },
             {
-              "prompt": "> ",
-              "command": "/clear",
-              "note": "チェックポイントに基づくundo（会話+ファイル変"
+              "type": "info",
+              "text": "チェックポイントに基づくundo（会話+ファイル変"
+            },
+            {
+              "type": "prompt",
+              "text": "/clear"
+            },
+            {
+              "type": "info",
+              "text": "チェックポイントに基づくundo（会話+ファイル変"
             }
           ]
         }
@@ -3222,19 +3234,16 @@
           "label": "診断コマンドの使い分けの実行例",
           "lines": [
             {
-              "prompt": "> ",
-              "command": "/mcp",
-              "note": ""
+              "type": "prompt",
+              "text": "/mcp"
             },
             {
-              "prompt": "> ",
-              "command": "/doctor",
-              "note": ""
+              "type": "prompt",
+              "text": "/doctor"
             },
             {
-              "prompt": "> ",
-              "command": "/debug",
-              "note": ""
+              "type": "prompt",
+              "text": "/debug"
             }
           ]
         }
@@ -3364,14 +3373,20 @@
           "label": "Ctrl+Tの実行例",
           "lines": [
             {
-              "prompt": "> ",
-              "command": "/tasks",
-              "note": "バックグラウンドに移したタスクや"
+              "type": "prompt",
+              "text": "/tasks"
             },
             {
-              "prompt": "> ",
-              "command": "/tasks",
-              "note": "バックグラウンドに移したタスクや"
+              "type": "info",
+              "text": "バックグラウンドに移したタスクや"
+            },
+            {
+              "type": "prompt",
+              "text": "/tasks"
+            },
+            {
+              "type": "info",
+              "text": "バックグラウンドに移したタスクや"
             }
           ]
         }
@@ -3651,14 +3666,16 @@
           "label": "/exportの実行例",
           "lines": [
             {
-              "prompt": "> ",
-              "command": "/export",
-              "note": ""
+              "type": "prompt",
+              "text": "/export"
             },
             {
-              "prompt": "> ",
-              "command": "/copy",
-              "note": "応答のみをコピーしたい場合は"
+              "type": "prompt",
+              "text": "/copy"
+            },
+            {
+              "type": "info",
+              "text": "応答のみをコピーしたい場合は"
             }
           ]
         }
@@ -3938,19 +3955,24 @@
           "label": "/statsの実行例",
           "lines": [
             {
-              "prompt": "> ",
-              "command": "/stats",
-              "note": ""
+              "type": "prompt",
+              "text": "/stats"
             },
             {
-              "prompt": "> ",
-              "command": "/cost",
-              "note": "現在のセッションと累計のトークン使用量を詳細に表示"
+              "type": "prompt",
+              "text": "/cost"
             },
             {
-              "prompt": "> ",
-              "command": "/usage",
-              "note": "現在のセッションと累計のトークン使用量を詳細に表示"
+              "type": "info",
+              "text": "現在のセッションと累計のトークン使用量を詳細に表示"
+            },
+            {
+              "type": "prompt",
+              "text": "/usage"
+            },
+            {
+              "type": "info",
+              "text": "現在のセッションと累計のトークン使用量を詳細に表示"
             }
           ]
         }
@@ -4041,9 +4063,8 @@
           "label": "MCP設定の実行例",
           "lines": [
             {
-              "prompt": "$ ",
-              "command": "claude --scope project",
-              "note": ""
+              "type": "prompt",
+              "text": "claude --scope project"
             }
           ]
         }
@@ -5129,14 +5150,12 @@
           "label": "/clearの実行例",
           "lines": [
             {
-              "prompt": "> ",
-              "command": "/clear",
-              "note": ""
+              "type": "prompt",
+              "text": "/clear"
             },
             {
-              "prompt": "> ",
-              "command": "/exit",
-              "note": ""
+              "type": "prompt",
+              "text": "/exit"
             }
           ]
         }
@@ -5261,14 +5280,20 @@
           "label": "セッション再開コマンド",
           "lines": [
             {
-              "prompt": "$ ",
-              "command": "claude --continue",
-              "note": "最新セッションを再開"
+              "type": "prompt",
+              "text": "claude --continue"
             },
             {
-              "prompt": "$ ",
-              "command": "claude --resume",
-              "note": "セッション一覧から選択"
+              "type": "info",
+              "text": "最新セッションを再開"
+            },
+            {
+              "type": "prompt",
+              "text": "claude --resume"
+            },
+            {
+              "type": "info",
+              "text": "セッション一覧から選択"
             }
           ]
         }
@@ -5332,14 +5357,16 @@
           "label": "/clearの実行例",
           "lines": [
             {
-              "prompt": "> ",
-              "command": "/clear",
-              "note": ""
+              "type": "prompt",
+              "text": "/clear"
             },
             {
-              "prompt": "> ",
-              "command": "/compact",
-              "note": "保持しつつコンテキストを圧縮したい場合は"
+              "type": "prompt",
+              "text": "/compact"
+            },
+            {
+              "type": "info",
+              "text": "保持しつつコンテキストを圧縮したい場合は"
             }
           ]
         }
@@ -5737,9 +5764,8 @@
           "label": "Esc+Escの実行例",
           "lines": [
             {
-              "prompt": "> ",
-              "command": "/rewind",
-              "note": ""
+              "type": "prompt",
+              "text": "/rewind"
             }
           ]
         }
@@ -6606,19 +6632,28 @@
           "label": "コンテキスト管理の使い分けの実行例",
           "lines": [
             {
-              "prompt": "> ",
-              "command": "/compact",
-              "note": "コードと会話の復元とそれぞれ別の目的がありコンテキ"
+              "type": "prompt",
+              "text": "/compact"
             },
             {
-              "prompt": "> ",
-              "command": "/clear",
-              "note": "コードと会話の復元とそれぞれ別の目的がありコンテキ"
+              "type": "info",
+              "text": "コードと会話の復元とそれぞれ別の目的がありコンテキ"
             },
             {
-              "prompt": "> ",
-              "command": "/compact",
-              "note": "コードと会話の復元とそれぞれ別の目的がありコンテキ"
+              "type": "prompt",
+              "text": "/clear"
+            },
+            {
+              "type": "info",
+              "text": "コードと会話の復元とそれぞれ別の目的がありコンテキ"
+            },
+            {
+              "type": "prompt",
+              "text": "/compact"
+            },
+            {
+              "type": "info",
+              "text": "コードと会話の復元とそれぞれ別の目的がありコンテキ"
             }
           ]
         }
@@ -7760,14 +7795,12 @@
           "label": "環境変数の設定",
           "lines": [
             {
-              "prompt": "$ ",
-              "command": "export BASH_DEFAULT_TIMEOUT_MS=...",
-              "note": ""
+              "type": "prompt",
+              "text": "export BASH_DEFAULT_TIMEOUT_MS=300000  # 既定 2分 → 5分に延長"
             },
             {
-              "prompt": "$ ",
-              "command": "export BASH_MAX_TIMEOUT_MS=...",
-              "note": ""
+              "type": "prompt",
+              "text": "export BASH_MAX_TIMEOUT_MS=900000      # モデル指定可能な上限 (15分)"
             }
           ]
         }
@@ -7825,14 +7858,20 @@
           "label": "Bash(npm test)の実行例",
           "lines": [
             {
-              "prompt": "$ ",
-              "command": "npm test",
-              "note": "ワイルドカードなしのため"
+              "type": "prompt",
+              "text": "npm test"
             },
             {
-              "prompt": "$ ",
-              "command": "npm test --watch",
-              "note": "コマンドのみにマッチします"
+              "type": "info",
+              "text": "ワイルドカードなしのため"
+            },
+            {
+              "type": "prompt",
+              "text": "npm test --watch"
+            },
+            {
+              "type": "info",
+              "text": "コマンドのみにマッチします"
             }
           ]
         }
@@ -8164,19 +8203,20 @@
           "label": "セッション再開の実行例",
           "lines": [
             {
-              "prompt": "$ ",
-              "command": "claude -r",
-              "note": ""
+              "type": "prompt",
+              "text": "claude -r"
             },
             {
-              "prompt": "$ ",
-              "command": "claude --resume",
-              "note": ""
+              "type": "prompt",
+              "text": "claude --resume"
             },
             {
-              "prompt": "$ ",
-              "command": "claude -c",
-              "note": "現在のディレクトリの最新セッションを選択画面なしで"
+              "type": "prompt",
+              "text": "claude -c"
+            },
+            {
+              "type": "info",
+              "text": "現在のディレクトリの最新セッションを選択画面なしで"
             }
           ]
         }
@@ -8235,14 +8275,16 @@
           "label": "/rewind 部分圧縮の実行例",
           "lines": [
             {
-              "prompt": "> ",
-              "command": "/rewind",
-              "note": ""
+              "type": "prompt",
+              "text": "/rewind"
             },
             {
-              "prompt": "> ",
-              "command": "/compact",
-              "note": "変更はなくコンテキストの空き容量を確保できます"
+              "type": "prompt",
+              "text": "/compact"
+            },
+            {
+              "type": "info",
+              "text": "変更はなくコンテキストの空き容量を確保できます"
             }
           ]
         }
@@ -8299,14 +8341,16 @@
           "label": "/permissionsの実行例",
           "lines": [
             {
-              "prompt": "> ",
-              "command": "/permissions",
-              "note": ""
+              "type": "prompt",
+              "text": "/permissions"
             },
             {
-              "prompt": "> ",
-              "command": "/config",
-              "note": "Settings画面を開きVimモードアダプティブ"
+              "type": "prompt",
+              "text": "/config"
+            },
+            {
+              "type": "info",
+              "text": "Settings画面を開きVimモードアダプティブ"
             }
           ]
         }
@@ -8486,14 +8530,16 @@
           "label": "パイプラインデータフローの実行例",
           "lines": [
             {
-              "prompt": "$ ",
-              "command": "claude -p",
-              "note": ""
+              "type": "prompt",
+              "text": "claude -p"
             },
             {
-              "prompt": "$ ",
-              "command": "claude --output-format stream-json",
-              "note": "リアルタイムでJSONオブジェクトをストリーミング"
+              "type": "prompt",
+              "text": "claude --output-format stream-json"
+            },
+            {
+              "type": "info",
+              "text": "リアルタイムでJSONオブジェクトをストリーミング"
             }
           ]
         }
@@ -9330,14 +9376,12 @@
           "label": "SessionStartの実行例",
           "lines": [
             {
-              "prompt": "$ ",
-              "command": "export CLAUDE_ENV_FILE=...",
-              "note": ""
+              "type": "prompt",
+              "text": "export CLAUDE_ENV_FILE=$CLAUDE_PROJECT_DIR/.claude-env"
             },
             {
-              "prompt": "$ ",
-              "command": "export CLAUDE_ENV_FILE=...",
-              "note": ""
+              "type": "prompt",
+              "text": "export -p > \"$CLAUDE_ENV_FILE.before\""
             }
           ]
         }
@@ -9535,14 +9579,16 @@
           "label": "claude mcpの実行例",
           "lines": [
             {
-              "prompt": "$ ",
-              "command": "claude mcp serve",
-              "note": ""
+              "type": "prompt",
+              "text": "claude mcp serve"
             },
             {
-              "prompt": "$ ",
-              "command": "claude_desktop_config.json",
-              "note": "command: \"claude\"args: [\""
+              "type": "prompt",
+              "text": "claude_desktop_config.json"
+            },
+            {
+              "type": "info",
+              "text": "command: \"claude\"args: [\""
             }
           ]
         }
@@ -10473,9 +10519,8 @@
           "label": "セッションフォークの実行例",
           "lines": [
             {
-              "prompt": "$ ",
-              "command": "claude --continue --fork-session",
-              "note": ""
+              "type": "prompt",
+              "text": "claude --continue --fork-session"
             }
           ]
         }
@@ -11386,9 +11431,8 @@
           "label": "スタック時のリセットの実行例",
           "lines": [
             {
-              "prompt": "> ",
-              "command": "/clear",
-              "note": ""
+              "type": "prompt",
+              "text": "/clear"
             }
           ]
         }
@@ -11445,9 +11489,12 @@
           "label": "ファンアウトの例",
           "lines": [
             {
-              "prompt": "$ ",
-              "command": "for f in src/*.ts; do claude -p \"review $f\" &; done",
-              "note": "並列レビュー"
+              "type": "prompt",
+              "text": "for f in src/*.ts; do claude -p \"review $f\" &; done"
+            },
+            {
+              "type": "info",
+              "text": "並列レビュー"
             }
           ]
         }
@@ -11581,14 +11628,20 @@
           "label": "コンテキスト提供の例",
           "lines": [
             {
-              "prompt": "> ",
-              "command": "@src/api/handler.ts このファイルをレビューして",
-              "note": "ファイル参照"
+              "type": "prompt",
+              "text": "@src/api/handler.ts このファイルをレビューして"
             },
             {
-              "prompt": "$ ",
-              "command": "cat error.log | claude -p \"原因を分析して\"",
-              "note": "パイプ入力"
+              "type": "info",
+              "text": "ファイル参照"
+            },
+            {
+              "type": "prompt",
+              "text": "cat error.log | claude -p \"原因を分析して\""
+            },
+            {
+              "type": "info",
+              "text": "パイプ入力"
             }
           ]
         }
@@ -11797,9 +11850,8 @@
           "label": "軌道修正の段階（軽→重）の実行例",
           "lines": [
             {
-              "prompt": "> ",
-              "command": "/clear",
-              "note": ""
+              "type": "prompt",
+              "text": "/clear"
             }
           ]
         }
@@ -11932,19 +11984,28 @@
           "label": "アダプティブ推論の制御例",
           "lines": [
             {
-              "prompt": "$ ",
-              "command": "export CLAUDE_CODE_DISABLE_ADAPTIVE_THINKING=1",
-              "note": "アダプティブ推論を無効化"
+              "type": "prompt",
+              "text": "export CLAUDE_CODE_DISABLE_ADAPTIVE_THINKING=1"
             },
             {
-              "prompt": "$ ",
-              "command": "export MAX_THINKING_TOKENS=10000",
-              "note": "固定予算で制御可能に"
+              "type": "info",
+              "text": "アダプティブ推論を無効化"
             },
             {
-              "prompt": "$ ",
-              "command": "export MAX_THINKING_TOKENS=0",
-              "note": "全モデルでthinking完全無効化"
+              "type": "prompt",
+              "text": "export MAX_THINKING_TOKENS=10000"
+            },
+            {
+              "type": "info",
+              "text": "固定予算で制御可能に"
+            },
+            {
+              "type": "prompt",
+              "text": "export MAX_THINKING_TOKENS=0"
+            },
+            {
+              "type": "info",
+              "text": "全モデルでthinking完全無効化"
             }
           ]
         }
@@ -13148,19 +13209,16 @@
           "label": "環境変数の設定",
           "lines": [
             {
-              "prompt": "$ ",
-              "command": "export CLAUDE_CODE_CLIENT_CERT=...",
-              "note": ""
+              "type": "prompt",
+              "text": "export CLAUDE_CODE_CLIENT_CERT=/etc/ssl/certs/client.pem"
             },
             {
-              "prompt": "$ ",
-              "command": "export CLAUDE_CODE_CLIENT_KEY=...",
-              "note": ""
+              "type": "prompt",
+              "text": "export CLAUDE_CODE_CLIENT_KEY=/etc/ssl/private/client.key"
             },
             {
-              "prompt": "$ ",
-              "command": "export CLAUDE_CODE_CLIENT_KEY_PASSPHRASE=...",
-              "note": ""
+              "type": "prompt",
+              "text": "export CLAUDE_CODE_CLIENT_KEY_PASSPHRASE=\"$KEY_PASSPHRASE\""
             }
           ]
         }
@@ -14853,14 +14911,16 @@
           "label": "ファンアウトパターンの実行例",
           "lines": [
             {
-              "prompt": "$ ",
-              "command": "claude -p",
-              "note": ""
+              "type": "prompt",
+              "text": "claude -p"
             },
             {
-              "prompt": "$ ",
-              "command": "claude --allowedTools",
-              "note": "使用ツールを制限することで無人実行時の安全性を確保"
+              "type": "prompt",
+              "text": "claude --allowedTools"
+            },
+            {
+              "type": "info",
+              "text": "使用ツールを制限することで無人実行時の安全性を確保"
             }
           ]
         }
@@ -15610,14 +15670,20 @@
           "label": "モデルの実行例",
           "lines": [
             {
-              "prompt": "> ",
-              "command": "/model",
-              "note": "切り替えられます"
+              "type": "prompt",
+              "text": "/model"
             },
             {
-              "prompt": "$ ",
-              "command": "claude --model",
-              "note": "切り替えられます"
+              "type": "info",
+              "text": "切り替えられます"
+            },
+            {
+              "type": "prompt",
+              "text": "claude --model"
+            },
+            {
+              "type": "info",
+              "text": "切り替えられます"
             }
           ]
         }
@@ -17099,14 +17165,20 @@
           "label": "拡張機能の実行例",
           "lines": [
             {
-              "prompt": "> ",
-              "command": "/plugin",
-              "note": "一時的に無効化すればメモリ問題を緩和しつつ後で"
+              "type": "prompt",
+              "text": "/plugin"
             },
             {
-              "prompt": "> ",
-              "command": "/plugin",
-              "note": "一時的に無効化すればメモリ問題を緩和しつつ後で"
+              "type": "info",
+              "text": "一時的に無効化すればメモリ問題を緩和しつつ後で"
+            },
+            {
+              "type": "prompt",
+              "text": "/plugin"
+            },
+            {
+              "type": "info",
+              "text": "一時的に無効化すればメモリ問題を緩和しつつ後で"
             }
           ]
         }
@@ -17306,9 +17378,8 @@
           "label": "--dangerouslの実行例",
           "lines": [
             {
-              "prompt": "$ ",
-              "command": "claude --dangerously-skip-permissions",
-              "note": ""
+              "type": "prompt",
+              "text": "claude --dangerously-skip-permissions"
             }
           ]
         }
@@ -17795,7 +17866,7 @@
               "text": "Bash(npm run *)"
             },
             {
-              "type": "output",
+              "type": "info",
               "text": "→ \"npm run\" で始まるすべての Bash コマンドにマッチ"
             },
             {
@@ -18318,7 +18389,7 @@
               "text": "CLAUDE_CONFIG_DIR=/tmp/instance-2 claude ..."
             },
             {
-              "type": "output",
+              "type": "info",
               "text": "→ 各インスタンスが独立した設定ディレクトリを使用"
             }
           ]
@@ -19147,7 +19218,7 @@
               "text": "export CLAUDE_CODE_DISABLE_1M_CONTEXT=1"
             },
             {
-              "type": "output",
+              "type": "info",
               "text": "→ 1Mトークンコンテキストウィンドウが無効化"
             },
             {
@@ -19370,9 +19441,12 @@
           "label": "/rewindメニュー選択肢の実行例",
           "lines": [
             {
-              "prompt": "$ ",
-              "command": "claude --continue --fork-session",
-              "note": "別途行います"
+              "type": "prompt",
+              "text": "claude --continue --fork-session"
+            },
+            {
+              "type": "info",
+              "text": "別途行います"
             }
           ]
         }
@@ -19692,9 +19766,8 @@
           "label": "セッション転送フローの実行例",
           "lines": [
             {
-              "prompt": "$ ",
-              "command": "claude --teleport",
-              "note": ""
+              "type": "prompt",
+              "text": "claude --teleport"
             }
           ]
         }
@@ -19755,19 +19828,28 @@
           "label": "claude -cの実行例",
           "lines": [
             {
-              "prompt": "$ ",
-              "command": "claude -c",
-              "note": "以前の会話を選択して再開します"
+              "type": "prompt",
+              "text": "claude -c"
             },
             {
-              "prompt": "$ ",
-              "command": "claude -r",
-              "note": "以前の会話を選択して再開します"
+              "type": "info",
+              "text": "以前の会話を選択して再開します"
             },
             {
-              "prompt": "$ ",
-              "command": "claude -c",
-              "note": "以前の会話を選択して再開します"
+              "type": "prompt",
+              "text": "claude -r"
+            },
+            {
+              "type": "info",
+              "text": "以前の会話を選択して再開します"
+            },
+            {
+              "type": "prompt",
+              "text": "claude -c"
+            },
+            {
+              "type": "info",
+              "text": "以前の会話を選択して再開します"
             }
           ]
         }
@@ -19822,14 +19904,20 @@
           "label": "Unixパイプ連携の実行例",
           "lines": [
             {
-              "prompt": "$ ",
-              "command": "claude -p",
-              "note": "ためUNIXのパイプラインに自然に組み込むことがで"
+              "type": "prompt",
+              "text": "claude -p"
             },
             {
-              "prompt": "$ ",
-              "command": "claude -p",
-              "note": "ためUNIXのパイプラインに自然に組み込むことがで"
+              "type": "info",
+              "text": "ためUNIXのパイプラインに自然に組み込むことがで"
+            },
+            {
+              "type": "prompt",
+              "text": "claude -p"
+            },
+            {
+              "type": "info",
+              "text": "ためUNIXのパイプラインに自然に組み込むことがで"
             }
           ]
         }
@@ -21393,9 +21481,12 @@
           "label": "GitHub Actioの実行例",
           "lines": [
             {
-              "prompt": "$ ",
-              "command": "claude --print",
-              "note": "活用してCI/CDパイプラインに組み込むことで様々"
+              "type": "prompt",
+              "text": "claude --print"
+            },
+            {
+              "type": "info",
+              "text": "活用してCI/CDパイプラインに組み込むことで様々"
             }
           ]
         }
@@ -21454,19 +21545,20 @@
           "label": "Unix哲学のCLI活用の実行例",
           "lines": [
             {
-              "prompt": "$ ",
-              "command": "claude -p",
-              "note": ""
+              "type": "prompt",
+              "text": "claude -p"
             },
             {
-              "prompt": "$ ",
-              "command": "claude --name-only",
-              "note": "フランス語に翻訳してPR作成\" 等"
+              "type": "prompt",
+              "text": "claude --name-only"
             },
             {
-              "prompt": "$ ",
-              "command": "claude -p",
-              "note": ""
+              "type": "info",
+              "text": "フランス語に翻訳してPR作成\" 等"
+            },
+            {
+              "type": "prompt",
+              "text": "claude -p"
             }
           ]
         }
@@ -21891,7 +21983,7 @@
               "text": "claude --dangerously-skip-permissions"
             },
             {
-              "type": "error",
+              "type": "info",
               "text": "Error: bypassPermissions mode is disabled"
             }
           ]
@@ -21950,19 +22042,16 @@
           "label": "環境変数の設定",
           "lines": [
             {
-              "prompt": "$ ",
-              "command": "export CLAUDE_CODE_CLIENT_CERT=...",
-              "note": ""
+              "type": "prompt",
+              "text": "export CLAUDE_CODE_CLIENT_CERT=/etc/ssl/certs/client.pem"
             },
             {
-              "prompt": "$ ",
-              "command": "export CLAUDE_CODE_CLIENT_KEY=...",
-              "note": ""
+              "type": "prompt",
+              "text": "export CLAUDE_CODE_CLIENT_KEY=/etc/ssl/private/client.key"
             },
             {
-              "prompt": "$ ",
-              "command": "export CLAUDE_CODE_CLIENT_KEY_PASSPHRASE=...",
-              "note": ""
+              "type": "prompt",
+              "text": "export CLAUDE_CODE_CLIENT_KEY_PASSPHRASE=\"$KEY_PASSPHRASE\""
             }
           ]
         }
@@ -22310,9 +22399,12 @@
           "label": "拡張機能の実行例",
           "lines": [
             {
-              "prompt": "$ ",
-              "command": "claude --disallowedTools",
-              "note": "ように指定します"
+              "type": "prompt",
+              "text": "claude --disallowedTools"
+            },
+            {
+              "type": "info",
+              "text": "ように指定します"
             }
           ]
         }
@@ -22506,19 +22598,16 @@
           "label": "環境変数の設定",
           "lines": [
             {
-              "prompt": "$ ",
-              "command": "export DISABLE_TELEMETRY=...",
-              "note": ""
+              "type": "prompt",
+              "text": "export DISABLE_TELEMETRY=1            # Statsig 使用統計 OFF"
             },
             {
-              "prompt": "$ ",
-              "command": "export DISABLE_ERROR_REPORTING=...",
-              "note": ""
+              "type": "prompt",
+              "text": "export DISABLE_ERROR_REPORTING=1     # Sentry エラーレポート OFF"
             },
             {
-              "prompt": "$ ",
-              "command": "export CLAUDE_CODE_ENABLE_TELEMETRY=...",
-              "note": ""
+              "type": "prompt",
+              "text": "export CLAUDE_CODE_ENABLE_TELEMETRY=0 # OpenTelemetry OFF"
             }
           ]
         }
@@ -22716,9 +22805,12 @@
           "label": "ベストプラクティスの実行例",
           "lines": [
             {
-              "prompt": "> ",
-              "command": "/rewind",
-              "note": "自動的にスナップショットが作成され"
+              "type": "prompt",
+              "text": "/rewind"
+            },
+            {
+              "type": "info",
+              "text": "自動的にスナップショットが作成され"
             }
           ]
         }
@@ -23062,9 +23154,12 @@
           "label": "反復修正アンチパターン対策の実行例",
           "lines": [
             {
-              "prompt": "> ",
-              "command": "/clear",
-              "note": "2回以上同じ修正をした場合はまず"
+              "type": "prompt",
+              "text": "/clear"
+            },
+            {
+              "type": "info",
+              "text": "2回以上同じ修正をした場合はまず"
             }
           ]
         }
@@ -23465,9 +23560,8 @@
           "label": "git commitの実行例",
           "lines": [
             {
-              "prompt": "$ ",
-              "command": "git commit",
-              "note": ""
+              "type": "prompt",
+              "text": "git commit"
             }
           ]
         }
@@ -23598,14 +23692,16 @@
           "label": "printモード出力形式の実行例",
           "lines": [
             {
-              "prompt": "$ ",
-              "command": "claude -p",
-              "note": ""
+              "type": "prompt",
+              "text": "claude -p"
             },
             {
-              "prompt": "$ ",
-              "command": "claude --output-format",
-              "note": "出力形式（json/text/stream-jso"
+              "type": "prompt",
+              "text": "claude --output-format"
+            },
+            {
+              "type": "info",
+              "text": "出力形式（json/text/stream-jso"
             }
           ]
         }
@@ -24610,9 +24706,8 @@
           "label": "PR自動レビューワークフローの実行例",
           "lines": [
             {
-              "prompt": "$ ",
-              "command": "claude -p",
-              "note": ""
+              "type": "prompt",
+              "text": "claude -p"
             }
           ]
         }
@@ -26362,19 +26457,24 @@
           "label": "モデル切替方法の実行例",
           "lines": [
             {
-              "prompt": "> ",
-              "command": "/model",
-              "note": "はOpus 4.6の場合左右矢印キーでエフォートレ"
+              "type": "prompt",
+              "text": "/model"
             },
             {
-              "prompt": "$ ",
-              "command": "claude --model",
-              "note": ""
+              "type": "info",
+              "text": "はOpus 4.6の場合左右矢印キーでエフォートレ"
             },
             {
-              "prompt": "> ",
-              "command": "/model",
-              "note": "はOpus 4.6の場合左右矢印キーでエフォートレ"
+              "type": "prompt",
+              "text": "claude --model"
+            },
+            {
+              "type": "prompt",
+              "text": "/model"
+            },
+            {
+              "type": "info",
+              "text": "はOpus 4.6の場合左右矢印キーでエフォートレ"
             }
           ]
         }
@@ -28027,19 +28127,16 @@
           "label": "コンテキスト管理コマンドの実行例",
           "lines": [
             {
-              "prompt": "> ",
-              "command": "/compact",
-              "note": ""
+              "type": "prompt",
+              "text": "/compact"
             },
             {
-              "prompt": "> ",
-              "command": "/rewind",
-              "note": ""
+              "type": "prompt",
+              "text": "/rewind"
             },
             {
-              "prompt": "> ",
-              "command": "/clear",
-              "note": ""
+              "type": "prompt",
+              "text": "/clear"
             }
           ]
         }
@@ -28174,19 +28271,28 @@
           "label": "コンテキスト管理操作の実行例",
           "lines": [
             {
-              "prompt": "> ",
-              "command": "/compact",
-              "note": "全削除とそれぞれ異なる粒度で動作します"
+              "type": "prompt",
+              "text": "/compact"
             },
             {
-              "prompt": "> ",
-              "command": "/compact",
-              "note": "全削除とそれぞれ異なる粒度で動作します"
+              "type": "info",
+              "text": "全削除とそれぞれ異なる粒度で動作します"
             },
             {
-              "prompt": "> ",
-              "command": "/clear",
-              "note": "時間軸での圧縮Forkはセッション全体のコピー"
+              "type": "prompt",
+              "text": "/compact"
+            },
+            {
+              "type": "info",
+              "text": "全削除とそれぞれ異なる粒度で動作します"
+            },
+            {
+              "type": "prompt",
+              "text": "/clear"
+            },
+            {
+              "type": "info",
+              "text": "時間軸での圧縮Forkはセッション全体のコピー"
             }
           ]
         }
@@ -28475,19 +28581,28 @@
           "label": "設定方法の具体例",
           "lines": [
             {
-              "prompt": "$ ",
-              "command": "claude --effort low",
-              "note": "CLIフラグ（起動時）"
+              "type": "prompt",
+              "text": "claude --effort low"
             },
             {
-              "prompt": "> ",
-              "command": "/effort max",
-              "note": "スラッシュコマンド（セッション中）"
+              "type": "info",
+              "text": "CLIフラグ（起動時）"
             },
             {
-              "prompt": "$ ",
-              "command": "export CLAUDE_CODE_EFFORT_LEVEL=high",
-              "note": "環境変数（永続）"
+              "type": "prompt",
+              "text": "/effort max"
+            },
+            {
+              "type": "info",
+              "text": "スラッシュコマンド（セッション中）"
+            },
+            {
+              "type": "prompt",
+              "text": "export CLAUDE_CODE_EFFORT_LEVEL=high"
+            },
+            {
+              "type": "info",
+              "text": "環境変数（永続）"
             }
           ]
         }
@@ -28546,19 +28661,24 @@
           "label": "モデル設定の優先順位の実行例",
           "lines": [
             {
-              "prompt": "> ",
-              "command": "/model",
-              "note": "いつでも"
+              "type": "prompt",
+              "text": "/model"
             },
             {
-              "prompt": "$ ",
-              "command": "claude --model",
-              "note": ""
+              "type": "info",
+              "text": "いつでも"
             },
             {
-              "prompt": "> ",
-              "command": "/model",
-              "note": "いつでも"
+              "type": "prompt",
+              "text": "claude --model"
+            },
+            {
+              "type": "prompt",
+              "text": "/model"
+            },
+            {
+              "type": "info",
+              "text": "いつでも"
             }
           ]
         }
@@ -28978,14 +29098,20 @@
           "label": "availableModの実行例",
           "lines": [
             {
-              "prompt": "> ",
-              "command": "/model",
-              "note": "いずれでも制限されます"
+              "type": "prompt",
+              "text": "/model"
             },
             {
-              "prompt": "$ ",
-              "command": "claude --model",
-              "note": "いずれでも制限されます"
+              "type": "info",
+              "text": "いずれでも制限されます"
+            },
+            {
+              "type": "prompt",
+              "text": "claude --model"
+            },
+            {
+              "type": "info",
+              "text": "いずれでも制限されます"
             }
           ]
         }
@@ -29111,14 +29237,16 @@
           "label": "管理設定ファイルのOSパの実行例",
           "lines": [
             {
-              "prompt": "> ",
-              "command": "/Library/Application Support/ClaudeCode/",
-              "note": ""
+              "type": "prompt",
+              "text": "/Library/Application Support/ClaudeCode/"
             },
             {
-              "prompt": "> ",
-              "command": "/etc/claude-code/",
-              "note": "配置します"
+              "type": "prompt",
+              "text": "/etc/claude-code/"
+            },
+            {
+              "type": "info",
+              "text": "配置します"
             }
           ]
         }
@@ -29245,9 +29373,12 @@
           "label": "拡張機能の実行例",
           "lines": [
             {
-              "prompt": "$ ",
-              "command": "claude --dangerously-skip-permissions",
-              "note": "無効化されます"
+              "type": "prompt",
+              "text": "claude --dangerously-skip-permissions"
+            },
+            {
+              "type": "info",
+              "text": "無効化されます"
             }
           ]
         }
@@ -30029,9 +30160,12 @@
           "label": "動的コンテキスト注入の実行例",
           "lines": [
             {
-              "prompt": "$ ",
-              "command": "gh pr diff",
-              "note": "結果やGitの状態などリアルタイムのデータをプロン"
+              "type": "prompt",
+              "text": "gh pr diff"
+            },
+            {
+              "type": "info",
+              "text": "結果やGitの状態などリアルタイムのデータをプロン"
             }
           ]
         }
@@ -30429,9 +30563,12 @@
           "label": "自動コンパクションの実行例",
           "lines": [
             {
-              "prompt": "> ",
-              "command": "/compact",
-              "note": "「Compact Instructions」セクシ"
+              "type": "prompt",
+              "text": "/compact"
+            },
+            {
+              "type": "info",
+              "text": "「Compact Instructions」セクシ"
             }
           ]
         }
@@ -30486,9 +30623,12 @@
           "label": "MCPの実行例",
           "lines": [
             {
-              "prompt": "> ",
-              "command": "/mcp",
-              "note": "利用している場合/contextコマンドでサーバー"
+              "type": "prompt",
+              "text": "/mcp"
+            },
+            {
+              "type": "info",
+              "text": "利用している場合/contextコマンドでサーバー"
             }
           ]
         }
@@ -31009,19 +31149,24 @@
           "label": "queryの実行例",
           "lines": [
             {
-              "prompt": "$ ",
-              "command": "export CLAUDE_CODE_USE_BEDROCK=1",
-              "note": ""
+              "type": "prompt",
+              "text": "export CLAUDE_CODE_USE_BEDROCK=1"
             },
             {
-              "prompt": "$ ",
-              "command": "export CLAUDE_CODE_USE_VERTEX=1",
-              "note": "認証情報を設定します"
+              "type": "prompt",
+              "text": "export CLAUDE_CODE_USE_VERTEX=1"
             },
             {
-              "prompt": "$ ",
-              "command": "export CLAUDE_CODE_USE_FOUNDRY=1",
-              "note": "認証情報を設定します"
+              "type": "info",
+              "text": "認証情報を設定します"
+            },
+            {
+              "type": "prompt",
+              "text": "export CLAUDE_CODE_USE_FOUNDRY=1"
+            },
+            {
+              "type": "info",
+              "text": "認証情報を設定します"
             }
           ]
         }
@@ -32443,19 +32588,20 @@
           "label": "--allowedTooの実行例",
           "lines": [
             {
-              "prompt": "$ ",
-              "command": "claude --allowedTools",
-              "note": ""
+              "type": "prompt",
+              "text": "claude --allowedTools"
             },
             {
-              "prompt": "$ ",
-              "command": "git diff ",
-              "note": ""
+              "type": "prompt",
+              "text": "git diff "
             },
             {
-              "prompt": "$ ",
-              "command": "git diff-index",
-              "note": "ようなコマンドも一致してしまうためスペースの有無が"
+              "type": "prompt",
+              "text": "git diff-index"
+            },
+            {
+              "type": "info",
+              "text": "ようなコマンドも一致してしまうためスペースの有無が"
             }
           ]
         }
@@ -32580,14 +32726,16 @@
           "label": "ヘッドレスモードの実行例",
           "lines": [
             {
-              "prompt": "> ",
-              "command": "/commit",
-              "note": ""
+              "type": "prompt",
+              "text": "/commit"
             },
             {
-              "prompt": "$ ",
-              "command": "claude -p \"Look at my staged changes and create an appropriate commit\"",
-              "note": "タスクの内容を説明するプロンプトを渡して同等の処理"
+              "type": "prompt",
+              "text": "claude -p \"Look at my staged changes and create an appropriate commit\""
+            },
+            {
+              "type": "info",
+              "text": "タスクの内容を説明するプロンプトを渡して同等の処理"
             }
           ]
         }
@@ -33829,19 +33977,16 @@
           "label": "出力スタイルの実行例",
           "lines": [
             {
-              "prompt": "> ",
-              "command": "/output-style",
-              "note": ""
+              "type": "prompt",
+              "text": "/output-style"
             },
             {
-              "prompt": "> ",
-              "command": "/output-style [style]",
-              "note": ""
+              "type": "prompt",
+              "text": "/output-style [style]"
             },
             {
-              "prompt": "> ",
-              "command": "/output-style explanatory",
-              "note": ""
+              "type": "prompt",
+              "text": "/output-style explanatory"
             }
           ]
         }
@@ -33897,14 +34042,20 @@
           "label": "/terminalの実行例",
           "lines": [
             {
-              "prompt": "> ",
-              "command": "/terminal-setup",
-              "note": "切り替え）は"
+              "type": "prompt",
+              "text": "/terminal-setup"
             },
             {
-              "prompt": "> ",
-              "command": "/terminal-setup",
-              "note": "切り替え）は"
+              "type": "info",
+              "text": "切り替え）は"
+            },
+            {
+              "type": "prompt",
+              "text": "/terminal-setup"
+            },
+            {
+              "type": "info",
+              "text": "切り替え）は"
             }
           ]
         }
@@ -35360,9 +35511,12 @@
           "label": ".claude/の実行例",
           "lines": [
             {
-              "prompt": "> ",
-              "command": "/hello",
-              "note": "ように短くでき素早い試行錯誤が可能です"
+              "type": "prompt",
+              "text": "/hello"
+            },
+            {
+              "type": "info",
+              "text": "ように短くでき素早い試行錯誤が可能です"
             }
           ]
         }
@@ -35826,9 +35980,12 @@
           "label": "拡張機能の実行例",
           "lines": [
             {
-              "prompt": "> ",
-              "command": "/chrome",
-              "note": "「Reconnect extension」を選択し"
+              "type": "prompt",
+              "text": "/chrome"
+            },
+            {
+              "type": "info",
+              "text": "「Reconnect extension」を選択し"
             }
           ]
         }
@@ -35953,9 +36110,8 @@
           "label": "GitHub Appの実行例",
           "lines": [
             {
-              "prompt": "> ",
-              "command": "/install-github-app",
-              "note": ""
+              "type": "prompt",
+              "text": "/install-github-app"
             }
           ]
         }
@@ -36014,19 +36170,28 @@
           "label": "コマンドの実行例",
           "lines": [
             {
-              "prompt": "$ ",
-              "command": "claude_args",
-              "note": "個別パラメータでしたがv1 ではすべて"
+              "type": "prompt",
+              "text": "claude_args"
             },
             {
-              "prompt": "$ ",
-              "command": "claude_args",
-              "note": "個別パラメータでしたがv1 ではすべて"
+              "type": "info",
+              "text": "個別パラメータでしたがv1 ではすべて"
             },
             {
-              "prompt": "$ ",
-              "command": "claude_args: \"--max-turns 5 --model claude-sonnet-4-6 --append-system-prompt 'Follow coding standards'\"",
-              "note": "したがv1 ではすべて"
+              "type": "prompt",
+              "text": "claude_args"
+            },
+            {
+              "type": "info",
+              "text": "個別パラメータでしたがv1 ではすべて"
+            },
+            {
+              "type": "prompt",
+              "text": "claude_args: \"--max-turns 5 --model claude-sonnet-4-6 --append-system-prompt 'Follow coding standards'\""
+            },
+            {
+              "type": "info",
+              "text": "したがv1 ではすべて"
             }
           ]
         }
@@ -36087,9 +36252,12 @@
           "label": "ベストプラクティスの実行例",
           "lines": [
             {
-              "prompt": "$ ",
-              "command": "claude --max-turns",
-              "note": "コスト最適化セクションでは具体的な"
+              "type": "prompt",
+              "text": "claude --max-turns"
+            },
+            {
+              "type": "info",
+              "text": "コスト最適化セクションでは具体的な"
             }
           ]
         }
@@ -36841,9 +37009,12 @@
           "label": "Fastモード レート制限時の実行例",
           "lines": [
             {
-              "prompt": "> ",
-              "command": "/fast",
-              "note": "無効にしたい場合は"
+              "type": "prompt",
+              "text": "/fast"
+            },
+            {
+              "type": "info",
+              "text": "無効にしたい場合は"
             }
           ]
         }
@@ -37180,9 +37351,12 @@
           "label": "TODO(human)の実行例",
           "lines": [
             {
-              "prompt": "> ",
-              "command": "/output-style",
-              "note": "追加しユーザーが実装する箇所を示します"
+              "type": "prompt",
+              "text": "/output-style"
+            },
+            {
+              "type": "info",
+              "text": "追加しユーザーが実装する箇所を示します"
             }
           ]
         }
@@ -37824,9 +37998,8 @@
           "label": "dontAskの実行例",
           "lines": [
             {
-              "prompt": "> ",
-              "command": "/permissions",
-              "note": ""
+              "type": "prompt",
+              "text": "/permissions"
             }
           ]
         }
@@ -37954,14 +38127,16 @@
           "label": "作業Dir追加の方法の実行例",
           "lines": [
             {
-              "prompt": "> ",
-              "command": "/add-dir",
-              "note": ""
+              "type": "prompt",
+              "text": "/add-dir"
             },
             {
-              "prompt": "$ ",
-              "command": "claude --add-dir",
-              "note": "指定する場合は"
+              "type": "prompt",
+              "text": "claude --add-dir"
+            },
+            {
+              "type": "info",
+              "text": "指定する場合は"
             }
           ]
         }
@@ -38279,9 +38454,12 @@
           "label": "スキルの実行例",
           "lines": [
             {
-              "prompt": "> ",
-              "command": "/skill-name",
-              "note": "明示的に"
+              "type": "prompt",
+              "text": "/skill-name"
+            },
+            {
+              "type": "info",
+              "text": "明示的に"
             }
           ]
         }
@@ -38608,7 +38786,7 @@
               "text": "winget install Git.Git"
             },
             {
-              "type": "output",
+              "type": "info",
               "text": "→ Git と Git Bash が同時にインストール"
             },
             {
@@ -39931,9 +40109,8 @@
           "label": "marketplace.の実行例",
           "lines": [
             {
-              "prompt": "$ ",
-              "command": "claude-code-marketplace",
-              "note": ""
+              "type": "prompt",
+              "text": "claude-code-marketplace"
             }
           ]
         }
@@ -40209,9 +40386,8 @@
           "label": "--scope projの実行例",
           "lines": [
             {
-              "prompt": "$ ",
-              "command": "claude --scope project",
-              "note": ""
+              "type": "prompt",
+              "text": "claude --scope project"
             }
           ]
         }
@@ -40519,19 +40695,16 @@
           "label": "@claudeの実行例",
           "lines": [
             {
-              "prompt": "$ ",
-              "command": "export AI_FLOW_INPUT=...",
-              "note": ""
+              "type": "prompt",
+              "text": "export AI_FLOW_INPUT=\"$CI_MERGE_REQUEST_DESCRIPTION\""
             },
             {
-              "prompt": "$ ",
-              "command": "export AI_FLOW_CONTEXT=...",
-              "note": ""
+              "type": "prompt",
+              "text": "export AI_FLOW_CONTEXT=\"$CI_MERGE_REQUEST_PROJECT_PATH\""
             },
             {
-              "prompt": "$ ",
-              "command": "export AI_FLOW_EVENT=...",
-              "note": ""
+              "type": "prompt",
+              "text": "export AI_FLOW_EVENT=\"$CI_PIPELINE_SOURCE\""
             }
           ]
         }
@@ -40724,9 +40897,8 @@
           "label": "セッションの実行例",
           "lines": [
             {
-              "prompt": "$ ",
-              "command": "claude.ai/code",
-              "note": ""
+              "type": "prompt",
+              "text": "claude.ai/code"
             }
           ]
         }
@@ -41058,14 +41230,20 @@
           "label": "Plan→Remote実行の実行例",
           "lines": [
             {
-              "prompt": "$ ",
-              "command": "claude --permission-mode plan",
-              "note": "使ってアプローチを策定し計画に満足したら"
+              "type": "prompt",
+              "text": "claude --permission-mode plan"
             },
             {
-              "prompt": "$ ",
-              "command": "claude --remote",
-              "note": "使ってアプローチを策定し計画に満足したら"
+              "type": "info",
+              "text": "使ってアプローチを策定し計画に満足したら"
+            },
+            {
+              "type": "prompt",
+              "text": "claude --remote"
+            },
+            {
+              "type": "info",
+              "text": "使ってアプローチを策定し計画に満足したら"
             }
           ]
         }
@@ -41999,9 +42177,8 @@
           "label": "Claude Codeにの実行例",
           "lines": [
             {
-              "prompt": "$ ",
-              "command": "claude-code-assisted",
-              "note": ""
+              "type": "prompt",
+              "text": "claude-code-assisted"
             }
           ]
         }
@@ -42483,9 +42660,8 @@
           "label": "セッションの実行例",
           "lines": [
             {
-              "prompt": "$ ",
-              "command": "export CLAUDE_CODE_ENABLE_TELEMETRY=1",
-              "note": ""
+              "type": "prompt",
+              "text": "export CLAUDE_CODE_ENABLE_TELEMETRY=1"
             }
           ]
         }
@@ -43312,9 +43488,8 @@
           "label": "拡張機能の実行例",
           "lines": [
             {
-              "prompt": "$ ",
-              "command": "claude.ai/admin-settings/claude-code",
-              "note": ""
+              "type": "prompt",
+              "text": "claude.ai/admin-settings/claude-code"
             }
           ]
         }
@@ -45612,14 +45787,16 @@
           "label": "CLAUDE.mdの実行例",
           "lines": [
             {
-              "prompt": "> ",
-              "command": "/Library/Application Support/ClaudeCode/CLAUDE.md",
-              "note": ""
+              "type": "prompt",
+              "text": "/Library/Application Support/ClaudeCode/CLAUDE.md"
             },
             {
-              "prompt": "> ",
-              "command": "/etc/claude-code/CLAUDE.md",
-              "note": "システム管理者が全ユーザーに適用するポリシーとし"
+              "type": "prompt",
+              "text": "/etc/claude-code/CLAUDE.md"
+            },
+            {
+              "type": "info",
+              "text": "システム管理者が全ユーザーに適用するポリシーとし"
             }
           ]
         }
@@ -46538,9 +46715,8 @@
           "label": "auto modeの実行例",
           "lines": [
             {
-              "prompt": "$ ",
-              "command": "claude --permission-mode auto",
-              "note": ""
+              "type": "prompt",
+              "text": "claude --permission-mode auto"
             }
           ]
         }
@@ -47123,9 +47299,12 @@
           "label": "--allowedTooの実行例",
           "lines": [
             {
-              "prompt": "$ ",
-              "command": "claude --allowedTools",
-              "note": "Claudeが使えるツールを制限し無人実行時の安全"
+              "type": "prompt",
+              "text": "claude --allowedTools"
+            },
+            {
+              "type": "info",
+              "text": "Claudeが使えるツールを制限し無人実行時の安全"
             }
           ]
         }
@@ -48160,7 +48339,7 @@
               "text": "export CLAUDE_AUTOCOMPACT_PCT_OVERRIDE=50"
             },
             {
-              "type": "output",
+              "type": "info",
               "text": "→ コンテキスト容量の 50% で自動コンパクション発動"
             }
           ]
@@ -48238,9 +48417,8 @@
           "label": "セッションの実行例",
           "lines": [
             {
-              "prompt": "$ ",
-              "command": "export CLAUDE_CODE_SUBPROCESS_ENV_SCRUB=1",
-              "note": ""
+              "type": "prompt",
+              "text": "export CLAUDE_CODE_SUBPROCESS_ENV_SCRUB=1"
             }
           ]
         }
@@ -48296,14 +48474,16 @@
           "label": "セッションの実行例",
           "lines": [
             {
-              "prompt": "$ ",
-              "command": "export DISABLE_AUTO_COMPACT=1",
-              "note": ""
+              "type": "prompt",
+              "text": "export DISABLE_AUTO_COMPACT=1"
             },
             {
-              "prompt": "> ",
-              "command": "/compact",
-              "note": "引き続き使用可能です"
+              "type": "prompt",
+              "text": "/compact"
+            },
+            {
+              "type": "info",
+              "text": "引き続き使用可能です"
             }
           ]
         }
@@ -48351,11 +48531,11 @@
               "text": "# ~/.claude-env.sh の例:"
             },
             {
-              "type": "output",
+              "type": "info",
               "text": "source ~/myproject/.venv/bin/activate"
             },
             {
-              "type": "output",
+              "type": "info",
               "text": "conda activate myenv"
             }
           ]
@@ -48765,14 +48945,20 @@
           "label": "動作例",
           "lines": [
             {
-              "prompt": "$ ",
-              "command": "cd /tmp",
-              "note": "cwdは次のコマンドに引き継がれる"
+              "type": "prompt",
+              "text": "cd /tmp"
             },
             {
-              "prompt": "$ ",
-              "command": "export FOO=bar",
-              "note": "環境変数は次のコマンドに引き継がれない"
+              "type": "info",
+              "text": "cwdは次のコマンドに引き継がれる"
+            },
+            {
+              "type": "prompt",
+              "text": "export FOO=bar"
+            },
+            {
+              "type": "info",
+              "text": "環境変数は次のコマンドに引き継がれない"
             }
           ]
         }
@@ -49107,9 +49293,8 @@
           "label": "CLAUDE.mdの実行例",
           "lines": [
             {
-              "prompt": "> ",
-              "command": "/memory",
-              "note": ""
+              "type": "prompt",
+              "text": "/memory"
             }
           ]
         }
@@ -49926,19 +50111,20 @@
           "label": "CLAUDE.mdの実行例",
           "lines": [
             {
-              "prompt": "> ",
-              "command": "/memory",
-              "note": ""
+              "type": "prompt",
+              "text": "/memory"
             },
             {
-              "prompt": "> ",
-              "command": "/memory",
-              "note": ""
+              "type": "prompt",
+              "text": "/memory"
             },
             {
-              "prompt": "$ ",
-              "command": "claude --append-system-prompt",
-              "note": "後指示をより具体的にする矛盾する指示を除去する"
+              "type": "prompt",
+              "text": "claude --append-system-prompt"
+            },
+            {
+              "type": "info",
+              "text": "後指示をより具体的にする矛盾する指示を除去する"
             }
           ]
         }
@@ -50798,9 +50984,12 @@
           "label": "スケジュール作成例",
           "lines": [
             {
-              "prompt": "> ",
-              "command": "/schedule",
-              "note": "CLIからスケジュール作成"
+              "type": "prompt",
+              "text": "/schedule"
+            },
+            {
+              "type": "info",
+              "text": "CLIからスケジュール作成"
             }
           ]
         }
@@ -50906,9 +51095,12 @@
           "label": "作成方法",
           "lines": [
             {
-              "prompt": "> ",
-              "command": "/schedule",
-              "note": "CLIから作成"
+              "type": "prompt",
+              "text": "/schedule"
+            },
+            {
+              "type": "info",
+              "text": "CLIから作成"
             },
             {
               "type": "info",
@@ -52740,14 +52932,20 @@
           "label": "/simplifyの実行例",
           "lines": [
             {
-              "prompt": "> ",
-              "command": "/simplify",
-              "note": "レビューエージェントを並列で実行し結果を集約した上"
+              "type": "prompt",
+              "text": "/simplify"
             },
             {
-              "prompt": "> ",
-              "command": "/simplify focus on memory efficiency",
-              "note": "レビューエージェントを並列で実行し結果を集約した上"
+              "type": "info",
+              "text": "レビューエージェントを並列で実行し結果を集約した上"
+            },
+            {
+              "type": "prompt",
+              "text": "/simplify focus on memory efficiency"
+            },
+            {
+              "type": "info",
+              "text": "レビューエージェントを並列で実行し結果を集約した上"
             }
           ]
         }

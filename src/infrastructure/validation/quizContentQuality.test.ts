@@ -497,6 +497,37 @@ describe('Quiz Content Quality', () => {
       expect(violations.map((e) => e.id)).toEqual([])
     })
 
+    // 旧スキーマ `{prompt, command, note}` は TerminalDiagram が text を読めず
+    // 空白行として描画される。常に `{type: command|prompt|response|info, text}` を要求する。
+    // 注: config.lines[].text === "" は ConfigDiagram で視覚的なブランク行として正常に描画される。
+    it('terminal/config の各 line が新スキーマに従っていること（terminal は type と非空 text、config は text フィールド）', () => {
+      const validTerminalTypes = new Set(['command', 'prompt', 'response', 'info'])
+      const violations: { id: string; path: string; reason: string }[] = []
+      diagramEntries.forEach((e) => {
+        const d = e.diagram as Record<string, unknown>
+        if (d.type !== 'terminal' && d.type !== 'config') return
+        const lines = (d.lines as Array<Record<string, unknown>>) ?? []
+        lines.forEach((line, li) => {
+          if (typeof line.text !== 'string') {
+            violations.push({ id: e.id, path: `${d.type}.lines[${li}]`, reason: 'missing text field' })
+            return
+          }
+          if (d.type === 'terminal' && line.text.length < 1) {
+            violations.push({ id: e.id, path: `terminal.lines[${li}]`, reason: 'empty text' })
+          }
+          if (d.type === 'terminal' && !validTerminalTypes.has(line.type as string)) {
+            violations.push({
+              id: e.id,
+              path: `terminal.lines[${li}]`,
+              reason: `invalid type: ${JSON.stringify(line.type)}`,
+            })
+          }
+        })
+      })
+      const summary = violations.map((v) => `${v.id} [${v.path}] ${v.reason}`).join('\n')
+      expect(violations, `旧スキーマのターミナル行:\n${summary}`).toEqual([])
+    })
+
     it('configダイアグラムがfilepathとlinesを持つこと', () => {
       const violations = diagramEntries
         .filter((e) => e.diagram.type === 'config')
