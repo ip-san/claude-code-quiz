@@ -618,6 +618,103 @@ describe('Quiz Content Quality', () => {
       })
       expect(violations, `不正な diagram マーカー: ${violations.join(', ')}`).toEqual([])
     })
+
+    // 検出ロジックの本体は scripts/quiz-utils.mjs の `check-ellipsis` コマンドと同等。
+    it('ダイアグラム本文に途中切れの「…」「...」が含まれないこと', () => {
+      const violations: { id: string; path: string; text: string }[] = []
+
+      const ALLOWED_END_PUNCT = '\\s)\\]」｝>✓✗⏳→'
+      const allowedJpEllipsisAtEnd = (text: string, fieldPath: string): boolean => {
+        if (!/^(terminal|config)\./.test(fieldPath)) return false
+        return new RegExp(`…[${ALLOWED_END_PUNCT}]{0,3}$`).test(text) && (text.match(/…/g) || []).length === 1
+      }
+      const allowedAsciiProgress = (text: string, fieldPath: string): boolean => {
+        if (!/^(terminal|config)\./.test(fieldPath)) return false
+        if (text.includes('…')) return false
+        if (/[{[]\s*\.\.\.\s*[}\]]/.test(text)) return false
+        if (/[,:]\s*\.\.\.\s*[,}\]]/.test(text)) return false
+        if (/["'=]\s*\.\.\.\s*["']/.test(text)) return false
+        if (/[=][^\s]*\.\.\./.test(text)) return false
+        if (/\.\.\.\s*\|/.test(text)) return false
+        if (/[/\\]\.{3}/.test(text)) return false
+        return new RegExp(`\\.\\.\\.[${ALLOWED_END_PUNCT}]{0,3}$`).test(text)
+      }
+
+      const visit = (text: unknown, path: string, qid: string) => {
+        if (typeof text !== 'string') return
+        if (text.includes('…') && !allowedJpEllipsisAtEnd(text, path)) {
+          violations.push({ id: qid, path, text })
+          return
+        }
+        if (/\.\.\./.test(text)) {
+          const stripped = text.replace(/\[[A-Za-z_][A-Za-z0-9_-]*\.\.\.\]/g, '')
+          if (/\.\.\./.test(stripped) && !allowedAsciiProgress(text, path)) {
+            violations.push({ id: qid, path, text })
+          }
+        }
+      }
+
+      const walk = (d: Record<string, unknown> | null, prefix: string, qid: string) => {
+        if (!d || typeof d !== 'object') return
+        const t = d.type as string | undefined
+        const arr = (key: string) => (Array.isArray(d[key]) ? (d[key] as unknown[]) : [])
+        switch (t) {
+          case 'comparison':
+            arr('columns').forEach((col, ci) => {
+              const c = col as { items?: unknown[] }
+              ;(c.items ?? []).forEach((item, ii) => {
+                visit(item, `${prefix}comparison.columns[${ci}].items[${ii}]`, qid)
+              })
+            })
+            break
+          case 'terminal':
+          case 'config':
+            arr('lines').forEach((line, li) => {
+              const l = line as { text?: unknown }
+              visit(l.text, `${prefix}${t}.lines[${li}].text`, qid)
+            })
+            break
+          case 'flow':
+          case 'hierarchy':
+          case 'layer':
+          case 'cycle': {
+            const itemsKey = t === 'flow' ? 'steps' : t === 'hierarchy' ? 'items' : t === 'layer' ? 'layers' : 'states'
+            arr(itemsKey).forEach((item, ii) => {
+              const i = item as { text?: unknown; sub?: unknown }
+              visit(i.text, `${prefix}${t}.${itemsKey}[${ii}].text`, qid)
+              visit(i.sub, `${prefix}${t}.${itemsKey}[${ii}].sub`, qid)
+            })
+            if (t === 'cycle') visit(d.trigger, `${prefix}cycle.trigger`, qid)
+            break
+          }
+          case 'sequence':
+            arr('actors').forEach((a, ai) => visit(a, `${prefix}sequence.actors[${ai}]`, qid))
+            arr('messages').forEach((m, mi) => {
+              const msg = m as { text?: unknown }
+              visit(msg.text, `${prefix}sequence.messages[${mi}].text`, qid)
+            })
+            break
+          case 'matrix':
+            arr('rows').forEach((r, ri) => visit(r, `${prefix}matrix.rows[${ri}]`, qid))
+            arr('cols').forEach((c, ci) => visit(c, `${prefix}matrix.cols[${ci}]`, qid))
+            arr('cells').forEach((row, ri) => {
+              ;(row as unknown[]).forEach((cell, ci) => visit(cell, `${prefix}matrix.cells[${ri}][${ci}]`, qid))
+            })
+            break
+        }
+        if (typeof d.label === 'string') visit(d.label, `${prefix}${t || 'diagram'}.label`, qid)
+      }
+
+      quizzes.forEach((q: { id: string; diagrams?: unknown[]; diagram?: unknown }) => {
+        const diagrams: unknown[] = []
+        if (Array.isArray(q.diagrams)) diagrams.push(...q.diagrams)
+        if (q.diagram) diagrams.push(q.diagram)
+        diagrams.forEach((d) => walk(d as Record<string, unknown>, '', q.id))
+      })
+
+      const summary = violations.map((v) => `${v.id} [${v.path}] ${v.text.slice(0, 80)}`).join('\n')
+      expect(violations, `途中切れダイアグラムテキスト:\n${summary}`).toEqual([])
+    })
   })
 
   // ── Scenario reference integrity ──────────────────────────

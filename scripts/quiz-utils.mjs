@@ -15,9 +15,11 @@
  *   node scripts/quiz-utils.mjs check             # 品質チェック（テスト相当の簡易版）
  *   node scripts/quiz-utils.mjs edit              # ID指定でクイズフィールドを編集
  *   node scripts/quiz-utils.mjs merge-proposals   # skill-proposals → known-issues マージ
+ *   node scripts/quiz-utils.mjs check-ellipsis    # ダイアグラム内の途中切れ「…」検出
+ *   node scripts/quiz-utils.mjs ellipsis-report   # 修正用 triage JSON 生成
  */
 
-import { existsSync, readdirSync, readFileSync, writeFileSync } from 'fs'
+import { existsSync, mkdirSync, readdirSync, readFileSync, writeFileSync } from 'fs'
 import { dirname, resolve } from 'path'
 import { fileURLToPath } from 'url'
 
@@ -656,6 +658,319 @@ function overlap() {
   console.log(`URL clusters: ${urlClusters.length}, Similar pairs: ${similarPairs.length}`)
 }
 
+// === Diagram traversal ===
+// ダイアグラム内のテキストフィールドを順に visitor へ渡す。
+// path はメッセージ用の人間可読パス（"comparison.columns[0].items[2]"）。
+function walkDiagramText(diagram, visit) {
+  if (!diagram || typeof diagram !== 'object') return
+  const t = diagram.type
+  switch (t) {
+    case 'comparison':
+      ;(diagram.columns || []).forEach((col, ci) => {
+        ;(col.items || []).forEach((item, ii) => {
+          if (typeof item === 'string') visit(item, `comparison.columns[${ci}].items[${ii}]`)
+        })
+      })
+      break
+    case 'terminal':
+      ;(diagram.lines || []).forEach((line, li) => {
+        if (line && typeof line.text === 'string') visit(line.text, `terminal.lines[${li}].text`)
+      })
+      break
+    case 'config':
+      ;(diagram.lines || []).forEach((line, li) => {
+        if (line && typeof line.text === 'string') visit(line.text, `config.lines[${li}].text`)
+      })
+      break
+    case 'flow':
+      ;(diagram.steps || []).forEach((s, si) => {
+        if (s && typeof s.text === 'string') visit(s.text, `flow.steps[${si}].text`)
+        if (s && typeof s.sub === 'string') visit(s.sub, `flow.steps[${si}].sub`)
+      })
+      break
+    case 'hierarchy':
+      ;(diagram.items || []).forEach((it, ii) => {
+        if (it && typeof it.text === 'string') visit(it.text, `hierarchy.items[${ii}].text`)
+        if (it && typeof it.sub === 'string') visit(it.sub, `hierarchy.items[${ii}].sub`)
+      })
+      break
+    case 'layer':
+      ;(diagram.layers || []).forEach((l, li) => {
+        if (l && typeof l.text === 'string') visit(l.text, `layer.layers[${li}].text`)
+        if (l && typeof l.sub === 'string') visit(l.sub, `layer.layers[${li}].sub`)
+      })
+      break
+    case 'cycle':
+      ;(diagram.states || []).forEach((s, si) => {
+        if (s && typeof s.text === 'string') visit(s.text, `cycle.states[${si}].text`)
+        if (s && typeof s.sub === 'string') visit(s.sub, `cycle.states[${si}].sub`)
+      })
+      if (typeof diagram.trigger === 'string') visit(diagram.trigger, 'cycle.trigger')
+      break
+    case 'sequence':
+      ;(diagram.actors || []).forEach((a, ai) => {
+        if (typeof a === 'string') visit(a, `sequence.actors[${ai}]`)
+      })
+      ;(diagram.messages || []).forEach((m, mi) => {
+        if (m && typeof m.text === 'string') visit(m.text, `sequence.messages[${mi}].text`)
+      })
+      break
+    case 'swimlane':
+      ;(diagram.lanes || []).forEach((lane, li) => {
+        if (lane && typeof lane.name === 'string') visit(lane.name, `swimlane.lanes[${li}].name`)
+        ;(lane.segments || []).forEach((seg, si) => {
+          if (seg && typeof seg.text === 'string') visit(seg.text, `swimlane.lanes[${li}].segments[${si}].text`)
+        })
+      })
+      break
+    case 'venn':
+      ;(diagram.sets || []).forEach((set, si) => {
+        if (set && typeof set.text === 'string') visit(set.text, `venn.sets[${si}].text`)
+        ;(set.items || []).forEach((it, ii) => {
+          if (typeof it === 'string') visit(it, `venn.sets[${si}].items[${ii}]`)
+        })
+      })
+      if (typeof diagram.intersectionLabel === 'string') visit(diagram.intersectionLabel, 'venn.intersectionLabel')
+      break
+    case 'matrix':
+      ;(diagram.rows || []).forEach((r, ri) => {
+        if (typeof r === 'string') visit(r, `matrix.rows[${ri}]`)
+      })
+      ;(diagram.cols || []).forEach((c, ci) => {
+        if (typeof c === 'string') visit(c, `matrix.cols[${ci}]`)
+      })
+      ;(diagram.cells || []).forEach((row, ri) => {
+        ;(row || []).forEach((cell, ci) => {
+          if (typeof cell === 'string') visit(cell, `matrix.cells[${ri}][${ci}]`)
+        })
+      })
+      break
+    case 'tree': {
+      const walk = (node, path) => {
+        if (!node) return
+        if (typeof node.text === 'string') visit(node.text, `${path}.text`)
+        if (typeof node.sub === 'string') visit(node.sub, `${path}.sub`)
+        ;(node.children || []).forEach((child, ci) => walk(child, `${path}.children[${ci}]`))
+      }
+      walk(diagram.root, 'tree.root')
+      break
+    }
+    case 'network':
+      ;(diagram.nodes || []).forEach((n, ni) => {
+        if (n && typeof n.text === 'string') visit(n.text, `network.nodes[${ni}].text`)
+        if (n && typeof n.sub === 'string') visit(n.sub, `network.nodes[${ni}].sub`)
+      })
+      ;(diagram.edges || []).forEach((e, ei) => {
+        if (e && typeof e.label === 'string') visit(e.label, `network.edges[${ei}].label`)
+      })
+      break
+    case 'formula':
+      if (typeof diagram.result === 'string') visit(diagram.result, 'formula.result')
+      ;(diagram.components || []).forEach((c, ci) => {
+        if (c && typeof c.text === 'string') visit(c.text, `formula.components[${ci}].text`)
+        if (c && typeof c.sub === 'string') visit(c.sub, `formula.components[${ci}].sub`)
+      })
+      if (typeof diagram.operator === 'string') visit(diagram.operator, 'formula.operator')
+      break
+  }
+  if (typeof diagram.label === 'string') visit(diagram.label, `${t || 'diagram'}.label`)
+}
+
+function getQuestionDiagrams(q) {
+  const diagrams = []
+  if (Array.isArray(q.diagrams)) diagrams.push(...q.diagrams)
+  if (q.diagram) diagrams.push(q.diagram)
+  return diagrams
+}
+
+// 進捗表示を許容する terminal/config の判定。
+// 主要ルール: terminal/config の末尾 `...` は UI/状態表示として許容する。
+// ただし JSON 値プレースホルダ（`"...": ...`、`{ ... }`）や URL 省略
+// （`https://.../path`）は学習妨害なので flag する。
+function isAllowedProgressIndicator(text, fieldPath) {
+  if (typeof text !== 'string') return false
+  if (!/^(terminal|config)\./.test(fieldPath)) return false
+  if (text.includes('…')) return false
+  // JSON プレースホルダ系: `{...}`, `{ ... }`, `[...]`, `,...}`, `:...,`
+  if (/[{[]\s*\.\.\.\s*[}\]]/.test(text)) return false
+  if (/[,:]\s*\.\.\.\s*[,}\]]/.test(text)) return false
+  // 値/URL/パス省略系: `=...`, `:"..."`, `/...`、`\...`、`...|`
+  if (/["'=]\s*\.\.\.\s*["']/.test(text)) return false
+  if (/[=][^\s]*\.\.\./.test(text)) return false // ex: `KEY=sk-...`
+  if (/\.\.\.\s*\|/.test(text)) return false // ex: `curl ... | sh`
+  if (/[/\\]\.{3}/.test(text)) return false // ex: `/Library/.../`, `C:\Program Files\...`
+  // 末尾 `...` は許容（任意の閉じ括弧・記号を最大2文字まで挟む）
+  return /\.\.\.[\s)\]」｝>✓✗⏳→]{0,3}$/.test(text)
+}
+
+// terminal/config 末尾の `…` も進捗表示と同等と見なして許容する。
+function isAllowedJpEllipsis(text, fieldPath) {
+  if (!/^(terminal|config)\./.test(fieldPath)) return false
+  // 末尾 `…` のみ。途中の `…` は学習妨害なので flag を維持。
+  return /…[\s)\]」｝>✓✗⏳→]{0,3}$/.test(text) && (text.match(/…/g) || []).length === 1
+}
+
+function findEllipsisIssues(text, fieldPath) {
+  const issues = []
+  if (typeof text !== 'string') return issues
+  if (text.includes('…') && !isAllowedJpEllipsis(text, fieldPath)) {
+    issues.push({ kind: 'jp-ellipsis', char: '…' })
+  }
+  if (/\.\.\./.test(text)) {
+    // `[args...]` のような CLI 可変長引数記法はテキスト全体から取り除いて再判定。
+    const stripped = text.replace(/\[[A-Za-z_][A-Za-z0-9_-]*\.\.\.\]/g, '')
+    if (/\.\.\./.test(stripped) && !isAllowedProgressIndicator(text, fieldPath)) {
+      issues.push({ kind: 'ascii-ellipsis', char: '...' })
+    }
+  }
+  return issues
+}
+
+function collectEllipsisHits({ category } = {}) {
+  const data = loadQuizzes()
+  const hits = []
+  for (const q of data.quizzes) {
+    if (category && q.category !== category) continue
+    const diagrams = getQuestionDiagrams(q)
+    diagrams.forEach((diagram, di) => {
+      walkDiagramText(diagram, (text, path) => {
+        const issues = findEllipsisIssues(text, path)
+        for (const issue of issues) {
+          hits.push({
+            id: q.id,
+            category: q.category,
+            diagramIndex: di,
+            diagramType: diagram?.type || 'unknown',
+            fieldPath: path,
+            kind: issue.kind,
+            text,
+          })
+        }
+      })
+    })
+  }
+  return { hits, totalQuestions: data.quizzes.length }
+}
+
+// === Check ellipsis ===
+function checkEllipsis() {
+  const args = process.argv.slice(3)
+  const reportOnly = args.includes('--report-only')
+  const categoryArg = args.find((a) => a.startsWith('--category='))
+  const category = categoryArg ? categoryArg.split('=')[1] : null
+
+  const { hits, totalQuestions } = collectEllipsisHits({ category })
+  const byCategory = {}
+  const byKind = { 'jp-ellipsis': 0, 'ascii-ellipsis': 0 }
+  const affectedIds = new Set()
+  for (const h of hits) {
+    byCategory[h.category] = (byCategory[h.category] || 0) + 1
+    byKind[h.kind] = (byKind[h.kind] || 0) + 1
+    affectedIds.add(h.id)
+  }
+
+  console.log('=== Diagram Ellipsis Check ===')
+  console.log(`Total questions scanned: ${totalQuestions}${category ? ` (filtered: ${category})` : ''}`)
+  console.log(`Truncations detected:    ${hits.length} across ${affectedIds.size} questions`)
+  console.log(`  Japanese "…":          ${byKind['jp-ellipsis']}`)
+  console.log(`  Disallowed "...":      ${byKind['ascii-ellipsis']}`)
+
+  if (Object.keys(byCategory).length > 0) {
+    console.log('\nBy category:')
+    for (const [cat, count] of Object.entries(byCategory).sort((a, b) => b[1] - a[1])) {
+      console.log(`  ${cat.padEnd(14)} ${count}`)
+    }
+  }
+
+  if (hits.length > 0 && !reportOnly) {
+    console.log('\nFirst 20 hits:')
+    for (const h of hits.slice(0, 20)) {
+      console.log(`  ${h.id} [${h.fieldPath}] ${JSON.stringify(h.text).slice(0, 100)}`)
+    }
+    if (hits.length > 20) console.log(`  ... and ${hits.length - 20} more`)
+  }
+
+  if (reportOnly) {
+    console.log('\n(--report-only: exit 0 regardless of hits)')
+    return
+  }
+
+  if (hits.length > 0) {
+    console.log('\nFAIL: diagram text contains truncated content. Fix and re-run.')
+    process.exit(1)
+  }
+  console.log('\nOK: no diagram truncation detected.')
+}
+
+// === Ellipsis triage report ===
+function ellipsisReport() {
+  const args = process.argv.slice(3)
+  const categoryArg = args.find((a) => a.startsWith('--category='))
+  const category = categoryArg ? categoryArg.split('=')[1] : null
+
+  const data = loadQuizzes()
+  const quizMap = new Map(data.quizzes.map((q) => [q.id, q]))
+  const { hits } = collectEllipsisHits({ category })
+
+  // group by question id
+  const byQuestion = new Map()
+  for (const h of hits) {
+    if (!byQuestion.has(h.id)) {
+      byQuestion.set(h.id, { id: h.id, category: h.category, hits: [] })
+    }
+    byQuestion.get(h.id).hits.push({
+      diagramIndex: h.diagramIndex,
+      diagramType: h.diagramType,
+      fieldPath: h.fieldPath,
+      kind: h.kind,
+      text: h.text,
+    })
+  }
+
+  const entries = Array.from(byQuestion.values()).map((entry) => {
+    const q = quizMap.get(entry.id)
+    return {
+      ...entry,
+      question: q?.question,
+      options: q?.options,
+      correctIndex: q?.correctIndex,
+      correctIndices: q?.correctIndices,
+      explanation: q?.explanation,
+      referenceUrl: q?.referenceUrl,
+      diagrams: getQuestionDiagrams(q || {}),
+    }
+  })
+
+  const summary = {
+    generatedAt: new Date().toISOString(),
+    filter: { category },
+    totalAffectedQuestions: entries.length,
+    totalHits: hits.length,
+    byCategory: entries.reduce((acc, e) => {
+      acc[e.category] = (acc[e.category] || 0) + 1
+      return acc
+    }, {}),
+  }
+
+  const out = { summary, entries }
+  const outDir = resolve(__dirname, '../.claude/tmp')
+  if (!existsSync(outDir)) {
+    mkdirSync(outDir, { recursive: true })
+  }
+  const outPath = resolve(outDir, 'ellipsis-report.json')
+  writeFileSync(outPath, JSON.stringify(out, null, 2) + '\n')
+
+  console.log('=== Ellipsis Triage Report ===')
+  console.log(`Affected questions: ${entries.length}`)
+  console.log(`Total hits:         ${hits.length}`)
+  console.log(`Filter:             ${category || '(none)'}`)
+  console.log(`\nWritten to: ${outPath}`)
+  console.log('\nBy category:')
+  for (const [cat, count] of Object.entries(summary.byCategory).sort((a, b) => b[1] - a[1])) {
+    console.log(`  ${cat.padEnd(14)} ${count}`)
+  }
+}
+
 // === Main ===
 const command = process.argv[2]
 switch (command) {
@@ -686,8 +1001,16 @@ switch (command) {
   case 'overlap':
     overlap()
     break
+  case 'check-ellipsis':
+    checkEllipsis()
+    break
+  case 'ellipsis-report':
+    ellipsisReport()
+    break
   default:
     console.log('Usage: node scripts/quiz-utils.mjs <command>')
-    console.log('Commands: randomize, stats, coverage, check, search, edit, merge-proposals, section-coverage, overlap')
+    console.log(
+      'Commands: randomize, stats, coverage, check, search, edit, merge-proposals, section-coverage, overlap, check-ellipsis, ellipsis-report'
+    )
     process.exit(1)
 }

@@ -58,7 +58,9 @@
 - **マーカーチェック**: `{{diagram:N}}` が `diagrams[N]` に対応、範囲外参照なし、導入と詳細の間に配置
 - **冗長性**: 解説80字未満で図が繰り返し → 削除提案。**過密**: comparison列5+、flow/hierarchy要素6+、network ノード8+、sequence メッセージ10+ → 簡略化提案
 - **タイプ適合**: 上書き関係→layer、複数アクター→sequence、双方向通信→network が適切か
-- **severity:** major=ドキュメント不一致/マーカー範囲外/ID参照不一致, info=改善提案
+- **途中切れ禁止**: ダイアグラム本文に `…`（日本語三点リーダー）や文中の `...` を入れない。`bun run quiz:check-ellipsis` が CI/`quiz:check` で fail する。terminal/config の末尾 `Loading...` 等の進捗表示のみ許容。`{ ... }` `sk-...` `https://example.com/...` のような placeholder は具体値（`https://gitlab.com/group/project.git`、`{"session_id": "abc-123"}` など）に置き換える。
+- **comparison vs hierarchy**: `comparison.columns[].items[]` は完全文で 80 文字以内。長い説明を載せたい場合は `hierarchy`（`items: [{text, sub}]`）を使う（`sub` は長さ無制限）。
+- **severity:** major=ドキュメント不一致/マーカー範囲外/ID参照不一致/途中切れ, info=改善提案
 
 ## J. ダイアグラム追加の検討（diagrams なしの問題）
 - explanation に手順/階層/比較/循環/接続/時系列/包含/並列/重なり/グリッド/ツリー/計算のパターンがあれば追加提案

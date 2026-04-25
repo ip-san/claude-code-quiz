@@ -149,4 +149,5 @@ IMPORTANT: コンテキスト圧縮後も以下のルールを必ず守ること
 - **YOU MUST** `QuizSessionState` にフィールド追加時は `SessionRepository` + `resumeSlice` + `saveSessionSnapshot` の3点を同時更新する
 - **YOU MUST** UI に表示する問題数 = `startSession` に渡す `questionCount`。不一致は `SpecConsistency.test.ts` で検出される
 - **YOU MUST** 全体像モードのチャプター状態は `OverviewChapterState`（ドメイン層）で管理する。QuizCard の `useState` での管理禁止
+- **YOU MUST** ダイアグラム本文に `…` や文中の `...` を入れない。`bun run quiz:check-ellipsis`（`quiz:check` 経由で CI 実行）が fail する。`comparison.items` は完全文 80 字以内、長い説明は `hierarchy.items[].sub` を使う
 - 仕様バグ防止の詳細: [docs/bug-prevention.md](docs/bug-prevention.md)

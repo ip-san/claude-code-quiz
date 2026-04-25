@@ -138,6 +138,14 @@ node scripts/fetch-docs.mjs --assemble --pages settings,checkpointing,overview,q
 
 **JSON 例は `diagram-examples.md` を Read して参照。** network, sequence, layer, swimlane, venn, matrix, tree, formula の8タイプ分。
 
+**ダイアグラム作成ルール（途中切れ禁止）:**
+
+- **YOU MUST** ダイアグラム本文に `…`（日本語三点リーダー）や文中の `...` を**入れない**。`bun run quiz:check-ellipsis` が CI で fail する。
+- terminal/config の末尾 `Loading...` `処理中…` のような進捗表示の `...`/`…` のみ許容。
+- placeholder は具体値で書く: `{ ... }` `sk-...` `https://example.com/...` `{"key": ...}` などは NG。実際のサンプル値を入れる（`https://gitlab.com/group/project.git`、`{"session_id": "abc-123", "output": "done"}` など）。
+- `comparison.columns[].items[]` は **完全文**で 80 文字以内に収める。長くなる説明文を載せたい場合は `comparison` ではなく `hierarchy`（`items: [{text, sub}]`）を使う。`sub` は長さ無制限。
+- 過去事例: 「`comparison.items` を AI 生成時に文字数で切り詰めて `…` を残した」せいで 423 ダイアグラム × 1520 行を再生成する作業が発生（2026-04-25）。再発防止のため新規生成時もこのルールを守ること。
+
 ## ID Conventions
 
 - `mem-NNN`, `skill-NNN`, `tool-NNN`, `cmd-NNN`, `ext-NNN`, `ses-NNN`, `key-NNN`, `bp-NNN`
