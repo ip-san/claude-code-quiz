@@ -35,18 +35,17 @@ function answerCurrentQuestion(correct: boolean) {
   const state = useQuizStore.getState()
   const session = state.sessionState!
   const q = session.questions[session.currentIndex]
-  const ci = q.correctIndex
-  const correctSet = new Set(Array.isArray(ci) ? ci : [ci])
+  const correctSet = new Set(q.isMultiSelect ? q.correctIndices : [q.correctIndex])
 
   if (correct) {
-    if (Array.isArray(ci)) {
-      for (const idx of ci) state.toggleAnswer(idx)
+    if (q.isMultiSelect) {
+      for (const idx of q.correctIndices) state.toggleAnswer(idx)
     } else {
-      state.selectAnswer(ci)
+      state.selectAnswer(q.correctIndex)
     }
   } else {
     const wrongIndex = q.options.findIndex((_, i) => !correctSet.has(i))
-    if (Array.isArray(ci)) {
+    if (q.isMultiSelect) {
       state.toggleAnswer(wrongIndex)
     } else {
       state.selectAnswer(wrongIndex)
