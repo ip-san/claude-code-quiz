@@ -28536,7 +28536,7 @@
         },
         {
           "text": "環境変数 `CLAUDE_CODE_EFFORT_LEVEL` を設定する",
-          "wrongFeedback": "これは正しいエフォートレベルの設定方法の一つです。`CLAUDE_CODE_EFFORT_LEVEL=low|medium|high|max|auto` で環境変数として設定できます。"
+          "wrongFeedback": "これは正しいエフォートレベルの設定方法の一つです。`CLAUDE_CODE_EFFORT_LEVEL=low|medium|high|xhigh|max|auto` で環境変数として設定できます。"
         },
         {
           "text": "設定ファイルの `effortLevel` フィールドに `low`、`medium`、`high` を指定する",
@@ -28547,7 +28547,7 @@
         }
       ],
       "correctIndex": 3,
-      "explanation": "Opus 4.6のエフォートレベルは6つの方法で設定できます：(1) `/effort` コマンド（`/effort low`、`/effort max`等）、(2) `/model` メニューの左右矢印キーでエフォートスライダーを調整、(3) `--effort` CLIフラグ（起動時に`claude --effort low`）、(4) 環境変数 `CLAUDE_CODE_EFFORT_LEVEL=low|medium|high|max|auto`、(5) 設定ファイルの `effortLevel` フィールド、(6) スキル/サブエージェントのフロントマターで `effort` フィールドを指定（そのスキルまたはサブエージェントがアクティブな間のオーバーライド）。\n\n{{diagram:0}}\n\nプロンプトに`--effort=low`を付けて送信するという使い方は存在しません。`--effort`はClaude Code起動時のCLIフラグです。デフォルトのエフォートレベルは Opus 4.7 では `xhigh`、Opus 4.6 / Sonnet 4.6 では `high` です（v2.1.117以降）。エフォートレベル機能は Opus 4.7 / Opus 4.6 / Sonnet 4.6 でサポートされており、`max` も同じ3モデルで利用可能、`xhigh` は Opus 4.7 専用です。\n{{diagram:1}}",
+      "explanation": "Opus 4.6のエフォートレベルは6つの方法で設定できます：(1) `/effort` コマンド（`/effort low`、`/effort max`等）、(2) `/model` メニューの左右矢印キーでエフォートスライダーを調整、(3) `--effort` CLIフラグ（起動時に`claude --effort low`）、(4) 環境変数 `CLAUDE_CODE_EFFORT_LEVEL=low|medium|high|xhigh|max|auto`、(5) 設定ファイルの `effortLevel` フィールド、(6) スキル/サブエージェントのフロントマターで `effort` フィールドを指定（そのスキルまたはサブエージェントがアクティブな間のオーバーライド）。\n\n{{diagram:0}}\n\nプロンプトに`--effort=low`を付けて送信するという使い方は存在しません。`--effort`はClaude Code起動時のCLIフラグです。デフォルトのエフォートレベルは Opus 4.7 では `xhigh`、Opus 4.6 / Sonnet 4.6 では `high` です（v2.1.117以降）。エフォートレベル機能は Opus 4.7 / Opus 4.6 / Sonnet 4.6 でサポートされており、`max` も同じ3モデルで利用可能、`xhigh` は Opus 4.7 専用です。\n{{diagram:1}}",
       "referenceUrl": "https://code.claude.com/docs/ja/model-config",
       "diagrams": [
         {
@@ -33442,7 +33442,7 @@
         },
         {
           "text": "デスクトップアプリの設定メニューから「Auto Verify」チェックボックスをオフにする",
-          "wrongFeedback": "アプリ設定からも変更可能ですが、プロジェクト単位で制御するには `.claude/launch.json` に `\"autoVerify\": false` を設定するのが正しい方法です。Preview ドロップダウンメニューからもトグルできます。"
+          "wrongFeedback": "デスクトップアプリの設定メニューに「Auto Verify」チェックボックスは存在しません。自動検証の無効化は `.claude/launch.json` の `autoVerify` フィールド (`false`) または Preview ドロップダウンメニューからのトグルで行います。"
         }
       ],
       "correctIndex": 1,
