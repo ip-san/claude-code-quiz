@@ -38,9 +38,9 @@
 ## Hooks
 
 ### Hook event types
-- **総数: 26**（2026-04-23 再確認、`hooks.md` ## Hook events を grep。4-17 に一度「25」へ誤訂正したが、ext-085 の 26 が一貫して正しい）
-- 26 件: SessionStart, InstructionsLoaded, UserPromptSubmit, PreToolUse, PermissionRequest, PostToolUse, PostToolUseFailure, PermissionDenied, Notification, SubagentStart, SubagentStop, TaskCreated, TaskCompleted, Stop, StopFailure, TeammateIdle, ConfigChange, CwdChanged, FileChanged, WorktreeCreate, WorktreeRemove, PreCompact, PostCompact, SessionEnd, Elicitation, ElicitationResult
-- **Blocking events: 13**（PreCompact を含む）
+- **総数: 29**（2026-05-02 再確認、`hooks.md` の `### <EventName>` H3 セクションを grep。Setup / UserPromptExpansion / PostToolBatch の 3 件が新規追加）
+- 29 件: SessionStart, InstructionsLoaded, UserPromptSubmit, UserPromptExpansion, PreToolUse, PermissionRequest, PostToolUse, PostToolUseFailure, PostToolBatch, PermissionDenied, Notification, Setup, SubagentStart, SubagentStop, TaskCreated, TaskCompleted, Stop, StopFailure, TeammateIdle, ConfigChange, CwdChanged, FileChanged, WorktreeCreate, WorktreeRemove, PreCompact, PostCompact, SessionEnd, Elicitation, ElicitationResult
+- **Blocking events: 13**（PreCompact を含む。Setup / UserPromptExpansion / PostToolBatch の blocking 状態は要再確認）
 
 ### Hooks exit 2 の振る舞い
 - `PreToolUse`: `hookSpecificOutput` で制御
@@ -86,9 +86,10 @@
 
 ## CLI / Agent SDK
 
-### Task → Agent リネーム（v2.1.63）
+### Task → Agent リネーム（v2.1.63、SDK も統一済み 2026-05-02）
 - CLI は `Agent` ツールを使う
-- Agent SDK の `allowedTools` は `Task` を使う（後方互換）
+- Agent SDK の `allowedTools` も `Agent` を使う（agent-sdk/overview に「Include `Agent` in `allowedTools` since subagents are invoked via the Agent tool」と明記、サンプルコードも `allowed_tools=["Read", "Glob", "Grep", "Agent"]`）
+- 旧名の `Task` は SDK でも非推奨／不可。以前の MEMORY 「SDK は Task を使う」は outdated
 
 ### `allowed-tools` in Skills
 - 許可リスト（per-use 承認なしで grant）
