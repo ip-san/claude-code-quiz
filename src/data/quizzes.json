@@ -15211,7 +15211,7 @@
         },
         {
           "text": "`Ctrl+D`",
-          "wrongFeedback": "`Ctrl+D` は生成のキャンセルではなく、セッション全体を終了するショートカットです。生成中のキャンセルには `Ctrl+C` を使います"
+          "wrongFeedback": "`Ctrl+D` はセッション終了（EOF）ショートカットであり、テキスト削除には使用できません。カーソルから行末までの一括削除は `Ctrl+K` を使います。"
         },
         {
           "text": "Delete",
@@ -34015,7 +34015,7 @@
         }
       ],
       "correctIndex": 2,
-      "explanation": "`/terminal-setup` コマンドを実行すると、`Shift+Enter`（送信せずに改行を入力）のバインディングが有効になります。\n{{diagram:0}}\nこれはVS Code、Alacritty、Zed、Warpなどネイティブ対応していないターミナル用の設定です。`Option+T`（アダプティブ推論 の切り替え）は`/terminal-setup`では有効にならず、「Option as Meta」のターミナル設定が必要です。`Alt+B`、`Alt+F` などの Emacs 風キーバインドも同様に「Option as Meta」設定が必要です。\n{{diagram:1}}",
+      "explanation": "`/terminal-setup` コマンドを実行すると、`Shift+Enter`（送信せずに改行を入力）のバインディングが有効になります。\n{{diagram:0}}\nこれはVS Code、Alacritty、Zed、Warpなどネイティブ対応していないターミナル用の設定です。`Option+T`（extended thinking の切り替え）は`/terminal-setup`では有効にならず、「Option as Meta」のターミナル設定が必要です。`Alt+B`、`Alt+F` などの Emacs 風キーバインドも同様に「Option as Meta」設定が必要です。\n{{diagram:1}}",
       "referenceUrl": "https://code.claude.com/docs/ja/terminal-config",
       "diagrams": [
         {
@@ -49717,16 +49717,16 @@
           "label": "CLAUDE.mdの注意点",
           "steps": [
             {
-              "text": "公式メモリページでは「Write speci",
-              "sub": "fic, concrete, verifiab"
+              "text": "具体的で検証可能なルールを書く",
+              "sub": "「concrete enough to verify」"
             },
             {
-              "text": "「テストは必ず書くこと」は曖昧ですが、「bu",
-              "sub": "n test で全テストが通ることを確認してか"
+              "text": "「テストは必ず書く」は曖昧",
+              "sub": "「bun test で全テストが通ること」が具体的"
             },
             {
-              "text": "さらに「IMPORTANT」を付けることで遵",
-              "sub": "守率が向上します"
+              "text": "「IMPORTANT」を付けて遵守率向上",
+              "sub": "docs.md best-practices"
             }
           ]
         }
