@@ -35045,26 +35045,26 @@
       "id": "ext-132",
       "category": "extensions",
       "difficulty": "advanced",
-      "question": "`PreToolUse` フックで構造化 JSON 出力を使用する場合、`permissionDecision` に設定できる3つの値の組み合わせとして正しいものはどれですか？",
+      "question": "`PreToolUse` フックで構造化 JSON 出力を使用する場合、`permissionDecision` に設定できる4つの値の組み合わせとして正しいものはどれですか？",
       "options": [
         {
-          "text": "`\"allow\"`、`\"deny\"`、`\"ask\"`"
+          "text": "`\"allow\"`、`\"deny\"`、`\"ask\"`、`\"defer\"`"
         },
         {
-          "text": "`\"approve\"`、`\"reject\"`、`\"defer\"`",
-          "wrongFeedback": "これらの値は存在しません。正しくは `\"allow\"`、`\"deny\"`、`\"ask\"` です。`\"deny\"` は `permissionDecisionReason` と併せてツールコールをキャンセルし、`\"ask\"` はユーザーに通常のパーミッションプロンプトを表示します。"
+          "text": "`\"approve\"`、`\"reject\"`、`\"defer\"`、`\"hold\"`",
+          "wrongFeedback": "`approve` / `reject` / `hold` という値は存在しません。`defer` のみは正しい値です。正しい4値は `allow` / `deny` / `ask` / `defer` です。"
         },
         {
-          "text": "`\"proceed\"`、`\"cancel\"`、`\"prompt\"`",
-          "wrongFeedback": "これらの値は存在しません。`PreToolUse` の `hookSpecificOutput.permissionDecision` は `\"allow\"`（パーミッションプロンプトなしで続行）、`\"deny\"`（ツールコールをキャンセルし理由を Claude に送信）、`\"ask\"`（通常のパーミッションプロンプトを表示）の3つです。"
+          "text": "`\"proceed\"`、`\"cancel\"`、`\"prompt\"`、`\"skip\"`",
+          "wrongFeedback": "`proceed` / `cancel` / `prompt` / `skip` のいずれも存在しません。正しい4値は `allow` / `deny` / `ask` / `defer` です。"
         },
         {
-          "text": "`\"allow\"`、`\"block\"`、`\"skip\"`",
-          "wrongFeedback": "`\"block\"` と `\"skip\"` は `PreToolUse` の `permissionDecision` の有効な値ではありません。`PostToolUse` や `Stop` フックでは `decision: \"block\"` が使われますが、`PreToolUse` では `\"allow\"`、`\"deny\"`、`\"ask\"` の3つです。"
+          "text": "`\"allow\"`、`\"block\"`、`\"skip\"`、`\"defer\"`",
+          "wrongFeedback": "`block` / `skip` という値は存在しません。`allow` と `defer` のみが正しい値です。正しい4値は `allow` / `deny` / `ask` / `defer` です。"
         }
       ],
       "correctIndex": 0,
-      "explanation": "`PreToolUse` フックの構造化 JSON 出力では、`hookSpecificOutput.permissionDecision` に3つの値を設定できます。\n\n{{diagram:0}}\n\n`\"allow\"` はパーミッションプロンプトなしで続行、`\"deny\"` はツールコールをキャンセルして `permissionDecisionReason` を Claude にフィードバック、`\"ask\"` は通常のパーミッションプロンプトをユーザーに表示します。\n{{diagram:1}}",
+      "explanation": "`PreToolUse` フックの構造化 JSON 出力では、`hookSpecificOutput.permissionDecision` に4つの値を設定できます。\n\n{{diagram:0}}\n\n`\"allow\"` はパーミッションプロンプトなしで続行、`\"deny\"` はツールコールをキャンセルして `permissionDecisionReason` を Claude にフィードバック、`\"ask\"` は通常のパーミッションプロンプトをユーザーに表示、`\"defer\"` は判断を後続のフック / 通常のパーミッションフローに委ねます。\n{{diagram:1}}",
       "referenceUrl": "https://code.claude.com/docs/ja/hooks-guide",
       "diagrams": [
         {
@@ -37341,14 +37341,14 @@
         }
       ],
       "correctIndex": 3,
-      "explanation": "Learning スタイルは協調的な「learn-by-doing」モードで、コーディング中に Insights を共有するだけでなく、ユーザーに小さな戦略的なコードを自分で書かせます。\n{{diagram:0}}\nClaude Code がコード内に `TODO(human)` マーカーを追加し、ユーザーが実装する箇所を示します。出力スタイルの切り替えは `/output-style` で行います。\n{{diagram:1}}",
+      "explanation": "Learning スタイルは協調的な「learn-by-doing」モードで、コーディング中に Insights を共有するだけでなく、ユーザーに小さな戦略的なコードを自分で書かせます。\n{{diagram:0}}\nClaude Code がコード内に `TODO(human)` マーカーを追加し、ユーザーが実装する箇所を示します。出力スタイルの切り替えは `/config` メニューから行います（旧 `/output-style` コマンドは v2.1.73 付近で廃止）。\n{{diagram:1}}",
       "referenceUrl": "https://code.claude.com/docs/ja/output-styles",
       "diagrams": [
         {
           "type": "flow",
           "steps": [
             {
-              "text": "/output-style learning"
+              "text": "/config learning"
             },
             {
               "text": "Claude が Insights を共有"
