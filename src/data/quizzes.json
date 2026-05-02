@@ -13539,11 +13539,11 @@
           "wrongFeedback": "通知タイプの値はpermission_prompt、idle_prompt、auth_success、elicitation_dialogです。"
         },
         {
-          "text": "permission_prompt, idle_prompt, auth_success, elicitation_dialog"
+          "text": "permission_prompt, idle_prompt, auth_success, elicitation_dialog`、`elicitation_complete`、`elicitation_response"
         }
       ],
       "correctIndex": 3,
-      "explanation": "`Notification`イベントのマッチャーにはpermission_prompt、idle_prompt、auth_success、elicitation_dialogがあり、通知タイプごとにフックを設定できます。\n{{diagram:0}}\n{{diagram:1}}",
+      "explanation": "`Notification`イベントのマッチャーにはpermission_prompt、idle_prompt、auth_success、elicitation_dialog`、`elicitation_complete`、`elicitation_responseがあり、通知タイプごとにフックを設定できます。\n{{diagram:0}}\n{{diagram:1}}",
       "referenceUrl": "https://code.claude.com/docs/ja/hooks",
       "diagrams": [
         {
@@ -13562,7 +13562,7 @@
               "text": "auth_success"
             },
             {
-              "text": "elicitation_dialog"
+              "text": "elicitation_dialog`、`elicitation_complete`、`elicitation_response"
             }
           ]
         },
@@ -13571,20 +13571,20 @@
           "label": "Notificationの正誤ポイント",
           "items": [
             {
-              "text": "permission_prompt, idle_prompt, auth_success, elicitation_dialog（正解）",
-              "sub": "`Notification`イベントのマッチャーにはpermission_prompt、idle_prompt、auth_success、elicitation_dialogがあり、通知タイプごとにフックを設定できます。"
+              "text": "permission_prompt, idle_prompt, auth_success, elicitation_dialog`、`elicitation_complete`、`elicitation_response（正解）",
+              "sub": "`Notification`イベントのマッチャーにはpermission_prompt、idle_prompt、auth_success、elicitation_dialog`、`elicitation_complete`、`elicitation_responseがあり、通知タイプごとにフックを設定できます。"
             },
             {
               "text": "start, stop, pauseの3種類のライフサイクルイベント",
-              "sub": "通知タイプの値はpermission_prompt、idle_prompt、auth_success、elicitation_dialogです。"
+              "sub": "通知タイプの値はpermission_prompt、idle_prompt、auth_success、elicitation_dialog`、`elicitation_complete`、`elicitation_responseです。"
             },
             {
               "text": "error, warning, infoのログレベルに基づく分類",
-              "sub": "ログレベルではありません。`Notification`のマッチャーはpermission_prompt、idle_prompt、auth_success、elicitation_dialogです。"
+              "sub": "ログレベルではありません。`Notification`のマッチャーはpermission_prompt、idle_prompt、auth_success、elicitation_dialog`、`elicitation_complete`、`elicitation_responseです。"
             },
             {
               "text": "マッチャーは指定できず、すべての通知で一律に発火する",
-              "sub": "マッチャーで絞り込み可能です。permission_prompt、idle_prompt、auth_success、elicitation_dialog等の通知タイプで絞り込めます。"
+              "sub": "マッチャーで絞り込み可能です。permission_prompt、idle_prompt、auth_success、elicitation_dialog`、`elicitation_complete`、`elicitation_response等の通知タイプで絞り込めます。"
             }
           ]
         }
@@ -13681,7 +13681,7 @@
         }
       ],
       "correctIndex": 3,
-      "explanation": "`PreCompact`イベントはコンテキスト圧縮の直前に発火します。`/compact`の手動実行時も自動圧縮時も対象です。ブロッキングはできません。\n{{diagram:0}}\n{{diagram:1}}",
+      "explanation": "`PreCompact`イベントはコンテキスト圧縮の直前に発火します。`/compact`の手動実行時も自動圧縮時も対象です。exit 2 でコンテキスト圧縮をブロックできます。\n{{diagram:0}}\n{{diagram:1}}",
       "referenceUrl": "https://code.claude.com/docs/ja/hooks",
       "diagrams": [
         {
@@ -18286,7 +18286,7 @@
           "wrongFeedback": "これらの値ではありません。正しくはlow、medium、high、max（Opus 4.6/Sonnet 4.6/Opus 4.7で利用可能）、xhigh（Opus 4.7のみ）、auto（デフォルトリセット）です。"
         },
         {
-          "text": "low, medium, high, max, auto"
+          "text": "low, medium, high, xhigh, max, auto"
         },
         {
           "text": "fast, normal, thorough",
@@ -18328,7 +18328,7 @@
           "label": "エフォートレベル（推論のの正誤ポイント",
           "items": [
             {
-              "text": "low, medium, high, max, auto（正解）",
+              "text": "low, medium, high, xhigh, max, auto（正解）",
               "sub": "`CLAUDE_CODE_EFFORT_LEVEL`はlow、medium、high、max、xhigh（Opus 4.7のみ）の段階に加え、autoでデフォルトリセットができます。 maxはセッション単位で永続化されません（環境変数経由を除く）。デフォルトはOpus 4.7では`xhigh`、Opus 4.6/Sonnet 4.6では`high`です（v2.1.117以降）。lowにすると高速で簡潔な応答、highにするとより深い推論が行われます。"
             },
             {
@@ -22014,7 +22014,7 @@
       ],
       "correctIndex": 1,
       "explanation": "`mTLS`（相互TLS認証）には`CLAUDE_CODE_CLIENT_CERT`（クライアント証明書パス）、`CLAUDE_CODE_CLIENT_KEY`（秘密鍵パス）、`CLAUDE_CODE_CLIENT_KEY_PASSPHRASE`（暗号化鍵のパスフレーズ）の3つの環境変数を設定します。\n{{diagram:0}}\n{{diagram:1}}",
-      "referenceUrl": "https://code.claude.com/docs/ja/settings",
+      "referenceUrl": "https://code.claude.com/docs/ja/env-vars",
       "diagrams": [
         {
           "type": "comparison",
@@ -23041,7 +23041,7 @@
           "wrongFeedback": "`/compact` は実際に存在するコマンドで、コンテキストを圧縮します。"
         },
         {
-          "text": "`/undo`"
+          "text": "`/summarize`"
         },
         {
           "text": "`/help`",
@@ -23053,7 +23053,7 @@
         }
       ],
       "correctIndex": 1,
-      "explanation": "`/help`（ヘルプ表示）、`/clear`（会話クリア）、`/compact`（コンテキスト圧縮）は基本コマンドです。\n\n{{diagram:0}}\n\n`/undo` は存在せず、変更の取り消しには `/rewind` コマンドでチェックポイントに戻ります（Claude Codeのチェックポイントはgitとは独立した機能です）。\n{{diagram:1}}",
+      "explanation": "`/help`（ヘルプ表示）、`/clear`（会話クリア）、`/compact`（コンテキスト圧縮）は基本コマンドです。\n\n{{diagram:0}}\n\n`/summarize` は存在せず、変更の取り消しには `/rewind` コマンドでチェックポイントに戻ります（Claude Codeのチェックポイントはgitとは独立した機能です）。\n{{diagram:1}}",
       "referenceUrl": "https://code.claude.com/docs/ja/interactive-mode",
       "diagrams": [
         {
@@ -23082,8 +23082,8 @@
           "label": "スラッシュコマンドの正誤ポイント",
           "items": [
             {
-              "text": "`/undo`（正解）",
-              "sub": "`/help`（ヘルプ表示）、`/clear`（会話クリア）、`/compact`（コンテキスト圧縮）は基本コマンドです。 `/undo` は存在せず、変更の取り消しには `/rewind` コマンドでチェックポイントに戻ります（Claude Codeのチェックポイントはgitとは独立した機能です）。"
+              "text": "`/summarize`（正解）",
+              "sub": "`/help`（ヘルプ表示）、`/clear`（会話クリア）、`/compact`（コンテキスト圧縮）は基本コマンドです。 `/summarize` は存在せず、変更の取り消しには `/rewind` コマンドでチェックポイントに戻ります（Claude Codeのチェックポイントはgitとは独立した機能です）。"
             },
             {
               "text": "`/help`",
@@ -29927,7 +29927,7 @@
         }
       ],
       "correctIndex": 2,
-      "explanation": "`PreToolUse`フックの`permissionDecision`は3つの値をサポートします：`\"allow\"`（パーミッションシステムをバイパスして実行許可）、`\"deny\"`（ツールコールを阻止）、`\"ask\"`（ユーザーに確認を要求）。\n\n{{diagram:0}}\n\n`\"escalate\"`は有効な値ではありません。\n{{diagram:1}}",
+      "explanation": "`PreToolUse`フックの`permissionDecision`は4つの値（allow / deny / ask / defer）をサポートします：`\"allow\"`（パーミッションシステムをバイパスして実行許可）、`\"deny\"`（ツールコールを阻止）、`\"ask\"`（ユーザーに確認を要求）。\n\n{{diagram:0}}\n\n`\"escalate\"`は有効な値ではありません。\n{{diagram:1}}",
       "referenceUrl": "https://code.claude.com/docs/ja/hooks",
       "diagrams": [
         {
@@ -29961,7 +29961,7 @@
           "steps": [
             {
               "text": "PreToolUseフックのpermissi",
-              "sub": "onDecisionは3つの値をサポートします"
+              "sub": "onDecisionは4つの値をサポートします"
             },
             {
               "text": "\"escalate\"は有効な値ではありません",
@@ -35435,7 +35435,7 @@
         }
       ],
       "correctIndex": 2,
-      "explanation": "プラグインの `settings.json` で `agent` キーを設定すると、`agents/` ディレクトリで定義したカスタムエージェントがメインスレッドとして有効化されます。\n\n{{diagram:0}}\n\nこれにより、そのエージェントのシステムプロンプト、ツール制限、モデルが Claude Code のデフォルトの振る舞いに適用されます。現在 `settings.json` でサポートされているキーは `agent` のみです。\n{{diagram:1}}",
+      "explanation": "プラグインの `settings.json` で `agent` キーを設定すると、`agents/` ディレクトリで定義したカスタムエージェントがメインスレッドとして有効化されます。\n\n{{diagram:0}}\n\nこれにより、そのエージェントのシステムプロンプト、ツール制限、モデルが Claude Code のデフォルトの振る舞いに適用されます。現在 `settings.json` でサポートされているキーは `agent` と `subagentStatusLine` の2つです。\n{{diagram:1}}",
       "referenceUrl": "https://code.claude.com/docs/ja/plugins",
       "diagrams": [
         {
@@ -50221,22 +50221,22 @@
       "options": [
         {
           "text": "ユーザーが分類器のモデルを設定で選択できる",
-          "wrongFeedback": "分類器のモデルは設定で変更できず、常に Claude Sonnet 4.6 が使用されます"
+          "wrongFeedback": "分類器のモデルは設定で変更できず、常に サーバー設定のモデル が使用されます"
         },
         {
           "text": "メインセッションのモデルに関わらず、常に Claude Sonnet 4.6 で実行される"
         },
         {
           "text": "メインセッションと同じモデルが使用される",
-          "wrongFeedback": "分類器は常に Claude Sonnet 4.6 で実行されます"
+          "wrongFeedback": "分類器は常に サーバー設定のモデル で実行されます"
         },
         {
           "text": "Claude Haiku が使用される",
-          "wrongFeedback": "分類器は Haiku ではなく Claude Sonnet 4.6 で実行されます"
+          "wrongFeedback": "分類器は Haiku ではなく サーバー設定のモデル で実行されます"
         }
       ],
       "correctIndex": 1,
-      "explanation": "Auto モードの分類器は、メインセッションがどのモデルを使用していても、常に Claude Sonnet 4.6 で実行されます。\n{{diagram:0}}\n{{diagram:1}}",
+      "explanation": "Auto モードの分類器は、メインセッションがどのモデルを使用していても、サーバー設定のモデルで実行（ユーザーの /model 選択とは独立）されます。\n{{diagram:0}}\n{{diagram:1}}",
       "referenceUrl": "https://code.claude.com/docs/ja/permission-modes",
       "diagrams": [
         {
@@ -50755,10 +50755,10 @@
       "options": [
         {
           "text": "開発者1人あたり平均 $2/日",
-          "wrongFeedback": "平均コストは $6/日と記載されています"
+          "wrongFeedback": "平均コストは $13/日と記載されています"
         },
         {
-          "text": "開発者1人あたり平均 $6/日で、90% のユーザーは $12/日以下"
+          "text": "開発者1人あたり平均 $13/日で、90% のユーザーは $30/日以下"
         },
         {
           "text": "固定料金制で日ごとのコスト変動はない",
@@ -50766,11 +50766,11 @@
         },
         {
           "text": "開発者1人あたり平均 $20/日",
-          "wrongFeedback": "公式ドキュメントでは平均コストは $6/日です"
+          "wrongFeedback": "公式ドキュメントでは平均コストは $13/日です"
         }
       ],
       "correctIndex": 1,
-      "explanation": "ドキュメントによると、平均コストは開発者1人あたり $6/日で、90% のユーザーは $12/日以下です。\n{{diagram:0}}\n{{diagram:1}}",
+      "explanation": "ドキュメントによると、平均コストは開発者1人あたり $13/日で、90% のユーザーは $30/日以下です。\n{{diagram:0}}\n{{diagram:1}}",
       "referenceUrl": "https://code.claude.com/docs/ja/costs",
       "diagrams": [
         {
@@ -50780,14 +50780,14 @@
             {
               "heading": "平均",
               "items": [
-                "$6/日",
+                "$13/日",
                 "開発者1人あたり"
               ]
             },
             {
               "heading": "90パーセンタイル",
               "items": [
-                "$12/日以下",
+                "$30/日以下",
                 "大半のユーザー"
               ]
             }
