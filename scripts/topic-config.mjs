@@ -116,6 +116,11 @@ export const DOC_PAGES = [
   { name: 'admin-setup', url: 'https://code.claude.com/docs/en/admin-setup' },
   { name: 'auto-mode-config', url: 'https://code.claude.com/docs/en/auto-mode-config' },
   { name: 'debug-your-config', url: 'https://code.claude.com/docs/en/debug-your-config' },
+  // Auto-discovered from llms.txt (2026-05-02)
+  { name: 'champion-kit', url: 'https://code.claude.com/docs/en/champion-kit' },
+  { name: 'communications-kit', url: 'https://code.claude.com/docs/en/communications-kit' },
+  { name: 'glossary', url: 'https://code.claude.com/docs/en/glossary' },
+  { name: 'troubleshoot-install', url: 'https://code.claude.com/docs/en/troubleshoot-install' },
   // Agent SDK (different domain)
   { name: 'agent-sdk-overview', url: 'https://platform.claude.com/docs/en/agent-sdk/overview' },
 ]

@@ -73,6 +73,8 @@
     "quiz:check-diagram-text:report": "node scripts/quiz-utils.mjs check-diagram-text --report-only",
     "quiz:fact-check": "node scripts/quiz-fact-check.mjs",
     "quiz:cross-check": "node scripts/quiz-cross-check.mjs",
+    "quiz:classify-practicality": "node scripts/classify-quiz-practicality.mjs",
+    "quiz:apply-practicality": "node scripts/apply-practicality-tags.mjs",
     "generate-icons": "node scripts/generate-icons.mjs",
     "prepare": "husky",
     "size": "size-limit",

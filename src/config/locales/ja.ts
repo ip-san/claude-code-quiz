@@ -355,6 +355,8 @@ export const ja: LocaleConfig = {
       review: '復習',
       quick: '復習チェック',
       scenario: '実践シナリオ',
+      practical: '実務即戦力',
+      trivia: '上級トリビア',
     },
     sessionLabel: (index) => `セッション${index}`,
     noHistory: 'まだセッション履歴がありません',

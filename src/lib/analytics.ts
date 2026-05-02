@@ -198,12 +198,19 @@ export function trackCertificate(mode: string): void {
 }
 
 /** 個別問題の回答 */
-export function trackAnswer(questionId: string, category: string, difficulty: string, isCorrect: boolean): void {
+export function trackAnswer(
+  questionId: string,
+  category: string,
+  difficulty: string,
+  isCorrect: boolean,
+  quizType: 'practical' | 'trivia' | 'neutral' = 'neutral'
+): void {
   pushEvent('quiz_answer', {
     question_id: questionId,
     category,
     difficulty,
     is_correct: isCorrect,
+    quiz_type: quizType,
   })
 }
 

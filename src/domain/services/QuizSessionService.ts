@@ -248,6 +248,13 @@ export class QuizSessionService {
       questions = questions.filter((q) => q.difficulty === config.difficultyFilter)
     }
 
+    // For practical / trivia modes, filter to questions with that practicality tag
+    if (config.mode === 'practical') {
+      questions = questions.filter((q) => q.tags.includes('practical'))
+    } else if (config.mode === 'trivia') {
+      questions = questions.filter((q) => q.tags.includes('trivia'))
+    }
+
     // For overview mode, filter to tagged questions and sort by order tag
     if (config.mode === 'overview') {
       questions = questions.filter((q) => q.tags.includes('overview'))

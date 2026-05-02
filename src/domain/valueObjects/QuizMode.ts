@@ -16,6 +16,8 @@ export type QuizModeId =
   | 'review'
   | 'overview'
   | 'scenario'
+  | 'practical'
+  | 'trivia'
 
 export interface QuizModeProps {
   readonly id: QuizModeId
@@ -41,6 +43,8 @@ export const ALL_MODE_IDS: readonly QuizModeId[] = [
   'review',
   'overview',
   'scenario',
+  'practical',
+  'trivia',
 ] as const
 
 export class QuizMode {
@@ -205,6 +209,26 @@ export const PREDEFINED_QUIZ_MODES: QuizMode[] = [
     questionCount: null,
     timeLimit: null,
     shuffleQuestions: false,
+    shuffleOptions: false,
+  }),
+  QuizMode.create({
+    id: 'practical',
+    name: '実務即戦力20問',
+    description: '明日から使える実務直結の機能を厳選',
+    icon: '🛠️',
+    questionCount: 20,
+    timeLimit: null,
+    shuffleQuestions: true,
+    shuffleOptions: false,
+  }),
+  QuizMode.create({
+    id: 'trivia',
+    name: '上級トリビア20問',
+    description: '細かい仕様や内部挙動でドヤれる知識を強化',
+    icon: '🧠',
+    questionCount: 20,
+    timeLimit: null,
+    shuffleQuestions: true,
     shuffleOptions: false,
   }),
 ]

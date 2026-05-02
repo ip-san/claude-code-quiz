@@ -147,7 +147,14 @@ const VALID_DOC_PAGES = [
 ]
 
 /** 有効なタグパターン */
-const VALID_TAG_PATTERNS = [/^overview$/, /^overview-\d+$/, /^overview-ch-\d+$/, /^topic-[a-z]+(-[a-z]+)*$/]
+const VALID_TAG_PATTERNS = [
+  /^overview$/,
+  /^overview-\d+$/,
+  /^overview-ch-\d+$/,
+  /^topic-[a-z]+(-[a-z]+)*$/,
+  /^practical$/,
+  /^trivia$/,
+]
 
 describe('Quiz Content Quality', () => {
   describe('ID の一意性と命名規則', () => {
@@ -392,6 +399,15 @@ describe('Quiz Content Quality', () => {
         })
       })
       expect(violations, `不明なタグ: ${violations.join(', ')}`).toEqual([])
+    })
+  })
+
+  describe('実用度タグの排他性', () => {
+    it('practical と trivia は同時に付与されないこと', () => {
+      const violations = quizzes
+        .filter((q) => (q.tags ?? []).includes('practical') && (q.tags ?? []).includes('trivia'))
+        .map((q) => q.id)
+      expect(violations, `practical と trivia が同時に付与: ${violations.join(', ')}`).toEqual([])
     })
   })
 

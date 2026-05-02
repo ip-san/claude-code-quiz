@@ -127,6 +127,8 @@ describe('parseUrlIntent', () => {
       expect(parseUrlIntent('?mode=unanswered')).toEqual({ kind: 'mode', mode: 'unanswered' })
       expect(parseUrlIntent('?mode=bookmark')).toEqual({ kind: 'mode', mode: 'bookmark' })
       expect(parseUrlIntent('?mode=review')).toEqual({ kind: 'mode', mode: 'review' })
+      expect(parseUrlIntent('?mode=practical')).toEqual({ kind: 'mode', mode: 'practical' })
+      expect(parseUrlIntent('?mode=trivia')).toEqual({ kind: 'mode', mode: 'trivia' })
     })
 
     it('rejects mode=category (requires a category param instead)', () => {

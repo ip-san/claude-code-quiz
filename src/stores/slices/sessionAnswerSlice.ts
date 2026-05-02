@@ -70,7 +70,12 @@ export const createSessionAnswerSlice = (set: StoreSet, get: StoreGet): SessionA
     const currentQuestion = QuizSessionService.getCurrentQuestion(state.sessionState)
 
     if (currentQuestion) {
-      trackAnswer(currentQuestion.id, currentQuestion.category, currentQuestion.difficulty, isCorrect)
+      const quizType: 'practical' | 'trivia' | 'neutral' = currentQuestion.tags.includes('practical')
+        ? 'practical'
+        : currentQuestion.tags.includes('trivia')
+          ? 'trivia'
+          : 'neutral'
+      trackAnswer(currentQuestion.id, currentQuestion.category, currentQuestion.difficulty, isCorrect, quizType)
 
       if (state.sessionState.isReviewMode) {
         set({ sessionState: newState })
