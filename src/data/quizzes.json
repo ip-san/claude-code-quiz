@@ -11933,18 +11933,18 @@
       "question": "Opus 4.6とSonnet 4.6でアダプティブ推論（adaptive reasoning）を使用している場合、推論の深さを調整するにはどうすればよいですか？",
       "options": [
         {
-          "text": "`/config`でThinkingモードのトグルを切り替え、有効・無効の2段階で制御する",
+          "text": "`/config` で Thinking モードのトグルを切り替え、有効・無効の 2 段階で制御する（モデルやセッション横断で固定）",
           "wrongFeedback": "`/config`でのトグルはThinkingの有効・無効の切り替えのみです。推論の深さの調整にはeffort level（low/medium/high/max）を`/effort`コマンドや`/model`のスライダーで設定します。"
         },
         {
-          "text": "プロンプトに「think hard」や「ultrathink」と記述することで、推論の深さを段階的に調整する",
+          "text": "プロンプト本文に「think hard」「ultrathink」と書くことで API に送信される effort レベルが段階的に上がる",
           "wrongFeedback": "「think hard」はThinkingトークンを割り当てない通常のプロンプト指示として解釈されます（推論の深さを調整しません）。「ultrathink」はそのターンのeffortをhighに設定しますが、段階的（low/medium/high/max）に調整する手段ではありません。effortを継続的に調整するには`/effort`コマンドや`/model`のeffortスライダー、`CLAUDE_CODE_EFFORT_LEVEL`環境変数を使います。"
         },
         {
           "text": "effort levelをlow/medium/high/maxで調整する。Opus 4.6とSonnet 4.6ではアダプティブ推論により、設定に応じて動的にトークンが割り当てられる（maxはOpus 4.6/Sonnet 4.6の両方で利用可能、セッション単位）"
         },
         {
-          "text": "`MAX_THINKING_TOKENS`環境変数でトークン数を直接指定し、推論に使用するトークン量を制御する",
+          "text": "`MAX_THINKING_TOKENS` 環境変数でトークン数を直接指定し、推論に使用する Thinking トークン量を上限まで使い切らせる",
           "wrongFeedback": "`MAX_THINKING_TOKENS`はOpus 4.6とSonnet 4.6ではアダプティブ推論が制御するため無視されます。アダプティブ推論を無効化するには`CLAUDE_CODE_DISABLE_ADAPTIVE_THINKING=1`を設定し、その後`MAX_THINKING_TOKENS`でトークン数を制御できます。"
         }
       ],
@@ -13527,15 +13527,15 @@
       "question": "Hookイベント「`Notification`」のマッチャーとして指定できるものはどれですか？",
       "options": [
         {
-          "text": "error, warning, infoのログレベルに基づく分類",
+          "text": "`error` / `warning` / `info` のログレベルに基づく分類で、ログ出力ストリームと連動する",
           "wrongFeedback": "ログレベルではありません。`Notification`のマッチャーはpermission_prompt、idle_prompt、auth_success、elicitation_dialogです。"
         },
         {
-          "text": "マッチャーは指定できず、すべての通知で一律に発火する",
+          "text": "マッチャーは指定できず、すべての通知イベントで一律に発火するため `Notification` イベント全体をハンドリングする必要がある",
           "wrongFeedback": "マッチャーで絞り込み可能です。permission_prompt、idle_prompt、auth_success、elicitation_dialog等の通知タイプで絞り込めます。"
         },
         {
-          "text": "start, stop, pauseの3種類のライフサイクルイベント",
+          "text": "`start` / `stop` / `pause` の 3 種類のライフサイクルイベント（CLI 起動・終了・中断）に基づく分類",
           "wrongFeedback": "通知タイプの値はpermission_prompt、idle_prompt、auth_success、elicitation_dialogです。"
         },
         {
@@ -34068,18 +34068,18 @@
       "question": "Claude Code のキーバインド設定で、`Chat` コンテキストにおける `chat:submit` アクションのデフォルトキーは `Enter` ですが、これを `Cmd+Enter`（Mac）に変更したい場合の設定として正しいものはどれですか？",
       "options": [
         {
-          "text": "`~/.claude/settings.json` に `\"submitKey\": \"cmd+enter\"` を追加する",
+          "text": "`~/.claude/settings.json` のトップレベルに `\"submitKey\": \"cmd+enter\"` を追加してキーバインドを上書きする",
           "wrongFeedback": "`settings.json` に `submitKey` 設定はありません。キーバインドの変更は `~/.claude/keybindings.json` で行います。"
         },
         {
-          "text": "環境変数 `CLAUDE_SUBMIT_KEY=cmd+enter` を設定する",
+          "text": "環境変数 `CLAUDE_SUBMIT_KEY=cmd+enter` を `.bashrc` 等に設定してシェル経由で適用する",
           "wrongFeedback": "`CLAUDE_SUBMIT_KEY` 環境変数は存在しません。キーバインドの変更は `~/.claude/keybindings.json` で行います。"
         },
         {
           "text": "`~/.claude/keybindings.json` の `bindings` 配列に `{ \"context\": \"Chat\", \"bindings\": { \"cmd+enter\": \"chat:submit\" } }` を追加する"
         },
         {
-          "text": "`/keybindings` スラッシュコマンドで対話的に変更する",
+          "text": "`/keybindings` スラッシュコマンドで対話的に変更し、対話 UI から `chat:submit` のキーを再割当する",
           "wrongFeedback": "`/keybindings` コマンドは存在しますが、対話的に変更する UI ではなく、設定ファイル `~/.claude/keybindings.json` を作成・オープンするためのものです。キーバインドの実際の変更はファイルを直接編集して行います。"
         }
       ],
@@ -47973,15 +47973,15 @@
       "question": "`/effort` コマンドで設定できる `max` レベルについて正しい説明はどれですか？",
       "options": [
         {
-          "text": "`max` はセッションをまたいで永続化される",
+          "text": "`max` はセッションをまたいで永続化され、CLI 再起動後も同じ effort で動き続ける",
           "wrongFeedback": "`low`, `medium`, `high` はセッション間で永続化されますが、`max` は現在のセッションのみに適用されます"
         },
         {
-          "text": "`max` は `/effort` のデフォルト値である",
+          "text": "`max` は `/effort` のデフォルト値であり、引数なしで `/effort` を実行すると常に `max` が適用される",
           "wrongFeedback": "デフォルト値は `auto` で、モデルのデフォルトにリセットされます。`max` はオプションの最高レベルです"
         },
         {
-          "text": "`max` はすべてのモデルで使用できる",
+          "text": "`max` はすべてのモデル（Haiku を含む）で使用でき、最も深い推論を行わせるための統一値である",
           "wrongFeedback": "`max` レベルは Opus 4.7 / Opus 4.6 / Sonnet 4.6 で利用可能で、それ以外のモデル（Haiku など）では使えません"
         },
         {
@@ -52842,15 +52842,15 @@
       "question": "多数のスキルを定義した環境で、Claudeがスキルの`description`を途中で切り詰めてしまい、自動呼び出しの精度が下がっています。この問題の原因と対処法として正しいものはどれですか？",
       "options": [
         {
-          "text": "`description`が長すぎる場合はスキル自体が無効化されるため、全スキルの`description`を100文字以下にリファクタリングする",
+          "text": "`description` が長すぎるとスキル自体が無効化されるため、全スキルの `description` を 100 文字以下に強制リファクタリングする",
           "wrongFeedback": "スキルが無効化されることはありません。説明文が予算内に収まるよう切り詰められるだけです。各エントリの上限は1,536文字（description+when_to_use 合計）で、100文字以下にする必要はありません"
         },
         {
-          "text": "スキルの最大登録数は50個までで、超過するとランダムに切り捨てられるため、不要なスキルを削除する",
+          "text": "スキル登録の最大数は 50 個までで、超過するとランダムに切り捨てられるため、不要なスキルを削除して総数を 50 以下に保つ",
           "wrongFeedback": "スキルに最大登録数の制限はありません。説明文はコンテキスト予算に基づいて切り詰められるもので、スキル自体が削除されるわけではありません"
         },
         {
-          "text": "スキル名は常にコンテキストに含まれるが、`description`はデフォルトで読み込まれないため、`auto-load-description: true`を設定する必要がある",
+          "text": "スキル名は常にコンテキストに含まれるが、`description` はデフォルトで読み込まれないため、`auto-load-description: true` を設定して明示的に有効化する",
           "wrongFeedback": "`description`はデフォルトでコンテキストに読み込まれます。`auto-load-description`というフロントマターフィールドは存在しません"
         },
         {
@@ -53697,18 +53697,18 @@
       "question": "`claude --remote` を実行したところ `Unable to connect to API (ECONNREFUSED)` というエラーが表示されました。同じシェルで `curl -I https://api.anthropic.com` は成功します。最も可能性の高い原因はどれですか？",
       "options": [
         {
-          "text": "サブスクリプションの使用量制限に達している",
+          "text": "サブスクリプションの使用量制限に達しているため、API 接続自体が拒否されている可能性が高い",
           "wrongFeedback": "使用量制限は `You've hit your session limit` というエラーで表示されます。`ECONNREFUSED` はネットワーク接続レベルの問題であり、使用量制限とは関係ありません。"
         },
         {
-          "text": "`CLAUDE_CODE_MAX_RETRIES` が低く設定されているため接続試行回数が不足している",
+          "text": "`CLAUDE_CODE_MAX_RETRIES` が低く設定されているため接続試行回数が不足し、リトライ前にタイムアウトしている",
           "wrongFeedback": "`CLAUDE_CODE_MAX_RETRIES` はリトライ回数を制御しますが、`ECONNREFUSED` は接続自体が拒否されているため、リトライ回数を増やしても解決しません。根本原因はネットワーク設定にあります。"
         },
         {
           "text": "`curl` は成功するがClaudeが失敗する場合、Node.jsとネットワーク間の問題（DockerやVPNが通信を遮断している可能性）が原因の可能性が高い"
         },
         {
-          "text": "APIキーが無効になっている",
+          "text": "API キーが無効になっているか、`ANTHROPIC_API_KEY` 環境変数が設定されていないため認証段階で接続が拒否されている",
           "wrongFeedback": "APIキーの問題は `Invalid API key` というエラーメッセージで表示されます。`ECONNREFUSED` は接続が拒否された場合のエラーで、APIキーの問題とは異なります。"
         }
       ],
@@ -53850,15 +53850,15 @@
           "text": "管理された設定の `permissions.deny` は開発者が上書きできない。一方 `permissions.allow` は各スコープのエントリがマージされるため、開発者は独自エントリを追加できる"
         },
         {
-          "text": "管理された設定は plist/レジストリ方式でのみ上書き禁止になる。ファイルベース管理設定は開発者に上書きできる",
+          "text": "管理された設定は plist / レジストリ方式でのみ上書き禁止になり、ファイルベースの管理設定は開発者がローカル設定から上書き可能",
           "wrongFeedback": "管理設定の優先順位はファイル配置場所に関わらず、ユーザー・プロジェクト設定よりも常に高くなります。サーバー管理設定・plist/レジストリ・ファイルベース管理設定のいずれも、ユーザーやプロジェクトの設定より優先されます。"
         },
         {
-          "text": "管理された設定のすべての配列設定は開発者が完全に上書きできる",
+          "text": "管理された設定のすべての配列設定は開発者が完全に上書きでき、`deny` も含めローカル設定で打ち消すことができる",
           "wrongFeedback": "配列設定（`permissions.allow` や `permissions.deny` など）は各スコープのエントリがマージされ、開発者は管理設定のエントリを削除できません。これはセキュリティポリシーの一部を開発者が無効化できないようにするための仕組みです。"
         },
         {
-          "text": "管理された設定の配列設定は開発者が追加も変更もできない",
+          "text": "管理された設定の配列設定は開発者が追加も変更もできず、`allow` 個人エントリも一切追加不可となる",
           "wrongFeedback": "管理設定の既存エントリを削除することはできませんが、開発者は独自のエントリを追加することは可能です。例えば管理設定の `permissions.allow` にエントリがある場合、開発者がローカル設定で別のエントリを追加することはできます。"
         }
       ],
@@ -54047,15 +54047,15 @@
       "question": "Claude Code向けのチャンネル（channel）を構築してCIアラートをセッションにプッシュしたいと考えています。チャンネルをMCPサーバーとして実装する際に必須の要件はどれですか？",
       "options": [
         {
-          "text": "双方向チャンネルも一方向チャンネルも、必ず `capabilities.tools` を宣言してリプライツールを登録する必要がある",
+          "text": "双方向チャンネルも一方向チャンネルも、必ず `capabilities.tools` を宣言してリプライツールをペアで登録する必要がある",
           "wrongFeedback": "`capabilities.tools` は双方向チャンネル（Claudeからの返信が必要な場合）にのみ必要です。CIアラートを受け取るだけの一方向チャンネルでは `capabilities.tools` を省略できます。"
         },
         {
-          "text": "チャンネル機能を使うにはclaude.aiログインではなくAPIキー認証が必要",
+          "text": "チャンネル機能を利用するには claude.ai ログインではなく専用 API キー認証が必須で、Anthropic Console から発行する",
           "wrongFeedback": "チャンネルはclaude.aiアカウントでのログイン認証が必要です。コンソールのAPIキー認証ではサポートされていません。"
         },
         {
-          "text": "HTTPトランスポートでサーバーを公開し、Claude Codeがポーリングするエンドポイントを用意する",
+          "text": "HTTP トランスポートでサーバーを公開し、Claude Code が定期的にポーリングするエンドポイントを用意する必要がある",
           "wrongFeedback": "チャンネルのMCPサーバーはstdio transport（標準入出力）を使用します。Claude Codeがサブプロセスとして起動し、stdioで通信します。HTTPトランスポートでポーリングする設計ではありません。"
         },
         {
