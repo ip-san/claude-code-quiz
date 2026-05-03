@@ -12386,15 +12386,15 @@
           "text": "サーバープロセスの標準入力（stdin）と標準出力（stdout）を使って`JSON-RPC`メッセージを交換する"
         },
         {
-          "text": "`HTTP` リクエスト・レスポンス方式で通信する",
+          "text": "`HTTP` リクエスト・レスポンス方式（Server-Sent Events 含む）で通信する",
           "wrongFeedback": "HTTPはStreamable HTTPトランスポートの方式です。`stdio`トランスポートではプロセスの標準入出力を使用します。"
         },
         {
-          "text": "`Unix Domain Socket` で通信する",
+          "text": "`Unix Domain Socket` で OS のソケットファイル経由で通信する",
           "wrongFeedback": "Unix Domain Socketは使用しません。`stdio`トランスポートはサブプロセスの標準入出力（stdin/stdout）経由で`JSON-RPC`メッセージを交換します。"
         },
         {
-          "text": "`WebSocket` でリアルタイム通信する",
+          "text": "`WebSocket` で双方向リアルタイム通信を確立する",
           "wrongFeedback": "WebSocketは使用しません。`stdio`トランスポートはサブプロセスのstdin/stdoutで通信します。リアルタイム性は`SSE`またはStreamable HTTPトランスポートで実現します。"
         }
       ],
@@ -16571,15 +16571,15 @@
           "text": "`PreToolUse`フック（または`PermissionRequest`フック）でツールの入力を実行前に変更する"
         },
         {
-          "text": "`settings.json` の設定値を更新する",
+          "text": "`settings.json` の任意の設定値を実行時に書き換えて、後続のフックに渡す",
           "wrongFeedback": "設定値ではありません。`updatedInput`はツールの入力パラメータを実行前に書き換える機能です。"
         },
         {
-          "text": "Claudeの応答（`response`）を変更する",
+          "text": "Claude の応答テキスト（`response`）をフック側で変更してユーザーに表示する",
           "wrongFeedback": "応答の変更ではありません。`updatedInput`は`PreToolUse`フックでツールへの入力を実行前に変更する機能です。"
         },
         {
-          "text": "ユーザーの入力（`stdin`）を上書きする",
+          "text": "ユーザーの標準入力（`stdin`）をフック側で上書きしてプロンプトを差し替える",
           "wrongFeedback": "ユーザー入力の上書きではなく、`PreToolUse`フック実行前にツールへ渡す入力パラメータを変更する機能です。"
         }
       ],
@@ -17336,18 +17336,18 @@
       "question": "CI/CD環境でClaude Codeの全パーミッションチェックをスキップする場合に必要な条件は何ですか？",
       "options": [
         {
-          "text": "`--skip-permissions`フラグを使用する",
+          "text": "`--skip-permissions` フラグでパーミッションチェック全体をスキップする",
           "wrongFeedback": "正しいフラグ名は`--dangerously-skip-permissions`です。名前にdangerouslyが含まれるのは、このフラグのリスクの高さを明示するための設計判断です。"
         },
         {
-          "text": "`settings.json`で`autoApprove: true`を設定する",
+          "text": "`settings.json` で `autoApprove: true` を設定し、すべてのプロンプトを自動承認させる",
           "wrongFeedback": "`autoApprove: true`という設定項目は存在しません。パーミッションの一括制御には`--dangerously-skip-permissions`フラグを使用します。"
         },
         {
           "text": "`--dangerously-skip-permissions`フラグを使用する（サンドボックス環境での実行を強く推奨）"
         },
         {
-          "text": "管理者権限で実行する",
+          "text": "OS の管理者権限（root / Administrator）で実行することで全パーミッションを自動付与する",
           "wrongFeedback": "管理者権限だけでは不十分です。`--dangerously-skip-permissions`フラグの使用が必要で、サンドボックス環境での実行が推奨されます。"
         }
       ],
@@ -18061,18 +18061,18 @@
       "question": "teammateModeの設定値「tmux」はどのような動作をしますか？",
       "options": [
         {
-          "text": "バックグラウンドでセッションを維持する",
+          "text": "バックグラウンドで Claude セッションを維持し続ける（デタッチ可能）",
           "wrongFeedback": "セッション維持ではなく、表示モードの設定です。"
         },
         {
-          "text": "tmuxのキーバインドを有効にする",
+          "text": "tmux のキーバインド（prefix + key）を Claude Code 上でも有効にする",
           "wrongFeedback": "tmux のキーバインド設定ではありません。`tmux` モードはチームメイトのセッションを tmux ペインで並べて表示するレイアウト方式です"
         },
         {
           "text": "split-paneモードを有効にし、tmuxまたはiTerm2を自動検出して表示する"
         },
         {
-          "text": "チーム全員を同じセッションに接続する",
+          "text": "チーム全員を同じセッションにリアルタイム接続させる共同編集モード",
           "wrongFeedback": "リモート共有ではありません。teammateModeはエージェントチームの表示方法（auto/in-process/tmux）を制御する設定です。"
         }
       ],
@@ -18577,18 +18577,18 @@
       "question": "`allowManagedHooksOnly`をtrueに設定すると何が起きますか？",
       "options": [
         {
-          "text": "すべてのHooksが無効になる",
+          "text": "すべての Hooks が無効になり、いかなる hook イベントも発火しなくなる",
           "wrongFeedback": "すべてではなく、User/Project/Pluginスコープのフックが無効になります。ManagedとSDKのフックは引き続き実行されます。"
         },
         {
-          "text": "Hooksのログが管理者に送信される",
+          "text": "Hooks の実行ログが管理者へ自動送信されるテレメトリモードに切り替わる",
           "wrongFeedback": "ログ送信機能ではありません。`allowManagedHooksOnly`はUser/Project/Pluginスコープのフックを無効化し、ManagedとSDKのフックのみ許可する設定です。"
         },
         {
           "text": "Managed設定で定義されたHooksとSDK Hooksのみが実行を許可される"
         },
         {
-          "text": "Hooksの実行に管理者承認が必要になる",
+          "text": "Hooks の実行ごとに管理者承認が必要になり、対話プロンプトでブロックされる",
           "wrongFeedback": "承認プロセスではなく、ソースの制限です。"
         }
       ],
@@ -20355,18 +20355,18 @@
       "question": "サブエージェントの`permissionMode`で\"`dontAsk`\"を設定するとどう動作しますか？",
       "options": [
         {
-          "text": "すべての操作が自動承認される",
+          "text": "すべての操作が自動承認される（パーミッション確認を完全にスキップ）",
           "wrongFeedback": "`dontAsk` は自動承認ではなく、パーミッション要求を自動的に拒否するモードです。全操作を自動承認するのは `bypassPermissions` です"
         },
         {
           "text": "パーミッションプロンプトを自動拒否する（明示的に許可されたツールは動作する）"
         },
         {
-          "text": "パーミッション設定が無視される",
+          "text": "パーミッション設定が無視され、デフォルトの権限のみで動作する",
           "wrongFeedback": "無視ではなく、プロンプトが自動拒否されます。"
         },
         {
-          "text": "ユーザーへの質問がすべてブロックされる",
+          "text": "ユーザーへの質問プロンプトがすべてブロックされ、ツール実行も停止する",
           "wrongFeedback": "パーミッションプロンプトのみが対象です。"
         }
       ],
@@ -21027,18 +21027,18 @@
       "question": "Anthropic Console（API）で初めてClaude Codeにログインした時、自動的に作成されるものは何ですか？",
       "options": [
         {
-          "text": "`CLAUDE.md`ファイル",
+          "text": "`CLAUDE.md` ファイルがプロジェクトルートに自動生成される",
           "wrongFeedback": "`CLAUDE.md`は自動作成されません。"
         },
         {
-          "text": "プロジェクト設定ファイル",
+          "text": "Claude Code のプロジェクト設定ファイル（`.claude/settings.json`）が初期化される",
           "wrongFeedback": "プロジェクト設定ファイルではありません。"
         },
         {
           "text": "コスト追跡のための「Claude Code」ワークスペース"
         },
         {
-          "text": "APIキーファイル",
+          "text": "ローカルに API キーファイル（`~/.claude/api-key`）が自動生成される",
           "wrongFeedback": "APIキーファイルではなく、Anthropic Console上にコスト追跡用の「Claude Code」ワークスペースが自動作成されます。"
         }
       ],
@@ -26906,15 +26906,15 @@
           "text": "質問に答えるだけでなく、ファイルの読み書きやコマンド実行を自律的に行える"
         },
         {
-          "text": "応答速度が従来より速い",
+          "text": "応答速度が従来のチャット型 AI より大幅に高速化されている",
           "wrongFeedback": "速度の違いではありません。エージェント型とは、AIが指示に基づいてファイルの編集、コマンドの実行、テストの確認などを自律的に行える能力を意味します。"
         },
         {
-          "text": "プログラミング言語を自動検出する",
+          "text": "プログラミング言語を自動検出して最適な応答スタイルに切り替える",
           "wrongFeedback": "言語検出だけではありません。エージェント型の特徴は、コードベース全体を理解した上で、複数のファイルにまたがる変更やコマンド実行を自律的に行える点です。"
         },
         {
-          "text": "複数のユーザーが同時にチャットできる",
+          "text": "複数のユーザーが同時に同じセッションへチャット参加できる",
           "wrongFeedback": "エージェント型とはマルチユーザー機能ではなく、AIが自律的にタスクを実行する能力を指します。Claude Codeはコードベースを理解し、ファイル操作やコマンド実行を自分で行えます。"
         }
       ],
@@ -26970,15 +26970,15 @@
       "question": "Claude Codeのターミナル版を使い始めるために、事前に用意しておく必要があるものは何ですか？",
       "options": [
         {
-          "text": "VS Codeのインストール",
+          "text": "VS Code のインストールが必須（拡張機能経由でしか動作しない）",
           "wrongFeedback": "VS Codeは必須ではありません。Claude Codeはターミナル単体で動作します。VS Code拡張は別のインターフェースとして利用可能ですが、前提条件ではありません。"
         },
         {
-          "text": "Python 3.10以上とDocker",
+          "text": "Python 3.10 以上 + Docker のインストールが必要（コンテナ実行のため）",
           "wrongFeedback": "PythonやDockerは必須ではありません。必要なのはターミナル、作業するコードプロジェクト、そしてClaude subscription・Console・サードパーティプロバイダーのいずれかのアカウントです。"
         },
         {
-          "text": "GitHub Copilotのライセンス",
+          "text": "GitHub Copilot のライセンスが必要（Copilot 連携前提のため）",
           "wrongFeedback": "GitHub Copilotは無関係です。Claude CodeはAnthropicの独自製品で、Claude subscription・Console・サードパーティプロバイダーのいずれかのアカウントが必要です。"
         },
         {
@@ -36834,15 +36834,15 @@
       "question": "Claude Code の Fast モードを会話の途中で有効にした場合、コストに関してどのような影響がありますか？",
       "options": [
         {
-          "text": "有効にした時点以降の入出力トークンのみに Fast モードの料金が適用される",
+          "text": "有効にした時点以降の入出力トークンのみに Fast モード料金が適用される（差分のみ）",
           "wrongFeedback": "入力トークンについては、切り替え時点でそれまでの会話コンテキスト全体に対して Fast モードの未キャッシュ入力価格が適用されます。そのため、セッション開始時から有効にしておく方がコスト効率が良いとドキュメントで推奨されています。"
         },
         {
-          "text": "途中から有効にすると自動的に新しいセッションが開始される",
+          "text": "途中から有効にできず、自動的に新しいセッションが開始されコンテキストが破棄される",
           "wrongFeedback": "新しいセッションは開始されません。同じセッション内で切り替わりますが、それまでの会話コンテキスト全体に Fast モードの未キャッシュ入力価格が適用されるため、コストが増加します。"
         },
         {
-          "text": "Fast モードは追加料金なしで利用できる",
+          "text": "Fast モードはサブスクリプションに含まれており追加料金なしで利用できる",
           "wrongFeedback": "Fast モードは標準の Opus 4.6 よりも高いトークン価格が設定されています（200K 未満: 入力 $30/MTok、出力 $150/MTok）。プランの含有使用量とは別に Extra Usage として課金されます。"
         },
         {
@@ -42081,15 +42081,15 @@
       "question": "LLMゲートウェイ経由でClaude Codeを利用する場合、ゲートウェイが満たすべきAPI要件として正しいものはどれですか？",
       "options": [
         {
-          "text": "gRPCプロトコルでStreaming APIを提供すること",
+          "text": "gRPC プロトコルで Streaming API を提供する必要がある（Anthropic SDK 互換）",
           "wrongFeedback": "gRPCは不要です。ゲートウェイはHTTPベースのAnthropic Messages API、Bedrock InvokeModel、またはVertex rawPredictのいずれかをサポートすれば利用可能です。"
         },
         {
-          "text": "OpenAI互換のChat Completions APIフォーマットを公開すること",
+          "text": "OpenAI 互換の Chat Completions API フォーマットを公開する必要がある",
           "wrongFeedback": "Claude CodeはOpenAI互換APIを使用しません。Anthropic Messages API、Bedrock InvokeModel、またはVertex rawPredictのいずれかのフォーマットが必要です。"
         },
         {
-          "text": "Claude Code専用のSDKエンドポイントを実装すること",
+          "text": "Claude Code 専用の SDK エンドポイント（/sdk/v1）を実装する必要がある",
           "wrongFeedback": "専用SDKは不要です。既存のAnthropic Messages API、Bedrock InvokeModel、またはVertex rawPredictのフォーマットのいずれかをサポートすれば十分です。"
         },
         {
@@ -43719,15 +43719,15 @@
       "question": "Claude Codeのコマンドブロックリスト（`curl`や`wget`のデフォルトブロック）の設計意図として最も適切なものはどれですか？",
       "options": [
         {
-          "text": "ネットワーク帯域の消費を抑制するため",
+          "text": "ネットワーク帯域の消費を抑制するため（外部通信を制限）",
           "wrongFeedback": "帯域の抑制が目的ではありません。`curl`や`wget`がデフォルトでブロックされるのは、Webから取得した任意のコンテンツにプロンプトインジェクションが含まれるリスクを軽減するためです。"
         },
         {
-          "text": "外部 `API` との通信を完全に防止するため",
+          "text": "外部 `API` との通信を完全に防止するため（オフライン運用前提）",
           "wrongFeedback": "外部通信の完全防止が目的ではありません。`WebFetch`ツールは利用可能です。`curl`や`wget`は`Bash`ツール経由で任意のURLからコンテンツを取得でき、プロンプトインジェクションのリスクがあるためデフォルトでブロックされています。"
         },
         {
-          "text": "社内ネットワークの機密情報への不正アクセスを防ぐため",
+          "text": "社内ネットワークの機密情報への不正アクセスを防ぐため（情報漏洩対策）",
           "wrongFeedback": "社内ネットワーク保護は副次的な効果ですが、主な設計意図はWebコンテンツに含まれる可能性のあるプロンプトインジェクションから保護することです。"
         },
         {
@@ -51348,15 +51348,15 @@
           "text": "現在のセッションを分岐し、コンテキストを保持したまま別の方向性を並行して試せるフォークセッションを作成する"
         },
         {
-          "text": "現在の作業を新しい Git ブランチに移動してからセッションを再開する",
+          "text": "現在の作業内容を新しい Git ブランチに移動してから Claude セッションを再開する",
           "wrongFeedback": "Git 操作ではなく、会話セッションの分岐機能です。現在のコンテキストを保持したまま、別のアプローチを試せるフォークセッションを作成します"
         },
         {
-          "text": "サブエージェントを別ブランチで起動する",
+          "text": "サブエージェントを別の Git ブランチ環境で起動する（worktree 風）",
           "wrongFeedback": "サブエージェントの起動ではなく、現在の会話セッション自体を分岐（フォーク）する機能です。元のコンテキストを保持しながら別の方向を試せます"
         },
         {
-          "text": "Git のブランチを作成する",
+          "text": "Git のブランチを作成する（`git branch` の薄いラッパー）",
           "wrongFeedback": "Git ブランチの作成ではありません。`/branch` は現在の会話セッションを分岐（フォーク）して、別の方向性を並行して試せるようにするコマンドです"
         }
       ],
@@ -51487,18 +51487,18 @@
       "question": "`claude --bare` フラグの効果として正しいのはどれですか？",
       "options": [
         {
-          "text": "全てのツール（`Bash`、`Read`、`Edit` 含む）を無効にして、テキスト応答のみに制限する",
+          "text": "全てのツール（`Bash`、`Read`、`Edit` 含む）を無効にしてテキスト応答のみに制限する",
           "wrongFeedback": "全ツール無効ではなく、`Bash`・ファイル読み書きは使用可能です。スキップされるのは Hooks、Skills、Plugins、MCP サーバー、Auto Memory、`CLAUDE.md` の自動検出です"
         },
         {
           "text": "Hooks、Skills、Plugins、MCP サーバー、Auto Memory、`CLAUDE.md` の自動検出をスキップし、`Bash` とファイル操作のみで高速に起動する"
         },
         {
-          "text": "GUI要素を無効にしてテキストのみで応答し、表示を簡素化する",
+          "text": "GUI 要素を無効にしてテキストのみで応答し、ターミナル表示を簡素化する",
           "wrongFeedback": "GUI の無効化ではありません。`--bare` は Hooks、Skills、MCP サーバー、`CLAUDE.md` などの自動検出をスキップする最小モードフラグです"
         },
         {
-          "text": "コンテキストウィンドウを最小サイズに制限し、メモリ使用量を削減する",
+          "text": "コンテキストウィンドウを最小サイズに制限してメモリ使用量を削減する",
           "wrongFeedback": "コンテキストサイズの制限ではなく、起動時の拡張機能の読み込みをスキップして高速起動する最小モードです"
         }
       ],
@@ -54097,18 +54097,18 @@
       "question": "会社がセルフホストのGitHub Enterprise Server（GHES）を運用しています。開発者がGHESのリポジトリでClaude Codeのウェブセッションを使いたいと言っています。ただし、組織のGHESホスト名が `github.company.com` であるにもかかわらず、`claude --remote` が「クローン失敗」のエラーになっています。管理者として最初に確認すべき事項として最も適切なのはどれですか？",
       "options": [
         {
-          "text": "GHESは Team プランでは利用できないため Enterprise プランへのアップグレードが必要",
+          "text": "GHES は Team プランでは利用できないため Enterprise プランへのアップグレードが必要",
           "wrongFeedback": "GitHub Enterprise ServerのサポートはTeamプランとEnterpriseプランの両方で利用可能です。プランのアップグレードは不要です。"
         },
         {
-          "text": "`/install-github-app` コマンドを開発者に実行させてGitHub Appのインストールを完了させる",
+          "text": "`/install-github-app` コマンドを開発者に実行させて GitHub App のインストールを完了させる",
           "wrongFeedback": "`/install-github-app` はgithub.com専用のコマンドです。GHESの場合はこのコマンドは機能しません。GHES向けには `claude.ai/admin-settings/claude-code` からガイド付きセットアップを実行してGitHub Appを作成する必要があります。"
         },
         {
           "text": "開発者の `git remote` に登録されているGHESホスト名がClaudeの管理設定に登録されているホスト名と一致しているか、かつGitHub AppがそのリポジトリにインストールされているかをClaudeの管理設定画面で確認する"
         },
         {
-          "text": "GitHub MCP サーバーをGHES向けに設定してリポジトリアクセスを有効化する",
+          "text": "GitHub MCP サーバーを GHES 向けに別途設定してリポジトリアクセスを有効化する",
           "wrongFeedback": "GitHub MCP サーバーはGHESインスタンスとは互換性がありません。GHESでのリポジトリアクセスには、管理者が `claude.ai/admin-settings/claude-code` でGHESインスタンスの接続設定とGitHub Appの作成を完了させる必要があります。"
         }
       ],
