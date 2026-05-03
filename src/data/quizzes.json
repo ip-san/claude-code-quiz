@@ -1766,18 +1766,18 @@
       "question": "`user-invocable: false`を設定したSkillはどのような動作になりますか？",
       "options": [
         {
-          "text": "管理者のみが呼び出せる",
+          "text": "管理者権限を持つユーザーのみが呼び出せる",
           "wrongFeedback": "管理者という概念はありません。`user-invocable: false`はスラッシュメニューから非表示にし、Claudeが会話の文脈に基づいて自動的に読み込む設定です。"
         },
         {
           "text": "/メニューから非表示になり、Claudeのみが呼び出せる"
         },
         {
-          "text": "Skillが完全に無効化される",
+          "text": "Skill が完全に無効化され読み込まれもしない",
           "wrongFeedback": "`user-invocable: false`はSkillを完全に無効化するのではなく、ユーザーの`/`メニューから非表示にする設定です。Claudeは会話の文脈に基づいて自動的にこのスキルを読み込めます。"
         },
         {
-          "text": "ユーザーのみが呼び出せる",
+          "text": "ユーザーからのみ呼び出し可能で Claude は使えない",
           "wrongFeedback": "`user-invocable: false`はユーザーからの呼び出しを制限し、Claudeのみが呼び出せるようにする設定です。"
         }
       ],
@@ -7612,15 +7612,15 @@
       "question": "Claude CodeでJupyter Notebookを操作する場合の`NotebookEdit`ツールの機能として正しいのはどれですか？",
       "options": [
         {
-          "text": "Notebookファイル全体をJSON形式で読み書きするため、セル単位の操作はできない",
+          "text": "Notebook ファイル全体を JSON として読み書きするため、セル単位の操作は一切できない",
           "wrongFeedback": "`NotebookEdit`は0-indexedのセル番号を指定して個別のセルを操作できます。ファイル全体を扱う必要はありません。"
         },
         {
-          "text": "セルの実行結果も含めて編集できるが、新しいセルの挿入機能はない",
+          "text": "セルの実行結果も含めて編集できるが、新しいセルの挿入機能は提供されていない",
           "wrongFeedback": "`NotebookEdit`の`edit_mode`=insertで新しいセルを挿入できます。ただしセルの実行はできず、ソースの編集のみが可能です。"
         },
         {
-          "text": "コードセルのみ編集可能で、マークダウンセルは`Read`ツールで読むことしかできない",
+          "text": "コードセルのみ編集可能で、マークダウンセルは `Read` ツールでの読み取りに限られる",
           "wrongFeedback": "`NotebookEdit`の`cell_type`パラメータでcodeとmarkdownの両方のセルタイプを指定して編集・挿入できます。"
         },
         {
@@ -7752,18 +7752,18 @@
       "question": "Claudeが`Bash`ツールでコマンドを実行する際のタイムアウト設定について、正しいのはどれですか？",
       "options": [
         {
-          "text": "タイムアウトは`CLAUDE.md`で設定する方式のみで、環境変数では変更できない",
+          "text": "タイムアウトは `CLAUDE.md` で設定する方式のみで、環境変数 / モデルからの変更不可",
           "wrongFeedback": "`BASH_DEFAULT_TIMEOUT_MS`と`BASH_MAX_TIMEOUT_MS`の環境変数で設定します。`CLAUDE.md`ではなく環境変数による制御です。"
         },
         {
           "text": "`BASH_DEFAULT_TIMEOUT_MS`でデフォルトタイムアウト値を、`BASH_MAX_TIMEOUT_MS`で最大タイムアウト値を環境変数でカスタマイズできる"
         },
         {
-          "text": "タイムアウトは無制限で、ユーザーが手動で中断するまで実行し続ける",
+          "text": "タイムアウトは無制限で、ユーザーが手動で `Ctrl+C` 中断するまで実行し続ける",
           "wrongFeedback": "`Bash`ツールにはデフォルトのタイムアウトが設定されています。`BASH_DEFAULT_TIMEOUT_MS`環境変数で変更可能です。無制限ではありません。"
         },
         {
-          "text": "タイムアウトは30秒で固定され、環境変数や`CLAUDE.md`では変更できない",
+          "text": "タイムアウトは 30 秒で固定され、環境変数や `CLAUDE.md` から変更不可",
           "wrongFeedback": "`Bash`ツールのタイムアウトは固定ではなく、`BASH_DEFAULT_TIMEOUT_MS`と`BASH_MAX_TIMEOUT_MS`環境変数でカスタマイズ可能です。"
         }
       ],
@@ -7884,7 +7884,7 @@
       "question": "MCPサーバーからの出力が大きすぎる場合のClaude Codeの動作として正しいのはどれですか？",
       "options": [
         {
-          "text": "出力が大きい場合は自動的に要約されてから追加される",
+          "text": "出力が大きい場合は自動的に要約されてからコンテキストへ追加される（自動圧縮）",
           "wrongFeedback": "自動要約ではなく、上限を超えた部分は切り捨てられます。"
         },
         {
@@ -7895,7 +7895,7 @@
           "wrongFeedback": "Claude Code側で`MAX_MCP_OUTPUT_TOKENS`環境変数により出力トークンの上限を制御できます。"
         },
         {
-          "text": "出力サイズに制限はなく、全てコンテキストに追加される",
+          "text": "出力サイズに制限はなく、すべてコンテキストにそのまま追加される（無制限）",
           "wrongFeedback": "25,000トークンのデフォルト制限があります。制限なしではありません。"
         }
       ],
@@ -15413,15 +15413,15 @@
       "question": "Claude Codeのテキスト入力でEmacs風のカーソル移動を使う利点と、単語単位の移動操作として正しいのはどれですか？",
       "options": [
         {
-          "text": "Shift+←/→",
+          "text": "`Shift+←` / `Shift+→`（選択範囲の拡張用）",
           "wrongFeedback": "Shiftは選択用です。Claude Codeでの単語単位の移動は`Alt+B`（戻る）/`Alt+F`（進む）を使います。"
         },
         {
-          "text": "Tab/`Shift+Tab`",
+          "text": "`Tab` / `Shift+Tab`（補完候補の循環移動）",
           "wrongFeedback": "Tabは補完、`Shift+Tab`はモード切替です。"
         },
         {
-          "text": "Ctrl+←/→",
+          "text": "`Ctrl+←` / `Ctrl+→`（GUI ターミナル一般の単語移動）",
           "wrongFeedback": "Claude Codeでは`Alt+B`/Fを使用します。"
         },
         {
@@ -16105,15 +16105,15 @@
           "text": "出力が一定の長さを超えると中間部分が省略される（先頭と末尾を保持）。長い出力が予想される場合はhead/tailで絞るかファイルにリダイレクトするのが推奨"
         },
         {
-          "text": "出力はバックグラウンドファイルに保存され、必要時に参照する",
+          "text": "出力はバックグラウンドのファイルに保存され、必要時に Claude が参照する遅延読み出し方式",
           "wrongFeedback": "自動保存ではなく、出力が一定量を超えると中間部分が省略されます。ファイルへのリダイレクトはユーザーが明示的に行う必要があります。"
         },
         {
-          "text": "出力が長い場合は自動的にページング表示され、ユーザーがスクロールできる",
+          "text": "出力が長い場合は自動的にページング表示され、ユーザーがスクロールして閲覧する方式",
           "wrongFeedback": "ページング機能ではなく、出力が一定量を超えると中間部分が省略されます（先頭と末尾は保持）。"
         },
         {
-          "text": "全出力をそのままコンテキストに追加し、コンテキスト制限に達したら自動圧縮される",
+          "text": "全出力をそのままコンテキストに追加し、コンテキスト制限到達時に自動圧縮（auto-compact）",
           "wrongFeedback": "出力自体が一定量を超えると中間省略されます。全出力がコンテキストに追加されるわけではありません。"
         }
       ],
@@ -17838,15 +17838,15 @@
           "text": "「`npm run`」で始まるすべての`Bash`コマンド"
         },
         {
-          "text": "`npm run` testのみ",
+          "text": "`npm run test` のみ（package.json scripts 経由のテスト実行のみ）",
           "wrongFeedback": "ワイルドカード*により、`npm run`で始まるすべてのコマンドにマッチします。"
         },
         {
-          "text": "npmのインストールコマンド",
+          "text": "`npm install` などのインストールコマンドのみ",
           "wrongFeedback": "`npm install`ではなく`npm run`です。"
         },
         {
-          "text": "npmコマンド全般",
+          "text": "`npm` コマンド全般（install / run / publish 含む）",
           "wrongFeedback": "`npm run`で始まるコマンドのみです。"
         }
       ],
@@ -17906,18 +17906,18 @@
       "question": "`permissions.additionalDirectories`の目的は何ですか？",
       "options": [
         {
-          "text": "プラグインのインストール先の追加",
+          "text": "プラグインのインストール先ディレクトリの追加（plugin install path）",
           "wrongFeedback": "プラグインではなく、ファイル操作対象の追加です。"
         },
         {
           "text": "プロジェクトディレクトリ以外の追加ワーキングディレクトリを指定する"
         },
         {
-          "text": "バックアップディレクトリの追加",
+          "text": "バックアップディレクトリの追加（自動バックアップ先）",
           "wrongFeedback": "バックアップではなく、作業ディレクトリの追加です。"
         },
         {
-          "text": "ログ出力ディレクトリの指定",
+          "text": "ログ出力ディレクトリの指定（debug log destination）",
           "wrongFeedback": "ログではなく、作業対象ディレクトリです。"
         }
       ],
@@ -19521,18 +19521,18 @@
       "question": "チェックポイントとGit（バージョン管理）の関係として正しい記述はどれですか？",
       "options": [
         {
-          "text": "Gitが有効ならチェックポイントは不要",
+          "text": "Git が有効なリポジトリではチェックポイント機能は不要であり自動オフ",
           "wrongFeedback": "GitがあってもチェックポイントはGitとは異なる目的で有用です。チェックポイントはセッション内の細かなundo操作に対応し、コミットを作らずに素早く以前の状態に戻れます。Gitはリポジトリ履歴、チェックポイントはセッション内undo、と役割が異なります。"
         },
         {
-          "text": "チェックポイントがGitを完全に置き換える",
+          "text": "チェックポイントが Git を完全に置き換え、`.git` ディレクトリも統合される",
           "wrongFeedback": "チェックポイントはGitの完全な代替にはなりません。チェックポイントはセッション内の素早い復元専用で、デフォルト30日後に削除されます。長期的な変更履歴の管理にはGitのコミットが必要です。"
         },
         {
           "text": "チェックポイントはセッション内の「ローカルundo」、Gitは「永続的な履歴」として補完関係にある"
         },
         {
-          "text": "チェックポイントのデータはGitにコミットされる",
+          "text": "チェックポイントのデータは Git にコミットされ、リポジトリで共有される",
           "wrongFeedback": "チェックポイントのデータはGitリポジトリにはコミットされません。チェックポイントはClaude Code独自のローカルストレージに保存され、Gitの履歴とは完全に独立しています。"
         }
       ],
@@ -24595,15 +24595,15 @@
       "question": "企業でClaude Codeを導入する際、セキュリティ上の理由から`CLAUDE.md`に記述すべきでない情報はどれですか？",
       "options": [
         {
-          "text": "コーディング規約",
+          "text": "プロジェクトのコーディング規約（命名規則・スタイル）",
           "wrongFeedback": "コーディング規約は`CLAUDE.md`に記述すべき重要な情報です。"
         },
         {
-          "text": "テスト実行コマンド",
+          "text": "テスト実行コマンド（`npm test` 等の頻出コマンド）",
           "wrongFeedback": "テストコマンドは`CLAUDE.md`に記述すべき有用な情報です。"
         },
         {
-          "text": "アーキテクチャの概要",
+          "text": "アーキテクチャの全体概要（ディレクトリ構造・責務分担）",
           "wrongFeedback": "アーキテクチャの概要は`CLAUDE.md`に記述すべき重要な情報です。"
         },
         {
@@ -26832,15 +26832,15 @@
           "text": "ターミナルやIDEで動作するエージェント型AIコーディングツール"
         },
         {
-          "text": "GitHubの拡張機能",
+          "text": "GitHub の Pull Request 自動レビュー拡張機能",
           "wrongFeedback": "Claude CodeはAnthropicが開発した独立したツールで、GitHub拡張ではありません。GitHub Actionsとの統合は可能ですが、それ自体はGitHubの機能ではありません。"
         },
         {
-          "text": "コードのフォーマッターツール",
+          "text": "Prettier ライクなコードフォーマッターツール",
           "wrongFeedback": "Claude Codeはフォーマッターではなく、コードベースを理解し、ファイルの読み書き、コマンド実行、リファクタリングなどを自律的に行うAIコーディングアシスタントです。"
         },
         {
-          "text": "ウェブブラウザ専用のチャットボット",
+          "text": "ウェブブラウザ専用のチャット型 AI アシスタント",
           "wrongFeedback": "Claude Codeはブラウザ専用ではなく、ターミナル、VS Code、JetBrains、デスクトップアプリ、ウェブなど複数の環境で動作するエージェント型コーディングツールです。"
         }
       ],
@@ -29596,14 +29596,14 @@
           "wrongFeedback": "マージではなく、マネージド設定のドメインのみが有効になります。ユーザー、プロジェクト、ローカル設定で追加されたドメインはすべて無視されます。"
         },
         {
-          "text": "マネージドドメインへのアクセスにも認証が必要になる",
+          "text": "`sandbox.network.allowManagedDomainsOnly` を有効化したマネージドドメインへのアクセスにも追加で認証が必要になる",
           "wrongFeedback": "認証の追加ではありません。この設定は `allowedDomains` のソースを制限するもので、マネージド設定の `allowedDomains` のみを尊重し、他のスコープの設定を無視します。"
         },
         {
           "text": "マネージド設定の `allowedDomains` のみが有効になり、ユーザー・プロジェクト・ローカル設定のドメインは無視される"
         },
         {
-          "text": "すべてのネットワークアクセスが禁止される",
+          "text": "すべての外部ネットワークアクセスが禁止され、ローカル MCP のみ利用可能になる",
           "wrongFeedback": "すべてのネットワークアクセスが禁止されるわけではありません。マネージド設定の `allowedDomains` で許可されたドメインへのアクセスは引き続き可能です。ユーザー等の下位スコープで追加したドメインが無視されるだけです。"
         }
       ],
@@ -31251,18 +31251,18 @@
       "question": "Agent SDKとClaude Code CLIの使い分けとして、SDKが推奨されるユースケースはどれですか？",
       "options": [
         {
-          "text": "ペアプログラミング",
+          "text": "ペアプログラミング（対話しながらコード書きを進める）",
           "wrongFeedback": "ペアプログラミングにはCLIの対話モードが適しています。SDKはプログラマブルな自動化やカスタムアプリケーションの構築に使います。"
         },
         {
-          "text": "一回限りのアドホックタスク",
+          "text": "一回限りのアドホックタスク（その場限りの調査・編集）",
           "wrongFeedback": "一回限りのタスクにはCLIが適しています。SDKはCI/CDパイプラインやカスタムアプリケーションなど、繰り返しの自動化に向いています。"
         },
         {
           "text": "CI/CDパイプラインやプロダクション自動化"
         },
         {
-          "text": "対話的な開発作業",
+          "text": "対話的な開発作業（試行錯誤しながらの設計検討）",
           "wrongFeedback": "対話的な開発作業にはCLIが適しています。SDKはCI/CDパイプライン、カスタムアプリケーション、プロダクション自動化など、プログラマブルな自動化に向いています。"
         }
       ],
@@ -32248,18 +32248,18 @@
       "question": "ヘッドレスモードで Claude Code のストリーミング出力をリアルタイムで受け取り、テキストデルタのみを抽出したい場合、適切なコマンドの組み合わせはどれですか？",
       "options": [
         {
-          "text": "`--output-format json` と `--verbose` のみで十分",
+          "text": "`--output-format json` と `--verbose` のみで十分（バッファ後の一括出力で代用可能）",
           "wrongFeedback": "`--output-format json` はリクエスト完了後にまとめて JSON を返す形式です。リアルタイムストリーミングには `--output-format stream-json` が必要です。"
         },
         {
           "text": "`--output-format stream-json` を `--verbose` と `--include-partial-messages` と組み合わせ、`jq` でテキストデルタをフィルタする"
         },
         {
-          "text": "`--output-format json` と `--stream` フラグを組み合わせる",
+          "text": "`--output-format json` と `--stream` フラグを組み合わせて段階的に出力させる",
           "wrongFeedback": "`--stream` フラグは存在しません。ストリーミングには `--output-format stream-json` を `--verbose` と `--include-partial-messages` と組み合わせます。"
         },
         {
-          "text": "`--output-format text` と `--realtime` フラグを組み合わせる",
+          "text": "`--output-format text` と `--realtime` フラグを組み合わせて素のテキストを順次出力させる",
           "wrongFeedback": "`--realtime` フラグは存在しません。リアルタイムストリーミングには `--output-format stream-json` を使用します。"
         }
       ],
@@ -32681,18 +32681,18 @@
       "question": "ヘッドレスモード（`-p`）で注意すべき制限として正しいものはどれですか？",
       "options": [
         {
-          "text": "`--allowedTools` でツールを指定することができない",
+          "text": "`--allowedTools` フラグでツールを指定することができない（対話モード限定）",
           "wrongFeedback": "ヘッドレスモードでも `--allowedTools` は使用可能で、パーミッションプロンプトなしで特定のツールを許可するために使われます。"
         },
         {
           "text": "ユーザー起動のスキル（`/commit` 等）やビルトインコマンドは使用できず、タスクの説明で代替する必要がある"
         },
         {
-          "text": "MCP サーバーは使用できない",
+          "text": "MCP サーバーは使用できない（print mode では MCP 接続未対応）",
           "wrongFeedback": "ヘッドレスモードでも MCP サーバーは利用可能です。`-p` モードの制限はユーザーインタラクティブ機能に関するものです。"
         },
         {
-          "text": "コンテキストウィンドウが対話モードの半分に制限される",
+          "text": "コンテキストウィンドウが対話モードの半分に制限される（200K → 100K）",
           "wrongFeedback": "コンテキストウィンドウのサイズはヘッドレスモードでも対話モードと同じです。制限はスキルやビルトインコマンドの利用に関するものです。"
         }
       ],
@@ -33926,11 +33926,11 @@
           "text": "`/config` を実行して Output style メニューから選択する（または settings.json の `outputStyle` を直接編集）"
         },
         {
-          "text": "`/style` コマンドで対話的に選択する",
+          "text": "`/style` コマンドで対話的に選択する（独立スラッシュコマンド方式）",
           "wrongFeedback": "`/style` というコマンドは存在しません。`/output-style` も v2.1.73 付近で廃止され、現在は `/config` から Output style を選択します（プロンプトキャッシング最適化のためセッション開始時に固定される設計）。"
         },
         {
-          "text": "環境変数 `CLAUDE_OUTPUT_STYLE` で設定する",
+          "text": "環境変数 `CLAUDE_OUTPUT_STYLE` で設定する（環境変数経由の固定）",
           "wrongFeedback": "`CLAUDE_OUTPUT_STYLE` 環境変数は存在しません。出力スタイルの変更には `/output-style` コマンド、`settings.json` の `outputStyle` フィールド、または `/config` メニューを使用します。"
         },
         {
@@ -33999,18 +33999,18 @@
       "question": "Claude Code でターミナルの最適化を行う `/terminal-setup` コマンドを実行すると有効になる機能はどれですか？",
       "options": [
         {
-          "text": "VS Code 統合とターミナル間の双方向コンテキスト共有",
+          "text": "VS Code 統合とターミナル間の双方向コンテキスト共有が確立される",
           "wrongFeedback": "`/terminal-setup` はVS Code統合の設定ではなく、ターミナルの`Shift+Enter`バインディングを設定するコマンドです。VS Code、Alacritty、Zed、Warpでの改行入力を有効にします。"
         },
         {
-          "text": "すべてのキーボードショートカットが自動設定される",
+          "text": "すべてのキーボードショートカット（Emacs 風含む）が自動設定される",
           "wrongFeedback": "すべてのショートカットが自動設定されるわけではありません。`/terminal-setup`は`Shift+Enter`（改行入力）バインディングのみを設定します。Emacs風キーバインドや`Option+T`には別途「Option as Meta」設定が必要です。"
         },
         {
           "text": "`Shift+Enter`（改行入力）のみ有効になる（`Option+T`には別途「Option as Meta」のターミナル設定が必要）"
         },
         {
-          "text": "`Alt+B`、`Alt+F` などの Emacs 風キーバインドと構文ハイライト",
+          "text": "`Alt+B`、`Alt+F` などの Emacs 風キーバインドと構文ハイライトが有効化される",
           "wrongFeedback": "Emacs風キーバインドは`/terminal-setup`では有効になりません。「Option as Meta」設定が必要です。`/terminal-setup`は`Shift+Enter`（改行入力）バインディングのみを有効にします。"
         }
       ],
@@ -35959,15 +35959,15 @@
           "text": "Chrome 拡張のサービスワーカーがアイドル状態になり接続が切断された。`/chrome` で「Reconnect extension」を選択する"
         },
         {
-          "text": "ネットワーク接続が不安定になった。Wi-Fi を再接続する",
+          "text": "ネットワーク接続が不安定になっている。Wi-Fi の再接続またはルーター再起動で解決する",
           "wrongFeedback": "Chrome 連携はローカルの Native Messaging を通じて動作するため、インターネット接続は直接関係しません。最も一般的な原因は Chrome 拡張のサービスワーカーのアイドル化です。"
         },
         {
-          "text": "Chrome のバージョンが古い。Chrome を最新版にアップデートする",
+          "text": "Chrome のバージョンが古い。Chrome を最新版にアップデートして拡張機能を再有効化する",
           "wrongFeedback": "バージョンの問題は初回接続時に発生しますが、セッション中に突然動作しなくなる最も一般的な原因は、Chrome 拡張のサービスワーカーがアイドル状態になることです。`/chrome` で「Reconnect extension」を選択して再接続します。"
         },
         {
-          "text": "API キーの有効期限が切れた。`/login` で再認証する",
+          "text": "API キーの有効期限が切れている。`/login` を実行して再認証する",
           "wrongFeedback": "API キーの問題であればブラウザコマンド以外にも影響が出ます。Chrome 連携特有の問題で最も多いのは、長時間セッション中に Chrome 拡張のサービスワーカーがアイドル状態になることです。`/chrome` で「Reconnect extension」を選択して再接続します。"
         }
       ],
@@ -43917,18 +43917,18 @@
       "question": "LinuxでClaude Codeのバイナリ実行時に`Error loading shared library libstdc++.so.6`が発生する場合、最も可能性の高い原因はどれですか？",
       "options": [
         {
-          "text": "C++標準ライブラリがインストールされていない",
+          "text": "C++ 標準ライブラリがインストールされていない（glibc などの未インストール）",
           "wrongFeedback": "ライブラリの不在が原因の場合もありますが、最も一般的な原因はインストーラーがシステムのlibc種類（glibc/musl）を誤検出し、間違ったバイナリバリアントをダウンロードしたことです。"
         },
         {
           "text": "インストーラーがglibc/muslのlibc種類を誤検出し、間違ったバイナリバリアントがインストールされた"
         },
         {
-          "text": "バイナリのアーキテクチャ（x86_64/ARM64）が不一致",
+          "text": "バイナリのアーキテクチャ（x86_64 / ARM64）が CPU と不一致",
           "wrongFeedback": "アーキテクチャ不一致の場合は`Illegal instruction`エラーが発生します。`libstdc++.so.6`の不足は通常、glibc/muslバリアントの誤検出が原因です。"
         },
         {
-          "text": "古いカーネルバージョンとの互換性の問題",
+          "text": "古いカーネルバージョンとの互換性問題（システムコール非対応）",
           "wrongFeedback": "カーネル互換性の問題ではなく、glibcベースのシステムにmusl用バイナリがインストールされた（またはその逆）ことが原因です。muslのクロスコンパイルパッケージがインストールされていると誤検出が発生することがあります。"
         }
       ],
@@ -48110,15 +48110,15 @@
           "text": "インタラクティブなセットアップフローが起動し、スキル、フック、メモリファイルの生成を対話的に選択できる"
         },
         {
-          "text": "Git リポジトリを新規作成する",
+          "text": "Git リポジトリを新規作成する（`.git` ディレクトリを初期化する）",
           "wrongFeedback": "Git リポジトリの作成とは関係ありません。`CLAUDE_CODE_NEW_INIT=1` はインタラクティブな初期化フローを有効にします"
         },
         {
-          "text": "既存の `CLAUDE.md` を上書きする",
+          "text": "既存の `CLAUDE.md` を上書きする（既存内容は破棄される）",
           "wrongFeedback": "上書き動作ではなく、インタラクティブなセットアップフローが起動して、生成するファイルを対話的に選択できるようになります"
         },
         {
-          "text": "`CLAUDE.md` のみを自動生成する通常の動作になる",
+          "text": "`CLAUDE.md` のみを自動生成する通常動作になる（init と同じ）",
           "wrongFeedback": "`CLAUDE.md` の自動生成は `CLAUDE_CODE_NEW_INIT` を設定しない場合のデフォルト動作です"
         }
       ],
@@ -48651,7 +48651,7 @@
       "question": "Claude Code のコンテキストウィンドウにおいて、ユーザーが何も入力する前に読み込まれるものとして正しいものはどれですか？",
       "options": [
         {
-          "text": "ユーザーのプロンプト履歴のみ",
+          "text": "ユーザーのプロンプト履歴のみが復元される（Claude 応答は失われる）",
           "wrongFeedback": "入力前には `CLAUDE.md`、オートメモリ、MCP ツール名、スキル説明などが読み込まれます"
         },
         {
@@ -48659,7 +48659,7 @@
           "wrongFeedback": "ファイルの内容は Claude が作業中に読み込まれます。入力前には `CLAUDE.md` 等が読み込まれます"
         },
         {
-          "text": "何も読み込まれない",
+          "text": "コンテキストには何も読み込まれず、まっさらな状態から再開される",
           "wrongFeedback": "ユーザーが何も入力する前から、`CLAUDE.md` 等がコンテキストに読み込まれています"
         },
         {
