@@ -121,6 +121,8 @@ export const DOC_PAGES = [
   { name: 'communications-kit', url: 'https://code.claude.com/docs/en/communications-kit' },
   { name: 'glossary', url: 'https://code.claude.com/docs/en/glossary' },
   { name: 'troubleshoot-install', url: 'https://code.claude.com/docs/en/troubleshoot-install' },
+  // Auto-discovered from llms.txt (2026-05-08)
+  { name: 'deep-links', url: 'https://code.claude.com/docs/en/deep-links' },
   // Agent SDK (different domain)
   { name: 'agent-sdk-overview', url: 'https://platform.claude.com/docs/en/agent-sdk/overview' },
 ]
