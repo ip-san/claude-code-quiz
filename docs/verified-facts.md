@@ -29,8 +29,9 @@
 - Opus 4.7 は Max/Team/Enterprise で 1M へ自動アップグレード
 
 ### Extended Thinking / adaptive reasoning
-- Opus/Sonnet 4.6 以降: `MAX_THINKING_TOKENS` は無視（adaptive reasoning）
-- 無効化: `CLAUDE_CODE_DISABLE_ADAPTIVE_THINKING=1`
+- Opus 4.7 / Opus 4.6 / Sonnet 4.6: `MAX_THINKING_TOKENS` は無視（adaptive reasoning）
+- **Opus 4.7 は常にアダプティブ**: `CLAUDE_CODE_DISABLE_ADAPTIVE_THINKING` は適用されない（model-config.md「Adaptive reasoning and fixed thinking budgets」、2026-05-09 確認）
+- Opus 4.6 / Sonnet 4.6 のみ: `CLAUDE_CODE_DISABLE_ADAPTIVE_THINKING=1` で固定思考予算（`MAX_THINKING_TOKENS`）に戻せる
 - 例外: `MAX_THINKING_TOKENS=0` は全モデルで thinking を無効化
 
 ---
