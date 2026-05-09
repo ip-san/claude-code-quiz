@@ -124,7 +124,8 @@
 
 ### `/terminal-setup`
 - `Shift+Enter` のみ有効化
-- `Option+T` や Alt+B/F/Y/M/P は「Option as Meta」ターミナル設定が別途必要
+- Alt+B/F/Y/M/P は依然として「Option as Meta」ターミナル設定が必要
+- `Option+T`（アダプティブ推論トグル）は **v2.1.132 以降 macOS でも「Option as Meta」設定不要**（interactive-mode.md L45 / changelog.md L65、2026-05-09 確認）
 
 ### Checkpoint restore（5 オプション）
 - restore code+conv / conv only / code only / summarize / never mind
