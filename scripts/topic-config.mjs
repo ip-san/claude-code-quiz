@@ -123,6 +123,12 @@ export const DOC_PAGES = [
   { name: 'troubleshoot-install', url: 'https://code.claude.com/docs/en/troubleshoot-install' },
   // Auto-discovered from llms.txt (2026-05-08)
   { name: 'deep-links', url: 'https://code.claude.com/docs/en/deep-links' },
+  // Auto-discovered from llms.txt (2026-05-12)
+  { name: 'agent-view', url: 'https://code.claude.com/docs/en/agent-view' },
+  { name: 'agents', url: 'https://code.claude.com/docs/en/agents' },
+  { name: 'claude-platform-on-aws', url: 'https://code.claude.com/docs/en/claude-platform-on-aws' },
+  { name: 'goal', url: 'https://code.claude.com/docs/en/goal' },
+  { name: 'worktrees', url: 'https://code.claude.com/docs/en/worktrees' },
   // Agent SDK (different domain)
   { name: 'agent-sdk-overview', url: 'https://platform.claude.com/docs/en/agent-sdk/overview' },
 ]
