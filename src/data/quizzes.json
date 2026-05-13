@@ -14954,20 +14954,24 @@
       "diagrams": [
         {
           "type": "cycle",
-          "label": "パーミッションモード切替",
+          "label": "パーミッションモード切替（有効化したモードもサイクルに含む）",
           "trigger": "Shift+Tab",
           "states": [
             {
-              "text": "Normal",
+              "text": "default",
               "sub": "通常モード"
             },
             {
-              "text": "Auto-Accept",
-              "sub": "自動承認"
+              "text": "acceptEdits",
+              "sub": "編集自動承認"
             },
             {
-              "text": "Plan",
+              "text": "plan",
               "sub": "読み取り専用"
+            },
+            {
+              "text": "auto / bypassPermissions",
+              "sub": "有効化時のみ"
             }
           ]
         },
@@ -53152,22 +53156,22 @@
       "options": [
         {
           "text": "`/config` で \"Fullscreen mode\" を有効化する",
-          "wrongFeedback": "フルスクリーンモードは環境変数で制御する。`/config` の設定項目ではない"
+          "wrongFeedback": "フルスクリーンモードは `/tui fullscreen` コマンドまたは環境変数で制御する。`/config` の設定項目ではない"
         },
         {
-          "text": "環境変数 `CLAUDE_CODE_NO_FLICKER=1` を設定して Claude Code を起動する"
+          "text": "セッション内で `/tui fullscreen` を実行する（v2.1.110 以前では環境変数 `CLAUDE_CODE_NO_FLICKER=1` を使う）"
         },
         {
           "text": "`claude --fullscreen` フラグを付けて起動する",
-          "wrongFeedback": "`--fullscreen` フラグは存在しない。フルスクリーンレンダリングは環境変数 `CLAUDE_CODE_NO_FLICKER=1` で有効化する"
+          "wrongFeedback": "`--fullscreen` フラグは存在しない。現在は `/tui fullscreen` コマンドで切り替え、v2.1.110 以前のバージョンでは `CLAUDE_CODE_NO_FLICKER=1` を設定する"
         },
         {
           "text": "`settings.json` に `\"fullscreen\": true` を追加する",
-          "wrongFeedback": "`settings.json` にこの設定項目は存在しない。環境変数で制御する"
+          "wrongFeedback": "`settings.json` には `tui` 設定キーが保存されるが、ユーザーが直接編集するのではなく `/tui fullscreen` コマンドが書き込む"
         }
       ],
       "correctIndex": 1,
-      "explanation": "フルスクリーンレンダリングは Claude Code v2.1.89+ で利用可能な research preview 機能。ちらつきのない描画、マウスサポート、長時間会話でも一定のメモリ使用量を実現する。`vim` や `htop` のように代替スクリーンバッファに描画する。\n{{diagram:0}}\n毎回のセッションで有効化するには `~/.zshrc` や `~/.bashrc` に export を記述する。",
+      "explanation": "フルスクリーンレンダリングは Claude Code v2.1.89+ で利用可能な research preview 機能。ちらつきのない描画、マウスサポート、長時間会話でも一定のメモリ使用量を実現する。`vim` や `htop` のように代替スクリーンバッファに描画する。\n{{diagram:0}}\n会話中に `/tui fullscreen` を実行すると `tui` 設定が保存され、コンテキストを保ったまま再起動される。v2.1.110 以前では `CLAUDE_CODE_NO_FLICKER=1` を `~/.zshrc` 等に export する。",
       "referenceUrl": "https://code.claude.com/docs/ja/fullscreen",
       "diagrams": [
         {
