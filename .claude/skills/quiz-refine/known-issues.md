@@ -63,6 +63,7 @@
 - ext-029 の explanation がブロッキング可能なイベントを9つ列挙していたが、`Elicitation` と `ElicitationResult` の2つが欠落していた（docs では11イベントがブロッキング可能） → known-issues.md のブロッキング対応イベントリストを9→11に更新（Elicitation, ElicitationResult を追加）
 - Hook イベントタイプが22種から25種に増加。`TaskCreated`、`CwdChanged`、`FileChanged` の3イベントが追加された → known-issues.md の Hook イベント総数を 22→25 に更新。ブロッキング対応イベントも 11→12 に更新（TaskCreated 追加）
 - ext-029 が「12イベント」と記述し、PreCompact をブロッキング不可リストに分類していた。docs (hooks.md, exit code 2 behavior per event) では PreCompact = "Yes" (Blocks compaction)。実際は **13 イベント** がブロッキング可能 → known-issues.md の「Hook イベント総数」セクションでブロッキング可能を 12→**13** に修正。13 イベント = PreToolUse, UserPromptSubmit, PermissionRequest, Stop, SubagentStop, TeammateIdle, TaskCreated, TaskCompleted, ConfigChange, PreCompact, WorktreeCreate, Elicitation, ElicitationResult
+- ext-108 が共通入力フィールドを 5 つ列挙していたが、hooks.md L506-514 の Common input fields テーブルには `effort` フィールドが追加されており、合計 6 つが正しい。`effort` は `level` プロパティを持つオブジェクトで、ツール実行コンテキストのイベント（`PreToolUse`/`PostToolUse`/`Stop`/`SubagentStop`）でのみ受け取る注記あり → `known-issues.md` の「Hook イベント総数」セクション、または別途「Hook Common input fields」セクションに「`effort` フィールド（ツール実行コンテキスト限定）が追加されている。合計 6 フィールド」を追記。`MEMORY.md` の Hook 関連 Verified Facts にも「Common input fields = 6 (session_id, transcript_path, cwd, permission_mode, effort, hook_event_name)」を追加
 
 ## UserPromptSubmit の reason 送信先（v4.43.1 で確定）
 
@@ -282,6 +283,7 @@ v4.43.0 以前の known-issues では「exit code 2 の一般ルールで UserPr
 ### 短い wrongFeedback（v4.46.0 時点）
 
 ~~cmd-049, cmd-057, cmd-058, cmd-062, key-001~~ → v4.46.0 で修正済み（5問6エントリ拡充）
+- quiz:lint の distractor チェックで correct-too-long: 42, distractor-too-short: 46 が継続的に蓄積。known-issues.md L370-371, L412-414 で 5 回以上「専用パス必要」と記録されているが、本 SKILL.md は critical/major のみを修正対象とするため info-level は素通り → `/quiz-balance-distractors` 専用スキルを新規作成（または quality-loop に組み込み）。入力は `quiz:lint distractor --json` の出力、処理は (a) 正解選択肢の短縮提案 or (b) 不正解選択肢への具体性追加を Haiku で生成、出力は `quiz:edit` 経由でバッチ適用。または quiz-refine の fix mode に `--distractor-balance` オプションを追加
 
 ## Lint auto-fix for proper nouns (Git Bash)
 
@@ -303,6 +305,7 @@ v4.43.0 以前の known-issues では「exit code 2 の一般ルールで UserPr
 - cmd-033 が「`claude commit` サブコマンドは存在しません」と正しく否定しているのに terminology checker がフラグし続ける。毎回 known-issue 確認が必要 → ✅ RESOLVED (2026-04-20): `skipIfNegated` で構造的に解決済み
 - key-011 が `Ctrl+F` を全バックグラウンドエージェント停止ショートカットとして記載していたが、正しくは `Ctrl+X Ctrl+K`（コードバインディング）。interactive-mode ドキュメントで明確に定義されている → generate-quiz-data SKILL.md のキーボードショートカットセクションに `Ctrl+X Ctrl+K`（全バックグラウンドエージェント停止）を明記
 - cmd-033 の explanation「`claude commit` サブコマンドは存在しません」を terminology checker が毎回フラグ。known-issues にも複数回記載されている → ✅ RESOLVED (2026-04-20): `skipIfNegated` で構造的に解決済み。全ての terminology エントリで必要に応じてこのフラグを指定可能
+- 本 run（--full）も forked skill context で実行されたため、`--team` 並列起動が不可。SKILL.md の "フォールバック運用" (L138-159) に従い、決定論的修正 + spot-check に留めた → SKILL.md の Step 0 に「Agent tool 利用可否の検出フラグ」を追加し、forked 環境では自動的に fallback パス（pre-lint fact-tier の spot-check + 決定論的修正のみ）に分岐。`scripts/verify-category-headless.mjs` を主要パスに昇格させ、`--team` フラグを「並列モード(Agent tool)」「並列モード(subprocess fallback)」の 2 モードで明示
 
 ## /memory と /context の役割の違い
 
@@ -439,6 +442,7 @@ v4.43.0 以前の known-issues では「exit code 2 の一般ルールで UserPr
 ## Pre-lint fact tier の実態は "疑わしい語" の存在のみ
 
 - pre-lint-quiz.mjs が 56問を fact tier としてフラグしたが、10問以上を spot-check した結果、実際の誤りはゼロ。全て factCheck:flags/factCheck:env 等のキーワード一致のみで、否定文脈（「～は存在しない」）や正しい記述も含まれていた → pre-lint-quiz.mjs の fact tier 判定に「否定文脈の共起除外」を追加（cmd-033 known-issue と同じパターン）。または Sonnet 検証を省略して lint 出力をそのまま skill-proposals に転記し、人間が判断する運用へ変更
+- 今回の full scan で 56 問が fact tier としてフラグされたが、cross-check と env/flags キーワードヒット 15 問の spot-check では、ext-108 を除く 14 問は全て正しい記述だった。known-issues.md の「Pre-lint fact tier の実態は 疑わしい語 の存在のみ」(L441)、「Task/Agent ツール利用不可時のフォールバックを本フローのデフォルトに昇格」(L449) に何度も記載されているパターンが今回も継続 → SKILL.md のフォールバックパスを再強調する。fact-tier 全件を Sonnet に投げるのではなく、crossCheck と factCheck:knownNonexistent のみを最優先（高シグナル）、factCheck:flags/env はサンプリング（10問程度）で良い。または pre-lint-quiz.mjs に「否定文脈（`存在しない`, `does not exist`, `ではない` 等の40文字以内共起）はフラグから除外」を実装
 
 ## Team モード不在時の代替戦略
 
