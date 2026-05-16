@@ -129,6 +129,8 @@ export const DOC_PAGES = [
   { name: 'claude-platform-on-aws', url: 'https://code.claude.com/docs/en/claude-platform-on-aws' },
   { name: 'goal', url: 'https://code.claude.com/docs/en/goal' },
   { name: 'worktrees', url: 'https://code.claude.com/docs/en/worktrees' },
+  // Auto-discovered from llms.txt (2026-05-16)
+  { name: 'desktop-changelog', url: 'https://code.claude.com/docs/en/desktop-changelog' },
   // Agent SDK (different domain)
   { name: 'agent-sdk-overview', url: 'https://platform.claude.com/docs/en/agent-sdk/overview' },
 ]

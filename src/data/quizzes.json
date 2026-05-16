@@ -29780,7 +29780,7 @@
       "id": "ext-108",
       "category": "extensions",
       "difficulty": "advanced",
-      "question": "フックの共通入力フィールドとして、すべてのフックイベントで受け取れるフィールドの組み合わせはどれですか？",
+      "question": "フックの共通入力フィールド（hooks.md の Common input fields テーブル）として列挙されているフィールドの組み合わせはどれですか？",
       "options": [
         {
           "text": "`session_id`、`model`、`cwd`、`hook_event_name`",
@@ -29799,7 +29799,7 @@
         }
       ],
       "correctIndex": 3,
-      "explanation": "すべてのフックイベントは、stdin経由のJSON入力で5つの共通フィールドを受け取ります：`session_id`（セッション識別子）、`transcript_path`（会話JSONのパス）、`cwd`（現在の作業ディレクトリ）、`permission_mode`（現在のパーミッションモード）、`hook_event_name`（発火したイベント名）。\n\n{{diagram:0}}\n\nこれらに加えて、各イベント固有のフィールドが追加されます。\n{{diagram:1}}",
+      "explanation": "ドキュメントが共通入力フィールドとして列挙する 5 つは `session_id`（セッション識別子）、`transcript_path`（会話JSONのパス）、`cwd`（現在の作業ディレクトリ）、`permission_mode`（現在のパーミッションモード）、`hook_event_name`（発火したイベント名）です。\n\n{{diagram:0}}\n\nただし `permission_mode` は「Not all events receive this field」と注記されており、各イベントの JSON 例で受け取り可否を確認する必要があります。これらに加えて、各イベント固有のフィールドが追加されます。\n{{diagram:1}}",
       "referenceUrl": "https://code.claude.com/docs/ja/hooks",
       "diagrams": [
         {
@@ -54040,7 +54040,7 @@
             },
             {
               "text": "選択肢B",
-              "sub": "Agent SDKはAPIキー認証に加え、`CLAUDE_CODE_USE_BEDROCK=1` でAmazon Bedrock、`CLAUDE_CODE_USE_VERTEX=1` でGoogle Vertex AI、`CLAUDE_CODE_USE_FOUNDRY=1` でMicrosoft Azureにも対応しています。"
+              "sub": "Agent SDKはAPIキー認証に加え、`CLAUDE_CODE_USE_BEDROCK=1` でAmazon Bedrock、`CLAUDE_CODE_USE_VERTEX=1` でGoogle Vertex AI、`CLAUDE_CODE_USE_FOUNDRY=1` でMicrosoft Foundryにも対応しています。"
             },
             {
               "text": "選択肢C",
