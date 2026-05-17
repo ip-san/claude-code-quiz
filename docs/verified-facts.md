@@ -41,7 +41,7 @@
 ### Hook event types
 - **総数: 29**（2026-05-02 再確認、`hooks.md` の `### <EventName>` H3 セクションを grep。Setup / UserPromptExpansion / PostToolBatch の 3 件が新規追加）
 - 29 件: SessionStart, InstructionsLoaded, UserPromptSubmit, UserPromptExpansion, PreToolUse, PermissionRequest, PostToolUse, PostToolUseFailure, PostToolBatch, PermissionDenied, Notification, Setup, SubagentStart, SubagentStop, TaskCreated, TaskCompleted, Stop, StopFailure, TeammateIdle, ConfigChange, CwdChanged, FileChanged, WorktreeCreate, WorktreeRemove, PreCompact, PostCompact, SessionEnd, Elicitation, ElicitationResult
-- **Blocking events: 13**（PreCompact を含む。Setup / UserPromptExpansion / PostToolBatch の blocking 状態は要再確認）
+- **Blocking events: 15**（2026-05-17 facts-checker `--cross-quiz` で再確認、`hooks.md` L560-595 の "Can block? = Yes" を数えた。`UserPromptExpansion` と `PostToolBatch` が blocking 一覧に追加されている）
 
 ### Hooks exit 2 の振る舞い
 - `PreToolUse`: `hookSpecificOutput` で制御
@@ -136,8 +136,8 @@
 ## MCP / Tools
 
 ### MCP SSE Transport
-- 公式ドキュメントに "deprecated" の明示記載**なし**（HTTP 推奨は記載あり）
-- 「非推奨」と断定するのは誤り
+- `mcp.md` L80 に "The SSE (Server-Sent Events) transport is **deprecated**. Use HTTP servers instead, where available." と明記（2026-05-17 facts-checker `--cross-quiz` で再確認、状態が変わった）
+- 公式に非推奨。HTTP transport を使用すること
 
 ### Tool Search
 - Sonnet 4+ / Opus 4+ 必須（Haiku は未サポート）
