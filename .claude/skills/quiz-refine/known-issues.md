@@ -455,3 +455,15 @@ v4.43.0 以前の known-issues では「exit code 2 の一般ルールで UserPr
 ## pre-lint の tiers にラベル「mechanical-fixable」を追加
 
 - 今回の run では `tiers.fact=57, quality=97, autofix=0` と表示され、autofix ゼロに見えたが、実際は quiz:lint の distractor 120 件が機械的に改善可能。tier ラベルが現実と乖離 → scripts/pre-lint-quiz.mjs の tier 分類を拡張し、「distractor-fixable」「difficulty-fixable」「backtick-fixable」の 3 つのサブカウントを追加。Skill の summary 出力でも表示
+
+## 「選択肢X（正解）」ラベルと correctIndex の整合性チェック
+
+- sdk-015 の hierarchy.items に「選択肢D（正解）」と書かれていたが、`correctIndex: 0` は Option A（先頭）。残りの選択肢ラベル（A/B/C）も options 配列の順序と一致せず、wrongFeedback の内容と入れ違いになっていた。 → `scripts/quiz-utils.mjs` に新規チェック `check-option-labels` を追加。`hierarchy` や `flow` 内の `text` フィールドに `選択肢A〜D（正解）` が含まれる場合、`correctIndex` が指す添字（0=A, 1=B, 2=C, 3=D）と一致するかを検証する。`quiz:check` 本体にも統合可能。
+
+## flow.steps の機械的分断（既知の課題）
+
+- sdk-007、sdk-013 で flow.steps[N].text と sub が一文を前後半に分断していた（"Anthropic Client SDKでは" / "、ツールの実行ループを..."、"Claude Co" / "deと同じ..."）。`bun run quiz:check-diagram-text` で 327 件検出。checklist.md L62-66 に既記載のパターン。 → 既知タスク（checklist L66）として `quiz:check` への統合を急ぐ。または「flow→hierarchy 自動変換スクリプト」を導入し、sub が `、` `を` `た` `です` 等で始まる場合に hierarchy へ移行する候補をバッチ生成する。
+
+## comparison.heading の文字数制約
+
+- sdk-014 で comparison.columns[].heading が "SDK版ではシェルコマン" "Python/TypeS" と途中で切られていた（10-12字程度）。heading は列タイトルなので 12 字以内推奨だが、長い説明文の前半を見出しに入れてしまっていた。 → `scripts/quiz-utils.mjs` に `check-comparison-heading-truncation` を追加し、heading が単語の途中（カナ/英字が途切れている）で終わっていないか機械チェック。items にも同様の検査が必要かもしれない。
