@@ -313,6 +313,7 @@ v4.43.0 以前の known-issues では「exit code 2 の一般ルールで UserPr
 - `/context` = コンテキストウィンドウの使用量可視化（カテゴリ別トークン表示・最適化提案）
 - 「CLAUDE.md が読み込まれているか確認する」問題に `/context` を正解として生成しないこと（mem-063 で修正済み・2026-04-05）
 - mem-063 が /context を正解にしていたが公式docs は /memory を推奨
+- forked skill context で `node scripts/verify-category-headless.mjs <cat> --model=sonnet` を 8 並列起動したが、`claude -p` サブプロセスが全て無音終了した。プロンプトファイル（99〜101KB）は正常生成、stdout に `[<cat>] calling claude -p --model sonnet...` のログだけ残って約 30 秒以内に終了。verify_*.json は新規生成されず、5/9 の古い commands.json のみが残った状態 → SKILL.md の「フォールバック運用」セクションに以下を追記:
 
 ## dontAsk パーミッションモードのプラットフォーム制限
 
@@ -333,6 +334,7 @@ v4.43.0 以前の known-issues では「exit code 2 の一般ルールで UserPr
 - 39問のtarget問題に25文字未満のwrongFeedbackがあった（全体的な品質改善候補） → 専用の wrongFeedback 品質改善パスを検討。「なぜ誤りか」の説明を30文字以上に拡充
 - quiz:lint が220件の distractor issues を報告（correct-too-long: 115, format-giveaway: 48, distractor-too-short: 56） → 正解選択肢の短縮または不正解選択肢への具体性追加の専用パスを検討
 - `quiz:lint` が 55問で difficulty mismatch を検出。score=-1/-2（容易方向）が 54問、score=+2（難化方向）が 1問。全て Step 0a の lint 出力から機械的に抽出可能 → quiz-refine SKILL.md の Step 0a（lint 前処理）の直後に「difficulty auto-fix」ステップを追加。score<=-1 と score>=+2 を自動適用。ロジックを scripts/quiz-utils.mjs に統合し `npm run quiz:difficulty-fix` として expose
+- pre-lint で 88 件の distractor 警告（46 件 too-short、42 件 correct-too-long）が検出。これらは事実誤認ではないが LLM の判断が必要なバランス調整。今回も処理できず累積 → SKILL.md に「distractor lint warnings はファクトチェックの責務外。`/quality-loop --monthly` の Opus 1M context で横断的に再バランスする」を明記。pre-lint レポートで distractor のみ flag された問題を sonnetTargets から除外（または別 tier に分離）
 
 ## Automated pattern scanning efficiency
 
@@ -467,3 +469,7 @@ v4.43.0 以前の known-issues では「exit code 2 の一般ルールで UserPr
 ## comparison.heading の文字数制約
 
 - sdk-014 で comparison.columns[].heading が "SDK版ではシェルコマン" "Python/TypeS" と途中で切られていた（10-12字程度）。heading は列タイトルなので 12 字以内推奨だが、長い説明文の前半を見出しに入れてしまっていた。 → `scripts/quiz-utils.mjs` に `check-comparison-heading-truncation` を追加し、heading が単語の途中（カナ/英字が途切れている）で終わっていないか機械チェック。items にも同様の検査が必要かもしれない。
+
+## ドキュメント全更新時の incremental 挙動
+
+- 21 ページのドキュメントが changed と判定され、結果として 775 問**全件**が doc-changed として targets に入った。incremental の利点が消失 → `verify:diff` に「ドキュメント変更件数が閾値（例: 10ページ）を超えた場合は警告を出し、`/quality-loop` への委譲を推奨」する分岐を追加。または fact-tier に絞った優先処理モード（`--fact-only`）を新設
