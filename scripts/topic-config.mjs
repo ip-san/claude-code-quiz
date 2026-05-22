@@ -131,6 +131,13 @@ export const DOC_PAGES = [
   { name: 'worktrees', url: 'https://code.claude.com/docs/en/worktrees' },
   // Auto-discovered from llms.txt (2026-05-16)
   { name: 'desktop-changelog', url: 'https://code.claude.com/docs/en/desktop-changelog' },
+  // Auto-discovered from llms.txt (2026-05-22)
+  { name: 'managed-mcp', url: 'https://code.claude.com/docs/en/managed-mcp' },
+  { name: 'plugin-hints', url: 'https://code.claude.com/docs/en/plugin-hints' },
+  { name: 'prompt-caching', url: 'https://code.claude.com/docs/en/prompt-caching' },
+  { name: 'prompt-library', url: 'https://code.claude.com/docs/en/prompt-library' },
+  { name: 'sandbox-environments', url: 'https://code.claude.com/docs/en/sandbox-environments' },
+  { name: 'sessions', url: 'https://code.claude.com/docs/en/sessions' },
   // Agent SDK (different domain)
   { name: 'agent-sdk-overview', url: 'https://platform.claude.com/docs/en/agent-sdk/overview' },
 ]
