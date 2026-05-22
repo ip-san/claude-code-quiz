@@ -93,3 +93,32 @@ keyboard カテゴリで factCheck:env や factCheck:flags が lint-flagged さ�
 - key-034 の正解選択肢フォーマット `{ "context": "Chat", "bindings": { "cmd+enter": "chat:submit" } }` は正確
 - key-034 の explanation「`"enter": null` を設定します」も正確（docs に明示）
 - key-034 は PASSED
+
+## 2026-05-23 深掘り検証（9問 lint-flagged）
+
+### key-033 の severity 更新
+- 旧記録（2026-05-13）: 「minor 指摘」としていたが、wrongFeedback[0] と explanation の**両方**に Warp が誤記載されていた
+- Warp は「Works without setup」グループのターミナル（設定不要）。docs テーブルで明確
+- wrongFeedback[0]: "VS Code、Alacritty、Zed、Warp での改行入力を有効にします" → Warp は誤り → **major** に格上げ
+- explanation も同様に "VS Code、Alacritty、Zed、Warpなどネイティブ対応していないターミナル" → Warp は誤り
+
+### key-052 の再評価（false-positive に変更）
+- 旧記録（2026-05-13）: 「major issue」として「正解が misleading」と記録
+- 再読すると correctIndex=1 の選択肢は「/tui fullscreen を実行する（v2.1.110 以前では環境変数 CLAUDE_CODE_NO_FLICKER=1 を使う）」
+- これは /tui fullscreen を主推奨として記述している → 正確
+- docs: "The tui setting and the environment variable are equivalent" と記載 → 両方 OK
+- **false-positive に変更**。旧記録の「major issue」は誤った判定だった
+
+### key-032 の wrongFeedback[3] 問題（新規記録）
+- wrongFeedback[3] 末尾: 「出力スタイルの切り替えは `/output-style` コマンドが最も手軽です」
+- `/output-style` は v2.1.73 で廃止済み。廃止コマンドを推奨する表現は minor 問題
+- factCheck:env フラグ自体は CLAUDE_OUTPUT_STYLE 変数を対象とした偽陽性だが、別途 minor 問題あり
+
+### key-006 の「バッファリング」表現（既知パターン継続）
+- docs: "Output is written to a file and Claude can retrieve it using the Read tool"
+- 問題: 「バッファリング」表現 → minor（技術的には異なるが利用者視点では同等）
+- 今後も false-positive として扱わず minor で一貫する
+
+### key-021 の diagram 内部矛盾（既知パターン継続）
+- diagram.columns[0].items[2]: 「Claude Code固有のショートカット」
+- explanation: 「Claude Code固有のショートカットではなく」→ 矛盾 → minor で継続
