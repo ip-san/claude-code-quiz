@@ -8486,7 +8486,7 @@
       "question": "CI/CDパイプラインでClaude Codeをコードレビューに使いたい。パイプスルーで入力を渡し、結果を構造化データとしてリアルタイムに受け取るワークフローとして適切なのはどれですか？",
       "options": [
         {
-          "text": "cat diff.txt | `claude -p` 'review this diff' `--output-format stream-json` でストリーミングJSONとして各ターンの結果をリアルタイムに受け取る"
+          "text": "cat diff.txt | `claude -p` 'review this diff' `--output-format stream-json --verbose` でストリーミングJSONとして各ターンの結果をリアルタイムに受け取る"
         },
         {
           "text": "`claude -p` 'review this diff' `--input` diff.txt `--output-format json` で入力ファイルを指定しJSON配列として結果を受け取る",
@@ -8502,7 +8502,7 @@
         }
       ],
       "correctIndex": 0,
-      "explanation": "CI/CDパイプラインでClaude Codeを使う場合、パイプでデータを渡し（cat file | `claude -p`）、-pフラグで非対話モードを使用します。\n\n{{diagram:0}}\n\n`--output-format stream-json`はリアルタイムでJSONオブジェクトをストリーミング出力するため、各ターンの結果を即座に処理できます。jsonは全完了後の配列出力、textはプレーンテキスト出力です。\n{{diagram:1}}",
+      "explanation": "CI/CDパイプラインでClaude Codeを使う場合、パイプでデータを渡し（cat file | `claude -p`）、-pフラグで非対話モードを使用します。\n\n{{diagram:0}}\n\n`--output-format stream-json`はリアルタイムでJSONオブジェクトをストリーミング出力するため、各ターンの結果を即座に処理できます（`-p` モードでは `--verbose` が必須、トークン単位の逐次出力には `--include-partial-messages` も併用）。jsonは全完了後の配列出力、textはプレーンテキスト出力です。\n{{diagram:1}}",
       "category": "commands",
       "difficulty": "advanced",
       "referenceUrl": "https://code.claude.com/docs/ja/common-workflows",
@@ -11937,7 +11937,7 @@
         },
         {
           "text": "プロンプト本文に「think hard」「ultrathink」と書くことで API に送信される effort レベルが段階的に上がる",
-          "wrongFeedback": "「think hard」はThinkingトークンを割り当てない通常のプロンプト指示として解釈されます（推論の深さを調整しません）。「ultrathink」はそのターンのeffortをhighに設定しますが、6 段階（low/medium/high/xhigh/max/auto）に段階的に調整する手段ではありません。effortを継続的に調整するには`/effort`コマンドや`/model`のeffortスライダー、`CLAUDE_CODE_EFFORT_LEVEL`環境変数を使います。"
+          "wrongFeedback": "「think hard」はThinkingトークンを割り当てない通常のプロンプト指示として解釈されます（推論の深さを調整しません）。「ultrathink」はそのターンに対してより深い推論を要求する in-context 指示で、API に送信される effort レベルは変更しません（セッションの effort 設定はそのまま）。effortを継続的に調整するには`/effort`コマンドや`/model`のeffortスライダー、`CLAUDE_CODE_EFFORT_LEVEL`環境変数を使います。"
         },
         {
           "text": "`/config` で Thinking モードのトグルを切り替え、有効・無効の 2 段階で制御する（モデルやセッション横断で固定）",
@@ -23078,7 +23078,7 @@
             },
             {
               "type": "info",
-              "text": "(/undo は存在しない)"
+              "text": "(/summarize は存在しない)"
             }
           ]
         },
@@ -29937,7 +29937,7 @@
         }
       ],
       "correctIndex": 2,
-      "explanation": "`PreToolUse`フックの`permissionDecision`は4つの値（allow / deny / ask / defer）をサポートします：`\"allow\"`（パーミッションシステムをバイパスして実行許可）、`\"deny\"`（ツールコールを阻止）、`\"ask\"`（ユーザーに確認を要求）。\n\n{{diagram:0}}\n\n`\"escalate\"`は有効な値ではありません。\n{{diagram:1}}",
+      "explanation": "`PreToolUse`フックの`permissionDecision`は4つの値（allow / deny / ask / defer）をサポートします：`\"allow\"`（パーミッションシステムをバイパスして実行許可）、`\"deny\"`（ツールコールを阻止）、`\"ask\"`（ユーザーに確認を要求）、`\"defer\"`（ツールを後で再開できるよう正常終了。非対話 `-p` モードで有用）。\n\n{{diagram:0}}\n\n`\"escalate\"`は有効な値ではありません。\n{{diagram:1}}",
       "referenceUrl": "https://code.claude.com/docs/ja/hooks",
       "diagrams": [
         {
@@ -34031,7 +34031,7 @@
       "options": [
         {
           "text": "VS Code 統合とターミナル間の双方向コンテキスト共有が確立される",
-          "wrongFeedback": "`/terminal-setup` はVS Code統合の設定ではなく、ターミナルの`Shift+Enter`バインディングを設定するコマンドです。VS Code、Alacritty、Zed、Warpでの改行入力を有効にします。"
+          "wrongFeedback": "`/terminal-setup` はVS Code統合の設定ではなく、ターミナルの`Shift+Enter`バインディングを設定するコマンドです。VS Code、Cursor、Windsurf、Alacritty、Zedでの改行入力を有効にします。"
         },
         {
           "text": "`Alt+B`、`Alt+F` などの Emacs 風キーバインドと構文ハイライトが有効化される",
@@ -34046,7 +34046,7 @@
         }
       ],
       "correctIndex": 3,
-      "explanation": "`/terminal-setup` コマンドを実行すると、`Shift+Enter`（送信せずに改行を入力）のバインディングが有効になります。\n{{diagram:0}}\nこれはVS Code、Alacritty、Zed、Warpなどネイティブ対応していないターミナル用の設定です。`Option+T`（extended thinking の切り替え）は v2.1.132 以降 macOS でも「Option as Meta」設定なしで動作するため別設定不要ですが、`Alt+B`、`Alt+F` などの Emacs 風キーバインドは依然として「Option as Meta」設定が必要です。\n{{diagram:1}}",
+      "explanation": "`/terminal-setup` コマンドを実行すると、`Shift+Enter`（送信せずに改行を入力）のバインディングが有効になります。\n{{diagram:0}}\nこれはVS Code、Cursor、Windsurf、Alacritty、Zedなどネイティブ対応していないターミナル用の設定です。`Option+T`（extended thinking の切り替え）は v2.1.132 以降 macOS でも「Option as Meta」設定なしで動作するため別設定不要ですが、`Alt+B`、`Alt+F` などの Emacs 風キーバインドは依然として「Option as Meta」設定が必要です。\n{{diagram:1}}",
       "referenceUrl": "https://code.claude.com/docs/ja/terminal-config",
       "diagrams": [
         {
@@ -35490,7 +35490,7 @@
           "items": [
             {
               "text": "プラグインのカスタムエージェントをメインスレッドとして有効化し、そのシステムプロンプト・ツール制限・モデルが適用される（正解）",
-              "sub": "プラグインの `settings.json` で `agent` キーを設定すると、`agents/` ディレクトリで定義したカスタムエージェントがメインスレッドとして有効化されます。 これにより、そのエージェントのシステムプロンプト、ツール制限、モデルが Claude Code のデフォルトの振る舞いに適用されます。現在 `settings.json` でサポートされているキーは `agent` のみです。"
+              "sub": "プラグインの `settings.json` で `agent` キーを設定すると、`agents/` ディレクトリで定義したカスタムエージェントがメインスレッドとして有効化されます。 これにより、そのエージェントのシステムプロンプト、ツール制限、モデルが Claude Code のデフォルトの振る舞いに適用されます。現在 `settings.json` でサポートされているキーは `agent` と `subagentStatusLine` の2つです。"
             },
             {
               "text": "新しいサブエージェントタイプを登録し、`Task` ツールから呼び出し可能にする",
@@ -37010,22 +37010,22 @@
       "options": [
         {
           "text": "Sonnet モデルに自動的に切り替わる",
-          "wrongFeedback": "Sonnet への切り替えではなく、スタンダード Opus 4.6 へのフォールバックです。`↯` アイコンがグレーに変わってクールダウン中を示し、クールダウンが終了すると自動的に Fast モードに復帰します。"
+          "wrongFeedback": "Sonnet への切り替えではなく、同じ Opus バージョンのスタンダードモード へのフォールバックです。`↯` アイコンがグレーに変わってクールダウン中を示し、クールダウンが終了すると自動的に Fast モードに復帰します。"
         },
         {
-          "text": "自動的にスタンダード Opus 4.6 にフォールバックし、クールダウン終了後に自動復帰する"
+          "text": "自動的に同じ Opus バージョンのスタンダードモード にフォールバックし、クールダウン終了後に自動復帰する"
         },
         {
           "text": "セッションが一時停止し、ユーザーに待機を求める",
-          "wrongFeedback": "セッションは一時停止しません。Fast モードは自動的にスタンダード Opus 4.6 にフォールバックし、作業を継続します。`↯` アイコンがグレーに変わりクールダウン中であることを示します。"
+          "wrongFeedback": "セッションは一時停止しません。Fast モードは自動的に同じ Opus バージョンのスタンダードモード にフォールバックし、作業を継続します。`↯` アイコンがグレーに変わりクールダウン中であることを示します。"
         },
         {
           "text": "エラーメッセージが表示されセッションが終了する",
-          "wrongFeedback": "セッション終了は発生しません。Fast モードは自動的にスタンダード Opus 4.6 にフォールバックし、標準の速度と価格で作業を継続します。クールダウンが終了すると自動的に Fast モードに復帰します。"
+          "wrongFeedback": "セッション終了は発生しません。Fast モードは自動的に同じ Opus バージョンのスタンダードモード にフォールバックし、標準の速度と価格で作業を継続します。クールダウンが終了すると自動的に Fast モードに復帰します。"
         }
       ],
       "correctIndex": 1,
-      "explanation": "Fast モードのレート制限に達すると、(1) 自動的にスタンダード Opus 4.6 にフォールバック、(2) `↯` アイコンがグレーに変化してクールダウン中を表示、(3) 標準の速度と価格で作業を継続、(4) クールダウン終了後に自動的に Fast モードに復帰します。\n\n{{diagram:0}}\n\n手動で無効にしたい場合は `/fast` を再実行します。\n{{diagram:1}}",
+      "explanation": "Fast モードのレート制限に達すると、(1) 自動的に同じ Opus バージョンのスタンダードモード にフォールバック、(2) `↯` アイコンがグレーに変化してクールダウン中を表示、(3) 標準の速度と価格で作業を継続、(4) クールダウン終了後に自動的に Fast モードに復帰します。\n\n{{diagram:0}}\n\n手動で無効にしたい場合は `/fast` を再実行します。\n{{diagram:1}}",
       "referenceUrl": "https://code.claude.com/docs/ja/fast-mode",
       "diagrams": [
         {
@@ -37037,7 +37037,7 @@
               "sub": ""
             },
             {
-              "text": "Opus 4.6にフォールバック",
+              "text": "同じ Opus バージョンにフォールバック",
               "sub": "標準速度・価格"
             },
             {
@@ -50254,7 +50254,7 @@
           "wrongFeedback": "分類器のモデルは設定で変更できず、常に サーバー設定のモデル が使用されます"
         },
         {
-          "text": "メインセッションのモデルに関わらず、常に Claude Sonnet 4.6 で実行される"
+          "text": "メインセッションのモデルに関わらず、独立した（サーバー設定の）分類器モデルで実行される"
         },
         {
           "text": "Claude Haiku が使用される",
@@ -50279,7 +50279,7 @@
             },
             {
               "text": "分類器が判定",
-              "sub": "常にSonnet 4.6で実行"
+              "sub": "セッションモデルと独立して実行"
             },
             {
               "text": "安全→自動許可",
@@ -50305,7 +50305,7 @@
             {
               "heading": "分類器",
               "items": [
-                "常にSonnet 4.6固定",
+                "サーバー設定のモデル",
                 "モデル選択に依存しない"
               ]
             }
