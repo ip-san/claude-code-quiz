@@ -4511,7 +4511,7 @@
               "text": "statusline-setup"
             },
             {
-              "text": "Claude Code Guide"
+              "text": "claude-code-guide"
             }
           ]
         },
@@ -4521,7 +4521,7 @@
           "items": [
             {
               "text": "Debug（正解）",
-              "sub": "組み込みサブエージェントには`Explore`、`Plan`、`general-purpose`、`statusline-setup`、`Claude Code Guide`などがあります。Debugは含まれません。"
+              "sub": "組み込みサブエージェントには`Explore`、`Plan`、`general-purpose`、`statusline-setup`、`claude-code-guide`などがあります。Debugは含まれません。"
             },
             {
               "text": "general-purpose",
@@ -8495,7 +8495,7 @@
           "wrongFeedback": "`--input`フラグは存在しません。パイプ（cat file | `claude -p`）で入力を渡します。また`--output-format json`は全完了後のJSON配列出力で、リアルタイム処理にはstream-jsonが適しています"
         },
         {
-          "text": "cat diff.txt | `claude -p` 'review this diff' `--output-format stream-json --verbose` でストリーミングJSONとして各ターンの結果をリアルタイムに受け取る"
+          "text": "cat diff.txt | `claude -p` 'review this diff' `--output-format stream-json --verbose --include-partial-messages` でストリーミングJSONとして各ターンの結果をリアルタイムに受け取る"
         }
       ],
       "correctIndex": 3,
@@ -29959,6 +29959,13 @@
               "items": [
                 "ユーザーに確認"
               ]
+            },
+            {
+              "heading": "defer",
+              "items": [
+                "後で再開できるよう正常終了",
+                "非対話 -p モードで有効"
+              ]
             }
           ]
         },
@@ -29967,12 +29974,12 @@
           "label": "PreToolUseの注意点",
           "steps": [
             {
-              "text": "PreToolUseフックのpermissi",
-              "sub": "onDecisionは4つの値をサポートします"
+              "text": "permissionDecision は4値",
+              "sub": "allow / deny / ask / defer をサポートする"
             },
             {
-              "text": "\"escalate\"は有効な値ではありません",
-              "sub": ""
+              "text": "escalate は無効",
+              "sub": "有効な値ではない"
             }
           ]
         }
@@ -33967,7 +33974,7 @@
         }
       ],
       "correctIndex": 0,
-      "explanation": "`/config` コマンドで出力スタイルを変更できます。引数なしで実行すると対話メニューが表示され、`/config [style]`（例: `/config explanatory`）で直接切り替えも可能です。変更は `.claude/settings.local.json` の `outputStyle` フィールドに保存されます。組み込みスタイルには Default、Explanatory、Learning の3種類があります。\n\n{{diagram:0}}\n\nカスタムスタイルの作成も可能です。\n{{diagram:1}}",
+      "explanation": "`/config` コマンドで出力スタイルを変更できます。引数なしで実行すると対話メニューが表示され、`/config [style]`（例: `/config explanatory`）で直接切り替えも可能です。変更は `.claude/settings.local.json` の `outputStyle` フィールドに保存されます。組み込みスタイルには Default、Proactive、Explanatory、Learning の4種類があります。\n\n{{diagram:0}}\n\nカスタムスタイルの作成も可能です。\n{{diagram:1}}",
       "referenceUrl": "https://code.claude.com/docs/ja/output-styles",
       "diagrams": [
         {
@@ -33977,25 +33984,25 @@
             {
               "heading": "Default",
               "items": [
-                "標準出力"
+                "標準（SWエンジニアリング効率重視）"
+              ]
+            },
+            {
+              "heading": "Proactive",
+              "items": [
+                "即実行・合理的な仮定で行動優先"
               ]
             },
             {
               "heading": "Explanatory",
               "items": [
-                "詳細な説明付き"
+                "教育的な Insights 付き"
               ]
             },
             {
               "heading": "Learning",
               "items": [
-                "学習向け"
-              ]
-            },
-            {
-              "heading": "Custom",
-              "items": [
-                "カスタム作成可"
+                "協働型・TODO(human) で実装を促す"
               ]
             }
           ]
@@ -34066,7 +34073,7 @@
         },
         {
           "type": "terminal",
-          "label": "/terminalの実行例",
+          "label": "/terminal-setup の実行例",
           "lines": [
             {
               "type": "prompt",
@@ -34074,15 +34081,11 @@
             },
             {
               "type": "info",
-              "text": "切り替え）は"
-            },
-            {
-              "type": "prompt",
-              "text": "/terminal-setup"
+              "text": "Shift+Enter（改行入力）バインディングを設定"
             },
             {
               "type": "info",
-              "text": "切り替え）は"
+              "text": "対象: VS Code / Cursor / Windsurf / Alacritty / Zed"
             }
           ]
         }
@@ -35483,7 +35486,7 @@
         },
         {
           "type": "hierarchy",
-          "label": "settings.jsoの正誤ポイント",
+          "label": "settings.json の正誤ポイント",
           "items": [
             {
               "text": "プラグインのカスタムエージェントをメインスレッドとして有効化し、そのシステムプロンプト・ツール制限・モデルが適用される（正解）",
@@ -37007,22 +37010,22 @@
       "options": [
         {
           "text": "Sonnet モデルに自動的に切り替わる",
-          "wrongFeedback": "Sonnet への切り替えではなく、同じ Opus バージョンのスタンダードモード へのフォールバックです。`↯` アイコンがグレーに変わってクールダウン中を示し、クールダウンが終了すると自動的に Fast モードに復帰します。"
+          "wrongFeedback": "Sonnet への切り替えではなく、標準速度のスタンダードモード（モデルは Opus のまま） へのフォールバックです。`↯` アイコンがグレーに変わってクールダウン中を示し、クールダウンが終了すると自動的に Fast モードに復帰します。"
         },
         {
           "text": "エラーメッセージが表示されセッションが終了する",
-          "wrongFeedback": "セッション終了は発生しません。Fast モードは自動的に同じ Opus バージョンのスタンダードモード にフォールバックし、標準の速度と価格で作業を継続します。クールダウンが終了すると自動的に Fast モードに復帰します。"
+          "wrongFeedback": "セッション終了は発生しません。Fast モードは自動的に標準速度のスタンダードモード（モデルは Opus のまま） にフォールバックし、標準の速度と価格で作業を継続します。クールダウンが終了すると自動的に Fast モードに復帰します。"
         },
         {
           "text": "セッションが一時停止し、ユーザーに待機を求める",
-          "wrongFeedback": "セッションは一時停止しません。Fast モードは自動的に同じ Opus バージョンのスタンダードモード にフォールバックし、作業を継続します。`↯` アイコンがグレーに変わりクールダウン中であることを示します。"
+          "wrongFeedback": "セッションは一時停止しません。Fast モードは自動的に標準速度のスタンダードモード（モデルは Opus のまま） にフォールバックし、作業を継続します。`↯` アイコンがグレーに変わりクールダウン中であることを示します。"
         },
         {
-          "text": "自動的に同じ Opus バージョンのスタンダードモード にフォールバックし、クールダウン終了後に自動復帰する"
+          "text": "自動的に標準速度のスタンダードモード（モデルは Opus のまま） にフォールバックし、クールダウン終了後に自動復帰する"
         }
       ],
       "correctIndex": 3,
-      "explanation": "Fast モードのレート制限に達すると、(1) 自動的に同じ Opus バージョンのスタンダードモード にフォールバック、(2) `↯` アイコンがグレーに変化してクールダウン中を表示、(3) 標準の速度と価格で作業を継続、(4) クールダウン終了後に自動的に Fast モードに復帰します。\n\n{{diagram:0}}\n\n手動で無効にしたい場合は `/fast` を再実行します。\n{{diagram:1}}",
+      "explanation": "Fast モードのレート制限に達すると、(1) 自動的に標準速度のスタンダードモード（モデルは Opus のまま） にフォールバック、(2) `↯` アイコンがグレーに変化してクールダウン中を表示、(3) 標準の速度と価格で作業を継続、(4) クールダウン終了後に自動的に Fast モードに復帰します。\n\n{{diagram:0}}\n\n手動で無効にしたい場合は `/fast` を再実行します。\n{{diagram:1}}",
       "referenceUrl": "https://code.claude.com/docs/ja/fast-mode",
       "diagrams": [
         {
@@ -37034,7 +37037,7 @@
               "sub": ""
             },
             {
-              "text": "同じ Opus バージョンにフォールバック",
+              "text": "標準速度にフォールバック",
               "sub": "標準速度・価格"
             },
             {
@@ -50252,22 +50255,22 @@
       "options": [
         {
           "text": "Claude Haiku が使用される",
-          "wrongFeedback": "分類器は Haiku ではなく サーバー設定のモデル で実行されます"
+          "wrongFeedback": "ドキュメントは分類器のモデル名を特定していません。確かなのは、メインセッションとは独立した専用の分類器モデルで動く点です"
         },
         {
           "text": "メインセッションと同じモデルが使用される",
-          "wrongFeedback": "分類器は常に サーバー設定のモデル で実行されます"
+          "wrongFeedback": "分類器はメインセッションのモデルとは独立した専用のモデルで動きます（ユーザーの `/model` 選択に依存しません）"
         },
         {
           "text": "ユーザーが分類器のモデルを設定で選択できる",
-          "wrongFeedback": "分類器のモデルは設定で変更できず、常に サーバー設定のモデル が使用されます"
+          "wrongFeedback": "分類器のモデルはユーザーが選択できません。メインセッションとは独立した専用の分類器モデルが使われます"
         },
         {
-          "text": "メインセッションのモデルに関わらず、独立した（サーバー設定の）分類器モデルで実行される"
+          "text": "メインセッションのモデルに関わらず、それとは独立した専用の分類器モデルで実行される"
         }
       ],
       "correctIndex": 3,
-      "explanation": "Auto モードの分類器は、メインセッションがどのモデルを使用していても、サーバー設定のモデルで実行（ユーザーの `/model` 選択とは独立）されます。\n{{diagram:0}}\n{{diagram:1}}",
+      "explanation": "Auto モードの分類器は、メインセッションがどのモデルを使用していても、それとは独立した専用の分類器モデルで実行されます（ユーザーの `/model` 選択とは独立）。\n{{diagram:0}}\n{{diagram:1}}",
       "referenceUrl": "https://code.claude.com/docs/ja/permission-modes",
       "diagrams": [
         {
@@ -50306,7 +50309,7 @@
             {
               "heading": "分類器",
               "items": [
-                "サーバー設定のモデル",
+                "セッションとは独立した専用モデル",
                 "モデル選択に依存しない"
               ]
             }
