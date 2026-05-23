@@ -141,6 +141,13 @@ const VALID_DOC_PAGES = [
   'auto-mode-config',
   'debug-your-config',
   'web-quickstart',
+  // Newly discovered pages (2026-05-22)
+  'managed-mcp',
+  'plugin-hints',
+  'prompt-caching',
+  'prompt-library',
+  'sandbox-environments',
+  'sessions',
   // platform.claude.com pages
   'agent-sdk/overview',
   'agents-and-tools/agent-skills/best-practices',

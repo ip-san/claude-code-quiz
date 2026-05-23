@@ -14,7 +14,7 @@ PWA（ブラウザ・スマホ）と Electron（デスクトップ・AI連携）
 - **テスト:** Vitest（1059テスト）+ Playwright E2E（120テスト）
 - **AIパイプライン:** Script→Haiku→Script→Sonnet（+Opus 5トリガー）、年間~$6
 - **CI/CD:** GitHub Actions → GitHub Pages 自動デプロイ（GTM ID は Secret 管理）
-- **クイズデータ:** 775問（84ドキュメントページをカバー）
+- **クイズデータ:** 783問（90ドキュメントページをカバー）
 
 ## 開発コマンド
 
@@ -25,7 +25,7 @@ bun run dev:web       # Web版開発サーバー
 bun run build:web     # Web版プロダクションビルド
 
 # 品質チェック
-bun run check         # 型チェック + lint + 1059テスト + 775問チェック（一括）
+bun run check         # 型チェック + lint + 1059テスト + 783問チェック（一括）
 bun run check:all     # check + docs:validate + cpd（CI用フルチェック）
 bun test              # ユニット + Store テスト（1059テスト、Vitest）
 bun run test:e2e      # E2E + Visual Regression テスト（120テスト、Playwright）
