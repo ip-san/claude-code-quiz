@@ -54626,7 +54626,7 @@
       "question": "プロンプトキャッシュの TTL（有効期間）と保存場所に関する説明として正しいものはどれですか？",
       "options": [
         {
-          "text": "Claude サブスクリプションでは自動的に1時間 TTL を要求し（プラン内利用なので追加コストなし）、API キーや Bedrock/Vertex/Foundry では既定で5分 TTL になり `ENABLE_PROMPT_CACHING_1H=1` で1時間に切り替えられる"
+          "text": "Claude サブスクリプションでは自動的に1時間 TTL を要求し（プラン内利用なので追加コストなし）、API キーや Bedrock/Vertex/Foundry/Claude Platform on AWS では既定で5分 TTL になり `ENABLE_PROMPT_CACHING_1H=1` で1時間に切り替えられる"
         },
         {
           "text": "キャッシュは認証方法に関わらず常に Anthropic のインフラに保存される",
@@ -54658,8 +54658,9 @@
               ]
             },
             {
-              "heading": "API キー / Bedrock / Vertex / Foundry",
+              "heading": "API キー・各プロバイダ",
               "items": [
+                "対象は API キー/Bedrock/Vertex/Foundry/Claude Platform on AWS",
                 "既定は5分 TTL",
                 "ENABLE_PROMPT_CACHING_1H=1 で1時間に",
                 "FORCE_PROMPT_CACHING_5M=1 で常に5分"
