@@ -3898,81 +3898,74 @@
       "id": "cmd-015",
       "category": "commands",
       "difficulty": "intermediate",
-      "question": "Claude Codeの使用状況を分析したい場合、`/stats`、`/cost`、`/usage`コマンドの違いとして正しいのはどれですか？",
+      "question": "Claude Code の使用状況を確認する `/usage`、`/cost`、`/stats` コマンドの関係として正しいのはどれですか？",
       "options": [
         {
-          "text": "3つとも同じ情報を異なるフォーマットで表示するエイリアスコマンド",
-          "wrongFeedback": "3つは異なる情報を表示する別々のコマンドです。`/stats`は使用傾向の統計、`/cost`はトークン消費量、`/usage`はプランの制限情報と、それぞれ異なる観点の情報を提供します。"
+          "text": "3つは全く別の情報を表示する独立したコマンドである",
+          "wrongFeedback": "実際は `/cost` と `/stats` は `/usage` のエイリアスで同じ機能です。`/stats` は Stats タブで開く点だけが異なります。"
         },
         {
-          "text": "`/stats`は日別使用量・セッション履歴・連続使用日数を視覚化、`/cost`はトークン使用量の詳細、`/usage`はサブスクリプションプランの利用制限を表示"
+          "text": "`/cost` と `/stats` はどちらも `/usage` のエイリアスで、同じ情報（セッションコスト・プラン利用制限・アクティビティ統計）を表示する。`/stats` は Stats タブで開く点だけが異なる"
         },
         {
-          "text": "`/stats`と`/cost`は全ユーザーが利用可能だが、`/usage`はAPI keyユーザー専用",
-          "wrongFeedback": "`/usage`はサブスクリプションプラン（Max/Proなど）のユーザー向けコマンドです。API keyユーザー向けではありません。"
+          "text": "`/usage` は API key ユーザー専用で、`/cost`・`/stats` はサブスクリプション専用",
+          "wrongFeedback": "`/usage`（と alias の `/cost`・`/stats`）はセッションコストやプラン利用制限を表示します。API key 専用ではありません。"
         },
         {
-          "text": "`/stats`はAPIコスト、`/cost`はセッション統計、`/usage`は全情報のサマリーを表示する",
-          "wrongFeedback": "説明が逆です。`/stats`が使用統計とセッション履歴、`/cost`がトークン使用量（コスト）、`/usage`がサブスクリプションプラン固有の制限情報を表示します。"
+          "text": "`/cost` だけがトークン使用量を表示し、`/usage`・`/stats` は表示しない",
+          "wrongFeedback": "`/cost` は `/usage` のエイリアスなので、3つとも同じ情報を表示します。"
         }
       ],
       "correctIndex": 1,
-      "explanation": "`/stats`は日別の使用統計、セッション履歴、連続使用日数（ストリーク）、モデル使用傾向を視覚化するダッシュボードです。\n\n{{diagram:0}}\n\n`/cost`は現在のセッションと累計のトークン使用量を詳細に表示します。`/usage`はサブスクリプションプラン利用者向けにプランの使用制限やレート制限の状態を確認するコマンドです。\n{{diagram:1}}",
+      "explanation": "`/cost` と `/stats` はどちらも `/usage` のエイリアスです。`/usage` はセッションコスト・プラン利用制限・アクティビティ統計を表示し、`/stats` は同じ内容を Stats タブで開きます。\n\n{{diagram:0}}\n\nつまり3つは同じ機能で、`/stats` の開くタブが違うだけです。\n{{diagram:1}}",
       "referenceUrl": "https://code.claude.com/docs/ja/interactive-mode",
       "diagrams": [
         {
           "type": "comparison",
-          "label": "使用状況コマンドの違い",
+          "label": "/usage とエイリアス",
           "columns": [
             {
-              "heading": "/stats",
+              "heading": "/usage（本体）",
               "items": [
-                "日別使用量",
-                "セッション履歴",
-                "連続使用日数"
+                "セッションコスト",
+                "プラン利用制限",
+                "アクティビティ統計"
               ]
             },
             {
-              "heading": "/cost",
+              "heading": "/cost（エイリアス）",
               "items": [
-                "トークン使用量",
-                "セッション/累計",
-                "コスト詳細"
+                "/usage と同一"
               ]
             },
             {
-              "heading": "/usage",
+              "heading": "/stats（エイリアス）",
               "items": [
-                "プラン制限",
-                "レート制限",
-                "サブスクリプション情報"
+                "/usage と同一",
+                "Stats タブで開く"
               ]
             }
           ]
         },
         {
           "type": "terminal",
-          "label": "/statsの実行例",
+          "label": "使用状況の確認",
           "lines": [
-            {
-              "type": "prompt",
-              "text": "/stats"
-            },
-            {
-              "type": "prompt",
-              "text": "/cost"
-            },
-            {
-              "type": "info",
-              "text": "現在のセッションと累計のトークン使用量を詳細に表示"
-            },
             {
               "type": "prompt",
               "text": "/usage"
             },
             {
               "type": "info",
-              "text": "現在のセッションと累計のトークン使用量を詳細に表示"
+              "text": "セッションコスト・プラン制限・統計を表示"
+            },
+            {
+              "type": "prompt",
+              "text": "/cost  /stats"
+            },
+            {
+              "type": "info",
+              "text": "どちらも /usage のエイリアス（/stats は Stats タブ）"
             }
           ]
         }
@@ -4560,7 +4553,7 @@
         }
       ],
       "correctIndex": 3,
-      "explanation": "`stdio`トランスポートはローカルプロセスとしてマシン上で直接実行されるため、ファイルシステムやローカルツールへの直接アクセスが必要な場合に最適です。\n\n{{diagram:0}}\n\nリモートサーバーにはHTTPトランスポートが推奨されます。`SSE`は公式に**非推奨**となっており（mcp.md L80）、新規接続では HTTP を使用してください。\n{{diagram:1}}",
+      "explanation": "`stdio`トランスポートはローカルプロセスとしてマシン上で直接実行されるため、ファイルシステムやローカルツールへの直接アクセスが必要な場合に最適です。\n\n{{diagram:0}}\n\nリモートサーバーには HTTP トランスポートが推奨されますが、`SSE` も引き続き利用可能な選択肢です。\n{{diagram:1}}",
       "category": "extensions",
       "difficulty": "intermediate",
       "referenceUrl": "https://code.claude.com/docs/ja/mcp",
@@ -4605,7 +4598,7 @@
             },
             {
               "text": "リモートサーバーにはHTTPトランスポートが",
-              "sub": "推奨されます。SSE は公式に非推奨"
+              "sub": "推奨されますが、SSE も引き続き利用できます"
             }
           ]
         }
@@ -4616,7 +4609,7 @@
       "question": "`PostToolUse`フックと`PreToolUse`フックの動作の違いとして正しいのはどれですか？",
       "options": [
         {
-          "text": "`PreToolUse`はツール呼び出しをdeny/allow/askで事前制御できるが、`PostToolUse`はツール実行後のため`decision: \"block\"`でClaudeに理由を提示し追加対応を促す形でのフィードバックが主な用途"
+          "text": "`PreToolUse`はツール呼び出しをallow/deny/ask/deferで事前制御できるが、`PostToolUse`はツール実行後のため`decision: \"block\"`でClaudeに理由を提示し追加対応を促す形でのフィードバックが主な用途"
         },
         {
           "text": "どちらもMCPツールには対応しておらず、組み込みツールのみ`matcher`で指定できる",
@@ -4632,7 +4625,7 @@
         }
       ],
       "correctIndex": 0,
-      "explanation": "`PreToolUse`はツール実行前に発火するため、`hookSpecificOutput`内の`permissionDecision`でallow/deny/askの3段階制御が可能です。\n\n{{diagram:0}}\n\n一方`PostToolUse`はツール実行成功後に発火するため、ツール自体のブロッキングはできず、Claudeへのフィードバック提供（decisionで\"block\"を返してClaudeに再考を促す）が主な用途です。\n{{diagram:1}}",
+      "explanation": "`PreToolUse`はツール実行前に発火するため、`hookSpecificOutput`内の`permissionDecision`で allow/deny/ask/defer の制御が可能です。\n\n{{diagram:0}}\n\n一方`PostToolUse`はツール実行成功後に発火するため、ツール自体のブロッキングはできず、Claudeへのフィードバック提供（decisionで\"block\"を返してClaudeに再考を促す）が主な用途です。\n{{diagram:1}}",
       "category": "extensions",
       "difficulty": "intermediate",
       "referenceUrl": "https://code.claude.com/docs/ja/hooks",
@@ -4643,7 +4636,7 @@
           "steps": [
             {
               "text": "PreToolUse",
-              "sub": "allow/deny/askで制御"
+              "sub": "allow/deny/ask/deferで制御"
             },
             {
               "text": "ツール実行",
@@ -4661,7 +4654,7 @@
           "items": [
             {
               "text": "PreToolUse（ツール実行前に発火）",
-              "sub": "`hookSpecificOutput.permissionDecision` で allow/deny/ask を返し、呼び出し自体をブロックできる"
+              "sub": "`hookSpecificOutput.permissionDecision` で allow/deny/ask/defer を返し、呼び出し自体をブロックできる"
             },
             {
               "text": "PostToolUse（ツール実行成功後に発火）",
@@ -8883,7 +8876,7 @@
     },
     {
       "id": "ext-016",
-      "question": "Hooksの4つのハンドラタイプ（command、http、prompt、agent）の使い分けとして正しいのはどれですか？",
+      "question": "Hooksの5つのハンドラタイプ（command、http、mcp_tool、prompt、agent）の使い分けとして正しいのはどれですか？",
       "options": [
         {
           "text": "commandは同期実行のみ、promptは非同期実行のみ、agentはバックグラウンド実行のみ対応する",
@@ -8898,11 +8891,11 @@
           "wrongFeedback": "promptタイプはLLMモデルにJSON判定（ok: true/false）を依頼するもので、ユーザーへの対話確認ではありません。agentタイプは`Read`/`Grep`/`Glob`などのツールが使えるサブエージェントです。"
         },
         {
-          "text": "commandはシェルスクリプトで自由に処理でき、httpはHTTP POSTで外部サービスにデータを送信し、promptはLLMに単発の判定を依頼し、agentはツールアクセス付きサブエージェントで複数ターンの検証が可能"
+          "text": "commandはシェルスクリプト、httpはHTTP POST、mcp_toolは接続済みMCPサーバーのツール呼び出し、promptはLLMに単発の判定、agentはツールアクセス付きサブエージェントで複数ターンの検証を行う"
         }
       ],
       "correctIndex": 3,
-      "explanation": "Hooksには4つのハンドラタイプがあります。\n\n{{diagram:0}}\n\n`command`タイプはシェルコマンドを実行し、`stdin`/`stdout`/exitコードで制御します。`http`タイプはHTTP POSTリクエストを送信し、環境変数の補間が可能です。`prompt`タイプはLLMに単一ターンの判定を依頼し、`{ok: true/false}`のJSONレスポンスを返します。`agent`タイプは`Read`、`Grep`、`Glob`などのツールを使えるサブエージェントを起動し、複数ターンにわたる多角的な検証を行えます。\n{{diagram:1}}",
+      "explanation": "Hooksには5つのハンドラタイプがあります。\n\n{{diagram:0}}\n\n`command`タイプはシェルコマンドを実行し、`stdin`/`stdout`/exitコードで制御します。`http`タイプはHTTP POSTリクエストを送信し、環境変数の補間が可能です。`mcp_tool`タイプは接続済みMCPサーバーのツールを呼び出します。`prompt`タイプはLLMに単一ターンの判定を依頼し、`{ok: true/false}`のJSONレスポンスを返します。`agent`タイプは`Read`、`Grep`、`Glob`などのツールを使えるサブエージェントを起動し、複数ターンにわたる多角的な検証を行えます。\n{{diagram:1}}",
       "category": "extensions",
       "difficulty": "intermediate",
       "referenceUrl": "https://code.claude.com/docs/ja/hooks",
@@ -8925,6 +8918,14 @@
                 "HTTP POST送信",
                 "環境変数補間",
                 "外部サービス通知"
+              ]
+            },
+            {
+              "heading": "mcp_tool",
+              "items": [
+                "接続済みMCPサーバー",
+                "ツールを呼び出す",
+                "text出力を利用"
               ]
             },
             {
@@ -11175,55 +11176,53 @@
         },
         {
           "text": "`Shift+Enter`は全てのターミナルで標準対応しているため、Claude Code側の設定が壊れている",
-          "wrongFeedback": "`Shift+Enter`のサポートはターミナル依存です。iTerm2等4種以外では`/terminal-setup`での設定が必要です"
+          "wrongFeedback": "`Shift+Enter` のサポートはターミナル依存です。ネイティブ対応の7種以外（VS Code/Cursor/Windsurf/Alacritty/Zed）では `/terminal-setup` が必要です。"
         },
         {
-          "text": "iTerm2・WezTerm・Ghostty・Kittyでは設定不要で動作するが、それ以外のターミナルでは`/terminal-setup`コマンドでバインディングをインストールする必要がある"
+          "text": "iTerm2・WezTerm・Ghostty・Kitty・Warp・Apple Terminal・Windows Terminal では設定不要で動作するが、VS Code・Cursor・Windsurf・Alacritty・Zed では `/terminal-setup` コマンドでバインディングをインストールする必要がある"
         }
       ],
       "correctIndex": 3,
-      "explanation": "`Shift+Enter`によるClaude Code内での改行は、iTerm2、WezTerm、Ghostty、Kittyでは追加設定なしで動作します。\n\n{{diagram:0}}\n\nそれ以外のターミナルでは`/terminal-setup`コマンドを実行して`Shift+Enter`バインディングをインストールする必要があります。代替として`\\+Enter`や`Ctrl+J`も使えます。\n{{diagram:1}}",
+      "explanation": "`Shift+Enter` による Claude Code 内での改行は、iTerm2、WezTerm、Ghostty、Kitty、Warp、Apple Terminal、Windows Terminal では追加設定なしで動作します。\n\n{{diagram:0}}\n\nVS Code、Cursor、Windsurf、Alacritty、Zed では `/terminal-setup` コマンドを実行して `Shift+Enter` バインディングをインストールする必要があります。代替として `\\+Enter` や `Ctrl+J` も使えます。\n{{diagram:1}}",
       "category": "keyboard",
       "difficulty": "intermediate",
       "referenceUrl": "https://code.claude.com/docs/ja/interactive-mode",
       "diagrams": [
         {
           "type": "comparison",
-          "label": "Shift+Enter対応",
+          "label": "Shift+Enter 対応",
           "columns": [
             {
-              "heading": "追加設定不要",
+              "heading": "追加設定不要（7種）",
               "items": [
-                "iTerm2",
-                "WezTerm",
-                "Ghostty",
-                "Kitty"
+                "iTerm2 / WezTerm / Ghostty / Kitty",
+                "Warp / Apple Terminal / Windows Terminal"
               ]
             },
             {
-              "heading": "/terminal-setup必要",
+              "heading": "/terminal-setup 必要（5種）",
               "items": [
-                "上記以外",
-                ""
+                "VS Code / Cursor / Windsurf",
+                "Alacritty / Zed"
               ]
             }
           ]
         },
         {
           "type": "flow",
-          "label": "Shift+Enterの注意点",
+          "label": "Shift+Enter の注意点",
           "steps": [
             {
-              "text": "Shift+EnterによるClaude C",
-              "sub": "ode内での改行は、iTerm2、WezTer"
+              "text": "7種はネイティブ対応",
+              "sub": "iTerm2/WezTerm/Ghostty/Kitty/Warp/Apple Terminal/Windows Terminal は設定不要"
             },
             {
-              "text": "それ以外のターミナルでは/terminal-",
-              "sub": "setupコマンドを実行してShift+Ent"
+              "text": "5種は /terminal-setup 必要",
+              "sub": "VS Code/Cursor/Windsurf/Alacritty/Zed"
             },
             {
-              "text": "代替として\\+EnterやCtrl+Jも使え",
-              "sub": "ます"
+              "text": "代替手段",
+              "sub": "\\+Enter や Ctrl+J も使える"
             }
           ]
         }
@@ -13918,7 +13917,7 @@
         },
         {
           "text": "`SSE`（Server-Sent Events、一方向ストリーミング）",
-          "wrongFeedback": "リモートMCPサーバーの接続にはHTTP transportが推奨されています。`SSE` は公式に**非推奨**（mcp.md L80）となっており、新しい接続では HTTP を使用してください。"
+          "wrongFeedback": "リモート MCP サーバーの接続には HTTP transport が推奨されますが、`SSE` も引き続き利用可能です。"
         }
       ],
       "correctIndex": 0,
@@ -19390,26 +19389,26 @@
       "id": "ses-057",
       "category": "session",
       "difficulty": "intermediate",
-      "question": "チェックポイントの巻き戻しメニューで選択可能な5つのアクションに含まれないのはどれですか？",
+      "question": "チェックポイントの巻き戻しメニューで選択可能な6つのアクションに含まれないのはどれですか？",
       "options": [
         {
           "text": "新しいブランチにフォーク（Fork to new branch）"
         },
         {
           "text": "会話のみ復元（Restore conversation）",
-          "wrongFeedback": "「会話のみ復元」は5つのアクションに含まれます。会話履歴だけを巻き戻し、コード変更はそのまま保持します。"
+          "wrongFeedback": "「会話のみ復元」は6つのアクションに含まれます。会話履歴だけを巻き戻し、コード変更はそのまま保持します。"
         },
         {
           "text": "ここから要約（Summarize from here）",
-          "wrongFeedback": "「ここから要約」は5つのアクションに含まれます。選択ポイント以降の会話を圧縮し、コンテキストを節約できます。"
+          "wrongFeedback": "「ここから要約」は6つのアクションに含まれます。選択ポイント以降の会話を圧縮し、コンテキストを節約できます。"
         },
         {
           "text": "コードと会話を復元（Restore code and conversation）",
-          "wrongFeedback": "「コードと会話を復元」は5つのアクションに含まれます。ファイル変更と会話履歴の両方をチェックポイント時点に戻します。"
+          "wrongFeedback": "「コードと会話を復元」は6つのアクションに含まれます。ファイル変更と会話履歴の両方をチェックポイント時点に戻します。"
         }
       ],
       "correctIndex": 0,
-      "explanation": "巻き戻しメニューの5つのアクションは①コードと会話を復元、②会話のみ復元、③コードのみ復元、④ここから要約、⑤Never mindです。\n\n{{diagram:0}}\n\nフォークは`claude --continue --fork-session`で別途行います。\n{{diagram:1}}",
+      "explanation": "巻き戻しメニューの6つのアクションは①コードと会話を復元、②会話のみ復元、③コードのみ復元、④ここから要約、⑤ここまで要約、⑥Never mindです。\n\n{{diagram:0}}\n\nフォークは`claude --continue --fork-session`で別途行います。\n{{diagram:1}}",
       "referenceUrl": "https://code.claude.com/docs/ja/checkpointing",
       "diagrams": [
         {
@@ -19430,6 +19429,10 @@
             },
             {
               "text": "ここから要約",
+              "sub": ""
+            },
+            {
+              "text": "ここまで要約",
               "sub": ""
             },
             {
@@ -32036,7 +32039,11 @@
               "text": "  \"hooks\": {"
             },
             {
-              "text": "    \"PostCompact\": [{",
+              "text": "    \"SessionStart\": [{",
+              "highlight": true
+            },
+            {
+              "text": "      \"matcher\": \"compact\",",
               "highlight": true
             },
             {
@@ -32069,7 +32076,7 @@
       "id": "ext-129",
       "category": "extensions",
       "difficulty": "advanced",
-      "question": "Hooks ガイドで説明されているフックの4つのタイプのうち、マルチターンで検証を行い、ツールへのアクセスも持つタイプはどれですか？",
+      "question": "Hooks ガイドで説明されているフックの5つのタイプのうち、マルチターンで検証を行い、ツールへのアクセスも持つタイプはどれですか？",
       "options": [
         {
           "text": "`\"type\": \"prompt\"` — シングルターンの LLM 評価を行う",
@@ -32088,7 +32095,7 @@
         }
       ],
       "correctIndex": 1,
-      "explanation": "Hooks ガイドでは4つのフックタイプが説明されています。`command`（シェルコマンド実行）、`http`（URL への POST）、`prompt`（シングルターン LLM 評価）、そして `agent`（マルチターン検証、ツールアクセス付き）です。\n\n{{diagram:0}}\n\n`agent` タイプは最も高機能で、複数のツールを使いながら段階的に検証を行えます。\n{{diagram:1}}",
+      "explanation": "Hooks ガイドでは5つのフックタイプが説明されています。`command`（シェルコマンド実行）、`http`（URL への POST）、`mcp_tool`（接続済み MCP サーバーのツール呼び出し）、`prompt`（シングルターン LLM 評価）、そして `agent`（マルチターン検証、ツールアクセス付き）です。\n\n{{diagram:0}}\n\n`agent` タイプは最も高機能で、複数のツールを使いながら段階的に検証を行えます。\n{{diagram:1}}",
       "referenceUrl": "https://code.claude.com/docs/ja/hooks-guide",
       "diagrams": [
         {
@@ -32123,16 +32130,12 @@
           "label": "フックタイプ比較の注意点",
           "steps": [
             {
-              "text": "Hooks ガイドでは4つのフックタイプが説",
-              "sub": "明されています"
+              "text": "Hooks ガイドは5つのフックタイプを説明",
+              "sub": "command / http / mcp_tool / prompt / agent"
             },
             {
-              "text": "command（シェルコマンド実行）、htt",
-              "sub": "p（URL への POST）、prompt（シ"
-            },
-            {
-              "text": "agent タイプは最も高機能で、複数のツー",
-              "sub": "ルを使いながら段階的に検証を行えます"
+              "text": "agent タイプは最も高機能",
+              "sub": "複数ツールで段階的に検証できる"
             }
           ]
         }
@@ -36448,26 +36451,26 @@
       "id": "cmd-085",
       "category": "commands",
       "difficulty": "intermediate",
-      "question": "Claude Code の `/loop` スキルでプロンプトの繰り返し実行を設定する際、インターバルを指定しなかった場合のデフォルト動作はどれですか？",
+      "question": "Claude Code の `/loop` でプロンプトの繰り返し実行を設定する際、インターバルを指定しなかった場合のデフォルト動作はどれですか？",
       "options": [
         {
           "text": "手動トリガーのみの設定になる",
-          "wrongFeedback": "インターバルを省略しても自動実行されます。デフォルトで10分間隔で繰り返し実行されます。"
+          "wrongFeedback": "インターバルを省略しても自動実行されます。Claude が固定スケジュールではなく動的に間隔（1分〜1時間）を選びます。"
         },
         {
-          "text": "10分ごとに実行される"
+          "text": "Claude が状況に応じて動的に間隔を選ぶ（各イテレーション後に1分〜1時間の範囲で決定）"
         },
         {
           "text": "エラーとなり、インターバルの指定を求められる",
-          "wrongFeedback": "インターバルは省略可能です。省略した場合はデフォルトで10分間隔で実行されます。"
+          "wrongFeedback": "インターバルは省略可能です。省略時は Claude が動的に間隔を選びます（固定にするには `/loop 15m` のように指定）。"
         },
         {
-          "text": "1時間ごとに実行される",
-          "wrongFeedback": "デフォルトのインターバルは1時間ではなく10分です。`/loop check the build` のようにインターバルなしで指定すると、10分ごとに実行されます。"
+          "text": "10分ごとの固定間隔で実行される",
+          "wrongFeedback": "固定10分ではありません。省略時は Claude が各イテレーション後に状況を見て1分〜1時間の範囲で動的に間隔を選びます。"
         }
       ],
       "correctIndex": 1,
-      "explanation": "`/loop` スキルのインターバルは省略可能で、省略時はデフォルトで10分ごとに実行されます。インターバルは先頭（`/loop 30m check the build`）または末尾の `every` 句（`/loop check the build every 2 hours`）で指定できます。\n\n{{diagram:0}}\n\nサポートされる単位は `s`（秒）、`m`（分）、`h`（時間）、`d`（日）です。\n{{diagram:1}}",
+      "explanation": "インターバルを省略すると、Claude は固定の cron スケジュールではなく動的に間隔を選びます。各イテレーション後に状況（ビルド進行中なら短く、停滞時は長く）を見て1分〜1時間の遅延を選び、その理由を出力します。間隔を明示するには `/loop 30m check the build` のように指定します。\n\n{{diagram:0}}\n\nサポートされる単位は `s`（秒）、`m`（分）、`h`（時間）、`d`（日）です。\n{{diagram:1}}",
       "referenceUrl": "https://code.claude.com/docs/ja/scheduled-tasks",
       "diagrams": [
         {
@@ -36481,7 +36484,7 @@
             },
             {
               "text": "待機",
-              "sub": "デフォルト10分"
+              "sub": "動的（1分〜1時間）"
             },
             {
               "text": "再実行",
@@ -36491,23 +36494,23 @@
         },
         {
           "type": "hierarchy",
-          "label": "/loopの正誤ポイント",
+          "label": "/loop の正誤ポイント",
           "items": [
             {
-              "text": "10分ごとに実行される（正解）",
-              "sub": "`/loop` スキルのインターバルは省略可能で、省略時はデフォルトで10分ごとに実行されます。インターバルは先頭（`/loop 30m check the build`）または末尾の `every` 句（`/loop check the build every 2 hours`）で指定できます。 サポートされる単位は `s`（秒）、`m`（分）、`h`（時間）、`d`（日）です。"
+              "text": "Claude が動的に間隔を選ぶ（1分〜1時間）（正解）",
+              "sub": "インターバル省略時、Claude は固定スケジュールではなく各イテレーション後に1分〜1時間で間隔を動的に決定します。明示するには `/loop 30m check the build` のように指定します。単位は s/m/h/d。"
             },
             {
-              "text": "1時間ごとに実行される",
-              "sub": "デフォルトのインターバルは1時間ではなく10分です。`/loop check the build` のようにインターバルなしで指定すると、10分ごとに実行されます。"
+              "text": "10分ごとの固定間隔で実行される",
+              "sub": "固定10分ではありません。省略時は動的（1分〜1時間）に決まります。"
             },
             {
               "text": "エラーとなり、インターバルの指定を求められる",
-              "sub": "インターバルは省略可能です。省略した場合はデフォルトで10分間隔で実行されます。"
+              "sub": "インターバルは省略可能です。"
             },
             {
               "text": "手動トリガーのみの設定になる",
-              "sub": "インターバルを省略しても自動実行されます。デフォルトで10分間隔で繰り返し実行されます。"
+              "sub": "省略しても自動実行されます。"
             }
           ]
         }
@@ -36520,23 +36523,23 @@
       "question": "Claude Code の繰り返しスケジュールタスクに関する重要な制約として正しいものはどれですか？",
       "options": [
         {
-          "text": "作成から3日後に自動的に期限切れとなり削除される"
+          "text": "作成から7日後に自動的に期限切れとなり削除される"
         },
         {
           "text": "最大実行回数が100回に制限されている",
-          "wrongFeedback": "回数制限ではなく、時間制限があります。繰り返しタスクは作成から3日後に自動的に期限切れとなり、最後に1回発火した後に削除されます。この制約は忘れられたループが無期限に実行されることを防ぐためです。"
+          "wrongFeedback": "回数制限ではなく、時間制限があります。繰り返しタスクは作成から7日後に自動的に期限切れとなり、最後に1回発火した後に削除されます。この制約は忘れられたループが無期限に実行されることを防ぐためです。"
         },
         {
           "text": "24時間以上のインターバルは設定できない",
-          "wrongFeedback": "1日（`d` 単位）のインターバルも設定可能です。制約は、繰り返しタスクが作成から3日後に自動的に期限切れとなることです。長期間のタスクが必要な場合は期限前に再作成するか、Desktop のスケジュールタスクを使います。"
+          "wrongFeedback": "1日（`d` 単位）のインターバルも設定可能です。制約は、繰り返しタスクが作成から7日後に自動的に期限切れとなることです。長期間のタスクが必要な場合は期限前に再作成するか、Desktop のスケジュールタスクを使います。"
         },
         {
           "text": "同時に実行できるタスクは1つまで",
-          "wrongFeedback": "セッションあたり最大50個のスケジュールタスクを持てます。制約は、繰り返しタスクが作成から3日後に自動的に期限切れとなることです。"
+          "wrongFeedback": "セッションあたり最大50個のスケジュールタスクを持てます。制約は、繰り返しタスクが作成から7日後に自動的に期限切れとなることです。"
         }
       ],
       "correctIndex": 0,
-      "explanation": "繰り返しスケジュールタスクは作成から3日後に自動的に期限切れとなります。最後に1回発火した後、自分自身を削除します。\n\n{{diagram:0}}\n\nこれは忘れられたループが無期限に実行されることを防ぐための安全策です。より長期のスケジューリングが必要な場合は、タスクを期限前にキャンセル・再作成するか、Desktop のスケジュールタスクを使用します。\n{{diagram:1}}",
+      "explanation": "繰り返しスケジュールタスクは作成から7日後に自動的に期限切れとなります。最後に1回発火した後、自分自身を削除します。\n\n{{diagram:0}}\n\nこれは忘れられたループが無期限に実行されることを防ぐための安全策です。より長期のスケジューリングが必要な場合は、タスクを期限前にキャンセル・再作成するか、Desktop のスケジュールタスクを使用します。\n{{diagram:1}}",
       "referenceUrl": "https://code.claude.com/docs/ja/scheduled-tasks",
       "diagrams": [
         {
@@ -36552,7 +36555,7 @@
               "sub": "指定インターバル"
             },
             {
-              "text": "3日後に期限切れ",
+              "text": "7日後に期限切れ",
               "sub": "安全策"
             },
             {
@@ -36566,20 +36569,20 @@
           "label": "スケジュールタスクの寿命の正誤ポイント",
           "items": [
             {
-              "text": "作成から3日後に自動的に期限切れとなり削除される（正解）",
-              "sub": "繰り返しスケジュールタスクは作成から3日後に自動的に期限切れとなります。最後に1回発火した後、自分自身を削除します。 これは忘れられたループが無期限に実行されることを防ぐための安全策です。より長期のスケジューリングが必要な場合は、タスクを期限前にキャンセル・再作成するか、Desktop のスケジュールタスクを使用します。"
+              "text": "作成から7日後に自動的に期限切れとなり削除される（正解）",
+              "sub": "繰り返しスケジュールタスクは作成から7日後に自動的に期限切れとなります。最後に1回発火した後、自分自身を削除します。 これは忘れられたループが無期限に実行されることを防ぐための安全策です。より長期のスケジューリングが必要な場合は、タスクを期限前にキャンセル・再作成するか、Desktop のスケジュールタスクを使用します。"
             },
             {
               "text": "同時に実行できるタスクは1つまで",
-              "sub": "セッションあたり最大50個のスケジュールタスクを持てます。制約は、繰り返しタスクが作成から3日後に自動的に期限切れとなることです。"
+              "sub": "セッションあたり最大50個のスケジュールタスクを持てます。制約は、繰り返しタスクが作成から7日後に自動的に期限切れとなることです。"
             },
             {
               "text": "最大実行回数が100回に制限されている",
-              "sub": "回数制限ではなく、時間制限があります。繰り返しタスクは作成から3日後に自動的に期限切れとなり、最後に1回発火した後に削除されます。この制約は忘れられたループが無期限に実行されることを防ぐためです。"
+              "sub": "回数制限ではなく、時間制限があります。繰り返しタスクは作成から7日後に自動的に期限切れとなり、最後に1回発火した後に削除されます。この制約は忘れられたループが無期限に実行されることを防ぐためです。"
             },
             {
               "text": "24時間以上のインターバルは設定できない",
-              "sub": "1日（`d` 単位）のインターバルも設定可能です。制約は、繰り返しタスクが作成から3日後に自動的に期限切れとなることです。長期間のタスクが必要な場合は期限前に再作成するか、Desktop のスケジュールタスクを使います。"
+              "sub": "1日（`d` 単位）のインターバルも設定可能です。制約は、繰り返しタスクが作成から7日後に自動的に期限切れとなることです。長期間のタスクが必要な場合は期限前に再作成するか、Desktop のスケジュールタスクを使います。"
             }
           ]
         }
@@ -38802,26 +38805,26 @@
       "id": "ses-133",
       "category": "session",
       "difficulty": "intermediate",
-      "question": "Windows 環境で Claude Code を使用する場合に必須の前提条件はどれですか？",
+      "question": "Windows 環境で Claude Code を使用する場合の前提条件として正しいものはどれですか？",
       "options": [
         {
-          "text": "PowerShell 7 以上へのアップグレード",
-          "wrongFeedback": "PowerShell のバージョンは要件ではありません。Git Bash がシェル環境として使用されます。"
+          "text": "PowerShell 7 以上へのアップグレードが必須",
+          "wrongFeedback": "PowerShell のバージョンは要件ではありません。シェルは Bash/Zsh/PowerShell/CMD のいずれかで動作します。"
         },
         {
-          "text": "Git for Windows のインストール"
+          "text": "必須の前提条件は特にない。Git for Windows は推奨（Bash ツールが使える）だが任意で、未インストールなら PowerShell がシェルツールとして使われる"
         },
         {
-          "text": "Windows Subsystem for Linux（WSL）のインストール",
-          "wrongFeedback": "WSL は必須ではありません。Claude Code は Windows ネイティブで動作しますが、Git for Windows が必要です。"
+          "text": "Windows Subsystem for Linux（WSL）のインストールが必須",
+          "wrongFeedback": "WSL は必須ではありません。Windows ネイティブで動作します（Git for Windows は任意）。"
         },
         {
-          "text": "Visual Studio Build Tools のインストール",
-          "wrongFeedback": "Build Tools は不要です。Git for Windows に含まれる Git Bash がシェル環境として使用されます。"
+          "text": "Visual Studio Build Tools のインストールが必須",
+          "wrongFeedback": "Build Tools は不要です。"
         }
       ],
       "correctIndex": 1,
-      "explanation": "Windows では Git for Windows のインストールが必須です。\n\n{{diagram:0}}\n\nClaude Code は Git Bash をシェル環境として使用します。Git for Windows をインストールすると Git と Git Bash が同時にインストールされます。\n{{diagram:1}}",
+      "explanation": "ネイティブ Windows では必須の前提条件はありません。Git for Windows は「推奨」（インストールすると Bash ツールが使える）ですが任意で、未インストールの場合は Claude Code が PowerShell をシェルツールとして使います。\n\n{{diagram:0}}\n\nWSL を使う場合は Git for Windows は不要です。\n{{diagram:1}}",
       "referenceUrl": "https://code.claude.com/docs/ja/setup",
       "diagrams": [
         {
@@ -38829,41 +38832,37 @@
           "lines": [
             {
               "type": "info",
-              "text": "# Windows 環境の前提条件"
-            },
-            {
-              "type": "prompt",
-              "text": "winget install Git.Git"
+              "text": "# ネイティブ Windows: 必須の前提条件なし"
             },
             {
               "type": "info",
-              "text": "→ Git と Git Bash が同時にインストール"
+              "text": "Git for Windows（任意・推奨）→ Bash ツールが使える"
             },
             {
               "type": "info",
-              "text": "Claude Code は Git Bash をシェル環境として使用"
+              "text": "未インストール → PowerShell がシェルツールになる"
             }
           ]
         },
         {
           "type": "hierarchy",
-          "label": "セッションの正誤ポイント",
+          "label": "Windows 前提条件の正誤ポイント",
           "items": [
             {
-              "text": "Git for Windows のインストール（正解）",
-              "sub": "Windows では Git for Windows のインストールが必須です。 Claude Code は Git Bash をシェル環境として使用します。Git for Windows をインストールすると Git と Git Bash が同時にインストールされます。"
+              "text": "必須の前提条件は特にない（正解）",
+              "sub": "Git for Windows は推奨だが任意。なければ PowerShell がシェルツールとして使われます。WSL 利用時は Git for Windows 不要。"
             },
             {
-              "text": "Visual Studio Build Tools のインストール",
-              "sub": "Build Tools は不要です。Git for Windows に含まれる Git Bash がシェル環境として使用されます。"
+              "text": "WSL のインストールが必須",
+              "sub": "WSL は必須ではありません。"
             },
             {
-              "text": "PowerShell 7 以上へのアップグレード",
-              "sub": "PowerShell のバージョンは要件ではありません。Git Bash がシェル環境として使用されます。"
+              "text": "PowerShell 7 以上が必須",
+              "sub": "バージョン要件はありません。"
             },
             {
-              "text": "Windows Subsystem for Linux（WSL）のインストール",
-              "sub": "WSL は必須ではありません。Claude Code は Windows ネイティブで動作しますが、Git for Windows が必要です。"
+              "text": "Visual Studio Build Tools が必須",
+              "sub": "不要です。"
             }
           ]
         }
@@ -39693,62 +39692,63 @@
       "id": "key-044",
       "category": "keyboard",
       "difficulty": "intermediate",
-      "question": "ターミナルで Claude Code の複数行入力をネイティブにサポートしている（追加設定不要の）ターミナルエミュレーターはどれですか？",
+      "question": "ターミナルで Claude Code の複数行入力（`Shift+Enter`）を追加設定なしでネイティブサポートしているターミナルエミュレーターはどれですか？",
       "options": [
         {
           "text": "すべてのターミナルエミュレーターでネイティブサポートされている",
-          "wrongFeedback": "ネイティブサポートは一部のターミナルのみです。iTerm2、WezTerm、Ghostty、Kitty がネイティブで `Shift+Enter` による複数行入力をサポートしています。"
+          "wrongFeedback": "ネイティブ対応は7種（iTerm2/WezTerm/Ghostty/Kitty/Warp/Apple Terminal/Windows Terminal）。VS Code/Cursor/Windsurf/Alacritty/Zed は `/terminal-setup` が必要です。"
         },
         {
-          "text": "iTerm2、WezTerm、Ghostty、Kitty"
+          "text": "iTerm2、WezTerm、Ghostty、Kitty、Warp、Apple Terminal、Windows Terminal"
         },
         {
-          "text": "macOS Terminal.app",
-          "wrongFeedback": "macOS Terminal.app はネイティブサポートではなく、`/terminal-setup` コマンドで設定が必要です。ネイティブサポートは iTerm2、WezTerm、Ghostty、Kitty です。"
+          "text": "VS Code、Cursor、Windsurf、Alacritty、Zed",
+          "wrongFeedback": "これらは `/terminal-setup` が必要なグループで、ネイティブ対応ではありません。"
         },
         {
-          "text": "VS Code の統合ターミナル",
-          "wrongFeedback": "VS Code のターミナルはネイティブサポートではありません。また長い入力の貼り付けが切り詰められる制限があります。"
+          "text": "Alacritty と Zed のみ",
+          "wrongFeedback": "Alacritty と Zed は `/terminal-setup` が必要です。ネイティブ対応は iTerm2/WezTerm/Ghostty/Kitty/Warp/Apple Terminal/Windows Terminal の7種です。"
         }
       ],
       "correctIndex": 1,
-      "explanation": "iTerm2、WezTerm、Ghostty、Kitty は追加設定なしで `Shift+Enter` による複数行入力をネイティブサポートしています。\n{{diagram:0}}\nmacOS Terminal.app など他のターミナルでは `/terminal-setup` コマンドでの設定が必要です。\n{{diagram:1}}",
+      "explanation": "iTerm2、WezTerm、Ghostty、Kitty、Warp、Apple Terminal、Windows Terminal の7種は追加設定なしで `Shift+Enter` による複数行入力をネイティブサポートします。\n\n{{diagram:0}}\n\nVS Code、Cursor、Windsurf、Alacritty、Zed では `/terminal-setup` コマンドでバインディングを設定する必要があります。\n{{diagram:1}}",
       "referenceUrl": "https://code.claude.com/docs/ja/terminal-config",
       "diagrams": [
         {
           "type": "comparison",
+          "label": "複数行入力のネイティブ対応",
           "columns": [
             {
-              "heading": "ネイティブ対応",
+              "heading": "ネイティブ対応（設定不要）",
               "items": [
-                "iTerm2",
-                "WezTerm",
-                "Ghostty",
-                "Kitty"
+                "iTerm2 / WezTerm / Ghostty / Kitty",
+                "Warp / Apple Terminal / Windows Terminal"
               ]
             },
             {
               "heading": "/terminal-setup が必要",
               "items": [
-                "macOS Terminal.app",
-                "VS Code Terminal",
-                "Alacritty",
-                "Zed / Warp"
+                "VS Code / Cursor / Windsurf",
+                "Alacritty / Zed"
               ]
             }
           ]
         },
         {
-          "type": "flow",
-          "label": "ターミナルの注意点",
-          "steps": [
+          "type": "hierarchy",
+          "label": "ターミナルの正誤ポイント",
+          "items": [
             {
-              "text": "iTerm2、WezTerm、Ghostty",
-              "sub": "、Kitty は追加設定なしで Shift+E"
+              "text": "ネイティブ対応は7種（正解）",
+              "sub": "iTerm2/WezTerm/Ghostty/Kitty/Warp/Apple Terminal/Windows Terminal は追加設定なしで Shift+Enter が使えます。"
             },
             {
-              "text": "macOS Terminal.app など他",
-              "sub": "のターミナルでは /terminal-setu"
+              "text": "VS Code/Cursor/Windsurf/Alacritty/Zed",
+              "sub": "これらは `/terminal-setup` が必要なグループです。"
+            },
+            {
+              "text": "すべてのターミナル",
+              "sub": "一部（上記5種）は設定が必要です。"
             }
           ]
         }
@@ -41377,8 +41377,8 @@
       "question": "Claude Code Review機能が自動レビューでPRに投稿するコメントの重大度レベルとして存在しないものはどれですか？",
       "options": [
         {
-          "text": "🔴 Normal — マージ前に修正すべきバグ",
-          "wrongFeedback": "Normalは存在する重大度レベルです。マージ前に修正すべきバグを示します。"
+          "text": "🔴 Important — マージ前に修正すべきバグ",
+          "wrongFeedback": "Important は存在する重大度レベルです。マージ前に修正すべきバグを示します。"
         },
         {
           "text": "🟣 Pre-existing — PRの変更ではなく、既存コードベースに存在するバグ",
@@ -41393,7 +41393,7 @@
         }
       ],
       "correctIndex": 2,
-      "explanation": "Code Reviewの重大度レベルは3つです：🔴 Normal（マージ前に修正すべきバグ）、🟡 Nit（軽微な問題）、🟣 Pre-existing（PR以前から存在するバグ）。\n\n{{diagram:0}}\n\nSecurityという独立した重大度レベルは定義されていません。\n{{diagram:1}}",
+      "explanation": "Code Reviewの重大度レベルは3つです：🔴 Important（マージ前に修正すべきバグ）、🟡 Nit（軽微な問題）、🟣 Pre-existing（PR以前から存在するバグ）。\n\n{{diagram:0}}\n\nSecurityという独立した重大度レベルは定義されていません。\n{{diagram:1}}",
       "referenceUrl": "https://code.claude.com/docs/ja/code-review",
       "diagrams": [
         {
@@ -41401,7 +41401,7 @@
           "label": "Code Review重大度レベル",
           "columns": [
             {
-              "heading": "🔴 Normal",
+              "heading": "🔴 Important",
               "items": [
                 "マージ前に修正"
               ]
@@ -41426,7 +41426,7 @@
           "steps": [
             {
               "text": "Code Reviewの重大度レベルは3つで",
-              "sub": "す：🔴 Normal（マージ前に修正すべきバ"
+              "sub": "す：🔴 Important（マージ前に修正すべきバ"
             },
             {
               "text": "Securityという独立した重大度レベルは",
@@ -47794,7 +47794,7 @@
       "question": "Auto Memoryの保存先ディレクトリをカスタマイズする`autoMemoryDirectory`設定は、プロジェクト設定（`.claude/settings.json`）から指定できますか？",
       "options": [
         {
-          "text": "できない。セキュリティ上の理由で、ユーザー・ローカル・ポリシー設定からのみ指定可能"
+          "text": "できない。セキュリティ上の理由で、ユーザー・ポリシー設定および `--settings` フラグからのみ指定可能（プロジェクト・ローカル設定からは不可）"
         },
         {
           "text": "できる。プロジェクト設定 (`.claude/settings.json`) から指定するのが推奨",
@@ -47802,15 +47802,15 @@
         },
         {
           "text": "そのような設定は存在しない。保存先は固定で変更不可",
-          "wrongFeedback": "`autoMemoryDirectory`設定は存在します。ただしプロジェクト設定ではなく、ユーザー・ローカル・ポリシー設定から指定する必要があります。"
+          "wrongFeedback": "`autoMemoryDirectory`設定は存在します。ただしプロジェクト設定ではなく、ユーザー・ポリシー設定または `--settings` フラグから指定する必要があります。"
         },
         {
           "text": "できる。ただしリポジトリにコミットされチーム全員に同じパスが適用される",
-          "wrongFeedback": "プロジェクト設定からは受け付けられません。ユーザー、ローカル、またはポリシー設定からのみ指定できます。"
+          "wrongFeedback": "プロジェクト設定からは受け付けられません。ユーザー・ポリシー設定または `--settings` フラグからのみ指定できます。"
         }
       ],
       "correctIndex": 0,
-      "explanation": "セキュリティ上の理由で、`autoMemoryDirectory`はプロジェクト設定（`.claude/settings.json`）からは受け付けられません。\n\n{{diagram:0}}\n\n共有プロジェクトがAuto Memoryの書き込み先を機密性の高い場所にリダイレクトするのを防ぐため、ユーザー、ローカル、またはポリシー設定からのみ指定可能です。\n{{diagram:1}}",
+      "explanation": "セキュリティ上の理由で、`autoMemoryDirectory`はプロジェクト設定（`.claude/settings.json`）からは受け付けられません。\n\n{{diagram:0}}\n\n共有プロジェクトがAuto Memoryの書き込み先を機密性の高い場所にリダイレクトするのを防ぐため、ユーザー・ポリシー設定および `--settings` フラグからのみ指定可能です。\n{{diagram:1}}",
       "referenceUrl": "https://code.claude.com/docs/ja/memory#auto-memory",
       "diagrams": [
         {
@@ -47843,16 +47843,16 @@
           "label": "autoMemoryDiの正誤ポイント",
           "items": [
             {
-              "text": "できない。セキュリティ上の理由で、ユーザー・ローカル・ポリシー設定からのみ指定可能（正解）",
-              "sub": "セキュリティ上の理由で、`autoMemoryDirectory`はプロジェクト設定（`.claude/settings.json`）からは受け付けられません。 共有プロジェクトがAuto Memoryの書き込み先を機密性の高い場所にリダイレクトするのを防ぐため、ユーザー、ローカル、またはポリシー設定からのみ指定可能です。"
+              "text": "できない。セキュリティ上の理由で、ユーザー・ポリシー設定および `--settings` フラグからのみ指定可能（プロジェクト・ローカル設定からは不可）（正解）",
+              "sub": "セキュリティ上の理由で、`autoMemoryDirectory`はプロジェクト設定（`.claude/settings.json`）からは受け付けられません。 共有プロジェクトがAuto Memoryの書き込み先を機密性の高い場所にリダイレクトするのを防ぐため、ユーザー・ポリシー設定および `--settings` フラグからのみ指定可能です。"
             },
             {
               "text": "できる。ただしチーム全員に適用される",
-              "sub": "プロジェクト設定からは受け付けられません。ユーザー、ローカル、またはポリシー設定からのみ指定できます。"
+              "sub": "プロジェクト設定からは受け付けられません。ユーザー・ポリシー設定または `--settings` フラグからのみ指定できます。"
             },
             {
               "text": "設定は存在しない。保存先は変更不可",
-              "sub": "`autoMemoryDirectory`設定は存在します。ただしプロジェクト設定ではなく、ユーザー・ローカル・ポリシー設定から指定する必要があります。"
+              "sub": "`autoMemoryDirectory`設定は存在します。ただしプロジェクト設定ではなく、ユーザー・ポリシー設定または `--settings` フラグから指定する必要があります。"
             },
             {
               "text": "できる。プロジェクト設定から指定するのが推奨",
@@ -48283,11 +48283,11 @@
       "question": "環境変数 `CLAUDECODE` はどのような場面で `1` に設定されますか？",
       "options": [
         {
-          "text": "Claude Code が起動したシェル環境（`Bash` ツール、tmux セッション）内で自動的に設定される"
+          "text": "Claude Code が起動するサブプロセス（`Bash`/`PowerShell` ツール、tmux セッション、フックコマンド、ステータスラインコマンド）で自動的に設定される"
         },
         {
-          "text": "フック（`hooks`）の実行時に設定される",
-          "wrongFeedback": "`CLAUDECODE` はフックやステータスラインのコマンドでは設定されません。`Bash` ツールや tmux セッションなど、Claude Code が起動したシェル環境で設定されます"
+          "text": "ユーザーが通常起動したログインシェルでも常に `1` に設定される",
+          "wrongFeedback": "通常のターミナル/ログインシェルでは設定されません。Claude Code が起動するサブプロセス（Bash/PowerShell ツール、tmux、フックコマンド、ステータスラインコマンド）でのみ `1` になります"
         },
         {
           "text": "ユーザーが `.bashrc` で手動で設定する必要がある",
@@ -48299,7 +48299,7 @@
         }
       ],
       "correctIndex": 0,
-      "explanation": "`CLAUDECODE` 環境変数は、Claude Code が起動したシェル環境（`Bash` ツール、tmux セッション）内で自動的に `1` に設定されます。\n\n{{diagram:0}}\n\nただし、フックやステータスラインのコマンドでは設定されません。\n{{diagram:1}}",
+      "explanation": "`CLAUDECODE` 環境変数は、Claude Code が起動するサブプロセス（`Bash`/`PowerShell` ツール、tmux セッション、フックコマンド、ステータスラインコマンド）で自動的に `1` に設定されます。\n\n{{diagram:0}}\n\nユーザーが通常起動するログインシェルでは設定されません。\n{{diagram:1}}",
       "referenceUrl": "https://code.claude.com/docs/ja/env-vars",
       "diagrams": [
         {
@@ -48332,8 +48332,8 @@
           "label": "CLAUDECODEの正誤ポイント",
           "items": [
             {
-              "text": "Claude Code が起動したシェル環境（`Bash` ツール、tmux セッション）内で自動的に設定される（正解）",
-              "sub": "`CLAUDECODE` 環境変数は、Claude Code が起動したシェル環境（`Bash` ツール、tmux セッション）内で自動的に `1` に設定されます。 ただし、フックやステータスラインのコマンドでは設定されません。"
+              "text": "Claude Code が起動したシェル環境（Bash/PowerShell ツール、tmux、フック、ステータスライン）で自動的に設定される（正解）",
+              "sub": "`CLAUDECODE` 環境変数は、Claude Code が起動したシェル環境（Bash/PowerShell ツール、tmux、フックコマンド、ステータスラインコマンド）で自動的に `1` に設定されます。 フックコマンドやステータスラインコマンドでも設定されます。"
             },
             {
               "text": "ユーザーが `.bashrc` で手動で設定する必要がある",
@@ -48344,8 +48344,8 @@
               "sub": "システム全体に設定されるのではなく、Claude Code が起動したシェル環境内でのみ `1` に設定されます"
             },
             {
-              "text": "フック（`hooks`）の実行時に設定される",
-              "sub": "`CLAUDECODE` はフックやステータスラインのコマンドでは設定されません。`Bash` ツールや tmux セッションなど、Claude Code が起動したシェル環境で設定されます"
+              "text": "ユーザーが通常起動したログインシェルでも常に `1` に設定される",
+              "sub": "通常のターミナル/ログインシェルでは設定されません。Claude Code が起動するサブプロセス（Bash/PowerShell ツール、tmux、フックコマンド、ステータスラインコマンド）でのみ `1` になります。"
             }
           ]
         }
@@ -48821,11 +48821,11 @@
       "question": "`/compact` 実行後のコンテキストについて正しい説明はどれですか？",
       "options": [
         {
-          "text": "会話が構造化された要約に置き換えられ、ほとんどの起動時コンテンツは自動で再読み込みされるが、スキル一覧は例外である"
+          "text": "会話が構造化された要約に置き換えられ、ほとんどの起動時コンテンツは自動で再読み込みされるが、サブディレクトリのネストされた CLAUDE.md は例外で再読み込みされない"
         },
         {
           "text": "すべてが初期状態に戻り、起動時コンテンツの再読み込みは行われない",
-          "wrongFeedback": "`CLAUDE.md` など起動時コンテンツはほとんど自動で再読み込みされます。スキル一覧は例外です"
+          "wrongFeedback": "`CLAUDE.md` など起動時コンテンツはほとんど自動で再読み込みされます。サブディレクトリのネストされた CLAUDE.md は例外です"
         },
         {
           "text": "会話はそのまま残り、使用トークン数のみがリセットされる",
@@ -48833,11 +48833,11 @@
         },
         {
           "text": "会話が完全に削除され、すべてのコンテンツが再読み込みされる",
-          "wrongFeedback": "完全削除ではなく、構造化された要約に置き換えられます。スキル一覧は自動再読み込みされない例外があります"
+          "wrongFeedback": "完全削除ではなく、構造化された要約に置き換えられます。サブディレクトリのネストされた CLAUDE.md は再読み込みされない例外があります"
         }
       ],
       "correctIndex": 0,
-      "explanation": "`/compact` を実行すると、会話が構造化された要約に置き換えられます。\n\n{{diagram:0}}\n\n{{diagram:1}}\n\n`CLAUDE.md` などほとんどの起動時コンテンツは自動的に再読み込みされますが、スキル一覧は唯一の例外です。",
+      "explanation": "`/compact` を実行すると、会話が構造化された要約に置き換えられます。\n\n{{diagram:0}}\n\n{{diagram:1}}\n\n`CLAUDE.md`・オートメモリ・スキル本体（上限付き）などほとんどの起動時コンテンツは自動的に再読み込みされますが、サブディレクトリのネストされた CLAUDE.md は例外で、そのディレクトリ内のファイルが再度読まれるまで失われます。",
       "referenceUrl": "https://code.claude.com/docs/ja/context-window",
       "diagrams": [
         {
@@ -48862,13 +48862,14 @@
               "items": [
                 "CLAUDE.md",
                 "オートメモリ",
-                "MCP ツール名"
+                "MCP ツール名",
+                "スキル本体（上限付き）"
               ]
             },
             {
               "heading": "再読み込みされない",
               "items": [
-                "スキル一覧（唯一の例外）"
+                "ネストされた CLAUDE.md（再読込されるまで失われる）"
               ]
             }
           ]
@@ -49086,45 +49087,44 @@
       "id": "tool-073",
       "category": "tools",
       "difficulty": "beginner",
-      "question": "PowerShell ツール（プレビュー版）の制限事項として正しいものはどれですか？",
+      "question": "PowerShell ツールの有効化条件・利用可能環境として正しいものはどれですか？",
       "options": [
         {
-          "text": "すべてのプラットフォーム（macOS、Linux、Windows）で利用可能",
-          "wrongFeedback": "PowerShell ツールはネイティブ Windows のみ対応で、WSL では使用できません"
+          "text": "すべてのプラットフォームでデフォルト有効（設定不要）",
+          "wrongFeedback": "Windows 以外（Linux/macOS/WSL）では opt-in で、`CLAUDE_CODE_USE_POWERSHELL_TOOL=1` と PowerShell 7+ が必要です。"
         },
         {
-          "text": "Auto モードがまだ動作せず、PowerShell プロファイル非読み込みで、ネイティブ Windows のみ対応（WSL は不可）"
+          "text": "Linux/macOS/WSL では opt-in（`CLAUDE_CODE_USE_POWERSHELL_TOOL=1` と PowerShell 7+ が必要）。Windows では Git Bash がなければ自動有効、Git Bash があれば段階的に有効化される"
         },
         {
           "text": "Git Bash が不要になり、Windows ネイティブコマンドのみで動作する",
-          "wrongFeedback": "PowerShell ツールを有効にしても、Claude Code の起動には引き続き Git Bash が必要です"
+          "wrongFeedback": "PowerShell ツール有効時も、Git Bash があれば Bash ツールは POSIX スクリプト用に引き続き利用できます。"
         },
         {
-          "text": "Auto モードとサンドボックスに完全対応しており、制限なく使用できる",
-          "wrongFeedback": "プレビュー版では Auto モードは動作せず、PowerShell プロファイルも読み込まれません"
+          "text": "macOS と Linux では利用できず、Windows 専用である",
+          "wrongFeedback": "Linux/macOS/WSL でも opt-in で利用できます（PowerShell 7+ が必要）。"
         }
       ],
       "correctIndex": 1,
-      "explanation": "PowerShell ツールはプレビュー機能で、Auto モード未対応、PowerShell プロファイル非読み込み、ネイティブ Windows のみ（WSL 不可）という制限があります。\n{{diagram:0}}\n{{diagram:1}}",
+      "explanation": "PowerShell ツールは `CLAUDE_CODE_USE_POWERSHELL_TOOL=1` で有効化します。Windows では Git Bash がなければ自動有効・Git Bash があれば段階的ロールアウト、Linux/macOS/WSL では opt-in（PowerShell 7+ が必要）です。\n\n{{diagram:0}}\n\n有効時は PowerShell が主シェルになりますが、Git Bash があれば Bash ツールも POSIX スクリプト用に使えます。\n{{diagram:1}}",
       "referenceUrl": "https://code.claude.com/docs/ja/tools-reference",
       "diagrams": [
         {
           "type": "comparison",
+          "label": "PowerShell ツールの利用可否",
           "columns": [
             {
-              "heading": "制限事項",
+              "heading": "Windows",
               "items": [
-                "Auto モード未対応",
-                "プロファイル非読み込み",
-                "ネイティブ Windows のみ"
+                "Git Bash なし → 自動有効",
+                "Git Bash あり → 段階的ロールアウト"
               ]
             },
             {
-              "heading": "非対応",
+              "heading": "Linux / macOS / WSL",
               "items": [
-                "WSL",
-                "macOS",
-                "Linux"
+                "opt-in（環境変数で有効化）",
+                "PowerShell 7+ が必要"
               ]
             }
           ]
@@ -49134,20 +49134,20 @@
           "label": "ツールの正誤ポイント",
           "items": [
             {
-              "text": "Auto モードがまだ動作せず、PowerShell プロファイル非読み込みで、ネイティブ Windows のみ対応（WSL は不可）（正解）",
-              "sub": "PowerShell ツールはプレビュー機能で、Auto モード未対応、PowerShell プロファイル非読み込み、ネイティブ Windows のみ（WSL 不可）という制限があります。"
+              "text": "Linux/macOS/WSL は opt-in、Windows は自動/段階有効（正解）",
+              "sub": "`CLAUDE_CODE_USE_POWERSHELL_TOOL=1` で有効化。Linux/macOS/WSL は PowerShell 7+ が必要な opt-in、Windows は Git Bash の有無で自動有効か段階的ロールアウト。"
             },
             {
-              "text": "Auto モードとサンドボックスに完全対応しており、制限なく使用できる",
-              "sub": "プレビュー版では Auto モードは動作せず、PowerShell プロファイルも読み込まれません"
+              "text": "Windows 専用である",
+              "sub": "Linux/macOS/WSL でも opt-in で使えます。"
             },
             {
-              "text": "すべてのプラットフォーム（macOS、Linux、Windows）で利用可能",
-              "sub": "PowerShell ツールはネイティブ Windows のみ対応で、WSL では使用できません"
+              "text": "Git Bash が不要になる",
+              "sub": "Git Bash があれば Bash ツールは POSIX 用に併用できます。"
             },
             {
-              "text": "Git Bash が不要になり、Windows ネイティブコマンドのみで動作する",
-              "sub": "PowerShell ツールを有効にしても、Claude Code の起動には引き続き Git Bash が必要です"
+              "text": "全プラットフォームでデフォルト有効",
+              "sub": "Windows 以外は opt-in です。"
             }
           ]
         }
