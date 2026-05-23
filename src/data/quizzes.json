@@ -14646,7 +14646,7 @@
         }
       ],
       "correctIndex": 2,
-      "explanation": "`permissions.deny`リストに`Agent(subagent-name)`を追加することで、特定のサブエージェントの起動を禁止できます。\n{{diagram:0}}\nこの`Agent(subagent-name)`構文で任意のサブエージェントタイプを制御できます。なお、v2.1.63以前の旧称`Task(subagent-name)`はエイリアスとして引き続き動作しますが、現行の正式構文は`Agent(subagent-name)`です。\n{{diagram:1}}",
+      "explanation": "`permissions.deny`リストに`Agent(subagent-name)`を追加することで、特定のサブエージェントの起動を禁止できます。\n{{diagram:0}}\nこの`Agent(subagent-name)`構文で任意のサブエージェントタイプを制御できます。なお、旧称の`Task(subagent-name)`はエイリアスとして引き続き動作しますが、現行の正式構文は`Agent(subagent-name)`です。\n{{diagram:1}}",
       "referenceUrl": "https://code.claude.com/docs/ja/sub-agents",
       "diagrams": [
         {
@@ -14694,7 +14694,7 @@
           "items": [
             {
               "text": "`permissions.deny`に`Agent(subagent-name)`を追加（正解）",
-              "sub": "`permissions.deny`リストに`Agent(subagent-name)`を追加することで、特定のサブエージェントの起動を禁止できます。 この`Agent(subagent-name)`構文で任意のサブエージェントタイプを制御できます。なお、v2.1.63以前の旧称`Task(subagent-name)`はエイリアスとして引き続き動作しますが、現行の正式構文は`Agent(subagent-name)`です。"
+              "sub": "`permissions.deny`リストに`Agent(subagent-name)`を追加することで、特定のサブエージェントの起動を禁止できます。 この`Agent(subagent-name)`構文で任意のサブエージェントタイプを制御できます。なお、旧称の`Task(subagent-name)`はエイリアスとして引き続き動作しますが、現行の正式構文は`Agent(subagent-name)`です。"
             },
             {
               "text": "`permissions.disable`に`Agent(name)`を追加",
@@ -20305,7 +20305,7 @@
         }
       ],
       "correctIndex": 2,
-      "explanation": "`Agent`(agent_type)構文はサブエージェントの起動を特定のタイプに制限するホワイトリストです。\n{{diagram:0}}\n`Agent`(worker, researcher)はworkerとresearcherのみ起動可能にし、他のタイプの起動要求は失敗します。この制限はclaude `--agent`のメインスレッドにのみ適用されます。（v2.1.63でTaskツールがAgentに改名。旧`Task`()はエイリアスとして動作）\n{{diagram:1}}",
+      "explanation": "`Agent`(agent_type)構文はサブエージェントの起動を特定のタイプに制限するホワイトリストです。\n{{diagram:0}}\n`Agent`(worker, researcher)はworkerとresearcherのみ起動可能にし、他のタイプの起動要求は失敗します。この制限はclaude `--agent`のメインスレッドにのみ適用されます。（TaskツールはAgentに改名済み。旧`Task`()はエイリアスとして動作）\n{{diagram:1}}",
       "referenceUrl": "https://code.claude.com/docs/ja/sub-agents",
       "diagrams": [
         {
@@ -20335,7 +20335,7 @@
           "items": [
             {
               "text": "そのエージェントがworkerとresearcherタイプのサブエージェントのみ起動可能になる（正解）",
-              "sub": "`Agent`(agent_type)構文はサブエージェントの起動を特定のタイプに制限するホワイトリストです。 `Agent`(worker, researcher)はworkerとresearcherのみ起動可能にし、他のタイプの起動要求は失敗します。この制限はclaude `--agent`のメインスレッドにのみ適用されます。（v2.1.63でTaskツールがAgentに改名。旧`Task`()はエイリアスとして動作）"
+              "sub": "`Agent`(agent_type)構文はサブエージェントの起動を特定のタイプに制限するホワイトリストです。 `Agent`(worker, researcher)はworkerとresearcherのみ起動可能にし、他のタイプの起動要求は失敗します。この制限はclaude `--agent`のメインスレッドにのみ適用されます。（TaskツールはAgentに改名済み。旧`Task`()はエイリアスとして動作）"
             },
             {
               "text": "並列でworkerとresearcherを同時実行する",
@@ -31052,7 +31052,7 @@
         },
         {
           "text": "`Task`",
-          "wrongFeedback": "`Task` は v2.1.63 以前の旧名称です。現在の Agent SDK ドキュメントは `Agent` ツール経由でサブエージェントを起動すると明示しており、`allowedTools` に `Agent` を含める必要があります。"
+          "wrongFeedback": "`Task` は旧名称です。現在の Agent SDK ドキュメントは `Agent` ツール経由でサブエージェントを起動すると明示しており、`allowedTools` に `Agent` を含める必要があります。"
         },
         {
           "text": "`Bash`",
@@ -31064,7 +31064,7 @@
         }
       ],
       "correctIndex": 0,
-      "explanation": "Agent SDKでカスタムサブエージェントを使用する場合、サブエージェントは `Agent` ツール経由で起動されます。\n{{diagram:0}}\nそのため、メインエージェントの `allowedTools` に `Agent` を含める必要があります（v2.1.63 以降、CLI / SDK ともに `Agent` に統一）。サブエージェントは `agents` オプションで定義し、独自の説明、プロンプト、ツールセットを持てます。\n{{diagram:1}}",
+      "explanation": "Agent SDKでカスタムサブエージェントを使用する場合、サブエージェントは `Agent` ツール経由で起動されます。\n{{diagram:0}}\nそのため、メインエージェントの `allowedTools` に `Agent` を含める必要があります（CLI / SDK ともに `Agent` に統一）。サブエージェントは `agents` オプションで定義し、独自の説明、プロンプト、ツールセットを持てます。\n{{diagram:1}}",
       "referenceUrl": "https://platform.claude.com/docs/ja/agent-sdk/overview",
       "diagrams": [
         {
@@ -31091,7 +31091,7 @@
           "items": [
             {
               "text": "`Agent`（正解）",
-              "sub": "Agent SDKでカスタムサブエージェントを使用する場合、サブエージェントは `Agent` ツール経由で起動されます。`allowedTools` に `Agent` を含める必要があります（v2.1.63 以降、CLI / SDK ともに `Agent` に統一）。"
+              "sub": "Agent SDKでカスタムサブエージェントを使用する場合、サブエージェントは `Agent` ツール経由で起動されます。`allowedTools` に `Agent` を含める必要があります（CLI / SDK ともに `Agent` に統一）。"
             },
             {
               "text": "`Bash`",
@@ -31103,7 +31103,7 @@
             },
             {
               "text": "`Task`",
-              "sub": "`Task` は v2.1.63 以前の旧名称です。現在の Agent SDK ドキュメントも `Agent` を使用するため、CLI と SDK で名称差はありません。"
+              "sub": "`Task` は旧名称です。現在の Agent SDK ドキュメントも `Agent` を使用するため、CLI と SDK で名称差はありません。"
             }
           ]
         }
@@ -53797,7 +53797,7 @@
         }
       ],
       "correctIndex": 0,
-      "explanation": "`plugin.json` の `dependencies` 配列にsemverバージョン制約を持つオブジェクト形式で依存を宣言することで、テスト済みのバージョン範囲に固定できます。\n\nバージョン制約はNode.jsの `semver` パッケージがサポートする形式（`~2.1.0`, `^2.0`, `>=1.4` など）で指定します。複数のプラグインが同じ依存に制約を宣言している場合、Claude Codeはすべての範囲の共通部分を解決します。バージョン制約はClaude Code v2.1.110以降が必要です。\n\n{{diagram:0}}",
+      "explanation": "`plugin.json` の `dependencies` 配列にsemverバージョン制約を持つオブジェクト形式で依存を宣言することで、テスト済みのバージョン範囲に固定できます。\n\nバージョン制約はNode.jsの `semver` パッケージがサポートする形式（`~2.1.0`, `^2.0`, `>=1.4` など）で指定します。複数のプラグインが同じ依存に制約を宣言している場合、Claude Codeはすべての範囲の共通部分を解決します。\n\n{{diagram:0}}",
       "referenceUrl": "https://code.claude.com/docs/ja/plugin-dependencies",
       "diagrams": [
         {
