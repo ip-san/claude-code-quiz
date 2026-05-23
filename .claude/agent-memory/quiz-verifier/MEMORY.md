@@ -160,3 +160,36 @@
 ### quality tier の distractor 問題は全て偽陽性
 - cmd-002, cmd-004, cmd-006, cmd-062, cmd-108, cmd-114, cmd-119 の8問
 - 全て事実誤認なし。品質（distractor バランス）の問題のみ
+
+## commands カテゴリ後半検証パターン（2026-05-23, commands_2.json 44問）
+
+### /loop のデフォルト動作（Critical issue, cmd-085）
+- scheduled-tasks.md: "When you omit the interval, Claude chooses one dynamically... picks a delay between one minute and one hour based on what it observed"
+- 「10分ごとに実行される」という固定値はドキュメントに存在しない
+- 正確には「Claudeが動的に1分〜1時間の範囲で決める」
+- cmd-085 の正解が誤り → critical
+
+### スケジュールタスクの有効期限（Critical issue, cmd-086）
+- scheduled-tasks.md L152: "Recurring tasks automatically expire **7 days** after creation"
+- cmd-086 の正解「作成から3日後に自動的に期限切れ」は誤り → critical
+- 正しくは 7日後（multiple docs locations で確認済み）
+
+### /voice バージョン要件（v2.1.69）はドキュメント未記載（cmd-116）
+- voice-dictation.md に v2.1.69 というバージョン要件の記述なし
+- claude.ai account 認証 + local microphone は正確
+- バージョン番号の断定は docs 根拠なし → major候補だが他の要素は正確
+
+### Remote Control タイムアウト 10分（cmd-088 Verified）
+- remote-control.md: "network for more than roughly 10 minutes, the session times out"
+- cmd-088 の正解「10分間のタイムアウト」は正確
+
+### cmd-087 の wrongFeedback 不正確性（minorレベル）
+- 「Claude Code を再起動するとすべてのタスクがクリアされる」の wrongFeedback が「これは実際の制約です」と記述
+- ただし --resume で期限切れでないタスクは復元可能（単純な再起動クリアではない）
+- 正答（correctIndex: 3）への影響なし → minor/info 相当
+
+### commands_2.json 大多数は事実誤認なし
+- cmd-075〜cmd-084 (GitLab/GitHub CI関連)、cmd-088〜cmd-102 (Remote Control/トラブルシューティング) は正確
+- cmd-104〜cmd-107 (/effort, /copy, /init, /mcp) は正確
+- cmd-108〜cmd-113 (クラウドスケジュール/branch/batch) は概ね正確
+- cmd-116, cmd-117, cmd-118, cmd-119 は正確

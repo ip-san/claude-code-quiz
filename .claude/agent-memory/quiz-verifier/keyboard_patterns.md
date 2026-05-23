@@ -122,3 +122,25 @@ keyboard カテゴリで factCheck:env や factCheck:flags が lint-flagged さ�
 ### key-021 の diagram 内部矛盾（既知パターン継続）
 - diagram.columns[0].items[2]: 「Claude Code固有のショートカット」
 - explanation: 「Claude Code固有のショートカットではなく」→ 矛盾 → minor で継続
+
+## 2026-05-23 フルオーディット（48問）
+
+### Shift+Enter ネイティブ対応ターミナル一覧（Critical/Major 発見）
+- terminal-config.md テーブル: Works without setup = Ghostty, Kitty, iTerm2, WezTerm, **Warp, Apple Terminal, Windows Terminal** の7種
+- key-020 正解テキスト「iTerm2・WezTerm・Ghostty・Kittyでは設定不要」→ 4種のみで不完全。「それ以外は/terminal-setup必要」が誤った一般化（Warp/Apple Terminal/Windows Terminal は設定不要なのに除外）→ major
+- key-044 正解テキスト「iTerm2、WezTerm、Ghostty、Kitty」→ 4種のみ断定。ネイティブ対応は実際は7種 → **critical** (quiz が4種のみを正解と断言し、残り3種が間違いとなる)
+- key-044 diagram: Warp を「/terminal-setup が必要」欄に誤分類 → Warp は「Works without setup」
+- key-020/key-044で共通: /terminal-setup が必要なのは VS Code, Cursor, Windsurf, Alacritty, Zed の5種のみ
+
+### key-051 Option+O ファストモード設定要件
+- Option+O には Option+T のような「v2.1.132以降設定不要」の特別注記なし
+- key-051の explanation「macOS では Option キーを Meta として送信するターミナル設定が必要」は正確
+
+### keybindings.json フォーマット（key-029/key-030）
+- key-029/key-030 のdiagramは旧形式（トップレベルオブジェクト）を使用
+- ただし正解テキスト自体は「null を設定する」「UI状態を指定する」で正確 → 事実誤認なし（minor のみ）
+
+### 48問の事実誤り サマリー
+- critical: key-044（ネイティブ対応4種のみ断言、実際は7種）
+- major: key-020（同問題の4種記述、Warpの誤分類）
+- 残り46問: 事実誤認なし
