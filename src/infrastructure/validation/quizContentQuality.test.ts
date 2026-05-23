@@ -148,6 +148,12 @@ const VALID_DOC_PAGES = [
   'prompt-library',
   'sandbox-environments',
   'sessions',
+  // Coverage-gap feature pages (2026-05-23)
+  'claude-platform-on-aws',
+  'worktrees',
+  'goal',
+  'agents',
+  'deep-links',
   // platform.claude.com pages
   'agent-sdk/overview',
   'agents-and-tools/agent-skills/best-practices',
