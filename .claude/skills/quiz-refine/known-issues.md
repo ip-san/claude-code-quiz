@@ -225,8 +225,9 @@ v4.43.0 以前の known-issues では「exit code 2 の一般ルールで UserPr
 
 ## Hook イベント総数
 
-- Hook event types は全 26 種（2026-04-04 確認）。25 種から `PermissionDenied` が追加された
-- 全26種: `SessionStart`, `SessionEnd`, `InstructionsLoaded`, `UserPromptSubmit`, `PreToolUse`, `PermissionRequest`, `PermissionDenied`, `PostToolUse`, `PostToolUseFailure`, `Notification`, `SubagentStart`, `SubagentStop`, `TaskCreated`, `TaskCompleted`, `Stop`, `StopFailure`, `TeammateIdle`, `ConfigChange`, `WorktreeCreate`, `WorktreeRemove`, `PreCompact`, `PostCompact`, `Elicitation`, `ElicitationResult`, `CwdChanged`, `FileChanged`
+- Hook event types は全 29 種（2026-05-23 hooks.md L21-49 で再確認）。旧 26 種から `Setup`・`UserPromptExpansion`・`PostToolBatch` の 3 種が追加された
+- 全29種: `SessionStart`, `Setup`, `UserPromptSubmit`, `UserPromptExpansion`, `PreToolUse`, `PermissionRequest`, `PermissionDenied`, `PostToolUse`, `PostToolUseFailure`, `PostToolBatch`, `Notification`, `SubagentStart`, `SubagentStop`, `TaskCreated`, `TaskCompleted`, `Stop`, `StopFailure`, `TeammateIdle`, `InstructionsLoaded`, `ConfigChange`, `CwdChanged`, `FileChanged`, `WorktreeCreate`, `WorktreeRemove`, `PreCompact`, `PostCompact`, `Elicitation`, `ElicitationResult`, `SessionEnd`
+- 追加3種の意味: `Setup`（`--init-only`/`--init`/`--maintenance` 時の一回限り準備）、`UserPromptExpansion`（コマンド展開がプロンプト化される前。展開をブロック可）、`PostToolBatch`（並列ツール呼び出しのバッチ解決後・次のモデル呼び出し前。エージェントループを停止可）
 - ブロッキング可能: 12 イベント（PreToolUse, UserPromptSubmit, PermissionRequest, Stop, SubagentStop, TeammateIdle, TaskCreated, TaskCompleted, ConfigChange, WorktreeCreate, Elicitation, ElicitationResult）
 - `PermissionDenied`: auto mode classifier がツール呼び出しを拒否した時。ブロッキング不可だが `{retry: true}` を返すとモデルにリトライを許可できる
 
@@ -473,3 +474,21 @@ v4.43.0 以前の known-issues では「exit code 2 の一般ルールで UserPr
 ## ドキュメント全更新時の incremental 挙動
 
 - 21 ページのドキュメントが changed と判定され、結果として 775 問**全件**が doc-changed として targets に入った。incremental の利点が消失 → `verify:diff` に「ドキュメント変更件数が閾値（例: 10ページ）を超えた場合は警告を出し、`/quality-loop` への委譲を推奨」する分岐を追加。または fact-tier に絞った優先処理モード（`--fact-only`）を新設
+
+## 8並列ディープ検証の結果（2026-05-23, 125 flagged 全件）
+
+- pre-lint flagged 125 問（fact=58, quality=67）を 8 並列 quiz-verifier で全件検証。**critical 0 / major 7 / minor 16 / false-positive 76（61%）**。distractor（quality-tier）の lint フラグは**今回 100% が false-positive**（事実誤認なし）→ quality-tier の distractor は Sonnet 検証より機械的 lint 修正に回すのが妥当
+- 修正済み major 7 件（再フラグ不要）:
+  - bp-018: ultrathink は API の effort を変えない（in-context 指示のみ。model-config.md L161）。「effort を high にする」は誤り
+  - cmd-025: `-p` モードの `--output-format stream-json` には `--verbose` が必須（headless.md）
+  - cmd-051: `/undo` は `/rewind` のエイリアスとして**存在する**（commands.md「Aliases: /checkpoint, /undo」）。diagram の「/undo は存在しない」は誤り
+  - ext-110: `permissionDecision` は 4 値 `allow`/`deny`/`ask`/`defer`（hooks.md L1108）。`defer` は非対話 `-p` で「後で再開できるよう正常終了」
+  - ext-137: plugin `settings.json` の対応キーは `agent` と `subagentStatusLine` の 2 つ（plugins.md L185）
+  - ext-164: Auto mode 分類器のモデル名は docs 未記載（「a separate classifier model」のみ）。「常に Sonnet 4.6」と断定しない
+  - key-033: Warp は `/terminal-setup` 不要（terminal-config.md L22「Works without setup」）。要 `/terminal-setup` は VS Code/Cursor/Windsurf/Alacritty/Zed
+- 確認済み false-positive パターン（次回スキップ可）: `--jetbrains`/`--regex`/`--import-session`/`CLAUDE_AUTO_APPROVE`/`--list-remote`/`--input` 等の「存在しないフラグ・変数の否定」は正確。`autoAllowBashIfSandboxed` デフォルト true（settings.md L297）、PDF 制限（10ページ超で pages 必須・最大20、tools-reference.md L217）、組み込み subagent 5 種（Explore/Plan/general-purpose/statusline-setup/claude-code-guide。`Bash` は含まない）、`xhigh` は Opus 4.7 専用（model-config.md L140）はいずれも正確
+- VS Code リモートセッション再開の UI は「**Session history** ボタン」（vs-code.md L66）。「パスト会話ドロップダウン/Remote タブ/GitHub リポジトリのみ」は docs 未記載だった（tool-061 で修正）
+
+## 新規ドキュメントページ追加時の VALID_DOC_PAGES 同期（重要）
+
+- `topic-config.mjs` に新ページを追加しただけでは不十分。`src/data/quizzes.json` でそのページを referenceUrl に持つ問題を追加すると、`src/infrastructure/validation/quizContentQuality.test.ts` の **`VALID_DOC_PAGES` 配列**（ハードコード）に未登録だと「不明なドキュメントページ」テストが fail する → 新ページの問題を追加する際は `VALID_DOC_PAGES` への追記を同時に行う（2026-05-23: managed-mcp/plugin-hints/prompt-caching/prompt-library/sandbox-environments/sessions を追加）
