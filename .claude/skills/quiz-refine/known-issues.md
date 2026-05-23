@@ -492,3 +492,27 @@ v4.43.0 以前の known-issues では「exit code 2 の一般ルールで UserPr
 ## 新規ドキュメントページ追加時の VALID_DOC_PAGES 同期（重要）
 
 - `topic-config.mjs` に新ページを追加しただけでは不十分。`src/data/quizzes.json` でそのページを referenceUrl に持つ問題を追加すると、`src/infrastructure/validation/quizContentQuality.test.ts` の **`VALID_DOC_PAGES` 配列**（ハードコード）に未登録だと「不明なドキュメントページ」テストが fail する → 新ページの問題を追加する際は `VALID_DOC_PAGES` への追記を同時に行う（2026-05-23: managed-mcp/plugin-hints/prompt-caching/prompt-library/sandbox-environments/sessions を追加）
+
+
+## 全数監査で確定した事実（2026-05-23, 759問の full-bank audit）
+
+759問（未LLM検証分）を13並列で監査し18件の事実誤りを修正。以下は確定事実（次回スキャンで誤検出/再発防止用）:
+
+- **/loop（無インターバル）**: 固定間隔ではなく Claude が動的に1分〜1時間で選ぶ（scheduled-tasks.md L53）。「デフォルト10分」は誤り
+- **繰り返しスケジュールタスク**: 作成から **7日**で期限切れ（seven-day expiry）。1セッション最大50タスク。単位 s/m/h/d
+- **PowerShell ツール**: Linux/macOS/WSL は opt-in（CLAUDE_CODE_USE_POWERSHELL_TOOL=1 + PowerShell 7+）。Windows は Git Bash なしで自動有効・ありで段階的ロールアウト（tools-reference.md L181-195）。「Windows 専用」「Auto モード不可」は誤り
+- **複数行入力ネイティブ対応ターミナル = 7種**: iTerm2/WezTerm/Ghostty/Kitty/**Warp/Apple Terminal/Windows Terminal**。/terminal-setup が必要 = VS Code/Cursor/Windsurf/Alacritty/Zed（terminal-config.md L22-23）。Warp を要設定側に入れるのは誤り（key-033/044/020 で頻出）
+- **Windows 前提条件**: ネイティブ Windows は必須前提なし。Git for Windows は**任意**（推奨。なければ PowerShell がシェルツール）（setup.md L87）
+- **autoMemoryDirectory**: policy/user 設定 + --settings フラグからのみ。**project/local 設定からは不可**（memory.md L286）。「ローカルから可」は誤り
+- **/cost・/stats は /usage のエイリアス**（/stats は Stats タブで開く）（commands.md L19/74/88）。「3つは別コマンド」は誤り
+- **MCP SSE は非推奨ではない**: HTTP が推奨だが SSE も引き続き有効な選択肢（mcp.md L40/L56）。「SSE は公式に非推奨（mcp.md L80）」は **存在しない引用** の捏造（ext-009/046 で頻出）
+- **permissionDecision = 4値**: allow/deny/ask/**defer**（defer は非対話 -p モードのみ。hooks.md L1108）。「3段階(allow/deny/ask)」は欠落
+- **Hook ハンドラタイプ = 5種**: command/http/**mcp_tool**/prompt/agent（hooks.md L232）。「4種」は mcp_tool 欠落（ext-016/129 で頻出）
+- **コンパクション後の再注入**: SessionStart + compact マッチャーで stdout 注入。**PostCompact は decision control なし**（ログ/クリーンアップ専用）で再注入には使えない（hooks-guide.md L147）
+- **Code Review 重大度 🔴 = Important**（🟡 Nit / 🟣 Pre-existing の3種）。"normal" は JSON キー名であり UI 表示名ではない（code-review.md L30）
+- **巻き戻しメニュー = 6アクション**: コード+会話復元 / 会話のみ / コードのみ / ここから要約 / **ここまで要約(Summarize up to here)** / Never mind（checkpointing.md L31-36）
+- **コンパクション後**: スキル本体は**再注入される**（5,000/25,000 トークン上限）。再読込されない例外は**サブディレクトリのネスト CLAUDE.md**（context-window.md L65-69）。「スキル一覧が例外」は誤り
+- **CLAUDECODE=1** が設定される場面: Bash/PowerShell ツール、tmux セッション、**フックコマンド、ステータスラインコマンド**（env-vars.md L45）。「フック/ステータスラインでは設定されない」は誤り
+- **/voice 要件**: Claude.ai アカウント認証 + ローカルマイクのみ（voice-dictation.md L13-15）。**バージョン要件（v2.1.69 等）は docs に記載なし**
+
+**教訓**: distractor(quality)-tier の lint フラグは偽陽性が大半だが、**lint を通過した "matched" 問題にも事実誤り（特に数値・列挙の網羅性・"非推奨/廃止" の誤断定）が約2%存在**した。新ドキュメント反映時は数値・列挙・バージョン断定を重点確認する。

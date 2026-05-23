@@ -51664,10 +51664,10 @@
         },
         {
           "text": "任意のバージョンの Claude Code + API キーまたは直接プラン + マイク",
-          "wrongFeedback": "API キーでは使用できません。claude.ai アカウントでの認証が必要で、v2.1.69 以上が要件です"
+          "wrongFeedback": "API キーでは使用できません。claude.ai アカウントでの認証が必要です"
         },
         {
-          "text": "Claude Code v2.1.69 以上 + claude.ai アカウントでの認証 + ローカルマイクアクセス"
+          "text": "claude.ai アカウントでの認証 + ローカルマイクアクセス"
         },
         {
           "text": "macOS のみで、Linux と Windows はサポート外",
@@ -51675,7 +51675,7 @@
         }
       ],
       "correctIndex": 2,
-      "explanation": "`/voice` の要件は: (1) Claude Code v2.1.69 以上、(2) claude.ai アカウントでの認証（API キーやサードパーティプロバイダー経由では不可）、(3) ローカルマイクアクセス。\n\n{{diagram:0}}\n\nmacOS、Linux、Windows をサポートしますが、リモート環境（Web 版 Claude Code）や SSH セッションでは使用できません。\n{{diagram:1}}",
+      "explanation": "`/voice` の要件は: (1) claude.ai アカウントでの認証（API キーやサードパーティプロバイダー経由では不可）、(2) ローカルマイクアクセス。\n\n{{diagram:0}}\n\nmacOS、Linux、Windows をサポートしますが、リモート環境（Web 版 Claude Code）や SSH セッションでは使用できません。\n{{diagram:1}}",
       "referenceUrl": "https://code.claude.com/docs/ja/interactive-mode",
       "diagrams": [
         {
@@ -51708,8 +51708,8 @@
           "label": "/voiceの正誤ポイント",
           "items": [
             {
-              "text": "Claude Code v2.1.69 以上 + claude.ai アカウントでの認証 + ローカルマイクアクセス（正解）",
-              "sub": "`/voice` の要件は: (1) Claude Code v2.1.69 以上、(2) claude.ai アカウントでの認証（API キーやサードパーティプロバイダー経由では不可）、(3) ローカルマイクアクセス。 macOS、Linux、Windows をサポートしますが、リモート環境（Web 版 Claude Code）や SSH セッションでは使用できません。"
+              "text": "claude.ai アカウントでの認証 + ローカルマイクアクセス（正解）",
+              "sub": "`/voice` の要件は: (1) claude.ai アカウントでの認証（API キーやサードパーティプロバイダー経由では不可）、(2) ローカルマイクアクセス。 macOS、Linux、Windows をサポートしますが、リモート環境（Web 版 Claude Code）や SSH セッションでは使用できません。"
             },
             {
               "text": "macOS のみで、Linux と Windows はサポート外",
@@ -51721,7 +51721,7 @@
             },
             {
               "text": "任意のバージョンの Claude Code + API キーまたは直接プラン + マイク",
-              "sub": "API キーでは使用できません。claude.ai アカウントでの認証が必要で、v2.1.69 以上が要件です"
+              "sub": "API キーでは使用できません。claude.ai アカウントでの認証が必要です"
             }
           ]
         }
