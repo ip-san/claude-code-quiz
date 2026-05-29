@@ -5980,18 +5980,18 @@
         },
         {
           "text": "コマンドの出力を一時停止し、`再開コマンド`で続きから表示する",
-          "wrongFeedback": "出力の一時停止ではありません。`Ctrl+B`はコマンドを引き続き実行させながらバックグラウンドに移動する機能で、出力はファイルに書き込まれ Read ツールで取得できます。一時停止・再開の仕組みではありません。"
+          "wrongFeedback": "出力の一時停止ではありません。`Ctrl+B`はコマンドを引き続き実行させながらバックグラウンドに移動する機能で、出力はファイルに書き込まれ `Read` ツールで取得できます。一時停止・再開の仕組みではありません。"
         },
         {
           "text": "新しいターミナルタブを開いて実行中の `Bash` コマンドをそこに移動する",
           "wrongFeedback": "新しいターミナルタブは開きません。`Ctrl+B`は同じClaude Codeセッション内でコマンドをバックグラウンドに移動する機能です。コマンドは現在のプロセスで引き続き実行されます。"
         },
         {
-          "text": "実行中の`Bash`コマンドやエージェントをバックグラウンドに移動し、出力はファイルに書き込まれ（Read ツールで取得可能）会話を続行できる。tmux環境では2回押す必要がある"
+          "text": "実行中の`Bash`コマンドやエージェントをバックグラウンドに移動し、出力はファイルに書き込まれ（`Read` ツールで取得可能）会話を続行できる。tmux環境では2回押す必要がある"
         }
       ],
       "correctIndex": 3,
-      "explanation": "`Ctrl+B`で実行中の`Bash`コマンドやエージェントをバックグラウンドに移動できます。\n\n{{diagram:0}}\n\nコマンドやエージェントは引き続き実行され、出力はファイルに書き込まれ Read ツールで取得できます。tmux環境では`Ctrl+B`がtmuxプレフィックスと競合するため2回押す必要があります。\n{{diagram:1}}",
+      "explanation": "`Ctrl+B`で実行中の`Bash`コマンドやエージェントをバックグラウンドに移動できます。\n\n{{diagram:0}}\n\nコマンドやエージェントは引き続き実行され、出力はファイルに書き込まれ `Read` ツールで取得できます。tmux環境では`Ctrl+B`がtmuxプレフィックスと競合するため2回押す必要があります。\n{{diagram:1}}",
       "referenceUrl": "https://code.claude.com/docs/ja/interactive-mode",
       "diagrams": [
         {
@@ -38808,7 +38808,7 @@
       "question": "Windows 環境で Claude Code を使用する場合の前提条件として正しいものはどれですか？",
       "options": [
         {
-          "text": "必須の前提条件は特にない。Git for Windows は推奨（Bash ツールが使える）だが任意で、未インストールなら PowerShell がシェルツールとして使われる"
+          "text": "必須の前提条件は特にない。Git for Windows は推奨（`Bash` ツールが使える）だが任意で、未インストールなら PowerShell がシェルツールとして使われる"
         },
         {
           "text": "Visual Studio Build Tools のインストールが必須",
@@ -38820,11 +38820,11 @@
         },
         {
           "text": "PowerShell 7 以上へのアップグレードが必須",
-          "wrongFeedback": "PowerShell のバージョンは要件ではありません。シェルは Bash/Zsh/PowerShell/CMD のいずれかで動作します。"
+          "wrongFeedback": "PowerShell のバージョンは要件ではありません。シェルは `Bash`/Zsh/PowerShell/CMD のいずれかで動作します。"
         }
       ],
       "correctIndex": 0,
-      "explanation": "ネイティブ Windows では必須の前提条件はありません。Git for Windows は「推奨」（インストールすると Bash ツールが使える）ですが任意で、未インストールの場合は Claude Code が PowerShell をシェルツールとして使います。\n\n{{diagram:0}}\n\nWSL を使う場合は Git for Windows は不要です。\n{{diagram:1}}",
+      "explanation": "ネイティブ Windows では必須の前提条件はありません。Git for Windows は「推奨」（インストールすると `Bash` ツールが使える）ですが任意で、未インストールの場合は Claude Code が PowerShell をシェルツールとして使います。\n\n{{diagram:0}}\n\nWSL を使う場合は Git for Windows は不要です。\n{{diagram:1}}",
       "referenceUrl": "https://code.claude.com/docs/ja/setup",
       "diagrams": [
         {
@@ -48295,7 +48295,7 @@
         },
         {
           "text": "ユーザーが通常起動したログインシェルでも常に `1` に設定される",
-          "wrongFeedback": "通常のターミナル/ログインシェルでは設定されません。Claude Code が起動するサブプロセス（Bash/PowerShell ツール、tmux、フックコマンド、ステータスラインコマンド）でのみ `1` になります"
+          "wrongFeedback": "通常のターミナル/ログインシェルでは設定されません。Claude Code が起動するサブプロセス（`Bash`/PowerShell ツール、tmux、フックコマンド、ステータスラインコマンド）でのみ `1` になります"
         }
       ],
       "correctIndex": 2,
@@ -48821,7 +48821,7 @@
       "question": "`/compact` 実行後のコンテキストについて正しい説明はどれですか？",
       "options": [
         {
-          "text": "会話が構造化された要約に置き換えられ、ほとんどの起動時コンテンツは自動で再読み込みされるが、サブディレクトリのネストされた CLAUDE.md は例外で再読み込みされない"
+          "text": "会話が構造化された要約に置き換えられ、ほとんどの起動時コンテンツは自動で再読み込みされるが、サブディレクトリのネストされた `CLAUDE.md` は例外で再読み込みされない"
         },
         {
           "text": "会話はそのまま残り、使用トークン数のみがリセットされる",
@@ -48829,15 +48829,15 @@
         },
         {
           "text": "すべてが初期状態に戻り、起動時コンテンツの再読み込みは行われない",
-          "wrongFeedback": "`CLAUDE.md` など起動時コンテンツはほとんど自動で再読み込みされます。サブディレクトリのネストされた CLAUDE.md は例外です"
+          "wrongFeedback": "`CLAUDE.md` など起動時コンテンツはほとんど自動で再読み込みされます。サブディレクトリのネストされた `CLAUDE.md` は例外です"
         },
         {
           "text": "会話が完全に削除され、すべてのコンテンツが再読み込みされる",
-          "wrongFeedback": "完全削除ではなく、構造化された要約に置き換えられます。サブディレクトリのネストされた CLAUDE.md は再読み込みされない例外があります"
+          "wrongFeedback": "完全削除ではなく、構造化された要約に置き換えられます。サブディレクトリのネストされた `CLAUDE.md` は再読み込みされない例外があります"
         }
       ],
       "correctIndex": 0,
-      "explanation": "`/compact` を実行すると、会話が構造化された要約に置き換えられます。\n\n{{diagram:0}}\n\n{{diagram:1}}\n\n`CLAUDE.md`・オートメモリ・スキル本体（上限付き）などほとんどの起動時コンテンツは自動的に再読み込みされますが、サブディレクトリのネストされた CLAUDE.md は例外で、そのディレクトリ内のファイルが再度読まれるまで失われます。",
+      "explanation": "`/compact` を実行すると、会話が構造化された要約に置き換えられます。\n\n{{diagram:0}}\n\n{{diagram:1}}\n\n`CLAUDE.md`・オートメモリ・スキル本体（上限付き）などほとんどの起動時コンテンツは自動的に再読み込みされますが、サブディレクトリのネストされた `CLAUDE.md` は例外で、そのディレクトリ内のファイルが再度読まれるまで失われます。",
       "referenceUrl": "https://code.claude.com/docs/ja/context-window",
       "diagrams": [
         {
@@ -49095,7 +49095,7 @@
         },
         {
           "text": "Git Bash が不要になり、Windows ネイティブコマンドのみで動作する",
-          "wrongFeedback": "PowerShell ツール有効時も、Git Bash があれば Bash ツールは POSIX スクリプト用に引き続き利用できます。"
+          "wrongFeedback": "PowerShell ツール有効時も、Git Bash があれば `Bash` ツールは POSIX スクリプト用に引き続き利用できます。"
         },
         {
           "text": "すべてのプラットフォームでデフォルト有効（設定不要）",
@@ -49106,7 +49106,7 @@
         }
       ],
       "correctIndex": 3,
-      "explanation": "PowerShell ツールは `CLAUDE_CODE_USE_POWERSHELL_TOOL=1` で有効化します。Windows では Git Bash がなければ自動有効・Git Bash があれば段階的ロールアウト、Linux/macOS/WSL では opt-in（PowerShell 7+ が必要）です。\n\n{{diagram:0}}\n\n有効時は PowerShell が主シェルになりますが、Git Bash があれば Bash ツールも POSIX スクリプト用に使えます。\n{{diagram:1}}",
+      "explanation": "PowerShell ツールは `CLAUDE_CODE_USE_POWERSHELL_TOOL=1` で有効化します。Windows では Git Bash がなければ自動有効・Git Bash があれば段階的ロールアウト、Linux/macOS/WSL では opt-in（PowerShell 7+ が必要）です。\n\n{{diagram:0}}\n\n有効時は PowerShell が主シェルになりますが、Git Bash があれば `Bash` ツールも POSIX スクリプト用に使えます。\n{{diagram:1}}",
       "referenceUrl": "https://code.claude.com/docs/ja/tools-reference",
       "diagrams": [
         {
@@ -54393,7 +54393,7 @@
         }
       ],
       "correctIndex": 0,
-      "explanation": "Claude Code は Bash/PowerShell ツールとフックで実行する全コマンドに `CLAUDECODE=1` を設定します。CLI がこれを検出して `<claude-code-hint ... />` を stderr に1行で出力すると、Claude Code はそれを検出・除去し、一度だけインストールプロンプトを表示します。\n\n{{diagram:0}}\n\nプロンプトは hint を出したコマンド名を表示し、30秒無応答で No 扱いになります。タグは独立行に置く必要があり、公式マーケットプレイス以外を指す hint は無視されます。",
+      "explanation": "Claude Code は `Bash`/PowerShell ツールとフックで実行する全コマンドに `CLAUDECODE=1` を設定します。CLI がこれを検出して `<claude-code-hint ... />` を stderr に1行で出力すると、Claude Code はそれを検出・除去し、一度だけインストールプロンプトを表示します。\n\n{{diagram:0}}\n\nプロンプトは hint を出したコマンド名を表示し、30秒無応答で No 扱いになります。タグは独立行に置く必要があり、公式マーケットプレイス以外を指す hint は無視されます。",
       "referenceUrl": "https://code.claude.com/docs/ja/plugin-hints",
       "diagrams": [
         {
@@ -54420,26 +54420,26 @@
       "id": "tool-080",
       "category": "tools",
       "difficulty": "intermediate",
-      "question": "組み込みの「サンドボックス Bash ツール」と、プロセス全体を隔離する手法（sandbox runtime / コンテナ / VM）の違いとして正しいものはどれですか？",
+      "question": "組み込みの「サンドボックス `Bash` ツール」と、プロセス全体を隔離する手法（sandbox runtime / コンテナ / VM）の違いとして正しいものはどれですか？",
       "options": [
         {
-          "text": "組み込み Bash サンドボックスは `Read` や `WebFetch` の動作も OS レベルで制限する",
-          "wrongFeedback": "Read や WebFetch は Claude Code プロセス内で動き、組み込み Bash サンドボックスの対象外です。これらは権限ルール（パス/ドメイン）でゲートされます。"
+          "text": "組み込み `Bash` サンドボックスは `Read` や `WebFetch` の動作も OS レベルで制限する",
+          "wrongFeedback": "`Read` や `WebFetch` は Claude Code プロセス内で動き、組み込み `Bash` サンドボックスの対象外です。これらは権限ルール（パス/ドメイン）でゲートされます。"
         },
         {
-          "text": "組み込み Bash サンドボックスは MCP サーバーとフックも同じ境界内に隔離する",
-          "wrongFeedback": "組み込み Bash サンドボックスは Bash のみを制限します。MCP サーバーとフックは別プロセスとしてホスト上で無制約に動くため、これらも隔離するには sandbox runtime（プロセス全体をラップ）やコンテナを使います。"
+          "text": "組み込み `Bash` サンドボックスは MCP サーバーとフックも同じ境界内に隔離する",
+          "wrongFeedback": "組み込み `Bash` サンドボックスは `Bash` のみを制限します。MCP サーバーとフックは別プロセスとしてホスト上で無制約に動くため、これらも隔離するには sandbox runtime（プロセス全体をラップ）やコンテナを使います。"
         },
         {
-          "text": "組み込みサンドボックス Bash ツールは Bash コマンドとその子プロセスのみを隔離し、Read/Edit などの組み込みツール・MCP サーバー・フックはホスト上でそのまま動く。これらも1つの境界に入れるには sandbox runtime やコンテナ/VM を使う"
+          "text": "組み込みサンドボックス `Bash` ツールは `Bash` コマンドとその子プロセスのみを隔離し、`Read`/`Edit` などの組み込みツール・MCP サーバー・フックはホスト上でそのまま動く。これらも1つの境界に入れるには sandbox runtime やコンテナ/VM を使う"
         },
         {
           "text": "sandbox runtime を使うには Docker が必須である",
-          "wrongFeedback": "sandbox runtime は Docker 不要で、組み込み Bash サンドボックスと同じ Seatbelt / bubblewrap を使います。Docker が必要なのは dev container やカスタムコンテナです。"
+          "wrongFeedback": "sandbox runtime は Docker 不要で、組み込み `Bash` サンドボックスと同じ Seatbelt / bubblewrap を使います。Docker が必要なのは dev container やカスタムコンテナです。"
         }
       ],
       "correctIndex": 2,
-      "explanation": "組み込みサンドボックス Bash ツールは `/sandbox` で有効化し、macOS は Seatbelt、Linux/WSL2 は bubblewrap で Bash コマンドのみを制限します。\n\n{{diagram:0}}\n\nプロセス全体（組み込みツール・MCP サーバー・フックを含む）を1つの OS 境界に入れるには、`@anthropic-ai/sandbox-runtime`、dev container、またはカスタムコンテナを使います。",
+      "explanation": "組み込みサンドボックス `Bash` ツールは `/sandbox` で有効化し、macOS は Seatbelt、Linux/WSL2 は bubblewrap で `Bash` コマンドのみを制限します。\n\n{{diagram:0}}\n\nプロセス全体（組み込みツール・MCP サーバー・フックを含む）を1つの OS 境界に入れるには、`@anthropic-ai/sandbox-runtime`、dev container、またはカスタムコンテナを使います。",
       "referenceUrl": "https://code.claude.com/docs/ja/sandbox-environments",
       "diagrams": [
         {
@@ -54473,7 +54473,7 @@
       "question": "組織として隔離環境を「Claude Code 自身の仕組みで強制」できるのはどの手法ですか？",
       "options": [
         {
-          "text": "組み込み Bash サンドボックスのみ。`sandbox` 設定キーを managed settings（MDM 管理ファイルまたは server-managed settings）で配布して強制できる"
+          "text": "組み込み `Bash` サンドボックスのみ。`sandbox` 設定キーを managed settings（MDM 管理ファイルまたは server-managed settings）で配布して強制できる"
         },
         {
           "text": "仮想マシン（VM）での実行を Claude Code が強制できる",
@@ -54481,7 +54481,7 @@
         },
         {
           "text": "すべての隔離手法を managed settings で一律に強制できる",
-          "wrongFeedback": "Claude Code 自身が強制できるのは組み込み Bash サンドボックスだけです。それ以外は規約（dev container）か、外部のデバイス管理による強制になります。"
+          "wrongFeedback": "Claude Code 自身が強制できるのは組み込み `Bash` サンドボックスだけです。それ以外は規約（dev container）か、外部のデバイス管理による強制になります。"
         },
         {
           "text": "dev container を Claude Code が強制できる",
@@ -54489,7 +54489,7 @@
         }
       ],
       "correctIndex": 0,
-      "explanation": "隔離手法のうち Claude Code が自前で強制できるのは組み込み Bash サンドボックスだけです。`sandbox` 設定キーを managed settings（MDM 管理ファイル、または Claude.ai の server-managed settings）で配布し、ユーザーがポリシーを緩められないようにします。\n\n{{diagram:0}}\n\ndev container はチームで標準化する「規約」、カスタムコンテナ/VM は組織のデバイス管理での配布・強制が前提です。",
+      "explanation": "隔離手法のうち Claude Code が自前で強制できるのは組み込み `Bash` サンドボックスだけです。`sandbox` 設定キーを managed settings（MDM 管理ファイル、または Claude.ai の server-managed settings）で配布し、ユーザーがポリシーを緩められないようにします。\n\n{{diagram:0}}\n\ndev container はチームで標準化する「規約」、カスタムコンテナ/VM は組織のデバイス管理での配布・強制が前提です。",
       "referenceUrl": "https://code.claude.com/docs/ja/sandbox-environments",
       "diagrams": [
         {
@@ -54593,7 +54593,7 @@
         }
       ],
       "correctIndex": 2,
-      "explanation": "キャッシュはリクエストのプレフィックス完全一致で機能し、3層（システムプロンプト / プロジェクトコンテキスト / 会話）の順に並びます。\n\n{{diagram:0}}\n\n無効化する主な操作: モデル切替、MCP サーバーの接続/切断、ツール全体の deny ルール追加、`/compact`、Claude Code のアップグレード。保つ操作: スキル/コマンド、`/recap`、`/rewind`、権限モード変更、セッション中の CLAUDE.md 編集（ただし編集は次の `/clear` まで反映もされません）。",
+      "explanation": "キャッシュはリクエストのプレフィックス完全一致で機能し、3層（システムプロンプト / プロジェクトコンテキスト / 会話）の順に並びます。\n\n{{diagram:0}}\n\n無効化する主な操作: モデル切替、MCP サーバーの接続/切断、ツール全体の deny ルール追加、`/compact`、Claude Code のアップグレード。保つ操作: スキル/コマンド、`/recap`、`/rewind`、権限モード変更、セッション中の `CLAUDE.md` 編集（ただし編集は次の `/clear` まで反映もされません）。",
       "referenceUrl": "https://code.claude.com/docs/ja/prompt-caching",
       "diagrams": [
         {
@@ -54835,7 +54835,7 @@
         }
       ],
       "correctIndex": 2,
-      "explanation": "`--worktree`（`-w`）は `.claude/worktrees/<value>/` に `worktree-<value>` ブランチで隔離 worktree を作成し起動します。ブランチは `origin/HEAD` から分岐します（`worktree.baseRef` を `\"head\"` にすると local HEAD から）。\n\n{{diagram:0}}\n\n`#1234` で PR から分岐、`.worktreeinclude`（.gitignore 構文）で gitignore 済みファイルをコピーできます。初回はそのディレクトリで一度 `claude` を実行して信頼を承認する必要があります。",
+      "explanation": "`--worktree`（`-w`）は `.claude/worktrees/<value>/` に `worktree-<value>` ブランチで隔離 worktree を作成し起動します。ブランチは `origin/HEAD` から分岐します（`worktree.baseRef` を `\"head\"` にすると local HEAD から）。\n\n{{diagram:0}}\n\n`#1234` で PR から分岐、`.worktreeinclude`（`.gitignore` 構文）で gitignore 済みファイルをコピーできます。初回はそのディレクトリで一度 `claude` を実行して信頼を承認する必要があります。",
       "referenceUrl": "https://code.claude.com/docs/ja/worktrees",
       "diagrams": [
         {
@@ -54881,7 +54881,7 @@
         }
       ],
       "correctIndex": 2,
-      "explanation": "`/goal <条件>` は完了条件を設定し、各ターン後に small fast model（既定 Haiku）が yes/no を判定します。未達なら理由を添えて次のターンを開始し、達成で自動クリアします。\n\n{{diagram:0}}\n\n`/goal`（引数なし）で状態確認、`/goal clear`（stop/off 等のエイリアス）で早期解除。時間間隔で再実行する `/loop` や、設定ファイルに置く Stop hook とは異なります。",
+      "explanation": "`/goal <条件>` は完了条件を設定し、各ターン後に small fast model（既定 Haiku）が yes/no を判定します。未達なら理由を添えて次のターンを開始し、達成で自動クリアします。\n\n{{diagram:0}}\n\n`/goal`（引数なし）で状態確認、`/goal clear`（stop/off 等のエイリアス）で早期解除。時間間隔で再実行する `/loop` や、設定ファイルに置く `Stop` hook とは異なります。",
       "referenceUrl": "https://code.claude.com/docs/ja/goal",
       "diagrams": [
         {
@@ -55321,8 +55321,8 @@
           "text": "最近呼び出したスキルから優先して各スキル最大5,000トークンが再アタッチされ、合計25,000トークンの予算を超えた古いスキルは除外される"
         },
         {
-          "text": "スキルはCLAUDE.mdと同様に常に全文が再アタッチされる。コンパクション予算の対象外となる",
-          "wrongFeedback": "スキルはCLAUDE.mdとは異なります。CLAUDE.md はコンパクション後も再読み込みされますが、スキルは25,000トークンの共有予算内で最近呼び出したものから優先的に再アタッチされます。"
+          "text": "スキルは `CLAUDE.md` と同様に常に全文が再アタッチされる。コンパクション予算の対象外となる",
+          "wrongFeedback": "スキルは`CLAUDE.md`とは異なります。`CLAUDE.md` はコンパクション後も再読み込みされますが、スキルは25,000トークンの共有予算内で最近呼び出したものから優先的に再アタッチされます。"
         },
         {
           "text": "呼び出したすべてのスキルがコンパクション後も完全な内容で再アタッチされ、コンテンツは失われない",
