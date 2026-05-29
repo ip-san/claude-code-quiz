@@ -138,6 +138,10 @@ export const DOC_PAGES = [
   { name: 'prompt-library', url: 'https://code.claude.com/docs/en/prompt-library' },
   { name: 'sandbox-environments', url: 'https://code.claude.com/docs/en/sandbox-environments' },
   { name: 'sessions', url: 'https://code.claude.com/docs/en/sessions' },
+  // Auto-discovered from llms.txt (2026-05-29)
+  { name: 'large-codebases', url: 'https://code.claude.com/docs/en/large-codebases' },
+  { name: 'security-guidance', url: 'https://code.claude.com/docs/en/security-guidance' },
+  { name: 'workflows', url: 'https://code.claude.com/docs/en/workflows' },
   // Agent SDK (different domain)
   { name: 'agent-sdk-overview', url: 'https://platform.claude.com/docs/en/agent-sdk/overview' },
 ]

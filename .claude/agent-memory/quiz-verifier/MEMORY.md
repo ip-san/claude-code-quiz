@@ -81,6 +81,12 @@
 - settings.md L179: 'effortLevel' accepts "low", "medium", "high", "xhigh"（max は受け付けない）
 - model-config.md L171: 'max is session-only and is not accepted here'
 
+### Opus 4.6 での xhigh サポート（2026-05-29 更新）
+- model-config.md L146-147: Opus 4.6 は `low`, `medium`, `high`, `max` のみ。`xhigh` は Opus 4.7/4.8 のみ
+- ただし環境変数 CLAUDE_CODE_EFFORT_LEVEL=xhigh を設定しても動作はする（high にフォールバック）
+- ses-102 explanation が「Opus 4.6 のコンテキストで CLAUDE_CODE_EFFORT_LEVEL=low|medium|high|xhigh|max|auto」と記述 → minor inaccuracy（実際には xhigh は Opus 4.6 専用の有効値ではない）
+- wrongFeedback では「xhigh は Opus 4.7 専用」と正しく記述されているので問題の正解への影響なし
+
 ### distractor tier の全問は偽陽性（17問中17問）
 - session カテゴリの quality:distractor フラグ問題は全て事実誤認なし
 - 品質（distractor の長さ/書式）の問題だが修正優先度は低い
@@ -193,3 +199,34 @@
 - cmd-104〜cmd-107 (/effort, /copy, /init, /mcp) は正確
 - cmd-108〜cmd-113 (クラウドスケジュール/branch/batch) は概ね正確
 - cmd-116, cmd-117, cmd-118, cmd-119 は正確
+
+## bestpractices カテゴリ検証パターン（2026-05-29, bp-091〜098）
+
+### large-codebases.md の確認済み事実
+- settings.json は起動ディレクトリのみ適用。親ディレクトリ継承なし（L62 確認）
+- worktree.sparsePaths と symlinkDirectories は両方 settings.json の worktree キー下に記述（L191-218）
+- additionalDirectories: ファイルアクセスのみ。CLAUDE.md/rules/skills ロードなし（L247-260 の表）
+- --add-dir: スキルをロード。CLAUDE.md/rules は CLAUDE_CODE_ADDITIONAL_DIRECTORIES_CLAUDE_MD=1 が必要
+- OTEL_LOG_TOOL_DETAILS=1 と skill_activated イベント: large-codebases.md L313 に明記
+- /deep-research は唯一のビルトインワークフロー。WebSearch 必須。（workflows.md L47-54）
+
+### workflows.md の確認済み事実
+- `workflow` キーワードでワークフロー生成トリガー。`alt+w` でキャンセル（L89-95）
+- サブエージェントは常に acceptEdits モードで動作、ツール許可リストを継承（L124）
+- disableWorkflows: true でビルトインコマンド無効、workflow キーワード無効、ultracode 非表示（L173）
+
+## security-guidance.md の確認済み事実（2026-05-29）
+
+### セキュリティプラグインの動作
+- 3層: ファイル編集時（パターンマッチ・モデル呼び出しなし）、ターン終了時（バックグラウンド・最大30ファイル・3回連続）、コミット時（エージェント型・最大20回/時間）
+- ファイルパス: `.claude/claude-security-guidance.md`（モデル指示）、`.claude/security-patterns.yaml`（パターン）
+- `.claude/claude-security-guidance.local.md` もサポート（personal overrides）
+- デフォルトモデル: Claude Opus 4.7（SECURITY_REVIEW_MODEL=エンドターン用、SG_AGENTIC_MODEL=コミット用）
+- `ENABLE_CODE_SECURITY_REVIEW=0`: モデルバックドレビュー全無効
+- コミットレビューは Claude の Bash ツール経由の git commit/push のみ。ユーザーの直接 commit は対象外
+
+## ses-102 での xhigh 表現の誤り（2026-05-29 確認）
+- model-config.md L146: `xhigh` は「Opus 4.8 and Opus 4.7」でサポート（Opus 4.7専用ではない）
+- ses-102 explanation と wrongFeedback の「`xhigh` は Opus 4.7 専用です」は Opus 4.8 を見落とした誤記 → major
+- 正確には「`xhigh` は Opus 4.7/4.8 でサポート。Opus 4.7 のデフォルト。Opus 4.8 のデフォルトは `high`」
+- ses-102 explanation でのモデルリスト「Opus 4.7 / Opus 4.6 / Sonnet 4.6」からも Opus 4.8 が欠落 → major

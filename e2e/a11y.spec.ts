@@ -22,6 +22,11 @@ async function goToMenu(page: Page) {
 
 test.describe('Accessibility (axe-core)', () => {
   test.beforeEach(async ({ page }) => {
+    // Collapse entrance animations (fade-in opacity) to their final state so axe
+    // scans at full opacity. Without this, the scan can land mid-fade and report a
+    // false color-contrast violation (e.g. stone-600 text blended to ~4.16:1 while
+    // the feature-card fade-in with animation-delay:450ms is still in flight).
+    await page.emulateMedia({ reducedMotion: 'reduce' })
     await page.goto('/')
     await page.evaluate(() => localStorage.clear())
     await page.reload()

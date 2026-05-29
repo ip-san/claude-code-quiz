@@ -154,6 +154,10 @@ const VALID_DOC_PAGES = [
   'goal',
   'agents',
   'deep-links',
+  // New pages (2026-05-29)
+  'large-codebases',
+  'workflows',
+  'security-guidance',
   // platform.claude.com pages
   'agent-sdk/overview',
   'agents-and-tools/agent-skills/best-practices',
