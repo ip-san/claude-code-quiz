@@ -88,7 +88,7 @@
 
 **事例:** `startSession({ mode: 'random' })` でマルチセレクト問題が選ばれた時に `selectAnswer(配列)` が失敗
 
-**根本原因:** テストが `selectAnswer(number)` を前提としているが、ランダム出題でマルチセレクト問題（8問/789問）が混入
+**根本原因:** テストが `selectAnswer(number)` を前提としているが、ランダム出題でマルチセレクト問題（8問/799問）が混入
 
 **防御策:**
 - テストでは `startSessionWithIds(getSingleSelectIds(N))` を使用し、シングルセレクト問題のみでセッション開始
