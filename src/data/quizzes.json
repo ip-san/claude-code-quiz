@@ -1490,7 +1490,7 @@
           "wrongFeedback": "`permitted-tools`というフィールドは存在しません。正しくは`allowed-tools`です。"
         },
         {
-          "text": "`tools`（CLAUDE.mdで使えるツールリスト設定キー）",
+          "text": "`tools`（`CLAUDE.md`で使えるツールリスト設定キー）",
           "wrongFeedback": "`tools` というフロントマターフィールドはスキルのパーミッション制御には使われません。正しくは `allowed-tools` で、指定ツールのパーミッション確認をスキップします。"
         },
         {
@@ -21169,7 +21169,7 @@
         },
         {
           "text": "`CLAUDE.md` にすべてのファイル構造とディレクトリの役割を詳細に記載し、起動時にClaudeが自動でコードベース全体を把握できるようにする",
-          "wrongFeedback": "ファイル構造の記載は不要です。Claudeは必要に応じてファイルを自動的に読むため、先に探索的な質問で理解させるのが推奨されます。また過度に詳細なCLAUDE.mdは公式アンチパターン（The over-specified CLAUDE.md）に該当します。"
+          "wrongFeedback": "ファイル構造の記載は不要です。Claudeは必要に応じてファイルを自動的に読むため、先に探索的な質問で理解させるのが推奨されます。また過度に詳細な`CLAUDE.md`は公式アンチパターン（The over-specified `CLAUDE.md`）に該当します。"
         }
       ],
       "correctIndex": 0,
