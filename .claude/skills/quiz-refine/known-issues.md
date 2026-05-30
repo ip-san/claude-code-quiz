@@ -516,3 +516,20 @@ v4.43.0 以前の known-issues では「exit code 2 の一般ルールで UserPr
 - **/voice 要件**: Claude.ai アカウント認証 + ローカルマイクのみ（voice-dictation.md L13-15）。**バージョン要件（v2.1.69 等）は docs に記載なし**
 
 **教訓**: distractor(quality)-tier の lint フラグは偽陽性が大半だが、**lint を通過した "matched" 問題にも事実誤り（特に数値・列挙の網羅性・"非推奨/廃止" の誤断定）が約2%存在**した。新ドキュメント反映時は数値・列挙・バージョン断定を重点確認する。
+
+## 新規35問の検証結果（2026-05-30, incremental run）
+
+- doc 全更新で 810 問全件が target 化、pre-lint で 151 問に絞られた（fact=60, quality=91, autofix=0）。forked context のため Agent/Task 不可、fallback パス（fact-tier spot-check + 決定論的修正）で実施
+- 新規35問（sdk-016〜018, cmd-120〜122, ext-180〜185, tool-080/081, ses-189/190, bp-090〜098, skill-068〜077）のうち高リスク問を docs 照合 → **事実誤りゼロ**。最新ドキュメントに対して正確に生成されていた。確認済み確定事実（次回スキップ可）:
+  - **security-guidance プラグイン**: per-edit パターンチェック=モデル呼び出しなし（決定論的・無コスト）。end-of-turn/commit レビュー=Opus 4.7 既定（`SECURITY_REVIEW_MODEL`/`SG_AGENTIC_MODEL` で変更）。commit レビュー=20回/rolling hour、呼び出し元/サニタイザ/関連ファイルを読むエージェント型。拡張は `.claude/claude-security-guidance.md`(markdown, 合計8KB上限) と `security-patterns.yaml`(YAML/JSON, 最大50ルール)。両方 user+project スコープを連結。組み込みチェックは無効化不可（security-guidance.md L60/83/91/139/147/153）
+  - **/deep-research**: ビルトインワークフロー。複数角度のweb検索→ソース取得・クロスチェック→主張ごとに投票→引用付きレポート。WebSearch ツール必須（workflows.md L49-53）
+  - **disableWorkflows**: managed settings or admin console トグルで組織無効化。無効化で bundled コマンド使用不可 + `workflow` キーワードトリガー無効 + `/effort` から `ultracode` 削除。個人は settings.json / `CLAUDE_CODE_DISABLE_WORKFLOWS=1`（workflows.md L170-173）
+  - **ultracode**: `/effort ultracode` で xhigh effort + 自動ワークフロー編成。xhigh 対応モデルのみ。セッション単位（workflows.md L97-105）
+  - **FORCE_PROMPT_CACHING_5M=1**: 認証無関係に5分TTL強制（デバッグ・managed override用）。サブエージェントはサブスクリプションでも5分TTL。`cache_read_input_tokens`=標準入力の約10%課金。キャッシュヒットでタイマーリセット（prompt-caching.md L106/114/118/131/137）
+  - **Claude Platform on AWS**: ルーティング=`CLAUDE_CODE_USE_ANTHROPIC_AWS=1`+`ANTHROPIC_AWS_WORKSPACE_ID`+`AWS_REGION`（base URL=`https://aws-external-anthropic.{region}.api.aws`）。認証2方式: (A) SigV4（標準AWS認証チェーン）、(B) `ANTHROPIC_AWS_API_KEY`（`x-api-key`送信、SigV4より優先、設定時AWS認証無視）。SSO期限切れ対策=`awsAuthRefresh`（claude-platform-on-aws.md L26-56）
+  - **/goal**: 完了条件設定→各ターン後に small fast model が yes/no判定→未達なら理由付きで次ターン、達成で自動クリア。条件は最大4,000字。1セッション1ゴール。`/loop`(時間間隔), Stop hook(設定ファイル) とは別物（goal.md L11/39/59）
+  - **deep-links (`claude-cli://`)**: `claude-cli://open` のみ受理。`q`(最大5,000字・URLエンコード・`%0A`改行)、`cwd`(絶対パス・network/UNC拒否)、`repo`(owner/name)。`cwd`が`repo`より優先。Enter まで送信されず、起動時 banner 表示、1000字超でスクロール警告（deep-links.md L33/47-51）
+  - **--worktree/-w**: `.claude/worktrees/<value>/` に `worktree-<value>` ブランチ作成。`origin/HEAD` から分岐（`worktree.baseRef="head"` で local HEAD）。`#1234` で PR(`pull/<n>/head`)から分岐し `pr-<number>` に。初回はそのディレクトリで `claude` 実行して trust 承認必須（worktrees.md L15/37/47）
+  - **permissionDecision = 4値** allow/deny/ask/defer を ext-132 で再確認（既出 L485/509 と一致）
+- crossCheck 15問・fact-tier のスポットチェックは全て正確（known-issues L445-456 の「fact-tier は keyword hit のみ」パターンが今回も継続）
+- quality-tier 91問（distractor-too-short 46 + correct-too-long 67 + format-giveaway 8）は事実誤りでなくバランス調整。月次 distractor-balance パスへ委譲継続（未着手）
