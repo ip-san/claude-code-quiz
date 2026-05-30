@@ -17060,7 +17060,7 @@
       "options": [
         {
           "text": "`DISABLE_AUTOUPDATER`環境変数を設定する",
-          "wrongFeedback": "`DISABLE_AUTOUPDATER`はClaude Code本体とプラグイン両方の自動更新を無効にします。プラグインだけ無効にしたい場合はマーケットプレイス単位で制御します。"
+          "wrongFeedback": "`DISABLE_AUTOUPDATER` はデフォルトで本体とプラグイン両方の自動更新を無効にします。プラグイン更新を維持したまま本体更新のみ無効にするには `FORCE_AUTOUPDATE_PLUGINS=1` との併用が必要です。プラグインだけ無効にしたい場合はマーケットプレイス単位で制御します。"
         },
         {
           "text": "claude `--no-auto-update`フラグで起動する",
@@ -53165,7 +53165,7 @@
           "wrongFeedback": "`settings.json` には `tui` 設定キーが保存されるが、ユーザーが直接編集するのではなく `/tui fullscreen` コマンドが書き込む"
         },
         {
-          "text": "セッション内で `/tui fullscreen` を実行する（v2.1.110 以前では環境変数 `CLAUDE_CODE_NO_FLICKER=1` を使う）"
+          "text": "セッション内で `/tui fullscreen` を実行する（環境変数 `CLAUDE_CODE_NO_FLICKER=1` も等価な代替手段）"
         },
         {
           "text": "`/config` で \"Fullscreen mode\" を有効化する",
