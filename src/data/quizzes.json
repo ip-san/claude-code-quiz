@@ -1490,8 +1490,8 @@
           "wrongFeedback": "`permitted-tools`というフィールドは存在しません。正しくは`allowed-tools`です。"
         },
         {
-          "text": "`tools`",
-          "wrongFeedback": "`tools`ではなく`allowed-tools`が正しいフィールド名です。"
+          "text": "`tools`（CLAUDE.mdで使えるツールリスト設定キー）",
+          "wrongFeedback": "`tools` というフロントマターフィールドはスキルのパーミッション制御には使われません。正しくは `allowed-tools` で、指定ツールのパーミッション確認をスキップします。"
         },
         {
           "text": "`allowed-tools`"
@@ -2535,11 +2535,11 @@
       "question": "Claudeがファイルを編集する前に自動的に行われることは何ですか？",
       "options": [
         {
-          "text": "Gitへの自動コミット",
+          "text": "編集前に Git へ自動コミットし、変更履歴をリポジトリに記録する",
           "wrongFeedback": "自動コミットはされません。スナップショットはGitとは別のチェックポイントシステムで管理されます。"
         },
         {
-          "text": "構文チェック",
+          "text": "構文チェックを実行してエラーがないことを確認してから編集を開始する",
           "wrongFeedback": "編集前の構文チェックは自動では行われません。ただしCode Intelligenceプラグインがあれば編集後に型エラーを検出できます。"
         },
         {
@@ -3256,23 +3256,23 @@
       "question": "`/model`コマンドでモデルを切り替えた場合の動作として正しいのはどれですか？",
       "options": [
         {
-          "text": "変更は即座に反映され、現在の応答完了を待つ必要がない。Opus 4.7/Opus 4.6/Sonnet 4.6 では `/model` ピッカー内で左右矢印キーでエフォートレベルも調整できる"
+          "text": "変更は即座に反映され、現在の応答完了を待つ必要がない。Opus 4.8/Opus 4.7/Opus 4.6/Sonnet 4.6 では `/model` ピッカー内で左右矢印キーでエフォートレベルも調整できる"
         },
         {
-          "text": "モデル変更にはまず`/clear`で会話をクリアしてから`/model`を実行する必要がある",
-          "wrongFeedback": "`/model`は単独で即座にモデルを切り替えられます。`/clear`との併用は不要です。"
+          "text": "モデル変更にはまず`/clear`で会話をクリアしてから`/model`を実行する必要がある。クリアしないと変更前のモデルの応答が残留し、コンテキストに不整合が生じる",
+          "wrongFeedback": "`/model`は単独で即座にモデルを切り替えられます。`/clear`との併用は不要で、会話履歴を保持したまま次の応答から新モデルが使われます。"
         },
         {
-          "text": "モデル変更時にセッションがリセットされ、それまでの会話履歴が失われる",
+          "text": "モデル変更時にセッションがリセットされ、それまでの会話履歴が失われる。新しいモデルはリセット後の空コンテキストから応答を開始する",
           "wrongFeedback": "モデル変更でセッションはリセットされません。会話履歴はそのまま保持され、次の応答から新しいモデルが使用されます。"
         },
         {
-          "text": "モデル変更はセッション終了後に次回起動時から反映される",
+          "text": "モデル変更はセッション終了後に次回起動時から反映される。現在のセッション中は変更前のモデルが引き続き使われ、即時切り替えは行われない",
           "wrongFeedback": "モデル変更は即座に反映されます。次回起動を待つ必要はなく、その場で新しいモデルでの応答が開始されます。"
         }
       ],
       "correctIndex": 0,
-      "explanation": "`/model`コマンドはモデルの即時切り替えを行います。Opus 4.7/Opus 4.6/Sonnet 4.6 ではモデル選択画面で左右矢印キーを使ってエフォートレベル（推論の深さ）を調整できる機能があります。\n\n{{diagram:0}}\n\n会話履歴は保持され、セッションの中断なく切り替えが可能です。\n{{diagram:1}}",
+      "explanation": "`/model`コマンドはモデルの即時切り替えを行います。Opus 4.8/Opus 4.7/Opus 4.6/Sonnet 4.6 ではモデル選択画面で左右矢印キーを使ってエフォートレベル（推論の深さ）を調整できる機能があります。\n\n{{diagram:0}}\n\n会話履歴は保持され、セッションの中断なく切り替えが可能です。\n{{diagram:1}}",
       "referenceUrl": "https://code.claude.com/docs/ja/interactive-mode",
       "diagrams": [
         {
@@ -3301,8 +3301,8 @@
           "label": "/modelの正誤ポイント",
           "items": [
             {
-              "text": "変更は即座に反映され、現在の応答完了を待つ必要がない。Opus 4.7/Opus 4.6/Sonnet 4.6 では `/model` ピッカー内で左右矢印キーでエフォートレベルも調整できる（正解）",
-              "sub": "`/model`コマンドはモデルの即時切り替えを行います。Opus 4.7/Opus 4.6/Sonnet 4.6 ではモデル選択画面で左右矢印キーを使ってエフォートレベル（推論の深さ）を調整できる機能があります。 会話履歴は保持され、セッションの中断なく切り替えが可能です。"
+              "text": "変更は即座に反映され、現在の応答完了を待つ必要がない。Opus 4.8/Opus 4.7/Opus 4.6/Sonnet 4.6 では `/model` ピッカー内で左右矢印キーでエフォートレベルも調整できる（正解）",
+              "sub": "`/model`コマンドはモデルの即時切り替えを行います。Opus 4.8/Opus 4.7/Opus 4.6/Sonnet 4.6 ではモデル選択画面で左右矢印キーを使ってエフォートレベル（推論の深さ）を調整できる機能があります。 会話履歴は保持され、セッションの中断なく切り替えが可能です。"
             },
             {
               "text": "モデル変更時にセッションがリセットされ、それまでの会話履歴が失われる",
@@ -3901,18 +3901,18 @@
       "question": "Claude Code の使用状況を確認する `/usage`、`/cost`、`/stats` コマンドの関係として正しいのはどれですか？",
       "options": [
         {
-          "text": "`/cost` だけがトークン使用量を表示し、`/usage`・`/stats` は表示しない",
-          "wrongFeedback": "`/cost` は `/usage` のエイリアスなので、3つとも同じ情報を表示します。"
+          "text": "`/cost` だけがトークン使用量とセッションコストを表示し、`/usage`・`/stats` は統計情報のみを表示する独立したコマンドである",
+          "wrongFeedback": "`/cost` は `/usage` のエイリアスなので、3つとも同じ情報を表示します。それぞれが別機能を持つ独立コマンドではありません。"
         },
         {
-          "text": "`/usage` は API key ユーザー専用で、`/cost`・`/stats` はサブスクリプション専用",
-          "wrongFeedback": "`/usage`（と alias の `/cost`・`/stats`）はセッションコストやプラン利用制限を表示します。API key 専用ではありません。"
+          "text": "`/usage` は API key ユーザー専用でセッションコストを表示し、`/cost`・`/stats` はサブスクリプションユーザー専用でプラン利用制限を表示する",
+          "wrongFeedback": "`/usage`（と alias の `/cost`・`/stats`）はセッションコストやプラン利用制限を表示します。API key 専用ではなく、利用形態を問わず同じ情報を返します。"
         },
         {
           "text": "`/cost` と `/stats` はどちらも `/usage` のエイリアスで、同じ情報（セッションコスト・プラン利用制限・アクティビティ統計）を表示する。`/stats` は Stats タブで開く点だけが異なる"
         },
         {
-          "text": "3つは全く別の情報を表示する独立したコマンドである",
+          "text": "3つは全く別の情報を表示する独立したコマンドで、`/usage` はトークン数、`/cost` はコスト換算額、`/stats` はアクティビティ統計をそれぞれ個別に表示する",
           "wrongFeedback": "実際は `/cost` と `/stats` は `/usage` のエイリアスで同じ機能です。`/stats` は Stats タブで開く点だけが異なります。"
         }
       ],
@@ -4466,12 +4466,12 @@
       "question": "組み込みのサブエージェントタイプに含まれないものはどれですか？",
       "options": [
         {
-          "text": "Plan",
-          "wrongFeedback": "`Plan`はプランモード中のリサーチに使われる読み取り専用の組み込みエージェントです。カスタムエージェントではありません。"
+          "text": "`Plan` — プランモード中のリサーチに特化した組み込みエージェントで、ファイル読み取りと検索のみ実行できる読み取り専用タイプ",
+          "wrongFeedback": "`Plan` はプランモード中のリサーチに使われる読み取り専用の組み込みエージェントです。カスタムエージェントではありません。"
         },
         {
-          "text": "Explore",
-          "wrongFeedback": "`Explore`は読み取り専用のコードベース分析に特化した組み込みエージェントで、Haikuモデルで高速に動作します。カスタムエージェントではありません。"
+          "text": "`Explore` — コードベース全体を高速に分析するための読み取り専用組み込みエージェントで、Haiku モデルで動作しファイル閲覧・検索に特化",
+          "wrongFeedback": "`Explore` は読み取り専用のコードベース分析に特化した組み込みエージェントで、Haiku モデルで高速に動作します。カスタムエージェントではありません。"
         },
         {
           "text": "general-purpose",
@@ -4609,16 +4609,16 @@
       "question": "`PostToolUse`フックと`PreToolUse`フックの動作の違いとして正しいのはどれですか？",
       "options": [
         {
-          "text": "どちらもMCPツールには対応しておらず、組み込みツールのみ`matcher`で指定できる",
-          "wrongFeedback": "`PreToolUse`も`PostToolUse`もMCPツールに対応しています。mcp__<server>__<tool>の命名パターンで`matcher`に指定可能です。"
+          "text": "どちらも MCP ツールには対応しておらず、`matcher` で指定できるのは `Bash` や `Read` などの組み込みツールのみで、mcp__ プレフィックスのツールは対象外",
+          "wrongFeedback": "`PreToolUse` も `PostToolUse` も MCP ツールに対応しています。`mcp__<server>__<tool>` の命名パターンで `matcher` に指定可能です。"
         },
         {
-          "text": "`PostToolUse`は`exit code 2`でツール実行をブロックできるが、`PreToolUse`ではJSON出力のみで制御する",
-          "wrongFeedback": "`PostToolUse`で`exit code 2`を使うと`stderr`がClaudeに表示されますが、ツールは既に実行済みなのでブロックはできません。ブロッキングが可能なのは`PreToolUse`の方です。"
+          "text": "`PostToolUse` は `exit code 2` で stderr の内容を Claude にフィードバックできるが、ツールは既に実行済みのためブロックはできず、`PreToolUse` は JSON 出力（`decision` フィールド）のみで実行前制御を行う",
+          "wrongFeedback": "`PostToolUse` で `exit code 2` を使うと `stderr` が Claude に表示されますが、ツールは既に実行済みなのでブロックはできません。ブロッキングが可能なのは `PreToolUse` の方です。"
         },
         {
-          "text": "`PreToolUse`は`tool_response`を受け取れるが、`PostToolUse`は`tool_input`のみ受け取る",
-          "wrongFeedback": "逆です。`tool_response`はツール実行後の結果であるため、`PostToolUse`が受け取ります。`PreToolUse`はツール実行前なので`tool_input`のみです。"
+          "text": "`PreToolUse` は実行前なので `tool_response` を受け取れるが、`PostToolUse` はツール実行後のため `tool_input` の情報のみを参照でき、実行結果へのアクセス手段を持たない",
+          "wrongFeedback": "逆です。`tool_response` はツール実行後の結果であるため、`PostToolUse` が受け取ります。`PreToolUse` はツール実行前なので `tool_input` のみです。"
         },
         {
           "text": "`PreToolUse`はツール呼び出しをallow/deny/ask/deferで事前制御できるが、`PostToolUse`はツール実行後のため`decision: \"block\"`でClaudeに理由を提示し追加対応を促す形でのフィードバックが主な用途"
@@ -5307,7 +5307,7 @@
           "wrongFeedback": "`exit`や`Ctrl+D`はClaude Code自体を終了させます。終了せずに新しい会話を始めるには`/clear`を使います。"
         },
         {
-          "text": "何もせず続ける",
+          "text": "特に操作せず、そのまま会話を続ける",
           "wrongFeedback": "前のタスクのコンテキストが残ったまま別のタスクを始めると、コンテキストが無駄に消費されます。無関係なタスクの前には`/clear`で会話をリセットしましょう。"
         }
       ],
@@ -5975,16 +5975,16 @@
       "question": "長時間実行されるテストコマンドの途中で、Claudeに別の質問をしたくなりました。`Ctrl+B`の動作として正しいのはどれですか？",
       "options": [
         {
-          "text": "コマンドを `Ctrl+C` でキャンセルして即座に会話に戻り、出力は破棄される",
-          "wrongFeedback": "コマンドはキャンセルされません。`Ctrl+B`はコマンドをバックグラウンドに移動するだけで、引き続き実行が続きます。中止したい場合は`Ctrl+C`を使用します。"
+          "text": "コマンドを `Ctrl+C` でキャンセルして即座に会話に戻る。バックグラウンドには移動せず出力は破棄され、Claudeはキャンセル完了を通知する",
+          "wrongFeedback": "コマンドはキャンセルされません。`Ctrl+B` はコマンドをバックグラウンドに移動するだけで、引き続き実行が続きます。中止したい場合は `Ctrl+C` を使用します。"
         },
         {
-          "text": "コマンドの出力を一時停止し、`再開コマンド`で続きから表示する",
-          "wrongFeedback": "出力の一時停止ではありません。`Ctrl+B`はコマンドを引き続き実行させながらバックグラウンドに移動する機能で、出力はファイルに書き込まれ `Read` ツールで取得できます。一時停止・再開の仕組みではありません。"
+          "text": "コマンドの出力をその場で一時停止し、再開コマンドを入力するとバッファされた続きの出力が再開される",
+          "wrongFeedback": "出力の一時停止ではありません。`Ctrl+B` はコマンドを引き続き実行させながらバックグラウンドに移動する機能で、出力はファイルに書き込まれ `Read` ツールで取得できます。一時停止・再開の仕組みではありません。"
         },
         {
-          "text": "新しいターミナルタブを開いて実行中の `Bash` コマンドをそこに移動する",
-          "wrongFeedback": "新しいターミナルタブは開きません。`Ctrl+B`は同じClaude Codeセッション内でコマンドをバックグラウンドに移動する機能です。コマンドは現在のプロセスで引き続き実行されます。"
+          "text": "新しいターミナルタブを開いて実行中の `Bash` コマンドをそこに移動し、現在の会話ウィンドウは空の状態でリセットされる",
+          "wrongFeedback": "新しいターミナルタブは開きません。`Ctrl+B` は同じ Claude Code セッション内でコマンドをバックグラウンドに移動する機能です。コマンドは現在のプロセスで引き続き実行されます。"
         },
         {
           "text": "実行中の`Bash`コマンドやエージェントをバックグラウンドに移動し、出力はファイルに書き込まれ（`Read` ツールで取得可能）会話を続行できる。tmux環境では2回押す必要がある"
@@ -6117,19 +6117,19 @@
       "question": "`Shift+Tab`キーで切り替えられるパーミッションモードの基本3モードの順序と、それぞれの特徴として正しいのはどれですか？",
       "options": [
         {
-          "text": "Normal → Full Auto（全て自動承認）→ `Read` Only の3モード",
-          "wrongFeedback": "Full Autoモードは存在しない。Auto-Accept Editsはファイル編集のみ自動で、コマンドは確認が必要"
+          "text": "Normal → Full Auto（ファイル編集・コマンド実行とも確認不要）→ `Read` Only（書き込み禁止）の3モード",
+          "wrongFeedback": "Full Auto モードは存在しません。Auto-Accept Edits はファイル編集のみ自動承認で、コマンド実行は引き続き確認が必要です。"
         },
         {
           "text": "Normal（デフォルト、編集・コマンドに確認要）→ Auto-Accept Edits（ファイル編集は自動、コマンドは確認）→ Plan Mode（読み取り専用のみ）"
         },
         {
-          "text": "全てのモードでファイル編集とコマンド実行の動作は同じで、ログレベルのみ異なる",
-          "wrongFeedback": "モードごとに権限レベルが異なる。Normalは全て確認、Auto-Acceptは編集自動、Planは読み取り専用"
+          "text": "全てのモードでファイル編集とコマンド実行の挙動は同一で、ログの詳細レベルとタイムアウト設定のみがモードごとに異なる",
+          "wrongFeedback": "モードごとに権限レベルが異なります。Normal は全操作に確認が必要で、Auto-Accept Edits はファイル編集を自動承認、Plan Mode は読み取り専用に制限されます。"
         },
         {
-          "text": "Plan Mode → Normal → Auto-Accept の順で切り替わる",
-          "wrongFeedback": "正しい順序はNormal（全確認）→ Auto-Accept Edits（編集自動）→ Plan Mode（読み取り専用）の順です"
+          "text": "Plan Mode → Normal → Auto-Accept Edits の順で切り替わり、Plan Mode が最も権限が強い",
+          "wrongFeedback": "正しい順序は Normal（全確認）→ Auto-Accept Edits（編集自動）→ Plan Mode（読み取り専用）の順です。また Plan Mode は最も権限が制限されたモードです。"
         }
       ],
       "correctIndex": 1,
@@ -6502,8 +6502,8 @@
           "text": "@でファイルパスを指定してレビュー観点を明示する"
         },
         {
-          "text": "口頭で説明する",
-          "wrongFeedback": "「ログイン機能をレビューして」のような曖昧な指示では、Claudeがどのファイルを対象にすべきか判断できません。具体的なファイルパスの指定が重要です。"
+          "text": "レビューしてほしい機能の概要を口頭（テキスト）でざっくり説明し、Claudeに関連ファイルを自律的に見つけさせる",
+          "wrongFeedback": "概要だけではClaudeがどのファイルを対象にすべきか特定できないことが多く、見当違いのファイルを参照するリスクがあります。`@`でファイルパスを明示しレビュー観点を指定することで、意図した範囲を正確に把握させることができます。"
         },
         {
           "text": "変更点のみをコピー＆ペーストする",
@@ -7451,8 +7451,8 @@
           "wrongFeedback": "`dontAsk`はパーミッションプロンプトを自動拒否するモードで、有効なパーミッションモードの一つです。明示的に許可されたツールは引き続き動作します。"
         },
         {
-          "text": "`plan`",
-          "wrongFeedback": "`plan`は読み取り専用の探索モード（Plan mode）で、有効なパーミッションモードの一つです。"
+          "text": "`plan`（読み取り専用の探索・計画立案専用モード）",
+          "wrongFeedback": "`plan` は読み取り専用の探索モード（Plan mode）で、有効なパーミッションモードの一つです。サブエージェントに渡すと書き込み操作を禁止し、分析・計画フェーズに限定できます。"
         }
       ],
       "correctIndex": 0,
@@ -7602,18 +7602,18 @@
       "question": "Claude CodeでJupyter Notebookを操作する場合の`NotebookEdit`ツールの機能として正しいのはどれですか？",
       "options": [
         {
-          "text": "コードセルのみ編集可能で、マークダウンセルは `Read` ツールでの読み取りに限られる",
+          "text": "コードセルのみ編集可能で、マークダウンセルは `Read` ツールでの読み取りに限られ、`NotebookEdit` では変更できない",
           "wrongFeedback": "`NotebookEdit`の`cell_type`パラメータでcodeとmarkdownの両方のセルタイプを指定して編集・挿入できます。"
         },
         {
           "text": "セルの置換（replace）、挿入（insert）、削除（delete）の3つの`edit_mode`があり、`cell_type`でコードセルとマークダウンセルを指定できる"
         },
         {
-          "text": "セルの実行結果も含めて編集できるが、新しいセルの挿入機能は提供されていない",
+          "text": "セルの実行結果も含めて編集できるが、新しいセルの挿入機能は提供されておらず、既存セルの内容変更のみが可能である",
           "wrongFeedback": "`NotebookEdit`の`edit_mode`=insertで新しいセルを挿入できます。ただしセルの実行はできず、ソースの編集のみが可能です。"
         },
         {
-          "text": "Notebook ファイル全体を JSON として読み書きするため、セル単位の操作は一切できない",
+          "text": "Notebookファイル全体を JSON として読み書きするため、セル単位の操作は一切できず、必ず全セルを再書き込みする必要がある",
           "wrongFeedback": "`NotebookEdit`は`cell_id`パラメータでセルを特定して個別に操作できます。ファイル全体を扱う必要はありません。"
         }
       ],
@@ -8985,8 +8985,8 @@
           "wrongFeedback": "非ブロッキングエラーは終了コード0以外かつ2以外のコードで発生します。エラーはログに記録されますが、ツール実行はブロックされません。"
         },
         {
-          "text": "再試行要求",
-          "wrongFeedback": "終了コード2はツール実行をブロックするためのコードで、再試行ではありません。Claudeに「このツール使用をブロックした」というフィードバックが返されます。"
+          "text": "再試行要求（`stderr` の内容をエラーメッセージとして Claude に渡し、同じツールを再度実行させる）",
+          "wrongFeedback": "終了コード 2 はツール実行をブロックするためのコードで、再試行ではありません。Claude に「このツール使用をブロックした」というフィードバックが返されます。"
         },
         {
           "text": "ブロッキングエラー（`stderr`がフィードバックされる）"
@@ -10961,7 +10961,7 @@
       "question": "Claude Codeの思考機能（Thinking）について正しいのはどれですか？",
       "options": [
         {
-          "text": "デフォルトで有効で、Opus 4.7 / Opus 4.6 / Sonnet 4.6 ではエフォートレベルに基づいて適応的に推論する（`MAX_THINKING_TOKENS`は無視される）"
+          "text": "デフォルトで有効で、Opus 4.8 / Opus 4.7 / Opus 4.6 / Sonnet 4.6 ではエフォートレベルに基づいて適応的に推論する（`MAX_THINKING_TOKENS`は無視される）"
         },
         {
           "text": "思考トークンは要約された場合でも課金対象で、コンテキストウィンドウの消費量に含まれる",
@@ -10969,7 +10969,7 @@
         },
         {
           "text": "全モデルで同じ固定の `MAX_THINKING_TOKENS` 予算が使用され、エフォートレベルによる調整は行われない",
-          "wrongFeedback": "Opus 4.7 / Opus 4.6 / Sonnet 4.6 ではエフォートレベル（low/medium/high/max/xhigh）に基づく適応的推論が使われ、`MAX_THINKING_TOKENS`は無視されます。他モデルは固定の思考予算を使用します。"
+          "wrongFeedback": "Opus 4.8 / Opus 4.7 / Opus 4.6 / Sonnet 4.6 ではエフォートレベル（low/medium/high/max/xhigh）に基づく適応的推論が使われ、`MAX_THINKING_TOKENS`は無視されます。他モデルは固定の思考予算を使用します。"
         },
         {
           "text": "デフォルトでは無効で、`settings.json`または環境変数で明示的にオンにする必要がある",
@@ -10977,7 +10977,7 @@
         }
       ],
       "correctIndex": 0,
-      "explanation": "アダプティブ推論はデフォルトで有効です。Opus 4.7 / Opus 4.6 / Sonnet 4.6 ではエフォートレベル（low/medium/high/max/xhigh）に基づいて適応的に推論（adaptive reasoning）し、`MAX_THINKING_TOKENS`は無視されます。\n\n{{diagram:0}}\n\nmaxは Opus 4.7 / Opus 4.6 / Sonnet 4.6 で利用可能でセッション単位、xhighは Opus 4.7 専用です。他モデルでは固定の思考予算を使用します。**Opus 4.7 は常にアダプティブ推論で動作**し、`CLAUDE_CODE_DISABLE_ADAPTIVE_THINKING` は適用されません。Opus 4.6 / Sonnet 4.6 でのみ `CLAUDE_CODE_DISABLE_ADAPTIVE_THINKING=1` を設定して固定思考予算（`MAX_THINKING_TOKENS`）に戻せます。思考トークンは要約されても全て課金されます。\n{{diagram:1}}",
+      "explanation": "アダプティブ推論はデフォルトで有効です。Opus 4.8 / Opus 4.7 / Opus 4.6 / Sonnet 4.6 ではエフォートレベル（low/medium/high/max/xhigh）に基づいて適応的に推論（adaptive reasoning）し、`MAX_THINKING_TOKENS`は無視されます。\n\n{{diagram:0}}\n\nmaxは Opus 4.8 / Opus 4.7 / Opus 4.6 / Sonnet 4.6 で利用可能でセッション単位、xhighは Opus 4.8 / Opus 4.7 のみです。他モデルでは固定の思考予算を使用します。**Opus 4.7 以降（Opus 4.7 / Opus 4.8）は常にアダプティブ推論で動作**し、`CLAUDE_CODE_DISABLE_ADAPTIVE_THINKING` は適用されません。Opus 4.6 / Sonnet 4.6 でのみ `CLAUDE_CODE_DISABLE_ADAPTIVE_THINKING=1` を設定して固定思考予算（`MAX_THINKING_TOKENS`）に戻せます。思考トークンは要約されても全て課金されます。\n{{diagram:1}}",
       "referenceUrl": "https://code.claude.com/docs/ja/model-config",
       "diagrams": [
         {
@@ -10990,7 +10990,7 @@
             },
             {
               "text": "モデル判定",
-              "sub": "Opus 4.7 / 4.6 / Sonnet 4.6"
+              "sub": "Opus 4.8 / 4.7 / 4.6 / Sonnet 4.6"
             },
             {
               "text": "アダプティブ推論",
@@ -11007,7 +11007,7 @@
           "label": "モデル別の推論動作",
           "columns": [
             {
-              "heading": "Opus 4.7/4.6/Sonnet 4.6",
+              "heading": "Opus 4.8/4.7/4.6/Sonnet 4.6",
               "items": [
                 "アダプティブ推論",
                 "effort levelで動的調整",
@@ -11170,16 +11170,16 @@
           "text": "iTerm2・WezTerm・Ghostty・Kitty・Warp・Apple Terminal・Windows Terminal では設定不要で動作するが、VS Code・Cursor・Windsurf・Alacritty・Zed では `/terminal-setup` コマンドでバインディングをインストールする必要がある"
         },
         {
-          "text": "`/config`コマンドで「改行キーバインド」設定を変更すれば`Shift+Enter`が有効になる",
-          "wrongFeedback": "`/config`は一般設定用です。ターミナルのキーバインド設定は`/terminal-setup`コマンドで行います"
+          "text": "`/config` コマンドで「改行キーバインド」設定を変更すれば `Shift+Enter` が有効になる。ターミナル側の設定変更は不要",
+          "wrongFeedback": "`/config` は一般設定用のコマンドです。ターミナルのキーバインド設定は `/terminal-setup` コマンドで行います。`/config` に「改行キーバインド」設定は存在しません。"
         },
         {
-          "text": "`Shift+Enter`が使えない場合は複数行入力自体が不可能なので、1行ずつ送信するしかない",
-          "wrongFeedback": "`Shift+Enter`が使えなくても、`\\+Enter`や`Option+Enter`（macOS）、`Ctrl+J`など別の複数行入力方法があります"
+          "text": "`Shift+Enter` が使えない場合は複数行入力自体が不可能になるため、Claude Code 側でメッセージを分割して1行ずつ送信するしかない",
+          "wrongFeedback": "`Shift+Enter` が使えなくても、`\\+Enter` や `Option+Enter`（macOS）、`Ctrl+J` など別の複数行入力方法があります。一行ずつ送信する必要はありません。"
         },
         {
-          "text": "`Shift+Enter`は全てのターミナルで標準対応しているため、Claude Code側の設定が壊れている",
-          "wrongFeedback": "`Shift+Enter` のサポートはターミナル依存です。ネイティブ対応の7種以外（VS Code/Cursor/Windsurf/Alacritty/Zed）では `/terminal-setup` が必要です。"
+          "text": "`Shift+Enter` は全てのターミナルエミュレーターで標準的にサポートされているため、動作しない場合は Claude Code 側の設定が壊れている",
+          "wrongFeedback": "`Shift+Enter` のサポートはターミナル依存です。ネイティブ対応の7種以外（VS Code / Cursor / Windsurf / Alacritty / Zed）では `/terminal-setup` が必要です。"
         }
       ],
       "correctIndex": 0,
@@ -11926,18 +11926,18 @@
     },
     {
       "id": "bp-018",
-      "question": "Opus 4.7/Opus 4.6/Sonnet 4.6 でアダプティブ推論（adaptive reasoning）を使用している場合、推論の深さを調整するにはどうすればよいですか？",
+      "question": "Opus 4.8/Opus 4.7/Opus 4.6/Sonnet 4.6 でアダプティブ推論（adaptive reasoning）を使用している場合、推論の深さを調整するにはどうすればよいですか？",
       "options": [
         {
-          "text": "`MAX_THINKING_TOKENS` 環境変数でトークン数を直接指定し、推論に使用する Thinking トークン量を上限まで使い切らせる",
+          "text": "`MAX_THINKING_TOKENS` 環境変数でトークン数を直接指定すると、アダプティブ推論が有効なモデルでもその上限まで Thinking トークンを使い切り、推論の深さを固定値で常に最大化できる",
           "wrongFeedback": "`MAX_THINKING_TOKENS`はOpus 4.6とSonnet 4.6ではアダプティブ推論が制御するため無視されます。アダプティブ推論を無効化するには`CLAUDE_CODE_DISABLE_ADAPTIVE_THINKING=1`を設定し、その後`MAX_THINKING_TOKENS`でトークン数を制御できます。"
         },
         {
-          "text": "effort level（low/medium/high/xhigh/max/auto）で調整する。Opus 4.7/Opus 4.6/Sonnet 4.6 ではアダプティブ推論により、設定に応じて動的にトークンが割り当てられる（`xhigh` は Opus 4.7 専用、`max` は 3 モデル共通でセッション単位）"
+          "text": "effort level（low/medium/high/xhigh/max/auto）で調整する。Opus 4.8/Opus 4.7/Opus 4.6/Sonnet 4.6 ではアダプティブ推論により、設定に応じて動的にトークンが割り当てられる（`xhigh` は Opus 4.8/4.7 のみ、`max` は 4 モデル共通でセッション単位）"
         },
         {
-          "text": "`/config` で Thinking モードのトグルを切り替え、有効・無効の 2 段階で制御する（モデルやセッション横断で固定）",
-          "wrongFeedback": "`/config`でのトグルはThinkingの有効・無効の切り替えのみです。推論の深さの調整にはeffort level（low/medium/high/xhigh/max/auto、`xhigh` は Opus 4.7 専用）を`/effort`コマンドや`/model`のスライダーで設定します。"
+          "text": "`/config` で Thinking モードのトグルを切り替えることで有効・無効の 2 段階制御が行われ、有効時は常に最深レベルの推論を実行する（モデルやセッションをまたいで設定が固定される）",
+          "wrongFeedback": "`/config`でのトグルはThinkingの有効・無効の切り替えのみです。推論の深さの調整にはeffort level（`low`/`medium`/`high`/`xhigh`/`max`、`xhigh` は Opus 4.8 と Opus 4.7 のみ）を`/effort`コマンドや`/model`のスライダーで設定します。"
         },
         {
           "text": "プロンプト本文に「think hard」「ultrathink」と書くことで API に送信される effort レベルが段階的に上がる",
@@ -11945,7 +11945,7 @@
         }
       ],
       "correctIndex": 1,
-      "explanation": "Opus 4.7/Opus 4.6/Sonnet 4.6 ではアダプティブ推論が導入されており、固定のThinkingトークン予算ではなくeffort level（low/medium/high/xhigh/max/auto の 6 値）に基づいて動的にトークンが割り当てられます。\n{{diagram:0}}\n`xhigh` は Opus 4.7 専用、`max` は 3 モデル共通でセッション単位（永続化されない）です。`/effort`コマンド、`--effort` CLIフラグ、`CLAUDE_CODE_EFFORT_LEVEL`環境変数、settings、`/model`のスライダーで設定できます。`/effort auto`でモデルデフォルトにリセットされます。`MAX_THINKING_TOKENS`は 3 モデルすべてでアダプティブ推論中は無視されます。Opus 4.6 と Sonnet 4.6 のみ `CLAUDE_CODE_DISABLE_ADAPTIVE_THINKING=1` でアダプティブ推論を無効化し `MAX_THINKING_TOKENS` で固定予算に戻せます（Opus 4.7 は常にアダプティブ推論で動作しこのフラグは適用されません）。なお、`MAX_THINKING_TOKENS=0`に設定した場合は例外で、全モデルでthinkingを完全無効化できます。\n{{diagram:1}}",
+      "explanation": "Opus 4.8/Opus 4.7/Opus 4.6/Sonnet 4.6 ではアダプティブ推論が導入されており、固定のThinkingトークン予算ではなくeffort level（low/medium/high/xhigh/max/auto の 6 値）に基づいて動的にトークンが割り当てられます。\n{{diagram:0}}\n`xhigh` は Opus 4.8/4.7 のみ、`max` は 4 モデル共通でセッション単位（永続化されない）です。`/effort`コマンド、`--effort` CLIフラグ、`CLAUDE_CODE_EFFORT_LEVEL`環境変数、settings、`/model`のスライダーで設定できます。`/effort auto`でモデルデフォルトにリセットされます。`MAX_THINKING_TOKENS`は 4 モデルすべてでアダプティブ推論中は無視されます。Opus 4.6 と Sonnet 4.6 のみ `CLAUDE_CODE_DISABLE_ADAPTIVE_THINKING=1` でアダプティブ推論を無効化し `MAX_THINKING_TOKENS` で固定予算に戻せます（Opus 4.7 以降（Opus 4.7 / Opus 4.8）は常にアダプティブ推論で動作しこのフラグは適用されません）。なお、`MAX_THINKING_TOKENS=0`に設定した場合は例外で、全モデルでthinkingを完全無効化できます。\n{{diagram:1}}",
       "category": "bestpractices",
       "difficulty": "advanced",
       "referenceUrl": "https://code.claude.com/docs/ja/model-config",
@@ -11959,8 +11959,8 @@
                 "low",
                 "medium",
                 "high",
-                "xhigh (Opus 4.7 専用)",
-                "max (Opus 4.7/4.6/Sonnet 4.6)",
+                "xhigh (Opus 4.8/4.7)",
+                "max (Opus 4.8/4.7/4.6/Sonnet 4.6)",
                 "auto"
               ]
             },
@@ -13673,8 +13673,8 @@
           "wrongFeedback": "`PreCompact`は手動（`/compact`コマンド）でも自動（コンテキスト上限到達時）でも発火します。どちらか一方だけではありません。"
         },
         {
-          "text": "ファイル保存前",
-          "wrongFeedback": "`PreCompact`はコンテキスト圧縮（compaction）の直前に発火するイベントで、ファイル保存イベントではありません。"
+          "text": "ファイル保存前（`Write` や `Edit` ツールがディスクに書き込む直前のタイミング）",
+          "wrongFeedback": "`PreCompact` はコンテキスト圧縮（compaction）の直前に発火するイベントで、ファイル保存イベントではありません。"
         }
       ],
       "correctIndex": 1,
@@ -14332,15 +14332,15 @@
       "question": "スキルの `context: fork` で使える組み込みサブエージェントのうち、コードベースの読み取り専用探索・分析に特化しており、Haikuモデルで高速動作するのはどれですか？",
       "options": [
         {
-          "text": "`Plan`",
-          "wrongFeedback": "`Plan`はプランモード中のリサーチ・計画立案に特化した読み取り専用エージェントです。コードベース探索もできますが、Plan Modeの計画目的に限定されており、高速探索のためのHaikuモデル特化ではありません。"
+          "text": "`Plan`（Plan Mode 向けリサーチ・計画立案専用エージェント）",
+          "wrongFeedback": "`Plan` はプランモード中のリサーチ・計画立案に特化した読み取り専用エージェントです。コードベース探索もできますが、Plan Mode の計画目的に限定されており、高速探索のための Haiku モデル特化ではありません。"
         },
         {
           "text": "`Explore`"
         },
         {
-          "text": "`Bash`",
-          "wrongFeedback": "`Bash`はシェルコマンドを実行するための**ツール**です。スキルの`agent`フィールドに指定できる組み込みエージェントタイプではありません。組み込みエージェントは`Explore`、`Plan`、`general-purpose`の3種類です。"
+          "text": "`Bash`（シェルコマンドを実行する組み込みツール）",
+          "wrongFeedback": "`Bash` はシェルコマンドを実行するための**ツール**です。スキルの `agent` フィールドに指定できる組み込みエージェントタイプではありません。組み込みエージェントは `Explore`、`Plan`、`general-purpose` の3種類です。"
         },
         {
           "text": "`general-purpose`",
@@ -15208,8 +15208,8 @@
       "question": "Claude Codeのプロンプト入力中に、カーソルから行末までのテキストを一括削除したい場合のreadlineキーバインドはどれですか？",
       "options": [
         {
-          "text": "Delete",
-          "wrongFeedback": "Deleteは1文字削除です。カーソルから行末までの一括削除は`Ctrl+K`を使います。"
+          "text": "Delete（カーソル位置の1文字を前方削除するキー）",
+          "wrongFeedback": "Delete は1文字だけを前方削除するキーです。カーソルから行末まで一括削除するには `Ctrl+K` を使います。"
         },
         {
           "text": "`Ctrl+D`",
@@ -15769,18 +15769,18 @@
       "question": "コードリファクタリングをClaudeに依頼する際のベストプラクティスはどれですか？",
       "options": [
         {
-          "text": "新しいファイルに全て書き直す",
+          "text": "既存コードを一旦削除し、新しいファイルに設計を見直しながら全体を書き直す",
           "wrongFeedback": "全て書き直すとリグレッションのリスクが高まります。既存コードを小さなテスト可能な単位で段階的に改善し、各ステップでテストを通すアプローチが推奨されます。"
         },
         {
           "text": "小さくテスト可能な単位で段階的に進め、各ステップでテストを実行する"
         },
         {
-          "text": "一度に全体をリファクタリングする",
+          "text": "スコープを大きく取り、コードベース全体を一度の作業でまとめてリファクタリングする",
           "wrongFeedback": "一度に全体をリファクタリングすると問題の切り分けが困難になります。小さなインクリメントで進め、各ステップでテストを通過させることで安全に改善できます。"
         },
         {
-          "text": "テストなしで高速にリファクタリングする",
+          "text": "テストを後回しにして変更速度を優先し、リファクタリング完了後にまとめてテストを追加する",
           "wrongFeedback": "テストなしのリファクタリングはリグレッションを見逃すリスクがあります。小さくテスト可能な単位で段階的に進め、各ステップでテストを実行するのが推奨されます。"
         }
       ],
@@ -15910,18 +15910,18 @@
       "question": "「Trust-then-verify gap」という失敗パターンとその解決策は何ですか？",
       "options": [
         {
-          "text": "検証に時間がかかりすぎる → 検証をスキップする",
+          "text": "検証ステップに時間がかかりすぎてボトルネックになる → 検証フェーズをスキップして次のタスクに進む運用を採用する",
           "wrongFeedback": "検証のスキップは危険です。テスト実行やスクリーンショット比較など、常に検証手段を提供することが重要です。"
         },
         {
-          "text": "Claudeを信用しすぎる → 全て手動で書く",
+          "text": "AIへの依存度が高まりすぎてコード品質が下がる → AIに依存せず全コードを手動で記述するポリシーに戻す",
           "wrongFeedback": "手動に戻す必要はありません。正しい解決策はテストやスクリーンショット等の検証手段を常に提供することです。"
         },
         {
           "text": "Claudeの出力を検証せずに受け入れる → テストやスクリーンショット等の検証手段を常に提供する"
         },
         {
-          "text": "出力が長すぎて確認できない → 出力を短くする",
+          "text": "Claudeの出力が長くなりすぎてレビューしきれない → レスポンスの最大長を制限してコンパクトな出力だけを受け入れるようにする",
           "wrongFeedback": "Trust-then-verify gapは出力の長さの問題ではなく、検証なしに結果を信頼してしまうパターンを指します。テスト実行やスクリーンショット比較など、常に検証手段を提供することが解決策です。"
         }
       ],
@@ -16853,12 +16853,12 @@
           "text": "Amazon Bedrock、Google Vertex AI、Microsoft Foundry"
         },
         {
-          "text": "Azure OpenAI、AWS SageMaker",
-          "wrongFeedback": "これらはClaude Codeのプロバイダーではありません。"
+          "text": "Azure OpenAI Service、AWS SageMaker（Anthropic承認済み）",
+          "wrongFeedback": "これらはClaude Codeのプロバイダーではありません。Claude Codeが対応するのはAmazon Bedrock、Google Vertex AI、Microsoft Foundryです。"
         },
         {
-          "text": "OpenAI、Google Gemini",
-          "wrongFeedback": "これらはClaude Codeのプロバイダーではありません。"
+          "text": "OpenAI API、Google Gemini（Anthropicが提携するプロバイダー）",
+          "wrongFeedback": "これらはClaude Codeのプロバイダーではありません。Claude Codeが対応するのはAmazon Bedrock、Google Vertex AI、Microsoft Foundryです。"
         },
         {
           "text": "サードパーティプロバイダーはサポートされていない",
@@ -18280,22 +18280,22 @@
       "options": [
         {
           "text": "minimal, standard, maximum",
-          "wrongFeedback": "これらの値ではありません。正しくはlow、medium、high、max（Opus 4.6/Sonnet 4.6/Opus 4.7で利用可能）、xhigh（Opus 4.7のみ）、auto（デフォルトリセット）です。"
+          "wrongFeedback": "これらの値ではありません。正しくはlow、medium、high、max（Opus 4.8/Opus 4.7/Opus 4.6/Sonnet 4.6で利用可能）、xhigh（Opus 4.8 / Opus 4.7のみ）、auto（デフォルトリセット）です。"
         },
         {
           "text": "1, 2, 3",
-          "wrongFeedback": "数値ではなく文字列です。正しい値はlow、medium、high、max（セッション単位）、xhigh（Opus 4.7のみ）、auto（デフォルトリセット）です。"
+          "wrongFeedback": "数値ではなく文字列です。正しい値はlow、medium、high、max（セッション単位）、xhigh（Opus 4.8 / Opus 4.7のみ）、auto（デフォルトリセット）です。"
         },
         {
           "text": "fast, normal, thorough",
-          "wrongFeedback": "これらの値ではありません。正しくはlow、medium、high、max（Opus 4.6/Sonnet 4.6/Opus 4.7で利用可能）、xhigh（Opus 4.7のみ）、auto（デフォルトリセット）です。"
+          "wrongFeedback": "これらの値ではありません。正しくはlow、medium、high、max（Opus 4.8/Opus 4.7/Opus 4.6/Sonnet 4.6で利用可能）、xhigh（Opus 4.8 / Opus 4.7のみ）、auto（デフォルトリセット）です。"
         },
         {
           "text": "low, medium, high, xhigh, max, auto"
         }
       ],
       "correctIndex": 3,
-      "explanation": "`CLAUDE_CODE_EFFORT_LEVEL`はlow、medium、high、max、xhigh（Opus 4.7のみ）の段階に加え、autoでデフォルトリセットができます。\n\n{{diagram:0}}\n\nmaxはセッション単位で永続化されません（環境変数経由を除く）。デフォルトはOpus 4.7では`xhigh`、Opus 4.6/Sonnet 4.6では`high`です（v2.1.117以降）。lowにすると高速で簡潔な応答、highにするとより深い推論が行われます。\n{{diagram:1}}",
+      "explanation": "`CLAUDE_CODE_EFFORT_LEVEL`はlow、medium、high、max、xhigh（Opus 4.8 / Opus 4.7のみ）の段階に加え、autoでデフォルトリセットができます。\n\n{{diagram:0}}\n\nmaxはセッション単位で永続化されません（環境変数経由を除く）。デフォルトはOpus 4.7では`xhigh`、Opus 4.8 / Opus 4.6 / Sonnet 4.6では`high`です（v2.1.117以降）。lowにすると高速で簡潔な応答、highにするとより深い推論が行われます。\n{{diagram:1}}",
       "referenceUrl": "https://code.claude.com/docs/ja/settings",
       "diagrams": [
         {
@@ -18308,7 +18308,7 @@
             },
             {
               "text": "xhigh",
-              "sub": "Opus 4.7のみ・推奨"
+              "sub": "Opus 4.8 / Opus 4.7のみ・推奨"
             },
             {
               "text": "high",
@@ -18330,19 +18330,19 @@
           "items": [
             {
               "text": "low, medium, high, xhigh, max, auto（正解）",
-              "sub": "`CLAUDE_CODE_EFFORT_LEVEL`はlow、medium、high、max、xhigh（Opus 4.7のみ）の段階に加え、autoでデフォルトリセットができます。 maxはセッション単位で永続化されません（環境変数経由を除く）。デフォルトはOpus 4.7では`xhigh`、Opus 4.6/Sonnet 4.6では`high`です（v2.1.117以降）。lowにすると高速で簡潔な応答、highにするとより深い推論が行われます。"
+              "sub": "`CLAUDE_CODE_EFFORT_LEVEL`はlow、medium、high、max、xhigh（Opus 4.8 / Opus 4.7のみ）の段階に加え、autoでデフォルトリセットができます。 maxはセッション単位で永続化されません（環境変数経由を除く）。デフォルトはOpus 4.7では`xhigh`、Opus 4.8 / Opus 4.6 / Sonnet 4.6では`high`です（v2.1.117以降）。lowにすると高速で簡潔な応答、highにするとより深い推論が行われます。"
             },
             {
               "text": "fast, normal, thorough",
-              "sub": "これらの値ではありません。正しくはlow、medium、high、max（Opus 4.6/Sonnet 4.6/Opus 4.7で利用可能）、xhigh（Opus 4.7のみ）、auto（デフォルトリセット）です。"
+              "sub": "これらの値ではありません。正しくはlow、medium、high、max（Opus 4.8/Opus 4.7/Opus 4.6/Sonnet 4.6で利用可能）、xhigh（Opus 4.8 / Opus 4.7のみ）、auto（デフォルトリセット）です。"
             },
             {
               "text": "1, 2, 3",
-              "sub": "数値ではなく文字列です。正しい値はlow、medium、high、max（セッション単位）、xhigh（Opus 4.7のみ）、auto（デフォルトリセット）です。"
+              "sub": "数値ではなく文字列です。正しい値はlow、medium、high、max（セッション単位）、xhigh（Opus 4.8 / Opus 4.7のみ）、auto（デフォルトリセット）です。"
             },
             {
               "text": "minimal, standard, maximum",
-              "sub": "これらの値ではありません。正しくはlow、medium、high、max（Opus 4.6/Sonnet 4.6/Opus 4.7で利用可能）、xhigh（Opus 4.7のみ）、auto（デフォルトリセット）です。"
+              "sub": "これらの値ではありません。正しくはlow、medium、high、max（Opus 4.8/Opus 4.7/Opus 4.6/Sonnet 4.6で利用可能）、xhigh（Opus 4.8 / Opus 4.7のみ）、auto（デフォルトリセット）です。"
             }
           ]
         }
@@ -18752,11 +18752,11 @@
           "text": "macOS、Linux、WSL2"
         },
         {
-          "text": "全プラットフォーム",
-          "wrongFeedback": "Windows（WSL2以外）では利用できません。"
+          "text": "全プラットフォーム（Windows ネイティブを含むすべての環境）",
+          "wrongFeedback": "Windows（WSL2以外）では`Bash`サンドボックスは利用できません。対応は macOS・Linux・WSL2 に限られます。"
         },
         {
-          "text": "macOSのみ",
+          "text": "macOS のみ（Linux や Windows では動作しない）",
           "wrongFeedback": "macOS以外にもLinuxとWSL2で利用可能です。サンドボックスはmacOSではSeatbelt、LinuxとWSL2ではbubblewrapを使用しています。"
         }
       ],
@@ -19601,7 +19601,7 @@
           "text": "入力欄に復元され、再送信や編集が可能になる"
         },
         {
-          "text": "消去される",
+          "text": "巻き戻し操作と同時に削除され、参照できなくなる",
           "wrongFeedback": "消去されません。選択したメッセージの元のプロンプトは入力欄に復元され、そのまま再送信したり修正して別のアプローチを試すことができます。"
         }
       ],
@@ -20455,16 +20455,16 @@
           "text": "指定したスキルの全コンテンツがサブエージェントのコンテキストに起動時に注入される"
         },
         {
-          "text": "親会話のスキルが自動的に継承される",
-          "wrongFeedback": "スキルは親から自動継承されません。明示的に指定が必要です。"
+          "text": "親会話で有効化されているスキルは自動的にサブエージェントへ継承されるため、`skills` フィールドでの再指定は不要",
+          "wrongFeedback": "スキルは親から自動継承されません。サブエージェントで使いたいスキルは `skills` フィールドで明示的に指定する必要があります。"
         },
         {
-          "text": "スキルがスラッシュコマンドとして利用可能になる",
-          "wrongFeedback": "コマンドではなく、コンテンツがフルで注入されます。"
+          "text": "指定したスキルがスラッシュコマンドとしてサブエージェント内で利用可能になり、`/スキル名` の形式で呼び出せる",
+          "wrongFeedback": "スラッシュコマンドとして登録されるのではなく、スキルのフルコンテンツがサブエージェントのコンテキストに起動時に注入されます。"
         },
         {
-          "text": "スキルのメタデータのみが読み込まれる",
-          "wrongFeedback": "メタデータだけでなく、フルコンテンツが注入されます。"
+          "text": "スキルのタイトル・説明・バージョンなどのメタデータのみが読み込まれ、スキル本文はオンデマンドで取得される",
+          "wrongFeedback": "メタデータだけでなく、スキルのフルコンテンツ全体がサブエージェントのコンテキストに注入されます。"
         }
       ],
       "correctIndex": 0,
@@ -20599,16 +20599,16 @@
           "text": "事前に未承認のツールは自動拒否され、`AskUserQuestion`も失敗する"
         },
         {
-          "text": "メイン会話がブロックされる",
-          "wrongFeedback": "バックグラウンドなのでブロックしません。"
+          "text": "バックグラウンド実行はメイン会話をブロックせず、並行して処理が進むためユーザーは別のタスクを続けられる",
+          "wrongFeedback": "バックグラウンド実行なのでメイン会話はブロックされません。並行して処理が進みます。"
         },
         {
-          "text": "すべてのツールが通常通り使用可能",
-          "wrongFeedback": "パーミッションプロンプトが自動拒否されるため、事前に承認されていないツールは使用できません。また`AskUserQuestion`も失敗します。"
+          "text": "バックグラウンドでもすべてのツールが通常通り使用可能で、パーミッションプロンプトは表示されず自動承認される",
+          "wrongFeedback": "パーミッションプロンプトは自動承認ではなく自動拒否されます。事前に承認されていないツールは使用できず、`AskUserQuestion` も失敗します。"
         },
         {
-          "text": "`AskUserQuestion` による質問が可能",
-          "wrongFeedback": "`AskUserQuestion`ツールは失敗します。"
+          "text": "`AskUserQuestion` ツールを使えば、バックグラウンドのサブエージェントからユーザーに確認を求めることができる",
+          "wrongFeedback": "バックグラウンド実行中は `AskUserQuestion` ツールが失敗します。ユーザーへの質問が必要なタスクはバックグラウンドには適していません。"
         }
       ],
       "correctIndex": 0,
@@ -21101,12 +21101,12 @@
           "text": "具体的で詳細な指示を与える（例：「バグを直して」ではなく「ログイン画面で間違ったパスワード入力後に白画面になるバグを直して」）"
         },
         {
-          "text": "1回のプロンプトですべてのタスクを完了させるように一括で依頼する",
-          "wrongFeedback": "ステップに分けることも推奨されています。"
+          "text": "1回のプロンプトで関連するすべてのタスクを一括依頼し、途中確認なしにClaudeに完走させることで作業効率を最大化する",
+          "wrongFeedback": "ステップに分けることも推奨されています。また長いタスクでは途中確認を挟まないと意図と異なる方向に進むリスクがあります。"
         },
         {
-          "text": "技術用語を避けて日常的な簡単な言葉で概要だけを伝える",
-          "wrongFeedback": "技術用語の使用は問題なく、具体性が重要です。"
+          "text": "技術用語は誤解を招く可能性があるため、平易な日常語で機能の概要だけを伝え、実装詳細はClaudeの判断に委ねる",
+          "wrongFeedback": "技術用語の使用は問題なく、具体性が重要です。実装詳細を含めた具体的な症状・条件・制約を伝えることがClaudeから高品質な結果を得る鍵です。"
         },
         {
           "text": "できるだけ短く曖昧な指示を与え、Claudeの判断に完全に委ねる",
@@ -21160,16 +21160,16 @@
           "text": "先に探索的な質問をする（例：「analyze the database schema」「explain the folder structure」）"
         },
         {
-          "text": "すべてのファイルをプロンプト内で@メンションして明示的に参照させる",
+          "text": "コードベース内の全ファイルをプロンプト内で `@` メンションして明示的に列挙し、Claudeに漏れなく参照させてから変更作業を開始する",
           "wrongFeedback": "手動メンションは不要です。「analyze the database schema」のような探索的な質問でClaudeにコードベースを理解させるのが推奨されます。"
         },
         {
-          "text": "README.mdを最初に読ませてからコード変更の作業を開始させる",
-          "wrongFeedback": "Claudeは必要に応じてファイルを自動的に読みます。"
+          "text": "プロジェクトの `README.md` をプロンプトで最初に読ませてアーキテクチャの概要を把握させてから、コード変更の作業を開始させる",
+          "wrongFeedback": "Claudeは必要に応じてファイルを自動的に読みます。READMEだけでは実際のコード構造を把握できず、探索的な質問（例：「analyze the database schema」）でコードベース自体を理解させる方が効果的です。"
         },
         {
-          "text": "`CLAUDE.md`にすべてのファイル構造を記載してClaudeに読み込ませる",
-          "wrongFeedback": "ファイル構造の記載は不要です。Claudeは必要に応じてファイルを自動的に読むため、先に探索的な質問で理解させるのが推奨されます。"
+          "text": "`CLAUDE.md` にすべてのファイル構造とディレクトリの役割を詳細に記載し、起動時にClaudeが自動でコードベース全体を把握できるようにする",
+          "wrongFeedback": "ファイル構造の記載は不要です。Claudeは必要に応じてファイルを自動的に読むため、先に探索的な質問で理解させるのが推奨されます。また過度に詳細なCLAUDE.mdは公式アンチパターン（The over-specified CLAUDE.md）に該当します。"
         }
       ],
       "correctIndex": 0,
@@ -21308,8 +21308,8 @@
           "wrongFeedback": "claude updateコマンドはありません。"
         },
         {
-          "text": "自動更新される",
-          "wrongFeedback": "Homebrewインストールは自動更新されません。"
+          "text": "Homebrewがバックグラウンドで定期的に自動更新してくれる",
+          "wrongFeedback": "Homebrewインストール版は自動更新されません。定期的に`brew upgrade claude-code`を手動で実行する必要があります。"
         },
         {
           "text": "アンインストールして再インストールする",
@@ -21710,15 +21710,15 @@
       "question": "MCPツール定義がコンテキストを圧迫する問題を解決するTool Search機能のデフォルト動作として正しいのはどれですか？",
       "options": [
         {
-          "text": "Tool Searchは手動で有効化する必要があり、自動有効化の仕組みはない",
+          "text": "Tool Searchは手動で有効化する必要があり、設定ファイルに `ENABLE_TOOL_SEARCH=true` を記述しないと機能しない",
           "wrongFeedback": "Tool Searchはデフォルトで有効です。ENABLE_TOOL_SEARCH=autoを設定すると閾値ベースの読み込みに切り替わり、コンテキストの10%以内なら事前読み込み、超えたら遅延読み込みになります。"
         },
         {
-          "text": "Tool Searchを有効にするとMCPサーバーが自動的に再起動される",
+          "text": "Tool Searchを有効にするとMCPサーバーが自動的に再起動され、ツール定義がリフレッシュされる",
           "wrongFeedback": "MCPサーバーの再起動ではなく、ツール定義の検索方式がオンデマンドに切り替わります。"
         },
         {
-          "text": "全てのモデルで利用可能で、ツール数に関係なく常に有効になる",
+          "text": "全てのモデルで利用可能で、ツール数に関係なく常に有効になり、全ツール定義がコンテキストに一括ロードされる",
           "wrongFeedback": "「全てのモデルで利用可能」が誤りです。Tool SearchはSonnet 4以降またはOpus 4以降のモデルが必要で、Haikuモデルは非対応です。デフォルトでは全MCPツールが遅延読み込みされ、ツール名のみがコンテキストに読み込まれます。"
         },
         {
@@ -23456,19 +23456,19 @@
       "question": "`Read`ツールで大きなPDFファイルを読む場合の制約はどれですか？",
       "options": [
         {
-          "text": "テキストベースの `PDF` のみ対応",
-          "wrongFeedback": "`Read`ツールはPDFの読み取りに対応しており、ページ制限が主な制約です。"
+          "text": "テキストベースの `PDF` のみ対応で、スキャンや画像 `PDF` は読み取り不可",
+          "wrongFeedback": "`Read`ツールはPDFの読み取りに対応しており、ページ制限が主な制約です。テキスト・画像を問わず`pages`パラメータで範囲指定することが重要です。"
         },
         {
-          "text": "ファイルサイズ `10MB` 以下のみ対応",
+          "text": "ファイルサイズ `10MB` 以下のみ対応で、超過した場合は `pages` パラメータで分割読み込みが必要",
           "wrongFeedback": "サイズではなくページ数に制約があります。10ページ超のPDFは`pages`パラメータが必須です。"
         },
         {
           "text": "1リクエストあたり最大20ページまで、10ページ超は`pages`パラメータ必須"
         },
         {
-          "text": "`PDF` ファイルは読み取り非対応",
-          "wrongFeedback": "`Read`ツールはPDFファイルの読み取りに対応しています。"
+          "text": "`PDF` ファイルは読み取り非対応で、`WebFetch` を経由して変換してから処理する必要がある",
+          "wrongFeedback": "`Read`ツールはPDFファイルの読み取りに対応しています。ページ数制限と`pages`パラメータの指定が主な利用上の注意点です。"
         }
       ],
       "correctIndex": 2,
@@ -25946,18 +25946,18 @@
       "question": "Claude Codeでgit操作を行う際、意図しない変更をプッシュしてしまうリスクを軽減する方法はどれですか？",
       "options": [
         {
-          "text": "gitコマンドはすべて手動で実行する",
+          "text": "gitコマンドはすべて手動で実行し、Claude Codeには読み取り専用操作のみを許可してリスクを最小化する",
           "wrongFeedback": "すべてのgitコマンドを手動にするとClaude Codeの自動化の利点が失われ、効率が大幅に低下します。`permissions.deny`で危険な操作（`git push --force`等）のみを制限し、通常のgit操作はClaude Codeに任せるのがバランスの取れたアプローチです。"
         },
         {
           "text": "`permissions.deny`に`Bash(git push --force *)`を追加し、差分確認を依頼する"
         },
         {
-          "text": "`allowedTools`で`Bash`ツール自体を無効にする",
+          "text": "`allowedTools`で`Bash`ツール自体を無効にし、git操作を含む全シェルコマンドの実行を禁止する",
           "wrongFeedback": "`Bash`全体を無効にするとClaude Codeの機能が大幅に制限されます。`permissions.deny`で特定のコマンドパターンのみをブロックするのが適切です。"
         },
         {
-          "text": "Claude Codeに`git push`の実行を許可しない",
+          "text": "Claude Codeに`git push`の実行を一切許可しないよう`permissions.deny`に`Bash(git push *)`を追加する",
           "wrongFeedback": "pushを完全に禁止するのは厳しすぎます。`permissions.deny`に`Bash(git push --force *)`のように危険なパターンのみを指定すれば、通常の`git push`は許可しつつ強制プッシュだけをブロックできます。差分確認を挟む運用と組み合わせるのが効果的です。"
         }
       ],
@@ -34037,19 +34037,19 @@
       "question": "Claude Code でターミナルの最適化を行う `/terminal-setup` コマンドを実行すると有効になる機能はどれですか？",
       "options": [
         {
-          "text": "`Alt+B`、`Alt+F` などの Emacs 風キーバインドと構文ハイライトが有効化される",
-          "wrongFeedback": "Emacs風キーバインドは`/terminal-setup`では有効になりません。「Option as Meta」設定が必要です。`/terminal-setup`は`Shift+Enter`（改行入力）バインディングのみを有効にします。"
+          "text": "`Alt+B`、`Alt+F` などの Emacs 風キーバインドと構文ハイライトが有効化され、複数行編集が快適になる",
+          "wrongFeedback": "Emacs 風キーバインドは `/terminal-setup` では有効になりません。`Option as Meta` 設定が別途必要です。`/terminal-setup` は `Shift+Enter`（改行入力）バインディングのみを有効にします。"
         },
         {
           "text": "`Shift+Enter`（改行入力）のみ有効になる（`Alt+B`/`Alt+F` 等の Emacs 風キーバインドには別途「Option as Meta」設定が必要）"
         },
         {
-          "text": "すべてのキーボードショートカット（Emacs 風含む）が自動設定される",
-          "wrongFeedback": "すべてのショートカットが自動設定されるわけではありません。`/terminal-setup`は`Shift+Enter`（改行入力）バインディングのみを設定します。`Alt+B`/`Alt+F` などの Emacs 風キーバインドには別途「Option as Meta」設定が必要です（`Option+T` は v2.1.132 以降 macOS で設定不要）。"
+          "text": "すべてのキーボードショートカット（Emacs 風バインドや `Alt+B`/`Alt+F` を含む）が `/terminal-setup` で自動的に一括設定される",
+          "wrongFeedback": "すべてのショートカットが自動設定されるわけではありません。`/terminal-setup` は `Shift+Enter`（改行入力）バインディングのみを設定します。`Alt+B`/`Alt+F` などの Emacs 風キーバインドには別途「Option as Meta」設定が必要です。"
         },
         {
-          "text": "VS Code 統合とターミナル間の双方向コンテキスト共有が確立される",
-          "wrongFeedback": "`/terminal-setup` はVS Code統合の設定ではなく、ターミナルの`Shift+Enter`バインディングを設定するコマンドです。VS Code、Cursor、Windsurf、Alacritty、Zedでの改行入力を有効にします。"
+          "text": "VS Code 統合とターミナル間の双方向コンテキスト共有が確立され、エディタとの行き来なく Claude Code が使えるようになる",
+          "wrongFeedback": "`/terminal-setup` は VS Code 統合の設定ではなく、ターミナルの `Shift+Enter` バインディングを設定するコマンドです。VS Code、Cursor、Windsurf、Alacritty、Zed での改行入力を有効にします。"
         }
       ],
       "correctIndex": 1,
@@ -35455,15 +35455,15 @@
           "text": "プラグインのカスタムエージェントをメインスレッドとして有効化し、そのシステムプロンプト・ツール制限・モデルが適用される"
         },
         {
-          "text": "全ユーザーに対してエージェントモードを強制する管理者設定",
+          "text": "全ユーザーに対してエージェントモードを強制する管理者設定で、プロジェクト内のすべての会話にデフォルトで適用される",
           "wrongFeedback": "管理者設定ではありません。プラグイン固有の設定で、そのプラグインが有効な間のみ適用されます。指定したカスタムエージェントをメインスレッドとして有効化する機能です。"
         },
         {
-          "text": "新しいサブエージェントタイプを登録し、`Task` ツールから呼び出し可能にする",
+          "text": "新しいサブエージェントタイプを `settings.json` に登録し、`Task` ツールから `type: \"agent名\"` の形式で呼び出し可能にする",
           "wrongFeedback": "サブエージェントの登録は `agents/` ディレクトリで行います。`settings.json` の `agent` キーは、指定したエージェントをメインスレッドとして有効化し、Claude Code のデフォルトの振る舞いを変更するものです。"
         },
         {
-          "text": "エージェントの最大同時実行数を制限する",
+          "text": "エージェントの最大同時実行数を整数値で制限し、これを超えると新規サブエージェントの起動がキューで待機するようになる",
           "wrongFeedback": "`agent` キーは数値ではなく、`agents/` ディレクトリで定義したエージェント名を文字列で指定します。このエージェントがメインスレッドとして有効化され、システムプロンプトやツール制限が適用されます。"
         }
       ],
@@ -36454,18 +36454,18 @@
       "question": "Claude Code の `/loop` でプロンプトの繰り返し実行を設定する際、インターバルを指定しなかった場合のデフォルト動作はどれですか？",
       "options": [
         {
-          "text": "エラーとなり、インターバルの指定を求められる",
+          "text": "インターバルの省略はエラーとなり、`/loop 15m /コマンド` のようにインターバルの明示を求めるプロンプトが表示される",
           "wrongFeedback": "インターバルは省略可能です。省略時は Claude が動的に間隔を選びます（固定にするには `/loop 15m` のように指定）。"
         },
         {
-          "text": "手動トリガーのみの設定になる",
+          "text": "インターバルを省略すると自動実行は行われず、ユーザーが明示的にトリガーするまで待機する手動モードになる",
           "wrongFeedback": "インターバルを省略しても自動実行されます。Claude が固定スケジュールではなく動的に間隔（1分〜1時間）を選びます。"
         },
         {
           "text": "Claude が状況に応じて動的に間隔を選ぶ（各イテレーション後に1分〜1時間の範囲で決定）"
         },
         {
-          "text": "10分ごとの固定間隔で実行される",
+          "text": "省略時は10分ごとの固定間隔で実行され、完了後に次の10分タイマーが自動的にリセットされる",
           "wrongFeedback": "固定10分ではありません。省略時は Claude が各イテレーション後に状況を見て1分〜1時間の範囲で動的に間隔を選びます。"
         }
       ],
@@ -36939,18 +36939,18 @@
       "question": "Claude Code の Fast モードを使用できない環境はどれですか？",
       "options": [
         {
-          "text": "macOS 環境（Apple Silicon / Intel 問わず）",
-          "wrongFeedback": "macOS 環境で Fast モードは使用可能です。使用できないのはサードパーティクラウドプロバイダー（Bedrock、Vertex AI、Foundry）経由のアクセスです。Anthropic Console API と Claude サブスクリプションプランの Extra Usage 経由で利用できます。"
+          "text": "macOS 環境（Apple Silicon / Intel 問わず、ローカル実行では Fast モードが利用不可）",
+          "wrongFeedback": "macOS 環境で Fast モードは使用可能です。使用できないのはサードパーティクラウドプロバイダー（Bedrock、Vertex AI、Foundry）経由のアクセスです。Anthropic Console API と Claude サブスクリプションプランの usage credits 経由で利用できます。"
         },
         {
           "text": "Haiku モデルを使用している場合（Fast モードは上位モデルのみ対応）",
-          "wrongFeedback": "Fast モードは Opus 4.6 で動作します。有効にすると自動的に Opus 4.6 に切り替わります。使用できないのはサードパーティクラウドプロバイダー（Bedrock、Vertex AI、Foundry）経由のアクセスです。"
+          "wrongFeedback": "Fast モードは Opus 4.7（v2.1.142 以降のデフォルト）で動作します。有効にすると自動的に Fast モードに切り替わります。使用できないのはサードパーティクラウドプロバイダー（Bedrock、Vertex AI、Foundry）経由のアクセスです。"
         },
         {
           "text": "Amazon Bedrock、Google Vertex AI、Microsoft Foundry などのサードパーティクラウドプロバイダー"
         },
         {
-          "text": "CI/CD パイプラインでのヘッドレス実行（非対話モード）",
+          "text": "CI/CD パイプラインでのヘッドレス実行（`--headless` フラグ使用時は Fast モードが無効化される）",
           "wrongFeedback": "ヘッドレス実行での Fast モードの制限は明記されていません。使用できないのはサードパーティクラウドプロバイダー経由のアクセスです。ただし、CI/CD パイプラインのようなコスト重視のワークロードではスタンダードモードが推奨されています。"
         }
       ],
@@ -37012,18 +37012,18 @@
       "question": "Fast モードのレート制限に達した場合、Claude Code はどのように動作しますか？",
       "options": [
         {
-          "text": "Sonnet モデルに自動的に切り替わる",
+          "text": "Sonnet モデルに自動的に切り替わり、クールダウン終了後に Opus の Fast モードへ復帰する",
           "wrongFeedback": "Sonnet への切り替えではなく、標準速度のスタンダードモード（モデルは Opus のまま） へのフォールバックです。`↯` アイコンがグレーに変わってクールダウン中を示し、クールダウンが終了すると自動的に Fast モードに復帰します。"
         },
         {
-          "text": "セッションが一時停止し、ユーザーに待機を求める",
+          "text": "セッションが一時停止し、クールダウン終了までユーザーに明示的な再開操作を求める",
           "wrongFeedback": "セッションは一時停止しません。Fast モードは自動的に標準速度のスタンダードモード（モデルは Opus のまま） にフォールバックし、作業を継続します。`↯` アイコンがグレーに変わりクールダウン中であることを示します。"
         },
         {
           "text": "自動的に標準速度のスタンダードモード（モデルは Opus のまま） にフォールバックし、クールダウン終了後に自動復帰する"
         },
         {
-          "text": "エラーメッセージが表示されセッションが終了する",
+          "text": "エラーメッセージが表示され、手動で再起動するまでセッションが終了する",
           "wrongFeedback": "セッション終了は発生しません。Fast モードは自動的に標準速度のスタンダードモード（モデルは Opus のまま） にフォールバックし、標準の速度と価格で作業を継続します。クールダウンが終了すると自動的に Fast モードに復帰します。"
         }
       ],
@@ -37496,18 +37496,18 @@
       "question": "出力スタイルと `CLAUDE.md`、`--append-system-prompt` の違いとして正しいものはどれですか？",
       "options": [
         {
-          "text": "`--append-system-prompt` はプロンプトを完全に置き換えるが、出力スタイルは追記のみ行う",
+          "text": "`--append-system-prompt` はシステムプロンプトを完全に置き換えるが、出力スタイルはデフォルトプロンプトの末尾に指示を追記するだけで元のプロンプトを保持する",
           "wrongFeedback": "`--append-system-prompt` はシステムプロンプトの末尾に内容を追記するもので、完全な置き換えは `--system-prompt` です。出力スタイルはソフトウェアエンジニアリング関連の指示を無効化し、独自の指示をシステムプロンプトの末尾に追加します。"
         },
         {
-          "text": "3つとも同じ効果を持ち、使い方の好みで選ぶ",
+          "text": "3つとも同じ効果を持ち、どれを使っても最終的なシステムプロンプトの内容は変わらないため、使い方の好みで選ぶだけでよい",
           "wrongFeedback": "3つは異なる動作をします。出力スタイルはデフォルトシステムプロンプトのソフトウェアエンジニアリング関連部分を無効化します。`CLAUDE.md` はシステムプロンプトの後にユーザーメッセージとして追加され、`--append-system-prompt` はシステムプロンプトの末尾に追記されます。"
         },
         {
           "text": "出力スタイルはデフォルトシステムプロンプトの一部を無効化するが、`CLAUDE.md` と `--append-system-prompt` はデフォルトプロンプトを変更しない"
         },
         {
-          "text": "`CLAUDE.md` はシステムプロンプトを変更するが、出力スタイルはユーザーメッセージとして追加される",
+          "text": "`CLAUDE.md` の内容はシステムプロンプトとして挿入されるが、出力スタイルはユーザーメッセージとして会話の先頭に追加される",
           "wrongFeedback": "逆です。`CLAUDE.md` の内容はデフォルトシステムプロンプトの後にユーザーメッセージとして追加されます。出力スタイルはデフォルトシステムプロンプトのソフトウェアエンジニアリング関連部分を直接変更（無効化）します。"
         }
       ],
@@ -37923,15 +37923,15 @@
       "question": "`acceptEdits` パーミッションモードを設定した場合の動作として正しいものはどれですか？",
       "options": [
         {
-          "text": "Plan Mode と同様にファイルの分析のみ可能で、変更は一切行えない",
+          "text": "Plan Mode と同様にファイルの分析・読み取りのみ可能で、`Edit`/`Write` 等の変更操作は一切行えない",
           "wrongFeedback": "分析のみのモードは `plan` です。`acceptEdits` はファイル編集を自動承認してワークフローを効率化するモードです。"
         },
         {
-          "text": "すべてのツール実行が自動承認され、確認プロンプトは一切表示されない",
+          "text": "すべてのツール実行（`Edit`/`Write`/`Bash` コマンド等）が自動承認され、確認プロンプトは一切表示されない",
           "wrongFeedback": "すべてを自動承認するのは `bypassPermissions` モードです。`acceptEdits` はファイル編集の許可のみ自動化し、`Bash` コマンドなど他のツールは通常通り確認が必要です。"
         },
         {
-          "text": "事前に `/permissions` で許可したツールのみ実行可能で、それ以外は自動拒否される",
+          "text": "事前に `/permissions` で許可したツール（`Edit`/`Write` 等）のみ実行可能で、それ以外の操作は自動拒否される",
           "wrongFeedback": "事前許可ベースの動作は `dontAsk` モードです。`acceptEdits` はファイル編集パーミッションを自動承認するモードです。"
         },
         {
@@ -38596,11 +38596,11 @@
           "text": "200行以下"
         },
         {
-          "text": "500行以下",
-          "wrongFeedback": "features-overview ページには「~500行以下」という記載もありますが、memory ページでは1ファイルあたり200行以下を目標にすることが推奨されています。長くなった場合は Skills やルールファイルに分割するのが効果的です。"
+          "text": "500行以下（スキルや詳細ルールを含めた合計目安）",
+          "wrongFeedback": "memory ページでは1ファイルあたり200行以下を目標にすることが推奨されています。長くなった場合はスキルやルールファイルに分割するのが効果的です。"
         },
         {
-          "text": "1000行以下",
+          "text": "1000行以下（コンテキストウィンドウの制限内であれば問題なし）",
           "wrongFeedback": "公式ドキュメントでは1ファイルあたり200行以下を目標とすることが推奨されています。`CLAUDE.md` は毎セッション自動読み込みされるため、コンテキスト効率の観点から短く保つことが重要です。"
         },
         {
@@ -38811,15 +38811,15 @@
           "text": "必須の前提条件は特にない。Git for Windows は推奨（`Bash` ツールが使える）だが任意で、未インストールなら PowerShell がシェルツールとして使われる"
         },
         {
-          "text": "Visual Studio Build Tools のインストールが必須",
-          "wrongFeedback": "Build Tools は不要です。"
+          "text": "Visual Studio Build Tools のインストールが必須で、未インストール時は `npm install` 段階でエラーになる",
+          "wrongFeedback": "Visual Studio Build Tools は不要です。Git for Windows（任意）があれば `Bash` ツールが使えますが、未インストール時は PowerShell がシェルとして使われます。"
         },
         {
-          "text": "Windows Subsystem for Linux（WSL）のインストールが必須",
-          "wrongFeedback": "WSL は必須ではありません。Windows ネイティブで動作します（Git for Windows は任意）。"
+          "text": "Windows Subsystem for Linux（WSL）のインストールが必須で、WSL なしでは `Bash` ツールが動作しない",
+          "wrongFeedback": "WSL は必須ではありません。Windows ネイティブで動作します。Git for Windows（任意）がなければ PowerShell が `Bash` の代わりに使われます。"
         },
         {
-          "text": "PowerShell 7 以上へのアップグレードが必須",
+          "text": "PowerShell 7 以上へのアップグレードが必須で、Windows 標準の `powershell.exe` では動作しない",
           "wrongFeedback": "PowerShell のバージョンは要件ではありません。シェルは `Bash`/Zsh/PowerShell/CMD のいずれかで動作します。"
         }
       ],
@@ -39695,19 +39695,19 @@
       "question": "ターミナルで Claude Code の複数行入力（`Shift+Enter`）を追加設定なしでネイティブサポートしているターミナルエミュレーターはどれですか？",
       "options": [
         {
-          "text": "Alacritty と Zed のみ",
-          "wrongFeedback": "Alacritty と Zed は `/terminal-setup` が必要です。ネイティブ対応は iTerm2/WezTerm/Ghostty/Kitty/Warp/Apple Terminal/Windows Terminal の7種です。"
+          "text": "Alacritty と Zed のみ（他のターミナルは `/terminal-setup` は不要）",
+          "wrongFeedback": "Alacritty と Zed は `/terminal-setup` が必要なグループです。ネイティブ対応は iTerm2 / WezTerm / Ghostty / Kitty / Warp / Apple Terminal / Windows Terminal の7種です。"
         },
         {
-          "text": "すべてのターミナルエミュレーターでネイティブサポートされている",
-          "wrongFeedback": "ネイティブ対応は7種（iTerm2/WezTerm/Ghostty/Kitty/Warp/Apple Terminal/Windows Terminal）。VS Code/Cursor/Windsurf/Alacritty/Zed は `/terminal-setup` が必要です。"
+          "text": "すべてのターミナルエミュレーターでネイティブサポートされており、追加設定は一切不要",
+          "wrongFeedback": "ネイティブ対応は7種（iTerm2 / WezTerm / Ghostty / Kitty / Warp / Apple Terminal / Windows Terminal）のみです。VS Code / Cursor / Windsurf / Alacritty / Zed は `/terminal-setup` が必要です。"
         },
         {
           "text": "iTerm2、WezTerm、Ghostty、Kitty、Warp、Apple Terminal、Windows Terminal"
         },
         {
-          "text": "VS Code、Cursor、Windsurf、Alacritty、Zed",
-          "wrongFeedback": "これらは `/terminal-setup` が必要なグループで、ネイティブ対応ではありません。"
+          "text": "VS Code、Cursor、Windsurf、Alacritty、Zed（これらはネイティブ対応ターミナルと同等のサポートを提供する）",
+          "wrongFeedback": "これらは `/terminal-setup` が必要なグループで、ネイティブ対応ではありません。追加設定をすれば `Shift+Enter` は使えるようになりますが、設定なしでは動作しません。"
         }
       ],
       "correctIndex": 2,
@@ -40240,18 +40240,18 @@
       "question": "プラグインのバージョンを `plugin.json` と `marketplace.json` の両方で設定した場合、どちらが優先されますか？",
       "options": [
         {
-          "text": "`marketplace.json` のバージョンが常に優先される",
+          "text": "`marketplace.json` のバージョンが常に優先され、`plugin.json` のバージョンは参照されずに無視される",
           "wrongFeedback": "`plugin.json` のバージョンが常に暗黙的に優先されます。両方に設定すると `marketplace.json` のバージョンは無視されるため、片方のみに設定することが推奨されています。"
         },
         {
-          "text": "コンフリクトエラーが発生し、プラグインの読み込みに失敗する",
+          "text": "コンフリクトエラーが発生し、プラグインの読み込みに失敗するため、必ずどちらか一方のみに設定する必要がある",
           "wrongFeedback": "エラーにはなりませんが、`plugin.json` が暗黙的に優先されます。`marketplace.json` のバージョンが無視されるため、片方のみに設定することが推奨されています。"
         },
         {
           "text": "`plugin.json` のバージョンが暗黙的に優先され、`marketplace.json` のバージョンは無視される"
         },
         {
-          "text": "より新しいバージョン番号が自動的に選択される",
+          "text": "より新しいバージョン番号が自動的に選択され、古い方は無視されるためどちらに書いても問題ない",
           "wrongFeedback": "バージョン比較は行われません。`plugin.json` のバージョンが常に暗黙的に優先されます。混乱を避けるため片方のみに設定することが推奨されています。"
         }
       ],
@@ -42447,18 +42447,18 @@
       "question": "Claude Codeのセキュリティアーキテクチャにおいて、書き込みアクセスの制限として正しいものはどれですか？",
       "options": [
         {
-          "text": "サンドボックスが有効な場合のみ書き込みが制限される",
+          "text": "サンドボックスモードが有効に設定されている場合のみ書き込みが制限され、通常モードではホームディレクトリ配下への書き込みも可能",
           "wrongFeedback": "書き込み制限はサンドボックスの有無に関係なく、デフォルトで適用されます。Claude Codeを起動したフォルダとそのサブフォルダ内のみが書き込み対象で、これは基本的なセキュリティ境界として常に有効です。"
         },
         {
-          "text": "明示的に許可されたファイル拡張子のみ編集可能",
+          "text": "パーミッション設定で明示的に許可されたファイル拡張子（`.ts`, `.json` など）のみ編集可能で、それ以外の拡張子は読み取り専用となる",
           "wrongFeedback": "ファイル拡張子による制限ではありません。Claude Codeは起動したフォルダとそのサブフォルダ内のファイルのみ書き込み可能で、親ディレクトリへの書き込みは明示的な許可がない限りできません。"
         },
         {
           "text": "起動したフォルダとそのサブフォルダ内のみ書き込み可能で、親ディレクトリへの書き込みには明示的な許可が必要"
         },
         {
-          "text": "ホームディレクトリ配下のすべてのファイルに書き込み可能",
+          "text": "デフォルトでホームディレクトリ配下のすべてのファイルへの書き込みが可能で、書き込み制限はパーミッション設定で後から追加する",
           "wrongFeedback": "ホームディレクトリ全体ではありません。書き込みはClaude Codeを起動したフォルダとそのサブフォルダに限定されています。読み取りは外部のファイル（システムライブラリ等）も可能ですが、書き込みはプロジェクトスコープ内に制限されます。"
         }
       ],
@@ -43366,12 +43366,12 @@
       "question": "Claude Codeのデプロイメントオプションの比較で、Claude for Teams/Enterpriseを選択する利点として正しいものはどれですか？",
       "options": [
         {
-          "text": "プロンプトキャッシングがTeams/Enterpriseでのみ利用可能",
+          "text": "プロンプトキャッシングがTeams/Enterpriseプランでのみ利用可能で、API直接利用時より応答速度が向上する",
           "wrongFeedback": "プロンプトキャッシングはすべてのデプロイメントオプション（Teams/Enterprise、Console、Bedrock、Vertex、Foundry）でデフォルトで有効です。Teams/Enterprise固有の機能ではありません。"
         },
         {
-          "text": "API呼び出しの従量課金のみで固定費がかからない",
-          "wrongFeedback": "TeamsプランはPremium席で$150/seat の固定費があります。従量課金のみのモデルはAnthropic Console、Amazon Bedrock、Google Vertex AI、Microsoft Foundryで提供されます。"
+          "text": "API呼び出しの従量課金のみで固定費がかからず、小規模チームでのコスト最適化に最適",
+          "wrongFeedback": "TeamsプランはPremium席で$150/seat の固定費があります。従量課金のみのモデルはAnthropic Console、Amazon Bedrock、Claude Platform on AWS、Google Vertex AI、Microsoft Foundryで提供されます。"
         },
         {
           "text": "Claude CodeとClaude on the webの両方に単一サブスクリプションでアクセスでき、インフラセットアップが不要"
@@ -46310,26 +46310,26 @@
       "id": "skill-061",
       "category": "skills",
       "difficulty": "intermediate",
-      "question": "スキルのfrontmatterで`effort`フィールドに設定できる値として、Opus 4.7 でのみ使用可能なオプションはどれですか？",
+      "question": "スキルのfrontmatterで`effort`フィールドに設定できる値として、Opus 4.6 / Sonnet 4.6 では使用できない（Opus 4.8 または Opus 4.7 が必要な）オプションはどれですか？",
       "options": [
         {
           "text": "`extreme`",
-          "wrongFeedback": "`extreme`というオプションは存在しません。`effort`フィールドのオプションは`low`、`medium`、`high`、`max`、`xhigh`（Opus 4.7 のみ）です。"
+          "wrongFeedback": "`extreme`というオプションは存在しません。`effort`フィールドのオプションは`low`、`medium`、`high`、`max`、`xhigh`（Opus 4.8 / Opus 4.7 のみ）です。"
         },
         {
           "text": "`xhigh`"
         },
         {
-          "text": "`max`",
-          "wrongFeedback": "`max`は Opus 4.7 / Opus 4.6 / Sonnet 4.6 で利用可能で、Opus 4.7 専用ではありません。Opus 4.7 のみで使用できるのは `xhigh` です。"
+          "text": "`max`（Opus 4.8・Opus 4.7・Opus 4.6・Sonnet 4.6 すべてで使える最上位オプション）",
+          "wrongFeedback": "`max` は Opus 4.8 / Opus 4.7 / Opus 4.6 / Sonnet 4.6 すべてで利用可能です。Opus 4.8 と Opus 4.7 のみで使えるのは `xhigh` です。"
         },
         {
-          "text": "`ultra`",
-          "wrongFeedback": "`ultra`というオプションは存在しません。`effort`フィールドのオプションは`low`、`medium`、`high`、`max`、`xhigh`（Opus 4.7 のみ）です。"
+          "text": "`ultra`（effort フィールドの最大強度を表す非公式の別名）",
+          "wrongFeedback": "`ultra` というオプションは存在しません。`effort` フィールドの値は `low`・`medium`・`high`・`max` と、Opus 4.8 / Opus 4.7 のみで使える `xhigh` です。"
         }
       ],
       "correctIndex": 1,
-      "explanation": "スキルのfrontmatterで`effort`フィールドを設定すると、セッションのeffortレベルを上書きできます。選択肢は`low`、`medium`、`high`、`xhigh`、`max`の5種で、`xhigh`は Opus 4.7 でのみ使用可能、`max`は Opus 4.7 / Opus 4.6 / Sonnet 4.6 で利用可能です。\n\n{{diagram:0}}\n\nこれにより、高精度が必要なスキルにはより高いeffortを、軽量なスキルにはより低いeffortを割り当てることができます。\n{{diagram:1}}",
+      "explanation": "スキルのfrontmatterで`effort`フィールドを設定すると、セッションのeffortレベルを上書きできます。選択肢は`low`、`medium`、`high`、`xhigh`、`max`の5種で、`xhigh`は Opus 4.8 / Opus 4.7 でのみ使用可能（Opus 4.6 / Sonnet 4.6 では `high` にフォールバック）、`max`は全4モデル（Opus 4.8 / 4.7 / 4.6 / Sonnet 4.6）で利用可能です。\n\n{{diagram:0}}\n\nこれにより、高精度が必要なスキルにはより高いeffortを、軽量なスキルにはより低いeffortを割り当てることができます。\n{{diagram:1}}",
       "referenceUrl": "https://code.claude.com/docs/ja/skills#frontmatter-reference",
       "diagrams": [
         {
@@ -46375,19 +46375,19 @@
           "items": [
             {
               "text": "`xhigh`（正解）",
-              "sub": "スキルのfrontmatterで`effort`フィールドを設定すると、セッションのeffortレベルを上書きできます。選択肢は`low`、`medium`、`high`、`xhigh`、`max`の5種で、`xhigh`は Opus 4.7 でのみ、`max`は Opus 4.7 / Opus 4.6 / Sonnet 4.6 で利用可能です。"
+              "sub": "スキルのfrontmatterで`effort`フィールドを設定すると、セッションのeffortレベルを上書きできます。選択肢は`low`、`medium`、`high`、`xhigh`、`max`の5種で、`xhigh`は Opus 4.8 / Opus 4.7 でのみ、`max`は全4モデルで利用可能です。"
             },
             {
               "text": "`max`",
-              "sub": "`max`は Opus 4.7 / Opus 4.6 / Sonnet 4.6 で利用可能で、Opus 4.7 専用ではありません。Opus 4.7 のみで使用できるのは `xhigh` です。"
+              "sub": "`max`は Opus 4.8 / Opus 4.7 / Opus 4.6 / Sonnet 4.6 すべてで利用可能です。Opus 4.8 と Opus 4.7 のみで使えるのは `xhigh` です。"
             },
             {
               "text": "`extreme`",
-              "sub": "`extreme`というオプションは存在しません。`effort`フィールドのオプションは`low`、`medium`、`high`、`max`、`xhigh`（Opus 4.7 のみ）です。"
+              "sub": "`extreme`というオプションは存在しません。`effort`フィールドのオプションは`low`、`medium`、`high`、`max`、`xhigh`（Opus 4.8 / Opus 4.7 のみ）です。"
             },
             {
               "text": "`ultra`",
-              "sub": "`ultra`というオプションは存在しません。`effort`フィールドのオプションは`low`、`medium`、`high`、`max`、`xhigh`（Opus 4.7 のみ）です。"
+              "sub": "`ultra`というオプションは存在しません。`effort`フィールドのオプションは`low`、`medium`、`high`、`max`、`xhigh`（Opus 4.8 / Opus 4.7 のみ）です。"
             }
           ]
         }
@@ -47797,15 +47797,15 @@
           "text": "できない。セキュリティ上の理由で、ユーザー・ポリシー設定および `--settings` フラグからのみ指定可能（プロジェクト・ローカル設定からは不可）"
         },
         {
-          "text": "できる。プロジェクト設定 (`.claude/settings.json`) から指定するのが推奨",
+          "text": "できる。`.claude/settings.json` に `autoMemoryDirectory` を設定するのがチーム共有のベストプラクティスとして公式に推奨されている",
           "wrongFeedback": "セキュリティ上の理由で、プロジェクト設定からは指定できません。共有プロジェクトがメモリの書き込み先を悪意のある場所にリダイレクトするのを防ぐためです。"
         },
         {
-          "text": "できる。ただしリポジトリにコミットされチーム全員に同じパスが適用される",
+          "text": "できる。プロジェクト設定に書けばリポジトリにコミットされ、チーム全員が同じ `autoMemoryDirectory` パスを使うよう統一される",
           "wrongFeedback": "プロジェクト設定からは受け付けられません。ユーザー・ポリシー設定または `--settings` フラグからのみ指定できます。"
         },
         {
-          "text": "そのような設定は存在しない。保存先は固定で変更不可",
+          "text": "`autoMemoryDirectory` のような保存先カスタマイズ設定は存在せず、Auto Memory の保存先はシステムが定める固定パスから変更できない",
           "wrongFeedback": "`autoMemoryDirectory`設定は存在します。ただしプロジェクト設定ではなく、ユーザー・ポリシー設定または `--settings` フラグから指定する必要があります。"
         }
       ],
@@ -48283,8 +48283,8 @@
       "question": "環境変数 `CLAUDECODE` はどのような場面で `1` に設定されますか？",
       "options": [
         {
-          "text": "ユーザーが `.bashrc` で手動で設定する必要がある",
-          "wrongFeedback": "手動設定は不要です。Claude Code が `Bash` ツールや tmux セッションを起動する際に自動的に設定されます"
+          "text": "ユーザーが `.bashrc` または `.zshrc` に `export CLAUDECODE=1` を記述して手動で設定する必要がある",
+          "wrongFeedback": "手動設定は不要です。Claude Code が `Bash` ツールや tmux セッションを起動する際に自動的に設定されます。"
         },
         {
           "text": "`Claude Code` のインストール時にシステム全体に設定される",
@@ -48294,8 +48294,8 @@
           "text": "Claude Code が起動するサブプロセス（`Bash`/`PowerShell` ツール、tmux セッション、フックコマンド、ステータスラインコマンド）で自動的に設定される"
         },
         {
-          "text": "ユーザーが通常起動したログインシェルでも常に `1` に設定される",
-          "wrongFeedback": "通常のターミナル/ログインシェルでは設定されません。Claude Code が起動するサブプロセス（`Bash`/PowerShell ツール、tmux、フックコマンド、ステータスラインコマンド）でのみ `1` になります"
+          "text": "ユーザーが通常起動したログインシェルや `ssh` セッションでも `CLAUDECODE=1` が常に設定される",
+          "wrongFeedback": "通常のターミナル/ログインシェルでは設定されません。Claude Code が起動するサブプロセス（`Bash`/PowerShell ツール、tmux、フックコマンド、ステータスラインコマンド）でのみ `1` になります。"
         }
       ],
       "correctIndex": 2,
@@ -48358,16 +48358,16 @@
       "question": "`CLAUDE_AUTOCOMPACT_PCT_OVERRIDE` 環境変数の役割として正しいものはどれですか？",
       "options": [
         {
-          "text": "コンパクションの実行回数の上限を設定する",
-          "wrongFeedback": "実行回数ではなく、自動コンパクションが発動するコンテキスト容量の使用パーセンテージ（1-100）を設定します"
+          "text": "コンパクションを1セッション内で実行できる最大回数の上限（1-10）を設定する",
+          "wrongFeedback": "実行回数ではなく、自動コンパクションが発動するコンテキスト容量の使用パーセンテージ（1-100）を設定します。"
         },
         {
-          "text": "コンパクション時の圧縮率を指定する",
-          "wrongFeedback": "圧縮率ではなく、自動コンパクションが発動するタイミング（コンテキスト使用率の閾値）を設定する変数です"
+          "text": "コンパクション時にコンテキストを圧縮する割合（0.1-1.0）を小数で指定する",
+          "wrongFeedback": "圧縮率ではなく、自動コンパクションが発動するタイミング（コンテキスト使用率の閾値）を設定する変数です。"
         },
         {
-          "text": "コンパクション後に残すコンテキストの割合を指定する",
-          "wrongFeedback": "残す割合ではなく、自動コンパクションが発動するコンテキスト使用率の閾値を設定します"
+          "text": "コンパクション後にコンテキストウィンドウに残す会話の割合（1-100）をパーセントで指定する",
+          "wrongFeedback": "残す割合ではなく、自動コンパクションが発動するコンテキスト使用率の閾値を設定します。"
         },
         {
           "text": "自動コンパクションが発動するコンテキスト容量のパーセンテージ（1-100）を設定する"
@@ -48546,12 +48546,12 @@
       "question": "`CLAUDE_ENV_FILE` 環境変数について正しい説明はどれですか？",
       "options": [
         {
-          "text": "`.env` ファイルのパスを指定して環境変数を一括で読み込むための設定",
-          "wrongFeedback": "`.env` ファイルの読み込みではなく、各 `Bash` コマンド実行前にソースされるシェルスクリプトのパスを指定します"
+          "text": "`.env` ファイルのパスを指定して、プロジェクトの環境変数を各 `Bash` コマンド実行時に自動的に一括で読み込むための設定",
+          "wrongFeedback": "`.env` ファイルの読み込みではなく、各 `Bash` コマンド実行前にソースされるシェルスクリプトのパスを指定します。"
         },
         {
-          "text": "API キーやシークレットを格納するセキュアなファイルのパスを指定する",
-          "wrongFeedback": "API キーの格納ではなく、`Bash` コマンド実行前にソースされるシェルスクリプトのパスを指定する環境変数です"
+          "text": "API キーやシークレットを格納するセキュアなファイルのパスを指定し、`Bash` コマンドから安全に参照できるようにする",
+          "wrongFeedback": "API キーの格納ではなく、`Bash` コマンド実行前にソースされるシェルスクリプトのパスを指定する環境変数です。"
         },
         {
           "text": "Claude Code が各 `Bash` コマンドの実行前にソースするシェルスクリプトのパスを指定し、virtualenv や conda の有効化を持続させる"
@@ -48621,19 +48621,19 @@
       "question": "`ENABLE_TOOL_SEARCH` 環境変数の `auto:N` 形式について正しい説明はどれですか？",
       "options": [
         {
-          "text": "最大 N 個のツールだけを前もってコンテキストに読み込む",
-          "wrongFeedback": "ツール数ではなく、コンテキストウィンドウの N% を閾値として、前もって読み込むか遅延読み込みにするかを判断します"
+          "text": "コンテキストに最大 N 個のツールだけを前もって読み込み、残りはオンデマンドで取得する",
+          "wrongFeedback": "ツール数ではなく、コンテキストウィンドウの N% を閾値として、前もって読み込むか遅延読み込みにするかを判断します。"
         },
         {
-          "text": "N 秒後にツール検索をタイムアウトさせて次の処理に進む",
-          "wrongFeedback": "タイムアウトではなく、コンテキストの N% を閾値として MCP ツールの読み込み方式を切り替えます"
+          "text": "ツール検索リクエストが N 秒以内に完了しない場合にタイムアウトさせ、次の処理に進む",
+          "wrongFeedback": "タイムアウトではなく、コンテキストの N% を閾値として MCP ツールの読み込み方式を切り替えます。"
         },
         {
           "text": "MCP ツールがコンテキストの N% 以内に収まる場合はすべて前もって読み込み、超える場合は遅延読み込みにする"
         },
         {
-          "text": "N 個のMCPサーバーを同時に並列で接続して処理する",
-          "wrongFeedback": "並列接続数ではなく、コンテキストウィンドウの N% を閾値として MCP ツールの読み込み戦略を制御します"
+          "text": "N 個の MCP サーバーを同時に並列で接続し、ツール検索を分散して高速化する",
+          "wrongFeedback": "並列接続数ではなく、コンテキストウィンドウの N% を閾値として MCP ツールの読み込み戦略を制御します。"
         }
       ],
       "correctIndex": 2,
@@ -48760,15 +48760,15 @@
           "wrongFeedback": "サブエージェントはメインとは別の独自のコンテキストウィンドウで動作します"
         },
         {
-          "text": "サブエージェントはコンテキストウィンドウを使用しない",
-          "wrongFeedback": "サブエージェントは独自のコンテキストウィンドウを持っています"
+          "text": "サブエージェントはコンテキストウィンドウを使用せず、ファイル操作はストリーミングで直接処理する",
+          "wrongFeedback": "サブエージェントは独自のコンテキストウィンドウを持っています。ストリーミング処理ではなく、通常のコンテキストウィンドウ内でファイルを読み込みます。"
         },
         {
           "text": "サブエージェントは独自のコンテキストウィンドウで動作するため、大きなファイル読み込みがメインのコンテキストに入らない"
         },
         {
-          "text": "サブエージェントはファイルを読み込まない",
-          "wrongFeedback": "サブエージェントはファイルを読み込みますが、独自のコンテキストウィンドウ内で行われます"
+          "text": "サブエージェントはファイルを読み込まず、メインエージェントが渡したテキストデータのみを処理する",
+          "wrongFeedback": "サブエージェントはファイルを読み込みますが、独自のコンテキストウィンドウ内で行われるためメインのコンテキストを圧迫しません。"
         }
       ],
       "correctIndex": 2,
@@ -48824,16 +48824,16 @@
           "text": "会話が構造化された要約に置き換えられ、ほとんどの起動時コンテンツは自動で再読み込みされるが、サブディレクトリのネストされた `CLAUDE.md` は例外で再読み込みされない"
         },
         {
-          "text": "会話はそのまま残り、使用トークン数のみがリセットされる",
-          "wrongFeedback": "トークン数のリセットではなく、会話が構造化された要約に置き換えられます"
+          "text": "会話履歴はそのまま残り、使用トークン数のカウンターのみがリセットされるため `CLAUDE.md` の再読み込みも不要",
+          "wrongFeedback": "トークン数のリセットではなく、会話が構造化された要約に置き換えられます。また起動時コンテンツ（`CLAUDE.md` 等）はほとんど自動で再読み込みされます。"
         },
         {
-          "text": "すべてが初期状態に戻り、起動時コンテンツの再読み込みは行われない",
-          "wrongFeedback": "`CLAUDE.md` など起動時コンテンツはほとんど自動で再読み込みされます。サブディレクトリのネストされた `CLAUDE.md` は例外です"
+          "text": "すべてが初期状態に戻り、`CLAUDE.md` を含む起動時コンテンツの再読み込みは一切行われない",
+          "wrongFeedback": "`CLAUDE.md` など起動時コンテンツはほとんど自動で再読み込みされます。サブディレクトリのネストされた `CLAUDE.md` は例外です。"
         },
         {
-          "text": "会話が完全に削除され、すべてのコンテンツが再読み込みされる",
-          "wrongFeedback": "完全削除ではなく、構造化された要約に置き換えられます。サブディレクトリのネストされた `CLAUDE.md` は再読み込みされない例外があります"
+          "text": "会話が完全に削除され、`CLAUDE.md` を含むすべてのコンテンツが最初から再読み込みされる",
+          "wrongFeedback": "完全削除ではなく、構造化された要約に置き換えられます。サブディレクトリのネストされた `CLAUDE.md` は再読み込みされない例外があります。"
         }
       ],
       "correctIndex": 0,
@@ -49090,15 +49090,15 @@
       "question": "PowerShell ツールの有効化条件・利用可能環境として正しいものはどれですか？",
       "options": [
         {
-          "text": "macOS と Linux では利用できず、Windows 専用である",
+          "text": "macOS と Linux では利用できず、Windows 専用である。WSL2 でも `CLAUDE_CODE_USE_POWERSHELL_TOOL=1` を設定しても有効にならない",
           "wrongFeedback": "Linux/macOS/WSL でも opt-in で利用できます（PowerShell 7+ が必要）。"
         },
         {
-          "text": "Git Bash が不要になり、Windows ネイティブコマンドのみで動作する",
+          "text": "Git Bash が不要になり、Windows ネイティブコマンドのみで動作する。PowerShell ツール有効後は `Bash` ツールが自動的に無効化される",
           "wrongFeedback": "PowerShell ツール有効時も、Git Bash があれば `Bash` ツールは POSIX スクリプト用に引き続き利用できます。"
         },
         {
-          "text": "すべてのプラットフォームでデフォルト有効（設定不要）",
+          "text": "すべてのプラットフォームでデフォルト有効（設定不要）で、`PowerShell 5.x` 以降があれば追加インストールなしに動作する",
           "wrongFeedback": "Windows 以外（Linux/macOS/WSL）では opt-in で、`CLAUDE_CODE_USE_POWERSHELL_TOOL=1` と PowerShell 7+ が必要です。"
         },
         {
@@ -49160,63 +49160,41 @@
       "question": "`TodoWrite` ツールと `TaskCreate` / `TaskList` / `TaskUpdate` ツールの違いについて正しいものはどれですか？",
       "options": [
         {
-          "text": "両方とも同じ場面で使用でき、機能的な違いはない",
-          "wrongFeedback": "`TodoWrite` は非インタラクティブモード用で、インタラクティブセッションでは TaskCreate 等が使われます"
+          "text": "両方とも同じ場面で使用でき、`TodoWrite` と `TaskCreate` は内部的に同じ API を呼び出すため機能的な違いはない",
+          "wrongFeedback": "両者は別物です。v2.1.142 以降は Task ツール（`TaskCreate` 等）が全モードのデフォルトで、`TodoWrite` は既定で無効です。"
         },
         {
-          "text": "`TaskCreate` は廃止されて `TodoWrite` に統合され、後方互換性のみ残っている",
-          "wrongFeedback": "廃止されていません。インタラクティブセッションでは TaskCreate 等が使用されます"
+          "text": "`TaskCreate` は廃止されて `TodoWrite` に統合され、後方互換性のためにエイリアスとして残っているが推奨されない",
+          "wrongFeedback": "廃止されていません。むしろ v2.1.142 以降は Task ツールが全モードのデフォルトとなり、`TodoWrite` の方が既定で無効化されました。"
         },
         {
-          "text": "`TodoWrite` はインタラクティブモード専用のタスク管理ツールである",
-          "wrongFeedback": "逆です。`TodoWrite` は非インタラクティブモードと Agent SDK で使用されます"
+          "text": "`TodoWrite` はインタラクティブモード専用のタスク管理ツールで、非インタラクティブ環境では `TaskCreate` を使う必要がある",
+          "wrongFeedback": "v2.1.142 以降、Task ツールは全モードでデフォルトです。`TodoWrite` は既定で無効で、`CLAUDE_CODE_ENABLE_TASKS=0` で復帰できます。"
         },
         {
-          "text": "`TodoWrite` は非インタラクティブモードと Agent SDK で使用され、インタラクティブセッションでは TaskCreate 等が使われる"
+          "text": "v2.1.142 以降、`TaskCreate`/`TaskGet`/`TaskList`/`TaskUpdate`（構造化タスクツール）が全モードでデフォルトになり、レガシーの `TodoWrite` は既定で無効になった（`CLAUDE_CODE_ENABLE_TASKS=0` で復帰できる）"
         }
       ],
       "correctIndex": 3,
-      "explanation": "`TodoWrite` は非インタラクティブモード（`-p` フラグ）と Agent SDK で使用され、インタラクティブセッションでは TaskCreate、TaskGet、TaskList、TaskUpdate が使われます。\n{{diagram:0}}\n{{diagram:1}}",
+      "explanation": "Claude Code v2.1.142 以降、構造化タスクツール（`TaskCreate`/`TaskGet`/`TaskList`/`TaskUpdate`）が全モードでデフォルトになり、レガシーの `TodoWrite` は既定で無効です。環境変数 `CLAUDE_CODE_ENABLE_TASKS=0` を設定すると `TodoWrite` に戻せます。\n{{diagram:0}}",
       "referenceUrl": "https://code.claude.com/docs/ja/tools-reference",
       "diagrams": [
         {
           "type": "comparison",
           "columns": [
             {
-              "heading": "TodoWrite",
+              "heading": "Task ツール（既定）",
               "items": [
-                "非インタラクティブモード (-p)",
-                "Agent SDK"
+                "v2.1.142 以降は全モードでデフォルト",
+                "TaskCreate / TaskGet / TaskList / TaskUpdate"
               ]
             },
             {
-              "heading": "TaskCreate/List/Update",
+              "heading": "TodoWrite（レガシー）",
               "items": [
-                "インタラクティブセッション",
-                "Ctrl+T でタスク表示"
+                "既定で無効",
+                "CLAUDE_CODE_ENABLE_TASKS=0 で復帰"
               ]
-            }
-          ]
-        },
-        {
-          "type": "hierarchy",
-          "label": "TodoWriteの正誤ポイント",
-          "items": [
-            {
-              "text": "`TodoWrite` は非インタラクティブモードと Agent SDK で使用され、インタラクティブセッションでは TaskCreate 等が使われる（正解）",
-              "sub": "`TodoWrite` は非インタラクティブモード（`-p` フラグ）と Agent SDK で使用され、インタラクティブセッションでは TaskCreate、TaskGet、TaskList、TaskUpdate が使われます。"
-            },
-            {
-              "text": "`TodoWrite` はインタラクティブモード専用のタスク管理ツールである",
-              "sub": "逆です。`TodoWrite` は非インタラクティブモードと Agent SDK で使用されます"
-            },
-            {
-              "text": "両方とも同じ場面で使用でき、機能的な違いはない",
-              "sub": "`TodoWrite` は非インタラクティブモード用で、インタラクティブセッションでは TaskCreate 等が使われます"
-            },
-            {
-              "text": "`TaskCreate` は廃止されて `TodoWrite` に統合され、後方互換性のみ残っている",
-              "sub": "廃止されていません。インタラクティブセッションでは TaskCreate 等が使用されます"
             }
           ]
         }
@@ -49567,19 +49545,19 @@
       "question": "公式ベストプラクティスで「アンチパターン」として明示されている `CLAUDE.md` の問題はどれですか？",
       "options": [
         {
-          "text": "英語ではなく日本語で記述している",
-          "wrongFeedback": "記述言語に関するアンチパターンは公式ドキュメントにありません"
+          "text": "英語ではなく日本語や他の非英語で `CLAUDE.md` を記述していること（英語のみがClaudeにとって最適な言語とされている）",
+          "wrongFeedback": "記述言語に関するアンチパターンは公式ドキュメントにありません。Claude は多言語を理解できるため、日本語で記述することは問題ありません。"
         },
         {
-          "text": "1ファイルに全ルールをまとめている",
-          "wrongFeedback": "ファイル分割の有無自体はアンチパターンではありません。公式が問題視するのは「The over-specified `CLAUDE.md`（過度に詳細）」で、簡潔であれば1ファイルでも問題ありません"
+          "text": "プロジェクト・ユーザー・ローカルの設定を1つの `CLAUDE.md` ファイルにまとめてしまい、スコープごとに分離していないこと",
+          "wrongFeedback": "ファイル分割の有無自体はアンチパターンではありません。公式が問題視するのは「The over-specified `CLAUDE.md`（過度に詳細）」で、簡潔であれば1ファイルでも問題ありません。"
         },
         {
           "text": "過度に詳細な `CLAUDE.md`（The over-specified `CLAUDE.md`）"
         },
         {
-          "text": "マークダウンの見出し（`#`）を使っていない",
-          "wrongFeedback": "見出しの有無はアンチパターンとして挙げられていません。公式アンチパターンの名前は「The over-specified `CLAUDE.md`」（過度に詳細／肥大化）です"
+          "text": "マークダウンの見出し（`#`）や箇条書きを使わずプレーンテキストで記述しており、Claudeが内容を構造的に解析しにくい状態にしていること",
+          "wrongFeedback": "見出しの有無はアンチパターンとして挙げられていません。公式アンチパターンの名前は「The over-specified `CLAUDE.md`」（過度に詳細／肥大化）です。"
         }
       ],
       "correctIndex": 2,
@@ -49710,19 +49688,19 @@
       "question": "あなたのチームでは `CLAUDE.md` に次のルールを書いています：「テストは必ず書くこと」。しかし Claude Code がテストを書かないことがあります。公式の推奨に基づく最も効果的な改善はどれですか？",
       "options": [
         {
-          "text": "`CLAUDE.md` ではなく、毎回プロンプトで「テストを書いて」と指示する",
-          "wrongFeedback": "プロンプトでの指示は再現性がなく、毎回言う手間がかかります。`CLAUDE.md` に具体的なルールとして書くほうが効果的です"
+          "text": "`CLAUDE.md` に書いても守られないため、毎回プロンプトの冒頭で「このタスクではテストも必ず書いて」と明示的に指示する運用に切り替える",
+          "wrongFeedback": "プロンプトでの指示は再現性がなく、毎回言う手間がかかります。`CLAUDE.md` に具体的で検証可能なルールとして書くほうが効果的です。"
         },
         {
-          "text": "Auto Memory に「テストを書く」と記録させる",
-          "wrongFeedback": "Auto Memory は個人用で、チーム共有されません。チームルールは `CLAUDE.md` に書くべきです"
+          "text": "セッション中にAuto Memoryへ「このプロジェクトでは常にテストを書く」と記録させ、次回以降のセッションでClaudeが自動的に従うようにする",
+          "wrongFeedback": "Auto Memory は個人用で、チーム共有されません。また Auto Memory はClaude が自律的に判断して保存するものであり、任意の内容を意図的に記録させる用途には向きません。チームルールは `CLAUDE.md` に書くべきです。"
         },
         {
           "text": "「テストは必ず書くこと」を「IMPORTANT: `bun test` で全テストが通ることを確認してからコミットすること」に書き換える"
         },
         {
-          "text": "同じ指示を `CLAUDE.md` 内で3回繰り返して書く",
-          "wrongFeedback": "繰り返しは `CLAUDE.md` の肥大化を招きます。公式は「具体的で検証可能なルールを書け」と推奨しています"
+          "text": "重要度が高いため「テストは必ず書くこと」という同じ指示を `CLAUDE.md` 内に3箇所以上繰り返して記述し、Claudeに優先ルールとして認識させる",
+          "wrongFeedback": "繰り返しは `CLAUDE.md` の肥大化を招きます。公式は「具体的で検証可能なルールを書け」と推奨しています。"
         }
       ],
       "correctIndex": 2,
@@ -50254,16 +50232,16 @@
       "question": "Auto モードの分類器（classifier）が使用するモデルはどれですか？",
       "options": [
         {
-          "text": "Claude Haiku が使用される",
-          "wrongFeedback": "ドキュメントは分類器のモデル名を特定していません。確かなのは、メインセッションとは独立した専用の分類器モデルで動く点です"
+          "text": "Claude Haiku が使用される（コスト効率のため軽量モデルが採用されており、メインセッションと同一インスタンスで動作する）",
+          "wrongFeedback": "ドキュメントは分類器のモデル名を特定していません。確かなのは、メインセッションとは独立した専用の分類器モデルで動く点です。"
         },
         {
-          "text": "ユーザーが分類器のモデルを設定で選択できる",
-          "wrongFeedback": "分類器のモデルはユーザーが選択できません。メインセッションとは独立した専用の分類器モデルが使われます"
+          "text": "ユーザーが `/model` コマンドや設定画面で分類器専用のモデルを自由に選択でき、メインセッションとは別に管理される",
+          "wrongFeedback": "分類器のモデルはユーザーが選択できません。メインセッションとは独立した専用の分類器モデルが使われます。"
         },
         {
-          "text": "メインセッションと同じモデルが使用される",
-          "wrongFeedback": "分類器はメインセッションのモデルとは独立した専用のモデルで動きます（ユーザーの `/model` 選択に依存しません）"
+          "text": "メインセッションと同じモデルが分類器にも使用され、`/model` で変更するとメインと分類器の両方に同時に反映される",
+          "wrongFeedback": "分類器はメインセッションのモデルとは独立した専用のモデルで動きます（ユーザーの `/model` 選択に依存しません）。"
         },
         {
           "text": "メインセッションのモデルに関わらず、それとは独立した専用の分類器モデルで実行される"
@@ -50791,12 +50769,12 @@
           "text": "開発者1人あたり平均 $13/日で、90% のユーザーは $30/日以下"
         },
         {
-          "text": "開発者1人あたり平均 $20/日",
-          "wrongFeedback": "公式ドキュメントでは平均コストは $13/日です"
+          "text": "開発者1人あたり平均 $20/日で、90% のユーザーは $50/日以下",
+          "wrongFeedback": "公式ドキュメントでは平均コストは $13/日、90% のユーザーは $30/日以下と記載されています。"
         },
         {
-          "text": "開発者1人あたり平均 $2/日",
-          "wrongFeedback": "平均コストは $13/日と記載されています"
+          "text": "開発者1人あたり平均 $2/日で、ほとんどのユーザーは $5/日以下",
+          "wrongFeedback": "平均コストは $13/日と記載されています。90% のユーザーは $30/日以下に収まると記載されています。"
         },
         {
           "text": "固定料金制で日ごとのコスト変動はない",
@@ -50993,16 +50971,16 @@
           "text": "1時間"
         },
         {
-          "text": "30分",
-          "wrongFeedback": "30分ごとの cron 式はリジェクトされます。最小は1時間です"
+          "text": "30分（cron式 `*/30 * * * *` を指定した場合）",
+          "wrongFeedback": "30分ごとの cron 式はリジェクトされます。クラウドスケジュールタスクの最小実行間隔は1時間です。"
         },
         {
-          "text": "1分",
-          "wrongFeedback": "1分間隔は Desktop タスクや `/loop` の最小間隔です。クラウドは1時間です"
+          "text": "1分（ローカルの `/loop` と同じ最小間隔）",
+          "wrongFeedback": "1分間隔は Desktop タスクや `/loop` の最小間隔です。クラウドスケジュールタスクは最小1時間間隔で実行できます。"
         },
         {
-          "text": "24時間",
-          "wrongFeedback": "24時間は最小間隔ではありません。クラウドスケジュールタスクは最小1時間間隔で実行できます"
+          "text": "24時間（1日1回のバッチ処理を想定した最小単位）",
+          "wrongFeedback": "24時間は最小間隔ではありません。クラウドスケジュールタスクは最小1時間間隔で実行できます。"
         }
       ],
       "correctIndex": 0,
@@ -51242,23 +51220,23 @@
       "question": "Chrome 拡張機能を使用するための前提条件として正しい組み合わせはどれですか？",
       "options": [
         {
-          "text": "Desktop アプリ限定の機能で、CLI（ターミナル）からは使用できない",
-          "wrongFeedback": "CLI からも `claude --chrome` で使用できます。Desktop アプリ限定ではありません"
+          "text": "Desktop アプリ限定の機能で、CLI（ターミナル）からは使用できない。Claude Code Desktop をインストールしてサインインすれば自動的に有効化される",
+          "wrongFeedback": "CLI からも `claude --chrome` で使用できます。Desktop アプリ限定ではありません。"
         },
         {
-          "text": "Claude Code v2.0.73 以上 + Anthropic 直接プラン（Pro / Max / Teams / Enterprise）+ Chrome または Edge ブラウザ"
+          "text": "Claude Code v2.0.73 以上 + Anthropic 直接プラン（Pro / Max / Team / Enterprise）+ Chrome または Edge ブラウザ"
         },
         {
-          "text": "Claude Code の最新版 + 任意のブラウザ（Firefox 含む）+ Pro プラン以上",
-          "wrongFeedback": "Firefox はサポートされていません。Google Chrome と Microsoft Edge のみ対応しています"
+          "text": "Claude Code の最新版（バージョン不問）と、任意のブラウザ（Firefox・Safari 含む）、および Pro プラン以上があれば利用可能",
+          "wrongFeedback": "Firefox はサポートされていません。Google Chrome と Microsoft Edge のみ対応しています。また特定のバージョン要件（v2.0.73 以上）もあります。"
         },
         {
-          "text": "任意の Anthropic API キーと Chrome ブラウザがあれば利用可能",
-          "wrongFeedback": "API キーでは利用できません。Anthropic の直接プラン（Pro / Max / Teams / Enterprise）が必要です"
+          "text": "Anthropic の API キーと Google Chrome ブラウザさえあれば、プランに関わらず Claude Code の Chrome 連携機能を利用可能",
+          "wrongFeedback": "API キーでは利用できません。Anthropic の直接プラン（Pro / Max / Team / Enterprise）が必要です。API 経由のアクセスは対象外です。"
         }
       ],
       "correctIndex": 1,
-      "explanation": "Chrome 拡張機能の要件は: (1) Claude Code v2.0.73 以上、(2) Anthropic の直接プラン（Pro, Max, Teams, Enterprise）— サードパーティプロバイダー経由では不可、(3) Google Chrome または Microsoft Edge（Brave, Arc 等の他の Chromium ブラウザは非対応）。現在ベータ版として提供されています。\n{{diagram:0}}\n{{diagram:1}}",
+      "explanation": "Chrome 拡張機能の要件は: (1) Claude Code v2.0.73 以上、(2) Anthropic の直接プラン（Pro, Max, Team, Enterprise）— サードパーティプロバイダー経由では不可、(3) Google Chrome または Microsoft Edge（Brave, Arc 等の他の Chromium ブラウザは非対応）。現在ベータ版として提供されています。\n{{diagram:0}}\n{{diagram:1}}",
       "referenceUrl": "https://code.claude.com/docs/ja/chrome",
       "diagrams": [
         {
@@ -51273,7 +51251,7 @@
             },
             {
               "text": "Anthropic 直接プラン",
-              "sub": "Pro / Max / Teams / Enterprise"
+              "sub": "Pro / Max / Team / Enterprise"
             },
             {
               "text": "Google Chrome または Microsoft Edge",
@@ -51286,12 +51264,12 @@
           "label": "拡張機能の正誤ポイント",
           "items": [
             {
-              "text": "Claude Code v2.0.73 以上 + Anthropic 直接プラン（Pro / Max / Teams / Enterprise）+ Chrome または Edge ブラウザ（正解）",
-              "sub": "Chrome 拡張機能の要件は: (1) Claude Code v2.0.73 以上、(2) Anthropic の直接プラン（Pro, Max, Teams, Enterprise）— サードパーティプロバイダー経由では不可、(3) Google Chrome または Microsoft Edge（Brave, Arc 等の他の Chromium ブラウザは非対応）。現在ベータ版として提供されています。"
+              "text": "Claude Code v2.0.73 以上 + Anthropic 直接プラン（Pro / Max / Team / Enterprise）+ Chrome または Edge ブラウザ（正解）",
+              "sub": "Chrome 拡張機能の要件は: (1) Claude Code v2.0.73 以上、(2) Anthropic の直接プラン（Pro, Max, Team, Enterprise）— サードパーティプロバイダー経由では不可、(3) Google Chrome または Microsoft Edge（Brave, Arc 等の他の Chromium ブラウザは非対応）。現在ベータ版として提供されています。"
             },
             {
               "text": "任意の Anthropic API キーと Chrome ブラウザがあれば利用可能",
-              "sub": "API キーでは利用できません。Anthropic の直接プラン（Pro / Max / Teams / Enterprise）が必要です"
+              "sub": "API キーでは利用できません。Anthropic の直接プラン（Pro / Max / Team / Enterprise）が必要です"
             },
             {
               "text": "Claude Code の最新版 + 任意のブラウザ（Firefox 含む）+ Pro プラン以上",
@@ -51524,16 +51502,16 @@
           "text": "Hooks、Skills、Plugins、MCP サーバー、Auto Memory、`CLAUDE.md` の自動検出をスキップし、`Bash` とファイル操作のみで高速に起動する"
         },
         {
-          "text": "全てのツール（`Bash`、`Read`、`Edit` 含む）を無効にしてテキスト応答のみに制限する",
-          "wrongFeedback": "全ツール無効ではなく、`Bash`・ファイル読み書きは使用可能です。スキップされるのは Hooks、Skills、Plugins、MCP サーバー、Auto Memory、`CLAUDE.md` の自動検出です"
+          "text": "全てのツール（`Bash`、`Read`、`Edit` 含む）を無効にしてテキスト応答のみに制限し、ファイルシステムへのアクセスを完全に遮断する",
+          "wrongFeedback": "全ツール無効ではなく、`Bash`・ファイル読み書きは使用可能です。スキップされるのは Hooks、Skills、Plugins、MCP サーバー、Auto Memory、`CLAUDE.md` の自動検出です。"
         },
         {
-          "text": "GUI 要素を無効にしてテキストのみで応答し、ターミナル表示を簡素化する",
-          "wrongFeedback": "GUI の無効化ではありません。`--bare` は Hooks、Skills、MCP サーバー、`CLAUDE.md` などの自動検出をスキップする最小モードフラグです"
+          "text": "GUI 要素を無効にしてテキストのみで応答し、ターミナル表示を簡素化する。インタラクティブなプロンプトやプログレスバーも非表示になる",
+          "wrongFeedback": "GUI の無効化ではありません。`--bare` は Hooks、Skills、MCP サーバー、`CLAUDE.md` などの自動検出をスキップする最小モードフラグです。"
         },
         {
-          "text": "コンテキストウィンドウを最小サイズに制限してメモリ使用量を削減する",
-          "wrongFeedback": "コンテキストサイズの制限ではなく、起動時の拡張機能の読み込みをスキップして高速起動する最小モードです"
+          "text": "コンテキストウィンドウを最小サイズに制限してメモリ使用量を削減し、長い会話でのトークン消費を抑える",
+          "wrongFeedback": "コンテキストサイズの制限ではなく、起動時の拡張機能の読み込みをスキップして高速起動する最小モードです。"
         }
       ],
       "correctIndex": 0,
@@ -52876,19 +52854,19 @@
       "question": "多数のスキルを定義した環境で、Claudeがスキルの`description`を途中で切り詰めてしまい、自動呼び出しの精度が下がっています。この問題の原因と対処法として正しいものはどれですか？",
       "options": [
         {
-          "text": "スキル名は常にコンテキストに含まれるが、`description` はデフォルトで読み込まれないため、`auto-load-description: true` を設定して明示的に有効化する",
-          "wrongFeedback": "`description`はデフォルトでコンテキストに読み込まれます。`auto-load-description`というフロントマターフィールドは存在しません"
+          "text": "スキル名は常にコンテキストに含まれるが、`description` はデフォルトで読み込まれないため、`auto-load-description: true` をフロントマターに設定して明示的に有効化し、切り詰めを防ぐ必要がある",
+          "wrongFeedback": "`description` はデフォルトでコンテキストに読み込まれます。`auto-load-description` というフロントマターフィールドは存在しません。切り詰めを防ぐには `description` を 1,536 文字以内に収めます。"
         },
         {
           "text": "スキル説明のコンテキスト予算はデフォルトでコンテキストウィンドウの1%であり、`skillListingBudgetFraction` 設定または `SLASH_COMMAND_TOOL_CHAR_BUDGET`環境変数で上限を引き上げるか、各スキルの`description`を1,536文字以内（description と when_to_use の合計）に収めて重要なキーワードを冒頭に配置する"
         },
         {
-          "text": "`description` が長すぎるとスキル自体が無効化されるため、全スキルの `description` を 100 文字以下に強制リファクタリングする",
-          "wrongFeedback": "スキルが無効化されることはありません。説明文が予算内に収まるよう切り詰められるだけです。各エントリの上限は1,536文字（description+when_to_use 合計）で、100文字以下にする必要はありません"
+          "text": "`description` が長すぎるとスキル自体が無効化されてコンテキストから完全に除外されるため、全スキルの `description` を 100 文字以下に強制リファクタリングして再度有効化する",
+          "wrongFeedback": "スキルが無効化されることはありません。説明文が予算内に収まるよう切り詰められるだけです。各エントリの上限は 1,536 文字（description+when_to_use 合計）で、100 文字以下にする必要はありません。"
         },
         {
-          "text": "スキル登録の最大数は 50 個までで、超過するとランダムに切り捨てられるため、不要なスキルを削除して総数を 50 以下に保つ",
-          "wrongFeedback": "スキルに最大登録数の制限はありません。説明文はコンテキスト予算に基づいて切り詰められるもので、スキル自体が削除されるわけではありません"
+          "text": "スキル登録の最大数は 50 個までで、超過するとランダムに切り捨てられてコンテキストから除外されるため、不要なスキルを削除して総数を 50 以下に保つ",
+          "wrongFeedback": "スキルに最大登録数の制限はありません。説明文はコンテキスト予算に基づいて切り詰められるもので、スキル自体が削除されるわけではありません。"
         }
       ],
       "correctIndex": 1,
@@ -53411,19 +53389,19 @@
       "question": "Claude Code の 3 つのスケジューリング方法（Cloud / Desktop / `/loop`）の違いとして正しいのはどれですか？",
       "options": [
         {
-          "text": "全て Anthropic のクラウドで動作する",
-          "wrongFeedback": "Cloud のみクラウド実行。Desktop と `/loop` はローカル実行"
+          "text": "Cloud・Desktop・`/loop` の 3 つはいずれも Anthropic のクラウドインフラ上で動作し、ローカルマシンに依存しない",
+          "wrongFeedback": "Cloud のみがクラウド実行です。Desktop と `/loop` はローカルマシン上で実行されるため、マシンが起動している必要があります。"
         },
         {
           "text": "Cloud は Anthropic のクラウドで動作しマシン起動不要、Desktop と `/loop` はローカルマシンで動作する"
         },
         {
-          "text": "Desktop と Cloud は同じ最小間隔（1時間）で、`/loop` のみ 1分",
-          "wrongFeedback": "最小間隔は Cloud=1時間、Desktop=1分、`/loop`=1分"
+          "text": "Desktop と Cloud は同じ最小間隔（1 時間）が設定されており、`/loop` のみ最小 1 分間隔で高頻度スケジューリングが可能",
+          "wrongFeedback": "最小間隔は Cloud が 1 時間、Desktop と `/loop` がそれぞれ 1 分です。Desktop と Cloud が同じ間隔というのは誤りです。"
         },
         {
-          "text": "`/loop` のみが再起動後も永続化される",
-          "wrongFeedback": "Cloud と Desktop は永続化、`/loop` はセッションスコープ（再起動で消える）"
+          "text": "`/loop` コマンドで作成したスケジュールのみが再起動後も永続化され、Cloud と Desktop のスケジュールはセッション終了で消える",
+          "wrongFeedback": "Cloud と Desktop のスケジュールは再起動後も永続化されます。セッションスコープ（再起動で消える）なのは `/loop` の方です。"
         }
       ],
       "correctIndex": 1,
@@ -53475,19 +53453,19 @@
       "question": "Desktop のスケジュールタスクで、コンピュータがスリープしていた間に複数回のスケジュール時刻を過ぎた場合の動作として正しいのはどれですか？",
       "options": [
         {
-          "text": "欠落した全ての回をシーケンシャルに実行する",
-          "wrongFeedback": "キャッチアップは 1 回のみ。古い分は破棄される"
+          "text": "欠落した全ての回をキューに積んでシーケンシャルに実行し、最終的に全スケジュールが消化されるまで繰り返す",
+          "wrongFeedback": "キャッチアップは 1 回のみです。過去 7 日以内で最も最近の 1 回分だけが実行され、それより古いものは破棄されます。"
         },
         {
           "text": "過去 7 日以内で最も最近の 1 回分だけをキャッチアップ実行し、それより古いものは破棄する"
         },
         {
-          "text": "過去 30 日以内の全欠落を並列実行する",
-          "wrongFeedback": "欠落チェックは過去 7 日、実行は 1 回のみ"
+          "text": "過去 30 日以内の全欠落を検出し、最大同時実行数の制限内で並列に実行してキャッチアップする",
+          "wrongFeedback": "欠落チェックは過去 7 日以内に限られ、実行は並列ではなく 1 回のみです。30 日は誤りです。"
         },
         {
-          "text": "次回の定時実行を待つだけでキャッチアップは行わない",
-          "wrongFeedback": "キャッチアップ機能があり、過去 7 日以内で最新の欠落 1 回を実行する"
+          "text": "スリープからの復帰後はキャッチアップは行われず、次回の定時実行タイミングまでスケジュールが再開されるのを待つだけ",
+          "wrongFeedback": "キャッチアップ機能があります。起動後に過去 7 日以内で最も最近の欠落 1 回分を実行します。"
         }
       ],
       "correctIndex": 1,
@@ -53931,7 +53909,7 @@
       "question": "autoモードを有効化したが、自社のGitHubリポジトリへのプッシュが繰り返しブロックされています。`autoMode.environment` に会社のGitHub組織を追加したいと思います。設定に `\"$defaults\"` を含めない場合に起こる問題として正しいのはどれですか？",
       "options": [
         {
-          "text": "`\"$defaults\"` を省略するとsettingsのバリデーションエラーになる",
+          "text": "`\"$defaults\"` を省略すると `settings.json` の構文バリデーションエラーとなり、Claude Code が起動時に設定を読み込めなくなる",
           "wrongFeedback": "`\"$defaults\"` の省略自体はバリデーションエラーになりません。省略した場合は自分で書いたエントリだけが使われ、組み込みのデフォルトエントリが消えるという動作上の問題が発生します。"
         },
         {
@@ -54131,15 +54109,15 @@
       "question": "会社がセルフホストのGitHub Enterprise Server（GHES）を運用しています。開発者がGHESのリポジトリでClaude Codeのウェブセッションを使いたいと言っています。ただし、組織のGHESホスト名が `github.company.com` であるにもかかわらず、`claude --remote` が「クローン失敗」のエラーになっています。管理者として最初に確認すべき事項として最も適切なのはどれですか？",
       "options": [
         {
-          "text": "`/install-github-app` コマンドを開発者に実行させて GitHub App のインストールを完了させる",
+          "text": "`/install-github-app` コマンドを開発者に実行させて GitHub App のインストールを完了させる。このコマンドはGHES・github.comいずれでも利用できるため、管理者操作は不要",
           "wrongFeedback": "`/install-github-app` はgithub.com専用のコマンドです。GHESの場合はこのコマンドは機能しません。GHES向けには `claude.ai/admin-settings/claude-code` からガイド付きセットアップを実行してGitHub Appを作成する必要があります。"
         },
         {
-          "text": "GHES は Team プランでは利用できないため Enterprise プランへのアップグレードが必要",
+          "text": "GHES は Team プランでは利用できないため Enterprise プランへのアップグレードが必要。Team プランではgithub.comのパブリックリポジトリのみがサポートされる",
           "wrongFeedback": "GitHub Enterprise ServerのサポートはTeamプランとEnterpriseプランの両方で利用可能です。プランのアップグレードは不要です。"
         },
         {
-          "text": "GitHub MCP サーバーを GHES 向けに別途設定してリポジトリアクセスを有効化する",
+          "text": "GitHub MCP サーバーを GHES 向けに別途設定してリポジトリアクセスを有効化する。MCPサーバーのエンドポイントをGHESのAPIベースURLに変更すれば機能する",
           "wrongFeedback": "GitHub MCP サーバーはGHESインスタンスとは互換性がありません。GHESでのリポジトリアクセスには、管理者が `claude.ai/admin-settings/claude-code` でGHESインスタンスの接続設定とGitHub Appの作成を完了させる必要があります。"
         },
         {
@@ -54331,16 +54309,16 @@
       "question": "管理者が `managed-mcp.json` や `allowedMcpServers` / `deniedMcpServers` で MCP サーバーを制御するとき、サーバーがロードされるかの評価ルールとして正しいものはどれですか？",
       "options": [
         {
-          "text": "`allowManagedMcpServersOnly` を設定すると、ユーザーは自分用にサーバーをブロックすることもできなくなる",
-          "wrongFeedback": "denylist は常に全ソースからマージされるため、ユーザーはいつでも自分用にサーバーをブロックできます。allowManagedMcpServersOnly が無効化するのはユーザー側の allowlist だけです。"
+          "text": "`allowManagedMcpServersOnly` を設定すると、ユーザーは自分用に MCP サーバーを追加できなくなるだけでなく、管理者設定の denylist に載っているサーバーをユーザー側でブロック解除することもできなくなる",
+          "wrongFeedback": "denylist は常に全ソースからマージされるため、ユーザーはいつでも自分用にサーバーをブロックできます。`allowManagedMcpServersOnly` が無効化するのはユーザー側の allowlist 追加だけです。"
         },
         {
-          "text": "allowlist に一致するサーバーは、denylist の指定より優先してロードされる",
-          "wrongFeedback": "逆です。denylist が常に最優先で、denylist 一致は何でも上書きできません（allowlist と両方に一致しても denylist が勝つ）。"
+          "text": "allowlist に一致するサーバーは denylist の指定より優先してロードされ、管理者が allowlist に明示したサーバーをユーザー側 denylist でブロックすることはできない",
+          "wrongFeedback": "逆です。denylist が常に最優先で、allowlist と両方に一致しても denylist が勝ちます。allowlist で上書きすることはできません。"
         },
         {
-          "text": "allowlist に名前エントリを入れておけば、URL エントリが存在してもリモートサーバーを名前一致で通せる",
-          "wrongFeedback": "allowlist に1つでも serverUrl エントリがあると、すべてのリモートサーバーは URL パターン一致が必須になります。serverName 一致が効くのは URL エントリが無い場合のみです。"
+          "text": "allowlist に `serverName` エントリを入れておけば、`serverUrl` エントリが存在するリモートサーバーでも名前一致だけで通過させることができ、URL パターンマッチは省略できる",
+          "wrongFeedback": "allowlist に 1 つでも `serverUrl` エントリがあると、すべてのリモートサーバーは URL パターン一致が必須になります。`serverName` のみでの通過は URL エントリが無い場合だけ有効です。"
         },
         {
           "text": "denylist チェック → allowlist チェックの順で評価され、denylist に一致したサーバーは URL・コマンド・名前のいずれでも常にブロックされ allowlist より優先される。`allowManagedMcpServersOnly: true` の場合は managed 設定の allowlist のみが有効になる（denylist は常に全ソースからマージ）"
@@ -54380,16 +54358,16 @@
           "text": "`CLAUDECODE` 環境変数が `1` のとき stderr に自己完結タグ `<claude-code-hint v=\"1\" type=\"plugin\" value=\"name@marketplace\" />` を1行で出力する。Claude Code はモデルに渡す前にその行を除去するためトークンを消費せず、インストールは必ずユーザーが確認する"
         },
         {
-          "text": "任意のマーケットプレイスのプラグインを宣伝できる",
+          "text": "`CLAUDECODE` 環境変数が `1` であれば、公式マーケットプレイス以外の任意のマーケットプレイスURLを `value` に指定でき、Claude Code がそのプラグインページを開く",
           "wrongFeedback": "公式 Anthropic マーケットプレイス（`claude-plugins-official`）のプラグインのみが対象です。他のマーケットプレイスを指す hint は黙って破棄されます。"
         },
         {
-          "text": "hint 行はモデルへの会話に含まれ、トークンとしてカウントされる",
-          "wrongFeedback": "hint 行はモデルに届く前に必ず除去されるため、トークンにカウントされません。バージョンや type が未知でも行は除去されます。"
+          "text": "`<claude-code-hint>` タグは通常のテキストとして Claude のコンテキストに渡され、モデルがその内容を解釈してプラグインを推薦するかどうかを判断する",
+          "wrongFeedback": "hint 行はモデルに届く前に必ず除去されるため、トークンにカウントされません。バージョンや `type` が未知でも行は除去されます。"
         },
         {
-          "text": "条件を満たすと Claude Code がプラグインを自動的にインストールする",
-          "wrongFeedback": "Claude Code がプラグインを自動インストールすることはありません。必ずユーザーがプロンプトで確認します（1プラグインにつき1回、1セッションにつき最大1回まで）。"
+          "text": "`CLAUDECODE=1` の環境下で `<claude-code-hint>` タグが検出されると、Claude Code がユーザー確認なしに該当プラグインを自動インストールし次のセッションから有効化する",
+          "wrongFeedback": "Claude Code がプラグインを自動インストールすることはありません。必ずユーザーがプロンプトで確認します（1 プラグインにつき 1 回、1 セッションにつき最大 1 回まで）。"
         }
       ],
       "correctIndex": 0,
@@ -54423,18 +54401,18 @@
       "question": "組み込みの「サンドボックス `Bash` ツール」と、プロセス全体を隔離する手法（sandbox runtime / コンテナ / VM）の違いとして正しいものはどれですか？",
       "options": [
         {
-          "text": "組み込み `Bash` サンドボックスは `Read` や `WebFetch` の動作も OS レベルで制限する",
+          "text": "組み込み `Bash` サンドボックスは `Read` や `WebFetch` の動作も OS レベルで制限するため、ファイルアクセスやネットワークも遮断される",
           "wrongFeedback": "`Read` や `WebFetch` は Claude Code プロセス内で動き、組み込み `Bash` サンドボックスの対象外です。これらは権限ルール（パス/ドメイン）でゲートされます。"
         },
         {
-          "text": "組み込み `Bash` サンドボックスは MCP サーバーとフックも同じ境界内に隔離する",
+          "text": "組み込み `Bash` サンドボックスは MCP サーバーとフックも同じ境界内に隔離するため、sandbox runtime やコンテナを追加しなくてもプロセス全体を保護できる",
           "wrongFeedback": "組み込み `Bash` サンドボックスは `Bash` のみを制限します。MCP サーバーとフックは別プロセスとしてホスト上で無制約に動くため、これらも隔離するには sandbox runtime（プロセス全体をラップ）やコンテナを使います。"
         },
         {
           "text": "組み込みサンドボックス `Bash` ツールは `Bash` コマンドとその子プロセスのみを隔離し、`Read`/`Edit` などの組み込みツール・MCP サーバー・フックはホスト上でそのまま動く。これらも1つの境界に入れるには sandbox runtime やコンテナ/VM を使う"
         },
         {
-          "text": "sandbox runtime を使うには Docker が必須である",
+          "text": "sandbox runtime を使うには Docker が必須で、`docker run` コマンドで Claude Code プロセスをコンテナ内に包んで起動する必要がある",
           "wrongFeedback": "sandbox runtime は Docker 不要で、組み込み `Bash` サンドボックスと同じ Seatbelt / bubblewrap を使います。Docker が必要なのは dev container やカスタムコンテナです。"
         }
       ],
@@ -54476,15 +54454,15 @@
           "text": "組み込み `Bash` サンドボックスのみ。`sandbox` 設定キーを managed settings（MDM 管理ファイルまたは server-managed settings）で配布して強制できる"
         },
         {
-          "text": "仮想マシン（VM）での実行を Claude Code が強制できる",
+          "text": "仮想マシン（VM）での実行を Claude Code が `sandbox` 設定キーと同じ仕組みで managed settings から強制できる",
           "wrongFeedback": "VM やカスタムコンテナの強制は Claude Code ではなく、組織のデバイス管理ツールやソフトウェア許可リストで行います。"
         },
         {
-          "text": "すべての隔離手法を managed settings で一律に強制できる",
+          "text": "すべての隔離手法（VM・コンテナ・sandbox runtime）を `sandbox` 設定キーで managed settings に記述すれば Claude Code が一律に強制できる",
           "wrongFeedback": "Claude Code 自身が強制できるのは組み込み `Bash` サンドボックスだけです。それ以外は規約（dev container）か、外部のデバイス管理による強制になります。"
         },
         {
-          "text": "dev container を Claude Code が強制できる",
+          "text": "dev container を Claude Code が `sandbox` 設定キー経由で managed settings から強制でき、コンテナ外での実行を組織全体でブロックできる",
           "wrongFeedback": "dev container はリポジトリにコミットする「規約」であり、Claude Code はコンテナなしでも動くため強制になりません。コンテナ外での実行を禁じるには組織のデバイス管理やソフトウェア許可リストが必要です。"
         }
       ],
@@ -54519,18 +54497,18 @@
       "question": "Claude Code CLI でセッションを再開する方法の組み合わせとして正しいものはどれですか？",
       "options": [
         {
-          "text": "セッション名は起動後（セッション中）にしか付けられない",
+          "text": "セッション名は起動後にのみ `/rename` で付けられ、`claude -n <name>` のような起動時オプションは存在しない",
           "wrongFeedback": "起動時に `claude -n <name>`、セッション中に `/rename`、ピッカーで `Ctrl+R`、plan 承認時の自動命名など複数の方法があります。"
         },
         {
           "text": "`claude --continue` は現在ディレクトリの最新セッションを再開、`claude --resume` はセッションピッカーを開く、`claude --resume <name>` は名前付きセッションを直接再開、`claude --from-pr <number>` は PR に紐づくセッションを再開する"
         },
         {
-          "text": "`claude --continue` はセッションピッカーを開き、選択して再開する",
+          "text": "`claude --continue` はセッションピッカーを開き、選択したセッションを再開する（`--resume` は現在ディレクトリの最新セッションを直接再開）",
           "wrongFeedback": "`--continue` は最新セッションを直接再開します。ピッカーを開くのは引数なしの `--resume` です。"
         },
         {
-          "text": "`claude -p`（ヘッドレス）や Agent SDK で作ったセッションもセッションピッカーに表示される",
+          "text": "`claude -p`（ヘッドレス）や Agent SDK で作ったセッションもセッションピッカーに表示され、`--resume` で選択して再開できる",
           "wrongFeedback": "`claude -p` や Agent SDK で作ったセッションはピッカーに表示されませんが、session ID を `claude --resume <session-id>` に渡せば再開できます。"
         }
       ],
@@ -54629,15 +54607,15 @@
       "question": "プロンプトキャッシュの TTL（有効期間）と保存場所に関する説明として正しいものはどれですか？",
       "options": [
         {
-          "text": "キャッシュは認証方法に関わらず常に Anthropic のインフラに保存される",
+          "text": "キャッシュは認証方法に関わらず常に Anthropic のインフラに保存されるため、Bedrock や Vertex AI を利用していても自分のクラウドプロバイダ側にキャッシュが残ることはない",
           "wrongFeedback": "保存場所は認証方法によります。Bedrock/Vertex AI では自分のクラウドプロバイダの serving インフラに、API キー/サブスクリプション/Foundry では Anthropic のインフラに保存されます。"
         },
         {
-          "text": "サブスクリプションでも明示的に設定しない限り TTL は5分のままになる",
+          "text": "サブスクリプションでも明示的に `ENABLE_PROMPT_CACHING_1H=1` を設定しない限り TTL は5分のままになり、1時間への延長は手動で有効化が必要になる",
           "wrongFeedback": "サブスクリプションでは自動的に1時間 TTL を要求します。プラン利用枠を超えて usage credits で課金されるときだけ、自動的に5分へ下げます。"
         },
         {
-          "text": "TTL は常に固定の5分で、変更する手段はない",
+          "text": "TTL は常に固定の5分で変更する手段はなく、`ENABLE_PROMPT_CACHING_1H=1` のような環境変数を設定しても TTL には影響しない",
           "wrongFeedback": "TTL は5分と1時間の2種があり認証方法で自動選択されます。`ENABLE_PROMPT_CACHING_1H=1` で1時間に、`FORCE_PROMPT_CACHING_5M=1` で常に5分に上書きできます。"
         },
         {
@@ -54680,18 +54658,18 @@
       "question": "Claude Code への効果的なプロンプトのパターンとして推奨されるものはどれですか？",
       "options": [
         {
-          "text": "出力フォーマットは指定せず Claude に任せるのが常に最良である",
+          "text": "出力フォーマットや応答の長さはClaudeが文脈から最適に判断するため、毎回指定する必要はなく、指定すると柔軟性が失われる",
           "wrongFeedback": "フォーマット・長さ・対象読者を指定すると用途に合った回答になります。毎回の既定にしたい場合は output style を設定します。"
         },
         {
           "text": "手順ではなく「成果」を記述し、検証手段（実行・テスト・比較）を同じプロンプトに含め、既存のファイルやパターンを参照先として示す"
         },
         {
-          "text": "編集対象のファイルパスを必ずすべて明示的に列挙する",
+          "text": "Claudeが対象ファイルを見逃さないよう、編集が必要なすべてのファイルパスをプロンプト冒頭に明示的に列挙してから作業を依頼する",
           "wrongFeedback": "パスを列挙する必要はありません。「成果を記述すれば Claude がファイルを見つける」のが推奨パターンです（例: 「公開 API にレート制限を追加し既存テストが通ることを確認」）。"
         },
         {
-          "text": "1プロンプトにつき1アクションだけを依頼し、検証は必ず別ターンで行う",
+          "text": "1プロンプトにつき1アクションだけを依頼し、Claude が変更を加えた後に必ず別のターンで検証コマンドを実行する手順を徹底する",
           "wrongFeedback": "検証手段（run/test/verify）を同じプロンプトに含めると、Claude が1回の試行で止まらず反復して自分の作業を確認します。"
         }
       ],
@@ -54726,18 +54704,18 @@
       "question": "Claude Code を「Claude Platform on AWS」のワークスペース経由でリクエストさせるための設定として正しいものはどれですか？",
       "options": [
         {
-          "text": "`CLAUDE_CODE_USE_BEDROCK=1` を設定する",
+          "text": "`CLAUDE_CODE_USE_BEDROCK=1` を設定すれば Claude Platform on AWS 経由でリクエストが送信され、`ANTHROPIC_AWS_WORKSPACE_ID` の設定は不要になる",
           "wrongFeedback": "それは Amazon Bedrock 用です。Claude Platform on AWS は `CLAUDE_CODE_USE_ANTHROPIC_AWS=1`。Bedrock/Foundry が設定されているとそちらが優先されるため解除が必要です。"
         },
         {
-          "text": "AWS 認証情報が環境にあれば自動的に Claude Platform on AWS にルーティングされる",
+          "text": "AWS 認証情報が環境にあれば自動的に Claude Platform on AWS にルーティングされ、`CLAUDE_CODE_USE_ANTHROPIC_AWS=1` の設定や `ANTHROPIC_AWS_WORKSPACE_ID` の指定は省略できる",
           "wrongFeedback": "opt-in です。AWS 認証情報があっても `CLAUDE_CODE_USE_ANTHROPIC_AWS=1` を明示しない限り使われません。"
         },
         {
           "text": "環境変数 `CLAUDE_CODE_USE_ANTHROPIC_AWS=1` と `ANTHROPIC_AWS_WORKSPACE_ID`（必須・毎リクエストに `anthropic-workspace-id` ヘッダーとして送信）を設定する。base URL は `AWS_REGION` から算出される"
         },
         {
-          "text": "`ANTHROPIC_AWS_WORKSPACE_ID` は任意で、AWS 認証情報から自動的に推測される",
+          "text": "`ANTHROPIC_AWS_WORKSPACE_ID` は任意の設定で省略可能。AWS 認証情報から対象ワークスペースが自動的に推測されるため、環境変数 `CLAUDE_CODE_USE_ANTHROPIC_AWS=1` だけで動作する",
           "wrongFeedback": "ワークスペース ID は必須で、AWS 認証情報からは推測されません。未設定だと missing-workspace エラーになります。"
         }
       ],
@@ -54771,18 +54749,18 @@
       "question": "Claude Platform on AWS の認証方法として正しいものはどれですか？",
       "options": [
         {
-          "text": "SSO 認証情報が期限切れになるとセッションは必ず失敗する",
+          "text": "SSO 認証情報が期限切れになるとセッションは必ず失敗し、再認証するには Claude Code を再起動してログインし直す必要があり、自動リトライの仕組みは提供されていない",
           "wrongFeedback": "`awsAuthRefresh` にログインコマンドを設定すれば、期限切れ時に再ログインしてリトライできます。"
         },
         {
-          "text": "Claude Console の別組織で発行した API キーをそのまま使える",
+          "text": "Claude Console の別組織で発行した既存の API キーをそのまま環境変数 `ANTHROPIC_API_KEY` に設定すれば、Claude Platform on AWS のワークスペースへアクセスできる",
           "wrongFeedback": "別の Claude Console 組織の API キーは使えません。AWS コンソールの「Claude Platform on AWS → API keys」で発行したワークスペース API キーが必要です。"
         },
         {
           "text": "AWS 認証情報による SigV4 署名、またはワークスペース API キー（`ANTHROPIC_AWS_API_KEY`、`x-api-key` で送信され SigV4 より優先）の2方式。API キー設定時は環境の AWS 認証情報は無視される"
         },
         {
-          "text": "認証は AWS SigV4 のみで、API キー方式は存在しない",
+          "text": "認証は AWS SigV4 署名のみをサポートしており、API キー方式は存在しない。そのため `ANTHROPIC_AWS_API_KEY` 環境変数を設定しても無視され、常に SigV4 が使われる",
           "wrongFeedback": "ワークスペース API キー（`ANTHROPIC_AWS_API_KEY`）方式もあり、設定すると SigV4 より優先されます。"
         }
       ],
@@ -54819,19 +54797,19 @@
       "question": "`claude --worktree feature-auth`（`-w`）を実行したときのデフォルト動作として正しいものはどれですか？",
       "options": [
         {
-          "text": "現在のブランチから分岐し、カレントディレクトリ内に worktree を作る",
+          "text": "現在のブランチ（local `HEAD`）から分岐し、カレントディレクトリ内に `worktree-<name>` ブランチで worktree を作る",
           "wrongFeedback": "デフォルトは `origin/HEAD`（リモートのデフォルトブランチ）から分岐し、`.claude/worktrees/<name>/` に作成します。local HEAD から分岐するには `worktree.baseRef` を `\"head\"` に設定します。"
         },
         {
-          "text": "名前は必須で、省略するとエラーになる",
-          "wrongFeedback": "名前を省略すると `bright-running-fox` のような名前が自動生成されます。"
+          "text": "名前は必須パラメータで省略するとエラーになる。名前はリポジトリ内で一意である必要があり、既存の worktree と重複するとセットアップが失敗する",
+          "wrongFeedback": "名前を省略すると `bright-running-fox` のような名前が自動生成されます。省略してもエラーにはなりません。"
         },
         {
           "text": "リポジトリルートの `.claude/worktrees/feature-auth/` に `worktree-feature-auth` という新規ブランチで隔離 worktree を作成して起動する。ブランチは `origin/HEAD`（デフォルトブランチ）から分岐する"
         },
         {
-          "text": "既存のブランチ名を指定する必要があり、新規ブランチは作られない",
-          "wrongFeedback": "`worktree-<name>` という新規ブランチが自動作成されます。"
+          "text": "既存のブランチ名を指定する必要があり、新規ブランチは作られない。存在しないブランチ名を指定するとエラーになり、`git branch` で事前作成が必要",
+          "wrongFeedback": "`worktree-<name>` という新規ブランチが自動作成されます。既存ブランチの指定は不要で、存在しないブランチ名を渡しても問題ありません。"
         }
       ],
       "correctIndex": 2,
@@ -54920,18 +54898,18 @@
       "question": "Claude Code のディープリンク（`claude-cli://`）の仕様として正しいものはどれですか？",
       "options": [
         {
-          "text": "`cwd` と `repo` を両方指定すると `repo` が優先される",
+          "text": "`cwd` と `repo` を両方指定すると `repo`（リモートリポジトリのオーナー/リポジトリ名）が優先され、`cwd` の絶対パスは無視される",
           "wrongFeedback": "両方指定時は `cwd` が優先され、`repo` は無視されます（`cwd` のパスが存在しなくても）。"
         },
         {
           "text": "`claude-cli://open` に `q`（プロンプト、URL エンコード・`%0A` で改行・最大5000字）、`cwd`（絶対パス）、`repo`（owner/name）を付与できる。プロンプトは入力欄に事前入力されるが、Enter を押すまで送信されない"
         },
         {
-          "text": "リンクをクリックすると、プロンプトが自動的に実行される",
+          "text": "リンクをクリックすると `q` パラメータに指定したプロンプトが自動的に実行される。ユーザーの確認なしに Claude Code がタスクを開始するため、信頼できないリンクは危険",
           "wrongFeedback": "プロンプトは事前入力されるだけで、ユーザーが Enter を押すまで送信されません（信頼できないリンクでも何も実行されません）。"
         },
         {
-          "text": "リンクは指定したリモートサーバー上でセッションを開く",
+          "text": "リンクは `claude-cli://open?cwd=...` で指定したリモートサーバー上でセッションを開く。クリックしたマシンとは異なる環境でコードが実行される",
           "wrongFeedback": "セッションは常にクリックしたローカルマシンで開きます。リンク自体はどこにホストしてもかまいません。"
         }
       ],
@@ -54966,18 +54944,18 @@
       "question": "Claude Code で並行作業を行う方法（subagents / agent view / agent teams / worktrees）の使い分けとして正しいものはどれですか？",
       "options": [
         {
-          "text": "バックグラウンドの独立セッションは `/agents` パネルで監視する",
-          "wrongFeedback": "バックグラウンドの独立セッション監視は `claude agents`（agent view）です。`/agents` は現在のセッション内の subagent パネル（Running/Library タブ）で、名前は似ていますが別物です。"
+          "text": "バックグラウンドで動作している独立セッションは `/agents` パネルで一覧確認・監視でき、メインの会話とは別のウィンドウで進捗をリアルタイムに追える",
+          "wrongFeedback": "バックグラウンドの独立セッション監視は `claude agents`（agent view）コマンドです。`/agents` は現在のセッション内の subagent パネル（Running/Library タブ）で、名前は似ていますが別物です。"
         },
         {
-          "text": "agent teams はデフォルトで有効で、すぐに使える",
-          "wrongFeedback": "agent teams は実験的機能で、既定では無効です。"
+          "text": "agent teams はデフォルトで有効化されており、設定変更なしにすぐ使え、複数エージェントが共有タスクリストで協調して並行作業できる",
+          "wrongFeedback": "agent teams は実験的機能で、既定では無効です。有効化するには設定変更が必要です。"
         },
         {
           "text": "subagents は1セッション内で側タスクを別コンテキストで処理し要約を返す。agent view（`claude agents`）はバックグラウンドの独立セッションを一覧監視する。agent teams は共有タスクリストで協調する（実験的・既定で無効）。worktrees はファイル編集を隔離する"
         },
         {
-          "text": "subagents は他の subagent と直接メッセージをやり取りして協調する",
+          "text": "subagents はお互いに直接メッセージをやり取りして作業を調整し合うことができ、共有メモリ経由でリアルタイムに状態を同期できる",
           "wrongFeedback": "subagents は結果を呼び出し元の会話に返すだけです。直接メッセージで協調するのは agent teams のチームメイトです。"
         }
       ],
@@ -55077,18 +55055,18 @@
       "question": "設定で `\"disableSkillShellExecution\": true` を有効にした場合、スキルの動作はどう変わりますか？",
       "options": [
         {
-          "text": "`allowed-tools` に `Bash` を含むスキルのみ影響を受け、他のスキルは通常通り動作する",
+          "text": "`allowed-tools` に `Bash` を含むスキルのみ影響を受け、`Bash` を指定していないスキルはシェルコマンドも含め通常通り動作する",
           "wrongFeedback": "`disableSkillShellExecution` は `allowed-tools` の設定に関係なく、`!`コマンド`` 構文そのものを無効化します。スキルのバッククォート注入構文が対象です。"
         },
         {
-          "text": "バンドルスキルと管理スキルを含む全スキルのシェル実行が禁止される",
+          "text": "バンドルスキルと管理スキルを含む全スキルのシェルコマンド実行が禁止され、公式提供スキルも例外なく影響を受ける",
           "wrongFeedback": "バンドルスキルと管理スキルはこの設定の影響を受けません。ユーザー・プロジェクト・プラグイン・追加ディレクトリ由来のスキルのシェルコマンドのみが無効化されます。"
         },
         {
           "text": "ユーザー・プロジェクト・プラグイン・追加ディレクトリ由来スキルの `!`コマンド`` 構文が `[shell command execution disabled by policy]` に置き換えられる"
         },
         {
-          "text": "すべてのスキルが無効になり、`/`メニューからも呼び出せなくなる",
+          "text": "すべてのスキルが無効になり、`/` メニューからの呼び出しも含めてスキル機能全体が使用できなくなる",
           "wrongFeedback": "この設定はスキルの呼び出し自体を禁止するものではありません。スキル内の `!`コマンド`` 構文（シェルコマンドの事前実行）のみを無効化します。"
         }
       ],

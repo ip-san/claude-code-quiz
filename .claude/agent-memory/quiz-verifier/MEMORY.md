@@ -230,3 +230,30 @@
 - ses-102 explanation と wrongFeedback の「`xhigh` は Opus 4.7 専用です」は Opus 4.8 を見落とした誤記 → major
 - 正確には「`xhigh` は Opus 4.7/4.8 でサポート。Opus 4.7 のデフォルト。Opus 4.8 のデフォルトは `high`」
 - ses-102 explanation でのモデルリスト「Opus 4.7 / Opus 4.6 / Sonnet 4.6」からも Opus 4.8 が欠落 → major
+
+## bp-018 の xhigh 表現誤り（2026-05-30 確認）
+- bp-018 の correctIndex=1 option text、explanation、option[2] wrongFeedback、diagram[0] に「`xhigh` は Opus 4.7 専用」と記述
+- model-config.md L146: `xhigh` は「Opus 4.8 and Opus 4.7」でサポート → 「Opus 4.7 専用」は major issue
+- 正確には「`xhigh` は Opus 4.7 / Opus 4.8 でサポート（Opus 4.7 のデフォルト、Opus 4.8 のデフォルトは `high`）」
+- 質問文自体が「Opus 4.7/Opus 4.6/Sonnet 4.6」スコープなので Opus 4.8 省略は質問本体としては意図的
+- しかし「Opus 4.7 専用」という表現が事実として誤り。正しくは「Opus 4.7/4.8 でサポート」
+
+## tools カテゴリ distractor 書き換え後検証（2026-05-30, tool-008/016/030/038/046/073/074/080/081）
+
+### TodoWrite の仕様変更（Critical update）
+- tools-reference.md L49: `TodoWrite` は **v2.1.142 からデフォルト無効**（all modes）
+- env-vars.md L97: 「As of Claude Code v2.1.142, Task tools are the default in **all modes**」
+- MEMORY.md の旧記録（2026-05-23）「-p フラグと Agent SDK でデフォルト」は**古い仕様**
+- tool-074 の正解「TodoWrite は非インタラクティブモードと Agent SDK で使用」→ **現行ドキュメントでは誤り**（major issue）
+- 現在の正しい説明: Task tools（TaskCreate/TaskGet/TaskList/TaskUpdate）がすべてのモードでデフォルト。TodoWrite は `CLAUDE_CODE_ENABLE_TASKS=0` で復活可能
+
+### 検証済み facts（tool-008, 016, 030, 038, 046, 073, 080, 081）
+- チェックポイント: 各ユーザープロンプトで自動スナップショット、30日後クリーンアップ（checkpointing.md）
+- NotebookEdit: replace/insert/delete の3 edit_mode、cell_id でセル特定（tools-reference.md L171-177）
+- Bash sandbox プラットフォーム: macOS(Seatbelt)/Linux(bubblewrap)/WSL2(bubblewrap)のみ。Native Windows 不可（sandboxing.md L12,L124-127）
+- Tool Search: デフォルト有効。Haiku 非対応。Sonnet 4+ / Opus 4+ 必要（mcp.md L615）。ENABLE_TOOL_SEARCH=auto で閾値モード
+- Read PDF: 10ページ超は pages 必須、最大20ページ/リクエスト（tools-reference.md L219）
+- PowerShell: Linux/macOS/WSL は opt-in（CLAUDE_CODE_USE_POWERSHELL_TOOL=1 + pwsh 7+）。Windows は Git Bash なし→自動有効、Git Bash あり→段階的ロールアウト（tools-reference.md L181-195）
+- sandbox Bash ツール: Bash コマンドと子プロセスのみ制限。組み込みツール(Read/Edit等)/MCP/フックはホストで無制限実行（sandbox-environments.md L19-28, L51）
+- sandbox runtime: Docker 不要。Seatbelt/bubblewrap でプロセス全体をラップ（sandbox-environments.md 比較表）
+- 組織強制: Claude Code が自前で強制できるのは組み込み Bash サンドボックスのみ。managed settings で sandbox キー配布（sandbox-environments.md L86-90）
