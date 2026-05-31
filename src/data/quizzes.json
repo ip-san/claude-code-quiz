@@ -28993,7 +28993,7 @@
       "options": [
         {
           "text": "全ユーザーが無条件で利用可能",
-          "wrongFeedback": "1Mコンテキストはbeta機能で、APIユーザーや従量課金ユーザーはフルアクセスですが、サブスクリプションユーザーはextra usageの有効化が必要です。`CLAUDE_CODE_DISABLE_1M_CONTEXT=1` で無効化もできます。"
+          "wrongFeedback": "1Mコンテキストはプランによって扱いが異なり、APIユーザーや従量課金ユーザーはフルアクセスですが、サブスクリプションユーザーはextra usageの有効化が必要です。`CLAUDE_CODE_DISABLE_1M_CONTEXT=1` で無効化もできます。"
         },
         {
           "text": "1Mモデル選択時に即座にロングコンテキスト料金が発生する",
@@ -29008,7 +29008,7 @@
         }
       ],
       "correctIndex": 2,
-      "explanation": "Opus 4.8、Opus 4.7、Opus 4.6、およびSonnet 4.6は1Mトークンコンテキストウィンドウ（ベータ）をサポートしています。\n\n{{diagram:0}}\n\n1Mコンテキストは**通常のモデル料金**で使用でき、200K超えのトークンにプレミアム料金は発生しません。\n{{diagram:1}}",
+      "explanation": "Opus 4.8、Opus 4.7、Opus 4.6、およびSonnet 4.6は1Mトークンコンテキストウィンドウをサポートしています。\n\n{{diagram:0}}\n\n1Mコンテキストは**通常のモデル料金**で使用でき、200K超えのトークンにプレミアム料金は発生しません。\n{{diagram:1}}",
       "referenceUrl": "https://code.claude.com/docs/ja/model-config",
       "diagrams": [
         {
@@ -29022,7 +29022,7 @@
               ]
             },
             {
-              "heading": "1M コンテキスト（ベータ）",
+              "heading": "1M コンテキスト",
               "items": [
                 "Opus 4.8 / 4.7 / 4.6 / Sonnet 4.6",
                 "通常のモデル料金（追加料金なし）",
@@ -29037,7 +29037,7 @@
           "steps": [
             {
               "text": "Opus 4.6以降とSonnet 4.6は1M",
-              "sub": "トークンコンテキストウィンドウ（ベータ）をサポ"
+              "sub": "トークンコンテキストウィンドウをサポート"
             },
             {
               "text": "1Mコンテキストは**通常のモデル料金**で",
