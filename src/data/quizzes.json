@@ -29008,7 +29008,7 @@
         }
       ],
       "correctIndex": 2,
-      "explanation": "Opus 4.7、Opus 4.6、およびSonnet 4.6は1Mトークンコンテキストウィンドウ（ベータ）をサポートしています。\n\n{{diagram:0}}\n\n1Mコンテキストは**通常のモデル料金**で使用でき、200K超えのトークンにプレミアム料金は発生しません。\n{{diagram:1}}",
+      "explanation": "Opus 4.8、Opus 4.7、Opus 4.6、およびSonnet 4.6は1Mトークンコンテキストウィンドウ（ベータ）をサポートしています。\n\n{{diagram:0}}\n\n1Mコンテキストは**通常のモデル料金**で使用でき、200K超えのトークンにプレミアム料金は発生しません。\n{{diagram:1}}",
       "referenceUrl": "https://code.claude.com/docs/ja/model-config",
       "diagrams": [
         {
@@ -29024,7 +29024,7 @@
             {
               "heading": "1M コンテキスト（ベータ）",
               "items": [
-                "Opus 4.7 / Opus 4.6 / Sonnet 4.6",
+                "Opus 4.8 / 4.7 / 4.6 / Sonnet 4.6",
                 "通常のモデル料金（追加料金なし）",
                 "CLAUDE_CODE_DISABLE_1M_CONTEXT で無効化可"
               ]
@@ -29036,7 +29036,7 @@
           "label": "ンテキストウィンドウの注意点",
           "steps": [
             {
-              "text": "Opus 4.6とSonnet 4.6は1M",
+              "text": "Opus 4.6以降とSonnet 4.6は1M",
               "sub": "トークンコンテキストウィンドウ（ベータ）をサポ"
             },
             {
@@ -36940,7 +36940,7 @@
       "options": [
         {
           "text": "Haiku モデルを使用している場合（Fast モードは上位モデルのみ対応）",
-          "wrongFeedback": "Fast モードは Opus 4.7（v2.1.142 以降のデフォルト）で動作します。有効にすると自動的に Fast モードに切り替わります。使用できないのはサードパーティクラウドプロバイダー（Bedrock、Vertex AI、Foundry）経由のアクセスです。"
+          "wrongFeedback": "Fast モードは Opus 4.8（v2.1.154 以降のデフォルト）で動作します。有効にすると自動的に Fast モードに切り替わります。使用できないのはサードパーティクラウドプロバイダー（Bedrock、Vertex AI、Foundry）経由のアクセスです。"
         },
         {
           "text": "CI/CD パイプラインでのヘッドレス実行（`--headless` フラグ使用時は Fast モードが無効化される）",
@@ -48008,7 +48008,7 @@
       "options": [
         {
           "text": "`max` はすべてのモデル（Haiku を含む）で使用でき、最も深い推論を行わせるための統一値である",
-          "wrongFeedback": "`max` レベルは Opus 4.7 / Opus 4.6 / Sonnet 4.6 で利用可能で、それ以外のモデル（Haiku など）では使えません"
+          "wrongFeedback": "`max` レベルは Opus 4.8 / Opus 4.7 / Opus 4.6 / Sonnet 4.6 で利用可能で、それ以外のモデル（Haiku など）では使えません"
         },
         {
           "text": "`max` はセッションをまたいで永続化され、CLI 再起動後も同じ effort で動き続ける",
@@ -48019,11 +48019,11 @@
           "wrongFeedback": "デフォルト値は `auto` で、モデルのデフォルトにリセットされます。`max` はオプションの最高レベルです"
         },
         {
-          "text": "`max` は現在のセッションのみに適用され、Opus 4.7 / Opus 4.6 / Sonnet 4.6 で利用可能である"
+          "text": "`max` は現在のセッションのみに適用され、Opus 4.8 / Opus 4.7 / Opus 4.6 / Sonnet 4.6 で利用可能である"
         }
       ],
       "correctIndex": 3,
-      "explanation": "`/effort` コマンドでは `low`, `medium`, `high`, `max`, `auto` を指定できます。\n\n{{diagram:0}}\n\n`low`, `medium`, `high` はセッション間で永続化されますが、`max` は現在のセッションのみに適用され、Opus 4.7 / Opus 4.6 / Sonnet 4.6 で利用可能です。`auto` はモデルのデフォルトにリセットします。\n{{diagram:1}}",
+      "explanation": "`/effort` コマンドでは `low`, `medium`, `high`, `max`, `auto` を指定できます。\n\n{{diagram:0}}\n\n`low`, `medium`, `high` はセッション間で永続化されますが、`max` は現在のセッションのみに適用され、Opus 4.8 / Opus 4.7 / Opus 4.6 / Sonnet 4.6 で利用可能です。`auto` はモデルのデフォルトにリセットします。\n{{diagram:1}}",
       "referenceUrl": "https://code.claude.com/docs/ja/commands",
       "diagrams": [
         {
@@ -48035,7 +48035,7 @@
             },
             {
               "type": "info",
-              "text": "Effort level set to max (Opus 4.7 / 4.6 / Sonnet 4.6)"
+              "text": "Effort level set to max (Opus 4.8 / 4.7 / 4.6 / Sonnet 4.6)"
             },
             {
               "type": "info",
@@ -48049,7 +48049,7 @@
           "items": [
             {
               "text": "`max` は現在のセッションのみに適用（正解）",
-              "sub": "`/effort` コマンドでは `low`, `medium`, `high`, `max`, `auto` を指定できます。 `low`, `medium`, `high` はセッション間で永続化されますが、`max` は現在のセッションのみに適用され、Opus 4.7 / Opus 4.6 / Sonnet 4.6 で利用可能です。`auto` はモデルのデフォルトにリセットします。"
+              "sub": "`/effort` コマンドでは `low`, `medium`, `high`, `max`, `auto` を指定できます。 `low`, `medium`, `high` はセッション間で永続化されますが、`max` は現在のセッションのみに適用され、Opus 4.8 / Opus 4.7 / Opus 4.6 / Sonnet 4.6 で利用可能です。`auto` はモデルのデフォルトにリセットします。"
             },
             {
               "text": "`max` は `/effort` のデフォルト値である",
@@ -48061,7 +48061,7 @@
             },
             {
               "text": "`max` はすべてのモデルで使用できる",
-              "sub": "`max` レベルは Opus 4.7 / Opus 4.6 / Sonnet 4.6 で利用可能で、Haiku などでは使えません"
+              "sub": "`max` レベルは Opus 4.8 / Opus 4.7 / Opus 4.6 / Sonnet 4.6 で利用可能で、Haiku などでは使えません"
             }
           ]
         }

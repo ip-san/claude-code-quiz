@@ -7,30 +7,31 @@
 - `/quality-loop --monthly` が drift を検出したら両方を更新
 - 問題追加・修正時はこのファイルを参照（一次ソースは公式ドキュメント）
 
-**最終更新:** 2026-04-17（facts-checker `--cross-quiz` 初回実行、6件 drift 検出→5問修正）
+**最終更新:** 2026-05-31（facts-checker `--cross-quiz`、5件 drift: Opus 4.8 既定化 / xhigh=4.8+4.7 / max=4モデル / 1M=Opus 4.6以降 / MCP SSE deprecated 撤回。cmd-104 / ses-105 / ses-117 を修正）
 
 ---
 
 ## モデル・エフォート関連
 
-### 既定モデル（プラン別）
-- **Max / Team Premium**: Opus 4.7
-- **Pro / Team Standard / Enterprise / Anthropic API**: Sonnet 4.6
+### 既定モデル（プラン別、model-config.md L124-127、2026-05-31 更新）
+- **Max / Team Premium / Enterprise(pay-as-you-go) / Anthropic API**: Opus 4.8
+- **Claude Platform on AWS**: Opus 4.7
+- **Pro / Team Standard / Enterprise(subscription seats)**: Sonnet 4.6
 - **Bedrock / Vertex AI / Microsoft Foundry**: Sonnet 4.5
 
-### `CLAUDE_CODE_EFFORT_LEVEL`（6 値）
+### `CLAUDE_CODE_EFFORT_LEVEL`（6 値、model-config.md L146-149、2026-05-31 更新）
 - `low` / `medium` / `high` / `xhigh` / `max` / `auto`
-- `xhigh`: **Opus 4.7 専用**
-- `max`: Opus 4.7 / Opus 4.6 / Sonnet 4.6 で利用可
-- デフォルト: Max/Team Premium = `xhigh`、その他 = `high`
+- `xhigh`: **Opus 4.8 / Opus 4.7**（Opus 4.6 / Sonnet 4.6 は `high` にフォールバック）
+- `max`: **Opus 4.8 / Opus 4.7 / Opus 4.6 / Sonnet 4.6**（4 モデル）
+- デフォルト effort は**モデル別**: Opus 4.8 / Opus 4.6 / Sonnet 4.6 = `high`、Opus 4.7 = `xhigh`（プラン別ではない）
 
-### 1M context 対応モデル（3 種）
-- Opus 4.7 / Opus 4.6 / Sonnet 4.6
-- Opus 4.7 は Max/Team/Enterprise で 1M へ自動アップグレード
+### 1M context 対応モデル（Opus 4.6 以降 + Sonnet 4.6、model-config.md L201、2026-05-31 更新）
+- **Opus 4.6 and later（Opus 4.8 / 4.7 / 4.6）/ Sonnet 4.6**
+- Opus は Max / Team（Standard+Premium）/ Enterprise で 1M へ自動アップグレード。Sonnet 1M は全プランで usage credits 必要
 
 ### Extended Thinking / adaptive reasoning
-- Opus 4.7 / Opus 4.6 / Sonnet 4.6: `MAX_THINKING_TOKENS` は無視（adaptive reasoning）
-- **Opus 4.7 は常にアダプティブ**: `CLAUDE_CODE_DISABLE_ADAPTIVE_THINKING` は適用されない（model-config.md「Adaptive reasoning and fixed thinking budgets」、2026-05-09 確認）
+- Opus 4.8 / Opus 4.7 / Opus 4.6 / Sonnet 4.6: `MAX_THINKING_TOKENS` は無視（adaptive reasoning）
+- **Opus 4.7 / Opus 4.8 は常にアダプティブ**: `CLAUDE_CODE_DISABLE_ADAPTIVE_THINKING` は適用されない（model-config.md「Adaptive reasoning and fixed thinking budgets」、2026-05-31 再確認）
 - Opus 4.6 / Sonnet 4.6 のみ: `CLAUDE_CODE_DISABLE_ADAPTIVE_THINKING=1` で固定思考予算（`MAX_THINKING_TOKENS`）に戻せる
 - 例外: `MAX_THINKING_TOKENS=0` は全モデルで thinking を無効化
 
@@ -67,7 +68,7 @@
 - `~/.claude/CLAUDE.md` は User スコープ（Managed ではない）
 
 ### 環境変数
-- `CLAUDE_CODE_DISABLE_AUTO_MEMORY=0`: auto memory を強制有効化（gradual rollout 用）。出典: `env-vars.md:70` + `memory.md:259`
+- `CLAUDE_CODE_DISABLE_AUTO_MEMORY`: `1`=無効化 / `0`=`--bare` や `autoMemoryEnabled: false` を上書きして強制有効化。出典: `env-vars.md:70`（2026-05-31: 旧「gradual rollout」記述は消滅、`memory.md:259` citation 無効。トグルは `autoMemoryEnabled` 設定 `memory.md:266`）
 - `CLAUDE_CODE_ADDITIONAL_DIRECTORIES_CLAUDE_MD=1`: `--add-dir` フラグとの**併用必須**
 - `CLAUDE_CODE_SIMPLE=1`: minimal prompt、Bash/file のみ。`--mcp-config` 経由の MCP ツールは利用可
 - `CLAUDE_CODE_EFFORT_LEVEL`: 上記「モデル・エフォート関連」参照
@@ -106,8 +107,8 @@
 - `claude --teleport`: CLI フラグとしても別途存在
 - `/summarize` は存在しない（`/rewind` メニュー内の "Summarize from here" に統合）
 - `/todos` も commands.md から削除済み
-- Agent teams: CLI と Agent SDK のみ。Desktop アプリでは**利用不可**（`desktop.md` L508 "multi-agent orchestration is available via the CLI and Agent SDK, not in Desktop"）
-- `dontAsk` permission mode: CLI のみ。Desktop では利用不可（`desktop.md` L49）
+- Agent teams: CLI と Agent SDK のみ。Desktop アプリでは**利用不可**（`desktop.md` L558 "Agent teams ... available in the CLI, not in Desktop"。Desktop は dynamic workflows で多エージェント可）
+- `dontAsk` permission mode: CLI のみ。Desktop では利用不可（`desktop.md` L63）
 
 ---
 
@@ -135,9 +136,9 @@
 
 ## MCP / Tools
 
-### MCP SSE Transport
-- `mcp.md` L80 に "The SSE (Server-Sent Events) transport is **deprecated**. Use HTTP servers instead, where available." と明記（2026-05-17 facts-checker `--cross-quiz` で再確認、状態が変わった）
-- 公式に非推奨。HTTP transport を使用すること
+### MCP SSE Transport（2026-05-31 更新: **deprecated 撤回**）
+- `mcp.md` L56「Option 2: Add a remote SSE server」(`claude mcp add --transport sse`) — SSE は**有効な transport**。2026-05-31 facts-checker で "deprecated" 記述の消滅を確認（mcp.md 全体に "deprecat" 文字列ゼロ）
+- HTTP（Option 1）が推奨だが SSE は**非推奨ではない**。「SSE は deprecated」とするクイズ修正提案は誤り（known-issues.md と整合）
 
 ### Tool Search
 - Sonnet 4+ / Opus 4+ 必須（Haiku は未サポート）
