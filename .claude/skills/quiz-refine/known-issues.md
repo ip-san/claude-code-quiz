@@ -128,10 +128,29 @@ v4.43.0 以前の known-issues では「exit code 2 の一般ルールで UserPr
 - 有効アンカー: `#import-additional-files`, `#choose-where-to-put-claudemd-files`, `#view-and-edit-with-memory`, `#how-claudemd-files-load`, `#user-level-rules`, `#path-specific-rules`
 - Auto Memory の `MEMORY.md` 読み込み制限が「先頭200行」から「先頭200行または25KB（先に到達した方）」に変更されている → known-issues.md に「MEMORY.md の読み込み制限は 200 lines or 25KB, whichever comes first」を追加
 
+## Hooks ページのアンカー（2026-05-31 確認 / lint false-positive）
+
+- `hooks#configuration` は**有効なアンカー**。quiz:lint の `[URL Anchors] invalid-anchor "#configuration" not found in "hooks"` は **false-positive**（ext-004 / ext-085 / ext-087）
+- 根拠: (1) hooks reference ページの "On this page" TOC に `Configuration` セクションが存在する、(2) 公式 hooks-guide が `code.claude.com/docs/en/hooks#configuration` へクロスリンクしている（hooks-guide.md L543）
+- 原因: hooks **reference** ページの fetch では見出しが `##` markdown ではなくプレーンテキストに平坦化されるため、slugify ベースのアンカー抽出が拾えない。`hooks-guide` ページは正常に `##`/`###` を持つ
+- 対応: これら3問の `referenceUrl` は修正不要。URL Anchors lint は report-only なのでブロックしない
+
 ## SDK・ライブラリの改名履歴
 
 - 「Claude Code SDK」→「Claude Code Agent SDK」→「Claude Agent SDK」と改名済み
 - `Task` ツールは Claude Code CLI では `Agent` に改名されたが、Agent SDK の `allowedTools` 設定には `Task` と指定する必要がある（CLI 文脈か SDK 文脈かで正しい名称が異なる）
+
+## 用語: Microsoft Foundry（2026-05-31 確認 / doc-string false-positive 注意）
+
+- プロジェクト正式表記は **「Microsoft Foundry」**（`topic-config.mjs` TERMINOLOGY_DICT: `Azure Foundry`→`Microsoft Foundry`、doc page slug も `microsoft-foundry`）
+- **注意**: 一部の公式ドキュメント（`fast-mode.md` 等）は冗長形「Microsoft Azure Foundry」を使う。検証エージェントが doc 文字列に合わせて quiz を「Microsoft Azure Foundry」へ修正提案するのは **false-positive**。terminology lint が `Azure Foundry → Microsoft Foundry` で巻き戻すため、doc の冗長形に合わせないこと（ses-117 で実際に発生・revert 済み）
+
+## デフォルトモデルのプラン別対応（2026-05-31 確認）
+
+- **Opus 4.8** = Max / Team Premium / Enterprise pay-as-you-go / Anthropic API のデフォルト（model-config.md L124）
+- **Opus 4.7** = Claude Platform on AWS のデフォルト（同 L125）。Max/Team Premium のデフォルトを「Opus 4.7」とするのは旧情報（ses-103 で修正済み）
+- **Sonnet 4.6** = Pro / Team Standard / Enterprise サブスクリプション席（L126）、**Sonnet 4.5** = Bedrock/Vertex/Foundry（L127）
+- `xhigh` エフォートは **Opus 4.8 / Opus 4.7 のみ**（Opus 4.6 / Sonnet 4.6 は high にフォールバック、model-config.md L146-147）。旧 known-issues の「Opus 4.7 専用」は 4.8 追加後の stale 表記
 
 ## MEMORY 記録の信頼性
 

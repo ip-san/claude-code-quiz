@@ -60,3 +60,34 @@ Read, Write, Edit, Bash, **Monitor**, Glob, Grep, WebSearch, WebFetch, AskUserQu
 - ビルトインツール 10 種のテーブルは維持（Read/Write/Edit/Bash/Monitor/Glob/Grep/WebSearch/WebFetch/AskUserQuestion）。
 - ANTHROPIC_API_KEY の明示記載はないが、Anthropic 標準変数として正確。
 - sdk-008 のインストールコマンド `npm install @anthropic-ai/claude-agent-sdk` はドキュメントに明示されていないが、quickstart に記載されるはずで major とまでは言えない。
+
+## prompt-caching TTL 詳細（2026-05-31 確認）
+
+sdk-016（difficulty: advanced）の正解内容はドキュメントと完全一致:
+- Claude サブスクリプション → 自動的に1時間 TTL（プラン内、追加コストなし）
+- 枠超過・usage credits → 自動的に5分に降格
+- API キー / Bedrock / Vertex / Foundry / Claude Platform on AWS → デフォルト5分 TTL
+- `ENABLE_PROMPT_CACHING_1H=1` で1時間に切り替え可能
+- `FORCE_PROMPT_CACHING_5M=1` で強制5分（managed settings上書き用）
+- サブエージェントはサブスクリプションでも5分 TTL
+- キャッシュ保存場所: API key/サブスク/Claude Platform on AWS → Anthropic インフラ、Bedrock/Vertex → 各クラウドプロバイダ
+- difficulty:advanced フラグは false-positive（TTL の条件分岐は genuinely advanced）
+
+## Claude Platform on AWS 認証（2026-05-31 確認）
+
+sdk-018（difficulty: advanced）の正解内容はドキュメントと完全一致:
+- 方式A: SigV4（標準 AWS 認証チェーン: env vars / ~/.aws/credentials / IAM ロール / SSO）
+- 方式B: ワークスペース API キー `ANTHROPIC_AWS_API_KEY`、`x-api-key` ヘッダーで送信、SigV4 より優先、設定時は AWS 認証情報を無視
+- SSO 期限切れ → `awsAuthRefresh` にログインコマンドを設定してリトライ可能
+- difficulty:advanced フラグは false-positive（2方式の選択と優先順位は genuinely advanced）
+
+## sdk-009 / sdk-010 distractor フラグ（2026-05-31 確認）
+
+- sdk-009（distractor）: ビルトインツールリストが diagram で10種すべて列挙されており事実誤認なし。false-positive
+- sdk-010（distractor）: 以前の「diagram に旧名称 Task 残存」の issue は解消済み。現在のすべてのフィールドで `Agent` を正しく使用。false-positive
+- sdk-011（factCheck:env）: `ANTHROPIC_API_KEY` が正解として正確に記述。keyword hit による false-positive。これで3回連続 false-positive → sdk カテゴリの factCheck:env は keyword hit パターンのみ
+
+## sdk カテゴリ distractor/difficulty 全 false-positive 記録
+
+2026-05-31 検証: sdk-009, sdk-010, sdk-016, sdk-018 の4問すべて false-positive
+sdk カテゴリの distractor/difficulty フラグは過去3回の検証（2026-05-08, 05-16, 05-31）を通じて 100% false-positive

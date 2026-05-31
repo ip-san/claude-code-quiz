@@ -257,3 +257,63 @@
 - sandbox Bash ツール: Bash コマンドと子プロセスのみ制限。組み込みツール(Read/Edit等)/MCP/フックはホストで無制限実行（sandbox-environments.md L19-28, L51）
 - sandbox runtime: Docker 不要。Seatbelt/bubblewrap でプロセス全体をラップ（sandbox-environments.md 比較表）
 - 組織強制: Claude Code が自前で強制できるのは組み込み Bash サンドボックスのみ。managed settings で sandbox キー配布（sandbox-environments.md L86-90）
+
+## skills カテゴリ検証パターン（2026-05-31）
+
+### skill-061/064/076 quality-tier 3問 全て偽陽性（または diagram minor）
+
+**skill-061 (distractor)**
+- effort: xhigh は Opus 4.7/4.8 のみ。correctIndex=1（xhigh）は正確
+- options[2]/[3] に長い括弧注釈があり distractor バランス不均等だが事実誤認なし → false-positive
+
+**skill-064 (distractor)**
+- 1% context window、1,536文字上限、skillListingBudgetFraction、SLASH_COMMAND_TOOL_CHAR_BUDGET はすべてドキュメント通り
+- diagram hierarchy に `（フォールバック8,000文字）` という記述があるが、docs はこの値を明示しない → minor（diagram のみ）
+- 正しい表現: "1% of the model's context window"（固定 fallback 値なし）
+- SLASH_COMMAND_TOOL_CHAR_BUDGET は「fixed character count」として使う（8000 という値の根拠なし）
+- options のバランス不均等（correct option が他より長い）→ distractor flag の主因は false-positive
+
+**skill-076 (difficulty)**
+- agent-teams の split-pane 条件（tmux または iTerm2 + it2 CLI + Python API）は正確（agent-teams.md）
+- `"auto"` デフォルト: tmux セッション内ならスプリット、それ以外はインプロセス（confirmed）
+- `"tmux"` 設定: スプリットペイン強制、tmux/iTerm2 自動検出（confirmed）
+- difficulty "advanced" は適切（agent-teams は実験的機能、tmux/iTerm2 条件は上級者向け）
+- difficulty フラグ → false-positive
+
+### skills カテゴリ確認済み facts（2026-05-31）
+- effort frontmatter: `low`/`medium`/`high`/`xhigh`/`max` の5値、xhigh は Opus 4.7/4.8 のみ（skills.md frontmatter table）
+- skill description コンテキスト予算: モデル context window の 1%（固定 fallback 値の記述なし）
+- 各エントリ上限: 1,536 文字（description + when_to_use 合計）、`maxSkillDescriptionChars` で変更可
+- `skillListingBudgetFraction`（0.02=2% 等）と `SLASH_COMMAND_TOOL_CHAR_BUDGET`（固定文字数）で予算引き上げ可
+- split-pane mode: tmux または iTerm2（it2 CLI + Python API 有効化）が必要
+- teammateMode: `"auto"`（デフォルト）/ `"tmux"`（強制）/ `"in-process"` の3値
+
+## session カテゴリ追加検証パターン（2026-05-31, 20問 flagged）
+
+### ses-103 の default モデル誤り（Critical issue）
+- model-config.md: "Max, Team Premium, Enterprise pay-as-you-go, and Anthropic API: defaults to **Opus 4.8**"
+- ses-103 正解（correctIndex:1）は "Opus 4.7" → critical。正しくは Opus 4.8
+- wrongFeedback にも "Opus 4.7" と記述されており要修正
+
+### ses-117 の Microsoft Foundry 命名（**false-positive**: プロジェクト正式表記）
+- fast-mode.md: "not available on Amazon Bedrock, Google Vertex AI, **Microsoft Azure Foundry**, or Claude Platform on AWS"
+- ses-117 正解 option は "Microsoft Foundry" → **修正不要**。プロジェクト正式表記は「Microsoft Foundry」（`topic-config.mjs` TERMINOLOGY_DICT: `Azure Foundry`→`Microsoft Foundry`、doc slug も `microsoft-foundry`）
+- **doc の冗長形「Microsoft Azure Foundry」に合わせて修正提案するのは false-positive**。terminology lint が巻き戻す（2026-05-31 に実際 revert）。次回以降フラグしないこと
+
+### ses-141 の macOS Keychain 確認（Pass）
+- authentication.md: "On macOS, credentials are stored in the encrypted macOS Keychain"
+- ses-141 正解「暗号化された macOS Keychain」は正確。偽陽性を懸念する必要なし
+
+### ses-153 の SOCKS プロキシ否定（要注意）
+- network-config.md に「SOCKSプロキシ非対応」の記述なし
+- env-vars.md に `HTTP_PROXY`/`HTTPS_PROXY`/`NO_PROXY`/`CLAUDE_CODE_PROXY_RESOLVES_HOSTS` のみ（SOCKS なし）
+- ses-153 explanation の「SOCKSプロキシはサポートされていません」は根拠なし → minor
+- 正解 `HTTPS_PROXY` 自体は正確
+
+### ses-048 の CLAUDE_CODE_PROXY_RESOLVES_HOSTS（Pass）
+- env-vars.md に明記: "Set to 1 to allow the proxy to perform DNS resolution"
+- ses-048 explanation 末尾の記述は正確
+
+### session カテゴリ factCheck distractor tier（2026-05-31）
+- ses-027, ses-045, ses-189, ses-190 の distractor/difficulty フラグ：全て偽陽性
+- 事実誤認なし。品質（選択肢長バランス）の問題のみ
