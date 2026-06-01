@@ -40,8 +40,8 @@
 ## Hooks
 
 ### Hook event types
-- **総数: 29**（2026-05-02 再確認、`hooks.md` の `### <EventName>` H3 セクションを grep。Setup / UserPromptExpansion / PostToolBatch の 3 件が新規追加）
-- 29 件: SessionStart, InstructionsLoaded, UserPromptSubmit, UserPromptExpansion, PreToolUse, PermissionRequest, PostToolUse, PostToolUseFailure, PostToolBatch, PermissionDenied, Notification, Setup, SubagentStart, SubagentStop, TaskCreated, TaskCompleted, Stop, StopFailure, TeammateIdle, ConfigChange, CwdChanged, FileChanged, WorktreeCreate, WorktreeRemove, PreCompact, PostCompact, SessionEnd, Elicitation, ElicitationResult
+- **総数: 30**（2026-06-01 再確認、`hooks.md` lifecycle table。**29→30: `MessageDisplay`**（"While assistant message text is displayed"、matcher なし・非ブロッキング）が追加。旧履歴: 26→29 で Setup / UserPromptExpansion / PostToolBatch 追加）
+- 30 件: SessionStart, InstructionsLoaded, UserPromptSubmit, UserPromptExpansion, PreToolUse, PermissionRequest, PostToolUse, PostToolUseFailure, PostToolBatch, PermissionDenied, Notification, MessageDisplay, Setup, SubagentStart, SubagentStop, TaskCreated, TaskCompleted, Stop, StopFailure, TeammateIdle, ConfigChange, CwdChanged, FileChanged, WorktreeCreate, WorktreeRemove, PreCompact, PostCompact, SessionEnd, Elicitation, ElicitationResult
 - **Blocking events: 15**（2026-05-17 facts-checker `--cross-quiz` で再確認、`hooks.md` L560-595 の "Can block? = Yes" を数えた。`UserPromptExpansion` と `PostToolBatch` が blocking 一覧に追加されている）
 
 ### Hooks exit 2 の振る舞い

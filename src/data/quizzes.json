@@ -24951,7 +24951,7 @@
         }
       ],
       "correctIndex": 1,
-      "explanation": "OnFileChangeというイベントタイプはHooksには存在しません。\n{{diagram:0}}\n有効なイベントタイプは29種類あり、`SessionStart`、`SessionEnd`、`InstructionsLoaded`、`UserPromptSubmit`、`PreToolUse`、`PermissionRequest`、`PermissionDenied`、`PostToolUse`、`PostToolUseFailure`、`Notification`、`SubagentStart`、`SubagentStop`、`TaskCreated`、`TaskCompleted`、`Stop`、`StopFailure`、`TeammateIdle`、`ConfigChange`、`WorktreeCreate`、`WorktreeRemove`、`PreCompact`、`PostCompact`、`Elicitation`、`ElicitationResult`、`CwdChanged`、`FileChanged`、`Setup`、`UserPromptExpansion`、`PostToolBatch`です。\n{{diagram:1}}",
+      "explanation": "OnFileChangeというイベントタイプはHooksには存在しません。\n{{diagram:0}}\n有効なイベントタイプは30種類あり、`SessionStart`、`SessionEnd`、`InstructionsLoaded`、`UserPromptSubmit`、`PreToolUse`、`PermissionRequest`、`PermissionDenied`、`PostToolUse`、`PostToolUseFailure`、`Notification`、`MessageDisplay`、`SubagentStart`、`SubagentStop`、`TaskCreated`、`TaskCompleted`、`Stop`、`StopFailure`、`TeammateIdle`、`ConfigChange`、`WorktreeCreate`、`WorktreeRemove`、`PreCompact`、`PostCompact`、`Elicitation`、`ElicitationResult`、`CwdChanged`、`FileChanged`、`Setup`、`UserPromptExpansion`、`PostToolBatch`です。\n{{diagram:1}}",
       "referenceUrl": "https://code.claude.com/docs/ja/hooks#configuration",
       "diagrams": [
         {
