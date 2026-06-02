@@ -369,6 +369,7 @@ v4.43.0 以前の known-issues では「exit code 2 の一般ルールで UserPr
 
 - ext-029 の非ブロッキングイベント一覧から `PostToolUseFailure` と `StopFailure` が欠落していた → チェックリスト A に「ブロッキング/非ブロッキングイベント一覧を列挙する場合は22種全てが網羅されているか確認」を注記
 - ext-053 の explanation と wrongFeedback で、TaskCompleted イベントの発火条件として「Agent Teamsのチームメイトが進行中タスクを残したままターンを終了した時」という記述があったが、公式ドキュメントには "When a task is being marked as completed" としか記載されていない → known-issues.md に「TaskCompleted の発火条件はドキュメント記載の 'When a task is being marked as completed' のみ。追加条件を断言しない」を追記
+  - **更新（2026-06-02、現行 hooks.md 再取得で訂正）**: hooks.md が更新され、TaskCompleted は2状況で発火と明記された（"This fires in two situations: when any agent explicitly marks a task as completed through the TaskUpdate tool, or when an agent team teammate finishes its turn with in-progress tasks."）。入力にも `teammate_name`/`team_name` あり。よって ext-053 の「またはチームメイトがターン終了時」は**現行ドキュメントで正しい**ため、上記「追加条件を断言しない」旧ガイドラインは撤回。今後この点を false-positive として扱う。
 
 ## referenceUrl domain migration
 

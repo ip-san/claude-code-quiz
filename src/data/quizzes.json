@@ -13917,7 +13917,7 @@
         },
         {
           "text": "WebSocket（双方向リアルタイム通信プロトコル）",
-          "wrongFeedback": "WebSocketはMCPのトランスポート方式としてサポートされていません。リモートサーバーにはHTTP Streamable transport、ローカルサーバーには`stdio`を使用します。"
+          "wrongFeedback": "WebSocket（`ws` タイプ）も`.mcp.json`や`claude mcp add-json`で設定可能なMCPトランスポートですが、リモートの推奨はHTTPです。HTTPはOAuthと`claude mcp add --transport`フラグに対応し、WebSocketは両方とも非対応のためです。"
         }
       ],
       "correctIndex": 2,
@@ -36955,7 +36955,7 @@
         }
       ],
       "correctIndex": 3,
-      "explanation": "Fast モードは Amazon Bedrock、Google Vertex AI、Microsoft Foundry などのサードパーティクラウドプロバイダーでは利用できません。\n\n{{diagram:0}}\n\nAnthropic Console API か Claude サブスクリプションプランの Extra Usage 経由でのみ利用可能です。\n{{diagram:1}}",
+      "explanation": "Fast モードは Amazon Bedrock、Google Vertex AI、Microsoft Foundry、Claude Platform on AWS などのサードパーティ／クラウドプロバイダーでは利用できません。\n\n{{diagram:0}}\n\nAnthropic Console API か Claude サブスクリプションプランの Extra Usage 経由でのみ利用可能です。\n{{diagram:1}}",
       "referenceUrl": "https://code.claude.com/docs/ja/fast-mode",
       "diagrams": [
         {
@@ -48023,7 +48023,7 @@
         }
       ],
       "correctIndex": 3,
-      "explanation": "`/effort` コマンドでは `low`, `medium`, `high`, `max`, `auto` を指定できます。\n\n{{diagram:0}}\n\n`low`, `medium`, `high` はセッション間で永続化されますが、`max` は現在のセッションのみに適用され、Opus 4.8 / Opus 4.7 / Opus 4.6 / Sonnet 4.6 で利用可能です。`auto` はモデルのデフォルトにリセットします。\n{{diagram:1}}",
+      "explanation": "`/effort` コマンドでは `low`, `medium`, `high`, `xhigh`, `max`, `ultracode`, `auto` を指定できます（`max`・`ultracode` はセッション限定）。\n\n{{diagram:0}}\n\n`low`, `medium`, `high` はセッション間で永続化されますが、`max` は現在のセッションのみに適用され、Opus 4.8 / Opus 4.7 / Opus 4.6 / Sonnet 4.6 で利用可能です。`auto` はモデルのデフォルトにリセットします。\n{{diagram:1}}",
       "referenceUrl": "https://code.claude.com/docs/ja/commands",
       "diagrams": [
         {
@@ -48049,7 +48049,7 @@
           "items": [
             {
               "text": "`max` は現在のセッションのみに適用（正解）",
-              "sub": "`/effort` コマンドでは `low`, `medium`, `high`, `max`, `auto` を指定できます。 `low`, `medium`, `high` はセッション間で永続化されますが、`max` は現在のセッションのみに適用され、Opus 4.8 / Opus 4.7 / Opus 4.6 / Sonnet 4.6 で利用可能です。`auto` はモデルのデフォルトにリセットします。"
+              "sub": "`/effort` コマンドでは `low`, `medium`, `high`, `xhigh`, `max`, `ultracode`, `auto` を指定できます（`max`・`ultracode` はセッション限定）。 `low`, `medium`, `high` はセッション間で永続化されますが、`max` は現在のセッションのみに適用され、Opus 4.8 / Opus 4.7 / Opus 4.6 / Sonnet 4.6 で利用可能です。`auto` はモデルのデフォルトにリセットします。"
             },
             {
               "text": "`max` は `/effort` のデフォルト値である",
@@ -52918,23 +52918,23 @@
       "question": "バンドルスキル`/simplify`の動作として正しいものはどれですか？",
       "options": [
         {
-          "text": "最近変更されたファイルに対してコードの再利用性・品質・効率性を3つの並列レビューエージェントで検査し、結果を集約して修正を適用する"
+          "text": "最近変更されたファイルに対して既存ヘルパーの再利用・簡素化・効率性・適切な抽象度を4つの並列レビューエージェントで検査し、結果を集約して修正を適用する"
         },
         {
           "text": "指定したファイル1つを分析し、関数の行数を減らすリファクタリング案を提示するだけで、自動修正は行わない",
-          "wrongFeedback": "`/simplify`は最近変更されたファイル群を対象に3つのエージェントを並列で走らせ、問題の検出だけでなく修正の適用まで行います"
+          "wrongFeedback": "`/simplify`は最近変更されたファイル群を対象に4つのエージェントを並列で走らせ、問題の検出だけでなく修正の適用まで行います"
         },
         {
           "text": "コードベース全体をスキャンし、未使用のインポートと変数を一括削除するクリーンアップツールである",
-          "wrongFeedback": "`/simplify`はコードベース全体ではなく最近変更されたファイルを対象とし、未使用コードの削除だけでなくコードの再利用性・品質・効率性を総合的にレビューします"
+          "wrongFeedback": "`/simplify`はコードベース全体ではなく最近変更されたファイルを対象とし、未使用コードの削除だけでなく既存ヘルパーの再利用・簡素化・効率性・適切な抽象度を総合的にレビューします"
         },
         {
           "text": "AIによるコード要約を生成し、各関数にドキュメントコメントを自動追加するドキュメント生成スキルである",
-          "wrongFeedback": "`/simplify`はドキュメント生成ではなく、コードの再利用性・品質・効率性の問題を検出して修正するレビュースキルです"
+          "wrongFeedback": "`/simplify`はドキュメント生成ではなく、既存ヘルパーの再利用・簡素化・効率性・適切な抽象度を検査して修正するレビュースキルです"
         }
       ],
       "correctIndex": 0,
-      "explanation": "`/simplify`はバンドルスキルの1つで、最近変更されたファイルに対してコードの再利用性・品質・効率性の問題を検査します。\n{{diagram:0}}\n3つのレビューエージェントを並列で実行し、結果を集約した上で修正を適用します。`/simplify focus on memory efficiency`のようにフォーカスを指定することもできます。\n{{diagram:1}}",
+      "explanation": "`/simplify`はバンドルスキルの1つで、最近変更されたファイルに対して既存ヘルパーの再利用・簡素化・効率性・適切な抽象度を検査します。\n{{diagram:0}}\n4つのレビューエージェントを並列で実行し、結果を集約した上で修正を適用します。`/simplify <path>`のようにパスやPR参照で対象を指定できます（v2.1.154以降はバグ検出を行わず、バグ検出は`/code-review`を使用）。\n{{diagram:1}}",
       "referenceUrl": "https://code.claude.com/docs/ja/skills",
       "diagrams": [
         {
@@ -52944,8 +52944,8 @@
               "text": "最近変更されたファイルを検出"
             },
             {
-              "text": "3つのレビューエージェントを並列実行",
-              "sub": "再利用性・品質・効率性"
+              "text": "4つのレビューエージェントを並列実行",
+              "sub": "再利用/簡素化/効率性/抽象度"
             },
             {
               "text": "結果を集約"
