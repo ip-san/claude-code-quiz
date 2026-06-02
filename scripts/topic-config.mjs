@@ -142,6 +142,8 @@ export const DOC_PAGES = [
   { name: 'large-codebases', url: 'https://code.claude.com/docs/en/large-codebases' },
   { name: 'security-guidance', url: 'https://code.claude.com/docs/en/security-guidance' },
   { name: 'workflows', url: 'https://code.claude.com/docs/en/workflows' },
+  // Auto-discovered from llms.txt (2026-06-02)
+  { name: 'mcp-quickstart', url: 'https://code.claude.com/docs/en/mcp-quickstart' },
   // Agent SDK (different domain)
   { name: 'agent-sdk-overview', url: 'https://platform.claude.com/docs/en/agent-sdk/overview' },
 ]
