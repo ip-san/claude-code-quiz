@@ -25,6 +25,12 @@
 - `max`: **Opus 4.8 / Opus 4.7 / Opus 4.6 / Sonnet 4.6**（4 モデル）
 - デフォルト effort は**モデル別**: Opus 4.8 / Opus 4.6 / Sonnet 4.6 = `high`、Opus 4.7 = `xhigh`（プラン別ではない）
 
+### `/effort ultracode` と dynamic workflows（commands.md L25 / model-config.md L149,L162、2026-06-02 確認）
+- `/effort` が受け付ける値は `low` / `medium` / `high` / `xhigh` / `max` / `ultracode`（6 種。`max`・`ultracode` は session-only）
+- **`ultracode` はモデルの effort レベルではなく Claude Code の設定**: `xhigh` 推論をモデルに送りつつ、substantive なタスクで dynamic workflow を自動オーケストレーションする
+- 設定方法: `/effort ultracode`、または `--settings` / Agent SDK control request で `"ultracode": true`。**`effortLevel` 設定・`--effort` フラグ・`CLAUDE_CODE_EFFORT_LEVEL` では設定不可**（上記 env の 6 値に ultracode は含まれない）
+- **dynamic workflow**: Claude が JavaScript スクリプトを書き、ランタイムが背景実行して数十〜数百のサブエージェントをオーケストレーション（codebase 横断バグ掃討・500ファイル移行・リサーチのソース相互検証等）。同一セッション内で resumable。`/deep-research` は bundled workflow（workflows.md）
+
 ### 1M context 対応モデル（Opus 4.6 以降 + Sonnet 4.6、model-config.md L201、2026-05-31 更新）
 - **Opus 4.6 and later（Opus 4.8 / 4.7 / 4.6）/ Sonnet 4.6**
 - Opus は Max / Team（Standard+Premium）/ Enterprise で 1M へ自動アップグレード。Sonnet 1M は全プランで usage credits 必要
@@ -42,7 +48,7 @@
 ### Hook event types
 - **総数: 30**（2026-06-01 再確認、`hooks.md` lifecycle table。**29→30: `MessageDisplay`**（"While assistant message text is displayed"、matcher なし・非ブロッキング）が追加。旧履歴: 26→29 で Setup / UserPromptExpansion / PostToolBatch 追加）
 - 30 件: SessionStart, InstructionsLoaded, UserPromptSubmit, UserPromptExpansion, PreToolUse, PermissionRequest, PostToolUse, PostToolUseFailure, PostToolBatch, PermissionDenied, Notification, MessageDisplay, Setup, SubagentStart, SubagentStop, TaskCreated, TaskCompleted, Stop, StopFailure, TeammateIdle, ConfigChange, CwdChanged, FileChanged, WorktreeCreate, WorktreeRemove, PreCompact, PostCompact, SessionEnd, Elicitation, ElicitationResult
-- **Blocking events: 15**（2026-05-17 facts-checker `--cross-quiz` で再確認、`hooks.md` L560-595 の "Can block? = Yes" を数えた。`UserPromptExpansion` と `PostToolBatch` が blocking 一覧に追加されている）
+- **Blocking events: 15**（2026-06-02 再カウントで確認、`hooks.md` "Exit code 2 behavior per event" テーブルの "Can block? = Yes" を数えた）: PreToolUse, PermissionRequest, UserPromptSubmit, UserPromptExpansion, Stop, SubagentStop, TeammateIdle, TaskCreated, TaskCompleted, ConfigChange, PostToolBatch, PreCompact, Elicitation, ElicitationResult, WorktreeCreate
 
 ### Hooks exit 2 の振る舞い
 - `PreToolUse`: `hookSpecificOutput` で制御
@@ -83,6 +89,11 @@
 
 ### defaultMode 有効値（6 値）
 `default` / `acceptEdits` / `plan` / `auto` / `dontAsk` / `bypassPermissions`
+
+### Auto mode のプロバイダ可用性（2026-06-02 確認、⚠️ 公式ドキュメント間で矛盾あり）
+- **changelog v2.1.158（2026-05-30）**: 「Auto mode is now available on **Bedrock, Vertex, and Foundry** for Opus 4.7 and Opus 4.8. Opt in by setting `CLAUDE_CODE_ENABLE_AUTO_MODE=1`」
+- **desktop.md（未更新・旧記述）**: 「Auto mode is a research preview available to all users on the Anthropic API. **It is not available on third-party providers.** It requires Claude Opus 4.6 or later, or Sonnet 4.6」
+- → 新しい changelog を優先。**third-party（Bedrock/Vertex/Foundry）でも利用可能**。クイズで「auto mode は Anthropic API 専用 / third-party 不可」とするのは古い desktop.md ベースの誤り。対象モデル差に注意（API: Opus 4.6+/Sonnet 4.6、third-party: Opus 4.7/4.8 + `CLAUDE_CODE_ENABLE_AUTO_MODE=1` オプトイン）
 
 ---
 

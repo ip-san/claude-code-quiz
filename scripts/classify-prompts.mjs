@@ -10,7 +10,7 @@
  * 入力が不足している場合は何もせずに終了。
  */
 
-import { execSync } from 'child_process'
+import { execFileSync } from 'child_process'
 import { existsSync, readFileSync, unlinkSync, writeFileSync } from 'fs'
 import { join } from 'path'
 
@@ -18,6 +18,11 @@ const STORE_DIR = join(process.env.HOME || '', '.claude-quiz-recommend')
 const ROLLING_FILE = join(STORE_DIR, 'rolling-7d.json')
 const OUTPUT_FILE = join(STORE_DIR, 'classified-prompts.json')
 const LOCK_FILE = join(STORE_DIR, '.classify-lock')
+
+// ── Tunables ──────────────────────────────────────────────
+const CLASSIFIER_MODEL = 'haiku'
+const CLASSIFY_TIMEOUT_MS = 60_000
+const AGGREGATE_TIMEOUT_MS = 10_000
 
 // ── Guard: skip if lock exists or input missing ───────────
 if (existsSync(LOCK_FILE)) {
@@ -133,8 +138,8 @@ JSONのみ返してください。説明不要。`
   // ── Call Haiku via claude CLI ──────────────────────────────
   let result
   try {
-    result = execSync(`claude -p "${classifyPrompt.replace(/"/g, '\\"')}" --model haiku --output-format json`, {
-      timeout: 60_000,
+    result = execFileSync('claude', ['-p', classifyPrompt, '--model', CLASSIFIER_MODEL, '--output-format', 'json'], {
+      timeout: CLASSIFY_TIMEOUT_MS,
       encoding: 'utf8',
       stdio: ['ignore', 'pipe', 'pipe'],
     })
@@ -226,7 +231,7 @@ JSONのみ返してください。説明不要。`
   // ── Write output ──────────────────────────────────────────
   const output = {
     classifiedAt: new Date().toISOString(),
-    model: 'haiku',
+    model: CLASSIFIER_MODEL,
     promptCount: promptList.length,
     classifications,
     summary: {
@@ -245,7 +250,7 @@ JSONのみ返してください。説明不要。`
   const aggregateScript = join(process.cwd(), 'scripts', 'aggregate-classifications.mjs')
   if (existsSync(aggregateScript)) {
     try {
-      execSync(`node "${aggregateScript}"`, { timeout: 10_000, stdio: 'ignore' })
+      execFileSync('node', [aggregateScript], { timeout: AGGREGATE_TIMEOUT_MS, stdio: 'ignore' })
     } catch {
       // Non-critical
     }

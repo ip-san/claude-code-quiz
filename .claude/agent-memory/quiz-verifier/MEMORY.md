@@ -7,7 +7,8 @@
 
 ### Hook イベント総数の更新
 - hooks.md の直接カウントで29種（Setup、UserPromptExpansion、PostToolBatch を含む）
-- known-issues.md の「全26種（2026-04-04確認）」は古い記録。next update で26→29に更新が必要
+- **更新（2026-06-02）: 29→30**。`MessageDisplay`（matcher なし・非ブロッキング、"While assistant message text is displayed"）が追加され現在は全30種。ブロッキング可能は15種（verified-facts.md / known-issues.md L250 と一致）
+- known-issues.md の「全26種（2026-04-04確認）」は古い記録 → 30種に更新済み（known-issues.md L247）
 - 3種の追加: Setup、UserPromptExpansion、PostToolBatch
 - ブロッキング可能な更新確認も必要（PostToolBatch は "Stops the agentic loop" → ブロッキング可）
 
