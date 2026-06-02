@@ -39,6 +39,7 @@ jobs:
         if: matrix.platform == 'mac'
         run: bun run build
         env:
+          VITE_GTM_ID: ${{ secrets.VITE_GTM_ID }}
           CSC_LINK: ${{ secrets.MAC_CERT_BASE64 }}
           CSC_KEY_PASSWORD: ${{ secrets.MAC_CERT_PASSWORD }}
 
@@ -46,11 +47,15 @@ jobs:
       - name: Build (Windows)
         if: matrix.platform == 'win'
         run: bun run build
+        env:
+          VITE_GTM_ID: ${{ secrets.VITE_GTM_ID }}
 
       # Linux: build AppImage
       - name: Build (Linux)
         if: matrix.platform == 'linux'
         run: bun run build
+        env:
+          VITE_GTM_ID: ${{ secrets.VITE_GTM_ID }}
 
       - name: Upload artifacts
         uses: actions/upload-artifact@v4
