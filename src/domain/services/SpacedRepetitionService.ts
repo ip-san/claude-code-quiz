@@ -62,14 +62,15 @@ export class SpacedRepetitionService {
   }
 
   /**
-   * 実務価値による優先度係数（0.90〜1.05 程度）
+   * 実務価値による優先度係数（weight×tag 合成後の実レンジ 約 0.855〜1.05）
    *
    * カテゴリ weight（実務頻度×インパクトのプロキシ 5/10/15）を主とし、
    * practical/trivia タグで微調整する。overdue に対し弱く効かせるための狭いレンジ。
+   * 合成例: weight5+trivia=0.855（下限） / weight15+practical=1.05（上限）。
    */
   private static valueFactor(question: Question): number {
     const weight = getCategoryById(question.category)?.weight ?? 10
-    let factor = 0.85 + 0.15 * (weight / 15) // weight 5→0.90, 10→0.95, 15→1.00
+    let factor = 0.85 + 0.15 * (weight / 15) // weight 5→0.90, 10→0.95, 15→1.00（タグ補正前）
     if (question.tags.includes('practical')) factor *= 1.05
     else if (question.tags.includes('trivia')) factor *= 0.95
     return factor

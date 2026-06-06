@@ -15,6 +15,7 @@
 
 import { existsSync, readdirSync, readFileSync, writeFileSync } from 'fs'
 import { join } from 'path'
+import { loadCategoryWeights } from './theme-weights.mjs'
 
 const STORE_DIR = join(process.env.HOME || '', '.claude-quiz-recommend')
 const CLASSIFIED_FILE = join(STORE_DIR, 'classified-prompts.json')
@@ -24,25 +25,6 @@ const OUTPUT_FILE = join(STORE_DIR, 'compressed-input.json')
 const PROJECT_DIR = process.env.CLAUDE_PROJECT_DIR || process.cwd()
 const QUIZ_FILE = join(PROJECT_DIR, 'src', 'data', 'quizzes.json')
 const THEME_FILE = join(PROJECT_DIR, 'src', 'config', 'theme.ts')
-
-/**
- * theme.ts からカテゴリ別 weight（実務価値プロキシ, 15/10/5）を抽出する。
- * 各カテゴリブロックは `id: 'xxx' ... weight: N` の順で並ぶため非貪欲マッチで対応付ける。
- * 取得失敗時は空オブジェクトを返し、呼び出し側は既定値 10 にフォールバックする。
- */
-function loadCategoryWeights() {
-  try {
-    const src = readFileSync(THEME_FILE, 'utf8')
-    const weights = {}
-    const re = /id:\s*'([^']+)'[\s\S]*?weight:\s*(\d+)/g
-    for (const m of src.matchAll(re)) {
-      weights[m[1]] = Number(m[2])
-    }
-    return weights
-  } catch {
-    return {}
-  }
-}
 
 // ── Read inputs ─────────────────────────────────────────────
 if (!existsSync(CLASSIFIED_FILE) || !existsSync(ROLLING_FILE)) {
@@ -156,7 +138,11 @@ let stableCandidates = candidateQuestions
 try {
   if (existsSync(OUTPUT_FILE)) {
     const prev = JSON.parse(readFileSync(OUTPUT_FILE, 'utf8'))
-    if (prev.classifiedAt === classified.classifiedAt && prev.candidateQuestions?.length > 0) {
+    // 新フィールド(categoryWeight/valueTag)を持つキャッシュのみ流用する。
+    // 本変更前に書かれた旧キャッシュを流用すると SKILL の価値tie-break指示が空振りするため、
+    // 欠落時は新規算出(candidateQuestions)にフォールバックする。
+    const cacheHasValueFields = prev.candidateQuestions?.every((c) => 'valueTag' in c && 'categoryWeight' in c)
+    if (prev.classifiedAt === classified.classifiedAt && prev.candidateQuestions?.length > 0 && cacheHasValueFields) {
       stableCandidates = prev.candidateQuestions
     }
   }
@@ -268,7 +254,7 @@ function filterCandidates(catDist, profile) {
     const allQ = quizData.quizzes
     const catProgress = profile?.categoryProgress || {}
     const recAccuracy = profile?.recommendedAccuracy || {}
-    const catWeights = loadCategoryWeights()
+    const catWeights = loadCategoryWeights(THEME_FILE)
 
     // Sort categories by relevance (Haiku distribution)
     const topCats = Object.entries(catDist)
