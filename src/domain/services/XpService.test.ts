@@ -39,6 +39,15 @@ describe('XpService', () => {
       expect(XpService.calculateAnswerXp(true, true, 'advanced')).toBe(19) // 14 + 5
       expect(XpService.calculateAnswerXp(true, true, 'beginner')).toBe(13) // 8 + 5
     })
+
+    it('falls back to intermediate (never NaN) for an invalid difficulty value', () => {
+      // JSON 由来の型外文字列が来ても NaN を永続化しない
+      const xp = XpService.calculateAnswerXp(true, false, 'easy' as 'beginner')
+      expect(Number.isNaN(xp)).toBe(false)
+      expect(xp).toBe(10) // intermediate fallback
+      const wrongXp = XpService.calculateAnswerXp(false, false, 'easy' as 'beginner')
+      expect(wrongXp).toBe(2)
+    })
   })
 
   describe('getScenarioCompleteXp', () => {

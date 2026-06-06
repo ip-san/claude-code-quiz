@@ -1,6 +1,12 @@
 import { describe, expect, it } from 'vitest'
 import { Question } from '../entities/Question'
-import { additiveValueScore, categoryWeight, DEFAULT_CATEGORY_WEIGHT, VALUE_TAG_BONUS } from './ValueScore'
+import {
+  additiveValueScore,
+  categoryWeight,
+  DEFAULT_CATEGORY_WEIGHT,
+  VALUE_TAG_BONUS,
+  VALUE_TAG_MULTIPLIER,
+} from './ValueScore'
 
 function q(category: string, tags?: string[]): Question {
   return Question.create({
@@ -38,5 +44,13 @@ describe('ValueScore', () => {
     const trivia = additiveValueScore(q('tools', ['trivia']))
     expect(practical).toBeGreaterThan(neutral)
     expect(neutral).toBeGreaterThan(trivia)
+  })
+
+  // drift 検知: これらの値は scripts/aggregate-classifications.mjs に複製されている（TS↔mjs 境界のため）。
+  // 値を変える場合は aggregate 側の valueScore(+6/-4, 既定10) も同時に更新すること。
+  it('keeps value-correction constants stable (sync guard for the .mjs duplicate)', () => {
+    expect(VALUE_TAG_BONUS).toEqual({ practical: 6, trivia: -4 })
+    expect(VALUE_TAG_MULTIPLIER).toEqual({ practical: 1.05, trivia: 0.95 })
+    expect(DEFAULT_CATEGORY_WEIGHT).toBe(10)
   })
 })

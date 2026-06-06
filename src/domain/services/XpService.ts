@@ -62,7 +62,9 @@ export class XpService {
     isSrsReview: boolean,
     difficulty: DifficultyLevel = 'intermediate'
   ): number {
-    let xp = isCorrect ? XP_CORRECT_BY_DIFFICULTY[difficulty] : XP_INCORRECT_BY_DIFFICULTY[difficulty]
+    // 不正な difficulty 値（JSON 由来の型外文字列等）でも NaN を永続化しないよう intermediate にフォールバック
+    const table = isCorrect ? XP_CORRECT_BY_DIFFICULTY : XP_INCORRECT_BY_DIFFICULTY
+    let xp = table[difficulty] ?? table.intermediate
     if (isCorrect && isSrsReview) {
       xp += XP_SRS_BONUS
     }

@@ -65,6 +65,7 @@ const DIMENSIONS = [
   { parameterName: 'question_id', displayName: '問題ID', description: '個別問題の識別子（例: mem-001）' },
   { parameterName: 'difficulty', displayName: '難易度', description: 'beginner / intermediate / advanced' },
   { parameterName: 'is_correct', displayName: '正誤', description: '正解: true / 不正解: false' },
+  { parameterName: 'quiz_type', displayName: 'クイズ種別', description: 'practical / trivia / neutral（価値軸）' },
   { parameterName: 'theme', displayName: 'テーマ', description: 'dark / light / system' },
   { parameterName: 'method', displayName: 'シェア方法', description: 'native (Web Share API)' },
 ]

@@ -64,7 +64,7 @@ cat ~/.claude-quiz-recommend/compressed-input.json 2>/dev/null
 - `promptClassifications`: Haiku が分類した全プロンプト（intent/category/struggle/phase/tip + 原文120文字）
 - `summary`: 意図クラスタ、カテゴリ分布、苦戦度の全体分布
 - `learnerState`: クイズ正答率、XP、パターン推移（Desktop アプリがエクスポート）
-- `candidateQuestions`: 難易度フィルタ済みの候補問題（ID + 問題文80文字 + `categoryWeight`(実務価値プロキシ 5/10/15) + `valueTag`(practical/trivia/neutral)、50-80問）
+- `candidateQuestions`: 難易度フィルタ済みの候補問題（ID + 問題文50文字 + `categoryWeight`(実務価値プロキシ 5/10/15) + `valueTag`(practical/trivia/neutral)、最大50問）
 - `opusAnalysis`: Opus による学習者プロファイリング（learnerType/strengths/gaps/recommendedPath/coachingNote）。null の場合は未分析
 - `stagnationAnalysis`: Opus による停滞分析（rootCause/intervention/motivationalNote）。null の場合は停滞未検出
 - `breakthroughAnalysis`: Opus による急成長分析（causalAnalysis/transferSuggestion/coachingNote）。null の場合は急成長未検出

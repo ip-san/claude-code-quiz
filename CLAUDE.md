@@ -45,7 +45,7 @@ bun run lighthouse     # Lighthouse CI
 
 ## 学習改善機能（v4.51+）
 
-- **XP システム:** 回答ごとに XP 付与（正解10、不正解2、SRS復習+5、シナリオ完走+50）。マスタリーレベルに統合表示
+- **XP システム:** 回答ごとに XP 付与（難易度連動: 正解 beginner8/intermediate10/advanced14、不正解 advanced3/他2、SRS復習+5、シナリオ完走+50）。マスタリーレベルに統合表示
 - **アダプティブ難易度:** `AdaptiveDifficultyService` がカテゴリ別正答率に応じて出題順を調整
 - **記憶定着度バー:** `MemoryRetentionBar` で SRS ストリークの定着度を可視化
 - **成長コーチング:** Sonnet がコーチングメッセージを生成（`coachingMessage`）。`GrowthTrackingService` はパターン diff 計算のみ
