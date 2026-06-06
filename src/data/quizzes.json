@@ -35841,7 +35841,7 @@
         },
         {
           "text": "VS Code 統合とターミナル間の双方向コンテキスト共有が確立され、エディタとの行き来なく Claude Code が使えるようになる",
-          "wrongFeedback": "`/terminal-setup` は VS Code 統合の設定ではなく、ターミナルの `Shift+Enter` バインディングを設定するコマンドです。VS Code、Cursor、Windsurf、Alacritty、Zed での改行入力を有効にします。"
+          "wrongFeedback": "`/terminal-setup` は VS Code 統合の設定ではなく、ターミナルの `Shift+Enter` バインディングを設定するコマンドです。VS Code、Cursor、Devin Desktop、Alacritty、Zed での改行入力を有効にします。"
         },
         {
           "text": "`Alt+B`、`Alt+F` などの Emacs 風キーバインドと構文ハイライトが有効化され、複数行編集が快適になる",
@@ -35852,7 +35852,7 @@
         }
       ],
       "correctIndex": 3,
-      "explanation": "`/terminal-setup` コマンドを実行すると、`Shift+Enter`（送信せずに改行を入力）のバインディングが有効になります。\n{{diagram:0}}\nこれはVS Code、Cursor、Windsurf、Alacritty、Zedなどネイティブ対応していないターミナル用の設定です。`Option+T`（extended thinking の切り替え）は v2.1.132 以降 macOS でも「Option as Meta」設定なしで動作するため別設定不要ですが、`Alt+B`、`Alt+F` などの Emacs 風キーバインドは依然として「Option as Meta」設定が必要です。\n{{diagram:1}}",
+      "explanation": "`/terminal-setup` コマンドを実行すると、`Shift+Enter`（送信せずに改行を入力）のバインディングが有効になります。\n{{diagram:0}}\nこれはVS Code、Cursor、Devin Desktop、Alacritty、Zedなどネイティブ対応していないターミナル用の設定です。`Option+T`（extended thinking の切り替え）は v2.1.132 以降 macOS でも「Option as Meta」設定なしで動作するため別設定不要ですが、`Alt+B`、`Alt+F` などの Emacs 風キーバインドは依然として「Option as Meta」設定が必要です。\n{{diagram:1}}",
       "referenceUrl": "https://code.claude.com/docs/ja/terminal-config",
       "diagrams": [
         {
@@ -35887,7 +35887,7 @@
             },
             {
               "type": "info",
-              "text": "対象: VS Code / Cursor / Windsurf / Alacritty / Zed"
+              "text": "対象: VS Code / Cursor / Devin Desktop / Alacritty / Zed"
             }
           ]
         }
@@ -41720,10 +41720,10 @@
       "options": [
         {
           "text": "すべてのターミナルエミュレーターでネイティブサポートされており、追加設定は一切不要",
-          "wrongFeedback": "ネイティブ対応は7種（iTerm2 / WezTerm / Ghostty / Kitty / Warp / Apple Terminal / Windows Terminal）のみです。VS Code / Cursor / Windsurf / Alacritty / Zed は `/terminal-setup` が必要です。"
+          "wrongFeedback": "ネイティブ対応は7種（iTerm2 / WezTerm / Ghostty / Kitty / Warp / Apple Terminal / Windows Terminal）のみです。VS Code / Cursor / Devin Desktop / Alacritty / Zed は `/terminal-setup` が必要です。"
         },
         {
-          "text": "VS Code、Cursor、Windsurf、Alacritty、Zed（これらはネイティブ対応ターミナルと同等のサポートを提供する）",
+          "text": "VS Code、Cursor、Devin Desktop、Alacritty、Zed（これらはネイティブ対応ターミナルと同等のサポートを提供する）",
           "wrongFeedback": "これらは `/terminal-setup` が必要なグループで、ネイティブ対応ではありません。追加設定をすれば `Shift+Enter` は使えるようになりますが、設定なしでは動作しません。"
         },
         {
@@ -41735,7 +41735,7 @@
         }
       ],
       "correctIndex": 2,
-      "explanation": "iTerm2、WezTerm、Ghostty、Kitty、Warp、Apple Terminal、Windows Terminal の7種は追加設定なしで `Shift+Enter` による複数行入力をネイティブサポートします。\n\n{{diagram:0}}\n\nVS Code、Cursor、Windsurf、Alacritty、Zed では `/terminal-setup` コマンドでバインディングを設定する必要があります。\n{{diagram:1}}",
+      "explanation": "iTerm2、WezTerm、Ghostty、Kitty、Warp、Apple Terminal、Windows Terminal の7種は追加設定なしで `Shift+Enter` による複数行入力をネイティブサポートします。\n\n{{diagram:0}}\n\nVS Code、Cursor、Devin Desktop、Alacritty、Zed では `/terminal-setup` コマンドでバインディングを設定する必要があります。\n{{diagram:1}}",
       "referenceUrl": "https://code.claude.com/docs/ja/terminal-config",
       "diagrams": [
         {
@@ -41752,7 +41752,7 @@
             {
               "heading": "/terminal-setup が必要",
               "items": [
-                "VS Code / Cursor / Windsurf",
+                "VS Code / Cursor / Devin Desktop",
                 "Alacritty / Zed"
               ]
             }
@@ -41767,7 +41767,7 @@
               "sub": "iTerm2/WezTerm/Ghostty/Kitty/Warp/Apple Terminal/Windows Terminal は追加設定なしで Shift+Enter が使えます。"
             },
             {
-              "text": "VS Code/Cursor/Windsurf/Alacritty/Zed",
+              "text": "VS Code/Cursor/Devin Desktop/Alacritty/Zed",
               "sub": "これらは `/terminal-setup` が必要なグループです。"
             },
             {

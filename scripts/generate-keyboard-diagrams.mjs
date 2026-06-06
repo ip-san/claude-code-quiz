@@ -208,7 +208,7 @@ for (let i = 0; i < targets.length; i += BATCH_SIZE) {
     let dropped = 0
     const returnedIds = new Set()
     for (const entry of res.items) {
-      if (!entry.id) continue
+      if (!entry || !entry.id) continue // null/非オブジェクト要素は個別スキップ（バッチ全滅を防ぐ）
       returnedIds.add(entry.id)
       if (entry.diagram == null) {
         items[entry.id] = null

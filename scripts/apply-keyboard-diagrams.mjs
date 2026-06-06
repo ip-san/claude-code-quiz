@@ -83,6 +83,7 @@ if (DRY_RUN) {
   process.exit(0)
 }
 
+const originalContent = readFileSync(QUIZ_PATH, 'utf8') // 検証失敗時のロールバック用に書込前を保持
 writeFileSync(QUIZ_PATH, `${JSON.stringify(quizFile, null, 2)}\n`)
 console.log(`\n✓ ${QUIZ_PATH} を更新`)
 console.log(`[verify] quiz:check 実行...`)
@@ -91,6 +92,7 @@ try {
   execSync('node scripts/quiz-utils.mjs check && node scripts/quiz-utils.mjs check-ellipsis', { stdio: 'inherit' })
   console.log(`✓ quiz:check 通過`)
 } catch {
-  console.error(`✗ quiz:check 失敗`)
+  writeFileSync(QUIZ_PATH, originalContent) // 検証失敗 → 元に戻す（dirty な状態を残さない）
+  console.error(`✗ quiz:check 失敗。変更をロールバックしました`)
   process.exit(1)
 }
