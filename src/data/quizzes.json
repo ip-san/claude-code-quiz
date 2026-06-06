@@ -11974,15 +11974,15 @@
           "wrongFeedback": "`/config` は一般設定用のコマンドです。ターミナルのキーバインド設定は `/terminal-setup` コマンドで行います。`/config` に「改行キーバインド」設定は存在しません。"
         },
         {
-          "text": "iTerm2・WezTerm・Ghostty・Kitty・Warp・Apple Terminal・Windows Terminal では設定不要で動作するが、VS Code・Cursor・Windsurf・Alacritty・Zed では `/terminal-setup` コマンドでバインディングをインストールする必要がある"
+          "text": "iTerm2・WezTerm・Ghostty・Kitty・Warp・Apple Terminal・Windows Terminal では設定不要で動作するが、VS Code・Cursor・Devin Desktop・Alacritty・Zed では `/terminal-setup` コマンドでバインディングをインストールする必要がある"
         },
         {
           "text": "`Shift+Enter` は全てのターミナルエミュレーターで標準的にサポートされているため、動作しない場合は Claude Code 側の設定が壊れている",
-          "wrongFeedback": "`Shift+Enter` のサポートはターミナル依存です。ネイティブ対応の7種以外（VS Code / Cursor / Windsurf / Alacritty / Zed）では `/terminal-setup` が必要です。"
+          "wrongFeedback": "`Shift+Enter` のサポートはターミナル依存です。ネイティブ対応の7種以外（VS Code / Cursor / Devin Desktop / Alacritty / Zed）では `/terminal-setup` が必要です。"
         }
       ],
       "correctIndex": 2,
-      "explanation": "{{diagram:2}}\n\n`Shift+Enter` による Claude Code 内での改行は、iTerm2、WezTerm、Ghostty、Kitty、Warp、Apple Terminal、Windows Terminal では追加設定なしで動作します。\n\n{{diagram:0}}\n\nVS Code、Cursor、Windsurf、Alacritty、Zed では `/terminal-setup` コマンドを実行して `Shift+Enter` バインディングをインストールする必要があります。代替として `\\+Enter` や `Ctrl+J` も使えます。\n{{diagram:1}}",
+      "explanation": "{{diagram:2}}\n\n`Shift+Enter` による Claude Code 内での改行は、iTerm2、WezTerm、Ghostty、Kitty、Warp、Apple Terminal、Windows Terminal では追加設定なしで動作します。\n\n{{diagram:0}}\n\nVS Code、Cursor、Devin Desktop、Alacritty、Zed では `/terminal-setup` コマンドを実行して `Shift+Enter` バインディングをインストールする必要があります。代替として `\\+Enter` や `Ctrl+J` も使えます。\n{{diagram:1}}",
       "category": "keyboard",
       "difficulty": "intermediate",
       "referenceUrl": "https://code.claude.com/docs/ja/interactive-mode",
@@ -12001,7 +12001,7 @@
             {
               "heading": "/terminal-setup 必要（5種）",
               "items": [
-                "VS Code / Cursor / Windsurf",
+                "VS Code / Cursor / Devin Desktop",
                 "Alacritty / Zed"
               ]
             }
@@ -12017,7 +12017,7 @@
             },
             {
               "text": "5種は /terminal-setup 必要",
-              "sub": "VS Code/Cursor/Windsurf/Alacritty/Zed"
+              "sub": "VS Code/Cursor/Devin Desktop/Alacritty/Zed"
             },
             {
               "text": "代替手段",
@@ -54544,7 +54544,7 @@
       "id": "key-051",
       "category": "keyboard",
       "difficulty": "beginner",
-      "question": "Claude Code でセッション中にファストモード（同じモデルの高速出力設定）を素早く切り替えるショートカットはどれですか？",
+      "question": "Claude Code でセッション中にファストモード（Opus専用の高速出力設定）を素早く切り替えるショートカットはどれですか？",
       "options": [
         {
           "text": "`Shift+Tab` を2回押してファストモードに切り替える",
@@ -54563,7 +54563,7 @@
         }
       ],
       "correctIndex": 3,
-      "explanation": "{{diagram:2}}\n\n`Option+O`（macOS）/ `Alt+O`（Windows/Linux）でファストモードを切り替えられます。\n\n{{diagram:0}}\n\nファストモードでは同じモデルを高速出力設定で動作させ、より速い応答が得られます。macOS では Option キーを Meta として送信するターミナル設定が必要です。\n{{diagram:1}}",
+      "explanation": "{{diagram:2}}\n\n`Option+O`（macOS）/ `Alt+O`（Windows/Linux）でファストモードを切り替えられます。\n\n{{diagram:0}}\n\nファストモードは Claude Opus 専用の高速出力設定で、非 Opus 使用時は自動的に Opus へ切り替わります。より速い応答が得られます。macOS では Option キーを Meta として送信するターミナル設定が必要です。\n{{diagram:1}}",
       "referenceUrl": "https://code.claude.com/docs/ja/interactive-mode",
       "diagrams": [
         {
@@ -54593,7 +54593,7 @@
           "items": [
             {
               "text": "`Option+O`（macOS）/ `Alt+O`（Windows/Linux）（正解）",
-              "sub": "`Option+O`（macOS）/ `Alt+O`（Windows/Linux）でファストモードを切り替えられます。 ファストモードでは同じモデルを高速出力設定で動作させ、より速い応答が得られます。macOS では Option キーを Meta として送信するターミナル設定が必要です。"
+              "sub": "`Option+O`（macOS）/ `Alt+O`（Windows/Linux）でファストモードを切り替えられます。 ファストモードは Claude Opus 専用の高速出力設定で動作し、非 Opus 使用時は自動的に Opus へ切り替わります。より速い応答が得られます。macOS では Option キーを Meta として送信するターミナル設定が必要です。"
             },
             {
               "text": "`Shift+Tab` を2回押してファストモードに切り替える",
