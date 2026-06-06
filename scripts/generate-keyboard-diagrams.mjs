@@ -40,7 +40,9 @@ const quizFile = JSON.parse(readFileSync(QUIZ_PATH, 'utf8'))
 const allQuizzes = quizFile.quizzes
 
 // 候補抽出は広め(偽陽性は Claude の厳格 null 判定が除外する)。Tab/Enter 単独も許容。
-const KEY_RE = /Ctrl\+[A-Z]|Cmd\+|⌘|Esc|Shift\+Tab|Shift\+Enter|Alt\+[A-Z]|Ctrl-[a-z]|矢印キー|Tab|Enter|Backspace/
+// 単独英単語キー(Esc/Tab/Enter/Backspace)は語境界を要求し「Enterprise」等の部分一致を除外する。
+const KEY_RE =
+  /Ctrl\+[A-Z]|Cmd\+|⌘|Shift\+Tab|Shift\+Enter|Alt\+[A-Z]|Ctrl-[a-z]|矢印キー|(?<![A-Za-z])(?:Esc|Tab|Enter|Backspace)(?![A-Za-z])/
 const correctText = (q) => q.options?.[q.correctIndex]?.text ?? ''
 const candidates = allQuizzes.filter((q) => {
   if ((q.diagrams || []).some((d) => d.type === 'keyboard')) return false // 既存 keyboard 図は除外（冪等）
@@ -208,11 +210,12 @@ for (let i = 0; i < targets.length; i += BATCH_SIZE) {
         items[entry.id] = entry.diagram
         hits++
       } else {
-        items[entry.id] = null // 不正構造は捨てて null（スキップ）扱い
+        items[entry.id] = null // 不正構造は捨てて null（スキップ）扱い（id 記録済みのため --resume では再取得しない）
         dropped++
       }
     }
-    // 応答に現れなかった対象ID（AI が省略）。--resume で再取得されるが通常実行では黙って漏れるため警告。
+    // 応答に現れなかった対象ID（AI が省略）。これらは items 未記録なので --resume で再取得される。
+    // （不正構造で null 化した ID は記録済みのため再取得対象外。再挑戦したい場合は該当 id を手動削除）
     const missing = batch.filter((q) => !returnedIds.has(q.id)).map((q) => q.id)
     ok += hits
     succeeded++
