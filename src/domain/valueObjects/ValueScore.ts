@@ -16,8 +16,11 @@ import { getCategoryById } from './Category'
 /** カテゴリ weight 未設定時の既定値（標準カテゴリ相当） */
 export const DEFAULT_CATEGORY_WEIGHT = 10
 
-/** practical/trivia タグによる価値補正（加点コンテキスト用の加算値） */
+/** practical/trivia タグによる価値補正（加点コンテキスト用の加算値）。tie-break の getValueScore で使用 */
 export const VALUE_TAG_BONUS = { practical: 6, trivia: -4 } as const
+
+/** practical/trivia タグによる価値補正（乗法コンテキスト用の係数）。SRS の overdue 係数で使用 */
+export const VALUE_TAG_MULTIPLIER = { practical: 1.05, trivia: 0.95 } as const
 
 /** カテゴリの実務価値プロキシ weight を取得（未設定は既定値にフォールバック） */
 export function categoryWeight(category: string): number {

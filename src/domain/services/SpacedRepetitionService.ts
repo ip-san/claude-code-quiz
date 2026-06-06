@@ -9,7 +9,7 @@
 import type { Question } from '../entities/Question'
 import type { QuestionProgress, UserProgress } from '../entities/UserProgress'
 import { calculateNextReview, SRS_INTERVALS_MS } from '../valueObjects/SrsInterval'
-import { categoryWeight } from '../valueObjects/ValueScore'
+import { categoryWeight, VALUE_TAG_MULTIPLIER } from '../valueObjects/ValueScore'
 
 // Re-export for backwards compatibility
 export { SRS_INTERVALS_MS }
@@ -71,8 +71,8 @@ export class SpacedRepetitionService {
   private static valueFactor(question: Question): number {
     const weight = categoryWeight(question.category) // 単一情報源: valueObjects/ValueScore
     let factor = 0.85 + 0.15 * (weight / 15) // weight 5→0.90, 10→0.95, 15→1.00（タグ補正前）
-    if (question.tags.includes('practical')) factor *= 1.05
-    else if (question.tags.includes('trivia')) factor *= 0.95
+    if (question.tags.includes('practical')) factor *= VALUE_TAG_MULTIPLIER.practical
+    else if (question.tags.includes('trivia')) factor *= VALUE_TAG_MULTIPLIER.trivia
     return factor
   }
 
