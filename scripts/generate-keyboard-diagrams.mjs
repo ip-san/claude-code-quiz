@@ -38,12 +38,14 @@ const MODEL = args.includes('--sonnet') ? 'sonnet' : 'haiku'
 const quizFile = JSON.parse(readFileSync(QUIZ_PATH, 'utf8'))
 const allQuizzes = quizFile.quizzes
 
-const KEY_RE =
-  /Ctrl\+[A-Z]|Cmd\+|⌘|Esc|Shift\+Tab|Shift\+Enter|Alt\+[A-Z]|Ctrl-[a-z]|矢印キー|Tab(キー| を| が)|Backspace|Ctrl\+R|Ctrl\+L|Ctrl\+O|Ctrl\+B|Ctrl\+T|Ctrl\+C|Ctrl\+D|Ctrl\+U|Ctrl\+K|Ctrl\+A|Ctrl\+E/
+// 候補抽出は広め(偽陽性は Claude の厳格 null 判定が除外する)。Tab/Enter 単独も許容。
+const KEY_RE = /Ctrl\+[A-Z]|Cmd\+|⌘|Esc|Shift\+Tab|Shift\+Enter|Alt\+[A-Z]|Ctrl-[a-z]|矢印キー|Tab|Enter|Backspace/
+const correctText = (q) => q.options?.[q.correctIndex]?.text ?? ''
 const candidates = allQuizzes.filter((q) => {
   if ((q.diagrams || []).some((d) => d.type === 'keyboard')) return false // 既存 keyboard 図は除外（冪等）
-  // keyboard カテゴリ: 設問/解説どちらにキーがあっても対象（キーが主題のことが多い）
-  if (q.category === 'keyboard') return KEY_RE.test(`${q.question} ${q.explanation || ''}`)
+  // keyboard カテゴリ: 設問/解説/正答のいずれかにキーがあれば対象
+  // (設問が概念表現で正答がキー操作の問題 例: key-025 Tab/Enter を取りこぼさない)
+  if (q.category === 'keyboard') return KEY_RE.test(`${q.question} ${q.explanation || ''} ${correctText(q)}`)
   // commands/session: キーが「設問文自体」にある場合のみ（解説の言及だけの /command 問題を除外）
   if (q.category === 'commands' || q.category === 'session') return KEY_RE.test(q.question)
   return false
@@ -130,27 +132,29 @@ function callClaude(prompt) {
 }
 
 /**
- * 緩いJSON抽出: 最初の `{` 以降を、末尾の各 `}` 位置で順に JSON.parse 試行する。
- * 貪欲な /\{[\s\S]*\}/ と違い「本JSONの後ろに追記テキストや別オブジェクト」があっても
- * 正しい範囲を取り出せる（前置きテキストにも対応）。
+ * 緩いJSON抽出: 各 `{` 開始位置 × 各 `}` 終了位置の候補を JSON.parse 試行する。
+ * 貪欲な /\{[\s\S]*\}/ と違い「前置きの散文/スキーマ復唱に波括弧が含まれる」「本JSONの後ろに
+ * 追記テキストや別オブジェクトがある」いずれの場合も正しい範囲を取り出せる。
+ * 期待スキーマは top-level `items` 配列を持つため、items を持つ object を優先して返す
+ * （前置きにスキーマ例 {combos:...} が混じっても本体 {items:...} を選ぶ）。
  */
 function parseJsonLoose(text) {
-  const start = text.indexOf('{')
-  if (start < 0) throw new Error('no JSON object in response')
-  const tail = text.slice(start)
-  try {
-    return JSON.parse(tail) // fast path: 末尾まで綺麗な単一オブジェクト
-  } catch {
-    /* fall through to progressive trim */
-  }
-  for (let i = tail.length - 1; i >= 0; i--) {
-    if (tail[i] !== '}') continue
-    try {
-      return JSON.parse(tail.slice(0, i + 1))
-    } catch {
-      /* try the next earlier '}' */
+  let fallback = null
+  for (let start = text.indexOf('{'); start >= 0; start = text.indexOf('{', start + 1)) {
+    const tail = text.slice(start)
+    const ends = [tail.length - 1]
+    for (let i = tail.length - 1; i >= 0; i--) if (tail[i] === '}') ends.push(i)
+    for (const e of ends) {
+      try {
+        const obj = JSON.parse(tail.slice(0, e + 1))
+        if (obj && typeof obj === 'object' && Array.isArray(obj.items)) return obj // 望むものを優先
+        if (fallback === null) fallback = obj
+      } catch {
+        /* try the next boundary */
+      }
     }
   }
+  if (fallback !== null) return fallback
   throw new Error('no parseable JSON object in response')
 }
 
@@ -187,8 +191,10 @@ for (let i = 0; i < targets.length; i += BATCH_SIZE) {
     if (!res || !Array.isArray(res.items)) throw new Error('response has no items array')
     let hits = 0
     let dropped = 0
+    const returnedIds = new Set()
     for (const entry of res.items) {
       if (!entry.id) continue
+      returnedIds.add(entry.id)
       if (entry.diagram == null) {
         items[entry.id] = null
       } else if (isValidKbDiagram(entry.diagram)) {
@@ -199,9 +205,13 @@ for (let i = 0; i < targets.length; i += BATCH_SIZE) {
         dropped++
       }
     }
+    // 応答に現れなかった対象ID（AI が省略）。--resume で再取得されるが通常実行では黙って漏れるため警告。
+    const missing = batch.filter((q) => !returnedIds.has(q.id)).map((q) => q.id)
     ok += hits
     succeeded++
-    console.log(`✓ ${hits}件に図を生成${dropped ? ` (不正構造 ${dropped}件を破棄)` : ''}`)
+    console.log(
+      `✓ ${hits}件に図を生成${dropped ? ` (不正構造 ${dropped}件を破棄)` : ''}${missing.length ? ` ⚠応答欠損 ${missing.length}件: ${missing.join(',')}` : ''}`
+    )
     saveOutput(items)
   } catch (e) {
     errs++
