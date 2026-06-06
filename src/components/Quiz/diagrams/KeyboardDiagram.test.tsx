@@ -23,6 +23,9 @@ describe('KeyboardDiagram', () => {
     expect(screen.getByText('Ctrl')).toBeInTheDocument()
     expect(screen.getByText('C')).toBeInTheDocument()
     expect(screen.getByText('中断')).toBeInTheDocument()
+    // highlight=true は操作キーをアクセント色で強調する（中核表現なので退行を固定）
+    expect(screen.getByText('C').className).toContain('claude-orange')
+    expect(screen.getByText('Ctrl').className).not.toContain('claude-orange')
   })
 
   it('joins keys in a combo with "+"', () => {

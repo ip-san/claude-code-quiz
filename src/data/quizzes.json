@@ -6122,11 +6122,7 @@
             {
               "keys": [
                 {
-                  "label": "Esc",
-                  "highlight": true
-                },
-                {
-                  "label": "Esc",
+                  "label": "Esc ×2",
                   "highlight": true
                 }
               ],
