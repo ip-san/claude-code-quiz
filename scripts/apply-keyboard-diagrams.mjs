@@ -57,8 +57,8 @@ for (const [id, diagram] of Object.entries(gen)) {
   }
   applied++
   if (samples.length < 8) {
-    const combos = diagram.combos
-      .map((c) => c.keys.map((k) => k.label).join('+'))
+    const combos = (diagram.combos || [])
+      .map((c) => (c.keys || []).map((k) => k.label).join('+'))
       .join(diagram.sequence ? ' → ' : ' / ')
     samples.push(`  ${id}: [${combos}]`)
   }
