@@ -300,12 +300,18 @@ function filterCandidates(catDist, profile) {
       // practical タグを「苦戦シグナル」と同等に扱わず、あくまで同程度の苦戦内での
       // 優先度として弱く効かせる。これにより「苦戦 × 価値」の2軸でレコメンドする。
       // 完全な決定論だと候補が固定化するため、軽いランダム成分を残す。
+      // スコアは要素ごとに一度だけ算出してから安定ソートする（比較関数内で Math.random を
+      // 呼ぶと同一要素のスコアが比較のたびに変わり、ソート順序が不定になるため）。
       const valueScore = (q) => {
         const w = catWeights[q.category] ?? 10 // 5/10/15 → 価値プロキシ
         const tagBonus = (q.tags || []).includes('practical') ? 6 : (q.tags || []).includes('trivia') ? -4 : 0
         return w + tagBonus + Math.random() * 8 // ランダム幅(8)で同価値帯はシャッフル
       }
-      const sampled = pool.sort((a, b) => valueScore(b) - valueScore(a)).slice(0, maxPerCat)
+      const sampled = pool
+        .map((q) => ({ q, score: valueScore(q) }))
+        .sort((a, b) => b.score - a.score)
+        .slice(0, maxPerCat)
+        .map((x) => x.q)
       candidates.push(
         ...sampled.map((q) => ({
           id: q.id,
