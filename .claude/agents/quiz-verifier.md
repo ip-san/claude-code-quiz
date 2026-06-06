@@ -54,6 +54,8 @@ memory: project
 
 ### A. 事実の正確性
 - question, options, explanation, wrongFeedback がドキュメントと一致するか
+- **正解妥当性（最優先）:** lint フラグの有無に関わらず、**correctIndex が指す正解が現行ドキュメントで本当に正しいか**を必ず確認する。lint は怪しい distractor を拾うだけで、**正解が静かに古くなった（doc ドリフト）問題は拾えない**。機能のデフォルト/仕様変更（MCP遅延ロード化、Fast mode の Opus専用化、件数/色数/オプション数の変化など）に該当する問題は最重視。**真の正解が選択肢に存在しない**ケース（ユーザーが正しく選んでも不正解）は最悪なので critical で報告。multi-select は correctIndices の漏れ（実在の有効手段の不正解扱い）も確認。
+- **権威ソースは個別 docs を優先:** assembled/結合ドキュメントには古い記述が残ることがある。`docs/<page>.md` 等の個別ファイルを最終権威とし、assembled だけで critical 判定しない（過去に assembled が「three review agents / five hops / 2%」と古いまま個別 docs が正典だった事例あり）。
 
 ### B. 用語・名称の正確性
 - API名、コマンド名、設定ファイル名が正式名称か

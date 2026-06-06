@@ -7,9 +7,33 @@
 - `/quality-loop --monthly` が drift を検出したら両方を更新
 - 問題追加・修正時はこのファイルを参照（一次ソースは公式ドキュメント）
 
-**最終更新:** 2026-05-31（facts-checker `--cross-quiz`、5件 drift: Opus 4.8 既定化 / xhigh=4.8+4.7 / max=4モデル / 1M=Opus 4.6以降 / MCP SSE deprecated 撤回。cmd-104 / ses-105 / ses-117 を修正）
+**最終更新:** 2026-06-06（10エージェント正解妥当性監査、正解の doc ドリフト/事実誤り 12問を修正。下記「2026-06-06 正解妥当性監査」参照）
 
 ---
+
+### 2026-06-06 正解妥当性監査で確定した事実（正解そのものの誤り/ドリフトを修正）
+
+| トピック | 正しい事実（現行 doc） | 出典 | 旧クイズ（誤）| 修正問 |
+|---|---|---|---|---|
+| タスクリスト表示 | `Ctrl+T` は **一度に最大5件**表示 | interactive-mode.md L304 | 「最大10件」 | key-010 |
+| statusline 位置 | **Claude Code 画面下部のカスタマイズ可能なバー**（シェルスクリプト実行） | statusline.md L3 | 「ターミナルのウィンドウ/タブタイトル」 | key-031 |
+| PR バッジ色 | **緑=承認/黄=レビュー待ち/赤=変更要求/グレー=ドラフトの4色**。**紫は無い**。マージ/クローズで**バッジ消失** | interactive-mode.md L317-320 | 「紫=マージ済み」を含む5色 | key-049, key-026 |
+| Bash 出力超過 | デフォルト**30,000字**超で**全出力をセッションディレクトリのファイルに保存**し、Claude にパス＋先頭プレビューを渡す（上限150,000字、`BASH_MAX_OUTPUT_LENGTH`） | tools-reference.md L105 | 「中間省略（先頭末尾保持）」 | tool-027 |
+| Fast モード | **Claude Opus（4.8/4.7/4.6）専用**の高速API構成（最大2.5倍）。Sonnet/Haiku不可。**非Opusから有効化すると Opus に自動切替** | fast-mode.md L3,L23 | 「同一モデルのまま・切替なし」 | ses-108 |
+| /context のコンテキスト消費 | **MCP ツール定義はデフォルト遅延ロード**（ツール検索）。使うまではツール名のみ消費 | how-claude-code-works | 「MCP定義がリクエストごとに大量消費」 | ses-025 |
+| autoMemoryDirectory | **任意のスコープ（user/project/local/policy/--settings）から設定可**。プロジェクト/ローカルは**ワークスペース信頼ダイアログ承認後**に有効。値は絶対パスか `~/` 始まり | memory.md L270,L278 | 「プロジェクト設定からは不可」 | mem-060 |
+| モデル切替方法 | `/model`・`--model`・**`ANTHROPIC_MODEL` 環境変数**・settings.json `model` の4通り | model-config.md L33-38 | `ANTHROPIC_MODEL` を不正解扱い | cmd-065 |
+| 復元/巻き戻しメニュー | **6つ**: Restore code and conversation / Restore conversation / Restore code / Summarize from here / **Summarize up to here** / Never mind | checkpointing.md L23-28 | 「5つ」 | tool-051 |
+| Remote Control 同時実行 | 通常は1セッションのみ。**サーバーモード（`claude remote-control`）は `--capacity` でデフォルト最大32** | remote-control.md L46,L137 | server mode 言及なし | cmd-089 |
+| Code Review 課金 | **usage credits** で別途請求（"Extra Usage" はリンクテキスト） | code-review.md | 「Extra Usage」表記 | ext-161, ses-117 |
+| `/simplify` | **4つ**の並列レビューエージェント（再利用・簡素化・効率性・適切な抽象度） | commands.md L76 | （assembled は古く「3つ」）正解は4で正しい | skill-065(ok) |
+| acceptEdits | mkdir/touch/mv/cp 等は自動承認、**`rm` 等の破壊的コマンドは引き続き確認** | permissions.md L32,L36 | （正しい。誤指摘を棄却）| ses-126(ok) |
+| Shift+Enter ネイティブ対応 | **7種**（Ghostty/Kitty/iTerm2/WezTerm/Warp/Apple Terminal/Windows Terminal）。要 `/terminal-setup`: VS Code/Cursor/Devin Desktop/Alacritty/Zed | terminal-config.md L14-15 | （正しい。誤指摘を棄却）| key-044(ok) |
+
+**教訓（プロセス）:**
+1. **正解妥当性は incremental では漏れる** — 機能のデフォルト/仕様変更（ドリフト）は定期的に「正解そのもの」を全問監査して拾う（10エージェント並列が有効）。
+2. **assembled docs に古い記述が残る** — `docs/<page>.md` 個別ファイルが正典。
+3. **エージェント指摘は doc 再照合してから適用** — 選択肢を途中までしか読まない誤指摘あり（key-044/key-020/ses-126）。
 
 ## モデル・エフォート関連
 

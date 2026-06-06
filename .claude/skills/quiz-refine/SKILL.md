@@ -58,6 +58,16 @@ argument-hint: "[iterations] [categories...] [--dry-run] [--full] [--force] [--t
 有効カテゴリ: memory, skills, tools, commands, extensions, session, keyboard, bestpractices
 引数が不正な場合はエラーメッセージを返して終了。
 
+## 正解妥当性監査モード（doc ドリフト対策・定期実行推奨）
+
+通常の incremental/full スキャンは **distractor の lint フラグ起点**で検証するため、「正解そのものが静かに古くなった（doc ドリフト）」問題を見逃す。これを拾うには、lint フラグに依存せず **全問の correctIndex（正解）が現行ドキュメントで正しいか**を能動的に監査する専用パスを、定期的（例: 月次の `/quality-loop --monthly` 時）に実行する。
+
+**実行方法（10エージェント並列）:** カテゴリ別（大カテゴリは ID 範囲で2分割）に `quiz-verifier`（model: sonnet）を最大10体 background 起動し、各エージェントに「correctIndex が指す正解が現行 doc で本当に正しいか」を検証させる。checklist の **A-1（正解妥当性）/A-2（個別docs優先）/A-3（指摘の二重確認）** を適用。
+
+**重点シグナル:** ①真の正解が選択肢に存在しない（最悪・critical） ②件数/色数/オプション数/モデル限定の数値変化 ③機能のデフォルト変更（遅延ロード化など） ④multi-select の correctIndices 漏れ。
+
+**修正適用ルール:** エージェント報告は**そのまま適用せず、リードが docs を再照合してから**修正する（誤指摘の棄却を含む）。確定事実は `docs/verified-facts.md` に追記。実績は同ファイル「2026-06-06 正解妥当性監査」参照（正解誤り12問を修正）。
+
 **パース結果を最初に出力して確認すること:**
 ```
 Parsed: iterations=N, scan=MODE, dry_run=BOOL, categories=[...]

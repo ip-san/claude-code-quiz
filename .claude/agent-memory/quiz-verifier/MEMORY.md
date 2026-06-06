@@ -415,3 +415,39 @@
 - **ses-153（minor→修正）**: 「SOCKSプロキシ非対応」は doc 根拠なし → terminal/hierarchy から削除
 - **見送り**: ses-003（再ワードが未検証の /resume 主張を導入する risk）/ ses-102（effortLevel enum、Verified Facts 領域）/ key-032（`/output-style` 存在を検証者自身が不確実と判断）
 - fact-tier 59問中 49問は skipIfNegated 偽陽性（不正解選択肢で存在しないフラグ/env を否定する設計パターン）。継続的に同じ偽陽性が出る
+
+## memory カテゴリ 正解妥当性監査（2026-06-06）
+
+### @import 最大深度: 現行ドキュメントは「four hops」（重要）
+- `docs/memory.md` L73: "maximum depth of **four hops**"（現行フェッチ版）
+- `docs-assembled/memory.md` L48: "maximum depth of **five hops**"（アセンブル版に古い内容が混入）
+- **docs/memory.md が正典**: アセンブル版は信頼性に問題あり。フェッチされた生ファイルを優先すること
+- mem-043 correctIndex=1「最大5階層」は現行docと矛盾 → critical（MEMORY.mdでは「修正済み」と記録されているが実際のJSONはまだ5階層）
+- mem-002 explanation「最大5階層」も同様に誤り（correctIndexは正しいが explanation drift）
+
+### mem-060 の critical issue（2026-06-06 確認）
+- 正解[0]「セキュリティ上の理由でプロジェクト設定からは受け付けられません」→ **現行ドキュメントと矛盾**
+- `docs/memory.md` L270: "It is read from any settings scope: user, **project**, local, policy, or --settings"
+- L278: "When set in a project's `.claude/settings.json` or `.claude/settings.local.json`, the value is honored only after you accept the workspace trust dialog"
+- 現行では project/local スコープも **許可されている**（trust dialog 経由）。旧仕様への doc drift。
+- correctShouldBe: 「できる。ただし .claude/settings.json または .claude/settings.local.json から設定する場合はワークスペース信頼ダイアログの承認が必要」
+
+### docs-assembled vs docs/ の乖離パターン（2026-06-06 発見）
+- `fetch-docs.mjs --assemble` が生成する docs-assembled/ は古いページ内容を含むことがある
+- memory.md のインポート深度（four vs five hops）で確認済み
+- 検証時は必ず `docs/memory.md`（フェッチ生ファイル）を正典として参照すること
+- docs-assembled/memory.md は best-practices/session 等のコンテンツが混入しており内容が多い
+
+### CLAUDE.md スコープテーブルの順序変更（新旧ドキュメント）
+- 旧 assembled doc: Managed > **Project** > **User** > Local
+- 新 docs/memory.md: Managed > **User** > **Project** > Local
+- 旧ドキュメントでは Project が User より上位だったが新ドキュメントでは逆転
+- ただし新 doc L46「a project instruction appears in context AFTER a user instruction」= project は user より後ろ（高優先）
+- mem-045「Managed > Project > User > Local」の答えは現行 doc の context 順序でも支持される → false-positive
+
+### 2026-06-06 正解妥当性監査（最重要パターン）
+- **lint フラグの有無に関わらず correctIndex の正解妥当性を毎回確認**。distractor lint は「正解の doc ドリフト」を拾えない。機能のデフォルト/仕様変更に該当する問題は正解そのものを再評価。
+- **真の正解が選択肢に存在しない**ケース（ユーザーが正しく選んでも不正解）が最悪 = critical。実例 key-031/tool-027/mem-060。
+- **assembled docs は古い記述が残る**（three review agents / five hops / 2%）。`docs/<page>.md` 個別ファイルを正典とする。
+- **選択肢を最後まで読む**。途中までで誤判定した実例: key-044（先頭4種だけ見て「4種」と誤指摘、実際は7種で正しい）。
+- 確定した新事実は docs/verified-facts.md「2026-06-06」表を参照（5タスク/statusline下部バー/PR4色/Bash出力ファイル保存/Fast=Opus専用/MCP遅延/autoMemoryDirectory任意スコープ/モデル切替4法/復元6/Remote32）。

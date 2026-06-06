@@ -144,3 +144,35 @@ keyboard カテゴリで factCheck:env や factCheck:flags が lint-flagged さ�
 - critical: key-044（ネイティブ対応4種のみ断言、実際は7種）
 - major: key-020（同問題の4種記述、Warpの誤分類）
 - 残り46問: 事実誤認なし
+
+### 2026-06-06 正解妥当性監査（correctIndex対象）追加発見
+
+#### key-010: タスクリスト最大表示件数
+- 正解オプション「一度に最大10件のタスクを表示でき」→ **CRITICAL**
+- interactive-mode.md L304: "The display shows up to **5** tasks at a time"
+- correctShouldBe: 最大5件（"5 tasks at a time"）
+
+#### key-031: statusline の表示場所
+- 正解オプション「ターミナルエミュレーターのウィンドウタイトルまたはタブタイトル」→ **CRITICAL**
+- statusline.md L3: "The status line is a customizable bar at the **bottom of Claude Code**"
+- 正しくは Claude Code 画面下部のカスタマイズ可能なバーであり、ウィンドウタイトルではない
+- option[2]「VS Code のステータスバー（画面下部）」は「VS Code の」部分が誤りで正解候補ではない
+
+#### key-049: PR ステータス 紫=マージ済み
+- 正解オプションに「紫=マージ済み」を含む → **MAJOR**
+- interactive-mode.md: PR status colors = Green/Yellow/Red/Gray の4色のみ
+- "The badge disappears once the pull request merges or closes"（マージ後は表示消える）
+- 紫という5色目は存在しない
+
+#### key-026: explanation に紫=マージ済み誤情報
+- 正解オプション「レビュー待ち（Pending）」は正確 → ok
+- ただし explanation に「紫=マージ済み」が記載されている → major (explanation のみ)
+
+#### key-037: wrongFeedback に「組み込みスタイルは3つ」誤情報
+- wrongFeedback[3]「組み込みスタイルは Default、Explanatory、Learning の3つ」→ **minor**
+- 実際は Default + Proactive + Explanatory + Learning の4スタイル（output-styles.md L7）
+
+### 2026-06-06 修正サマリー（correctIndex 正解妥当性監査）
+- critical: key-010（5件→10件の誤り）、key-031（画面下部→ウィンドウタイトルの誤り）、key-044（4種→7種）
+- major: key-020（4種記述）、key-049（紫=マージ済み含む）、key-026（explanation のみ紫記述）
+- minor: key-037（wrongFeedback の3スタイル記述）

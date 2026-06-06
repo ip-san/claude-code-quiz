@@ -553,3 +553,18 @@ v4.43.0 以前の known-issues では「exit code 2 の一般ルールで UserPr
   - **permissionDecision = 4値** allow/deny/ask/defer を ext-132 で再確認（既出 L485/509 と一致）
 - crossCheck 15問・fact-tier のスポットチェックは全て正確（known-issues L445-456 の「fact-tier は keyword hit のみ」パターンが今回も継続）
 - quality-tier 91問（distractor-too-short 46 + correct-too-long 67 + format-giveaway 8）は事実誤りでなくバランス調整。月次 distractor-balance パスへ委譲継続（未着手）
+
+## 2026-06-06 正解妥当性監査（10エージェント・正解の doc ドリフト/事実誤り 12問修正）
+
+ユーザー報告「正解を選んでも別の選択肢を選んだことにされる（=正解が間違っている問題）」を起点に、lint 非依存で **correctIndex の正解そのもの**を全810問監査。UI/選択ロジックにバグは無く（選択 index は直接マッピング、回答後の緑ハイライトは正解提示）、原因は**データの正解誤り**だった。
+
+**修正した正解誤り（critical/major、詳細は docs/verified-facts.md「2026-06-06」表）:**
+- key-010（タスク 10→5件）, key-031（statusline=画面下部バー）, key-049/key-026（PR バッジ 紫削除）, tool-027（Bash 出力=ファイル保存、correctIndex 1→3）, ses-108（Fast mode=Opus専用・自動切替）, ses-025（MCP 遅延ロード）, mem-060（autoMemoryDirectory=任意スコープ可）, cmd-065（ANTHROPIC_MODEL を正解に・真の誤答に差替）, cmd-089（server mode 32 注記）, tool-051（復元 5→6）, ext-161（usage credits）
+
+**棄却したエージェント誤指摘（自前 doc 照合で false-positive 確認）:**
+- key-044（「4種」→実は7種で正しい・選択肢を途中までしか読まず誤読）, key-020（ほぼ正確）, ses-126（rm は確認必要で正しい）, skill-065（/simplify は4エージェントで正しい・assembled が古い）, bp-096（workflow キーワードで正しい）
+
+**プロセス教訓（checklist A-1/A-2/A-3・quiz-verifier・SKILL に反映済み）:**
+1. 正解妥当性は incremental では漏れる → 定期的に「正解そのもの」を全問監査（10並列）
+2. assembled docs は古い記述が残る → `docs/<page>.md` 個別ファイルが正典
+3. 並列エージェントの指摘は doc 再照合してから適用（誤読あり、特に「正解が誤り」は偽陽性コスト大）
