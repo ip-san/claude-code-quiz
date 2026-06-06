@@ -174,6 +174,30 @@ export interface FormulaDiagram {
   operator?: string | undefined
 }
 
+/** キーキャップ（1つの物理キー） */
+export interface KeyCap {
+  label: string
+  /** 操作対象として強調するキー（修飾キーは false 想定） */
+  highlight?: boolean | undefined
+}
+
+/** 同時押しするキーの組（例: Ctrl + C） */
+export interface KeyCombo {
+  keys: KeyCap[]
+  /** この組が何をするか（例: 中断 / モード循環） */
+  caption?: string | undefined
+}
+
+export interface KeyboardDiagram {
+  type: 'keyboard'
+  label?: string | undefined
+  /** 1つ以上のキー組。sequence=true なら手順（連打/順次）、false/未指定なら同時押し1組または比較 */
+  combos: KeyCombo[]
+  /** true: combos を順番に押す手順として矢印で連結（例: Esc → Esc） */
+  sequence?: boolean | undefined
+  caption?: string | undefined
+}
+
 /**
  * 14 diagram variants の discriminated union
  *
@@ -195,3 +219,4 @@ export type DiagramData =
   | MatrixDiagram
   | TreeDiagram
   | FormulaDiagram
+  | KeyboardDiagram

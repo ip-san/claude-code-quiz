@@ -500,6 +500,7 @@ describe('Quiz Content Quality', () => {
         'matrix',
         'tree',
         'formula',
+        'keyboard',
       ]
       const violations = diagramEntries.filter((e) => !validTypes.includes(e.diagram.type))
       expect(violations.map((e) => e.id)).toEqual([])

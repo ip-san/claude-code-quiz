@@ -309,6 +309,7 @@ export interface LocaleConfig {
     readonly matrix: string
     readonly tree: string
     readonly formula: string
+    readonly keyboard: string
     readonly highPriority: string
     readonly lowPriority: string
     readonly outerOverrides: string

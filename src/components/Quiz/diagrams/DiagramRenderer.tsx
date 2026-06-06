@@ -5,6 +5,7 @@ import { CycleDiagram } from './CycleDiagram'
 import { FlowDiagram } from './FlowDiagram'
 import { FormulaDiagram } from './FormulaDiagram'
 import { HierarchyDiagram } from './HierarchyDiagram'
+import { KeyboardDiagram } from './KeyboardDiagram'
 import { LayerDiagram } from './LayerDiagram'
 import { MatrixDiagram } from './MatrixDiagram'
 import { NetworkDiagram } from './NetworkDiagram'
@@ -58,6 +59,15 @@ function SingleDiagram({ diagram }: { diagram: DiagramData }) {
           result={diagram.result}
           components={diagram.components}
           operator={diagram.operator}
+        />
+      )
+    case 'keyboard':
+      return (
+        <KeyboardDiagram
+          label={diagram.label}
+          combos={diagram.combos}
+          sequence={diagram.sequence}
+          caption={diagram.caption}
         />
       )
     default:

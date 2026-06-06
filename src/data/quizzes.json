@@ -5856,7 +5856,7 @@
         }
       ],
       "correctIndex": 1,
-      "explanation": "`Ctrl+C`でClaudeの応答生成を中断できます（ドキュメントで正式に記載されたキャンセルショートカットです）。中断後も会話は継続し、新しい指示を出したり`/rewind`で巻き戻したりできます。\n\n{{diagram:0}}\n\nファイル編集の取り消しは`Esc+Esc`（Rewind）で行います。\n{{diagram:1}}",
+      "explanation": "{{diagram:2}}\n\n`Ctrl+C`でClaudeの応答生成を中断できます（ドキュメントで正式に記載されたキャンセルショートカットです）。中断後も会話は継続し、新しい指示を出したり`/rewind`で巻き戻したりできます。\n\n{{diagram:0}}\n\nファイル編集の取り消しは`Esc+Esc`（Rewind）で行います。\n{{diagram:1}}",
       "referenceUrl": "https://code.claude.com/docs/ja/interactive-mode",
       "diagrams": [
         {
@@ -5897,6 +5897,23 @@
               "sub": "`Ctrl+C`は応答中断のみ。ファイル復元は`Esc`+`Esc`または`/rewind`"
             }
           ]
+        },
+        {
+          "type": "keyboard",
+          "combos": [
+            {
+              "keys": [
+                {
+                  "label": "Ctrl"
+                },
+                {
+                  "label": "C",
+                  "highlight": true
+                }
+              ],
+              "caption": "生成を中断"
+            }
+          ]
         }
       ],
       "tags": [
@@ -5924,7 +5941,7 @@
         }
       ],
       "correctIndex": 0,
-      "explanation": "`Esc+Esc`（Escキーを2回押す）と`/rewind`コマンドはどちらも同じrewindメニューを開き、機能的な違いはありません。\n\n{{diagram:0}}\n\nメニューではセッション内の各プロンプトが一覧表示され、選択した時点について「コードと会話を復元」「会話のみ復元」「コードのみ復元」「ここから要約」「Never mind（変更なしで戻る）」の5つのアクションから選べます。\n{{diagram:1}}",
+      "explanation": "{{diagram:2}}\n\n`Esc+Esc`（Escキーを2回押す）と`/rewind`コマンドはどちらも同じrewindメニューを開き、機能的な違いはありません。\n\n{{diagram:0}}\n\nメニューではセッション内の各プロンプトが一覧表示され、選択した時点について「コードと会話を復元」「会話のみ復元」「コードのみ復元」「ここから要約」「Never mind（変更なしで戻る）」の5つのアクションから選べます。\n{{diagram:1}}",
       "category": "keyboard",
       "difficulty": "intermediate",
       "referenceUrl": "https://code.claude.com/docs/ja/checkpointing",
@@ -5956,6 +5973,29 @@
               "text": "/rewind"
             }
           ]
+        },
+        {
+          "type": "keyboard",
+          "sequence": true,
+          "combos": [
+            {
+              "keys": [
+                {
+                  "label": "Esc",
+                  "highlight": true
+                }
+              ]
+            },
+            {
+              "keys": [
+                {
+                  "label": "Esc",
+                  "highlight": true
+                }
+              ]
+            }
+          ],
+          "caption": "2回押しで直前の変更を巻き戻し"
         }
       ],
       "tags": [
@@ -6344,7 +6384,7 @@
         }
       ],
       "correctIndex": 2,
-      "explanation": "`Shift+Tab`（または一部の環境では`Alt+M`）でパーミッションモードを順に切り替えられます。基本の3モードはNormal（全操作に確認が必要）、Auto-Accept Edits（ファイル編集のみ自動承認）、Plan Mode（読み取り専用ツールのみ使用可能）です。\n\n{{diagram:0}}\n\nさらにAuto Mode（研究プレビュー、バックグラウンド安全性チェック付き）や`bypassPermissions`が有効になっている場合、それらもサイクルに追加されます。\n{{diagram:1}}",
+      "explanation": "{{diagram:2}}\n\n`Shift+Tab`（または一部の環境では`Alt+M`）でパーミッションモードを順に切り替えられます。基本の3モードはNormal（全操作に確認が必要）、Auto-Accept Edits（ファイル編集のみ自動承認）、Plan Mode（読み取り専用ツールのみ使用可能）です。\n\n{{diagram:0}}\n\nさらにAuto Mode（研究プレビュー、バックグラウンド安全性チェック付き）や`bypassPermissions`が有効になっている場合、それらもサイクルに追加されます。\n{{diagram:1}}",
       "referenceUrl": "https://code.claude.com/docs/ja/interactive-mode",
       "tags": [
         "overview",
@@ -6399,6 +6439,23 @@
                 "コマンド実行: 不可",
                 "ファイル読取: 自動"
               ]
+            }
+          ]
+        },
+        {
+          "type": "keyboard",
+          "combos": [
+            {
+              "keys": [
+                {
+                  "label": "⇧ Shift"
+                },
+                {
+                  "label": "Tab",
+                  "highlight": true
+                }
+              ],
+              "caption": "パーミッションモードを循環"
             }
           ]
         }

@@ -288,6 +288,7 @@ export const ja: LocaleConfig = {
     matrix: 'マトリクス図',
     tree: 'ツリー図',
     formula: '計算式図',
+    keyboard: 'キーボード図',
     highPriority: '▲ 高優先',
     lowPriority: '低優先 ▼',
     outerOverrides: '◀ 外側が上書き',

@@ -253,6 +253,24 @@ const FormulaDiagramSchema = z.object({
   operator: z.string().optional(),
 })
 
+const KeyCapSchema = z.object({
+  label: z.string().min(1),
+  highlight: z.boolean().optional(),
+})
+
+const KeyComboSchema = z.object({
+  keys: z.array(KeyCapSchema).min(1).max(4),
+  caption: z.string().optional(),
+})
+
+const KeyboardDiagramSchema = z.object({
+  type: z.literal('keyboard'),
+  label: z.string().optional(),
+  combos: z.array(KeyComboSchema).min(1).max(6),
+  sequence: z.boolean().optional(),
+  caption: z.string().optional(),
+})
+
 export const DiagramSchema = z.discriminatedUnion('type', [
   HierarchyDiagramSchema,
   FlowDiagramSchema,
@@ -268,6 +286,7 @@ export const DiagramSchema = z.discriminatedUnion('type', [
   MatrixDiagramSchema,
   TreeDiagramSchema,
   FormulaDiagramSchema,
+  KeyboardDiagramSchema,
 ])
 
 // DiagramData type is owned by the domain layer (single source of truth).
