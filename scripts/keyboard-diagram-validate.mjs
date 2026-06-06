@@ -8,20 +8,28 @@
  * ランタイムの QuizValidator まで検出が遅れるのを防ぐ。
  * Zod 側の min/max を変更した場合はここも同期すること。
  */
+const optStr = (v) => v === undefined || typeof v === 'string'
+const optBool = (v) => v === undefined || typeof v === 'boolean'
+
 export function isValidKbDiagram(d) {
   return (
     d &&
     typeof d === 'object' &&
+    optBool(d.sequence) && // Zod: sequence z.boolean().optional()
+    optStr(d.caption) && // Zod: caption z.string().optional()
+    optStr(d.label) && // Zod: label z.string().optional()
     Array.isArray(d.combos) &&
     d.combos.length >= 1 &&
     d.combos.length <= 6 &&
     d.combos.every(
       (c) =>
         c &&
+        optStr(c.caption) &&
         Array.isArray(c.keys) &&
         c.keys.length >= 1 &&
         c.keys.length <= 4 &&
-        c.keys.every((k) => k && typeof k.label === 'string' && k.label.length > 0)
+        // Zod: label z.string().min(1), highlight z.boolean().optional()
+        c.keys.every((k) => k && typeof k.label === 'string' && k.label.length > 0 && optBool(k.highlight))
     )
   )
 }

@@ -12,6 +12,7 @@ vi.mock('./useDiagramAnimation', () => ({
     containerRef: { current: null },
     isVisible: true,
     getItemDelay: () => '0ms',
+    itemCount: 0, // 実装シグネチャ(useDiagramAnimation の返り値)と一致させる
   }),
 }))
 

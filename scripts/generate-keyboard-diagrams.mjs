@@ -29,7 +29,7 @@ const intArg = (flag, fallback) => {
   const i = args.indexOf(flag)
   if (i < 0) return fallback
   const n = Number(args[i + 1])
-  return Number.isFinite(n) && n > 0 ? n : fallback
+  return Number.isInteger(n) && n > 0 ? n : fallback // 整数のみ（小数でバッチ境界がずれるのを防ぐ）
 }
 const LIMIT = intArg('--limit', null)
 const BATCH_SIZE = intArg('--batch', 6) // 不正値(--batch 値なし/非数値)でも NaN→無限ループにしない

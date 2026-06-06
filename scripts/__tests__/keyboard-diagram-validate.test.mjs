@@ -31,6 +31,20 @@ describe('isValidKbDiagram', () => {
     expect(isValidKbDiagram({ combos: [{ keys: [{}] }] })).toBeFalsy()
   })
 
+  it('rejects wrong field types (matches Zod boolean/string optionals)', () => {
+    // highlight must be boolean, not string/number
+    expect(isValidKbDiagram({ combos: [{ keys: [{ label: 'C', highlight: 'true' }] }] })).toBe(false)
+    expect(isValidKbDiagram({ combos: [{ keys: [{ label: 'C', highlight: 1 }] }] })).toBe(false)
+    // caption/sequence/label types
+    expect(isValidKbDiagram({ combos: [{ keys: [{ label: 'C' }], caption: 5 }] })).toBe(false)
+    expect(isValidKbDiagram({ combos: [{ keys: [{ label: 'C' }] }], sequence: 'yes' })).toBe(false)
+    expect(isValidKbDiagram({ combos: [{ keys: [{ label: 'C' }] }], caption: 5 })).toBe(false)
+    // valid optionals still pass
+    expect(
+      isValidKbDiagram({ combos: [{ keys: [{ label: 'C', highlight: true }], caption: 'x' }], sequence: true })
+    ).toBe(true)
+  })
+
   it('stays in sync with the Zod KeyComboSchema/KeyboardDiagramSchema bounds (drift guard)', () => {
     // QuizValidator.ts の Zod 定義から min/max を抽出し、.mjs の上限・下限と一致することを固定する。
     const src = readFileSync(
