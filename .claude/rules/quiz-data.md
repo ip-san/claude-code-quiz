@@ -59,10 +59,11 @@ paths:
 | 学習負荷 | `difficulty`（beginner/intermediate/advanced） | 価値とは別軸。報酬係数(XP)に流用 | 問題作成時 |
 
 **主従関係はコンテキストで異なる**（チューニング時に注意）:
-- SRS `valueFactor` / Adaptive `additiveValueScore`: **カテゴリ weight が支配項**、tags は微調整（SRS では ±5%、Adaptive では ±6/-4 で weight 幅10と同等）。tag を増やしても出題・復習順は大きく動かない。
+- SRS `valueFactor`（乗法）: カテゴリ weight が支配項、tags は微調整（±5%）。tag を増やしても復習順は大きく動かない。
+- Adaptive `additiveValueScore`（加点）: タグ補正(+6/-4)はカテゴリ weight 全幅(10)・隣接 tier 差(5)と同オーダー。ただし価値が効くのは **difficultyScore が同値のバケット内 tie-break に限定**され、難易度順序は上書きしない（`b.score - a.score || b.value - a.value` の短絡）。
 - レコメンド / 分類パイプライン: **tags（practical/trivia）が細粒度の主シグナル**。
 
-価値スコアの補正値（weight 既定値・practical/trivia 補正）の単一情報源は `src/domain/valueObjects/ValueScore.ts`（`DEFAULT_CATEGORY_WEIGHT` / `VALUE_TAG_BONUS`）。`.mjs` 側（aggregate）は import 不可のため同値を複製しコメントで同期を明示している。
+価値スコアの補正値（weight 既定値・practical/trivia 補正）の単一情報源は `src/domain/valueObjects/ValueScore.ts`（`DEFAULT_CATEGORY_WEIGHT` / `VALUE_TAG_BONUS`）。`.mjs` 側（aggregate）は `scripts/value-constants.mjs` に同値を複製するが、`scripts/__tests__/value-constants.test.mjs` が TS 側を実 import して突合するため、片側だけの変更は CI で必ず検知される。
 
 これらを参照する箇所（変更時は影響範囲に注意）:
 

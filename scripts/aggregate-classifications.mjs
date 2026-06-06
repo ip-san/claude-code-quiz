@@ -313,7 +313,7 @@ function filterCandidates(catDist, profile) {
           id: q.id,
           category: q.category,
           difficulty: q.difficulty,
-          categoryWeight: catWeights[q.category] ?? 10,
+          categoryWeight: catWeights[q.category] ?? VALUE_DEFAULT_WEIGHT,
           valueTag: (q.tags || []).includes('practical')
             ? 'practical'
             : (q.tags || []).includes('trivia')
