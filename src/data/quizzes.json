@@ -6438,14 +6438,11 @@
             {
               "keys": [
                 {
-                  "label": "\\"
-                },
-                {
-                  "label": "Enter",
+                  "label": "\\",
                   "highlight": true
                 }
               ],
-              "caption": "全ターミナル共通"
+              "caption": "入力後 Enter（全ターミナル）"
             },
             {
               "keys": [

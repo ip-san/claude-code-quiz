@@ -42,7 +42,7 @@ const allQuizzes = quizFile.quizzes
 // 候補抽出は広め(偽陽性は Claude の厳格 null 判定が除外する)。Tab/Enter 単独も許容。
 // 単独英単語キー(Esc/Tab/Enter/Backspace)は語境界を要求し「Enterprise」等の部分一致を除外する。
 const KEY_RE =
-  /Ctrl\+[A-Z]|Cmd\+|⌘|Shift\+Tab|Shift\+Enter|Alt\+[A-Z]|Ctrl-[a-z]|矢印キー|(?<![A-Za-z])(?:Esc|Tab|Enter|Backspace)(?![A-Za-z])/
+  /Ctrl[+-][A-Za-z]|Cmd[+-]|⌘|Shift\+Tab|Shift\+Enter|Alt[+-][A-Za-z]|矢印キー|(?<![A-Za-z])(?:Esc|Tab|Enter|Backspace)(?![A-Za-z])/
 const correctText = (q) => q.options?.[q.correctIndex]?.text ?? ''
 const candidates = allQuizzes.filter((q) => {
   if ((q.diagrams || []).some((d) => d.type === 'keyboard')) return false // 既存 keyboard 図は除外（冪等）
