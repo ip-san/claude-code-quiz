@@ -288,9 +288,11 @@ function filterCandidates(catDist, profile) {
       // 完全な決定論だと候補が固定化するため、軽いランダム成分を残す。
       // スコアは要素ごとに一度だけ算出してから安定ソートする（比較関数内で Math.random を
       // 呼ぶと同一要素のスコアが比較のたびに変わり、ソート順序が不定になるため）。
+      // tagBonus/既定weight は src/domain/valueObjects/ValueScore.ts の VALUE_TAG_BONUS /
+      // DEFAULT_CATEGORY_WEIGHT と同値に保つこと（.mjs から TS 定数を import できないため複製）。
       const valueScore = (q) => {
-        const w = catWeights[q.category] ?? 10 // 5/10/15 → 価値プロキシ
-        const tagBonus = (q.tags || []).includes('practical') ? 6 : (q.tags || []).includes('trivia') ? -4 : 0
+        const w = catWeights[q.category] ?? 10 // DEFAULT_CATEGORY_WEIGHT と同期
+        const tagBonus = (q.tags || []).includes('practical') ? 6 : (q.tags || []).includes('trivia') ? -4 : 0 // VALUE_TAG_BONUS と同期
         return w + tagBonus + Math.random() * 8 // ランダム幅(8)で同価値帯はシャッフル
       }
       const sampled = pool

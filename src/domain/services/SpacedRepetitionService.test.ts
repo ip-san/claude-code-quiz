@@ -181,6 +181,24 @@ describe('SpacedRepetitionService', () => {
       expect(sorted[0].id).toBe('lowOverdue') // forgetting risk (タイパ) dominates value (コスパ)
     })
 
+    it('keeps a stable order for answered questions with no nextReviewAt (no precision drift)', () => {
+      // nextReviewAt 未設定 → 最大優先度(MAX_SAFE_INTEGER)。価値係数を掛けず素通しするため
+      // カテゴリ価値が違っても巨大値の浮動小数誤差で順序が揺れないことを保証する。
+      const high = createQuestion('high', 'tools') // weight 15
+      const low = createQuestion('low', 'sdk') // weight 5
+      const progress = UserProgress.create({
+        questionProgress: {
+          high: createQP({ questionId: 'high' }), // nextReviewAt undefined
+          low: createQP({ questionId: 'low' }), // nextReviewAt undefined
+        },
+      })
+      const sorted = SpacedRepetitionService.sortByPriority([high, low], progress, now)
+      // 入力順を安定保持（係数による追い越しが起きない）
+      expect(sorted.map((qq) => qq.id)).toEqual(['high', 'low'])
+      const reversed = SpacedRepetitionService.sortByPriority([low, high], progress, now)
+      expect(reversed.map((qq) => qq.id)).toEqual(['low', 'high'])
+    })
+
     it('prefers practical-tagged questions over trivia at equal overdue', () => {
       const trivia = createQuestion('trivia', 'tools', ['trivia'])
       const practical = createQuestion('practical', 'tools', ['practical'])

@@ -8,8 +8,8 @@
 
 import type { Question } from '../entities/Question'
 import type { QuestionProgress, UserProgress } from '../entities/UserProgress'
-import { getCategoryById } from '../valueObjects/Category'
 import { calculateNextReview, SRS_INTERVALS_MS } from '../valueObjects/SrsInterval'
+import { categoryWeight } from '../valueObjects/ValueScore'
 
 // Re-export for backwards compatibility
 export { SRS_INTERVALS_MS }
@@ -69,7 +69,7 @@ export class SpacedRepetitionService {
    * 合成例: weight5+trivia=0.855（下限） / weight15+practical=1.05（上限）。
    */
   private static valueFactor(question: Question): number {
-    const weight = getCategoryById(question.category)?.weight ?? 10
+    const weight = categoryWeight(question.category) // 単一情報源: valueObjects/ValueScore
     let factor = 0.85 + 0.15 * (weight / 15) // weight 5→0.90, 10→0.95, 15→1.00（タグ補正前）
     if (question.tags.includes('practical')) factor *= 1.05
     else if (question.tags.includes('trivia')) factor *= 0.95
@@ -80,10 +80,15 @@ export class SpacedRepetitionService {
    * 価値係数を合成した overdue。
    * 期限到来済み（overdue > 0）のみ係数を掛け、未回答(-1)・未到来(負)の順序は不変に保つ
    * （負値に係数を掛けると順序が歪み、due 済み問題を追い越す恐れがあるため）。
+   *
+   * nextReviewAt 未設定（MAX_SAFE_INTEGER の最大優先度）は係数を掛けない。
+   * 巨大値×係数は整数安全範囲を超え、同値タイの順序が浮動小数誤差で不定化するため、
+   * 素通しして安定ソート（元順序）に委ねる。
    */
   private static getWeightedOverdue(qp: QuestionProgress | undefined, question: Question, now: number): number {
     const overdue = this.getOverdue(qp, now)
-    return overdue > 0 ? overdue * this.valueFactor(question) : overdue
+    if (overdue <= 0 || overdue >= Number.MAX_SAFE_INTEGER) return overdue
+    return overdue * this.valueFactor(question)
   }
 
   /**

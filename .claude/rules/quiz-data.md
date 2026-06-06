@@ -54,18 +54,22 @@ paths:
 
 | レイヤ | 置き場所 | 意味 | 付与方法 |
 |--------|---------|------|---------|
-| 問題単位 | `tags` の `practical`/`trivia` | 実務直結度・エバーグリーン度 | AI分類（Haiku）＋人手レビュー |
-| カテゴリ単位 | `src/config/theme.ts` の `categories[].weight`（5/10/15） | 実務頻度×インパクトのプロキシ | 手動（下記ルール） |
+| 問題単位 | `tags` の `practical`/`trivia` | 実務直結度・エバーグリーン度。**価値の主シグナル（細粒度）** | AI分類（Haiku）＋人手レビュー |
+| カテゴリ単位 | `src/config/theme.ts` の `categories[].weight`（5/10/15） | カテゴリの粗い価値事前分布（coarse prior） | 手動（下記ルール） |
 | 学習負荷 | `difficulty`（beginner/intermediate/advanced） | 価値とは別軸。報酬係数に流用 | 問題作成時 |
 
-これらを参照する箇所（変更時は影響範囲に注意）:
-- `QuizSessionService.weightedSampleByCategory`（full モードの出題配分）
-- `AdaptiveDifficultyService.getValueScore`（random/category の同難易度内 tie-break）
-- `SpacedRepetitionService.valueFactor`（SRS 復習順の弱い tie-break）
+価値スコアの補正値（weight 既定値・practical/trivia 補正）の単一情報源は `src/domain/valueObjects/ValueScore.ts`（`DEFAULT_CATEGORY_WEIGHT` / `VALUE_TAG_BONUS`）。`.mjs` 側（aggregate）は import 不可のため同値を複製しコメントで同期を明示している。
+
+これらを参照する箇所（変更時は影響範囲に注意。価値軸を消費する全6箇所）:
+- `QuizSessionService.weightedSampleByCategory`（full モードの出題配分。weight を消費）
+- `QuizSessionService.deprioritizeLowEngagement`（初学者 random/category の SDK・上級trivia 後回し。category/difficulty/tags を消費）
+- `AdaptiveDifficultyService.getValueScore`（random/category の同難易度内 tie-break。`additiveValueScore` 経由）
+- `SpacedRepetitionService.valueFactor`（SRS 復習順の弱い tie-break。`categoryWeight` 経由）
 - `XpService.calculateAnswerXp`（difficulty 連動XP）
 - `scripts/aggregate-classifications.mjs`（レコメンド候補の価値 tie-break）
 
-**YOU MUST**: `weight` は「実務頻度×インパクトの3段階（5=ニッチ / 10=標準 / 15=高頻度・高インパクト）」を表す。変更する場合は PR に**根拠**を記載する。weight は価値軸の唯一の情報源であり、上記すべての出題・報酬ロジックが追従する。
+**YOU MUST**: `weight` はカテゴリの粗い価値プロキシ（5=ニッチ / 10=標準 / 15=高頻度・高インパクト）。変更する場合は PR に**根拠**を記載する。
+**注意（実態）**: 現状 weight=15 が9カテゴリ中6つに集中し、カテゴリ間の価値差は粗い。**問題単位の細かい価値差は主に `tags`（practical/trivia）が担う**。カテゴリ価値を細かく効かせたい場合は weight の再分割を検討するが、tag 補正との二重調整に注意する。
 
 ## ID命名規則
 

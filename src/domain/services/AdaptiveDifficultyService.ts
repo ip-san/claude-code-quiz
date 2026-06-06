@@ -6,7 +6,7 @@
 
 import type { Question } from '../entities/Question'
 import type { UserProgress } from '../entities/UserProgress'
-import { getCategoryById } from '../valueObjects/Category'
+import { additiveValueScore } from '../valueObjects/ValueScore'
 
 const HIGH_ACCURACY_THRESHOLD = 80
 const LOW_ACCURACY_THRESHOLD = 50
@@ -61,15 +61,10 @@ export class AdaptiveDifficultyService {
 
   /**
    * 実務価値スコア（同難易度内の tie-break 用）
-   * カテゴリ weight（実務頻度×インパクトのプロキシ 5/10/15）を主に、
-   * practical/trivia タグで微調整する。タグ未付与時は weight のみで決まる。
+   * 補正値の単一情報源は valueObjects/ValueScore（weight + practical/trivia 補正）。
    */
   private static getValueScore(question: Question): number {
-    const weight = getCategoryById(question.category)?.weight ?? 10
-    let score = weight
-    if (question.tags.includes('practical')) score += 6
-    else if (question.tags.includes('trivia')) score -= 4
-    return score
+    return additiveValueScore(question)
   }
 
   private static getDifficultyScore(question: Question, categoryAccuracy: Map<string, number | null>): number {
