@@ -160,6 +160,9 @@ const claudeCodeTheme: ThemeConfig = {
   officialDocsLabel: 'Claude Code を始める',
   pwaUrl: 'https://ip-san.github.io/claude-code-quiz/',
   shareHashtags: '#ClaudeCode #AI駆動開発 #DX推進',
+  // weight = 実務価値の3段階プロキシ（5=ニッチ / 10=標準 / 15=高頻度・高インパクト）。
+  // 価値軸の唯一の情報源。出題配分(full)・出題順 tie-break(random/SRS)・レコメンドが追従する。
+  // 変更時は根拠を PR に記載すること。詳細: .claude/rules/quiz-data.md「価値軸」
   categories: [
     {
       id: 'memory',
@@ -226,10 +229,12 @@ const claudeCodeTheme: ThemeConfig = {
     },
     {
       id: 'bestpractices',
+      // weight 10→15: 効果的な使い方/プロンプト設計/ワークフローは全カテゴリ横断で
+      // 日々の成果に直結する最高ROI領域。実務頻度×インパクトの観点で tools/memory と同格。
       name: 'Best Practices',
       icon: '💡',
       color: 'green',
-      weight: 10,
+      weight: 15,
       description: '効果的な使い方、プロンプト設計、ワークフロー',
       skillDescription: '実務で成果を出せる',
     },

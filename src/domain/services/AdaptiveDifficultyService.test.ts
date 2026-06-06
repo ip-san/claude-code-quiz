@@ -3,7 +3,7 @@ import { Question } from '../entities/Question'
 import { UserProgress } from '../entities/UserProgress'
 import { AdaptiveDifficultyService } from './AdaptiveDifficultyService'
 
-function makeQuestion(id: string, category: string, difficulty: string): Question {
+function makeQuestion(id: string, category: string, difficulty: string, tags?: string[]): Question {
   return Question.create({
     id,
     category,
@@ -12,6 +12,7 @@ function makeQuestion(id: string, category: string, difficulty: string): Questio
     options: [{ text: 'A' }, { text: 'B', wrongFeedback: 'Wrong' }],
     correctIndex: 0,
     explanation: 'Explanation',
+    tags,
   })
 }
 
@@ -74,6 +75,44 @@ describe('AdaptiveDifficultyService', () => {
       const result = AdaptiveDifficultyService.reorderByAdaptiveDifficulty(questions, progress)
       // No reordering expected (all scores are 0)
       expect(result.length).toBe(2)
+    })
+
+    it('breaks difficulty-score ties by value (higher category weight first)', () => {
+      // No accuracy data → all difficulty scores 0 → value tie-break decides
+      const questions = [
+        makeQuestion('low', 'sdk', 'beginner'), // weight 5
+        makeQuestion('high', 'memory', 'beginner'), // weight 15
+      ]
+      const progress = UserProgress.create({ totalAttempts: 10 })
+      const result = AdaptiveDifficultyService.reorderByAdaptiveDifficulty(questions, progress)
+      expect(result[0].id).toBe('high') // higher-value category surfaces first on a tie
+    })
+
+    it('value tie-break never overrides difficulty ordering', () => {
+      // High accuracy → advanced prioritized. A high-value beginner must NOT jump the advanced.
+      const questions = [
+        makeQuestion('beginnerHighValue', 'memory', 'beginner', ['practical']), // weight 15 + practical
+        makeQuestion('advancedLowValue', 'sdk', 'advanced'), // weight 5
+      ]
+      const progress = UserProgress.create({
+        totalAttempts: 10,
+        categoryProgress: {
+          memory: { categoryId: 'memory', totalQuestions: 10, attemptedQuestions: 10, correctAnswers: 9, accuracy: 90 },
+          sdk: { categoryId: 'sdk', totalQuestions: 10, attemptedQuestions: 10, correctAnswers: 9, accuracy: 90 },
+        },
+      })
+      const result = AdaptiveDifficultyService.reorderByAdaptiveDifficulty(questions, progress)
+      expect(result[0].difficulty).toBe('advanced') // difficulty(タイパ) dominates value(コスパ)
+    })
+
+    it('prefers practical over trivia within the same difficulty score', () => {
+      const questions = [
+        makeQuestion('trivia', 'memory', 'beginner', ['trivia']),
+        makeQuestion('practical', 'memory', 'beginner', ['practical']),
+      ]
+      const progress = UserProgress.create({ totalAttempts: 10 })
+      const result = AdaptiveDifficultyService.reorderByAdaptiveDifficulty(questions, progress)
+      expect(result[0].id).toBe('practical')
     })
   })
 })

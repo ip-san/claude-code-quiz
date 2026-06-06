@@ -69,6 +69,53 @@ describe('QuizSessionService', () => {
     })
   })
 
+  describe('engagement gate (動機曲線)', () => {
+    it('treats learners below the attempt threshold as early-stage', () => {
+      expect(QuizSessionService.isEarlyStage(UserProgress.create({ totalAttempts: 0 }))).toBe(true)
+      expect(QuizSessionService.isEarlyStage(UserProgress.create({ totalAttempts: 19 }))).toBe(true)
+      expect(QuizSessionService.isEarlyStage(UserProgress.create({ totalAttempts: 20 }))).toBe(false)
+    })
+
+    it('pushes SDK questions to the back for a new learner (random mode)', () => {
+      const questions = [
+        createTestQuestion('sdk-1', 'sdk'),
+        createTestQuestion('tools-1', 'tools'),
+        createTestQuestion('tools-2', 'tools'),
+      ]
+      const config = createDefaultConfig({ mode: 'random', shuffleQuestions: false })
+      const result = QuizSessionService.prepareSessionQuestions(questions, config, UserProgress.empty())
+      expect(result[result.length - 1].id).toBe('sdk-1')
+    })
+
+    it('pushes advanced-trivia to the back but keeps advanced-practical up front', () => {
+      const advTrivia = Question.create({
+        id: 'adv-trivia',
+        question: 'q',
+        options: [{ text: 'A' }, { text: 'B' }],
+        correctIndex: 0,
+        explanation: 'e',
+        category: 'tools',
+        difficulty: 'advanced',
+        tags: ['trivia'],
+      })
+      const beginnerPractical = createTestQuestion('beg-1', 'tools', 'beginner')
+      const config = createDefaultConfig({ mode: 'random', shuffleQuestions: false })
+      const result = QuizSessionService.prepareSessionQuestions(
+        [advTrivia, beginnerPractical],
+        config,
+        UserProgress.empty()
+      )
+      expect(result[result.length - 1].id).toBe('adv-trivia')
+    })
+
+    it('does not lose SDK questions when a beginner explicitly picks the SDK category', () => {
+      const questions = [createTestQuestion('sdk-1', 'sdk'), createTestQuestion('sdk-2', 'sdk')]
+      const config = createDefaultConfig({ mode: 'category', categoryFilter: 'sdk', shuffleQuestions: false })
+      const result = QuizSessionService.prepareSessionQuestions(questions, config, UserProgress.empty())
+      expect(result.map((q) => q.id).sort()).toEqual(['sdk-1', 'sdk-2'])
+    })
+  })
+
   describe('prepareSessionQuestions()', () => {
     it('should return all questions when no filters', () => {
       const questions = [createTestQuestion('q1'), createTestQuestion('q2'), createTestQuestion('q3')]

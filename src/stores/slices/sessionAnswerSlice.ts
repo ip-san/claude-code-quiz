@@ -87,7 +87,8 @@ export const createSessionAnswerSlice = (set: StoreSet, get: StoreGet): SessionA
         currentQuestion.id,
         currentQuestion.category,
         isCorrect,
-        isRetry
+        isRetry,
+        currentQuestion.difficulty
       )
 
       const filteredWrongAnswers = state.sessionWrongAnswers.filter((w) => w.questionId !== currentQuestion.id)

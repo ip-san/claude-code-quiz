@@ -6,6 +6,7 @@
 
 import type { Question } from '../entities/Question'
 import type { UserProgress } from '../entities/UserProgress'
+import { getCategoryById } from '../valueObjects/Category'
 
 const HIGH_ACCURACY_THRESHOLD = 80
 const LOW_ACCURACY_THRESHOLD = 50
@@ -22,9 +23,16 @@ export class AdaptiveDifficultyService {
   static reorderByAdaptiveDifficulty(questions: Question[], userProgress: UserProgress): Question[] {
     const categoryAccuracy = this.getCategoryAccuracies(questions, userProgress)
 
-    // Stable sort: preserve original order for same-score questions (keeps shuffle intact)
-    const indexed = questions.map((q, i) => ({ q, i, score: this.getDifficultyScore(q, categoryAccuracy) }))
-    indexed.sort((a, b) => b.score - a.score || a.i - b.i)
+    // Sort key: 難易度スコア(主) → 価値スコア(従, tie-break) → 元index(shuffle 温存)
+    // 価値(コスパ)は難易度順序を一切上書きせず、同難易度スコア内でのみ高価値問題を前に出す。
+    // これにより「未マスター優先(タイパ)」「アダプティブ難易度」を壊さず価値を弱く効かせる。
+    const indexed = questions.map((q, i) => ({
+      q,
+      i,
+      score: this.getDifficultyScore(q, categoryAccuracy),
+      value: this.getValueScore(q),
+    }))
+    indexed.sort((a, b) => b.score - a.score || b.value - a.value || a.i - b.i)
     return indexed.map((x) => x.q)
   }
 
@@ -49,6 +57,19 @@ export class AdaptiveDifficultyService {
     }
 
     return result
+  }
+
+  /**
+   * 実務価値スコア（同難易度内の tie-break 用）
+   * カテゴリ weight（実務頻度×インパクトのプロキシ 5/10/15）を主に、
+   * practical/trivia タグで微調整する。タグ未付与時は weight のみで決まる。
+   */
+  private static getValueScore(question: Question): number {
+    const weight = getCategoryById(question.category)?.weight ?? 10
+    let score = weight
+    if (question.tags.includes('practical')) score += 6
+    else if (question.tags.includes('trivia')) score -= 4
+    return score
   }
 
   private static getDifficultyScore(question: Question, categoryAccuracy: Map<string, number | null>): number {

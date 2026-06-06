@@ -8,6 +8,7 @@
 
 import type { Question } from '../entities/Question'
 import type { QuestionProgress, UserProgress } from '../entities/UserProgress'
+import { getCategoryById } from '../valueObjects/Category'
 import { calculateNextReview, SRS_INTERVALS_MS } from '../valueObjects/SrsInterval'
 
 // Re-export for backwards compatibility
@@ -44,16 +45,44 @@ export class SpacedRepetitionService {
 
   /**
    * 問題を復習優先度順にソート（最も期限超過が大きいものを先頭に）
+   *
+   * 期限超過度(overdue)を主、実務価値(valueFactor)を従として合成する。
+   * これにより「同程度に忘れかけた問題なら高価値から復習する」（コスパ）を、
+   * 「忘れかけた問題を優先する」（タイパ＝忘却防止）を壊さずに両立する。
    */
   static sortByPriority(questions: Question[], userProgress: UserProgress, now: number): Question[] {
     return [...questions].sort((a, b) => {
       const qpA = userProgress.questionProgress[a.id]
       const qpB = userProgress.questionProgress[b.id]
-      const overdueA = this.getOverdue(qpA, now)
-      const overdueB = this.getOverdue(qpB, now)
-      // More overdue comes first (larger overdue = higher priority)
-      return overdueB - overdueA
+      const priorityA = this.getWeightedOverdue(qpA, a, now)
+      const priorityB = this.getWeightedOverdue(qpB, b, now)
+      // More overdue (value-weighted) comes first
+      return priorityB - priorityA
     })
+  }
+
+  /**
+   * 実務価値による優先度係数（0.90〜1.05 程度）
+   *
+   * カテゴリ weight（実務頻度×インパクトのプロキシ 5/10/15）を主とし、
+   * practical/trivia タグで微調整する。overdue に対し弱く効かせるための狭いレンジ。
+   */
+  private static valueFactor(question: Question): number {
+    const weight = getCategoryById(question.category)?.weight ?? 10
+    let factor = 0.85 + 0.15 * (weight / 15) // weight 5→0.90, 10→0.95, 15→1.00
+    if (question.tags.includes('practical')) factor *= 1.05
+    else if (question.tags.includes('trivia')) factor *= 0.95
+    return factor
+  }
+
+  /**
+   * 価値係数を合成した overdue。
+   * 期限到来済み（overdue > 0）のみ係数を掛け、未回答(-1)・未到来(負)の順序は不変に保つ
+   * （負値に係数を掛けると順序が歪み、due 済み問題を追い越す恐れがあるため）。
+   */
+  private static getWeightedOverdue(qp: QuestionProgress | undefined, question: Question, now: number): number {
+    const overdue = this.getOverdue(qp, now)
+    return overdue > 0 ? overdue * this.valueFactor(question) : overdue
   }
 
   /**

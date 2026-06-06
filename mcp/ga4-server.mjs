@@ -58,6 +58,9 @@ const STRING_PARAMS = new Set([
   'scenario_id',
   'quiz_type',
   'error_key',
+  'question_id',
+  'difficulty',
+  'is_correct',
 ])
 
 function validateCustomEventUsage(dimensions, metrics) {

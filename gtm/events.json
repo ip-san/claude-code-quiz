@@ -55,7 +55,7 @@
     {
       "name": "quiz_answer",
       "description": "個別問題の回答",
-      "params": ["question_id", "category", "difficulty", "is_correct", "platform"]
+      "params": ["question_id", "category", "difficulty", "is_correct", "quiz_type", "platform"]
     },
     {
       "name": "quiz_quit",

@@ -64,7 +64,7 @@ cat ~/.claude-quiz-recommend/compressed-input.json 2>/dev/null
 - `promptClassifications`: Haiku が分類した全プロンプト（intent/category/struggle/phase/tip + 原文120文字）
 - `summary`: 意図クラスタ、カテゴリ分布、苦戦度の全体分布
 - `learnerState`: クイズ正答率、XP、パターン推移（Desktop アプリがエクスポート）
-- `candidateQuestions`: 難易度フィルタ済みの候補問題（ID + 問題文80文字、50-80問）
+- `candidateQuestions`: 難易度フィルタ済みの候補問題（ID + 問題文80文字 + `categoryWeight`(実務価値プロキシ 5/10/15) + `valueTag`(practical/trivia/neutral)、50-80問）
 - `opusAnalysis`: Opus による学習者プロファイリング（learnerType/strengths/gaps/recommendedPath/coachingNote）。null の場合は未分析
 - `stagnationAnalysis`: Opus による停滞分析（rootCause/intervention/motivationalNote）。null の場合は停滞未検出
 - `breakthroughAnalysis`: Opus による急成長分析（causalAnalysis/transferSuggestion/coachingNote）。null の場合は急成長未検出
@@ -96,6 +96,7 @@ Haiku ができること（既に `promptClassifications` に含まれる）:
 3. **プロンプト原文と候補問題の意味的マッチング** — 「この問題がこの苦戦を解決する」の判断
 4. **学習者プロファイルとの統合** — クイズ正答率と実務パターンの相関分析
 5. **Opus 分析の統合** — `opusAnalysis` と `stagnationAnalysis` を活用（下記参照）
+6. **苦戦 × 価値の2軸選定（tie-break）** — 苦戦シグナルが同程度なら、より実務価値の高い問題を優先する。判断基準は `valueTag`（practical > neutral > trivia）と `categoryWeight`（15 > 10 > 5）。**苦戦の強さが最優先で、価値は同点決勝にのみ使う**（低価値だが強く苦戦している項目を、高価値だが苦戦していない項目より優先しないこと）。trivia タグの細かい仕様問題は、明確な苦戦の根拠がない限り後回しにしてタイパを上げる。
 
 ### Opus 分析の活用（`opusAnalysis` / `stagnationAnalysis`）
 

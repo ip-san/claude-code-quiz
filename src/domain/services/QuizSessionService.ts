@@ -33,6 +33,13 @@ import { AdaptiveDifficultyService } from './AdaptiveDifficultyService'
 import { SpacedRepetitionService } from './SpacedRepetitionService'
 
 /**
+ * 動機曲線ゲート: この回答数に達するまでは「初学者」とみなす。
+ * 初学者には、ROIは高いが初見では刺さりにくい SDK や上級トリビアを序盤に出さず、
+ * 早い成功体験（高頻度・実務直結スキル）を優先する。
+ */
+const ENGAGEMENT_GATE_ATTEMPTS = 20
+
+/**
  * セッション設定
  *
  * クイズセッションの開始時に指定されるパラメータ。
@@ -145,6 +152,37 @@ export class QuizSessionService {
   }
 
   /**
+   * 学習の初期段階（初学者）かどうか。回答総数で判定する。
+   */
+  static isEarlyStage(userProgress: UserProgress): boolean {
+    return userProgress.totalAttempts < ENGAGEMENT_GATE_ATTEMPTS
+  }
+
+  /**
+   * 初学者には刺さりにくい問題（SDK カテゴリ / 上級トリビア）か。
+   * これらは ROI は高くても初見の動機を下げやすいため、序盤は後回しにする。
+   */
+  private static isLowEngagementForBeginner(question: Question): boolean {
+    if (question.category === 'sdk') return true
+    if (question.difficulty === 'advanced' && question.tags.includes('trivia')) return true
+    return false
+  }
+
+  /**
+   * 低エンゲージメント問題を後方へ回す安定パーティション（相対順序は保持）。
+   * 除外ではないため、序盤セッションの slice には乗らないが問題自体は失われない。
+   */
+  private static deprioritizeLowEngagement(questions: Question[]): Question[] {
+    const primary: Question[] = []
+    const gated: Question[] = []
+    for (const q of questions) {
+      if (this.isLowEngagementForBeginner(q)) gated.push(q)
+      else primary.push(q)
+    }
+    return [...primary, ...gated]
+  }
+
+  /**
    * カテゴリの weight に基づいて、指定数の問題をバランスよく抽出する。
    * 各カテゴリから weight 比率に応じた問題数を割り当て、カテゴリ内はシャッフル。
    * 端数は weight の大きいカテゴリから優先的に割り当てる。
@@ -248,11 +286,15 @@ export class QuizSessionService {
       questions = questions.filter((q) => q.difficulty === config.difficultyFilter)
     }
 
-    // For practical / trivia modes, filter to questions with that practicality tag
+    // For practical / trivia modes, filter to questions with that practicality tag.
+    // Fallback: if no tagged questions exist yet (classification not applied), keep the
+    // unfiltered set so the session never starts with 0 questions.
     if (config.mode === 'practical') {
-      questions = questions.filter((q) => q.tags.includes('practical'))
+      const filtered = questions.filter((q) => q.tags.includes('practical'))
+      if (filtered.length > 0) questions = filtered
     } else if (config.mode === 'trivia') {
-      questions = questions.filter((q) => q.tags.includes('trivia'))
+      const filtered = questions.filter((q) => q.tags.includes('trivia'))
+      if (filtered.length > 0) questions = filtered
     }
 
     // For overview mode, filter to tagged questions and sort by order tag
@@ -378,6 +420,13 @@ export class QuizSessionService {
     const adaptiveApplied = (config.mode === 'random' || config.mode === 'category') && userProgress.totalAttempts > 0
     if (config.shuffleQuestions && !srsApplied && !adaptiveApplied) {
       questions = this.shuffleArray(questions)
+    }
+
+    // Engagement gate (動機曲線): 初学者の random/category セッションでは、SDK と上級トリビアを
+    // 後方へ回し、序盤に「早い成功体験 → 高ROIだが地味な項目」の順で動機を温める。
+    // ハード除外ではなくパーティション（順序入れ替え）なので、出題プールは枯渇しない。
+    if ((config.mode === 'random' || config.mode === 'category') && this.isEarlyStage(userProgress)) {
+      questions = this.deprioritizeLowEngagement(questions)
     }
 
     // For full (実力テスト) mode: use weighted sampling by category

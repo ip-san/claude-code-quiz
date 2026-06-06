@@ -5,9 +5,26 @@
  * 「間違えても成長している」感覚を与えるため、不正解でもXPを付与する。
  */
 
-/** XP付与量 */
-const XP_CORRECT = 10
-const XP_INCORRECT = 2
+import type { DifficultyLevel } from '../valueObjects/Difficulty'
+
+/**
+ * XP付与量（難易度連動）
+ *
+ * 「易問を量産するのが最速レベルアップ」という歪んだ最適戦略を防ぐため、
+ * 難所(advanced)への挑戦を厚遇する。difficulty は Question 由来の客観属性であり
+ * ユーザーが操作できないため、ゲーミング耐性が高い。
+ * 既定値 intermediate は従来の正解10/不正解2と一致し、後方互換を保つ。
+ */
+const XP_CORRECT_BY_DIFFICULTY: Record<DifficultyLevel, number> = {
+  beginner: 8,
+  intermediate: 10,
+  advanced: 14,
+}
+const XP_INCORRECT_BY_DIFFICULTY: Record<DifficultyLevel, number> = {
+  beginner: 2,
+  intermediate: 2,
+  advanced: 3,
+}
 const XP_SRS_BONUS = 5 // SRS復習で正解した場合の追加ボーナス
 const XP_SCENARIO_COMPLETE = 50
 
@@ -37,9 +54,15 @@ const LEVELS: readonly XpLevel[] = [
 export class XpService {
   /**
    * 回答によるXP付与量を計算
+   *
+   * @param difficulty 問題の難易度。難所ほど高XP。未指定時は intermediate（従来値）
    */
-  static calculateAnswerXp(isCorrect: boolean, isSrsReview: boolean): number {
-    let xp = isCorrect ? XP_CORRECT : XP_INCORRECT
+  static calculateAnswerXp(
+    isCorrect: boolean,
+    isSrsReview: boolean,
+    difficulty: DifficultyLevel = 'intermediate'
+  ): number {
+    let xp = isCorrect ? XP_CORRECT_BY_DIFFICULTY[difficulty] : XP_INCORRECT_BY_DIFFICULTY[difficulty]
     if (isCorrect && isSrsReview) {
       xp += XP_SRS_BONUS
     }

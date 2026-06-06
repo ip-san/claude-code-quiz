@@ -1,4 +1,5 @@
 import { XpService } from '../services/XpService'
+import type { DifficultyLevel } from '../valueObjects/Difficulty'
 import { calculateAccuracy } from '../valueObjects/ScoreThresholds'
 import { calculateNextReview } from '../valueObjects/SrsInterval'
 
@@ -186,7 +187,13 @@ export class UserProgress {
    * 4. streakDays - 連続学習日数
    * 5. lastSessionAt / modifiedAt - タイムスタンプ
    */
-  recordAnswer(questionId: string, categoryId: string, isCorrect: boolean, isRetry = false): UserProgress {
+  recordAnswer(
+    questionId: string,
+    categoryId: string,
+    isCorrect: boolean,
+    isRetry = false,
+    difficulty: DifficultyLevel = 'intermediate'
+  ): UserProgress {
     const now = Date.now()
     const existing = this.questionProgress[questionId]
 
@@ -265,7 +272,7 @@ export class UserProgress {
 
     // Calculate XP gain
     const isSrsReview = (existing?.attempts ?? 0) > 0
-    const xpGain = isRetry ? 0 : XpService.calculateAnswerXp(isCorrect, isSrsReview)
+    const xpGain = isRetry ? 0 : XpService.calculateAnswerXp(isCorrect, isSrsReview, difficulty)
 
     return new UserProgress({
       modifiedAt: now,

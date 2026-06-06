@@ -23,6 +23,26 @@ const PROFILE_FILE = join(STORE_DIR, 'learner-profile.json')
 const OUTPUT_FILE = join(STORE_DIR, 'compressed-input.json')
 const PROJECT_DIR = process.env.CLAUDE_PROJECT_DIR || process.cwd()
 const QUIZ_FILE = join(PROJECT_DIR, 'src', 'data', 'quizzes.json')
+const THEME_FILE = join(PROJECT_DIR, 'src', 'config', 'theme.ts')
+
+/**
+ * theme.ts からカテゴリ別 weight（実務価値プロキシ, 15/10/5）を抽出する。
+ * 各カテゴリブロックは `id: 'xxx' ... weight: N` の順で並ぶため非貪欲マッチで対応付ける。
+ * 取得失敗時は空オブジェクトを返し、呼び出し側は既定値 10 にフォールバックする。
+ */
+function loadCategoryWeights() {
+  try {
+    const src = readFileSync(THEME_FILE, 'utf8')
+    const weights = {}
+    const re = /id:\s*'([^']+)'[\s\S]*?weight:\s*(\d+)/g
+    for (const m of src.matchAll(re)) {
+      weights[m[1]] = Number(m[2])
+    }
+    return weights
+  } catch {
+    return {}
+  }
+}
 
 // ── Read inputs ─────────────────────────────────────────────
 if (!existsSync(CLASSIFIED_FILE) || !existsSync(ROLLING_FILE)) {
@@ -248,6 +268,7 @@ function filterCandidates(catDist, profile) {
     const allQ = quizData.quizzes
     const catProgress = profile?.categoryProgress || {}
     const recAccuracy = profile?.recommendedAccuracy || {}
+    const catWeights = loadCategoryWeights()
 
     // Sort categories by relevance (Haiku distribution)
     const topCats = Object.entries(catDist)
@@ -275,13 +296,27 @@ function filterCandidates(catDist, profile) {
       const recCorrect = recAccuracy[cat]
       const maxPerCat = recCorrect && recCorrect.correct / (recCorrect.total || 1) >= 0.8 ? 5 : 15
 
-      // Include question text so Sonnet can match against user prompts
-      const sampled = pool.sort(() => Math.random() - 0.5).slice(0, maxPerCat)
+      // 価値重み tie-break: カテゴリ weight（実務頻度×インパクトのプロキシ）と
+      // practical タグを「苦戦シグナル」と同等に扱わず、あくまで同程度の苦戦内での
+      // 優先度として弱く効かせる。これにより「苦戦 × 価値」の2軸でレコメンドする。
+      // 完全な決定論だと候補が固定化するため、軽いランダム成分を残す。
+      const valueScore = (q) => {
+        const w = catWeights[q.category] ?? 10 // 5/10/15 → 価値プロキシ
+        const tagBonus = (q.tags || []).includes('practical') ? 6 : (q.tags || []).includes('trivia') ? -4 : 0
+        return w + tagBonus + Math.random() * 8 // ランダム幅(8)で同価値帯はシャッフル
+      }
+      const sampled = pool.sort((a, b) => valueScore(b) - valueScore(a)).slice(0, maxPerCat)
       candidates.push(
         ...sampled.map((q) => ({
           id: q.id,
           category: q.category,
           difficulty: q.difficulty,
+          categoryWeight: catWeights[q.category] ?? 10,
+          valueTag: (q.tags || []).includes('practical')
+            ? 'practical'
+            : (q.tags || []).includes('trivia')
+              ? 'trivia'
+              : 'neutral',
           question: q.question.slice(0, 50),
         }))
       )

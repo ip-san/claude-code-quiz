@@ -42,6 +42,30 @@ paths:
 - `overview`: 全体像モード対象問題（36問）
 - `overview-ch-N`: チャプター割り当て（ch-1〜ch-6）
 - `overview-NNN`: 出題順序（010, 020, ... グローバルユニーク）
+- `practical`: 実務即戦力（明日から使える機能・操作・設定）。`practical` モードの対象
+- `trivia`: 上級トリビア（細かい仕様・内部挙動・滅多に使わない機能）。`trivia` モードの対象
+  - **YOU MUST**: 1問に `practical` と `trivia` を同時付与しない（`quizContentQuality.test.ts` で検出）
+  - 付与は `scripts/classify-quiz-practicality.mjs`（Haiku 分類）→ `scripts/apply-practicality-tags.mjs` で行う。手動編集より分類パイプラインを優先
+  - どちらでもない問題は無タグ（neutral 扱い）。迷ったら付けない（過剰分類より中立）
+
+## 価値軸（value axis）— コスパ/タイパ最適化の単一情報源
+
+「高価値スキルを優先的に習得させる」ための価値シグナルは**新フィールドを足さず**、既存の3層で表現する（二重管理を避ける）。
+
+| レイヤ | 置き場所 | 意味 | 付与方法 |
+|--------|---------|------|---------|
+| 問題単位 | `tags` の `practical`/`trivia` | 実務直結度・エバーグリーン度 | AI分類（Haiku）＋人手レビュー |
+| カテゴリ単位 | `src/config/theme.ts` の `categories[].weight`（5/10/15） | 実務頻度×インパクトのプロキシ | 手動（下記ルール） |
+| 学習負荷 | `difficulty`（beginner/intermediate/advanced） | 価値とは別軸。報酬係数に流用 | 問題作成時 |
+
+これらを参照する箇所（変更時は影響範囲に注意）:
+- `QuizSessionService.weightedSampleByCategory`（full モードの出題配分）
+- `AdaptiveDifficultyService.getValueScore`（random/category の同難易度内 tie-break）
+- `SpacedRepetitionService.valueFactor`（SRS 復習順の弱い tie-break）
+- `XpService.calculateAnswerXp`（difficulty 連動XP）
+- `scripts/aggregate-classifications.mjs`（レコメンド候補の価値 tie-break）
+
+**YOU MUST**: `weight` は「実務頻度×インパクトの3段階（5=ニッチ / 10=標準 / 15=高頻度・高インパクト）」を表す。変更する場合は PR に**根拠**を記載する。weight は価値軸の唯一の情報源であり、上記すべての出題・報酬ロジックが追従する。
 
 ## ID命名規則
 

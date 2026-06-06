@@ -16,15 +16,16 @@ function createQP(overrides: Partial<QuestionProgress> = {}): QuestionProgress {
   }
 }
 
-function createQuestion(id: string): Question {
+function createQuestion(id: string, category = 'tools', tags?: string[]): Question {
   return Question.create({
     id,
     question: `Question ${id}`,
     options: [{ text: 'A' }, { text: 'B', wrongFeedback: 'Wrong' }],
     correctIndex: 0,
     explanation: 'Explanation',
-    category: 'tools',
+    category,
     difficulty: 'beginner',
+    tags,
   })
 }
 
@@ -148,6 +149,51 @@ describe('SpacedRepetitionService', () => {
 
       const sorted = SpacedRepetitionService.sortByPriority([q1, q2], progress, now)
       expect(sorted[0].id).toBe('q1') // Overdue questions take priority over unanswered
+    })
+
+    it('breaks ties by value: same overdue → higher category weight first', () => {
+      const low = createQuestion('low', 'sdk') // weight 5
+      const high = createQuestion('high', 'tools') // weight 15
+
+      const progress = UserProgress.create({
+        questionProgress: {
+          low: createQP({ questionId: 'low', nextReviewAt: now - DAY_MS }),
+          high: createQP({ questionId: 'high', nextReviewAt: now - DAY_MS }),
+        },
+      })
+
+      const sorted = SpacedRepetitionService.sortByPriority([low, high], progress, now)
+      expect(sorted[0].id).toBe('high') // same overdue, higher value wins the tie-break
+    })
+
+    it('value tie-break must not override a clearly more-overdue low-value question', () => {
+      const lowButOverdue = createQuestion('lowOverdue', 'sdk') // weight 5
+      const highButFresh = createQuestion('highFresh', 'tools') // weight 15
+
+      const progress = UserProgress.create({
+        questionProgress: {
+          lowOverdue: createQP({ questionId: 'lowOverdue', nextReviewAt: now - 10 * DAY_MS }),
+          highFresh: createQP({ questionId: 'highFresh', nextReviewAt: now - DAY_MS }),
+        },
+      })
+
+      const sorted = SpacedRepetitionService.sortByPriority([highButFresh, lowButOverdue], progress, now)
+      expect(sorted[0].id).toBe('lowOverdue') // forgetting risk (タイパ) dominates value (コスパ)
+    })
+
+    it('prefers practical-tagged questions over trivia at equal overdue', () => {
+      const trivia = createQuestion('trivia', 'tools', ['trivia'])
+      const practical = createQuestion('practical', 'tools', ['practical'])
+
+      const progress = UserProgress.create({
+        questionProgress: {
+          trivia: createQP({ questionId: 'trivia', nextReviewAt: now - DAY_MS }),
+          practical: createQP({ questionId: 'practical', nextReviewAt: now - DAY_MS }),
+        },
+      })
+
+      const sorted = SpacedRepetitionService.sortByPriority([trivia, practical], progress, now)
+      expect(sorted[0].id).toBe('practical')
     })
   })
 })

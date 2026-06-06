@@ -18,6 +18,27 @@ describe('XpService', () => {
     it('gives 2 XP for incorrect SRS review (no bonus)', () => {
       expect(XpService.calculateAnswerXp(false, true)).toBe(2)
     })
+
+    it('defaults to intermediate (10 XP) when difficulty is omitted', () => {
+      expect(XpService.calculateAnswerXp(true, false)).toBe(XpService.calculateAnswerXp(true, false, 'intermediate'))
+    })
+
+    it('rewards harder questions more for correct answers', () => {
+      expect(XpService.calculateAnswerXp(true, false, 'beginner')).toBe(8)
+      expect(XpService.calculateAnswerXp(true, false, 'intermediate')).toBe(10)
+      expect(XpService.calculateAnswerXp(true, false, 'advanced')).toBe(14)
+    })
+
+    it('gives a small consolation bonus for incorrect advanced answers', () => {
+      expect(XpService.calculateAnswerXp(false, false, 'beginner')).toBe(2)
+      expect(XpService.calculateAnswerXp(false, false, 'intermediate')).toBe(2)
+      expect(XpService.calculateAnswerXp(false, false, 'advanced')).toBe(3)
+    })
+
+    it('stacks SRS bonus on top of difficulty-based XP', () => {
+      expect(XpService.calculateAnswerXp(true, true, 'advanced')).toBe(19) // 14 + 5
+      expect(XpService.calculateAnswerXp(true, true, 'beginner')).toBe(13) // 8 + 5
+    })
   })
 
   describe('getScenarioCompleteXp', () => {

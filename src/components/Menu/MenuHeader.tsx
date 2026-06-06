@@ -199,10 +199,7 @@ export function MenuHeader({
                         m.id !== 'bookmark' &&
                         m.id !== 'scenario' &&
                         m.id !== 'quick' &&
-                        m.id !== 'unanswered' &&
-                        // practical/trivia: 分類タグ反映後に有効化する（apply-practicality-tags.mjs 実行後）
-                        m.id !== 'practical' &&
-                        m.id !== 'trivia'
+                        m.id !== 'unanswered'
                     ).map((mode) => (
                       <button
                         key={mode.id}
