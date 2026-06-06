@@ -24,8 +24,14 @@ const QUIZ_PATH = resolve(__dirname, '../src/data/quizzes.json')
 const OUT_PATH = resolve(__dirname, '../.claude/tmp/keyboard-diagrams.json')
 
 const args = process.argv.slice(2)
-const LIMIT = args.indexOf('--limit') >= 0 ? Number(args[args.indexOf('--limit') + 1]) : null
-const BATCH_SIZE = args.indexOf('--batch') >= 0 ? Number(args[args.indexOf('--batch') + 1]) : 6
+const intArg = (flag, fallback) => {
+  const i = args.indexOf(flag)
+  if (i < 0) return fallback
+  const n = Number(args[i + 1])
+  return Number.isFinite(n) && n > 0 ? n : fallback
+}
+const LIMIT = intArg('--limit', null)
+const BATCH_SIZE = intArg('--batch', 6) // 不正値(--batch 値なし/非数値)でも NaN→無限ループにしない
 const RESUME = args.includes('--resume')
 const MODEL = args.includes('--sonnet') ? 'sonnet' : 'haiku'
 
@@ -167,3 +173,9 @@ const nullCount = Object.values(items).filter((v) => v === null).length
 console.log(`\n[done] 図生成=${ok} / null(スキップ)=${nullCount} / エラーバッチ=${errs}`)
 console.log(`[output] ${OUT_PATH}`)
 console.log(`次: node scripts/apply-keyboard-diagrams.mjs --dry-run で適用プレビュー`)
+
+// 全バッチ失敗（成果ゼロ）は失敗終了。自動化/パイプラインが総崩れを検知できるように。
+if (errs > 0 && ok === 0) {
+  console.error('[fail] 全バッチ失敗。CLI認証/モデル/レート制限を確認してください')
+  process.exit(1)
+}

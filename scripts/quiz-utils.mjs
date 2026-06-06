@@ -772,6 +772,15 @@ function walkDiagramText(diagram, visit) {
       })
       if (typeof diagram.operator === 'string') visit(diagram.operator, 'formula.operator')
       break
+    case 'keyboard':
+      ;(diagram.combos || []).forEach((c, ci) => {
+        if (c && typeof c.caption === 'string') visit(c.caption, `keyboard.combos[${ci}].caption`)
+        ;(c?.keys || []).forEach((k, ki) => {
+          if (k && typeof k.label === 'string') visit(k.label, `keyboard.combos[${ci}].keys[${ki}].label`)
+        })
+      })
+      if (typeof diagram.caption === 'string') visit(diagram.caption, 'keyboard.caption')
+      break
   }
   if (typeof diagram.label === 'string') visit(diagram.label, `${t || 'diagram'}.label`)
 }

@@ -199,7 +199,7 @@ export interface KeyboardDiagram {
 }
 
 /**
- * 14 diagram variants の discriminated union
+ * diagram variants の discriminated union
  *
  * Quiz の `explanation` に挿入する図解データ。
  * `type` フィールドで variant を判別する。
