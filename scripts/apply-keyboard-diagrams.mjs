@@ -51,7 +51,8 @@ for (const [id, diagram] of Object.entries(gen)) {
   }
   const idx = q.diagrams.length
   if (!DRY_RUN) {
-    q.diagrams.push({ type: 'keyboard', ...diagram })
+    // type は後置で固定（生成側に万一 type フィールドが混じっても 'keyboard' を上書きさせない）
+    q.diagrams.push({ ...diagram, type: 'keyboard' })
     q.explanation = `{{diagram:${idx}}}\n\n${q.explanation}`
   }
   applied++
@@ -75,7 +76,8 @@ writeFileSync(QUIZ_PATH, `${JSON.stringify(quizFile, null, 2)}\n`)
 console.log(`\n✓ ${QUIZ_PATH} を更新`)
 console.log(`[verify] quiz:check 実行...`)
 try {
-  execSync('node scripts/quiz-utils.mjs check', { stdio: 'inherit' })
+  // check + check-ellipsis の2段（後段が keyboard 図の caption/label の …/... 混入を検出する）
+  execSync('node scripts/quiz-utils.mjs check && node scripts/quiz-utils.mjs check-ellipsis', { stdio: 'inherit' })
   console.log(`✓ quiz:check 通過`)
 } catch {
   console.error(`✗ quiz:check 失敗`)
