@@ -131,9 +131,28 @@ function callClaude(prompt) {
   return JSON.parse(m[0])
 }
 
+// AI 応答の構造ガード: combos[] と各 combo.keys[].label を満たさない図は無効として捨てる。
+// これにより下流 apply の .combos.map クラッシュを防ぎ「誤った図を作らない」方針を保つ。
+function isValidKbDiagram(d) {
+  return (
+    d &&
+    typeof d === 'object' &&
+    Array.isArray(d.combos) &&
+    d.combos.length > 0 &&
+    d.combos.every(
+      (c) =>
+        c &&
+        Array.isArray(c.keys) &&
+        c.keys.length > 0 &&
+        c.keys.every((k) => k && typeof k.label === 'string' && k.label.length > 0)
+    )
+  )
+}
+
 const items = { ...existing }
 let ok = 0
 let errs = 0
+let succeeded = 0 // 正常完了したバッチ数（全null 正当スキップも成功に数える）
 for (let i = 0; i < targets.length; i += BATCH_SIZE) {
   const batch = targets.slice(i, i + BATCH_SIZE)
   const n = Math.floor(i / BATCH_SIZE) + 1
@@ -142,13 +161,22 @@ for (let i = 0; i < targets.length; i += BATCH_SIZE) {
   try {
     const res = callClaude(buildPrompt(batch))
     let hits = 0
+    let dropped = 0
     for (const entry of res.items || []) {
       if (!entry.id) continue
-      items[entry.id] = entry.diagram ?? null
-      if (entry.diagram) hits++
+      if (entry.diagram == null) {
+        items[entry.id] = null
+      } else if (isValidKbDiagram(entry.diagram)) {
+        items[entry.id] = entry.diagram
+        hits++
+      } else {
+        items[entry.id] = null // 不正構造は捨てて null（スキップ）扱い
+        dropped++
+      }
     }
     ok += hits
-    console.log(`✓ ${hits}件に図を生成`)
+    succeeded++
+    console.log(`✓ ${hits}件に図を生成${dropped ? ` (不正構造 ${dropped}件を破棄)` : ''}`)
     saveOutput(items)
   } catch (e) {
     errs++
@@ -174,8 +202,9 @@ console.log(`\n[done] 図生成=${ok} / null(スキップ)=${nullCount} / エラ
 console.log(`[output] ${OUT_PATH}`)
 console.log(`次: node scripts/apply-keyboard-diagrams.mjs --dry-run で適用プレビュー`)
 
-// 全バッチ失敗（成果ゼロ）は失敗終了。自動化/パイプラインが総崩れを検知できるように。
-if (errs > 0 && ok === 0) {
-  console.error('[fail] 全バッチ失敗。CLI認証/モデル/レート制限を確認してください')
+// 1バッチも正常完了しなかった場合のみ失敗終了（全null の正当スキップは成功扱い）。
+// 自動化/パイプラインが総崩れ（CLI認証/モデル/レート制限）を検知できるように。
+if (succeeded === 0 && errs > 0) {
+  console.error('[fail] 全バッチがエラー。CLI認証/モデル/レート制限を確認してください')
   process.exit(1)
 }

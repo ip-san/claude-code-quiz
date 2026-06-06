@@ -520,6 +520,17 @@ describe('Quiz Content Quality', () => {
       expect(violations.map((e) => e.id)).toEqual([])
     })
 
+    it('keyboardダイアグラムが1個以上のcomboを持ち各comboがkeysを持つこと', () => {
+      const violations = diagramEntries
+        .filter((e) => e.diagram.type === 'keyboard')
+        .filter((e) => {
+          const combos = (e.diagram as Record<string, unknown>).combos as Array<{ keys?: unknown[] }> | undefined
+          if (!combos || combos.length < 1) return true
+          return combos.some((c) => !c.keys || c.keys.length < 1)
+        })
+      expect(violations.map((e) => e.id)).toEqual([])
+    })
+
     it('cycleダイアグラムが2個以上の状態を持つこと', () => {
       const violations = diagramEntries
         .filter((e) => e.diagram.type === 'cycle')
