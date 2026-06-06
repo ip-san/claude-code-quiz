@@ -55923,7 +55923,7 @@
         }
       ],
       "correctIndex": 0,
-      "explanation": "フルスクリーンレンダリングでは `Ctrl+o` が通常プロンプトと詳細（verbose）トランスクリプトの 2 状態をトグルする。\n{{diagram:0}}\nトランスクリプトモードでは `less` スタイルの検索（`/`・`n`/`N`）とスクロールバックへの書き出し（`[`）が使える。フォーカスビュー（最後のプロンプト・ツール呼び出し要約・最終レスポンスだけを表示）は `/focus` スラッシュコマンドで切り替える。",
+      "explanation": "{{diagram:1}}\n\nフルスクリーンレンダリングでは `Ctrl+o` が通常プロンプトと詳細（verbose）トランスクリプトの 2 状態をトグルする。\n{{diagram:0}}\nトランスクリプトモードでは `less` スタイルの検索（`/`・`n`/`N`）とスクロールバックへの書き出し（`[`）が使える。フォーカスビュー（最後のプロンプト・ツール呼び出し要約・最終レスポンスだけを表示）は `/focus` スラッシュコマンドで切り替える。",
       "referenceUrl": "https://code.claude.com/docs/ja/fullscreen",
       "diagrams": [
         {
@@ -55939,6 +55939,25 @@
               "sub": "`/` 検索・`n`/`N` ナビ"
             }
           ]
+        },
+        {
+          "combos": [
+            {
+              "keys": [
+                {
+                  "label": "Ctrl"
+                },
+                {
+                  "label": "O",
+                  "highlight": true
+                }
+              ],
+              "caption": "表示切替"
+            }
+          ],
+          "sequence": false,
+          "caption": "詳細表示トグル",
+          "type": "keyboard"
         }
       ],
       "tags": [
