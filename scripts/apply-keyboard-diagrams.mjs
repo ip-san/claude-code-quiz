@@ -58,8 +58,12 @@ for (const [id, diagram] of Object.entries(gen)) {
   }
   const idx = q.diagrams.length
   if (!DRY_RUN) {
-    // type は後置で固定（生成側に万一 type フィールドが混じっても 'keyboard' を上書きさせない）
-    q.diagrams.push({ ...diagram, type: 'keyboard' })
+    // 既知フィールドのみ pick して未知フィールドの流入を防ぐ（type は 'keyboard' に固定）
+    const clean = { type: 'keyboard', combos: diagram.combos }
+    if (diagram.sequence !== undefined) clean.sequence = diagram.sequence
+    if (diagram.caption !== undefined) clean.caption = diagram.caption
+    if (diagram.label !== undefined) clean.label = diagram.label
+    q.diagrams.push(clean)
     q.explanation = `{{diagram:${idx}}}\n\n${q.explanation}`
   }
   applied++

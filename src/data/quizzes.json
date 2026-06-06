@@ -11191,11 +11191,11 @@
       "question": "複数のバックグラウンドエージェントが予想以上にリソースを消費しています。すべて一度に停止する方法はどれですか？",
       "options": [
         {
-          "text": "`Ctrl+F`（3秒以内に2回押す）"
+          "text": "`Ctrl+X Ctrl+K`（3秒以内に2回押す）"
         },
         {
           "text": "`Ctrl+K`（コマンドパレットを起動するショートカット）",
-          "wrongFeedback": "`Ctrl+K`はreadlineのkill操作（カーソルから行末までのテキスト削除）です。バックグラウンドエージェントの一括停止には`Ctrl+F`（3秒以内に2回押し）を使用します。"
+          "wrongFeedback": "`Ctrl+K`はreadlineのkill操作（カーソルから行末までのテキスト削除）です。バックグラウンドエージェントの一括停止には`Ctrl+X Ctrl+K`（3秒以内に2回押し）を使用します。"
         },
         {
           "text": "`Ctrl+C` を2回押す（現在の操作をキャンセル）",
@@ -11203,11 +11203,11 @@
         },
         {
           "text": "`Ctrl+Q`（Claude Codeセッションを終了する）",
-          "wrongFeedback": "`Ctrl+Q`は一般的にターミナルのフロー制御に使用されるキーです。バックグラウンドエージェントの一括停止には`Ctrl+F`（3秒以内に2回押し）を使用します。"
+          "wrongFeedback": "`Ctrl+Q`は一般的にターミナルのフロー制御に使用されるキーです。バックグラウンドエージェントの一括停止には`Ctrl+X Ctrl+K`（3秒以内に2回押し）を使用します。"
         }
       ],
       "correctIndex": 0,
-      "explanation": "{{diagram:2}}\n\n`Ctrl+F`を3秒以内に2回押すと、全てのバックグラウンドエージェントを一括停止（kill）できます。\n\n{{diagram:0}}\n\nこれは同じキーを3秒以内に2回押す確認式で、個別停止ではなく緊急停止用のショートカットとして設計されており、2回押しで誤操作を防いでいます。\n{{diagram:1}}",
+      "explanation": "{{diagram:2}}\n\n`Ctrl+X Ctrl+K`を3秒以内に2回押すと、全てのバックグラウンドエージェントを一括停止（kill）できます。\n\n{{diagram:0}}\n\nこれはコードバインディング（`Ctrl+X`に続けて`Ctrl+K`を押す）で、個別停止ではなく緊急停止用のショートカットとして設計されており、2回押しで誤操作を防いでいます。\n{{diagram:1}}",
       "referenceUrl": "https://code.claude.com/docs/ja/interactive-mode",
       "diagrams": [
         {
@@ -11223,7 +11223,7 @@
             },
             {
               "type": "info",
-              "text": "[Ctrl+F] (3秒以内に2回)"
+              "text": "[Ctrl+X Ctrl+K] (3秒以内に2回)"
             },
             {
               "type": "info",
@@ -11238,7 +11238,7 @@
             {
               "heading": "これはコードバインディン",
               "items": [
-                "これは同じキーを3秒以内に2回押す確認式で"
+                "コードバインディング（Ctrl+Xに続けてCtrl+Kを押す）"
               ]
             },
             {
@@ -11259,11 +11259,10 @@
                   "label": "Ctrl"
                 },
                 {
-                  "label": "F",
+                  "label": "X",
                   "highlight": true
                 }
-              ],
-              "caption": "1回目"
+              ]
             },
             {
               "keys": [
@@ -11271,15 +11270,14 @@
                   "label": "Ctrl"
                 },
                 {
-                  "label": "F",
+                  "label": "K",
                   "highlight": true
                 }
-              ],
-              "caption": "2回目（3秒以内）"
+              ]
             }
           ],
           "sequence": true,
-          "caption": "全エージェント強制停止"
+          "caption": "このコードを3秒以内に2回押して確認"
         }
       ],
       "tags": [

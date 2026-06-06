@@ -198,6 +198,12 @@ for (let i = 0; i < targets.length; i += BATCH_SIZE) {
     const res = callClaude(buildPrompt(batch))
     // items 配列が無い応答は失敗扱い（成功に紛れて対象IDが沈黙で欠損/再フェッチされ続けるのを防ぐ）
     if (!res || !Array.isArray(res.items)) throw new Error('response has no items array')
+    // プロンプトのスキーマ例（id=key-003 等）を復唱した decoy JSON を掴んでいないか検証。
+    // バッチ対象IDと1つも交差しない応答は誤抽出として失敗扱いにし、対象を欠損(=--resume対象)に残す。
+    const batchIds = new Set(batch.map((q) => q.id))
+    if (!res.items.some((e) => e && batchIds.has(e.id))) {
+      throw new Error('response items do not match the requested batch ids (likely a schema-echo decoy)')
+    }
     let hits = 0
     let dropped = 0
     const returnedIds = new Set()

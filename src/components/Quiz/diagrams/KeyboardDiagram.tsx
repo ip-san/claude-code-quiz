@@ -70,7 +70,7 @@ export function KeyboardDiagram({ label, combos, sequence = false, caption }: Ke
 /** キーキャップの見た目。highlight=操作対象キーをアクセント色で強調 */
 function keycapClass(highlight?: boolean): string {
   const base =
-    'inline-flex min-w-[2rem] items-center justify-center rounded-md border px-2 py-1 font-mono text-xs font-semibold shadow-[0_2px_0_0_rgba(0,0,0,0.12)] dark:shadow-[0_2px_0_0_rgba(0,0,0,0.4)] transition-none'
+    'inline-flex whitespace-nowrap min-w-[2rem] items-center justify-center rounded-md border px-2 py-1 font-mono text-xs font-semibold shadow-[0_2px_0_0_rgba(0,0,0,0.12)] dark:shadow-[0_2px_0_0_rgba(0,0,0,0.4)] transition-none'
   if (highlight) {
     return `${base} border-claude-orange/50 bg-claude-orange/15 text-claude-orange`
   }
