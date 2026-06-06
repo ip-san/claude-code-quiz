@@ -6385,7 +6385,7 @@
         1,
         2
       ],
-      "explanation": "Claude Codeでの複数行入力は、\\+Enter（全ターミナル対応）、`Option+Enter`（macOS）、`Ctrl+J`（line feed）で行えます。\n\n{{diagram:0}}\n\nまた、iTerm2、WezTerm、Ghostty、Kittyでは`Shift+Enter`もそのまま使えます。\n{{diagram:1}}",
+      "explanation": "{{diagram:2}}\n\nClaude Codeでの複数行入力は、\\+Enter（全ターミナル対応）、`Option+Enter`（macOS）、`Ctrl+J`（line feed）で行えます。\n\n{{diagram:0}}\n\nまた、iTerm2、WezTerm、Ghostty、Kittyでは`Shift+Enter`もそのまま使えます。\n{{diagram:1}}",
       "referenceUrl": "https://code.claude.com/docs/ja/interactive-mode",
       "tags": [
         "overview",
@@ -6432,6 +6432,61 @@
               "sub": "tty、KittyではShift+Enterも"
             }
           ]
+        },
+        {
+          "combos": [
+            {
+              "keys": [
+                {
+                  "label": "\\"
+                },
+                {
+                  "label": "Enter",
+                  "highlight": true
+                }
+              ],
+              "caption": "全ターミナル共通"
+            },
+            {
+              "keys": [
+                {
+                  "label": "⌥ Option"
+                },
+                {
+                  "label": "Enter",
+                  "highlight": true
+                }
+              ],
+              "caption": "macOS"
+            },
+            {
+              "keys": [
+                {
+                  "label": "Ctrl"
+                },
+                {
+                  "label": "J",
+                  "highlight": true
+                }
+              ],
+              "caption": "改行(line feed)"
+            },
+            {
+              "keys": [
+                {
+                  "label": "⇧ Shift"
+                },
+                {
+                  "label": "Enter",
+                  "highlight": true
+                }
+              ],
+              "caption": "対応ターミナルのみ"
+            }
+          ],
+          "sequence": false,
+          "caption": "複数行入力の方法",
+          "type": "keyboard"
         }
       ]
     },
@@ -6558,7 +6613,7 @@
         }
       ],
       "correctIndex": 1,
-      "explanation": "`Ctrl+T`でタスクリストを表示でき、一度に最大5件まで追跡できます。\n\n{{diagram:0}}\n\nタスクリストはコンテキスト圧縮をまたいで保持され、`CLAUDE_CODE_TASK_LIST_ID`を設定すれば複数セッション間で共有も可能です。\n{{diagram:1}}",
+      "explanation": "{{diagram:2}}\n\n`Ctrl+T`でタスクリストを表示でき、一度に最大5件まで追跡できます。\n\n{{diagram:0}}\n\nタスクリストはコンテキスト圧縮をまたいで保持され、`CLAUDE_CODE_TASK_LIST_ID`を設定すれば複数セッション間で共有も可能です。\n{{diagram:1}}",
       "referenceUrl": "https://code.claude.com/docs/ja/interactive-mode",
       "diagrams": [
         {
@@ -6603,6 +6658,25 @@
               "sub": "`CLAUDE_CODE_TASK_LIST_ID`を設定すると複数セッション間で共有可能"
             }
           ]
+        },
+        {
+          "combos": [
+            {
+              "keys": [
+                {
+                  "label": "Ctrl"
+                },
+                {
+                  "label": "T",
+                  "highlight": true
+                }
+              ],
+              "caption": "タスクリスト表示"
+            }
+          ],
+          "sequence": false,
+          "caption": "最大5件を追跡",
+          "type": "keyboard"
         }
       ],
       "tags": [
@@ -11908,7 +11982,7 @@
         }
       ],
       "correctIndex": 2,
-      "explanation": "`Shift+Enter` による Claude Code 内での改行は、iTerm2、WezTerm、Ghostty、Kitty、Warp、Apple Terminal、Windows Terminal では追加設定なしで動作します。\n\n{{diagram:0}}\n\nVS Code、Cursor、Windsurf、Alacritty、Zed では `/terminal-setup` コマンドを実行して `Shift+Enter` バインディングをインストールする必要があります。代替として `\\+Enter` や `Ctrl+J` も使えます。\n{{diagram:1}}",
+      "explanation": "{{diagram:2}}\n\n`Shift+Enter` による Claude Code 内での改行は、iTerm2、WezTerm、Ghostty、Kitty、Warp、Apple Terminal、Windows Terminal では追加設定なしで動作します。\n\n{{diagram:0}}\n\nVS Code、Cursor、Windsurf、Alacritty、Zed では `/terminal-setup` コマンドを実行して `Shift+Enter` バインディングをインストールする必要があります。代替として `\\+Enter` や `Ctrl+J` も使えます。\n{{diagram:1}}",
       "category": "keyboard",
       "difficulty": "intermediate",
       "referenceUrl": "https://code.claude.com/docs/ja/interactive-mode",
@@ -11950,6 +12024,24 @@
               "sub": "\\+Enter や Ctrl+J も使える"
             }
           ]
+        },
+        {
+          "combos": [
+            {
+              "keys": [
+                {
+                  "label": "⇧ Shift"
+                },
+                {
+                  "label": "Enter",
+                  "highlight": true
+                }
+              ],
+              "caption": "改行入力"
+            }
+          ],
+          "sequence": false,
+          "type": "keyboard"
         }
       ],
       "tags": [
@@ -16270,7 +16362,7 @@
         }
       ],
       "correctIndex": 0,
-      "explanation": "readlineのkill ringは、`Ctrl+K`（行末まで削除）や`Ctrl+U`（行全体削除）で消したテキストを保存するバッファです。\n{{diagram:0}}\n`Ctrl+Y`で最後に削除したテキストを貼り付けられます。システムクリップボードとは独立した仕組みで、ターミナル操作の効率化に役立ちます。\n{{diagram:1}}",
+      "explanation": "{{diagram:2}}\n\nreadlineのkill ringは、`Ctrl+K`（行末まで削除）や`Ctrl+U`（行全体削除）で消したテキストを保存するバッファです。\n{{diagram:0}}\n`Ctrl+Y`で最後に削除したテキストを貼り付けられます。システムクリップボードとは独立した仕組みで、ターミナル操作の効率化に役立ちます。\n{{diagram:1}}",
       "referenceUrl": "https://code.claude.com/docs/ja/interactive-mode",
       "diagrams": [
         {
@@ -16310,6 +16402,49 @@
               "sub": "kill ringはreadline独自のバッファで、システムクリップボード（`Cmd+V`/`Ctrl+V`）とは独立しています。"
             }
           ]
+        },
+        {
+          "combos": [
+            {
+              "keys": [
+                {
+                  "label": "Ctrl"
+                },
+                {
+                  "label": "K",
+                  "highlight": true
+                }
+              ],
+              "caption": "行末まで削除"
+            },
+            {
+              "keys": [
+                {
+                  "label": "Ctrl"
+                },
+                {
+                  "label": "U",
+                  "highlight": true
+                }
+              ],
+              "caption": "行全体削除"
+            },
+            {
+              "keys": [
+                {
+                  "label": "Ctrl"
+                },
+                {
+                  "label": "Y",
+                  "highlight": true
+                }
+              ],
+              "caption": "貼り付け"
+            }
+          ],
+          "sequence": false,
+          "caption": "kill ring操作",
+          "type": "keyboard"
         }
       ],
       "tags": [
@@ -16445,7 +16580,7 @@
         }
       ],
       "correctIndex": 2,
-      "explanation": "Tabで候補を受け入れると入力欄に展開され、修正してから送信できます。Enterで受け入れると即座に送信されます。\n\n{{diagram:0}}\n\n候補はgit履歴やファイル内容、会話のコンテキストから自動生成されるため、そのまま使える場合はEnter、調整が必要な場合はTabを使い分けます。\n{{diagram:1}}",
+      "explanation": "{{diagram:2}}\n\nTabで候補を受け入れると入力欄に展開され、修正してから送信できます。Enterで受け入れると即座に送信されます。\n\n{{diagram:0}}\n\n候補はgit履歴やファイル内容、会話のコンテキストから自動生成されるため、そのまま使える場合はEnter、調整が必要な場合はTabを使い分けます。\n{{diagram:1}}",
       "referenceUrl": "https://code.claude.com/docs/ja/interactive-mode",
       "diagrams": [
         {
@@ -16485,6 +16620,31 @@
               "sub": "キストから自動生成されるため、そのまま使える場"
             }
           ]
+        },
+        {
+          "combos": [
+            {
+              "keys": [
+                {
+                  "label": "Tab",
+                  "highlight": true
+                }
+              ],
+              "caption": "受け入れ・編集"
+            },
+            {
+              "keys": [
+                {
+                  "label": "Enter",
+                  "highlight": true
+                }
+              ],
+              "caption": "受け入れ・即送信"
+            }
+          ],
+          "sequence": false,
+          "caption": "候補の受け入れ方",
+          "type": "keyboard"
         }
       ],
       "tags": [
