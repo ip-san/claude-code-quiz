@@ -115,7 +115,7 @@
         }
       ],
       "correctIndex": 0,
-      "explanation": "`@path/to/file`の形式で他のファイルをインポートできます。相対パスと絶対パスの両方をサポートし、最大5階層まで再帰的にインポートできます。\n{{diagram:0}}\n{{diagram:1}}",
+      "explanation": "`@path/to/file`の形式で他のファイルをインポートできます。相対パスと絶対パスの両方をサポートし、最大4ホップまで再帰的にインポートできます。\n{{diagram:0}}\n{{diagram:1}}",
       "referenceUrl": "https://code.claude.com/docs/ja/memory#import-additional-files",
       "diagrams": [
         {
@@ -136,7 +136,7 @@
             },
             {
               "type": "info",
-              "text": "最大5階層まで再帰的にインポート可能"
+              "text": "最大4ホップまで再帰的にインポート可能"
             }
           ]
         },
@@ -23293,7 +23293,7 @@
           "items": [
             {
               "text": "`@path/to/file`構文で別ファイルに分割し、必要な情報をモジュール化する（正解）",
-              "sub": "`@path/to/file`構文を使って`CLAUDE.md`から別のMarkdownファイルを参照できます（最大5階層の再帰）。 例: `@docs/coding-standards.md` のように記述することで、関心事ごとにファイルを分割して管理できます。"
+              "sub": "`@path/to/file`構文を使って`CLAUDE.md`から別のMarkdownファイルを参照できます（最大4ホップの再帰）。 例: `@docs/coding-standards.md` のように記述することで、関心事ごとにファイルを分割して管理できます。"
             },
             {
               "text": "複数の`CLAUDE.md`ファイルを同じディレクトリに作成する",
@@ -31132,7 +31132,7 @@
         }
       ],
       "correctIndex": 1,
-      "explanation": "Agent SDKの認証にはAnthropicの標準的な `ANTHROPIC_API_KEY` 環境変数を使用します。\n{{diagram:0}}\nAWS Bedrockの場合は `CLAUDE_CODE_USE_BEDROCK=1`、Google Vertex AIは `CLAUDE_CODE_USE_VERTEX=1`、Microsoft Foundryは `CLAUDE_CODE_USE_FOUNDRY=1` と各プロバイダーの認証情報を設定します。\n{{diagram:1}}",
+      "explanation": "Agent SDKの認証にはAnthropicの標準的な `ANTHROPIC_API_KEY` 環境変数を使用します。\n{{diagram:0}}\nクラウドプロバイダー経由で使う場合は、プロバイダー選択用に AWS Bedrock なら `CLAUDE_CODE_USE_BEDROCK=1`、Google Vertex AI なら `CLAUDE_CODE_USE_VERTEX=1`、Microsoft Foundry なら `CLAUDE_CODE_USE_FOUNDRY=1` を設定し、認証自体は各プロバイダーの資格情報（AWS 資格情報、Google ADC など）で行います。\n{{diagram:1}}",
       "referenceUrl": "https://platform.claude.com/docs/ja/agent-sdk/overview",
       "diagrams": [
         {
@@ -31166,7 +31166,7 @@
         },
         {
           "type": "terminal",
-          "label": "認証方法ごとの環境変数設定",
+          "label": "プロバイダー別の環境変数設定",
           "lines": [
             {
               "type": "info",
@@ -36173,7 +36173,7 @@
       "question": "GitHub Actions の Claude Code Action v1 で、Claude の最大ターン数やモデルを指定するための正しい設定方法はどれですか？",
       "options": [
         {
-          "text": "ワークフローの環境変数で `CLAUDE_MAX_TURNS` と `ANTHROPIC_MODEL` を設定する",
+          "text": "ワークフローの環境変数で `CLAUDE_CODE_MAX_TURNS` と `ANTHROPIC_MODEL` を設定する",
           "wrongFeedback": "環境変数ではなく、`claude_args` パラメータに CLI 引数として渡すのが v1 の推奨方法です。例: `claude_args: \"--max-turns 5 --model claude-sonnet-4-6\"`。"
         },
         {
@@ -36955,7 +36955,7 @@
         }
       ],
       "correctIndex": 3,
-      "explanation": "Fast モードは Amazon Bedrock、Google Vertex AI、Microsoft Foundry、Claude Platform on AWS などのサードパーティ／クラウドプロバイダーでは利用できません。\n\n{{diagram:0}}\n\nAnthropic Console API か Claude サブスクリプションプランの Extra Usage 経由でのみ利用可能です。\n{{diagram:1}}",
+      "explanation": "Fast モードは Amazon Bedrock、Google Vertex AI、Microsoft Foundry、Claude Platform on AWS などのサードパーティ／クラウドプロバイダーでは利用できません。\n\n{{diagram:0}}\n\nAnthropic Console API か Claude サブスクリプションプランの usage credits 経由でのみ利用可能です。\n{{diagram:1}}",
       "referenceUrl": "https://code.claude.com/docs/ja/fast-mode",
       "diagrams": [
         {
@@ -42014,10 +42014,6 @@
             {
               "type": "prompt",
               "text": "export NO_PROXY=localhost,internal.example.com"
-            },
-            {
-              "type": "info",
-              "text": "※ SOCKS プロキシはサポートされていない"
             }
           ]
         },
@@ -42027,7 +42023,7 @@
           "items": [
             {
               "text": "`HTTPS_PROXY`（正解）",
-              "sub": "Claude Codeは標準のプロキシ環境変数（`HTTPS_PROXY`推奨、または`HTTP_PROXY`）に従います。 プロキシを経由しないリクエストは`NO_PROXY`で指定できます。なお、SOCKSプロキシはサポートされていません。"
+              "sub": "Claude Codeは標準のプロキシ環境変数（`HTTPS_PROXY`推奨、または`HTTP_PROXY`）に従います。 プロキシを経由しないリクエストは`NO_PROXY`で指定できます。"
             },
             {
               "text": "`CLAUDE_PROXY_URL`",
@@ -45255,22 +45251,22 @@
       "options": [
         {
           "text": "ネストの深度制限はない",
-          "wrongFeedback": "無制限ではありません。循環参照やパフォーマンス問題を防ぐため、最大5階層までに制限されています。"
+          "wrongFeedback": "無制限ではありません。循環参照やパフォーマンス問題を防ぐため、最大4ホップまでに制限されています。"
         },
         {
-          "text": "最大5階層までネストできる"
+          "text": "最大4ホップまでネストできる"
         },
         {
-          "text": "最大3階層までネストできる",
-          "wrongFeedback": "3階層ではありません。`@import`は最大5階層まで再帰的にインポートできます。"
+          "text": "最大3ホップまでネストできる",
+          "wrongFeedback": "3ホップではありません。`@import`は最大4ホップまで再帰的にインポートできます。"
         },
         {
-          "text": "最大10階層までネストできる",
-          "wrongFeedback": "10階層ではありません。`@import`の最大ネスト深度は5階層です。"
+          "text": "最大10ホップまでネストできる",
+          "wrongFeedback": "10ホップではありません。`@import`の最大ネスト深度は4ホップです。"
         }
       ],
       "correctIndex": 1,
-      "explanation": "`CLAUDE.md`の`@path/to/file`によるインポートは、最大5階層まで再帰的に解決されます。\n{{diagram:0}}\n例えば、ファイルAがファイルBをインポートし、ファイルBがファイルCをインポートする、といった連鎖が5段階まで可能です。\n{{diagram:1}}",
+      "explanation": "`CLAUDE.md`の`@path/to/file`によるインポートは、最大4ホップまで再帰的に解決されます。\n{{diagram:0}}\n例えば、ファイルAがファイルBをインポートし、ファイルBがファイルCをインポートする、といった連鎖が4ホップ（5ファイル）まで可能です。\n{{diagram:1}}",
       "referenceUrl": "https://code.claude.com/docs/ja/memory#import-additional-files",
       "diagrams": [
         {
@@ -45278,23 +45274,23 @@
           "steps": [
             {
               "text": "CLAUDE.md",
-              "sub": "階層1"
+              "sub": "起点（CLAUDE.md）"
             },
             {
               "text": "@docs/rules.md",
-              "sub": "階層2"
+              "sub": "1ホップ"
             },
             {
               "text": "@shared/base.md",
-              "sub": "階層3"
+              "sub": "2ホップ"
             },
             {
               "text": "@common/style.md",
-              "sub": "階層4"
+              "sub": "3ホップ"
             },
             {
               "text": "@core/format.md",
-              "sub": "階層5（上限）"
+              "sub": "4ホップ（上限）"
             }
           ]
         },
@@ -45303,20 +45299,20 @@
           "label": "CLAUDE.mdの正誤ポイント",
           "items": [
             {
-              "text": "最大5階層までネストできる（正解）",
-              "sub": "`CLAUDE.md`の`@path/to/file`によるインポートは、最大5階層まで再帰的に解決されます。 例えば、ファイルAがファイルBをインポートし、ファイルBがファイルCをインポートする、といった連鎖が5段階まで可能です。"
+              "text": "最大4ホップまでネストできる（正解）",
+              "sub": "`CLAUDE.md`の`@path/to/file`によるインポートは、最大4ホップまで再帰的に解決されます。 例えば、ファイルAがファイルBをインポートし、ファイルBがファイルCをインポートする、といった連鎖が4ホップ（5ファイル）まで可能です。"
             },
             {
-              "text": "最大3階層までネストできる",
-              "sub": "3階層ではありません。`@import`は最大5階層まで再帰的にインポートできます。"
+              "text": "最大3ホップまでネストできる",
+              "sub": "3ホップではありません。`@import`は最大4ホップまで再帰的にインポートできます。"
             },
             {
-              "text": "最大10階層までネストできる",
-              "sub": "10階層ではありません。`@import`の最大ネスト深度は5階層です。"
+              "text": "最大10ホップまでネストできる",
+              "sub": "10ホップではありません。`@import`の最大ネスト深度は4ホップです。"
             },
             {
               "text": "ネストの深度制限はない",
-              "sub": "無制限ではありません。循環参照やパフォーマンス問題を防ぐため、最大5階層までに制限されています。"
+              "sub": "無制限ではありません。循環参照やパフォーマンス問題を防ぐため、最大4ホップまでに制限されています。"
             }
           ]
         }
@@ -45504,7 +45500,7 @@
         }
       ],
       "correctIndex": 1,
-      "explanation": "`@import`では相対パスと絶対パスの両方が使用できます。\n{{diagram:0}}\n相対パスは作業ディレクトリではなく、インポート元のファイルの場所からの相対位置で解決されます。例：`@README`、`@docs/git-instructions.md`、`@~/.claude/my-project-instructions.md`。最大5階層の再帰的インポートがサポートされています。\n{{diagram:1}}",
+      "explanation": "`@import`では相対パスと絶対パスの両方が使用できます。\n{{diagram:0}}\n相対パスは作業ディレクトリではなく、インポート元のファイルの場所からの相対位置で解決されます。例：`@README`、`@docs/git-instructions.md`、`@~/.claude/my-project-instructions.md`。最大4ホップの再帰的インポートがサポートされています。\n{{diagram:1}}",
       "referenceUrl": "https://code.claude.com/docs/ja/memory#import-additional-files",
       "diagrams": [
         {
@@ -45545,7 +45541,7 @@
               "sub": "structions.md、@~/.claud"
             },
             {
-              "text": "最大5階層の再帰的インポートがサポートされて",
+              "text": "最大4ホップの再帰的インポートがサポートされて",
               "sub": "います"
             }
           ]

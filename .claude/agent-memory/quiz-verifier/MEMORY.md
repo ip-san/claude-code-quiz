@@ -40,11 +40,12 @@
 - skipIfNegated パターン該当多数: --jetbrains、--regex、--import-session、CLAUDE_AUTO_APPROVE 等
 - quality-tier 6問はすべて distractor バランス問題のみで事実誤認なし
 
-### VS Code リモートセッション UI（tool-061, needsOpusReview）
-- vs-code.md のリモートセッション手順セクション（L68-76）はキャッシュで省略されステップ詳細不明
-- ドキュメント記載は「Session history button」、問題は「パスト会話ドロップダウン」を使用
-- UI名称変更の可能性あり。Remoteタブ/LocalタブのUI構造、GitHub リポジトリ限定制約の要確認
-- 次回検証時は vs-code.md のリモートセッション手順を実際のドキュメントで直接確認すること
+### VS Code リモートセッション UI（tool-061, Resolved 2026-06-06）
+- vs-code.md L66-70: 「Session history」ボタン（UI名称）+ Claude.ai Subscription 要件を確認済み
+- 問題の正解選択肢「VS Code パネル上部の Session history ボタン」はドキュメントと一致 → OK
+- Jina キャッシュではリモートセッション手順ステップ（1/2/3）が空白になるが内容は L70 に記述あり
+- --import-session フラグ不存在: cli-reference.md に記載なし（confirmed false-positive）
+- GitHub リポジトリ限定制約はドキュメントに記述なし（非制約）。Claude.ai Subscription が必要条件
 
 ### 確認済み facts（Verified 2026-05-23）
 - sandbox.autoAllowBashIfSandboxed: デフォルト true（settings.md L297）
@@ -318,3 +319,99 @@
 ### session カテゴリ factCheck distractor tier（2026-05-31）
 - ses-027, ses-045, ses-189, ses-190 の distractor/difficulty フラグ：全て偽陽性
 - 事実誤認なし。品質（選択肢長バランス）の問題のみ
+
+## commands カテゴリ 第2回検証追加パターン（2026-06-06, fact-tier 15問）
+
+### 全15問ほぼ偽陽性（14問OK、1問minor）
+- factCheck:flags の大多数: 不正解選択肢で「存在しないフラグ」を使い wrongFeedback で明示否定 → 偽陽性パターン
+- 偽陽性確認済みフラグ: --review, --readonly, --no-write, --skip-permissions, --gui, --focus, --schema, --structured-output, --stream, --realtime, --context-file, --status, --list-remote, --low-memory, --max-old-space-size, --non-interactive, --list-commands
+- /restart, /flush, /clean: 不正解選択肢での言及 → commands.md に存在しないことを確認
+
+### cmd-081 の CLAUDE_MAX_TURNS（minor）
+- 不正解選択肢[0]に「CLAUDE_MAX_TURNS」が登場し wrongFeedback で否定
+- 正しい変数名は `CLAUDE_CODE_MAX_TURNS`（env-vars.md L118 確認済み）
+- 正解(correctIndex:3)は「claude_args パラメータに CLI 引数として渡す」で正確
+- minor: wrongFeedback「環境変数ではなく claude_args」という否定は正確だが変数名が異なる
+
+### crossCheck numeric-contradiction の偽陽性（cmd-066）
+- 問題文の「コンテキスト95%消費」という数値表現に反応
+- ドキュメントに固定パーセンテージの記述なし → 仮設的な問題設定として許容範囲
+- コマンドの機能説明(/compact, /rewind, /clear の区別)は正確 → 偽陽性
+
+### 確認済み facts（2026-06-06）
+- /clear エイリアス: /reset, /new（commands.md L12 確認）
+- /compact [instructions]: フォーカス指示は引数として自然言語で指定（commands.md L15）
+- --json-schema: headless.md L93-97 に明示。--output-format json と組み合わせて structured_output フィールドに出力
+- stream-json + --verbose + --include-partial-messages: headless.md L103-106 に明示
+- --continue / --resume: headless.md L191-206 に明示。CLAUDE_SESSION_ID は存在しない
+- WORKDIR /tmp: troubleshoot-install.md L394-395 に明示（Docker ハング回避）
+- スワップ追加: troubleshoot-install.md L379-383 に明示（OOM Killed 対処）
+- /tasks: claude-code-on-the-web.md L267 に明示。進捗確認に使用
+
+## session カテゴリ追加検証パターン（2026-06-06, 14問 fact-tier flagged）
+
+### ses-003 の「同じセッション内で」表現（minor）
+- commands.md: "/clear: Start a new conversation with empty context"
+- interactive-mode.md L189: "/clear to start a **new session**"
+- sessions.md L86: "/clear: start fresh with an empty context. The previous conversation is saved and resumable"
+- 正解 option 文中「同じセッション内で新しい会話を始められる」は技術的不正確
+- /clear は OLD session を保存して **NEW session** を開始する（Claude Code プロセスは継続）
+- 核心（/clear≠終了 vs /exit=終了）は正しい。severity: minor
+
+### ses-007 の -t / --focus フラグ（false-positive 確認済み）
+- commands.md: "/compact [instructions]" - フラグなしでインライン指定
+- -t および --focus は不正解選択肢の「存在しないフラグ」として記述（skipIfNegated パターン）
+- → false positive
+
+### ses-100 の Summarize from here / Fork 記述（Pass）
+- checkpointing.md: "Summarize from here: messages before the selected message stay intact. The selected message and everything after it are replaced with a summary"
+- Fork: sessions.md に「Branching creates a copy of the conversation」と明記
+- quiz の記述（Summarize from here = 時間軸圧縮、Fork = セッション全コピー）は正確
+
+### ses-102 の effortLevel 設定値リスト（minor）
+- settings.md L180: effortLevel は "low", "medium", "high", or "xhigh" を受け付ける
+- ses-102 option[0] テキスト「`low`、`medium`、`high` を指定する」→ `xhigh` が欠落 → minor
+- 正解(correctIndex=3)への影響なし。wrongFeedback も enum を列挙しない
+
+### ses-117 の「Extra Usage」表現（minor）
+- fast-mode.md: 公式表記は「usage credits」（"available via usage credits only"）
+- ses-117 explanation: "Claude サブスクリプションプランの Extra Usage 経由でのみ利用可能"
+- "Extra Usage" はドキュメントに存在しない → 正式用語は "usage credits" → minor
+- Microsoft Foundry 命名は引き続き false-positive（TERMINOLOGY_DICT 優先）
+
+### ses-145 の --remote フラグ（Pass）
+- cli-reference.md L52: "--remote: Create a new web session on claude.ai with the provided task description"
+- 正解「`claude --remote` で実行する」は正確
+
+### ses-152 の modelOverrides（Pass）
+- amazon-bedrock.md L174+: "use the modelOverrides setting in your settings file"
+- 複数ARNマッピングに modelOverrides を使う正解は正確
+
+### ses-154 の NODE_EXTRA_CA_CERTS（Pass）
+- network-config.md L53: "export NODE_EXTRA_CA_CERTS=/path/to/ca-cert.pem"
+- 正解は正確
+
+### 今回の偽陽性パターン（14問中 ok 9問 / minor 5問）
+- ses-003: minor（同じセッション内→新しいセッション開始が正確）
+- ses-007: ok（-t/--focus は skipIfNegated パターン）
+- ses-030: ok（MEMORY 既知）
+- ses-048: ok（MEMORY 既知）
+- ses-100: ok
+- ses-102: minor（option[0] の xhigh 欠落）
+- ses-107: ok（MEMORY 既知）
+- ses-112: ok（MEMORY 既知）
+- ses-117: minor（Extra Usage → usage credits）
+- ses-141: ok（MEMORY 既知）
+- ses-145: ok
+- ses-152: ok
+- ses-153: minor（SOCKS 非対応の根拠なし、MEMORY 既知）
+- ses-154: ok
+
+### 2026-06-06 quality-loop fact-tier 検証（59問 / 8カテゴリ）
+- **@import 再帰深度の drift 修正**: mem-002/030/043/046 が「最大5階層」と誤記。EN memory.md L73 + JA memory（「最大深度は 4 ホップ」）で確認し **4ホップ** へ統一。mem-043 は正解の数値そのものだったため flow diagram も「起点(CLAUDE.md)/1〜4ホップ」に再構成（5ファイル=4ホップを明示）。docs/verified-facts.md に確定事実記録
+- **sdk-011（major→修正）**: explanation が `CLAUDE_CODE_USE_BEDROCK/VERTEX/FOUNDRY` を「認証変数」と誤分類 → 「プロバイダー選択用、認証は各プロバイダー資格情報」に修正。diagram label「認証方法ごと」→「プロバイダー別」
+- **cmd-081（minor→修正）**: distractor の `CLAUDE_MAX_TURNS` → 実在の `CLAUDE_CODE_MAX_TURNS`（env-vars.md L118）
+- **ses-117（minor→修正）**: explanation「Extra Usage」→ 公式表記「usage credits」（fast-mode.md）
+- **ses-153（minor→修正）**: 「SOCKSプロキシ非対応」は doc 根拠なし → terminal/hierarchy から削除
+- **見送り**: ses-003（再ワードが未検証の /resume 主張を導入する risk）/ ses-102（effortLevel enum、Verified Facts 領域）/ key-032（`/output-style` 存在を検証者自身が不確実と判断）
+- fact-tier 59問中 49問は skipIfNegated 偽陽性（不正解選択肢で存在しないフラグ/env を否定する設計パターン）。継続的に同じ偽陽性が出る

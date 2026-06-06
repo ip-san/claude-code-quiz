@@ -169,6 +169,10 @@
 ### Compact Instructions
 - how-claude-code-works.md に「add a 'Compact Instructions' section to CLAUDE.md」と記載
 
+### `@import` 再帰深度（2026-06-06 確認）
+- **最大深度は 4 ホップ**（"maximum depth of four hops"）。出典: EN `memory.md:73` / JA `memory#import-additional-files`「最大深度は 4 ホップです」で一致確認
+- 「5階層」表記は誤り（root の CLAUDE.md を階層に数えた旧表現）。CLAUDE.md→A→B→C→D = 5ファイルだが 4 ホップ。quiz は「4ホップ」表記に統一済み（mem-002/030/043/046、2026-06-06）
+
 ### Memory page anchors（2026-03-01 確認）
 - `#import-additional-files`
 - `#choose-where-to-put-claudemd-files`
