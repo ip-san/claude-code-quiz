@@ -16,6 +16,7 @@ import { execSync } from 'child_process'
 import { existsSync, readFileSync, writeFileSync } from 'fs'
 import { dirname, resolve } from 'path'
 import { fileURLToPath } from 'url'
+import { isValidKbDiagram } from './keyboard-diagram-validate.mjs'
 
 const __dirname = dirname(fileURLToPath(import.meta.url))
 const QUIZ_PATH = resolve(__dirname, '../src/data/quizzes.json')
@@ -44,6 +45,12 @@ for (const [id, diagram] of Object.entries(gen)) {
   }
   const q = byId[id]
   if (!q) continue
+  // 構造検証（Zod の下限・上限と同期）。quiz:check は Zod を走らせないため、
+  // 不正/上限超過の図を apply 段で弾く（手編集や生成不具合の安全網）。
+  if (!isValidKbDiagram(diagram)) {
+    console.error(`✗ ${id}: 不正な keyboard 図構造（combos 1-6 / keys 1-4 / label 非空）。中止します`)
+    process.exit(1)
+  }
   q.diagrams = q.diagrams || []
   if (q.diagrams.some((d) => d.type === 'keyboard')) {
     skippedExisting++

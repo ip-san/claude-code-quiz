@@ -18,6 +18,7 @@ import { execSync } from 'child_process'
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'fs'
 import { dirname, resolve } from 'path'
 import { fileURLToPath } from 'url'
+import { isValidKbDiagram } from './keyboard-diagram-validate.mjs'
 
 const __dirname = dirname(fileURLToPath(import.meta.url))
 const QUIZ_PATH = resolve(__dirname, '../src/data/quizzes.json')
@@ -179,23 +180,8 @@ function parseJsonLoose(text) {
   throw new Error('no parseable JSON object in response')
 }
 
-// AI 応答の構造ガード: combos[] と各 combo.keys[].label を満たさない図は無効として捨てる。
-// これにより下流 apply の .combos.map クラッシュを防ぎ「誤った図を作らない」方針を保つ。
-function isValidKbDiagram(d) {
-  return (
-    d &&
-    typeof d === 'object' &&
-    Array.isArray(d.combos) &&
-    d.combos.length > 0 &&
-    d.combos.every(
-      (c) =>
-        c &&
-        Array.isArray(c.keys) &&
-        c.keys.length > 0 &&
-        c.keys.every((k) => k && typeof k.label === 'string' && k.label.length > 0)
-    )
-  )
-}
+// 構造ガード isValidKbDiagram は keyboard-diagram-validate.mjs に集約（generate/apply で共有、
+// Zod の下限・上限と同期）。combos/keys/label を満たさない図は null(スキップ)扱いにする。
 
 const items = { ...existing }
 let ok = 0
