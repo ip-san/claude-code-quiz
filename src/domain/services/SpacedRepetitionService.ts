@@ -51,14 +51,12 @@ export class SpacedRepetitionService {
    * 「忘れかけた問題を優先する」（タイパ＝忘却防止）を壊さずに両立する。
    */
   static sortByPriority(questions: Question[], userProgress: UserProgress, now: number): Question[] {
-    return [...questions].sort((a, b) => {
-      const qpA = userProgress.questionProgress[a.id]
-      const qpB = userProgress.questionProgress[b.id]
-      const priorityA = this.getWeightedOverdue(qpA, a, now)
-      const priorityB = this.getWeightedOverdue(qpB, b, now)
-      // More overdue (value-weighted) comes first
-      return priorityB - priorityA
-    })
+    // 優先度は要素ごとに一度だけ算出してから安定ソートする（valueFactor→getCategoryById の
+    // 線形探索を比較のたびに呼ばないため。AdaptiveDifficultyService と同じ compute-once パターン）。
+    return questions
+      .map((q) => ({ q, priority: this.getWeightedOverdue(userProgress.questionProgress[q.id], q, now) }))
+      .sort((a, b) => b.priority - a.priority) // More overdue (value-weighted) comes first
+      .map((x) => x.q)
   }
 
   /**

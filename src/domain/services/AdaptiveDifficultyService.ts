@@ -26,12 +26,22 @@ export class AdaptiveDifficultyService {
     // Sort key: 難易度スコア(主) → 価値スコア(従, tie-break) → 元index(shuffle 温存)
     // 価値(コスパ)は難易度順序を一切上書きせず、同難易度スコア内でのみ高価値問題を前に出す。
     // これにより「未マスター優先(タイパ)」「アダプティブ難易度」を壊さず価値を弱く効かせる。
-    const indexed = questions.map((q, i) => ({
-      q,
-      i,
-      score: this.getDifficultyScore(q, categoryAccuracy),
-      value: this.getValueScore(q),
-    }))
+    //
+    // 【重要】価値 tie-break は「カテゴリ別正答率データがある場合」に限定する。
+    // データ希薄時(序盤・ニッチカテゴリ)は全問 difficultyScore=0 に collapse するため、
+    // value を効かせるとプール全体が value-DESC に決定論化しシャッフル多様性を失う。
+    // データが無い問題は value=0 とし、index(=shuffle 順)で多様性を保つ。
+    // 初学者への高価値優先は S2 動機曲線ゲート(QuizSessionService)が別途担う。
+    const indexed = questions.map((q, i) => {
+      const accuracy = categoryAccuracy.get(q.category)
+      const hasData = accuracy !== null && accuracy !== undefined
+      return {
+        q,
+        i,
+        score: this.getDifficultyScore(q, categoryAccuracy),
+        value: hasData ? this.getValueScore(q) : 0,
+      }
+    })
     indexed.sort((a, b) => b.score - a.score || b.value - a.value || a.i - b.i)
     return indexed.map((x) => x.q)
   }

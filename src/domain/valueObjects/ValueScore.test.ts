@@ -46,8 +46,8 @@ describe('ValueScore', () => {
     expect(neutral).toBeGreaterThan(trivia)
   })
 
-  // drift 検知: これらの値は scripts/aggregate-classifications.mjs に複製されている（TS↔mjs 境界のため）。
-  // 値を変える場合は aggregate 側の valueScore(+6/-4, 既定10) も同時に更新すること。
+  // drift 検知: これらの値は scripts/value-constants.mjs に複製されている（TS↔mjs 境界のため）。
+  // 値を変える場合は scripts/value-constants.mjs も同時に更新すること（value-constants.test.mjs が検知）。
   it('keeps value-correction constants stable (sync guard for the .mjs duplicate)', () => {
     expect(VALUE_TAG_BONUS).toEqual({ practical: 6, trivia: -4 })
     expect(VALUE_TAG_MULTIPLIER).toEqual({ practical: 1.05, trivia: 0.95 })

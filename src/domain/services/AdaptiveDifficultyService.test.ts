@@ -77,15 +77,33 @@ describe('AdaptiveDifficultyService', () => {
       expect(result.length).toBe(2)
     })
 
-    it('breaks difficulty-score ties by value (higher category weight first)', () => {
-      // No accuracy data → all difficulty scores 0 → value tie-break decides
+    it('breaks difficulty-score ties by value when accuracy data exists (higher weight first)', () => {
+      // Both categories have data with the same accuracy → same difficulty score → value decides
       const questions = [
         makeQuestion('low', 'sdk', 'beginner'), // weight 5
         makeQuestion('high', 'memory', 'beginner'), // weight 15
       ]
-      const progress = UserProgress.create({ totalAttempts: 10 })
+      const progress = UserProgress.create({
+        totalAttempts: 10,
+        categoryProgress: {
+          sdk: { categoryId: 'sdk', totalQuestions: 10, attemptedQuestions: 5, correctAnswers: 4, accuracy: 80 },
+          memory: { categoryId: 'memory', totalQuestions: 10, attemptedQuestions: 5, correctAnswers: 4, accuracy: 80 },
+        },
+      })
       const result = AdaptiveDifficultyService.reorderByAdaptiveDifficulty(questions, progress)
       expect(result[0].id).toBe('high') // higher-value category surfaces first on a tie
+    })
+
+    it('does NOT let value collapse the order when no accuracy data exists (preserves shuffle diversity)', () => {
+      // Data-sparse: all difficulty scores are 0 AND no accuracy data → value must be inert,
+      // so the incoming (shuffled) order is preserved rather than forced to value-DESC.
+      const lowThenHigh = [
+        makeQuestion('low', 'sdk', 'beginner'), // weight 5
+        makeQuestion('high', 'memory', 'beginner', ['practical']), // weight 15 + practical
+      ]
+      const progress = UserProgress.create({ totalAttempts: 10 }) // no categoryProgress
+      const result = AdaptiveDifficultyService.reorderByAdaptiveDifficulty(lowThenHigh, progress)
+      expect(result.map((q) => q.id)).toEqual(['low', 'high']) // input order kept, value did NOT reorder
     })
 
     it('value tie-break never overrides difficulty ordering', () => {
@@ -105,12 +123,17 @@ describe('AdaptiveDifficultyService', () => {
       expect(result[0].difficulty).toBe('advanced') // difficulty(タイパ) dominates value(コスパ)
     })
 
-    it('prefers practical over trivia within the same difficulty score', () => {
+    it('prefers practical over trivia within the same difficulty score (with accuracy data)', () => {
       const questions = [
         makeQuestion('trivia', 'memory', 'beginner', ['trivia']),
         makeQuestion('practical', 'memory', 'beginner', ['practical']),
       ]
-      const progress = UserProgress.create({ totalAttempts: 10 })
+      const progress = UserProgress.create({
+        totalAttempts: 10,
+        categoryProgress: {
+          memory: { categoryId: 'memory', totalQuestions: 10, attemptedQuestions: 5, correctAnswers: 4, accuracy: 80 },
+        },
+      })
       const result = AdaptiveDifficultyService.reorderByAdaptiveDifficulty(questions, progress)
       expect(result[0].id).toBe('practical')
     })

@@ -16,6 +16,7 @@
 import { existsSync, readdirSync, readFileSync, writeFileSync } from 'fs'
 import { join } from 'path'
 import { loadCategoryWeights } from './theme-weights.mjs'
+import { VALUE_DEFAULT_WEIGHT, VALUE_TAG_BONUS_MJS } from './value-constants.mjs'
 
 const STORE_DIR = join(process.env.HOME || '', '.claude-quiz-recommend')
 const CLASSIFIED_FILE = join(STORE_DIR, 'classified-prompts.json')
@@ -288,12 +289,19 @@ function filterCandidates(catDist, profile) {
       // 完全な決定論だと候補が固定化するため、軽いランダム成分を残す。
       // スコアは要素ごとに一度だけ算出してから安定ソートする（比較関数内で Math.random を
       // 呼ぶと同一要素のスコアが比較のたびに変わり、ソート順序が不定になるため）。
-      // tagBonus/既定weight は src/domain/valueObjects/ValueScore.ts の VALUE_TAG_BONUS /
-      // DEFAULT_CATEGORY_WEIGHT と同値に保つこと（.mjs から TS 定数を import できないため複製）。
+      // tagBonus/既定weight は scripts/value-constants.mjs（TS の ValueScore.ts と同値）から読む。
+      // 価値はあくまで「弱い事前優先」で、最終的な苦戦×価値の tie-break は SKILL/Sonnet 側が行う。
+      // そのため jitter 幅(16)を tagBonus レンジ(10)より広く取り、trivia/neutral も候補に残す
+      // （大規模カテゴリで practical が上位を独占し、苦戦中の trivia/neutral が事前排除されるのを防ぐ）。
       const valueScore = (q) => {
-        const w = catWeights[q.category] ?? 10 // DEFAULT_CATEGORY_WEIGHT と同期
-        const tagBonus = (q.tags || []).includes('practical') ? 6 : (q.tags || []).includes('trivia') ? -4 : 0 // VALUE_TAG_BONUS と同期
-        return w + tagBonus + Math.random() * 8 // ランダム幅(8)で同価値帯はシャッフル
+        const w = catWeights[q.category] ?? VALUE_DEFAULT_WEIGHT
+        const tags = q.tags || []
+        const tagBonus = tags.includes('practical')
+          ? VALUE_TAG_BONUS_MJS.practical
+          : tags.includes('trivia')
+            ? VALUE_TAG_BONUS_MJS.trivia
+            : 0
+        return w + tagBonus + Math.random() * 16
       }
       const sampled = pool
         .map((q) => ({ q, score: valueScore(q) }))
