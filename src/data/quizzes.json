@@ -5782,7 +5782,7 @@
         }
       ],
       "correctIndex": 2,
-      "explanation": "`/exit`コマンドと`Ctrl+D`（EOFシグナル）はどちらもClaude CodeのREPLを終了します。\n\n{{diagram:0}}\n\n`Ctrl+C`は現在の入力や生成のキャンセル（標準割り込み）であり、終了操作とは異なります。\n{{diagram:1}}",
+      "explanation": "{{diagram:2}}\n\n`/exit`コマンドと`Ctrl+D`（EOFシグナル）はどちらもClaude CodeのREPLを終了します。\n\n{{diagram:0}}\n\n`Ctrl+C`は現在の入力や生成のキャンセル（標準割り込み）であり、終了操作とは異なります。\n{{diagram:1}}",
       "category": "session",
       "difficulty": "beginner",
       "referenceUrl": "https://code.claude.com/docs/ja/interactive-mode",
@@ -5827,6 +5827,25 @@
               "sub": "標準割り込み）であり、終了操作とは異なります"
             }
           ]
+        },
+        {
+          "type": "keyboard",
+          "combos": [
+            {
+              "keys": [
+                {
+                  "label": "Ctrl"
+                },
+                {
+                  "label": "D",
+                  "highlight": true
+                }
+              ],
+              "caption": "REPL終了"
+            }
+          ],
+          "sequence": false,
+          "caption": "EOFシグナル送信"
         }
       ],
       "tags": [
@@ -6023,7 +6042,7 @@
         }
       ],
       "correctIndex": 2,
-      "explanation": "`Ctrl+C`は標準的な割り込みシグナルで、入力中や生成中の操作をキャンセルします（ドキュメントで「Cancel current input or generation」として定義）。`Esc`は入力のキャンセルに使え、`Esc+Esc`はrewindメニュー（`/rewind`相当）を開く追加機能があります。\n\n{{diagram:0}}\n\n1回と2回で動作が異なる点に注意が必要です。\n{{diagram:1}}",
+      "explanation": "{{diagram:2}}\n\n`Ctrl+C`は標準的な割り込みシグナルで、入力中や生成中の操作をキャンセルします（ドキュメントで「Cancel current input or generation」として定義）。`Esc`は入力のキャンセルに使え、`Esc+Esc`はrewindメニュー（`/rewind`相当）を開く追加機能があります。\n\n{{diagram:0}}\n\n1回と2回で動作が異なる点に注意が必要です。\n{{diagram:1}}",
       "category": "keyboard",
       "difficulty": "beginner",
       "referenceUrl": "https://code.claude.com/docs/ja/interactive-mode",
@@ -6075,6 +6094,47 @@
               "sub": ""
             }
           ]
+        },
+        {
+          "type": "keyboard",
+          "combos": [
+            {
+              "keys": [
+                {
+                  "label": "Ctrl"
+                },
+                {
+                  "label": "C",
+                  "highlight": true
+                }
+              ],
+              "caption": "入力・生成中断"
+            },
+            {
+              "keys": [
+                {
+                  "label": "Esc",
+                  "highlight": true
+                }
+              ],
+              "caption": "入力キャンセル"
+            },
+            {
+              "keys": [
+                {
+                  "label": "Esc",
+                  "highlight": true
+                },
+                {
+                  "label": "Esc",
+                  "highlight": true
+                }
+              ],
+              "caption": "rewindメニュー"
+            }
+          ],
+          "sequence": false,
+          "caption": "操作回数で動作変化"
         }
       ],
       "tags": [
@@ -6241,7 +6301,7 @@
         }
       ],
       "correctIndex": 3,
-      "explanation": "`Ctrl+B`で実行中の`Bash`コマンドやエージェントをバックグラウンドに移動できます。\n\n{{diagram:0}}\n\nコマンドやエージェントは引き続き実行され、出力はファイルに書き込まれ `Read` ツールで取得できます。tmux環境では`Ctrl+B`がtmuxプレフィックスと競合するため2回押す必要があります。\n{{diagram:1}}",
+      "explanation": "{{diagram:2}}\n\n`Ctrl+B`で実行中の`Bash`コマンドやエージェントをバックグラウンドに移動できます。\n\n{{diagram:0}}\n\nコマンドやエージェントは引き続き実行され、出力はファイルに書き込まれ `Read` ツールで取得できます。tmux環境では`Ctrl+B`がtmuxプレフィックスと競合するため2回押す必要があります。\n{{diagram:1}}",
       "referenceUrl": "https://code.claude.com/docs/ja/interactive-mode",
       "diagrams": [
         {
@@ -6282,6 +6342,24 @@
               "sub": "出力の一時停止ではありません。`Ctrl+B`はコマンドを引き続き実行させながらバックグラウンドに移動する機能で、出力はファイルに書き込まれ Read ツールで取得できます。一時停止・再開の仕組みではありません。"
             }
           ]
+        },
+        {
+          "type": "keyboard",
+          "combos": [
+            {
+              "keys": [
+                {
+                  "label": "Ctrl"
+                },
+                {
+                  "label": "B",
+                  "highlight": true
+                }
+              ],
+              "caption": "バックグラウンド移動"
+            }
+          ],
+          "sequence": false
         }
       ]
     },
@@ -11062,7 +11140,7 @@
         }
       ],
       "correctIndex": 0,
-      "explanation": "`Ctrl+X Ctrl+K`を3秒以内に2回押すと、全てのバックグラウンドエージェントを一括停止（kill）できます。\n\n{{diagram:0}}\n\nこれはコードバインディング（`Ctrl+X`に続けて`Ctrl+K`を押す）で、個別停止ではなく緊急停止用のショートカットとして設計されており、2回押しで誤操作を防いでいます。\n{{diagram:1}}",
+      "explanation": "{{diagram:2}}\n\n`Ctrl+X Ctrl+K`を3秒以内に2回押すと、全てのバックグラウンドエージェントを一括停止（kill）できます。\n\n{{diagram:0}}\n\nこれはコードバインディング（`Ctrl+X`に続けて`Ctrl+K`を押す）で、個別停止ではなく緊急停止用のショートカットとして設計されており、2回押しで誤操作を防いでいます。\n{{diagram:1}}",
       "referenceUrl": "https://code.claude.com/docs/ja/interactive-mode",
       "diagrams": [
         {
@@ -11104,6 +11182,37 @@
               ]
             }
           ]
+        },
+        {
+          "type": "keyboard",
+          "combos": [
+            {
+              "keys": [
+                {
+                  "label": "Ctrl"
+                },
+                {
+                  "label": "X",
+                  "highlight": true
+                }
+              ],
+              "caption": "第1打"
+            },
+            {
+              "keys": [
+                {
+                  "label": "Ctrl"
+                },
+                {
+                  "label": "K",
+                  "highlight": true
+                }
+              ],
+              "caption": "第2打（3秒以内）"
+            }
+          ],
+          "sequence": true,
+          "caption": "全エージェント強制停止"
         }
       ],
       "tags": [
@@ -11133,7 +11242,7 @@
         }
       ],
       "correctIndex": 2,
-      "explanation": "`Ctrl+T`でタスクリストの表示/非表示を切り替えられます。\n{{diagram:0}}\n並行タスク実行時に、各タスクがpending（待機）・in-progress（実行中）・complete（完了）のどの状態かを視覚的に確認できます。\n{{diagram:1}}",
+      "explanation": "{{diagram:2}}\n\n`Ctrl+T`でタスクリストの表示/非表示を切り替えられます。\n{{diagram:0}}\n並行タスク実行時に、各タスクがpending（待機）・in-progress（実行中）・complete（完了）のどの状態かを視覚的に確認できます。\n{{diagram:1}}",
       "referenceUrl": "https://code.claude.com/docs/ja/interactive-mode",
       "diagrams": [
         {
@@ -11182,6 +11291,24 @@
               "sub": "`/tasks`はバックグラウンドタスクの一覧管理コマンドです。サブタスクの進捗状況（pending/in-progress/complete）のリアルタイム表示は`Ctrl+T`で切り替えます。"
             }
           ]
+        },
+        {
+          "type": "keyboard",
+          "combos": [
+            {
+              "keys": [
+                {
+                  "label": "Ctrl"
+                },
+                {
+                  "label": "T",
+                  "highlight": true
+                }
+              ],
+              "caption": "タスクリスト"
+            }
+          ],
+          "sequence": false
         }
       ],
       "tags": [
@@ -11211,7 +11338,7 @@
         }
       ],
       "correctIndex": 1,
-      "explanation": "`Ctrl+O`でトランスクリプトビューア（transcript viewer）を切り替えると、ツール実行の詳細や処理過程が表示されます。\n\n{{diagram:0}}\n\nClaudeがどのツールをどう使っているか把握でき、意図しない動作のデバッグに役立ちます。\n{{diagram:1}}",
+      "explanation": "{{diagram:2}}\n\n`Ctrl+O`でトランスクリプトビューア（transcript viewer）を切り替えると、ツール実行の詳細や処理過程が表示されます。\n\n{{diagram:0}}\n\nClaudeがどのツールをどう使っているか把握でき、意図しない動作のデバッグに役立ちます。\n{{diagram:1}}",
       "referenceUrl": "https://code.claude.com/docs/ja/interactive-mode",
       "diagrams": [
         {
@@ -11256,6 +11383,24 @@
               "sub": "debug設定ではなく、`Ctrl+O`のトランスクリプトビューア（transcript viewer）でツール実行の詳細を確認できます。"
             }
           ]
+        },
+        {
+          "type": "keyboard",
+          "combos": [
+            {
+              "keys": [
+                {
+                  "label": "Ctrl"
+                },
+                {
+                  "label": "O",
+                  "highlight": true
+                }
+              ],
+              "caption": "トランスクリプト"
+            }
+          ],
+          "sequence": false
         }
       ],
       "tags": [
@@ -11285,7 +11430,7 @@
         }
       ],
       "correctIndex": 1,
-      "explanation": "`Ctrl+G`で現在のプロンプトをデフォルトのテキストエディタで開けます。\n\n{{diagram:0}}\n\nシンタックスハイライト、検索置換、マルチカーソル等のエディタ機能を活用して複雑なプロンプトを作成できます。\n{{diagram:1}}",
+      "explanation": "{{diagram:2}}\n\n`Ctrl+G`で現在のプロンプトをデフォルトのテキストエディタで開けます。\n\n{{diagram:0}}\n\nシンタックスハイライト、検索置換、マルチカーソル等のエディタ機能を活用して複雑なプロンプトを作成できます。\n{{diagram:1}}",
       "referenceUrl": "https://code.claude.com/docs/ja/interactive-mode",
       "diagrams": [
         {
@@ -11326,6 +11471,24 @@
               "sub": "`/edit`コマンドは存在しません。`Ctrl+G`でデフォルトテキストエディタが開きます。"
             }
           ]
+        },
+        {
+          "type": "keyboard",
+          "combos": [
+            {
+              "keys": [
+                {
+                  "label": "Ctrl"
+                },
+                {
+                  "label": "G",
+                  "highlight": true
+                }
+              ],
+              "caption": "エディタで開く"
+            }
+          ],
+          "sequence": false
         }
       ],
       "tags": [
@@ -11355,7 +11518,7 @@
         }
       ],
       "correctIndex": 1,
-      "explanation": "`Option+T`（macOS）または`Alt+T`（Windows/Linux）でアダプティブ推論の有効/無効をセッション中に切り替えられます。複雑な設計判断では有効にし、単純な作業では無効にすることでコストと品質のバランスを取れます。\n\n{{diagram:0}}\n\nv2.1.132 以降、macOS でも `Option+T` は「Option as Meta」設定なしで動作します（`Alt+B`・`Alt+F`・`Alt+Y`・`Alt+M`・`Alt+P` 等の他のOptionショートカットとは異なります）。\n{{diagram:1}}",
+      "explanation": "{{diagram:2}}\n\n`Option+T`（macOS）または`Alt+T`（Windows/Linux）でアダプティブ推論の有効/無効をセッション中に切り替えられます。複雑な設計判断では有効にし、単純な作業では無効にすることでコストと品質のバランスを取れます。\n\n{{diagram:0}}\n\nv2.1.132 以降、macOS でも `Option+T` は「Option as Meta」設定なしで動作します（`Alt+B`・`Alt+F`・`Alt+Y`・`Alt+M`・`Alt+P` 等の他のOptionショートカットとは異なります）。\n{{diagram:1}}",
       "referenceUrl": "https://code.claude.com/docs/ja/interactive-mode",
       "diagrams": [
         {
@@ -11402,6 +11565,37 @@
               "text": "※ Alt+B/F/Y/M/P等の他のショートカットにも必要"
             }
           ]
+        },
+        {
+          "type": "keyboard",
+          "combos": [
+            {
+              "keys": [
+                {
+                  "label": "⌥ Option"
+                },
+                {
+                  "label": "T",
+                  "highlight": true
+                }
+              ],
+              "caption": "macOS"
+            },
+            {
+              "keys": [
+                {
+                  "label": "Alt"
+                },
+                {
+                  "label": "T",
+                  "highlight": true
+                }
+              ],
+              "caption": "Win/Linux"
+            }
+          ],
+          "sequence": false,
+          "caption": "推論切り替え"
         }
       ],
       "tags": [
@@ -11506,7 +11700,7 @@
         }
       ],
       "correctIndex": 2,
-      "explanation": "`Ctrl+D`はEOF（End of File）を送信してセッションを終了します。\n\n{{diagram:0}}\n\n`Ctrl+C`は現在のClaudeの応答を中断しますが、セッションは終了しません。`Esc`キーはプロンプト入力をキャンセルし、入力内容をクリアします。\n{{diagram:1}}",
+      "explanation": "{{diagram:2}}\n\n`Ctrl+D`はEOF（End of File）を送信してセッションを終了します。\n\n{{diagram:0}}\n\n`Ctrl+C`は現在のClaudeの応答を中断しますが、セッションは終了しません。`Esc`キーはプロンプト入力をキャンセルし、入力内容をクリアします。\n{{diagram:1}}",
       "referenceUrl": "https://code.claude.com/docs/ja/interactive-mode",
       "diagrams": [
         {
@@ -11553,6 +11747,36 @@
               "sub": "力内容をクリアします"
             }
           ]
+        },
+        {
+          "type": "keyboard",
+          "combos": [
+            {
+              "keys": [
+                {
+                  "label": "Ctrl"
+                },
+                {
+                  "label": "D",
+                  "highlight": true
+                }
+              ],
+              "caption": "セッション終了"
+            },
+            {
+              "keys": [
+                {
+                  "label": "Ctrl"
+                },
+                {
+                  "label": "C",
+                  "highlight": true
+                }
+              ],
+              "caption": "応答を中断"
+            }
+          ],
+          "sequence": false
         }
       ],
       "tags": [
@@ -11580,7 +11804,7 @@
         }
       ],
       "correctIndex": 1,
-      "explanation": "クリップボードの画像は、標準的には`Ctrl+V`で貼り付けられますが、iTerm2では`Cmd+V`、Windowsターミナルでは`Alt+V`を使います。\n{{diagram:0}}\nターミナルごとにペースト操作の修飾キーが異なる点に注意が必要です。\n{{diagram:1}}",
+      "explanation": "{{diagram:2}}\n\nクリップボードの画像は、標準的には`Ctrl+V`で貼り付けられますが、iTerm2では`Cmd+V`、Windowsターミナルでは`Alt+V`を使います。\n{{diagram:0}}\nターミナルごとにペースト操作の修飾キーが異なる点に注意が必要です。\n{{diagram:1}}",
       "category": "keyboard",
       "difficulty": "beginner",
       "referenceUrl": "https://code.claude.com/docs/ja/interactive-mode",
@@ -11619,6 +11843,48 @@
               "sub": "る点に注意が必要です"
             }
           ]
+        },
+        {
+          "type": "keyboard",
+          "combos": [
+            {
+              "keys": [
+                {
+                  "label": "Ctrl"
+                },
+                {
+                  "label": "V",
+                  "highlight": true
+                }
+              ],
+              "caption": "標準"
+            },
+            {
+              "keys": [
+                {
+                  "label": "⌘ Cmd"
+                },
+                {
+                  "label": "V",
+                  "highlight": true
+                }
+              ],
+              "caption": "iTerm2"
+            },
+            {
+              "keys": [
+                {
+                  "label": "Alt"
+                },
+                {
+                  "label": "V",
+                  "highlight": true
+                }
+              ],
+              "caption": "Windows"
+            }
+          ],
+          "sequence": false
         }
       ],
       "tags": [
@@ -15826,7 +16092,7 @@
         }
       ],
       "correctIndex": 1,
-      "explanation": "`Ctrl+K`はreadline/Emacsの標準的なkill操作です。\n{{diagram:0}}\n削除したテキストはkill ringに保存され、`Ctrl+Y`で貼り付け（yank）できます。Claude Code固有のショートカットではなく、bashやzshなど多くのターミナルツールで共通して使えます。\n{{diagram:1}}",
+      "explanation": "{{diagram:2}}\n\n`Ctrl+K`はreadline/Emacsの標準的なkill操作です。\n{{diagram:0}}\n削除したテキストはkill ringに保存され、`Ctrl+Y`で貼り付け（yank）できます。Claude Code固有のショートカットではなく、bashやzshなど多くのターミナルツールで共通して使えます。\n{{diagram:1}}",
       "referenceUrl": "https://code.claude.com/docs/ja/interactive-mode",
       "diagrams": [
         {
@@ -15873,6 +16139,24 @@
               ]
             }
           ]
+        },
+        {
+          "type": "keyboard",
+          "combos": [
+            {
+              "keys": [
+                {
+                  "label": "Ctrl"
+                },
+                {
+                  "label": "K",
+                  "highlight": true
+                }
+              ],
+              "caption": "行末まで削除"
+            }
+          ],
+          "sequence": false
         }
       ],
       "tags": [
@@ -15902,7 +16186,7 @@
         }
       ],
       "correctIndex": 0,
-      "explanation": "`Ctrl+U`はカーソルから行頭までのテキストを削除し、kill ringに保存します。削除したテキストは`Ctrl+Y`で復元できます。\n\n{{diagram:0}}\n\n`Ctrl+K`（カーソルから行末まで削除）と組み合わせることで、効率的なテキスト編集が可能です。\n{{diagram:1}}",
+      "explanation": "{{diagram:2}}\n\n`Ctrl+U`はカーソルから行頭までのテキストを削除し、kill ringに保存します。削除したテキストは`Ctrl+Y`で復元できます。\n\n{{diagram:0}}\n\n`Ctrl+K`（カーソルから行末まで削除）と組み合わせることで、効率的なテキスト編集が可能です。\n{{diagram:1}}",
       "referenceUrl": "https://code.claude.com/docs/ja/interactive-mode",
       "diagrams": [
         {
@@ -15943,6 +16227,24 @@
               "sub": "trl+Wは選択的な単語削除であるのに対し、C"
             }
           ]
+        },
+        {
+          "type": "keyboard",
+          "combos": [
+            {
+              "keys": [
+                {
+                  "label": "Ctrl"
+                },
+                {
+                  "label": "U",
+                  "highlight": true
+                }
+              ],
+              "caption": "行全体を消去"
+            }
+          ],
+          "sequence": false
         }
       ],
       "tags": [
@@ -16041,7 +16343,7 @@
         }
       ],
       "correctIndex": 3,
-      "explanation": "`Alt+B`（backward-word）と`Alt+F`（forward-word）はEmacs/readlineの標準操作です。\n{{diagram:0}}\nmacOSでは「Option as Meta」の設定が必要です。矢印キーから手を離さずにホームポジションで操作できるため、長いプロンプトの編集効率が向上します。`Ctrl+A`（行頭）、`Ctrl+E`（行末）と組み合わせて使います。\n{{diagram:1}}",
+      "explanation": "{{diagram:2}}\n\n`Alt+B`（backward-word）と`Alt+F`（forward-word）はEmacs/readlineの標準操作です。\n{{diagram:0}}\nmacOSでは「Option as Meta」の設定が必要です。矢印キーから手を離さずにホームポジションで操作できるため、長いプロンプトの編集効率が向上します。`Ctrl+A`（行頭）、`Ctrl+E`（行末）と組み合わせて使います。\n{{diagram:1}}",
       "referenceUrl": "https://code.claude.com/docs/ja/interactive-mode",
       "diagrams": [
         {
@@ -16088,6 +16390,36 @@
               "sub": "組み合わせて使います"
             }
           ]
+        },
+        {
+          "type": "keyboard",
+          "combos": [
+            {
+              "keys": [
+                {
+                  "label": "Alt"
+                },
+                {
+                  "label": "B",
+                  "highlight": true
+                }
+              ],
+              "caption": "単語を戻る"
+            },
+            {
+              "keys": [
+                {
+                  "label": "Alt"
+                },
+                {
+                  "label": "F",
+                  "highlight": true
+                }
+              ],
+              "caption": "単語を進む"
+            }
+          ],
+          "sequence": false
         }
       ],
       "tags": [
@@ -24868,7 +25200,7 @@
         }
       ],
       "correctIndex": 2,
-      "explanation": "Escキーは現在の入力テキストをクリアします。\n\n{{diagram:0}}\n\n生成中のレスポンスを中断する場合は`Ctrl+C`を使用します。また`Esc`を素早く2回押すと、チェックポイントの巻き戻し（Rewind）機能が起動します。\n{{diagram:1}}",
+      "explanation": "{{diagram:2}}\n\nEscキーは現在の入力テキストをクリアします。\n\n{{diagram:0}}\n\n生成中のレスポンスを中断する場合は`Ctrl+C`を使用します。また`Esc`を素早く2回押すと、チェックポイントの巻き戻し（Rewind）機能が起動します。\n{{diagram:1}}",
       "referenceUrl": "https://code.claude.com/docs/ja/interactive-mode",
       "diagrams": [
         {
@@ -24909,6 +25241,21 @@
               "sub": "Escは元に戻す操作ではなく、現在の入力/タスクをキャンセルします。"
             }
           ]
+        },
+        {
+          "type": "keyboard",
+          "combos": [
+            {
+              "keys": [
+                {
+                  "label": "Esc",
+                  "highlight": true
+                }
+              ],
+              "caption": "入力キャンセル"
+            }
+          ],
+          "sequence": false
         }
       ],
       "tags": [
@@ -41306,7 +41653,7 @@
         }
       ],
       "correctIndex": 3,
-      "explanation": "Claude Code では `Shift+Enter` の他に、`\\`（バックスラッシュ）の直後に Enter を押す方法、および `Option+Enter` でも改行を挿入できます。\n{{diagram:0}}\nどのターミナルでも `\\` + Enter は動作するため、`Shift+Enter` がサポートされない環境での代替手段として有用です。\n{{diagram:1}}",
+      "explanation": "{{diagram:2}}\n\nClaude Code では `Shift+Enter` の他に、`\\`（バックスラッシュ）の直後に Enter を押す方法、および `Option+Enter` でも改行を挿入できます。\n{{diagram:0}}\nどのターミナルでも `\\` + Enter は動作するため、`Shift+Enter` がサポートされない環境での代替手段として有用です。\n{{diagram:1}}",
       "referenceUrl": "https://code.claude.com/docs/ja/terminal-config",
       "diagrams": [
         {
@@ -41343,6 +41690,28 @@
               "sub": "作するため、Shift+Enter がサポート"
             }
           ]
+        },
+        {
+          "type": "keyboard",
+          "combos": [
+            {
+              "keys": [
+                {
+                  "label": "\\"
+                }
+              ]
+            },
+            {
+              "keys": [
+                {
+                  "label": "Enter",
+                  "highlight": true
+                }
+              ]
+            }
+          ],
+          "sequence": true,
+          "caption": "改行を挿入（Shift+Enter の代替）"
         }
       ],
       "tags": [
@@ -53733,7 +54102,7 @@
         }
       ],
       "correctIndex": 3,
-      "explanation": "リバースサーチ（`Ctrl+R`）では、マッチが見つかったら `Tab` または `Esc` で受け入れて編集を続行でき、`Enter` で受け入れて即座に実行します。\n\n{{diagram:0}}\n\n`Ctrl+R` を再度押すとより古いマッチに移動し、`Ctrl+C` でキャンセルして元の入力に戻ります。検索語はマッチ結果内でハイライト表示されます。\n{{diagram:1}}",
+      "explanation": "{{diagram:2}}\n\nリバースサーチ（`Ctrl+R`）では、マッチが見つかったら `Tab` または `Esc` で受け入れて編集を続行でき、`Enter` で受け入れて即座に実行します。\n\n{{diagram:0}}\n\n`Ctrl+R` を再度押すとより古いマッチに移動し、`Ctrl+C` でキャンセルして元の入力に戻ります。検索語はマッチ結果内でハイライト表示されます。\n{{diagram:1}}",
       "referenceUrl": "https://code.claude.com/docs/ja/interactive-mode",
       "diagrams": [
         {
@@ -53782,6 +54151,40 @@
               "sub": "`Ctrl+R` を再度押すとより古いマッチに移動し、`Ctrl+C` はキャンセルして元の入力に戻す操作です"
             }
           ]
+        },
+        {
+          "type": "keyboard",
+          "combos": [
+            {
+              "keys": [
+                {
+                  "label": "Tab",
+                  "highlight": true
+                }
+              ],
+              "caption": "受け入れ・編集"
+            },
+            {
+              "keys": [
+                {
+                  "label": "Esc",
+                  "highlight": true
+                }
+              ],
+              "caption": "受け入れ・編集"
+            },
+            {
+              "keys": [
+                {
+                  "label": "Enter",
+                  "highlight": true
+                }
+              ],
+              "caption": "即座に実行"
+            }
+          ],
+          "sequence": false,
+          "caption": "リバースサーチ後"
         }
       ],
       "tags": [
@@ -53885,7 +54288,7 @@
         }
       ],
       "correctIndex": 2,
-      "explanation": "トランスクリプトビューアは `Ctrl+O` で開き、内部では `Ctrl+E` で全コンテンツ表示を切り替えられます。\n{{diagram:0}}\n終了には `q`、`Ctrl+C`、`Esc` の3つが使えます。`Ctrl+E` は `transcript:toggleShowAll`、終了キーは `transcript:exit` としてキーバインディング設定で再設定可能です。\n{{diagram:1}}",
+      "explanation": "{{diagram:2}}\n\nトランスクリプトビューアは `Ctrl+O` で開き、内部では `Ctrl+E` で全コンテンツ表示を切り替えられます。\n{{diagram:0}}\n終了には `q`、`Ctrl+C`、`Esc` の3つが使えます。`Ctrl+E` は `transcript:toggleShowAll`、終了キーは `transcript:exit` としてキーバインディング設定で再設定可能です。\n{{diagram:1}}",
       "referenceUrl": "https://code.claude.com/docs/ja/interactive-mode",
       "diagrams": [
         {
@@ -53926,6 +54329,55 @@
               "sub": "ggleShowAll、終了キーは trans"
             }
           ]
+        },
+        {
+          "type": "keyboard",
+          "combos": [
+            {
+              "keys": [
+                {
+                  "label": "Ctrl"
+                },
+                {
+                  "label": "E",
+                  "highlight": true
+                }
+              ],
+              "caption": "全表示切替"
+            },
+            {
+              "keys": [
+                {
+                  "label": "q",
+                  "highlight": true
+                }
+              ],
+              "caption": "ビューア終了"
+            },
+            {
+              "keys": [
+                {
+                  "label": "Ctrl"
+                },
+                {
+                  "label": "C",
+                  "highlight": true
+                }
+              ],
+              "caption": "ビューア終了"
+            },
+            {
+              "keys": [
+                {
+                  "label": "Esc",
+                  "highlight": true
+                }
+              ],
+              "caption": "ビューア終了"
+            }
+          ],
+          "sequence": false,
+          "caption": "ビューア内操作"
         }
       ],
       "tags": [
@@ -53955,7 +54407,7 @@
         }
       ],
       "correctIndex": 3,
-      "explanation": "`Option+O`（macOS）/ `Alt+O`（Windows/Linux）でファストモードを切り替えられます。\n\n{{diagram:0}}\n\nファストモードでは同じモデルを高速出力設定で動作させ、より速い応答が得られます。macOS では Option キーを Meta として送信するターミナル設定が必要です。\n{{diagram:1}}",
+      "explanation": "{{diagram:2}}\n\n`Option+O`（macOS）/ `Alt+O`（Windows/Linux）でファストモードを切り替えられます。\n\n{{diagram:0}}\n\nファストモードでは同じモデルを高速出力設定で動作させ、より速い応答が得られます。macOS では Option キーを Meta として送信するターミナル設定が必要です。\n{{diagram:1}}",
       "referenceUrl": "https://code.claude.com/docs/ja/interactive-mode",
       "diagrams": [
         {
@@ -54000,6 +54452,37 @@
               "sub": "`Ctrl+F` はファストモードの切り替えではありません。`Option+O`（macOS）/ `Alt+O`（Windows/Linux）で直接切り替えます"
             }
           ]
+        },
+        {
+          "type": "keyboard",
+          "combos": [
+            {
+              "keys": [
+                {
+                  "label": "⌥ Option"
+                },
+                {
+                  "label": "O",
+                  "highlight": true
+                }
+              ],
+              "caption": "macOS"
+            },
+            {
+              "keys": [
+                {
+                  "label": "Alt"
+                },
+                {
+                  "label": "O",
+                  "highlight": true
+                }
+              ],
+              "caption": "Win/Linux"
+            }
+          ],
+          "sequence": false,
+          "caption": "ファストモード切替"
         }
       ],
       "tags": [
@@ -55428,7 +55911,7 @@
         }
       ],
       "correctIndex": 3,
-      "explanation": "MacBook など `PgUp`/`PgDn`/`Home`/`End` の専用キーがないキーボードでは `Fn` + 矢印キーで代替する。\n{{diagram:0}}\nスクロールアップするとオートフォローが一時停止され、`Ctrl+End` かマウスホイールで末尾まで戻ると再開する。",
+      "explanation": "{{diagram:1}}\n\nMacBook など `PgUp`/`PgDn`/`Home`/`End` の専用キーがないキーボードでは `Fn` + 矢印キーで代替する。\n{{diagram:0}}\nスクロールアップするとオートフォローが一時停止され、`Ctrl+End` かマウスホイールで末尾まで戻ると再開する。",
       "referenceUrl": "https://code.claude.com/docs/ja/fullscreen",
       "diagrams": [
         {
@@ -55456,6 +55939,28 @@
               ]
             }
           ]
+        },
+        {
+          "type": "keyboard",
+          "combos": [
+            {
+              "keys": [
+                {
+                  "label": "Ctrl"
+                },
+                {
+                  "label": "Fn"
+                },
+                {
+                  "label": "→",
+                  "highlight": true
+                }
+              ],
+              "caption": "末尾へジャンプ"
+            }
+          ],
+          "sequence": false,
+          "caption": "MacBook末尾移動"
         }
       ],
       "tags": [

@@ -1,0 +1,169 @@
+#!/usr/bin/env node
+
+/**
+ * Generate keyboard-diagram data for shortcut questions.
+ *
+ * keyboard/session/commands カテゴリのうち「物理キー操作」を教える問題に対し、
+ * 正答に紐づくショートカットを Haiku に抽出させ keyboard ダイアグラム JSON を生成する。
+ * /command・設定ファイル・概念問題など物理キーでないものは null（スキップ）。
+ *
+ * Usage:
+ *   node scripts/generate-keyboard-diagrams.mjs --limit 6   # 先頭6問でドライ生成
+ *   node scripts/generate-keyboard-diagrams.mjs             # 全候補
+ *   node scripts/generate-keyboard-diagrams.mjs --resume    # 既存出力に追記
+ * Output: .claude/tmp/keyboard-diagrams.json  { items: { id: <KeyboardDiagram|null> } }
+ */
+
+import { execSync } from 'child_process'
+import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'fs'
+import { dirname, resolve } from 'path'
+import { fileURLToPath } from 'url'
+
+const __dirname = dirname(fileURLToPath(import.meta.url))
+const QUIZ_PATH = resolve(__dirname, '../src/data/quizzes.json')
+const OUT_PATH = resolve(__dirname, '../.claude/tmp/keyboard-diagrams.json')
+
+const args = process.argv.slice(2)
+const LIMIT = args.indexOf('--limit') >= 0 ? Number(args[args.indexOf('--limit') + 1]) : null
+const BATCH_SIZE = args.indexOf('--batch') >= 0 ? Number(args[args.indexOf('--batch') + 1]) : 6
+const RESUME = args.includes('--resume')
+const MODEL = args.includes('--sonnet') ? 'sonnet' : 'haiku'
+
+const quizFile = JSON.parse(readFileSync(QUIZ_PATH, 'utf8'))
+const allQuizzes = quizFile.quizzes
+
+const KEY_RE =
+  /Ctrl\+[A-Z]|Cmd\+|⌘|Esc|Shift\+Tab|Shift\+Enter|Alt\+[A-Z]|Ctrl-[a-z]|矢印キー|Tab(キー| を| が)|Backspace|Ctrl\+R|Ctrl\+L|Ctrl\+O|Ctrl\+B|Ctrl\+T|Ctrl\+C|Ctrl\+D|Ctrl\+U|Ctrl\+K|Ctrl\+A|Ctrl\+E/
+const candidates = allQuizzes.filter((q) => {
+  if ((q.diagrams || []).some((d) => d.type === 'keyboard')) return false // 既存 keyboard 図は除外（冪等）
+  // keyboard カテゴリ: 設問/解説どちらにキーがあっても対象（キーが主題のことが多い）
+  if (q.category === 'keyboard') return KEY_RE.test(`${q.question} ${q.explanation || ''}`)
+  // commands/session: キーが「設問文自体」にある場合のみ（解説の言及だけの /command 問題を除外）
+  if (q.category === 'commands' || q.category === 'session') return KEY_RE.test(q.question)
+  return false
+})
+
+let existing = {}
+if (RESUME && existsSync(OUT_PATH)) {
+  try {
+    existing = JSON.parse(readFileSync(OUT_PATH, 'utf8')).items || {}
+  } catch {
+    /* ignore */
+  }
+}
+let targets = candidates.filter((q) => !RESUME || !(q.id in existing))
+if (LIMIT) targets = targets.slice(0, LIMIT)
+
+console.log(`[start] model=${MODEL} 候補=${candidates.length} 対象=${targets.length}`)
+if (targets.length === 0) {
+  console.log('[done] 対象なし')
+  process.exit(0)
+}
+
+function buildPrompt(batch) {
+  const items = batch.map((q) => {
+    const correct = q.options?.[q.correctIndex]?.text ?? ''
+    return {
+      id: q.id,
+      question: q.question.replace(/\n/g, ' ').slice(0, 220),
+      correctAnswer: correct.slice(0, 160),
+      explanation: (q.explanation || '')
+        .replace(/\{\{diagram:\d+\}\}/g, '')
+        .replace(/\n/g, ' ')
+        .slice(0, 320),
+    }
+  })
+
+  return `あなたは Claude Code クイズの解説に添える「キーボード図」のデータを作るアシスタントです。
+各問題が教える物理キーのショートカットを、正答(correctAnswer)に基づいて JSON で表現してください。
+
+## 出力スキーマ（KeyboardDiagram）
+{ "combos": [ { "keys": [ { "label": "Ctrl" }, { "label": "C", "highlight": true } ], "caption": "中断" } ], "sequence": false, "caption": "任意の補足" }
+- keys: 同時押しするキー。修飾キー(Ctrl/Shift/Alt/Cmd)は highlight 無し、操作の主役キーに "highlight": true
+- combos: 同時押しの組を配列で。順番に押す手順(連打/シーケンス)なら "sequence": true（例 Esc を2回）
+- 比較(例 Ctrl+D と Ctrl+C の違い)は combos に複数入れ "sequence": false。各 combo の caption に役割
+- caption は12文字以内、日本語。なくてもよい
+- ラベル表記: "Ctrl" "⇧ Shift" "Alt" "⌘ Cmd" "Esc" "Tab" "Enter" "C" "R" "K" 等。Mac記号は任意
+
+## 重要な判定（厳格に）
+- 「そのショートカット自体が設問の主題」で「正答がそのキー操作の内容」である場合のみ図を作る。
+- 次は必ず null にする（誤った図は無い方がマシ）:
+  - /スラッシュコマンド（/model, /plan, /theme, /tasks, /compact 等）の挙動が主題で、キーは付随的な言及にすぎないもの
+  - モード・概念・効果の説明が主題（キーは脇役）
+  - 設定ファイル/キーバインド定義の編集、kill ring 等の概念説明
+  - 正答にそのキー操作が直接含まれないもの
+- 「キーが文中に出てくる」だけでは作らない。設問が問うているのがキー操作そのものか、を基準にする。
+- 少しでも迷ったら null。
+
+## 出力フォーマット（JSONのみ。説明文なし）
+{ "items": [ { "id": "key-003", "diagram": { ...KeyboardDiagram... } }, { "id": "cmd-006", "diagram": null } ] }
+
+## 対象
+${JSON.stringify(items, null, 2)}`
+}
+
+function callClaude(prompt) {
+  const tmp = resolve(__dirname, '../.claude/tmp/.kbgen-prompt.txt')
+  if (!existsSync(dirname(tmp))) mkdirSync(dirname(tmp), { recursive: true })
+  writeFileSync(tmp, prompt)
+  const result = execSync(`claude -p --model ${MODEL} --output-format json < "${tmp}"`, {
+    timeout: 120_000,
+    encoding: 'utf8',
+    maxBuffer: 10 * 1024 * 1024,
+    stdio: ['pipe', 'pipe', 'pipe'],
+  })
+  let text = result
+  try {
+    const wrapper = JSON.parse(result)
+    text = typeof wrapper === 'string' ? wrapper : wrapper.result || wrapper.content || JSON.stringify(wrapper)
+  } catch {
+    /* not wrapper */
+  }
+  text = text.replace(/```json\s*/g, '').replace(/```\s*/g, '')
+  const m = text.match(/\{[\s\S]*\}/)
+  if (!m) throw new Error('no JSON in response')
+  return JSON.parse(m[0])
+}
+
+const items = { ...existing }
+let ok = 0
+let errs = 0
+for (let i = 0; i < targets.length; i += BATCH_SIZE) {
+  const batch = targets.slice(i, i + BATCH_SIZE)
+  const n = Math.floor(i / BATCH_SIZE) + 1
+  const total = Math.ceil(targets.length / BATCH_SIZE)
+  process.stdout.write(`[batch ${n}/${total}] ${batch.length}問... `)
+  try {
+    const res = callClaude(buildPrompt(batch))
+    let hits = 0
+    for (const entry of res.items || []) {
+      if (!entry.id) continue
+      items[entry.id] = entry.diagram ?? null
+      if (entry.diagram) hits++
+    }
+    ok += hits
+    console.log(`✓ ${hits}件に図を生成`)
+    saveOutput(items)
+  } catch (e) {
+    errs++
+    console.log(`✗ ${e.message}`)
+  }
+}
+
+function saveOutput(it) {
+  if (!existsSync(dirname(OUT_PATH))) mkdirSync(dirname(OUT_PATH), { recursive: true })
+  const withDiagram = Object.values(it).filter(Boolean).length
+  writeFileSync(
+    OUT_PATH,
+    JSON.stringify(
+      { generatedAt: new Date().toISOString(), model: MODEL, total: Object.keys(it).length, withDiagram, items: it },
+      null,
+      2
+    )
+  )
+}
+
+const nullCount = Object.values(items).filter((v) => v === null).length
+console.log(`\n[done] 図生成=${ok} / null(スキップ)=${nullCount} / エラーバッチ=${errs}`)
+console.log(`[output] ${OUT_PATH}`)
+console.log(`次: node scripts/apply-keyboard-diagrams.mjs --dry-run で適用プレビュー`)
