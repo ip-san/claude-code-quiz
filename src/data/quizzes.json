@@ -16329,7 +16329,7 @@
                   "highlight": true
                 }
               ],
-              "caption": "行全体を消去"
+              "caption": "カーソル→行頭を削除"
             }
           ],
           "sequence": false
@@ -16427,7 +16427,7 @@
                   "highlight": true
                 }
               ],
-              "caption": "行全体削除"
+              "caption": "カーソル→行頭を削除"
             },
             {
               "keys": [

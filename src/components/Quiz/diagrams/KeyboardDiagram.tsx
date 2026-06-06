@@ -27,6 +27,7 @@ export function KeyboardDiagram({ label, combos, sequence = false, caption }: Ke
                 {/* 区切り: sequence は矢印（連打/手順）、比較は「/」 */}
                 {ci > 0 && (
                   <span
+                    aria-hidden="true"
                     className="text-sm font-bold text-stone-400 dark:text-stone-500"
                     style={{
                       opacity: isVisible ? 1 : 0,
@@ -43,7 +44,11 @@ export function KeyboardDiagram({ label, combos, sequence = false, caption }: Ke
                   >
                     {combo.keys.map((key, ki) => (
                       <div key={ki} className="flex items-center gap-1">
-                        {ki > 0 && <span className="text-xs font-bold text-stone-400 dark:text-stone-500">+</span>}
+                        {ki > 0 && (
+                          <span aria-hidden="true" className="text-xs font-bold text-stone-400 dark:text-stone-500">
+                            +
+                          </span>
+                        )}
                         <kbd className={keycapClass(key.highlight)}>{key.label}</kbd>
                       </div>
                     ))}

@@ -132,26 +132,47 @@ function callClaude(prompt) {
 }
 
 /**
- * 緩いJSON抽出: 各 `{` 開始位置 × 各 `}` 終了位置の候補を JSON.parse 試行する。
+ * `from`(='{') から対応する閉じ '}' までの balanced な部分文字列を返す（無ければ null）。
+ * 文字列リテラル内の波括弧・エスケープは無視する。1スタートあたり O(n) の線形スキャン。
+ */
+function extractBalancedObject(text, from) {
+  let depth = 0
+  let inStr = false
+  let esc = false
+  for (let i = from; i < text.length; i++) {
+    const ch = text[i]
+    if (inStr) {
+      if (esc) esc = false
+      else if (ch === '\\') esc = true
+      else if (ch === '"') inStr = false
+      continue
+    }
+    if (ch === '"') inStr = true
+    else if (ch === '{') depth++
+    else if (ch === '}' && --depth === 0) return text.slice(from, i + 1)
+  }
+  return null
+}
+
+/**
+ * 緩いJSON抽出: 各 `{` 開始位置から balanced object を1つ取り出して JSON.parse する。
  * 貪欲な /\{[\s\S]*\}/ と違い「前置きの散文/スキーマ復唱に波括弧が含まれる」「本JSONの後ろに
  * 追記テキストや別オブジェクトがある」いずれの場合も正しい範囲を取り出せる。
- * 期待スキーマは top-level `items` 配列を持つため、items を持つ object を優先して返す
- * （前置きにスキーマ例 {combos:...} が混じっても本体 {items:...} を選ぶ）。
+ * 旧実装(開始×終了の総当たり)は壊れた大応答で JSON.parse が O(brace²) 爆発したが、
+ * balanced 抽出により各スタート O(n)・JSON.parse はスタートあたり1回に抑える。
+ * 期待スキーマは top-level `items` 配列を持つため、items を持つ object を優先して返す。
  */
 function parseJsonLoose(text) {
   let fallback = null
   for (let start = text.indexOf('{'); start >= 0; start = text.indexOf('{', start + 1)) {
-    const tail = text.slice(start)
-    const ends = [tail.length - 1]
-    for (let i = tail.length - 1; i >= 0; i--) if (tail[i] === '}') ends.push(i)
-    for (const e of ends) {
-      try {
-        const obj = JSON.parse(tail.slice(0, e + 1))
-        if (obj && typeof obj === 'object' && Array.isArray(obj.items)) return obj // 望むものを優先
-        if (fallback === null) fallback = obj
-      } catch {
-        /* try the next boundary */
-      }
+    const candidate = extractBalancedObject(text, start)
+    if (!candidate) continue
+    try {
+      const obj = JSON.parse(candidate)
+      if (obj && typeof obj === 'object' && Array.isArray(obj.items)) return obj // 望むものを優先
+      if (fallback === null) fallback = obj
+    } catch {
+      /* try the next start position */
     }
   }
   if (fallback !== null) return fallback
