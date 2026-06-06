@@ -126,9 +126,32 @@ function callClaude(prompt) {
     /* not wrapper */
   }
   text = text.replace(/```json\s*/g, '').replace(/```\s*/g, '')
-  const m = text.match(/\{[\s\S]*\}/)
-  if (!m) throw new Error('no JSON in response')
-  return JSON.parse(m[0])
+  return parseJsonLoose(text)
+}
+
+/**
+ * 緩いJSON抽出: 最初の `{` 以降を、末尾の各 `}` 位置で順に JSON.parse 試行する。
+ * 貪欲な /\{[\s\S]*\}/ と違い「本JSONの後ろに追記テキストや別オブジェクト」があっても
+ * 正しい範囲を取り出せる（前置きテキストにも対応）。
+ */
+function parseJsonLoose(text) {
+  const start = text.indexOf('{')
+  if (start < 0) throw new Error('no JSON object in response')
+  const tail = text.slice(start)
+  try {
+    return JSON.parse(tail) // fast path: 末尾まで綺麗な単一オブジェクト
+  } catch {
+    /* fall through to progressive trim */
+  }
+  for (let i = tail.length - 1; i >= 0; i--) {
+    if (tail[i] !== '}') continue
+    try {
+      return JSON.parse(tail.slice(0, i + 1))
+    } catch {
+      /* try the next earlier '}' */
+    }
+  }
+  throw new Error('no parseable JSON object in response')
 }
 
 // AI 応答の構造ガード: combos[] と各 combo.keys[].label を満たさない図は無効として捨てる。
@@ -160,9 +183,11 @@ for (let i = 0; i < targets.length; i += BATCH_SIZE) {
   process.stdout.write(`[batch ${n}/${total}] ${batch.length}問... `)
   try {
     const res = callClaude(buildPrompt(batch))
+    // items 配列が無い応答は失敗扱い（成功に紛れて対象IDが沈黙で欠損/再フェッチされ続けるのを防ぐ）
+    if (!res || !Array.isArray(res.items)) throw new Error('response has no items array')
     let hits = 0
     let dropped = 0
-    for (const entry of res.items || []) {
+    for (const entry of res.items) {
       if (!entry.id) continue
       if (entry.diagram == null) {
         items[entry.id] = null
