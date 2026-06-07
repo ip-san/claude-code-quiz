@@ -1,0 +1,17 @@
+{
+  "$schema": "https://unpkg.com/knip@6/schema.json",
+  "entry": [
+    "electron/main.ts",
+    "electron/preload.ts",
+    "electron/recommend-handlers.ts",
+    "mcp/ga4-server.mjs",
+    "mcp/ga4-server.smoke.mjs",
+    "gtm/*.mjs",
+    "scripts/*.mjs",
+    "scripts/__tests__/*.test.mjs",
+    "src/**/*.{test,spec}.{ts,tsx}"
+  ],
+  "project": ["src/**/*.{ts,tsx}", "electron/**/*.ts", "mcp/**/*.mjs", "gtm/**/*.mjs", "scripts/**/*.mjs"],
+  "ignoreDependencies": ["tailwindcss"],
+  "ignoreBinaries": ["claude", "madge", "wait"]
+}
