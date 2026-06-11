@@ -217,3 +217,43 @@
 
 ### CLI tools
 - ユーザーが Claude に `--help` 使用を指示する（「自動学習」ではない）
+
+## 2026-06-10 incremental スキャン（Fable 5 ドリフト + ultracode キーワード）
+
+### Fable 5 の docs 登場（model-config.md、2026-06-10 確認）
+- **effort levels**: Fable 5 は `low/medium/high/xhigh/max` をサポート（model-config.md L198 テーブル）。**`xhigh` は Fable 5 / Opus 4.8 / Opus 4.7**（「Opus 4.8/4.7 のみ」は stale）。`max` は Fable 5 / Opus 4.8 / 4.7 / 4.6 / Sonnet 4.6
+- **デフォルト effort**: `high` on Fable 5 / Opus 4.8 / Opus 4.6 / Sonnet 4.6、`xhigh` on Opus 4.7（L202）
+- **アダプティブ推論**: "Opus 4.7 and later always use adaptive reasoning, **as does Fable 5**"（L238）。`CLAUDE_CODE_DISABLE_ADAPTIVE_THINKING` は Fable 5 / Opus 4.7+ に不適用
+- **`MAX_THINKING_TOKENS=0`**: Anthropic API 上で thinking 無効化、**ただし Fable 5 は例外（thinking を無効化できない）**（L248-250）。旧記録「全モデルで完全無効化」は stale
+- **1M context**: "Fable 5, Opus 4.6 and later, and Sonnet 4.6"（L254）。Anthropic API では Fable 5 / Opus 4.8 / 4.7 は常時 1M
+- **デフォルトモデル**: Fable 5 はどのアカウントタイプでもデフォルトにならない（L131）。Max/Team Premium/Enterprise PAYG/API = Opus 4.8 のまま
+- **`ultracode`**: `/effort` メニューに追加。モデルの effort レベルではなく Claude Code 設定（xhigh 送信 + dynamic workflows 編成）。`effortLevel` 設定・`--effort` フラグ・`CLAUDE_CODE_EFFORT_LEVEL` には含まれない。セッション限定
+- 修正適用: ses-045 / ses-102 / skill-061 / key-016 / bp-018 / cmd-104 / ses-105（WF・EXPL・diagram の xhigh/max/デフォルト記述に Fable 5 を反映）
+
+### ワークフロートリガーキーワード変更（workflows.md L81、2026-06-10 確認）
+- **v2.1.160 以降、リテラルトリガーは `ultracode`**（"Before v2.1.160 the literal trigger keyword was `workflow`"）。自然言語の依頼（"use a workflow"）は両バージョンで有効
+- 誤トリガー解除: `Option+W`（macOS）/ `Alt+W`（Win/Linux）。`/config` の Ultracode keyword trigger でオフ可
+- disableWorkflows 時: bundled コマンド不可 + **`ultracode` キーワード**のトリガー無効 + `/effort` から `ultracode` 削除（旧「workflow キーワード無効」は stale）
+- 修正適用: bp-096（Q/WF/EXPL）、bp-098（EXPL）
+
+### agent teams `"auto"` の split pane 条件（agent-teams.md L70、2026-06-10 確認）
+- `"auto"` は「tmux セッション内」**または「ターミナルが iTerm2」**の場合に split panes。旧「tmux 内のみ」は stale → skill-076 WF0/EXPL/diagram 修正
+
+### その他確認（2026-06-10）
+- 出力スタイル変更: `/config` → Output style メニュー（`.claude/settings.local.json` に保存）。**`/config [style]` の引数形式は undocumented** → key-032 EXPL/diagram から削除
+- fullscreen: `/tui fullscreen` と `CLAUDE_CODE_NO_FLICKER=1` は**等価**（バージョン条件なし）。v2.1.89/v2.1.110 の版数 claim は docs に無い → key-052 から削除
+- `/clear [name]`: 「空のコンテキストで新しい会話を開始。**以前の会話は `/resume` に残る**」（commands.md L12）。「全履歴削除」表現は不正確 → cmd-066 EXPL 修正
+- インストール系トラブルシュート（`Killed`/Docker ハング）は **`/troubleshoot-install` ページに移動** → cmd-096/097 referenceUrl 更新 + VALID_DOC_PAGES に `troubleshoot-install` 追加
+- `/scroll-speed` 対話コマンド新設（fullscreen.md）。`CLAUDE_CODE_SCROLL_SPEED` 1〜20 は不変
+- Agent SDK builtin tools 10種（Read/Write/Edit/Bash/Monitor/Glob/Grep/WebSearch/WebFetch/AskUserQuestion）✓ sdk-009 正確
+- Hook イベント 30種・permissionDecision 4値・defaultMode 6値・`autoAllowBashIfSandboxed` default true・Bash 出力 30,000字/上限150,000字 — いずれも現行 docs と一致（再確認）
+- prompt-caching: **effort 切替もキャッシュ無効化要因**（cache key に effort 含む）。`/reload-plugins` は full re-read 時に警告して中断（v2.1.163、`--force` で強行）
+- `defaultMode`: v2.1.142 以降 `auto` は project/local settings では無視される（リポジトリの自己昇格防止、settings.md L293）
+
+### カバレッジギャップ解消（2026-06-10 直接レビュー、agent-view.md / data-usage.md 2026-06-06 キャッシュ照合）
+- **agent-view（396行の機能ページ）が完全ゼロカバーだった** → ses-191〜195 を新規追加（`claude agents` の基本 / peek・attach・detach / `/bg` の引き継ぎ / シェル管理コマンド / worktree isolation）
+- **data-usage もゼロカバー** → ses-196（学習・保持ポリシー）、cmd-123（サードパーティでの `/feedback` ローカルフォールバック）を追加
+- カバレッジ計上バグ修正: `agent-sdk/overview`（URL由来スラッグ）と `agent-sdk-overview`（DOC_PAGES 名）が二重計上され「NO COVERAGE」偽陽性 → `quiz-utils.mjs` に PAGE_ALIASES を追加
+- `quizContentQuality.test.ts` の許可ページに `agent-view` を追加、`CATEGORY_DOC_MAP` の session に `agent-view`/`data-usage`、commands に `data-usage` を追加
+- 残る未カバー7ページ（changelog / desktop-changelog / champion-kit / communications-kit / legal-and-compliance / glossary / mcp-quickstart）は意図的にスキップ: 変更履歴・マーケ資料・法務はクイズ素材不適、glossary は各ページへのリンク集で既存問題と重複、mcp-quickstart は mcp（27問）と内容重複
+- 結果: 810→817問、99→101ページカバー。1099テスト・quiz:check・check（型+lint+type-coverage 99.63%）全通過

@@ -165,6 +165,7 @@ export const CATEGORY_DOC_MAP = {
     'github-actions',
     'gitlab-ci-cd',
     'scheduled-tasks',
+    'data-usage',
   ],
   extensions: [
     'mcp',
@@ -189,6 +190,8 @@ export const CATEGORY_DOC_MAP = {
     'remote-control',
     'desktop',
     'devcontainer',
+    'agent-view',
+    'data-usage',
   ],
   keyboard: ['interactive-mode', 'common-workflows', 'keybindings', 'statusline', 'terminal-config', 'output-styles'],
   bestpractices: ['best-practices', 'model-config', 'common-workflows', 'sandboxing'],

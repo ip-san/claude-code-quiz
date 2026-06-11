@@ -38,7 +38,7 @@
 
 - エフォートレベル調整（`CLAUDE_CODE_EFFORT_LEVEL`: low/medium/high）は Opus 4.6 **と Sonnet 4.6** の両方でサポート。「Opus 4.6専用」は誤り
 - **エフォートレベルのデフォルトはプラン依存**: Pro/Max=`medium`、その他(API key/Team/Enterprise/Bedrock/Vertex AI/Foundry)=`high`。model-config ページに "Pro and Max subscribers default to medium effort. All other users default to high effort: API key, Team, Enterprise, and third-party provider" と明記。**Team は `high` であり `medium` ではない**
-- `MAX_THINKING_TOKENS`（非ゼロ値）は Opus/Sonnet 4.6 ではアダプティブ推論中は無視される — `CLAUDE_CODE_DISABLE_ADAPTIVE_THINKING=1` を設定した上でのみ有効
+- `MAX_THINKING_TOKENS`（非ゼロ値）は Opus 4.8/4.7/4.6・Sonnet 4.6 ではアダプティブ推論中は無視される。**Opus 4.7 / 4.8 は常にアダプティブ推論で動作し `CLAUDE_CODE_DISABLE_ADAPTIVE_THINKING` も適用されない**（model-config.md「Adaptive reasoning and fixed thinking budgets」、2026-05-31 再確認）。Opus 4.6 / Sonnet 4.6 のみ `CLAUDE_CODE_DISABLE_ADAPTIVE_THINKING=1` で固定予算（`MAX_THINKING_TOKENS`）に戻せる
 - **ただし `MAX_THINKING_TOKENS=0` はどのモデルでも thinking を完全に無効化できる例外** — docs: "The one exception: setting MAX_THINKING_TOKENS=0 still disables thinking entirely on any model."
 - **Opus 4.6 の推論機能の正式用語は「adaptive reasoning」** — model-config ページは "Extended Thinking" を使わず "effort levels control Opus 4.6's adaptive reasoning" と表現する。quiz の question/explanation で "Extended Thinking" と書くのは用語の不一致（v4.41.0 bp-018 で修正）
 
@@ -138,7 +138,7 @@ v4.43.0 以前の known-issues では「exit code 2 の一般ルールで UserPr
 ## SDK・ライブラリの改名履歴
 
 - 「Claude Code SDK」→「Claude Code Agent SDK」→「Claude Agent SDK」と改名済み
-- `Task` ツールは Claude Code CLI では `Agent` に改名されたが、Agent SDK の `allowedTools` 設定には `Task` と指定する必要がある（CLI 文脈か SDK 文脈かで正しい名称が異なる）
+- `Task` ツールは v2.1.63 で `Agent` に改名。**SDK も 2026-05-02 に統一され、CLI・Agent SDK の両方で `Agent` を使う**（agent-sdk/overview docs: "Include `Agent` in `allowedTools`"、サンプル `allowed_tools=["Read", "Glob", "Grep", "Agent"]`）。旧記録「SDK は Task と指定する」は outdated（MEMORY 2026-05-02 確認）
 
 ## 用語: Microsoft Foundry（2026-05-31 確認 / doc-string false-positive 注意）
 
@@ -233,6 +233,7 @@ v4.43.0 以前の known-issues では「exit code 2 の一般ルールで UserPr
 - ses-045 と ses-102 がエフォートレベルを「3段階」(low/medium/high) と記述していたが、docs (model-config page) では第4レベル `max` (Opus 4.6専用、セッション単位、永続化されない) と `/effort auto` (デフォルトリセット) が追加されている。また ses-102 の explanation が設定方法を「3つ」と記述していたが、`/effort` コマンドと `--effort` CLI フラグの追加で4つになっている → generate-quiz-data SKILL.md にエフォートレベルの4段階 + auto、および設定方法4種を明記する
 - key-016, ses-045 のエフォートレベル値が low/medium/high の3つのみで、max と auto が欠落していた → generate-quiz-data SKILL.md にエフォートレベルの5値 (low/medium/high/max/auto) と、設定方法5種（/effort, --effort, env var, settings, /model slider）を明記
 - ses-045 の explanation/wrongFeedback と diagram が「max=Opus 4.6専用」「4段階」と記述していたが、ドキュメント (model-config) では Opus 4.7 にも `max` がサポートされ、さらに `xhigh` (Opus 4.7のみ) が追加されている。Opus 4.7 のデフォルトは `xhigh`。 → known-issues.md の「effort level default value」「モデル固有機能のスコープ」セクションを Opus 4.7 を含む3モデル対応に更新。`max` は3モデルサポート、`xhigh` は Opus 4.7専用、Opus 4.7 のデフォルトは `xhigh`、Opus 4.6/Sonnet 4.6 はプラン依存（Pro/Max=medium、その他=high）
+- **最新（2026-05-31 MEMORY 同期、model-config.md L146-149）**: `CLAUDE_CODE_EFFORT_LEVEL` は **low/medium/high/xhigh/max/auto の6値**。`xhigh` は **Opus 4.8 / Opus 4.7**（Opus 4.6 / Sonnet 4.6 は high フォールバック）。`max` は Opus 4.8/4.7/4.6/Sonnet 4.6 の4モデル。**デフォルト effort はモデル別**: Opus 4.8 / Opus 4.6 / Sonnet 4.6 = `high`、Opus 4.7 = `xhigh`。**プラン別（Pro/Max=medium 等）の旧記述は廃止済み** — 上記の旧行をデフォルト判定に使わないこと
 
 ## 存在しないCLIサブコマンド
 
@@ -275,9 +276,8 @@ v4.43.0 以前の known-issues では「exit code 2 の一般ルールで UserPr
 
 - `Ctrl+C` = generation cancel のみ（exit ではない）。`Ctrl+D` = exit
 - `/terminal-setup` は `Shift+Enter` バインディングのみをインストールする（VS Code, Alacritty, Zed, Warp 等の非ネイティブ端末向け）。iTerm2/WezTerm/Ghostty/Kitty では設定不要
-- `Option+T`（Extended Thinking トグル）は「Option as Meta」のターミナル設定が必要。`/terminal-setup` の機能ではない（2026-04-05 interactive-mode.md で再確認）
-- `Alt+B`/`F`/`Y`/`M`/`P`/`T` は全て "Option as Meta" 設定が必要（macOS）
-- `Shift+Tab` でパーミッションモード切替（Normal→Auto-Accept→Plan）。`Alt+M` は "some configurations" のみ（interactive-mode.md）— 全環境対応ではない
+- `Option+T`（アダプティブ推論トグル）は **v2.1.132 以降 macOS でも「Option as Meta」設定なしで動作**（interactive-mode.md L45 / changelog.md L65、2026-05-09 再確認）。`/terminal-setup` の機能ではない。"Option as Meta" は依然として `Alt+B`/`F`/`Y`/`M`/`P` には必要
+- `Shift+Tab` でパーミッションモード切替: `default`/`acceptEdits`/`plan` に加え、**有効化済みの `auto` や `bypassPermissions` も含めてサイクル**（3つ固定ではない）。`Alt+M` は "some configurations" のみ（interactive-mode.md）— 全環境対応ではない
 
 ---
 
@@ -315,6 +315,7 @@ v4.43.0 以前の known-issues では「exit code 2 の一般ルールで UserPr
 - quiz:lint reported 206 distractor issues (correct-too-long, format-giveaway, distractor-too-short) → Consider a dedicated pass to balance option lengths and add backticks to wrong options
 - quiz:lint reported distractor issues (correct-too-long, format-giveaway, distractor-too-short) → Consider a dedicated pass to balance option lengths and add backticks to wrong options
 - quiz:lint のバッククォート自動修正が毎回 bp-059, bp-061, bp-064 で修正を行う（7 fixes in 3 questions）。これらは `WebFetch` や `Bash` のようなツール名が自由テキスト内で使われるケース → quiz:lint のバッククォート自動修正ルールをより精密にするか、修正済みの結果が保存されるようワークフローを調整
+- lint が 6 問（tool-081, ses-190, sdk-016, sdk-018, skill-076, bp-098）に advanced→beginner (score=-1) を報告したが、自動修正コマンドは存在せず、2段階降格はヒューリスティックとして過剰（AWS SigV4 認証やキャッシュ TTL はエンタープライズ/上級トピック）と判断しスキップ → `quiz:difficulty-fix` の実装時は score<=-2 のみ自動適用、score=-1 は中間（intermediate）への1段階降格提案に留める
 
 ## Agent teams terminology (teammates vs subagents)
 
@@ -378,7 +379,7 @@ v4.43.0 以前の known-issues では「exit code 2 の一般ルールで UserPr
 ## CLAUDE.local.md ドキュメント復帰（確認済み）
 
 -  は現在のドキュメント（memory.md）に**掲載されている**（2026-04-04 再確認）。Local scope はテーブルに記載されており「削除」は誤り
-- CLAUDE.md のスコープは4段階: Managed > Project > Local > User（ は Local scope）
+- CLAUDE.md のスコープは4段階: **Managed > Project > User > Local**（MEMORY.md・quiz データ・docs テーブル順で確認済み。旧記録「Managed > Project > Local > User」は誤順）
 - settings.json スコープは5段階: Managed > CLI > Local > Project > User（異なる）
 - 以前の「CLAUDE.local.md removal」という記録は古い情報。quiz で「3スコープ」「Local scope が存在しない」と記述しないこと
 
@@ -554,6 +555,14 @@ v4.43.0 以前の known-issues では「exit code 2 の一般ルールで UserPr
 - crossCheck 15問・fact-tier のスポットチェックは全て正確（known-issues L445-456 の「fact-tier は keyword hit のみ」パターンが今回も継続）
 - quality-tier 91問（distractor-too-short 46 + correct-too-long 67 + format-giveaway 8）は事実誤りでなくバランス調整。月次 distractor-balance パスへ委譲継続（未着手）
 
+## 2026-06-10 Fable 5 / ultracode ドリフト（incremental スキャン）
+
+doc 全面更新（45ページ）で 810 問全件が target 化、pre-lint で 91 問に絞り fact-tier 59 問を docs 照合。**lint フラグ自体はほぼ false-positive だったが、フラグ問の周辺照合で大規模 doc ドリフトを2系統検出**:
+
+1. **Fable 5 の docs 登場**: `xhigh` は Fable 5 / Opus 4.8 / Opus 4.7（「4.8/4.7 のみ」は stale）。`max`・1M context・アダプティブ推論常時有効に Fable 5 追加。`MAX_THINKING_TOKENS=0` は Fable 5 で無効化不可（「全モデルで無効化」は stale）。Fable 5 はどのプランでもデフォルトでない。`/effort` に `ultracode` 追加（モデル effort ではなく CC 設定、env var/effortLevel 不可）→ ses-045/ses-102/skill-061/key-016/bp-018/cmd-104/ses-105 修正
+2. **ワークフロートリガーキーワード**: v2.1.160 以降は `ultracode`（旧 `workflow`）。known-issues 旧記録「bp-096 は workflow キーワードで正しい（2026-06-06）」は**本日時点で stale** → bp-096/bp-098 修正。educational quiz でモデル名列挙（「のみ」「全Nモデル」「すべて」）を含む問題は、新モデル登場のたびに一括 grep（`xhigh|全4モデル|のみ`）で総点検すること
+3. その他: agent-teams `"auto"` は iTerm2 でも split panes（「tmux のみ」stale、skill-076）。`/config [style]` 引数形式は undocumented（key-032）。fullscreen の版数 claim 削除（key-052）。`/clear` は「全削除」でなく「以前の会話は /resume に残る」（cmd-066）。install 系トラブルは `/troubleshoot-install` ページへ移動（cmd-096/097 referenceUrl + VALID_DOC_PAGES 追加）
+
 ## 2026-06-06 正解妥当性監査（10エージェント・正解の doc ドリフト/事実誤り 12問修正）
 
 ユーザー報告「正解を選んでも別の選択肢を選んだことにされる（=正解が間違っている問題）」を起点に、lint 非依存で **correctIndex の正解そのもの**を全810問監査。UI/選択ロジックにバグは無く（選択 index は直接マッピング、回答後の緑ハイライトは正解提示）、原因は**データの正解誤り**だった。
@@ -568,3 +577,15 @@ v4.43.0 以前の known-issues では「exit code 2 の一般ルールで UserPr
 1. 正解妥当性は incremental では漏れる → 定期的に「正解そのもの」を全問監査（10並列）
 2. assembled docs は古い記述が残る → `docs/<page>.md` 個別ファイルが正典
 3. 並列エージェントの指摘は doc 再照合してから適用（誤読あり、特に「正解が誤り」は偽陽性コスト大）
+
+## 新モデル登場時の「モデル列挙ドリフト」一括点検
+
+- model-config.md に Fable 5 が追加され、`xhigh`/`max`/1M/アダプティブ推論のモデル列挙を含む 7 問（ses-045, ses-102, skill-061, key-016, bp-018, cmd-104, ses-105）が一斉に stale 化した。lint はこれを検出できず、フラグ問の周辺照合で発見した → quiz-refine SKILL.md に「model-config.md の content-hash が変わった場合、`xhigh|全[0-9]モデル|のみ対応|すべてで利用可能` を全問 grep し、モデル列挙の網羅性を一括再確認する」手順を追加。pre-lint-quiz.mjs に「モデル名列挙 + 限定表現（のみ/すべて/全N）」の fact tier チェックを追加
+
+## 「確認済み」記録の賞味期限（workflow→ultracode）
+
+- bp-096 の `workflow` キーワードは 2026-06-06 監査で「正しい」と確認済みだったが、4日後の docs 更新（v2.1.160）で `ultracode` に変更され stale 化した → known-issues の「確認済み事実」は doc page の content-hash が変わったら再検証対象に戻す（verified-ok スキップを doc 変更で無効化する現行 verify:diff の挙動を維持し、known-issues の false-positive 記録を盲信しない）。checklist A-3 に「known-issues の確認日付と doc 変更日を比較する」を追記
+
+## ドキュメントページ分割の追跡（troubleshooting → troubleshoot-install）
+
+- インストール系トラブルシュート（`Killed`、Docker ハング）が `/troubleshooting` から `/troubleshoot-install` に移動しており、cmd-096/097 の referenceUrl が内容と乖離していた。VALID_DOC_PAGES への追加も必要だった → fetch-docs のページリストに新ページが追加されたら、その親ページを referenceUrl に持つ問題の内容が新ページへ移動していないか確認する

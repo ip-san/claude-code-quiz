@@ -103,6 +103,7 @@ const VALID_DOC_PAGES = [
   // Features (new)
   'code-review',
   'troubleshooting',
+  'troubleshoot-install',
   // Supplementary
   'permissions',
   'cli-reference',
@@ -158,6 +159,8 @@ const VALID_DOC_PAGES = [
   'large-codebases',
   'workflows',
   'security-guidance',
+  // Coverage-gap pages (2026-06-10)
+  'agent-view',
   // platform.claude.com pages
   'agent-sdk/overview',
   'agents-and-tools/agent-skills/best-practices',
