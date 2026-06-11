@@ -1,6 +1,6 @@
 ---
 name: facts-checker
-description: MEMORY.md の Verified Facts を公式ドキュメントと照合し、古くなった事実や変更された事実を検出する。`--cross-quiz` 指定時は drift した事実が依存する問題も特定する。定期的な鮮度チェックに使用。Opus 推奨（微妙なニュアンスの差異検出 + 1M context での全問横断分析）。Opus 利用不可時は Sonnet にフォールバック。
+description: MEMORY.md の Verified Facts を公式ドキュメントと照合し、古くなった事実や変更された事実を検出する。`--cross-quiz` 指定時は drift した事実が依存する問題も特定する。定期的な鮮度チェックに使用。Fable 5 推奨（微妙なニュアンスの差異検出 + 1M context での全問横断分析）— 呼び出し時に `model: "fable"` を指定。Fable 5 不可時は Opus（frontmatter 既定）→ Sonnet にフォールバック。
 model: opus
 tools: Read, Bash, Grep, Glob
 permissionMode: auto

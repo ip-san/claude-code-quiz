@@ -119,7 +119,7 @@ severity が `critical` の issue を検出した場合、偽陽性（正しい�
 4. ニュアンスの違い（例: "非推奨" vs "推奨ではない"）を見分ける
 5. 確信が持てない場合は severity を `major` に下げ、`needsOpusReview: true` フラグを追加する
 
-リードエージェントは `needsOpusReview: true` の issue を Opus で最終確認する。
+リードエージェントは `needsOpusReview: true` の issue を判定層モデル（Fable 5、不可時 Opus → Sonnet。`node scripts/resolve-model.mjs fable opus sonnet` で解決）で最終確認する。
 
 ## メモリ運用
 

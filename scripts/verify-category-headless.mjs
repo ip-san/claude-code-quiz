@@ -12,11 +12,19 @@
  * Usage:
  *   node scripts/verify-category-headless.mjs <category>
  *   node scripts/verify-category-headless.mjs <category> --dry-run   # just emit the prompt, don't call claude
- *   node scripts/verify-category-headless.mjs <category> --model sonnet
+ *   node scripts/verify-category-headless.mjs <category> --model=sonnet
+ *   node scripts/verify-category-headless.mjs <category> --model=fable,opus,sonnet  # フォールバックチェーン
+ *
+ * --model はカンマ区切りで優先チェーンを指定できる。先頭モデルが
+ * 失敗（モデル不可・認証・タイムアウト）した場合に加え、exit 0 でも
+ * 出力からパース可能な JSON レポートが取れない場合も次のモデルへ進む。
+ * 判定層の既定チェーンは fable,opus,sonnet（quiz-refine SKILL.md 参照）。
+ * 注意: 1モデルあたり timeout 600s のため、3モデルチェーンの最悪
+ * レイテンシは約30分（通常は先頭モデルで数分以内に完了する）。
  *
  * Output:
  *   .claude/tmp/verify_<category>.json — verifier's structured report
- *   .claude/tmp/verify_<category>.log  — raw stdout for debugging
+ *   .claude/tmp/verify_<category>_<model>.log — raw stdout for debugging (モデルごとに分離)
  *
  * Parallel invocation example:
  *   for cat in memory skills tools commands extensions session keyboard bestpractices; do
@@ -24,7 +32,7 @@
  *   done; wait
  */
 
-import { execSync } from 'child_process'
+import { execFileSync } from 'child_process'
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'fs'
 import { dirname, join, resolve } from 'path'
 import { fileURLToPath } from 'url'
@@ -49,10 +57,15 @@ const args = process.argv.slice(2)
 const category = args.find((a) => !a.startsWith('--'))
 const dryRun = args.includes('--dry-run')
 const modelArg = args.find((a) => a.startsWith('--model='))
-const model = modelArg ? modelArg.slice('--model='.length) : 'sonnet'
+const modelChain = (modelArg ? modelArg.slice('--model='.length) : 'sonnet')
+  .split(',')
+  .map((m) => m.trim())
+  .filter(Boolean)
 
 if (!category || !VALID_CATEGORIES.has(category)) {
-  console.error(`Usage: node scripts/verify-category-headless.mjs <category> [--dry-run] [--model=sonnet|opus]`)
+  console.error(
+    `Usage: node scripts/verify-category-headless.mjs <category> [--dry-run] [--model=sonnet|opus|fable,opus,sonnet]`
+  )
   console.error(`Valid categories: ${[...VALID_CATEGORIES].join(', ')}`)
   process.exit(1)
 }
@@ -70,7 +83,7 @@ const quizzes = JSON.parse(readFileSync(quizPath, 'utf8'))
 // Assemble docs for this category via the existing helper
 let docContent
 try {
-  docContent = execSync(`node ${join(ROOT, 'scripts', 'fetch-docs.mjs')} --assemble ${category}`, {
+  docContent = execFileSync('node', [join(ROOT, 'scripts', 'fetch-docs.mjs'), '--assemble', category], {
     encoding: 'utf8',
     cwd: ROOT,
     maxBuffer: 20 * 1024 * 1024,
@@ -156,53 +169,69 @@ if (dryRun) {
 
 // ── Invoke claude -p ────────────────────────────────────────
 
-console.log(`[${category}] calling claude -p --model ${model}...`)
 const startTime = Date.now()
+const promptInput = readFileSync(promptFile, 'utf8')
 
-let raw
-try {
-  raw = execSync(`cat "${promptFile}" | claude -p - --model ${model} --output-format text`, {
-    timeout: 600_000,
-    encoding: 'utf8',
-    maxBuffer: 20 * 1024 * 1024,
-    stdio: ['pipe', 'pipe', 'pipe'],
-  })
-} catch (err) {
-  console.error(`[${category}] claude -p failed: ${err.message?.slice(0, 200)}`)
+// Unwrap optional JSON envelope, then extract and parse the inner JSON object.
+// Returns null when no parseable report is present (e.g. narration-only output)
+// so the caller can fall back to the next model in the chain.
+function extractReport(raw) {
+  let text = raw
+  try {
+    const wrapper = JSON.parse(raw)
+    text = typeof wrapper === 'string' ? wrapper : wrapper.result || JSON.stringify(wrapper)
+  } catch {
+    // stdout was not a JSON wrapper — use as-is
+  }
+  const jsonMatch = text.match(/\{[\s\S]*\}/)
+  if (!jsonMatch) return null
+  try {
+    return JSON.parse(jsonMatch[0])
+  } catch {
+    return null
+  }
+}
+
+let report = null
+let modelUsed = null
+for (let i = 0; i < modelChain.length; i++) {
+  const model = modelChain[i]
+  console.log(`[${category}] calling claude -p --model ${model}...`)
+  // モデルごとに別ログファイルへ残す（フォールバック時に前モデルのデバッグ材料を消さない）
+  const logFile = join(TMP_DIR, `verify_${category}_${model.replace(/[^\w.-]/g, '_')}.log`)
+  let failure = null
+  try {
+    const raw = execFileSync('claude', ['-p', '-', '--model', model, '--output-format', 'text'], {
+      input: promptInput,
+      timeout: 600_000,
+      encoding: 'utf8',
+      maxBuffer: 20 * 1024 * 1024,
+    })
+    writeFileSync(logFile, raw)
+    const parsed = extractReport(raw)
+    if (parsed) {
+      report = parsed
+      modelUsed = model
+      break
+    }
+    failure = `no parseable JSON report in output (see ${logFile})`
+  } catch (err) {
+    failure = err.message?.slice(0, 200)
+    if (err.stdout) writeFileSync(logFile, err.stdout)
+  }
+  console.error(`[${category}] claude -p (--model ${model}) failed: ${failure}`)
+  if (modelChain[i + 1]) console.error(`[${category}] falling back to --model ${modelChain[i + 1]}`)
+}
+
+if (report === null) {
+  console.error(`[${category}] all models in chain [${modelChain.join(', ')}] failed`)
   process.exit(1)
 }
 
 const elapsed = ((Date.now() - startTime) / 1000).toFixed(1)
-console.log(`[${category}] completed in ${elapsed}s`)
+console.log(`[${category}] completed in ${elapsed}s (model: ${modelUsed})`)
 
-const logFile = join(TMP_DIR, `verify_${category}.log`)
-writeFileSync(logFile, raw)
-
-// ── Parse result ────────────────────────────────────────────
-
-// Unwrap optional JSON envelope, then extract the inner JSON object
-let text = raw
-try {
-  const wrapper = JSON.parse(raw)
-  text = typeof wrapper === 'string' ? wrapper : wrapper.result || JSON.stringify(wrapper)
-} catch {
-  // stdout was not a JSON wrapper — use as-is
-}
-
-const jsonMatch = text.match(/\{[\s\S]*\}/)
-if (!jsonMatch) {
-  console.error(`[${category}] no JSON object found in output. See ${logFile}`)
-  process.exit(1)
-}
-
-let report
-try {
-  report = JSON.parse(jsonMatch[0])
-} catch (err) {
-  console.error(`[${category}] failed to parse verifier JSON: ${err.message}. See ${logFile}`)
-  process.exit(1)
-}
-
+report._meta = { model: modelUsed, elapsedSec: Number(elapsed) }
 const outFile = join(TMP_DIR, `verify_${category}.json`)
 writeFileSync(outFile, JSON.stringify(report, null, 2))
 

@@ -55,7 +55,7 @@ Phase 5（並列）: [check:all] [size] [E2E]
 
 Phase 1, 3, 5 では Agent ツールを使って複数エージェントを **同一メッセージ内で同時に** `run_in_background: true` で起動する。全エージェントの完了通知を待ってから次のフェーズに進む。
 
-**モデル明示ルール:** `Agent()` 呼び出しには必ず `model` パラメータを指定する。省略すると親の model を継承するため、Opus セッションから大量のサブエージェントを起動するとコストが膨らむ。デフォルトは下記「モデル選択ガイドライン」に従い、`ga4-analyzer`/`stats-baseline`/`code-reviewer`/`quiz-verifier`/`full-check`/`bundle-size`/`e2e-test`/`skills-check` は `model: "sonnet"`、`facts-checker`/`difficulty-calibrator` のみ `model: "opus"`（Opus 不可時は `"sonnet"`）。
+**モデル明示ルール:** `Agent()` 呼び出しには必ず `model` パラメータを指定する。省略すると親の model を継承するため、上位モデルのセッションから大量のサブエージェントを起動するとコストが膨らむ。デフォルトは下記「モデル選択ガイドライン」に従い、`ga4-analyzer`/`stats-baseline`/`code-reviewer`/`quiz-verifier`/`full-check`/`bundle-size`/`e2e-test`/`skills-check` は `model: "sonnet"`、`facts-checker`/`difficulty-calibrator` のみ判定層チェーン（`model: "fable"`、不可時 `"opus"` → `"sonnet"`。`node scripts/resolve-model.mjs fable opus sonnet` で事前解決）。
 
 ---
 
@@ -139,7 +139,7 @@ Phase 1, 3, 5 では Agent ツールを使って複数エージェントを **�
 ```
 Agent(
   subagent_type: "facts-checker",
-  model: "opus",          // Opus 不可時は "sonnet"
+  model: "fable",         // Fable 5 不可時は "opus" → "sonnet"（resolve-model.mjs で事前解決）
   prompt: "--cross-quiz モードで起動。MEMORY.md Verified Facts の鮮度と、drift した事実に依存するクイズを 1M context で一括判定してください。"
 )
 ```
@@ -332,18 +332,22 @@ bun run skills:check   # フロントマター + トークン数 + 行数
 | 機械的なデータ収集・集計 | Script（モデル不要） | — | セッション収集、分類集計、統計取得 |
 | 単純な分類・パターン認識 | Haiku | Script（正規表現） | プロンプト意図分類、事実一致判定、問題ランキング |
 | 複数プロンプトの文脈理解 | Sonnet | — | レコメンド15問選定、クイズ検証、コードレビュー |
-| 微妙なニュアンス・深い推論 | Opus | Sonnet | Verified Facts 鮮度チェック、難易度キャリブレーション、停滞介入 |
+| 微妙なニュアンス・深い推論（判定層） | **Fable 5** | Opus → Sonnet | Verified Facts 鮮度チェック、難易度キャリブレーション、停滞介入、critical 偽陽性フィルタ |
 
-### Opus → Sonnet フォールバック
+### 判定層フォールバック（Fable 5 → Opus → Sonnet）
 
-`facts-checker` と `difficulty-calibrator` は `model: opus` で定義されている。Opus 利用不可時は Agent ツールの `model` パラメータで `sonnet` を明示指定して起動する:
+判定層タスクは最上位モデルを第一候補とし、利用不可なら段階的に縮退する:
+
+1. **事前解決（推奨）:** `node scripts/resolve-model.mjs fable opus sonnet` を実行し、stdout のモデル名を以後の判定層 `Agent()` 呼び出しの `model` に使う（結果は 24h キャッシュ、`--status` で確認可）
+2. **起動時フォールバック:** `Agent(model: "fable")` の起動が model 起因で失敗したら、チェーンの残りのモデルを順に試す（fable 失敗 → opus、それも失敗 → sonnet）
+3. **frontmatter は据え置き:** `facts-checker` / `difficulty-calibrator` の frontmatter `model: opus` は静的フォールバックとして維持し、Fable 5 は呼び出し時の `model` パラメータで上書きする（Fable 5 廃止・名称変更時にも spawn が壊れない）
 
 ```
-Agent(subagent_type: "facts-checker", model: "sonnet")
+Agent(subagent_type: "facts-checker", model: "fable")   // 不可時: "opus" → "sonnet"
 ```
 
 ### quiz-verifier の critical 二重確認
 
 quiz-verifier（Sonnet）が `needsOpusReview: true` を報告した場合:
-1. まず Opus で確認を試みる（Agent model: "opus"）
-2. Opus 利用不可なら Sonnet で再確認（追加のドキュメント箇所を含めて再検証）
+1. まず判定層モデルで確認を試みる（Agent model: resolve-model.mjs の解決結果。通常 "fable"）
+2. Fable 5 不可なら Opus、それも不可なら Sonnet で再確認（追加のドキュメント箇所を含めて再検証）

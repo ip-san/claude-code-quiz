@@ -1,14 +1,19 @@
 #!/usr/bin/env node
 /**
- * Opus Batch Audit: Sonnet の critical/major 判定の偽陽性フィルタ
+ * 判定層バッチ監査: Haiku「matched（事実一致）」判定の独立監査
  *
- * quiz-verifier (Sonnet) が critical/major と判定した問題について、
- * Opus が修正前に偽陽性でないか確認する。
+ * pre-verify が matched と判定した問題（＝LLM 検証をスキップされる問題）を
+ * 判定層モデル（Fable 5 → Opus → Sonnet の優先チェーン）が独立監査し、
+ * 怪しいものを demote して Sonnet 検証対象に戻す（見逃し防止）。
  *
- * 入力: .claude/tmp/critical-findings.json（quiz-refine が Sonnet 結果から生成）
- * 出力: .claude/tmp/opus-audit-results.json（監査ログ）
+ * 入力: .claude/tmp/pre-verify-results.json（matched / categoryDocMap を使用）
+ * 出力: .claude/tmp/opus-audit-results.json（監査ログ。model フィールドに実使用モデルを記録）
+ *       pre-verify-results.json の sonnetTargets に demoted を追記
  *
- * フォールバック: ANTHROPIC_API_KEY 未設定 or API エラー時はスキップ（現行動作維持）
+ * フォールバック: チェーン内の上位モデルが実行失敗、または exit 0 でも
+ * 監査対象 > 0 件に対して verdict が 1 件もパースできない場合、次のモデルで
+ * 自動リトライ。全滅時はスキップ（現行動作維持）。
+ * 注意: 1モデルあたり timeout 600s のため最悪レイテンシは約30分。
  */
 
 // ── Pure functions (exported for testing) ──────────────────
@@ -88,7 +93,7 @@ export function updatePreVerifyResults(preVerifyResults, auditVerdicts) {
 // ── Main ────────────────────────────────────────────────────
 
 async function main() {
-  const { execSync } = await import('child_process')
+  const { execSync, execFileSync } = await import('child_process')
   const { existsSync, mkdirSync, readFileSync, writeFileSync } = await import('fs')
   const { join } = await import('path')
 
@@ -173,37 +178,62 @@ ${JSON.stringify(claims)}
 JSON配列で返してください。各要素: {"id": "xxx-NNN", "verdict": "confirm|demote", "reason": "判定理由（30文字以内）"}
 説明不要、JSON配列のみ。`
 
-  // ── Call Opus via claude -p (Max plan, effort=max) ─────────
+  // ── Call audit model via claude -p (judgment chain, effort=max) ──
 
-  function callOpus() {
-    const promptFile = join(TMP_DIR, 'opus-audit-prompt.txt')
-    writeFileSync(promptFile, `${systemPrompt}\n\n${userPrompt}`)
+  const AUDIT_MODEL_CHAIN = ['fable', 'opus', 'sonnet']
 
-    const raw = execSync(
-      `cat "${promptFile}" | CLAUDE_CODE_EFFORT_LEVEL=max claude -p - --model opus --output-format text`,
-      {
-        timeout: 600_000,
-        encoding: 'utf8',
-        stdio: ['pipe', 'pipe', 'pipe'],
+  function callAuditModel() {
+    const input = `${systemPrompt}\n\n${userPrompt}`
+    // デバッグ用に実プロンプトを残す（実入力は stdin の input で渡す）
+    writeFileSync(join(TMP_DIR, 'opus-audit-prompt.txt'), input)
+
+    for (let i = 0; i < AUDIT_MODEL_CHAIN.length; i++) {
+      const model = AUDIT_MODEL_CHAIN[i]
+      let failure = null
+      try {
+        const raw = execFileSync('claude', ['-p', '-', '--model', model, '--output-format', 'text'], {
+          input,
+          timeout: 600_000,
+          encoding: 'utf8',
+          maxBuffer: 20 * 1024 * 1024,
+          env: { ...process.env, CLAUDE_CODE_EFFORT_LEVEL: 'max' },
+        })
+
+        let text = raw
+        try {
+          const wrapper = JSON.parse(raw)
+          text = typeof wrapper === 'string' ? wrapper : wrapper.result || JSON.stringify(wrapper)
+        } catch {
+          // Not JSON wrapper
+        }
+
+        let verdicts = []
+        try {
+          verdicts = parseAuditResponse(text)
+        } catch {
+          verdicts = []
+        }
+
+        // 監査対象があるのに verdict ゼロは「使えない出力」とみなしチェーン継続
+        // （正常終了 0件 と区別できないと、上位モデルの narration 出力で監査が空振りする）
+        if (verdicts.length > 0) {
+          return { verdicts, model: `${model}(effort=max)` }
+        }
+        failure = `no parseable verdicts for ${matchedItems.length} audit targets`
+      } catch (err) {
+        failure = err.message?.slice(0, 150)
       }
-    )
-
-    let text = raw
-    try {
-      const wrapper = JSON.parse(raw)
-      text = typeof wrapper === 'string' ? wrapper : wrapper.result || JSON.stringify(wrapper)
-    } catch {
-      // Not JSON wrapper
+      console.error(`  claude -p (--model ${model}) failed: ${failure}`)
+      if (AUDIT_MODEL_CHAIN[i + 1]) console.error(`  falling back to --model ${AUDIT_MODEL_CHAIN[i + 1]}`)
     }
-
-    return { text, model: 'claude-opus-4-7(effort=max)' }
+    throw new Error(`all audit models failed: [${AUDIT_MODEL_CHAIN.join(', ')}]`)
   }
 
   try {
-    console.log('  Using claude -p (Opus, effort=max)...')
-    const result = callOpus()
+    console.log(`  Using claude -p (chain: ${AUDIT_MODEL_CHAIN.join(' → ')}, effort=max)...`)
+    const result = callAuditModel()
 
-    const auditVerdicts = parseAuditResponse(result.text)
+    const auditVerdicts = result.verdicts
     const confirmed = auditVerdicts.filter((v) => v.verdict === 'confirm')
     const demoted = auditVerdicts.filter((v) => v.verdict === 'demote')
 
@@ -231,7 +261,7 @@ JSON配列で返してください。各要素: {"id": "xxx-NNN", "verdict": "co
     console.log(`✓ Opus audit: ${confirmed.length} confirmed, ${demoted.length} demoted`)
     if (demoted.length > 0) {
       console.log(`  Demoted: ${demoted.map((v) => v.id).join(', ')}`)
-      console.log(`  → Sonnet targets: ${preVerifyResults.sonnetTargets.length + demoted.length}`)
+      console.log(`  → Sonnet targets: ${(preVerifyResults.sonnetTargets?.length ?? 0) + demoted.length}`)
     }
   } catch (err) {
     console.warn(`Opus audit failed, skipping: ${err.message?.slice(0, 120)}`)

@@ -58,11 +58,23 @@ argument-hint: "[iterations] [categories...] [--dry-run] [--full] [--force] [--t
 有効カテゴリ: memory, skills, tools, commands, extensions, session, keyboard, bestpractices
 引数が不正な場合はエラーメッセージを返して終了。
 
+## モデル選択ポリシー（Fable 5 第一候補）
+
+| 層 | 担当タスク | モデルチェーン |
+|----|----------|--------------|
+| **判定層** | critical 最終確認（needsOpusReview）、正解妥当性監査のリード再照合、偽陽性フィルタ | `fable` → `opus` → `sonnet` |
+| **バルク層** | quiz-verifier 並列検証（A-H） | `sonnet` 固定（レート制限保護） |
+| **決定論層** | lint / backtick / distractor / ellipsis | モデル不要（最終フォールバック） |
+
+**フォールバック手順:** ①判定層使用前に `node scripts/resolve-model.mjs fable opus sonnet` を1回実行し、stdout のモデル名（可用 24h / 不可 1h キャッシュ）で以後の判定層 `Agent(model: ...)` を統一 ②model 起因で起動失敗したらチェーンの残りを順に試す（fable 失敗 → opus → sonnet まで） ③ヘッドレスは `--model=fable,opus,sonnet` で自動フォールバック（実行失敗だけでなくパース不能な出力でも次へ進む） ④チェーン全滅時は**決定論的 lint のみ適用**し「モデル復旧後に再実行」とレポートに明記。
+
+判定層は偽陽性コスト（正しい問題を壊す）が高いニュアンス判定のため最上位モデルに集中投下する。バルクまで `fable` に引き上げ可能だが10並列はクォータ消費に注意。
+
 ## 正解妥当性監査モード（doc ドリフト対策・定期実行推奨）
 
 通常の incremental/full スキャンは **distractor の lint フラグ起点**で検証するため、「正解そのものが静かに古くなった（doc ドリフト）」問題を見逃す。これを拾うには、lint フラグに依存せず **全問の correctIndex（正解）が現行ドキュメントで正しいか**を能動的に監査する専用パスを、定期的（例: 月次の `/quality-loop --monthly` 時）に実行する。
 
-**実行方法（10エージェント並列）:** カテゴリ別（大カテゴリは ID 範囲で2分割）に `quiz-verifier`（model: sonnet）を最大10体 background 起動し、各エージェントに「correctIndex が指す正解が現行 doc で本当に正しいか」を検証させる。checklist の **A-1（正解妥当性）/A-2（個別docs優先）/A-3（指摘の二重確認）** を適用。
+**実行方法（10エージェント並列）:** カテゴリ別（大カテゴリは ID 範囲で2分割）に `quiz-verifier`（model: sonnet）を最大10体 background 起動し、各エージェントに「correctIndex が指す正解が現行 doc で本当に正しいか」を検証させる。checklist の **A-1（正解妥当性）/A-2（個別docs優先）/A-3（指摘の二重確認）** を適用。**リードの再照合と critical 確定は判定層モデル（`fable` → `opus` → `sonnet`、上記「モデル選択ポリシー」）で行う。**
 
 **重点シグナル:** ①真の正解が選択肢に存在しない（最悪・critical） ②件数/色数/オプション数/モデル限定の数値変化 ③機能のデフォルト変更（遅延ロード化など） ④multi-select の correctIndices 漏れ。
 
@@ -127,9 +139,9 @@ node scripts/pre-lint-quiz.mjs
 
 **対象が10問未満の場合**: skip して全問 Sonnet 検証（少量なら直接の方が速い）。
 
-## Step 0d: Opus バッチ監査（オプション）
+## Step 0d: 判定層バッチ監査（オプション）
 
-`scripts/audit-critical-quiz.mjs` が存在する場合、Haiku/Sonnet の判定を Opus が独立監査する運用（現在は未使用）。将来的な再有効化に備えた予約ステップ。
+`scripts/audit-critical-quiz.mjs` が存在する場合、Haiku/Sonnet の判定を判定層モデル（`fable` → `opus` → `sonnet` 自動フォールバック内蔵）が独立監査する運用（現在は未使用）。将来的な再有効化に備えた予約ステップ。
 
 ## Step 1: 早期終了チェック
 
@@ -186,9 +198,10 @@ End for
    done
    wait
    ```
+   `--model=fable,opus,sonnet` のカンマ区切りチェーン指定で、実行失敗時もパース不能な出力時も次のモデルへ自動リトライする。使用モデルは結果 JSON の `_meta.model` に記録される
    各カテゴリが独立プロセスなので真に並列実行可能。結果は `.claude/tmp/verify_{category}.json` に保存され、メインエージェントが集約して修正を適用する
 3. **fact-tier のスポットチェック** — pre-lint の fact tier のうち、`factCheck:slash` / `factCheck:flags` / `factCheck:env` のような具体性の高いものから 10〜20 問を Read で直接検証（ドキュメントキャッシュから該当 page を grep）
-4. **大規模 LLM 検証は `/quality-loop --monthly` に委譲** — 月次の Opus 1M context で全問横断判定。forked 内で無理に並列化しない
+4. **大規模 LLM 検証は `/quality-loop --monthly` に委譲** — 月次の判定層モデル（Fable 5、不可時 Opus）の 1M context で全問横断判定。forked 内で無理に並列化しない
 
 この分離により、`--team --full` が forked 環境で失敗しても決定論的価値を提供でき、LLM コストは月次に集約される。
 
@@ -220,7 +233,7 @@ For iteration = 1..N:
 
   Phase C: 結果集約・修正（逐次）
     1. 各エージェントの報告を集約
-    2. needsOpusReview: true の issue を Opus エージェントで最終確認（偽陽性防止）
+    2. needsOpusReview: true の issue を判定層モデル（fable → opus → sonnet）で最終確認（偽陽性防止）
     3. [fix mode] critical/major を node scripts/quiz-utils.mjs edit で修正
     4. [dry-run] レポートに蓄積
     5. bun run quiz:randomize && bun run quiz:check
