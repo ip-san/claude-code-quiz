@@ -29,7 +29,7 @@ export function ConfigDiagram({ label, filepath, lines }: ConfigDiagramProps) {
             <span className="text-[10px] font-medium text-stone-600 dark:text-stone-300">{filepath}</span>
           </div>
           {/* Code body */}
-          <div className="px-1 py-2 font-mono text-xs leading-relaxed">
+          <div className="px-1 py-2 font-mono text-[13px] leading-relaxed">
             {lines.map((line, i) => (
               <div
                 key={i}

@@ -89,7 +89,7 @@ function TerminalBody({ lines, isVisible }: { lines: TerminalLine[]; isVisible: 
         )}
       </div>
       {/* Terminal body */}
-      <div className="space-y-0.5 px-3 py-2.5 font-mono text-xs leading-relaxed">
+      <div className="space-y-0.5 px-3 py-2.5 font-mono text-[13px] leading-relaxed">
         {lines.map((line, i) => {
           const state = getLineState(i)
           if (!state.visible) return <div key={i} className="h-5" />

@@ -461,10 +461,11 @@ export const ja: LocaleConfig = {
   firstTimeGuide: {
     beginnerLabel: 'はじめての方へ',
     beginnerDesc: 'AI の知識は問いません。2つの学び方から選べます。',
+    recommendedBadge: 'おすすめ',
     quizLearnLabel: 'クイズで学ぶ',
-    quizLearnDesc: '問題を解きながら覚える（6チャプター構成）',
+    quizLearnDesc: '先に問題、あとで解説。手を動かして覚える（6チャプター）',
     readFirstLabel: '読んでから解く',
-    readFirstDesc: '解説を読んでからクイズに挑戦',
+    readFirstDesc: '先に解説で予習してから問題に挑戦。じっくり派向け',
     experiencedLabel: 'すでに活用されている方へ',
     experiencedDesc: '実力テスト・カテゴリ別など多様なモード',
   },
@@ -616,6 +617,7 @@ export const ja: LocaleConfig = {
     labels: ['短期記憶', '定着中', '定着してきた', 'ほぼ定着', '長期記憶化'],
     remainingMessage: (n) => `あと${n}回正解で長期記憶`,
     meterLabel: '記憶定着度',
+    helpTooltip: '間隔をあけて復習し正解を重ねるほど、記憶が短期から長期へ定着します（間隔反復法）。',
   },
 
   shareImage: {

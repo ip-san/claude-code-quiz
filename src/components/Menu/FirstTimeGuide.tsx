@@ -39,7 +39,12 @@ export function FirstTimeGuide({ onOpenModes }: FirstTimeGuideProps) {
           >
             <MapIcon className="h-5 w-5 shrink-0 text-white/80" />
             <div>
-              <p className="text-sm font-semibold text-white">{locale.firstTimeGuide.quizLearnLabel}</p>
+              <div className="flex items-center gap-2">
+                <p className="text-sm font-semibold text-white">{locale.firstTimeGuide.quizLearnLabel}</p>
+                <span className="rounded-full bg-white/25 px-1.5 py-0.5 text-[10px] font-semibold text-white">
+                  {locale.firstTimeGuide.recommendedBadge}
+                </span>
+              </div>
               <p className="text-xs text-white/70">{locale.firstTimeGuide.quizLearnDesc}</p>
             </div>
           </button>
