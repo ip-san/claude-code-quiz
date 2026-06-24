@@ -144,6 +144,10 @@ export const DOC_PAGES = [
   { name: 'workflows', url: 'https://code.claude.com/docs/en/workflows' },
   // Auto-discovered from llms.txt (2026-06-02)
   { name: 'mcp-quickstart', url: 'https://code.claude.com/docs/en/mcp-quickstart' },
+  // Auto-discovered from llms.txt (2026-06-23)
+  { name: 'advisor', url: 'https://code.claude.com/docs/en/advisor' },
+  { name: 'artifacts', url: 'https://code.claude.com/docs/en/artifacts' },
+  { name: 'plugin-relevance', url: 'https://code.claude.com/docs/en/plugin-relevance' },
   // Agent SDK (different domain)
   { name: 'agent-sdk-overview', url: 'https://platform.claude.com/docs/en/agent-sdk/overview' },
 ]
@@ -178,6 +182,7 @@ export const CATEGORY_DOC_MAP = {
     'settings',
     'chrome',
     'slack',
+    'plugin-relevance',
   ],
   session: [
     'how-claude-code-works',
@@ -194,7 +199,7 @@ export const CATEGORY_DOC_MAP = {
     'data-usage',
   ],
   keyboard: ['interactive-mode', 'common-workflows', 'keybindings', 'statusline', 'terminal-config', 'output-styles'],
-  bestpractices: ['best-practices', 'model-config', 'common-workflows', 'sandboxing'],
+  bestpractices: ['best-practices', 'model-config', 'common-workflows', 'sandboxing', 'advisor', 'artifacts'],
   sdk: [
     'agent-sdk-overview',
     'authentication',
