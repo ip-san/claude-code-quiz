@@ -161,6 +161,10 @@ const VALID_DOC_PAGES = [
   'security-guidance',
   // Coverage-gap pages (2026-06-10)
   'agent-view',
+  // Newly discovered pages (2026-06-23)
+  'advisor',
+  'plugin-relevance',
+  'artifacts',
   // platform.claude.com pages
   'agent-sdk/overview',
   'agents-and-tools/agent-skills/best-practices',

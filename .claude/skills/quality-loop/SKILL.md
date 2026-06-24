@@ -2,7 +2,7 @@
 name: quality-loop
 description: GA4分析 + コードレビュー + クイズ追加判定 + クイズ検証 + 統計同期 + 最終検証を一括実行。品質ループ、定期チェック、quality loop
 allowed-tools: Read, Write, Edit, Bash, Grep, Glob, Agent, Skill
-argument-hint: "[--skip-analytics] [--skip-review] [--skip-generate] [--skip-refine] [--skip-gate] [--dry-run] [--team]"
+argument-hint: "[--skip-analytics] [--skip-review] [--skip-generate] [--skip-refine] [--skip-gate] [--dry-run] [--team] [--playtest]"
 ---
 
 # Quality Loop Skill
@@ -22,8 +22,9 @@ GA4分析・コード品質・クイズ品質を一括でチェックし、最�
 - `--dry-run`: ステップ2で追加推奨の分析のみ行い、実際の生成はしない
 - `--team`: エージェントチームモード（独立ステップを並列実行）
 - `--monthly`: 月次モード。ステップ3の前に `facts-checker --cross-quiz`（Opus 1M context）を実行し、Verified Facts の drift と影響クイズを先に特定する。コスト ~$7.5/回なので通常のループには含めない
+- `--playtest`: ステップ3.5として `/playtest` スキルを実行（模擬ユーザーが実 PWA をプレイ→専門家チームが分かりにくさ・学び改善を検証適用）。ブラウザ自動化と複数エージェントでコスト高のため既定では実行しない。UX/UI 課題はステップ1（code-review）へ、内容修正はステップ4（統計同期）前に合流させる
 
-フラグなしの場合は全ステップを逐次実行する（`--monthly` なし）。
+フラグなしの場合は全ステップを逐次実行する（`--monthly` / `--playtest` なし）。
 
 ---
 

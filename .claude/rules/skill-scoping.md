@@ -17,4 +17,5 @@ paths:
 - `/self-review` は内部で `/code-review`（汎用）を呼び出した後、プロジェクト固有チェックを実行
 - `/quality-loop` で GA4分析 → レビュー → クイズ生成 → 検証 → 統計同期 → 最終ゲートを一括実行。`--team` で並列実行。詳細は [docs/quality-loop.md](docs/quality-loop.md)
 - `/recommend` で利用履歴からAIが問題を選定。詳細は [docs/usage-recommend.md](docs/usage-recommend.md)
+- `/playtest` で一般ユーザー模擬エージェント（`user-simulator`）が実 PWA をプレイ→専門家（`learning-experience-reviewer`）が分かりにくさ・学び改善を検証適用するゲート。`/quality-loop --playtest` で任意ステップとして合流（コスト高のため月次・任意）
 - その他: `/generate-quiz-data`（問題自動生成）、`/quiz-refine`（検証・修正）、`/analytics-insight`（GA4分析）、`/spec-audit`（仕様整合性監査）
