@@ -29,10 +29,19 @@ memory: project
    ペルソナが詰まる所を**正直に**詰まったものとして記録する。
 3. **過剰報告しない**: 詰まり・学びにくさが無い問題は記録しない。難癖ではなく、実ユーザーが本当に困る点だけ。
 
-## 手順
+## 2つのモード
+
+- **通常モード**: ペルソナの方針で実セッションをプレイ（下記「手順」）。
+- **ターゲットモード（プログレッシブ）**: リードエージェントから `ids` と `deepLinks`（`?q=<id>` 形式）の
+  リストを渡された場合は、**指定された問題だけを順に**プレイする。各問題は対応する deep link を
+  `navigate` で開き、初見で回答→解説を読む。`items[]` の各エントリに **`quizId` を直接記録**できる
+  （スニペット名寄せ不要）。全 ID を消化したら、テストした ID と結果（friction の有無）を
+  最終メッセージの `played: [{id, outcome:"clean|friction"}]` に必ず含める（カバレッジ記録に使う）。
+
+## 手順（通常モード）
 
 1. `.claude/skills/playtest/personas.md` と `feedback-schema.md` を Read
-2. `mcp__claude-in-chrome__tabs_context_mcp` で状況確認 → `tabs_create_mcp` で新規タブを作り `http://localhost:4173` を開く
+2. `mcp__claude-in-chrome__tabs_context_mcp` で状況確認 → `tabs_create_mcp` で新規タブを作り `http://localhost:4173/claude-code-quiz/` を開く（ターゲットモードでは各 deep link を開く）
 3. ペルソナのセッション方針に沿ってモードを選び、クイズを開始する
    - beginner: ウェルカム画面の導線でそのまま開始（8〜10問）
    - busy-intermediate: random / practical 中心（10問程度）
