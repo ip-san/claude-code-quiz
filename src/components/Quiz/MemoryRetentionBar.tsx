@@ -48,6 +48,7 @@ export function MemoryRetentionBar({ questionProgress }: MemoryRetentionBarProps
     // biome-ignore lint/a11y/useSemanticElements: <meter> cannot be styled with Tailwind; using role="meter" for accessibility
     <div
       className="mt-2 rounded-lg bg-stone-50 px-3 py-2 dark:bg-stone-800/50"
+      title={locale.retention.helpTooltip}
       role="meter"
       aria-label={locale.retention.meterLabel}
       aria-valuenow={percentage}

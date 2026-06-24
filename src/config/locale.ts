@@ -486,6 +486,7 @@ export interface LocaleConfig {
   readonly firstTimeGuide: {
     readonly beginnerLabel: string
     readonly beginnerDesc: string
+    readonly recommendedBadge: string
     readonly quizLearnLabel: string
     readonly quizLearnDesc: string
     readonly readFirstLabel: string
@@ -636,6 +637,7 @@ export interface LocaleConfig {
     readonly labels: readonly string[]
     readonly remainingMessage: (n: number) => string
     readonly meterLabel: string
+    readonly helpTooltip: string
   }
 
   // === Share Image ===
