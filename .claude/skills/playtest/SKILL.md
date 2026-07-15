@@ -2,7 +2,7 @@
 name: playtest
 description: 一般ユーザーを模したエージェントが実 PWA のクイズをプレイし、分かりにくさ・学び改善のリクエストを出し、専門家チームがレビュー・改善するゲート。プレイテスト、ユーザーテスト、playtest、分かりにくさ、学習改善
 allowed-tools: Read, Write, Edit, Bash, Grep, Glob, Agent, Skill
-argument-hint: "[--persona beginner|busy-intermediate|reviewer] [--count N] [--report-only] [--no-build]"
+argument-hint: "[--persona ...] [--count N] [--report-only] [--no-build] [--progressive [N]]"
 ---
 
 # Playtest Skill — 模擬ユーザー・プレイテスト & 専門家レビューゲート
@@ -20,6 +20,24 @@ argument-hint: "[--persona beginner|busy-intermediate|reviewer] [--count N] [--r
 - `--count N`: 1ペルソナあたりのプレイ問題数（既定: beginner 9 / 他 10）
 - `--report-only`: 改善を適用せず、リクエストと専門家判定の**報告のみ**（dry-run）
 - `--no-build`: 既に preview サーバーが起動済みの場合、ビルド/起動をスキップ
+- `--progressive [N]`: プログレッシブ・カバレッジモード（下記）。未テストの問題を N 問（既定5）狙って1バッチ実行
+
+## プログレッシブ・カバレッジモード（`--progressive`）
+
+全クイズを「ユーザー視点で1問ずつ」テストし切るためのモード。毎回**未テストの問題**を狙うので、
+全問を1周するまで毎バッチ新しい発見がある（空振り・同じ不満の再生産を避ける）。記録は
+`.claude/playtest-coverage.json`（git追跡で進捗が永続）。
+
+1. `node scripts/playtest-coverage.mjs status` で進捗確認
+2. `node scripts/playtest-coverage.mjs next [N]` で「次に testする persona + 問題ID + `?q=` deep link」を取得（残数最多ペルソナを自動選択）
+3. `bun run build:web && (bun run preview:web &)`（`--no-build` 時はスキップ）
+4. `user-simulator`（取得した persona）を**ターゲットモード**で起動。プロンプトに `ids` と `deepLinks` を渡し、指定問題だけを deep link で順にプレイさせる（各 item に `quizId` 直記録、最終 `played:[{id,outcome}]` を返す）
+5. `node scripts/playtest-resolve.mjs` → ドメイン別 `learning-experience-reviewer` で検証 → `playtest-apply.mjs` で承認分適用 → 事実変更時は `quiz-verifier` 再検証 → `bun run quiz:post-add`
+6. `node scripts/playtest-coverage.mjs mark-batch <played.json>` でテスト済みを記録
+7. preview 停止。`auto/playtest-cov-<日時>` ブランチにコミット（coverage 更新 + 改善）。**push/PR はしない**
+8. 報告: 今回のカバレッジ進捗（例 beginner 15/254）、採用/却下、UX課題、残数
+
+**1周完了**（全830問 covered）したら維持モード（新規/変更問題のみ）に移行する。
 
 ## 前提チェック（最初に実行）
 

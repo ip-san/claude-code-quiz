@@ -46,6 +46,7 @@
     "quiz:merge-proposals": "node scripts/quiz-utils.mjs merge-proposals",
     "playtest:resolve": "node scripts/playtest-resolve.mjs",
     "playtest:apply": "node scripts/playtest-apply.mjs",
+    "playtest:coverage": "node scripts/playtest-coverage.mjs",
     "skills:check": "node scripts/check-skills.mjs",
     "docs:fetch": "node scripts/fetch-docs.mjs",
     "docs:split": "node scripts/fetch-docs.mjs --split",
