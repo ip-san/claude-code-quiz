@@ -39,7 +39,7 @@
 - エフォートレベル調整（`CLAUDE_CODE_EFFORT_LEVEL`: low/medium/high）は Opus 4.6 **と Sonnet 4.6** の両方でサポート。「Opus 4.6専用」は誤り
 - **エフォートレベルのデフォルトはプラン依存**: Pro/Max=`medium`、その他(API key/Team/Enterprise/Bedrock/Vertex AI/Foundry)=`high`。model-config ページに "Pro and Max subscribers default to medium effort. All other users default to high effort: API key, Team, Enterprise, and third-party provider" と明記。**Team は `high` であり `medium` ではない**
 - `MAX_THINKING_TOKENS`（非ゼロ値）は Opus 4.8/4.7/4.6・Sonnet 4.6 ではアダプティブ推論中は無視される。**Opus 4.7 / 4.8 は常にアダプティブ推論で動作し `CLAUDE_CODE_DISABLE_ADAPTIVE_THINKING` も適用されない**（model-config.md「Adaptive reasoning and fixed thinking budgets」、2026-05-31 再確認）。Opus 4.6 / Sonnet 4.6 のみ `CLAUDE_CODE_DISABLE_ADAPTIVE_THINKING=1` で固定予算（`MAX_THINKING_TOKENS`）に戻せる
-- **ただし `MAX_THINKING_TOKENS=0` はどのモデルでも thinking を完全に無効化できる例外** — docs: "The one exception: setting MAX_THINKING_TOKENS=0 still disables thinking entirely on any model."
+- **`MAX_THINKING_TOKENS=0` の完全無効化例外は Fable 5 には適用されない**（2026-06-10 確認: 「全モデルで無効化」は stale）。Opus 4.8/4.7/4.6・Sonnet 4.6 では thinking を完全無効化できる
 - **Opus 4.6 の推論機能の正式用語は「adaptive reasoning」** — model-config ページは "Extended Thinking" を使わず "effort levels control Opus 4.6's adaptive reasoning" と表現する。quiz の question/explanation で "Extended Thinking" と書くのは用語の不一致（v4.41.0 bp-018 で修正）
 
 ## スキル定義のキー名形式
@@ -157,7 +157,7 @@ v4.43.0 以前の known-issues では「exit code 2 の一般ルールで UserPr
 - v4.13.0 で「Microsoft Azure Foundry（正式名称）」と誤記録 → v4.22.0 でも踏襲 → 実際のページタイトルは「Microsoft Foundry」
 - v4.39.3 で cmd-024 に「SSE は非推奨」と記載 → MEMORY にも「MCP SSE transport is deprecated → use HTTP」と記録済みだったが、実際の mcp ページには "deprecated" の文字列が存在しなかった
 - v4.41.0 で MEMORY の「`CLAUDE_CODE_DISABLE_AUTO_MEMORY=0` で強制有効化はドキュメントに根拠なし」が誤りと判明 → settings.md に記載あり
-- `/teleport` はスラッシュコマンドではなく `claude --teleport` CLIフラグ（interactive-mode のスラッシュコマンドテーブルに存在しない）
+- `/teleport`（`/tp`）は**スラッシュコマンドとして存在する**（Webセッションピッカー表示）。CLIフラグ `claude --teleport` も別途存在（cli-reference に記載）。旧記録「スラッシュコマンドではない」は stale（MEMORY 2026 同期で訂正）
 - "Compact Instructions" は how-claude-code-works.md に記載あり（「add a 'Compact Instructions' section to CLAUDE.md」）
 - 過去に確認済みという記録があっても、重要な固有名詞・設定値は専用ページで再検証する
 
@@ -214,9 +214,9 @@ v4.43.0 以前の known-issues では「exit code 2 の一般ルールで UserPr
 ## UI 機能の名前混同
 
 - **Task List** (`Ctrl+T`): ビルトインの進捗追跡 UI
-- **`/todos`**: スラッシュコマンド（`CLAUDE_CODE_ENABLE_TASKS=false` 時に利用可能）
+- **`/todos`**: **commands.md から削除済み**（2026-04-06 確認）。現在の docs に記載なし。`CLAUDE_CODE_ENABLE_TASKS=1` は非インタラクティブモードでのタスクトラッキング有効化
 - **`/tasks`**: 別のスラッシュコマンド
-- これら3つは異なる機能。quiz で混同しないこと
+- これらは異なる機能。quiz で混同しないこと・`/todos` をアクティブなコマンドとして記述しないこと
 
 ## チェックポイント復元オプション
 
@@ -589,3 +589,17 @@ doc 全面更新（45ページ）で 810 問全件が target 化、pre-lint で 
 ## ドキュメントページ分割の追跡（troubleshooting → troubleshoot-install）
 
 - インストール系トラブルシュート（`Killed`、Docker ハング）が `/troubleshooting` から `/troubleshoot-install` に移動しており、cmd-096/097 の referenceUrl が内容と乖離していた。VALID_DOC_PAGES への追加も必要だった → fetch-docs のページリストに新ページが追加されたら、その親ページを referenceUrl に持つ問題の内容が新ページへ移動していないか確認する
+
+## 2026-07-16 Sonnet 5 登場ドリフト + 正解差し替え2問（quality-loop フルスキャン）
+
+8並列検証（対象 ~107問）+ 判定層（Fable 5）二重確認 5件。偽陽性ゼロ。
+
+1. **Sonnet 5 の docs 登場（モデル列挙ドリフト再発）**: model-config.md に Sonnet 5 追加。`xhigh`/`max` 対応は Fable 5 / Sonnet 5 / Opus 4.8 / Opus 4.7 に、Pro/Team Standard/Enterprise の `default` は Sonnet 4.6 → **Sonnet 5** に変更 → skill-061/key-016/ses-045/ses-102/ses-103 修正。「新モデル登場時の一括点検」パターンが2度目の的中
+2. **fast-mode.md**: Opus 4.6 が Fast mode 対象から除外（現行は 4.8/4.7 のみ）→ ses-108 修正
+3. **memory.md（正解差し替え）**: 肥大化対処の推奨は path-scoped rules / trim。「Splitting into @path imports helps organization but doesn't reduce context」と @path 分割を明示否定 → mem-030 の正解を差し替え
+4. **artifacts.md（正解差し替え）**: 公開リンク（サインイン不要）が存在。Pro/Max は公開リンクが唯一の共有手段、Team/Enterprise は Owner が External sharing 有効化。editor 役割も追加 → bp-106 正解差し替え、bp-108 のプラン要件（Pro/Max/Team/Enterprise）修正
+5. **advisor.md**: 「Claude Code v2.1.98 以降」は docs に根拠なし（明記は Fable 5 の v2.1.170+ のみ）。未記載バージョン数値の断定パターン → bp-102 修正
+6. **agent-teams.md**: teammateMode デフォルトが v2.1.179 以降 `"in-process"`（旧 `"auto"`）。v2.1.186 以降 `"iterm2"` 追加 → skill-076 修正（正解選択肢テキストも「明示設定が必要」に）
+7. **hooks.md**: `defer` は非対話（-p）モード専用（プロセス終了→SDK ラッパーが再開）。「後続フックに委ねる」は優先順位（deny > defer > ask > allow）との混同 → ext-132 修正
+8. **desktop.md 表記**: 「Preview ドロップダウン」は docs に存在せず正は「server dropdown」→ ext-172/ses-112 修正
+9. minor: mem-037（/resume はピッカー）、key-054（SCROLL_SPEED デフォルト値は未記載）修正。cmd-072/tool-031/key-034 は修正不要と判断

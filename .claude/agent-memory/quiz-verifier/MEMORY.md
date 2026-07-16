@@ -2,6 +2,7 @@
 
 - [SDK category patterns](sdk_patterns.md) — sdk カテゴリの検証パターン・偽陽性記録
 - [Keyboard category patterns](keyboard_patterns.md) — keyboard カテゴリのパターン（Option+T設定要件, keybindings.jsonフォーマット, wrongFeedback短文）
+- [Session category patterns](session_patterns.md) — session カテゴリのパターン（モデルラインナップ更新drift: Sonnet 5登場・Fast Mode縮小・default変更）
 
 ## extensions カテゴリ検証パターン（2026-05-23）
 

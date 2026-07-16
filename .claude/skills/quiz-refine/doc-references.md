@@ -41,6 +41,11 @@
 | リモートコントロール | `remote-control` | 別デバイスからの継続 |
 | サーバー管理設定 | `server-managed-settings` | エンタープライズ設定管理 |
 | 開発コンテナ | `devcontainer` | Dev Container 設定 |
+| LLM ゲートウェイ選定・比較 | `gateways` | Claude apps gateway vs 自前ゲートウェイの選択 |
+| LLM ゲートウェイ接続設定 | `llm-gateway-connect` | 資格情報変数・base URL 設定手順 |
+| Linux デスクトップアプリ | `desktop-linux` | apt インストール・Linux ベータの制限 |
+| WSL デスクトップアプリ | `desktop-wsl` | WSL セッションの制限・管理対象デバイス |
+| プロバイダ別機能可用性 | `feature-availability` | サブスクリプション/プロバイダ別の機能対応表 |
 
 ### referenceUrl の危険パターン
 
@@ -59,6 +64,7 @@
   - CI/CD: github-actions, gitlab-ci-cd, scheduled-tasks, remote-control
   - Enterprise: server-managed-settings, devcontainer
   - Supplementary: permissions, cli-reference, setup, features-overview, desktop-quickstart, authentication
+  - Cloud & Gateway (2026-07-16 追加): gateways, llm-gateway-connect, desktop-linux, desktop-wsl, feature-availability
 - `https://platform.claude.com/docs/en/agent-sdk/overview` — Agent SDK 関連
 
 ### ページリスト同期チェック（新規ドキュメントページ追加時）
