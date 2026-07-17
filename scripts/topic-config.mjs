@@ -162,6 +162,8 @@ export const DOC_PAGES = [
   { name: 'llm-gateway-connect', url: 'https://code.claude.com/docs/en/llm-gateway-connect' },
   { name: 'llm-gateway-protocol', url: 'https://code.claude.com/docs/en/llm-gateway-protocol' },
   { name: 'llm-gateway-rollout', url: 'https://code.claude.com/docs/en/llm-gateway-rollout' },
+  // Auto-discovered from llms.txt (2026-07-17)
+  { name: 'corporate-launcher', url: 'https://code.claude.com/docs/en/corporate-launcher' },
   // Agent SDK (different domain)
   { name: 'agent-sdk-overview', url: 'https://platform.claude.com/docs/en/agent-sdk/overview' },
 ]
@@ -213,11 +215,23 @@ export const CATEGORY_DOC_MAP = {
     'data-usage',
     'gateways',
     'llm-gateway-connect',
+    'llm-gateway-protocol',
+    'llm-gateway-rollout',
     'desktop-linux',
     'desktop-wsl',
     'feature-availability',
+    'claude-apps-gateway',
+    'corporate-launcher',
   ],
-  keyboard: ['interactive-mode', 'common-workflows', 'keybindings', 'statusline', 'terminal-config', 'output-styles'],
+  keyboard: [
+    'interactive-mode',
+    'common-workflows',
+    'keybindings',
+    'statusline',
+    'terminal-config',
+    'output-styles',
+    'accessibility',
+  ],
   bestpractices: ['best-practices', 'model-config', 'common-workflows', 'sandboxing', 'advisor', 'artifacts'],
   sdk: [
     'agent-sdk-overview',

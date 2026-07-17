@@ -171,6 +171,12 @@ const VALID_DOC_PAGES = [
   'desktop-linux',
   'desktop-wsl',
   'feature-availability',
+  // Newly discovered pages (2026-07-17)
+  'llm-gateway-protocol',
+  'llm-gateway-rollout',
+  'claude-apps-gateway',
+  'corporate-launcher',
+  'accessibility',
   // platform.claude.com pages
   'agent-sdk/overview',
   'agents-and-tools/agent-skills/best-practices',

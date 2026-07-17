@@ -256,4 +256,4 @@
 - カバレッジ計上バグ修正: `agent-sdk/overview`（URL由来スラッグ）と `agent-sdk-overview`（DOC_PAGES 名）が二重計上され「NO COVERAGE」偽陽性 → `quiz-utils.mjs` に PAGE_ALIASES を追加
 - `quizContentQuality.test.ts` の許可ページに `agent-view` を追加、`CATEGORY_DOC_MAP` の session に `agent-view`/`data-usage`、commands に `data-usage` を追加
 - 残る未カバー7ページ（changelog / desktop-changelog / champion-kit / communications-kit / legal-and-compliance / glossary / mcp-quickstart）は意図的にスキップ: 変更履歴・マーケ資料・法務はクイズ素材不適、glossary は各ページへのリンク集で既存問題と重複、mcp-quickstart は mcp（27問）と内容重複
-- 結果: 810→850問、99→101ページカバー。1099テスト・quiz:check・check（型+lint+type-coverage 99.63%）全通過
+- 結果: 810→870問、99→101ページカバー。1099テスト・quiz:check・check（型+lint+type-coverage 99.63%）全通過

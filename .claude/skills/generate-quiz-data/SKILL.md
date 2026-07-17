@@ -68,8 +68,8 @@ node scripts/fetch-docs.mjs --assemble --pages settings,checkpointing,overview,q
 | tools | 15% | `how-claude-code-works,settings,vs-code,jetbrains` |
 | commands | 15% | `interactive-mode,quickstart,overview,cli-reference,headless,github-actions,gitlab-ci-cd,scheduled-tasks` |
 | extensions | 15% | `mcp,hooks,hooks-guide,discover-plugins,plugins,plugins-reference,plugin-marketplaces,sub-agents,chrome,slack` |
-| session | 10% | `settings,checkpointing,overview,quickstart,model-config,sandboxing,fast-mode,remote-control,desktop,devcontainer,gateways,llm-gateway-connect,desktop-linux,desktop-wsl,feature-availability` |
-| keyboard | 10% | `interactive-mode,keybindings,statusline,terminal-config,output-styles` |
+| session | 10% | `settings,checkpointing,overview,quickstart,model-config,sandboxing,fast-mode,remote-control,desktop,devcontainer,gateways,llm-gateway-connect,llm-gateway-protocol,llm-gateway-rollout,desktop-linux,desktop-wsl,feature-availability,claude-apps-gateway,corporate-launcher` |
+| keyboard | 10% | `interactive-mode,keybindings,statusline,terminal-config,output-styles,accessibility` |
 | bestpractices | 10% | `best-practices,common-workflows,quickstart` |
 | sdk | 5% | `agent-sdk-overview,authentication,third-party-integrations` |
 

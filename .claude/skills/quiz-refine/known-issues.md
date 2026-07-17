@@ -134,6 +134,7 @@ v4.43.0 以前の known-issues では「exit code 2 の一般ルールで UserPr
 - 根拠: (1) hooks reference ページの "On this page" TOC に `Configuration` セクションが存在する、(2) 公式 hooks-guide が `code.claude.com/docs/en/hooks#configuration` へクロスリンクしている（hooks-guide.md L543）
 - 原因: hooks **reference** ページの fetch では見出しが `##` markdown ではなくプレーンテキストに平坦化されるため、slugify ベースのアンカー抽出が拾えない。`hooks-guide` ページは正常に `##`/`###` を持つ
 - 対応: これら3問の `referenceUrl` は修正不要。URL Anchors lint は report-only なのでブロックしない
+- (1) hooks.md キャッシュがプレーンテキスト平坦化されており URL Anchors lint が `#configuration` を偽陽性報告 → `node scripts/fetch-docs.mjs --pages hooks --force` で再取得したら `##` 見出し10セクションが復元され lint が解消。(2) mcp.md キャッシュはコードブロック0個（コードフェンス脱落）のため `--env` フラグが factCheck:flags で偽陽性 → known-issues.md の「Hooks ページのアンカー」セクションに「`--force` 再取得でキャッシュ形式が復元され lint 解消する場合がある。invalid-anchor 報告時はまず該当ページを `--force` 再取得してから判定する」を追記。mcp.md のコードブロック脱落も同種の注意（コード例由来のフラグ・コマンド不在は偽陽性の可能性）として記録
 
 ## SDK・ライブラリの改名履歴
 
@@ -327,6 +328,7 @@ v4.43.0 以前の known-issues では「exit code 2 の一般ルールで UserPr
 - key-011 が `Ctrl+F` を全バックグラウンドエージェント停止ショートカットとして記載していたが、正しくは `Ctrl+X Ctrl+K`（コードバインディング）。interactive-mode ドキュメントで明確に定義されている → generate-quiz-data SKILL.md のキーボードショートカットセクションに `Ctrl+X Ctrl+K`（全バックグラウンドエージェント停止）を明記
 - cmd-033 の explanation「`claude commit` サブコマンドは存在しません」を terminology checker が毎回フラグ。known-issues にも複数回記載されている → ✅ RESOLVED (2026-04-20): `skipIfNegated` で構造的に解決済み。全ての terminology エントリで必要に応じてこのフラグを指定可能
 - 本 run（--full）も forked skill context で実行されたため、`--team` 並列起動が不可。SKILL.md の "フォールバック運用" (L138-159) に従い、決定論的修正 + spot-check に留めた → SKILL.md の Step 0 に「Agent tool 利用可否の検出フラグ」を追加し、forked 環境では自動的に fallback パス（pre-lint fact-tier の spot-check + 決定論的修正のみ）に分岐。`scripts/verify-category-headless.mjs` を主要パスに昇格させ、`--team` フラグを「並列モード(Agent tool)」「並列モード(subprocess fallback)」の 2 モードで明示
+- 現行 docs はプロバイダ名を「Google Cloud's Agent Platform」に統一済み（doc slug は google-vertex-ai のまま）。bp-102・sdk-016 が「Google Vertex AI」「Vertex」の旧名称を使用（事実自体は正しいため minor でスキップ） → topic-config.mjs の TERMINOLOGY_DICT に `Google Vertex AI → Google Cloud's Agent Platform` 追加を検討（ただし doc slug・referenceUrl は google-vertex-ai のままなので URL は変換対象外にする）。次回スキャンで旧名称使用問題を横断棚卸し
 
 ## /memory と /context の役割の違い
 
@@ -603,3 +605,11 @@ doc 全面更新（45ページ）で 810 問全件が target 化、pre-lint で 
 7. **hooks.md**: `defer` は非対話（-p）モード専用（プロセス終了→SDK ラッパーが再開）。「後続フックに委ねる」は優先順位（deny > defer > ask > allow）との混同 → ext-132 修正
 8. **desktop.md 表記**: 「Preview ドロップダウン」は docs に存在せず正は「server dropdown」→ ext-172/ses-112 修正
 9. minor: mem-037（/resume はピッカー）、key-054（SCROLL_SPEED デフォルト値は未記載）修正。cmd-072/tool-031/key-034 は修正不要と判断
+
+## 排他的モデル列挙は新モデルリリース時に必ず再検証（doc ドリフト高リスク）
+
+- ses-199 の正解選択肢・解説・wrongFeedback×2 が「Auto Mode は Sonnet 5・Opus 4.7・Opus 4.8 のみ」と記述していたが、現行 feature-availability.md は「only Claude Sonnet 5, Opus 4.7, Opus 4.8, and Fable 5」と Fable 5 を追加済み。4フィールドを修正 → known-issues.md に「Bedrock / Google Cloud's Agent Platform / Foundry での Auto Mode 対応モデルは Sonnet 5・Opus 4.7・Opus 4.8・**Fable 5**（2026-07-18 feature-availability.md 確認）。CLAUDE_CODE_ENABLE_AUTO_MODE 要件は v2.1.207 で撤廃」を追記。「のみ」「限定」付きモデル列挙は新モデル（Fable 5 / Sonnet 5 / Mythos 5 等）リリース時に横断再検証する
+
+## PreToolUse permissionDecision は4値（defer 追加確認）
+
+- crossCheck が ext-110 / ext-132 の「4つの値」を数値矛盾としてフラグしたが、現行 hooks.md L422/L781 は `allow` / `deny` / `ask` / `defer` の4値を明記（defer は `-p` 非インタラクティブ専用、優先順位 deny>defer>ask>allow）。quiz は正しく偽陽性 → known-issues.md の Hook 関連セクションに「PreToolUse permissionDecision = 4値（allow/deny/ask/defer、2026-07-18 確認）。3値と指摘するのは偽陽性」を追記
