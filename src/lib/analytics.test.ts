@@ -157,3 +157,28 @@ describe('reportError', () => {
     // No throw — coverage of the String(error) fallback path
   })
 })
+
+describe('setUserProperties', () => {
+  afterEach(() => {
+    vi.unstubAllEnvs()
+    vi.resetModules()
+    delete window.dataLayer
+  })
+
+  it('sends platform as a top-level event param in addition to user_properties (gtm/events.json spec)', async () => {
+    vi.stubEnv('VITE_GTM_ID', 'GTM-TEST')
+    vi.resetModules()
+    const { setUserProperties } = await import('./analytics')
+
+    window.dataLayer = []
+    setUserProperties({ mastery_level: 'bronze' })
+
+    const pushed = window.dataLayer.find((e) => e.event === 'set_user_properties')
+    expect(pushed).toBeDefined()
+    // GTM タグはトップレベルの dataLayer 変数 platform を参照するため、
+    // user_properties 内だけでは初回訪問時にイベントパラメータが空になる
+    expect(pushed?.platform).toMatch(/^(pwa|electron)$/)
+    expect((pushed?.user_properties as Record<string, unknown>).platform).toBe(pushed?.platform)
+    expect((pushed?.user_properties as Record<string, unknown>).mastery_level).toBe('bronze')
+  })
+})

@@ -112,9 +112,9 @@ export function setUserProperties(props: {
   total_quizzes?: number
   preferred_mode?: string
 }): void {
-  if (!isAnalyticsEnabled) return
-  window.dataLayer = window.dataLayer ?? []
-  window.dataLayer.push({ event: 'set_user_properties', user_properties: { platform: PLATFORM, ...props } })
+  // pushEvent がトップレベルの platform を付与する（イベントパラメータとして必須、gtm/events.json）。
+  // user_properties 側にも入れてユーザープロパティとして永続化する
+  pushEvent('set_user_properties', { user_properties: { platform: PLATFORM, ...props } })
 }
 
 // ============================================================
