@@ -304,10 +304,38 @@ const _knownCounts = {
 }
 
 /**
+ * Remove lines exempted from stale-number scanning.
+ * A line containing "validate-docs:ignore-next-line" is dropped together with
+ * the line that follows it. Use for historical records whose numbers are
+ * intentionally frozen (they would otherwise be auto-rewritten every time the
+ * quiz count changes). Note: exemption only prevents flagging; if the same
+ * stale number also appears in non-exempt text, the replaceAll auto-fix still
+ * rewrites all occurrences in the file.
+ */
+function stripIgnoredLines(content) {
+  const lines = content.split('\n')
+  const kept = []
+  let skipNext = false
+  for (const line of lines) {
+    if (skipNext) {
+      skipNext = false
+      continue
+    }
+    if (line.includes('validate-docs:ignore-next-line')) {
+      skipNext = true
+      continue
+    }
+    kept.push(line)
+  }
+  return kept.join('\n')
+}
+
+/**
  * Scan a file for stale inline numbers and register auto-fixes.
  * Finds all "N問", "Nテスト" patterns and checks against actual values.
  */
-function scanStaleNumbers(content, file, label) {
+function scanStaleNumbers(rawContent, file, label) {
+  const content = stripIgnoredLines(rawContent)
   // Quiz count: find numbers that WERE the quiz count but are now stale
   // Only flag numbers > 500 (total quiz count range) to avoid false positives
   // on per-category counts (46問, 152問 etc.)
