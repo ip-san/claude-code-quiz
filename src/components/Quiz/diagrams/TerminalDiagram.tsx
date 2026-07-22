@@ -1,6 +1,7 @@
 import { Check, Clipboard, Play, SkipForward } from 'lucide-react'
 import { useState } from 'react'
 import { locale } from '@/config/locale'
+import { theme } from '@/config/theme'
 import { platformAPI } from '@/lib/platformAPI'
 import { BaseDiagram } from './BaseDiagram'
 import { useTerminalAnimation } from './useTerminalAnimation'
@@ -44,7 +45,7 @@ function TerminalBody({ lines, isVisible }: { lines: TerminalLine[]; isVisible: 
         <span className="h-2.5 w-2.5 rounded-full bg-red-500/70" />
         <span className="h-2.5 w-2.5 rounded-full bg-yellow-500/70" />
         <span className="h-2.5 w-2.5 rounded-full bg-green-500/70" />
-        <span className="ml-2 min-w-0 flex-1 truncate text-[10px] text-stone-400">Claude Code</span>
+        <span className="ml-2 min-w-0 flex-1 truncate text-[10px] text-stone-400">{theme.subject}</span>
         {/* Skip / Replay button */}
         {isPlaying && (
           <button
