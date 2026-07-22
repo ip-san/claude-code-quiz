@@ -51,6 +51,10 @@
 | Claude apps gateway（セルフホスト） | `claude-apps-gateway` | OIDCサインイン・要件・enforced設定・availability |
 | 企業向けプロセスラウンチャー | `corporate-launcher` | `CLAUDE_CODE_PROCESS_WRAPPER`のラウンチャー契約 |
 | アクセシビリティ | `accessibility` | スクリーンリーダーモード・拡大鏡・キーボード操作支援 |
+| モバイルアプリ（クラウドセッション/Remote Control/Dispatch） | `mobile` | スマホからのセッション操作・プッシュ通知・ローカル限定コマンド |
+| Claude apps gateway の設定ファイル仕様 | `claude-apps-gateway-config` | `gateway.yaml` の各セクション・アップストリームのフェイルオーバー仕様 |
+| Claude apps gateway の支出上限管理 | `claude-apps-gateway-spend-limits` | spend limits の設定・enforcement・Admin API |
+| デスクトップアプリの iOS Simulator 連携 | `desktop-ios-simulator` | ローカル限定・デバイス許可とパーミッションモードの使い分け・デバイスライフサイクル |
 
 ### referenceUrl の危険パターン
 
@@ -71,6 +75,8 @@
   - Supplementary: permissions, cli-reference, setup, features-overview, desktop-quickstart, authentication
   - Cloud & Gateway (2026-07-16 追加): gateways, llm-gateway-connect, desktop-linux, desktop-wsl, feature-availability
   - Cloud & Gateway (2026-07-17 追加): llm-gateway-protocol, llm-gateway-rollout, claude-apps-gateway, corporate-launcher, accessibility
+  - Cloud & Gateway (2026-07-18 追加): mobile, claude-apps-gateway-config, claude-apps-gateway-spend-limits
+  - Cloud & Gateway (2026-07-22 追加): desktop-ios-simulator
 - `https://platform.claude.com/docs/en/agent-sdk/overview` — Agent SDK 関連
 
 ### ページリスト同期チェック（新規ドキュメントページ追加時）

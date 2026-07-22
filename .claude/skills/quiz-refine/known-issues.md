@@ -146,12 +146,13 @@ v4.43.0 以前の known-issues では「exit code 2 の一般ルールで UserPr
 - プロジェクト正式表記は **「Microsoft Foundry」**（`topic-config.mjs` TERMINOLOGY_DICT: `Azure Foundry`→`Microsoft Foundry`、doc page slug も `microsoft-foundry`）
 - **注意**: 一部の公式ドキュメント（`fast-mode.md` 等）は冗長形「Microsoft Azure Foundry」を使う。検証エージェントが doc 文字列に合わせて quiz を「Microsoft Azure Foundry」へ修正提案するのは **false-positive**。terminology lint が `Azure Foundry → Microsoft Foundry` で巻き戻すため、doc の冗長形に合わせないこと（ses-117 で実際に発生・revert 済み）
 
-## デフォルトモデルのプラン別対応（2026-05-31 確認）
+## デフォルトモデルのプラン別対応（2026-07-18 更新・v2.1.207 変更反映）
 
-- **Opus 4.8** = Max / Team Premium / Enterprise pay-as-you-go / Anthropic API のデフォルト（model-config.md L124）
-- **Opus 4.7** = Claude Platform on AWS のデフォルト（同 L125）。Max/Team Premium のデフォルトを「Opus 4.7」とするのは旧情報（ses-103 で修正済み）
-- **Sonnet 4.6** = Pro / Team Standard / Enterprise サブスクリプション席（L126）、**Sonnet 4.5** = Bedrock/Vertex/Foundry（L127）
-- `xhigh` エフォートは **Opus 4.8 / Opus 4.7 のみ**（Opus 4.6 / Sonnet 4.6 は high にフォールバック、model-config.md L146-147）。旧 known-issues の「Opus 4.7 専用」は 4.8 追加後の stale 表記
+- **最新（model-config.md「`default` model setting」、2026-07-18 確認）**: Max / Team Premium / Enterprise pay-as-you-go / Anthropic API = **Opus 4.8**、**Claude Platform on AWS / Amazon Bedrock / Google Cloud's Agent Platform = Opus 4.8**（v2.1.207 で変更。旧: AWS=Opus 4.7、Bedrock/Vertex=Sonnet 4.5）、Pro / Team Standard / Enterprise サブスクリプション席 = **Sonnet 5**、**Microsoft Foundry のみ Sonnet 4.5**
+- Fable 5 はどのアカウントタイプでもデフォルトにならない（明示選択のみ）
+- 旧記述（2026-05-31 時点: AWS=Opus 4.7、Pro=Sonnet 4.6、Bedrock/Vertex/Foundry=Sonnet 4.5）は stale。MEMORY.md の該当 Verified Facts も更新が必要
+- `xhigh` エフォートは **Fable 5 / Sonnet 5 / Opus 4.8 / Opus 4.7**（Opus 4.6 / Sonnet 4.6 は high にフォールバック）。旧「Opus 4.8 / 4.7 のみ」は Sonnet 5 / Fable 5 追加後の stale 表記（bp-018 / cmd-104 / key-016 で 2026-07-18 修正）
+- model-config.md「`default` model setting」で Claude Platform on AWS / Amazon Bedrock / Google Cloud's Agent Platform のデフォルトが **Opus 4.8** に統一された（旧: AWS=Opus 4.7、Bedrock/Vertex=Sonnet 4.5）。Pro/Team Standard/Enterprise サブスクリプション = Sonnet 5、Microsoft Foundry のみ Sonnet 4.5。quiz 側は ses-103 が既に正しく修正不要だったが、known-issues の 2026-05-31 記録が stale だった → known-issues「デフォルトモデルのプラン別対応」を 2026-07-18 付で更新済み。MEMORY.md の Verified Facts「Claude Code 既定モデル」行も次回 MEMORY 更新時に同期する
 
 ## MEMORY 記録の信頼性
 
@@ -481,6 +482,7 @@ v4.43.0 以前の known-issues では「exit code 2 の一般ルールで UserPr
 ## pre-lint の tiers にラベル「mechanical-fixable」を追加
 
 - 今回の run では `tiers.fact=57, quality=97, autofix=0` と表示され、autofix ゼロに見えたが、実際は quiz:lint の distractor 120 件が機械的に改善可能。tier ラベルが現実と乖離 → scripts/pre-lint-quiz.mjs の tier 分類を拡張し、「distractor-fixable」「difficulty-fixable」「backtick-fixable」の 3 つのサブカウントを追加。Skill の summary 出力でも表示
+- fact tier 65問中 51問は、フラグされたトークン（`/load`, `--gui`, `CLAUDE_PROXY` 等）が**不正解選択肢 / wrongFeedback にのみ**出現する意図的 distractor だった。question・正解選択肢・explanation にフラグトークンが出現したのは ext-013 / tool-031 / cmd-049 / ses-102 の4問のみで、全て false-positive（`--env`=mcp.md コードフェンス脱落、`autoAllowBashIfSandboxed`=settings.md L324 に実在、`--name-only`=git のフラグ例、`--effort=low`=「正しくないもの」問題の正解） → `scripts/pre-lint-quiz.mjs` の factCheck 系チェックに出現位置判定を追加し、トークンが wrong option / wrongFeedback にのみ出現する場合は `fact` tier から `quality`（または skip）へデモートする。question / correct option / explanation に出現する場合のみ `fact` tier とする。これで Sonnet 検証対象を大幅削減できる
 
 ## 「選択肢X（正解）」ラベルと correctIndex の整合性チェック
 
@@ -609,7 +611,43 @@ doc 全面更新（45ページ）で 810 問全件が target 化、pre-lint で 
 ## 排他的モデル列挙は新モデルリリース時に必ず再検証（doc ドリフト高リスク）
 
 - ses-199 の正解選択肢・解説・wrongFeedback×2 が「Auto Mode は Sonnet 5・Opus 4.7・Opus 4.8 のみ」と記述していたが、現行 feature-availability.md は「only Claude Sonnet 5, Opus 4.7, Opus 4.8, and Fable 5」と Fable 5 を追加済み。4フィールドを修正 → known-issues.md に「Bedrock / Google Cloud's Agent Platform / Foundry での Auto Mode 対応モデルは Sonnet 5・Opus 4.7・Opus 4.8・**Fable 5**（2026-07-18 feature-availability.md 確認）。CLAUDE_CODE_ENABLE_AUTO_MODE 要件は v2.1.207 で撤廃」を追記。「のみ」「限定」付きモデル列挙は新モデル（Fable 5 / Sonnet 5 / Mythos 5 等）リリース時に横断再検証する
+- ext-008 の選択肢[3]・wrongFeedback・explanation・diagram の4フィールドが「Explore は Haiku モデルで動作」と記述していたが、sub-agents.md は v2.1.198 で「Explore はメイン会話のモデルを継承（Claude API では Opus 上限）」に変更済み。正解（Debug が存在しない）は無事だが、周辺記述が stale → known-issues.md の「排他的モデル列挙は新モデルリリース時に必ず再検証」セクションに「**機能→モデルの固定対応**（Explore=Haiku、statusline-setup=Sonnet、claude-code-guide=Haiku、goal評価=Haiku 等）も同リスク。sub-agents.md / goal.md / model-config.md の hash 変化時に `Haiku|Sonnet|Opus` を含む帰属記述を横断確認」を追記
 
 ## PreToolUse permissionDecision は4値（defer 追加確認）
 
 - crossCheck が ext-110 / ext-132 の「4つの値」を数値矛盾としてフラグしたが、現行 hooks.md L422/L781 は `allow` / `deny` / `ask` / `defer` の4値を明記（defer は `-p` 非インタラクティブ専用、優先順位 deny>defer>ask>allow）。quiz は正しく偽陽性 → known-issues.md の Hook 関連セクションに「PreToolUse permissionDecision = 4値（allow/deny/ask/defer、2026-07-18 確認）。3値と指摘するのは偽陽性」を追記
+
+## 新モデル一括点検は「修正済みIDリスト」ではなく「パターン全ヒット」で消し込む
+
+- 2026-07-18 の Sonnet 5 対応で ses-045/ses-102/skill-061/key-016/ses-103 は修正済みだったが、同一パターン（xhigh/max/常時アダプティブのモデル列挙）を持つ bp-018・cmd-104、および key-016 内の別文（常にアダプティブ推論の列挙）が取り残されていた。今回 3問10フィールドを修正 → known-issues の「新モデル登場時の一括点検」手順を強化: 修正リストではなく `xhigh|max.*利用可能|常にアダプティブ|のみ対応|のみで使える` の grep 全ヒットを対象に、新モデル名を含まないものを全件レビューする。**diagram 内の列挙（quiz:edit 非対応領域）を必ず含める**（今回の取り残し10フィールド中5つが diagram）
+
+## モデル列挙チェックはフィールド単位で判定（固定幅 grep 窓は誤判定する）
+
+- 前後30-80文字の固定幅 grep 窓では「Fable 5 / Sonnet 5 / Opus 4.8 / Opus 4.7 のみ」の先頭が切れて stale と誤判定する（ses-102 / skill-061 で3件発生、手動再照合で棄却） → モデル列挙の網羅性チェックは option.text / wrongFeedback / explanation / diagram 文字列のフィールド全体を単位に判定する
+
+## factCheck:flags/env/slash の偽陽性削減（不正解選択肢トークンの除外）
+
+- fact tier 65問のフラグで実修正 0件。内訳: 不正解選択肢内の意図的な架空フラグ/環境変数（--gui, CLAUDE_PROXY 等）が大半、否定文脈の正解（cmd-051 `/summarize` は「存在しないもの」設問）、git のフラグ（cmd-049 `--name-only` は `git diff` の引数）、キャッシュのコードブロック脱落（ext-013 `--env` は `claude mcp add --help` で実在確認） → pre-lint-quiz.mjs の factCheck 系に (a) 不正解選択肢とそのwrongFeedbackのみに出現するトークンの除外、(b) 「存在しない」等の否定語近傍スキップ（terminology の skipIfNegated 相当）、(c) `git |npm |npx ` 直後のフラグ除外、を追加して Sonnet 検証対象を絞る
+
+## TodoWrite は v2.1.142 からデフォルト無効（MEMORY 同期 2026-07-22）
+
+- tools-reference.md L49 / env-vars.md L97: `TodoWrite` は **v2.1.142 から all modes でデフォルト無効**。Task tools（TaskCreate/TaskGet/TaskList/TaskUpdate）がすべてのモードでデフォルト
+- `CLAUDE_CODE_ENABLE_TASKS=0` で TodoWrite を復活可能
+- 旧仕様「TodoWrite は -p フラグと Agent SDK でデフォルト」を正解として扱うのは doc drift（tool-074 で 2026-05-30 検出済み）
+
+## /output-style は現行コマンドとして存在しない（MEMORY 同期 2026-07-22）
+
+- `/output-style` はドキュメントからコマンド定義が削除済み（v2.1.73 付近で廃止）。出力スタイル変更は `/config` → Output style または `settings.json` の `outputStyle` 編集が正式手段（commands.md L18 / output-styles.md）
+- **循環検証トラップ注意**: assembled per-category JSON はクイズ本文（wrongFeedback 等）を含むため、それを「ドキュメント」として事実根拠にしない。事実照合は必ず `docs/<page>.md` 生ファイルを正典とする（key-032 で 2026-06-23 発生）
+
+## hooks.md キャッシュ平坦化は --force 再取得でも復元されない場合がある
+
+- ext-004 / ext-085 / ext-087 の `#configuration` invalid-anchor（既知 false-positive）に対し、known-issues.md の指示どおり `node scripts/fetch-docs.mjs --pages hooks --force` を実行したが、今回は再取得後も 1 section のみ（見出し平坦化が継続）で lint は解消しなかった。Jina Reader の出力形式が安定しないため、--force 再取得は「解消する場合がある」対処であり確実ではない → known-issues.md「Hooks ページのアンカー」セクションに「--force 再取得でも復元されない場合がある（2026-07-19 確認）。復元されない場合も false-positive 判定は維持し、referenceUrl は修正しない」を追記
+
+## 不正解選択肢の「架空コマンド」が実在化する二重正解パターン
+
+- cmd-035 の不正解選択肢[3]「`/plan` コマンドで Plan Mode を有効化」が、commands.md への `/plan [description]` 追加（L58）により事実として正しくなり、二重正解状態になっていた。wrongFeedback 自身が「`/plan`コマンドでもPlan Modeに入れますが…」と正解であることを認めており、「他の方法も重要」という理由では不正解にできない → pre-lint-quiz.mjs の factCheck:knownNonexistent を逆方向にも使う: 「不正解選択肢に含まれるスラッシュコマンド/フラグが現行 docs に**出現するようになったら** flag する」チェックを追加（現在は存在しないものの検出のみ）。commands.md / cli-reference.md の content-hash 変化時は、不正解選択肢内のコマンド・フラグ token を全問 grep して実在化を棚卸しする
+
+## 「Key tools include（例示）」を完全リストと誤認する断定の再発
+
+- sdk-009 explanation と diagram が「ビルトインツールは…の10種です」と断定。agent-sdk-overview.md は「Key tools include」と例示表現で、「full list, including scheduling and worktree tools」への参照を明記している。known-issues 既載の「ドキュメントの例示を完全リストと誤認」パターンの再発 → 既存パターンで対応済み。生成時ガイドとして generate-quiz-data 側にも「"include(s)" / "such as" のリストを「全N種」と数えない」を再周知

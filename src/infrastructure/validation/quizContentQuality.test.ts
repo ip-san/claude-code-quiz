@@ -177,6 +177,12 @@ const VALID_DOC_PAGES = [
   'claude-apps-gateway',
   'corporate-launcher',
   'accessibility',
+  // Newly discovered pages (2026-07-18)
+  'mobile',
+  'claude-apps-gateway-config',
+  'claude-apps-gateway-spend-limits',
+  // Newly discovered pages (2026-07-22)
+  'desktop-ios-simulator',
   // platform.claude.com pages
   'agent-sdk/overview',
   'agents-and-tools/agent-skills/best-practices',

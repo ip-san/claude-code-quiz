@@ -37,17 +37,18 @@
 
 ## モデル・エフォート関連
 
-### 既定モデル（プラン別、model-config.md L124-127、2026-05-31 更新）
+### 既定モデル（プラン別、model-config.md L193-196、2026-07-18 更新）
 - **Max / Team Premium / Enterprise(pay-as-you-go) / Anthropic API**: Opus 4.8
-- **Claude Platform on AWS**: Opus 4.7
-- **Pro / Team Standard / Enterprise(subscription seats)**: Sonnet 4.6
-- **Bedrock / Vertex AI / Microsoft Foundry**: Sonnet 4.5
+- **Claude Platform on AWS / Amazon Bedrock / Google Cloud's Agent Platform**: Opus 4.8（v2.1.207 で統一。旧: AWS=Opus 4.7、Bedrock/GCP=Sonnet 4.5）
+- **Pro / Team Standard / Enterprise(subscription seats)**: Sonnet 5
+- **Microsoft Foundry**: Sonnet 4.5
+- Fable 5 はどのアカウントタイプでもデフォルトにならない（明示選択時のみ）
 
-### `CLAUDE_CODE_EFFORT_LEVEL`（6 値、model-config.md L146-149、2026-05-31 更新）
+### `CLAUDE_CODE_EFFORT_LEVEL`（6 値、model-config.md effort テーブル、2026-07-18 更新）
 - `low` / `medium` / `high` / `xhigh` / `max` / `auto`
-- `xhigh`: **Opus 4.8 / Opus 4.7**（Opus 4.6 / Sonnet 4.6 は `high` にフォールバック）
-- `max`: **Opus 4.8 / Opus 4.7 / Opus 4.6 / Sonnet 4.6**（4 モデル）
-- デフォルト effort は**モデル別**: Opus 4.8 / Opus 4.6 / Sonnet 4.6 = `high`、Opus 4.7 = `xhigh`（プラン別ではない）
+- `xhigh`: **Fable 5 / Sonnet 5 / Opus 4.8 / Opus 4.7**（Opus 4.6 / Sonnet 4.6 は `high` にフォールバック）
+- `max`: **Fable 5 / Sonnet 5 / Opus 4.8 / Opus 4.7 / Opus 4.6 / Sonnet 4.6**（6 モデル）
+- デフォルト effort は**モデル別**: Fable 5 / Sonnet 5 / Opus 4.8 / Opus 4.6 / Sonnet 4.6 = `high`、Opus 4.7 = `xhigh`（プラン別ではない）
 
 ### `/effort ultracode` と dynamic workflows（commands.md L25 / model-config.md L149,L162、2026-06-02 確認）
 - `/effort` が受け付ける値は `low` / `medium` / `high` / `xhigh` / `max` / `ultracode`（6 種。`max`・`ultracode` は session-only）
@@ -256,4 +257,5 @@
 - カバレッジ計上バグ修正: `agent-sdk/overview`（URL由来スラッグ）と `agent-sdk-overview`（DOC_PAGES 名）が二重計上され「NO COVERAGE」偽陽性 → `quiz-utils.mjs` に PAGE_ALIASES を追加
 - `quizContentQuality.test.ts` の許可ページに `agent-view` を追加、`CATEGORY_DOC_MAP` の session に `agent-view`/`data-usage`、commands に `data-usage` を追加
 - 残る未カバー7ページ（changelog / desktop-changelog / champion-kit / communications-kit / legal-and-compliance / glossary / mcp-quickstart）は意図的にスキップ: 変更履歴・マーケ資料・法務はクイズ素材不適、glossary は各ページへのリンク集で既存問題と重複、mcp-quickstart は mcp（27問）と内容重複
-- 結果: 810→870問、99→101ページカバー。1099テスト・quiz:check・check（型+lint+type-coverage 99.63%）全通過
+  <!-- validate-docs:ignore-next-line 歴史的記録（2026-06-10 時点の値、凍結）。過去に stale スキャンで 830→850→870→882 と毎ループ誤置換されたため除外 -->
+- 結果: 810→817問、99→101ページカバー。1099テスト・quiz:check・check（型+lint+type-coverage 99.63%）全通過

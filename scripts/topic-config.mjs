@@ -164,6 +164,10 @@ export const DOC_PAGES = [
   { name: 'llm-gateway-rollout', url: 'https://code.claude.com/docs/en/llm-gateway-rollout' },
   // Auto-discovered from llms.txt (2026-07-17)
   { name: 'corporate-launcher', url: 'https://code.claude.com/docs/en/corporate-launcher' },
+  // Auto-discovered from llms.txt (2026-07-18)
+  { name: 'mobile', url: 'https://code.claude.com/docs/en/mobile' },
+  // Auto-discovered from llms.txt (2026-07-22)
+  { name: 'desktop-ios-simulator', url: 'https://code.claude.com/docs/en/desktop-ios-simulator' },
   // Agent SDK (different domain)
   { name: 'agent-sdk-overview', url: 'https://platform.claude.com/docs/en/agent-sdk/overview' },
 ]
@@ -222,6 +226,10 @@ export const CATEGORY_DOC_MAP = {
     'feature-availability',
     'claude-apps-gateway',
     'corporate-launcher',
+    'mobile',
+    'claude-apps-gateway-config',
+    'claude-apps-gateway-spend-limits',
+    'desktop-ios-simulator',
   ],
   keyboard: [
     'interactive-mode',
