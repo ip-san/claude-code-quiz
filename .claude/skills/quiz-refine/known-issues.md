@@ -651,3 +651,29 @@ doc 全面更新（45ページ）で 810 問全件が target 化、pre-lint で 
 ## 「Key tools include（例示）」を完全リストと誤認する断定の再発
 
 - sdk-009 explanation と diagram が「ビルトインツールは…の10種です」と断定。agent-sdk-overview.md は「Key tools include」と例示表現で、「full list, including scheduling and worktree tools」への参照を明記している。known-issues 既載の「ドキュメントの例示を完全リストと誤認」パターンの再発 → 既存パターンで対応済み。生成時ガイドとして generate-quiz-data 側にも「"include(s)" / "such as" のリストを「全N種」と数えない」を再周知
+
+## Opus 5 の docs 登場（2026-07-30 確認・モデル列挙ドリフト3度目）
+
+- model-config.md に **Opus 5** が追加（v2.1.219）。「新モデル登場時の一括点検」パターンが3度目の的中
+- **`default` モデル**: Max / Team Premium / Enterprise pay-as-you-go / Anthropic API / Claude Platform on AWS / Amazon Bedrock / Google Cloud's Agent Platform = **Opus 5**（旧 Opus 4.8 は stale）。Pro / Team Standard / Enterprise サブスクリプション席 = Sonnet 5、Microsoft Foundry = Sonnet 4.5。Fable 5 は引き続きどのアカウントタイプでもデフォルトにならない
+- **effort テーブル**: `xhigh`/`max` 対応は Fable 5 / **Opus 5** / Sonnet 5 / Opus 4.8 / Opus 4.7（`max` は加えて Opus 4.6 / Sonnet 4.6）。デフォルト effort は「effort 対応全モデルで high、Opus 4.7 のみ xhigh」。**Opus 5 には初回実行時の effort ホールドがない**（Fable 5 / Opus 4.8 / 4.7 にはある）
+- **常時アダプティブ推論**: Fable 5 / Sonnet 5 / Opus 4.7 以降（**Opus 5** / 4.8 / 4.7）。`MAX_THINKING_TOKENS=0` の無効化不可例外は Fable 5 のみ（Opus 5 は無効化可能）
+- **1M context**: Fable 5 / Sonnet 5 / Opus 4.6 以降（**Opus 5** / 4.8 / 4.7 / 4.6）/ Sonnet 4.6。Anthropic API では Fable 5 / Sonnet 5 / Opus 4.7 以降が常時 1M
+- **Fast mode**: Opus 5 と Opus 4.8 のみサポート。**v2.1.219 以降のデフォルトは Opus 5**（旧 Opus 4.8）。Opus 4.7 の fast mode は 2026-07-24 に削除済み（API が拒否）
+- **auto mode（サードパーティ）**: Bedrock / Google Cloud's Agent Platform / Foundry / Claude apps gateway は Sonnet 5・**Opus 4.7 以降（Opus 5 含む）**・Fable 5 のみ
+- **advisor ペアリング**: 「Opus 4.7 or later」行に統合（Opus 4.7 以降同士は同等ランクで相互許容、Opus 4.6 / Sonnet 5 advisor は拒否）。Opus 4.6 メインは Sonnet 5 advisor を受け入れる（Opus 4.6 と Sonnet 5 は同等ランク）
+- **安全性クラシファイアフォールバック**: Fable 5 → biology は Opus 5 / cybersecurity は Opus 4.8。Opus 5 → cybersecurity は Opus 4.8、biology はフォールバックなしで拒否（v2.1.219 以降）
+- 今回修正 12 問: ses-103（critical・正解選択肢 Opus 4.8→Opus 5 + しきい値フォールバック記述の削除）/ bp-018 / ses-045 / key-016 / skill-061 / cmd-104 / ses-105 / ses-102 / cmd-065 / ses-199（列挙に Opus 5 追加）/ bp-101（advisor ペアリング規則更新）/ ses-117（fast mode デフォルト更新）
+- ses-103 の「Opus 使用量がしきい値超過で Sonnet に自動フォールバック」は現行 model-config.md に記載なし（stale）。default 節の再記述時は使用しないこと
+
+## 新モデル登場の検出を verify:diff 段階で自動化
+
+- model-config.md の content-hash 変化時に「Opus 5」登場を lint は検出できず、fact-tier フラグとは独立にリード照合で発見した（3度目: Fable 5 → Sonnet 5 → Opus 5）。影響 12 問（ses-103 は正解選択肢自体が stale の critical） → pre-lint-quiz.mjs に「docs 内モデル名の集合 vs quiz 内モデル列挙の集合」の差分チェックを追加。docs 側に quiz 未出現の新モデル名（`(Opus|Sonnet|Haiku|Fable) [0-9.]+` パターン）が現れたら、モデル列挙を含む全問を fact tier に昇格する
+
+## tmp/quizzes 分割キャッシュの鮮度検証
+
+- `.claude/tmp/quizzes/*.json` が src/data/quizzes.json より古く（ses-102/ext-110/ext-085 で修正済みの内容が古いまま）、検証初期の判定を誤らせかけた。同一セッションで quiz-generator が並行稼働しており working tree が動く → SKILL.md の「カテゴリ処理の詳細」に「最終判定・修正前は必ず src/data/quizzes.json を正典として再読する。tmp 分割は候補抽出のみに使う」を明記
+
+## fact-tier「存在しないフラグ」トリアージの機械化が有効
+
+- fact tier 67 問中、49 問は不正解選択肢内の意図的な架空フラグ/env（known-issues 既知パターン）で、token の出現位置（正解側/不正解側）の機械判定で一括棄却できた。要精査は 4 問に圧縮 → known-issues 既存提案（factCheck の不正解選択肢トークン除外）を pre-lint-quiz.mjs に実装する優先度を上げる

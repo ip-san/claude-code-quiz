@@ -168,6 +168,10 @@ export const DOC_PAGES = [
   { name: 'mobile', url: 'https://code.claude.com/docs/en/mobile' },
   // Auto-discovered from llms.txt (2026-07-22)
   { name: 'desktop-ios-simulator', url: 'https://code.claude.com/docs/en/desktop-ios-simulator' },
+  // Auto-discovered from llms.txt (2026-07-30)
+  { name: 'claude-apps-gateway-on-aws', url: 'https://code.claude.com/docs/en/claude-apps-gateway-on-aws' },
+  { name: 'claude-security', url: 'https://code.claude.com/docs/en/claude-security' },
+  { name: 'cloud-environments', url: 'https://code.claude.com/docs/en/cloud-environments' },
   // Agent SDK (different domain)
   { name: 'agent-sdk-overview', url: 'https://platform.claude.com/docs/en/agent-sdk/overview' },
 ]
