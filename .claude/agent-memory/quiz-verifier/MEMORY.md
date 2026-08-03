@@ -479,3 +479,31 @@
 - key-034（keybindings.json 配列形式）: keybindings.md で配列形式フォーマット確認済み。偽陽性
 - key-052（/tui fullscreen が主推奨、CLAUDE_CODE_NO_FLICKER=1 は等価）: fullscreen.md L11 "equivalent" を確認。偽陽性
 - key-054（CLAUDE_CODE_SCROLL_SPEED 1〜20、vim=3）: fullscreen.md L61 で確認済み。偽陽性
+
+## memory カテゴリ 9問検証（2026-08-03, mem-012/030/036/037/060/061/070/087/088）
+
+### CLAUDE.md を含む見出しのアンカー生成バグ（新規発見・重要）
+- `scripts/fetch-docs.mjs` の `slugify()` は `.` を単純除去するため、見出し "How CLAUDE.md files load" から `how-claudemd-files-load`（ハイフンなし）を生成する
+- しかし実サイト（`curl https://code.claude.com/docs/en/memory` で確認）の実際の `id` 属性は `how-claude-md-files-load`（"claude" と "md" の間にハイフンあり）。"Choose where to put CLAUDE.md files" も同様に `choose-where-to-put-claude-md-files`
+- つまり **見出しに "CLAUDE.md" を含む場合、実サイトは "." を "-" に変換するが、ローカル slugify は "." を除去するだけ**という食い違いがある
+- known-issues.md L128「有効アンカー: ...#how-claudemd-files-load...」（2026-03-01確認）は**stale**。次回 known-issues.md 更新時に `#how-claude-md-files-load` へ修正が必要
+- mem-012 の referenceUrl `#how-claudemd-files-load` は実際には壊れている（major issue） → `#how-claude-md-files-load` に修正が必要
+- **今後の検証方針**: 見出しに `.`（ピリオド）を含む語（"CLAUDE.md" 等）が使われているアンカーは、ローカル slugify だけで「有効」と判定せず、可能なら `curl <URL> | grep 'id="..."'` で実サイトを直接確認する。`#auto-memory` `#path-specific-rules` `#troubleshoot-memory-issues`（ピリオドなし見出し）は今回 curl で実在確認済み・問題なし
+
+### 今回の9問中8問はOK（doc drift/事実誤認なし）、1問 major（URLアンカー）
+- mem-030, mem-036, mem-037, mem-060, mem-061, mem-087, mem-088: 全て docs/memory.md・docs/server-managed-settings.md と一字一句レベルで一致。mem-060 は2026-06-06に指摘したcritical issue（プロジェクト設定不可の誤り）が既に修正済みであることを確認
+- mem-070: best-practices.md の Include/Excludeテーブルと完全一致（事実面OK）。diagram flow の text/sub 矢印表記が steps 間で不統一（info level、修正不要レベル）
+- 決定論的lintの `factCheck:env`（mem-030, mem-036の`CLAUDE_MD_PATH`）、`factCheck:slash`（mem-012の`/load`）、`factCheck:flags`（mem-061の`--append-system-prompt`）は全て既知の否定文脈偽陽性パターンとして再確認
+
+## extensions カテゴリ 25問検証（2026-08-02, ext-008/011/013/017/020/037/043/047/056/071/085/090/110/131/132/172/182/186/188/190/191/194/196/197/198）
+
+### correctIndex は全問正確（critical 0）
+- hooks.md/hooks-guide.md（permissionDecision allow/deny/ask/defer 4値、escalateは無効、exit code 2 blocking、PreCompact blocking可、Hook 30イベント種別）、sub-agents.md（Explore/Plan/general-purpose/statusline-setup/claude-code-guide の5built-in、Debug不存在、All hook events are supported）、mcp.md（.mcp.json ${VAR}展開はcommand/args/env/url/headersの5箇所、-- 区切りは既知false-positive)、agents.md（subagents/agent view/agent teams/worktreesの使い分け、/batch=5-30worktree、/tasksが現在セッションの進捗確認窓口）、plugin-relevance.md（relevance block + pluginSuggestionMarketplaces両方必須、cliシグナルは先頭トークンのみ・複合コマンドは最初のみ記録）、mcp-quickstart.md（local=~/.claude.json配下、project=.mcp.json、user=~/.claude.jsonトップレベル、! Needs authenticationの意味）、managed-mcp.md（マージ→denylistチェック→allowlistチェックの順、denylist絶対優先）、plugin-dependencies.md（range-conflict、既存プラグインの状態維持）、discover-plugins.md（DISABLE_AUTOUPDATER両方無効化、FORCE_AUTOUPDATE_PLUGINS+DISABLE_AUTOUPDATERで本体のみ無効化、プラグインのみ無効化は/pluginのMarketplacesタブ個別トグル）を全て個別docファイルで再確認、全て正確。
+
+### 発見した issue（major、critical 0）
+- **ext-182**: option[1].wrongFeedbackが「`/agents`は現在のセッション内のsubagentパネル（Running/Libraryタブ）」と旧仕様を記述。agents.md L41「As of v2.1.198, /agents no longer opens a panel; it prints a notice」と矛盾。**同一バッチのext-196は正しく記述**しており、バッチ内不整合の実例。新機能ドキュメント変更（v2.1.198の`/agents`パネル廃止）は複数問題に波及するため、変更検出時は`/agents`を含む全問の横断チェックが必要。
+- **ext-011/017/056/090**: flow.steps[].text/subの単語途中分断（「リソース」→「リ」+「ソース」、「Slack」→「Slac」+「k」、「デフォルト」→「デ」+「フォルト」×2、「テンプレート」→「テンプレ」+「ート」、「メカニズム」→「メ」+「カニズム」）。known-issues.md記載の広範debt（521件既知）の一部。個別修正よりバッチ修正（`bun run quiz:check-diagram-text`等）推奨。
+- **ext-198**: diagrams[0].steps[0/1].textが「プラグインAがCにを要求」のように、`~2.1`/`~3.0`のバージョン範囲値がバッククォートごと脱落したと見られるデータ破損。正解・explanationは正確（plugin-dependencies.mdのrange-conflict仕様と一致）なのでdiagramのみの影響。
+
+### referenceUrl の en/ja 混在（false-positiveの可能性大、要フォロー不要）
+- ext-196/197/198は`/docs/en/agents`,`/docs/en/managed-mcp`,`/docs/en/plugin-dependencies`を使用（他のext問題は`/docs/ja/`）。これらは比較的新しいページで日本語訳が未整備の可能性が高く、意図的と判断（今回は指摘せず）。次回、日本語版ページが追加されたら要再確認。

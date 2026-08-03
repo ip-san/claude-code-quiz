@@ -123,9 +123,10 @@ v4.43.0 以前の known-issues では「exit code 2 の一般ルールで UserPr
 
 - `~/.claude/projects/memory/` → 正しくは `~/.claude/projects/<project>/memory/`
 
-## Memory ページのアンカー（2026-03-01 確認）
+## Memory ページのアンカー（2026-08-03 更新）
 
-- 有効アンカー: `#import-additional-files`, `#choose-where-to-put-claudemd-files`, `#view-and-edit-with-memory`, `#how-claudemd-files-load`, `#user-level-rules`, `#path-specific-rules`
+- **実サイトの slug 規則は「`.` → ハイフン」**: `CLAUDE.md` を含む見出しのアンカーは `claude-md` 形式（例: `#how-claude-md-files-load`, `#choose-where-to-put-claude-md-files`, `#claude-md-vs-auto-memory`）。旧記録の `#how-claudemd-files-load` 等（ドット除去形）は**実サイトに存在しない**（2026-08-03 に curl で確認、quiz 7問の referenceUrl と quiz-lint.mjs / fetch-docs.mjs の slugify を修正済み）
+- 有効アンカー: `#import-additional-files`, `#view-and-edit-with-memory`, `#user-level-rules`, `#path-specific-rules` ほか
 - Auto Memory の `MEMORY.md` 読み込み制限が「先頭200行」から「先頭200行または25KB（先に到達した方）」に変更されている → known-issues.md に「MEMORY.md の読み込み制限は 200 lines or 25KB, whichever comes first」を追加
 
 ## Hooks ページのアンカー（2026-05-31 確認 / lint false-positive）
@@ -227,7 +228,8 @@ v4.43.0 以前の known-issues では「exit code 2 の一般ルールで UserPr
 
 ## Tool Search のモデル要件
 
-- Tool Search は Sonnet 4+ / Opus 4+ が必要。Haiku は非対応（MCP ページに記載）
+- **更新（2026-08-03 確認）**: Tool Search は `tool_reference` ブロック対応モデルが必要 = **Sonnet 4.5 / Haiku 4.5 / Opus 4.5 以降**（mcp.md「Configure tool search」）。旧記述「Sonnet 4+ / Opus 4+、Haiku 非対応」は stale — **Haiku 4.5 は現在対応済み**。「Haiku 非対応」と指摘するのは今後 false-positive ではなく逆に quiz 側の stale（ext-024 / tool-038 で 2026-08-03 修正）
+- Google Cloud's Agent Platform では Tool Search がデフォルト無効（Sonnet 4.5+ / Opus 4.5+ でサポート）。`CLAUDE_CODE_DISABLE_EXPERIMENTAL_BETAS` 設定時は `ENABLE_TOOL_SEARCH` でも上書き不可
 
 ## effort level default value
 
@@ -265,8 +267,8 @@ v4.43.0 以前の known-issues では「exit code 2 の一般ルールで UserPr
 
 - Tool Search はデフォルトで有効（全 MCP ツールが遅延読み込み、ツール名のみコンテキストに入る）
 - `ENABLE_TOOL_SEARCH=auto` はデフォルトではない。閾値ベースの代替モードで、ツール定義がコンテキストの 10% 以内なら事前読み込み、超えたら遅延読み込みになる
-- Tool Search は Sonnet 4 以降 / Opus 4 以降が必要。Haiku は非対応
-- `ANTHROPIC_BASE_URL` がサードパーティホストの場合、Tool Search はデフォルト無効（プロキシが `tool_reference` ブロックを転送しないため）
+- Tool Search は `tool_reference` 対応モデル（Sonnet 4.5 / Haiku 4.5 / Opus 4.5 以降）が必要（2026-08-03 更新。旧「Sonnet 4+/Opus 4+、Haiku 非対応」は stale）
+- `ANTHROPIC_BASE_URL` がサードパーティホストの場合、Tool Search はデフォルト無効（プロキシが `tool_reference` ブロックを転送しないため）。Google Cloud's Agent Platform でもデフォルト無効
 
 ## Plugin source types
 
@@ -378,6 +380,7 @@ v4.43.0 以前の known-issues では「exit code 2 の一般ルールで UserPr
 ## referenceUrl domain migration
 
 - 全630問のreferenceUrlが`/docs/ja/`を使用していたが、quiz-lintは`/docs/en/`を期待していた。テストコード（quizContentQuality.test.ts）も`/docs/ja/`を期待していたため、lintとtestで不整合があった → quiz-lint.mjsとquizContentQuality.test.tsのURL prefix定義を統一するチェックをCIに追加。言語切替が発生した場合の一括変換スクリプトも検討
+- 実サイトは `CLAUDE.md` を含む見出しを `claude-md` 形式に slug 化するが、quiz-lint.mjs / fetch-docs.mjs の slugify はドットを除去して `claudemd` を生成していた。このため無効アンカーの quiz 7問（mem-004/012/035/045/048/054, ses-089）が lint を通過し続けていた（lint とデータが同じバグを共有する自己整合の罠）。両 slugify に `.replace(/\./g, '-')` を追加して修正、7問の referenceUrl も修正済み → known-issues.md「Memory ページのアンカー」を更新済み。lint の妥当性検証は定期的に実サイト（curl で id= 属性）とサンプル照合する
 
 ## CLAUDE.local.md ドキュメント復帰（確認済み）
 
@@ -390,6 +393,7 @@ v4.43.0 以前の known-issues では「exit code 2 の一般ルールで UserPr
 
 - mem-046 が `@import` で glob パターンがサポートされていると主張していたが、docs には glob/wildcard の記載なし。docs は「Both relative and absolute paths are allowed」のみ → known-issues.md に「`@import` は個別ファイルパスのみ。glob パターン（`@docs/*.md`）は未ドキュメント」を追加
 - key-016 の diagram.label が "Extended Thinking動作" のまま残存しており、quiz:edit コマンドでは diagram サブフィールドの編集ができない → quiz-utils.mjs の edit コマンドに `diagram.label`, `diagram.steps[N].text`, `diagram.steps[N].sub` 等の diagram サブフィールド編集サポートを追加する
+- Step 0a の `rm -f .claude/tmp/verify_*.json .claude/tmp/verify_*.md ...` は、zsh では `verify_*.md` がマッチしないと `no matches found` でコマンド全体が中断され、5月の stale な verify_*.json が残存した。今回、新旧レポートの混同リスクが実際に発生（手動削除で回避） → SKILL.md Step 0a の削除コマンドを glob 非依存の `find .claude/tmp -maxdepth 1 \( -name 'verify_*.json' -o -name 'verify_*.md' -o -name 'skill-proposals.md' \) -delete` に差し替える
 
 ## Stale targets files cleanup
 
@@ -526,7 +530,7 @@ v4.43.0 以前の known-issues では「exit code 2 の一般ルールで UserPr
 - **/loop（無インターバル）**: 固定間隔ではなく Claude が動的に1分〜1時間で選ぶ（scheduled-tasks.md L53）。「デフォルト10分」は誤り
 - **繰り返しスケジュールタスク**: 作成から **7日**で期限切れ（seven-day expiry）。1セッション最大50タスク。単位 s/m/h/d
 - **PowerShell ツール**: Linux/macOS/WSL は opt-in（CLAUDE_CODE_USE_POWERSHELL_TOOL=1 + PowerShell 7+）。Windows は Git Bash なしで自動有効・ありで段階的ロールアウト（tools-reference.md L181-195）。「Windows 専用」「Auto モード不可」は誤り
-- **複数行入力ネイティブ対応ターミナル = 7種**: iTerm2/WezTerm/Ghostty/Kitty/**Warp/Apple Terminal/Windows Terminal**。/terminal-setup が必要 = VS Code/Cursor/Windsurf/Alacritty/Zed（terminal-config.md L22-23）。Warp を要設定側に入れるのは誤り（key-033/044/020 で頻出）
+- **複数行入力ネイティブ対応ターミナル = 7種**: iTerm2/WezTerm/Ghostty/Kitty/**Warp/Apple Terminal/Windows Terminal**。/terminal-setup が必要 = VS Code/Cursor/**Devin Desktop**/Alacritty/Zed（terminal-config.md L15、2026-08-03 確認。旧記録の Windsurf は Devin Desktop に置換済み）。Warp を要設定側に入れるのは誤り（key-033/044/020 で頻出）
 - **Windows 前提条件**: ネイティブ Windows は必須前提なし。Git for Windows は**任意**（推奨。なければ PowerShell がシェルツール）（setup.md L87）
 - **autoMemoryDirectory**: policy/user 設定 + --settings フラグからのみ。**project/local 設定からは不可**（memory.md L286）。「ローカルから可」は誤り
 - **/cost・/stats は /usage のエイリアス**（/stats は Stats タブで開く）（commands.md L19/74/88）。「3つは別コマンド」は誤り
@@ -677,3 +681,15 @@ doc 全面更新（45ページ）で 810 問全件が target 化、pre-lint で 
 ## fact-tier「存在しないフラグ」トリアージの機械化が有効
 
 - fact tier 67 問中、49 問は不正解選択肢内の意図的な架空フラグ/env（known-issues 既知パターン）で、token の出現位置（正解側/不正解側）の機械判定で一括棄却できた。要精査は 4 問に圧縮 → known-issues 既存提案（factCheck の不正解選択肢トークン除外）を pre-lint-quiz.mjs に実装する優先度を上げる
+
+## 正式フラグのリネーム（旧フラグの deprecated alias 化）で「正解が非推奨・不正解が正式」逆転が起きる
+
+- cli-reference.md で `--remote` が「Deprecated alias for `--cloud`」になり、ses-145 は不正解選択肢 `--cloud` が正式フラグ化・wrongFeedback の「`--cloud` は存在しません」が事実誤りになる critical（正しい知識で選ぶと不正解）が発生。cmd-093/ses-165/bp-087/cmd-119 も表記が stale 化 → known-issues.md の「不正解選択肢の架空コマンドが実在化する二重正解パターン」に「**逆パターン: 正解のフラグ/コマンドが deprecated alias 化し、不正解側が正式名称になるケース**。cli-reference.md の hash 変化時は `Deprecated alias` を grep し、該当フラグを使う全問を棚卸しする」を追記
+
+## 「X は非対応」系の否定断定はモデル世代交代で静かに stale 化する
+
+- Tool Search の「Haiku 非対応」が現行 doc では「Sonnet 4.5 / Haiku 4.5 / Opus 4.5 以降対応」に変わっており、ext-024 / tool-038 の explanation・wrongFeedback・diagram が stale。known-issues の確認済み事実（2026-04-06 付）自体も stale だった → 「新モデル登場時の一括点検」の grep パターンに `非対応|サポート外|対応していない` を追加し、モデル名との共起を再検証対象にする
+
+## flow/terminal diagram の機械分断・途中切れの残債が major 指摘の過半を占める
+
+- 今回の major 指摘のうち 10 問（ext-011/017/056/090/198, cmd-035/049/065, ses-100, skill-065）が diagram の単語分断・文の途中切れ・options との不一致だった。checklist I / known-issues「flow.steps の機械的分断」既載パターンの継続 → `quiz:check-diagram-text` の quiz:check への統合（既知タスク）を優先する。修正時は「flow steps は1ステップ=完結した1文、sub は補足のみ」で書き直すのが最短

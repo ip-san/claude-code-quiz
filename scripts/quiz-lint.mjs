@@ -281,6 +281,7 @@ function extractDocAnchors() {
 function slugify(text) {
   return text
     .toLowerCase()
+    .replace(/\./g, '-') // dots become hyphens (site rule: "CLAUDE.md" -> "claude-md")
     .replace(/[^\w\s-]/g, '') // remove non-word chars except spaces and hyphens
     .replace(/\s+/g, '-') // spaces to hyphens
     .replace(/-+/g, '-') // collapse multiple hyphens

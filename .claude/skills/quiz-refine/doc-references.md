@@ -77,6 +77,7 @@
   - Cloud & Gateway (2026-07-17 追加): llm-gateway-protocol, llm-gateway-rollout, claude-apps-gateway, corporate-launcher, accessibility
   - Cloud & Gateway (2026-07-18 追加): mobile, claude-apps-gateway-config, claude-apps-gateway-spend-limits
   - Cloud & Gateway (2026-07-22 追加): desktop-ios-simulator
+  - Cloud & Gateway (2026-08-03 追加): claude-security, glossary, cloud-environments, claude-apps-gateway-on-aws
 - `https://platform.claude.com/docs/en/agent-sdk/overview` — Agent SDK 関連
 
 ### ページリスト同期チェック（新規ドキュメントページ追加時）

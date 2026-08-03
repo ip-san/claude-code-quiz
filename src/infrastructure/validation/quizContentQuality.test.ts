@@ -187,6 +187,11 @@ const VALID_DOC_PAGES = [
   'mcp-quickstart',
   'claude-apps-gateway-deploy',
   'claude-apps-gateway-on-gcp',
+  // Newly discovered pages (2026-08-03)
+  'claude-security',
+  'glossary',
+  'cloud-environments',
+  'claude-apps-gateway-on-aws',
   // platform.claude.com pages
   'agent-sdk/overview',
   'agents-and-tools/agent-skills/best-practices',

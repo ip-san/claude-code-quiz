@@ -155,6 +155,7 @@ function slugify(title) {
   return title
     .toLowerCase()
     .replace(/`/g, '')
+    .replace(/\./g, '-') // dots become hyphens (site rule: "CLAUDE.md" -> "claude-md")
     .replace(/[^a-z0-9\s-]/g, '')
     .trim()
     .replace(/\s+/g, '-')

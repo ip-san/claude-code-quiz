@@ -259,3 +259,19 @@
 - 残る未カバー7ページ（changelog / desktop-changelog / champion-kit / communications-kit / legal-and-compliance / glossary / mcp-quickstart）は意図的にスキップ: 変更履歴・マーケ資料・法務はクイズ素材不適、glossary は各ページへのリンク集で既存問題と重複、mcp-quickstart は mcp（27問）と内容重複
   <!-- validate-docs:ignore-next-line 歴史的記録（2026-06-10 時点の値、凍結）。過去に stale スキャンで 830→850→870→882 と毎ループ誤置換されたため除外 -->
 - 結果: 810→817問、99→101ページカバー。1099テスト・quiz:check・check（型+lint+type-coverage 99.63%）全通過
+
+### 2026-08-03 quiz-refine --full（8並列検証 + 判定層 Fable 5）
+
+- **Tool Search モデル要件の drift**: 現行 mcp.md「Configure tool search」は「`tool_reference` ブロック対応モデル: **Sonnet 4.5 / Haiku 4.5 / Opus 4.5 以降**」。旧事実「Sonnet 4+/Opus 4+、Haiku 非対応」は stale（**Haiku 4.5 対応済み**）。Google Cloud's Agent Platform ではデフォルト無効 → ext-024 / tool-038 修正
+- **`--cloud` が現行正式フラグ**（cli-reference.md）: `--remote` は「Deprecated alias for `--cloud`」。ses-145 は wrongFeedback が「`--cloud` は存在しない」と記述する critical（正しい知識で選ぶと不正解）→ 正解を `--cloud` に差替え、`--remote` を非推奨エイリアスの distractor 化。cmd-093 / ses-165 / bp-087 / cmd-119 の表記も `--cloud` へ更新
+- **memory ページのアンカー slug 規則**: 実サイトは `CLAUDE.md` → `claude-md`（ドット→ハイフン）。`#how-claude-md-files-load` / `#choose-where-to-put-claude-md-files` / `#claude-md-vs-auto-memory` が正。quiz 7問（mem-004/012/035/045/048/054, ses-089）の referenceUrl と quiz-lint.mjs / fetch-docs.mjs の slugify を修正
+- **Fast mode**: 対応は Opus 5 / Opus 4.8 のみ（Opus 4.7 は 2026-07-24 削除・API 拒否）→ ses-108 explanation 修正
+- **`!` シェルモード**: v2.1.186 以降、出力がトランスクリプトに載ると Claude が追加プロンプトなしで自動応答（`respondToBashCommands: false` で旧挙動）→ cmd-002 explanation（判定層確認済み）
+- **`/agents` は v2.1.198 以降パネルを開かない**（サブエージェント定義ファイル場所の通知のみ。`claude agents` とは別物、agents.md L41）→ ext-182 修正
+- **`/workflows` は監視・管理コマンド**（watch/pause/resume/save）であり実行開始コマンドではない → bp-095 wrongFeedback 修正
+- **prompt-caching**: Microsoft Foundry のキャッシュ保存場所はデプロイの hosting option 依存（Azure ホスト型=Azure、Anthropic ホスト型=Anthropic）→ sdk-016 修正
+- **check-tools の記載は cloud-environments.md へ移動**（claude-code-on-the-web はリンクのみ）。Installed tools: Node.js 20/21/22（nvm）、PHP 8.4 等 → bp-066 referenceUrl + diagram 修正
+- **CLAUDE_CODE_SCROLL_SPEED**: 正の値・上限 20（0.25 など 1 未満の小数も可）。`/scroll-speed` 対話コマンドあり → key-054 修正
+- **/terminal-setup 対象**: VS Code / Cursor / **Devin Desktop** / Alacritty / Zed（旧 Windsurf は Devin Desktop に置換）
+- **agent-sdk-overview はページ簡略化**: ビルトインツールの個別列挙が消失（「Read, write, edit files, run commands, and search the web」概要のみ）。「10種」断定は不可 → sdk-009 diagram をヘッジ表現に修正
+- **xhigh 帰属**: Opus 4.6 / Sonnet 4.6 は low/medium/high/max のみ（xhigh 非対応、high フォールバック）。アダプティブ推論の対象列挙は Fable 5 / Opus 5 / Sonnet 5 / Opus 4.8 / 4.7 / 4.6 / Sonnet 4.6 → key-016 修正
