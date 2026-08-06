@@ -507,3 +507,19 @@
 
 ### referenceUrl の en/ja 混在（false-positiveの可能性大、要フォロー不要）
 - ext-196/197/198は`/docs/en/agents`,`/docs/en/managed-mcp`,`/docs/en/plugin-dependencies`を使用（他のext問題は`/docs/ja/`）。これらは比較的新しいページで日本語訳が未整備の可能性が高く、意図的と判断（今回は指摘せず）。次回、日本語版ページが追加されたら要再確認。
+
+## memory カテゴリ 10問再検証（2026-08-05, commit 81506fc 後）
+
+### mem-012 のアンカー修正を確認
+- 前回指摘した `#how-claudemd-files-load` → `#how-claude-md-files-load` の修正が commit 81506fc で適用済み。再確認不要（今後この問題を再度flagしないこと）
+
+### mem-089（新問）検証済み（claude-directory.md 'Clear local data' 節と完全一致）
+- `claude project purge` の削除対象: `projects/`配下のトランスクリプト・自動メモリ、セッションごとの`tasks/`・`debug/`・`file-history/`、`history.jsonl`の一致行、`~/.claude.json`内のプロジェクトエントリ
+- 対象外（プロジェクトスコープでないため）: `shell-snapshots/`, `backups/`
+- 常に保持: `~/.claude.json`全体, `~/.claude/settings.json`, `~/.claude/plugins/`
+- `--all`指定時のみ`history.jsonl`を丸ごと削除（指定なしはフィルタ削除）
+- フラグ: `--all`, `--dry-run`, `-i`/`--interactive`, `-y`/`--yes`（`claude project purge --help`をローカルCLIで直接実行し実在確認済み。fetch-docsの平坦化でコード例中のフラグ名が消えていても、ローカルにclaude CLIがあれば`--help`で直接検証できる）
+- claude-directory.mdの`#clear-local-data`アンカーは実サイトで有効（curl確認済み）。mem-089のreferenceUrlはページ全体のみだが致命的ではない（info級改善提案）
+
+### CLI --help による実在検証テクニック（新規パターン）
+- fetch-docsのJina Reader平坦化でコードブロックが失われフラグ名が文中に見えない場合、ローカルに`claude`CLIがインストールされていれば`claude <subcommand> --help`を直接実行してフラグの実在を一次情報で確認できる。docsのキャッシュ品質に依存しない検証手段として有効

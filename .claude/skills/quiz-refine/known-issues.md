@@ -128,6 +128,7 @@ v4.43.0 以前の known-issues では「exit code 2 の一般ルールで UserPr
 - **実サイトの slug 規則は「`.` → ハイフン」**: `CLAUDE.md` を含む見出しのアンカーは `claude-md` 形式（例: `#how-claude-md-files-load`, `#choose-where-to-put-claude-md-files`, `#claude-md-vs-auto-memory`）。旧記録の `#how-claudemd-files-load` 等（ドット除去形）は**実サイトに存在しない**（2026-08-03 に curl で確認、quiz 7問の referenceUrl と quiz-lint.mjs / fetch-docs.mjs の slugify を修正済み）
 - 有効アンカー: `#import-additional-files`, `#view-and-edit-with-memory`, `#user-level-rules`, `#path-specific-rules` ほか
 - Auto Memory の `MEMORY.md` 読み込み制限が「先頭200行」から「先頭200行または25KB（先に到達した方）」に変更されている → known-issues.md に「MEMORY.md の読み込み制限は 200 lines or 25KB, whichever comes first」を追加
+- `node scripts/fetch-docs.mjs --pages hooks --force` で再取得しても `.claude/tmp/docs/hooks.md` にはコードコメント行（`# .claude/hooks/block-rm.sh` 等）しか `#{1,4} ` パターンにマッチせず、実際の "On this page" 目次にある `Configuration` 等の見出しが Markdown 見出し記法として保存されていない。そのため `scripts/quiz-lint.mjs` の `extractDocAnchors()` が hooks ページのアンカーをほぼ検出できず、`ext-004`/`ext-085`/`ext-087` の `#configuration` を毎回 invalid-anchor と誤検出する。実サイト（`curl https://code.claude.com/docs/en/hooks`）では `id="configuration"` が実在することを確認済み → `fetch-docs.mjs` の hooks ページ取得ロジック（またはレンダリング後処理）を調査し、見出しが平文化されて消える原因を修正する。恒久対応が難しい場合は known-issues.md に「hooks ページの invalid-anchor 指摘は既知の false-positive（キャッシュ形式起因、doc に実在確認済み）」を明記し、quiz-lint 実行時にスキップリストへ `hooks#configuration` を追加する
 
 ## Hooks ページのアンカー（2026-05-31 確認 / lint false-positive）
 
@@ -361,6 +362,7 @@ v4.43.0 以前の known-issues では「exit code 2 の一般ルールで UserPr
 - quiz:lint が220件の distractor issues を報告（correct-too-long: 115, format-giveaway: 48, distractor-too-short: 56） → 正解選択肢の短縮または不正解選択肢への具体性追加の専用パスを検討
 - `quiz:lint` が 55問で difficulty mismatch を検出。score=-1/-2（容易方向）が 54問、score=+2（難化方向）が 1問。全て Step 0a の lint 出力から機械的に抽出可能 → quiz-refine SKILL.md の Step 0a（lint 前処理）の直後に「difficulty auto-fix」ステップを追加。score<=-1 と score>=+2 を自動適用。ロジックを scripts/quiz-utils.mjs に統合し `npm run quiz:difficulty-fix` として expose
 - pre-lint で 88 件の distractor 警告（46 件 too-short、42 件 correct-too-long）が検出。これらは事実誤認ではないが LLM の判断が必要なバランス調整。今回も処理できず累積 → SKILL.md に「distractor lint warnings はファクトチェックの責務外。`/quality-loop --monthly` の Opus 1M context で横断的に再バランスする」を明記。pre-lint レポートで distractor のみ flag された問題を sonnetTargets から除外（または別 tier に分離）
+- `sdk-016`（プロンプトキャッシュ TTL の認証方式別デフォルト値+環境変数上書き）、`sdk-018`（Claude Platform on AWS の SigV4 vs API キー優先順位）は内容的に明確に advanced 相当（複数条件の相互作用の正確な記憶が必要）だが、lint の difficulty スコアラーは "advanced → beginner, score=-1" と判定した。おそらく文字数/構文の単純さのみで判定しており、知識の複雑さ（条件分岐の数）を考慮していない → difficulty ヒューリスティックのスコアリング要因に「条件分岐/相互作用の数」または「否定文脈の重なり」を加味するか、少なくとも score=-1（境界線）のケースは自動修正せず人間/LLM判断に委ねる運用を明記する。今回は全問 advanced 現状維持と判断（変更なし）
 
 ## Automated pattern scanning efficiency
 
