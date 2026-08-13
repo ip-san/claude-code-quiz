@@ -192,6 +192,16 @@ const VALID_DOC_PAGES = [
   'glossary',
   'cloud-environments',
   'claude-apps-gateway-on-aws',
+  // Newly discovered pages (2026-08-07)
+  'self-hosted-environments',
+  'self-hosted-environments-quickstart',
+  'self-hosted-environments-configuration',
+  'self-hosted-environments-deploy',
+  'self-hosted-environments-identity',
+  'self-hosted-environments-reference',
+  'self-hosted-environments-testing',
+  'claude-tag',
+  'github-actions-cloud-providers',
   // platform.claude.com pages
   'agent-sdk/overview',
   'agents-and-tools/agent-skills/best-practices',

@@ -172,6 +172,28 @@ export const DOC_PAGES = [
   { name: 'claude-apps-gateway-on-aws', url: 'https://code.claude.com/docs/en/claude-apps-gateway-on-aws' },
   { name: 'claude-security', url: 'https://code.claude.com/docs/en/claude-security' },
   { name: 'cloud-environments', url: 'https://code.claude.com/docs/en/cloud-environments' },
+  // Auto-discovered from llms.txt (2026-08-07)
+  { name: 'claude-tag', url: 'https://code.claude.com/docs/en/claude-tag' },
+  { name: 'github-actions-cloud-providers', url: 'https://code.claude.com/docs/en/github-actions-cloud-providers' },
+  { name: 'self-hosted-environments', url: 'https://code.claude.com/docs/en/self-hosted-environments' },
+  {
+    name: 'self-hosted-environments-configuration',
+    url: 'https://code.claude.com/docs/en/self-hosted-environments-configuration',
+  },
+  { name: 'self-hosted-environments-deploy', url: 'https://code.claude.com/docs/en/self-hosted-environments-deploy' },
+  {
+    name: 'self-hosted-environments-identity',
+    url: 'https://code.claude.com/docs/en/self-hosted-environments-identity',
+  },
+  {
+    name: 'self-hosted-environments-quickstart',
+    url: 'https://code.claude.com/docs/en/self-hosted-environments-quickstart',
+  },
+  {
+    name: 'self-hosted-environments-reference',
+    url: 'https://code.claude.com/docs/en/self-hosted-environments-reference',
+  },
+  { name: 'self-hosted-environments-testing', url: 'https://code.claude.com/docs/en/self-hosted-environments-testing' },
   // Agent SDK (different domain)
   { name: 'agent-sdk-overview', url: 'https://platform.claude.com/docs/en/agent-sdk/overview' },
 ]

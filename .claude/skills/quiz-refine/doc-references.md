@@ -55,6 +55,15 @@
 | Claude apps gateway の設定ファイル仕様 | `claude-apps-gateway-config` | `gateway.yaml` の各セクション・アップストリームのフェイルオーバー仕様 |
 | Claude apps gateway の支出上限管理 | `claude-apps-gateway-spend-limits` | spend limits の設定・enforcement・Admin API |
 | デスクトップアプリの iOS Simulator 連携 | `desktop-ios-simulator` | ローカル限定・デバイス許可とパーミッションモードの使い分け・デバイスライフサイクル |
+| 自己ホスト型環境（概要・用語） | `self-hosted-environments` | Environment/Runner/Session の用語、ネットワーク経路 |
+| 自己ホスト型環境の導入手順 | `self-hosted-environments-quickstart` | ガイド付きセットアップ・手動セットアップ |
+| 自己ホスト型環境のセッションカスタマイズ | `self-hosted-environments-configuration` | ラッパースクリプト・ライフサイクルフック・オンデマンドRunner |
+| 自己ホスト型環境の本番デプロイ | `self-hosted-environments-deploy` | 硬化策・ネットワーク要件・git設定・Kubernetes/Compose |
+| 自己ホスト型環境のセッショントークン検証 | `self-hosted-environments-identity` | JWT クレーム・`decode-token`・`act`チェーン |
+| 自己ホスト型環境のCLIフラグ・メトリクス | `self-hosted-environments-reference` | Runner/OrchestratorのCLIフラグ・Prometheusメトリクス |
+| 自己ホスト型環境のE2Eテスト | `self-hosted-environments-testing` | テストループ・CI認証 |
+| Claude Tag（Slack共有アイデンティティ） | `claude-tag` | Team/Enterprise限定、Claude Code in Slackとの違い |
+| GitHub Actionsのクラウドプロバイダー連携 | `github-actions-cloud-providers` | Bedrock/Vertex/Foundry × OIDC認証 |
 
 ### referenceUrl の危険パターン
 
@@ -78,6 +87,7 @@
   - Cloud & Gateway (2026-07-18 追加): mobile, claude-apps-gateway-config, claude-apps-gateway-spend-limits
   - Cloud & Gateway (2026-07-22 追加): desktop-ios-simulator
   - Cloud & Gateway (2026-08-03 追加): claude-security, glossary, cloud-environments, claude-apps-gateway-on-aws
+  - Cloud & Gateway (2026-08-07 追加): self-hosted-environments, self-hosted-environments-quickstart, self-hosted-environments-configuration, self-hosted-environments-deploy, self-hosted-environments-identity, self-hosted-environments-reference, self-hosted-environments-testing, claude-tag, github-actions-cloud-providers
 - `https://platform.claude.com/docs/en/agent-sdk/overview` — Agent SDK 関連
 
 ### ページリスト同期チェック（新規ドキュメントページ追加時）

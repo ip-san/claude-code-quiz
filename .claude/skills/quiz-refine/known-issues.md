@@ -396,6 +396,7 @@ v4.43.0 以前の known-issues では「exit code 2 の一般ルールで UserPr
 - mem-046 が `@import` で glob パターンがサポートされていると主張していたが、docs には glob/wildcard の記載なし。docs は「Both relative and absolute paths are allowed」のみ → known-issues.md に「`@import` は個別ファイルパスのみ。glob パターン（`@docs/*.md`）は未ドキュメント」を追加
 - key-016 の diagram.label が "Extended Thinking動作" のまま残存しており、quiz:edit コマンドでは diagram サブフィールドの編集ができない → quiz-utils.mjs の edit コマンドに `diagram.label`, `diagram.steps[N].text`, `diagram.steps[N].sub` 等の diagram サブフィールド編集サポートを追加する
 - Step 0a の `rm -f .claude/tmp/verify_*.json .claude/tmp/verify_*.md ...` は、zsh では `verify_*.md` がマッチしないと `no matches found` でコマンド全体が中断され、5月の stale な verify_*.json が残存した。今回、新旧レポートの混同リスクが実際に発生（手動削除で回避） → SKILL.md Step 0a の削除コマンドを glob 非依存の `find .claude/tmp -maxdepth 1 \( -name 'verify_*.json' -o -name 'verify_*.md' -o -name 'skill-proposals.md' \) -delete` に差し替える
+- Step 0a の `rm -f .claude/tmp/verify_*.json .claude/tmp/verify_*.md ...` が zsh の `no matches found: .claude/tmp/verify_*.md` で中断し、Aug 5 の stale な verify_extensions.json / verify_keyboard.json / verify_sdk.json が残存。今回は「全9ファイル存在」の監視が stale ファイルで偽陽性トリガーし、タイムスタンプ照合で回避した。known-issues L398 で既に find ベース削除への差し替えが提案済みだが SKILL.md 未反映のまま再発 → SKILL.md Step 0a の削除コマンドを `find .claude/tmp -maxdepth 1 \( -name 'verify_*.json' -o -name 'verify_*.md' -o -name 'skill-proposals.md' \) -delete` に差し替える（glob 非依存）。加えてレポート集約時は必ず mtime が当日以降であることを確認する
 
 ## Stale targets files cleanup
 
@@ -695,3 +696,7 @@ doc 全面更新（45ページ）で 810 問全件が target 化、pre-lint で 
 ## flow/terminal diagram の機械分断・途中切れの残債が major 指摘の過半を占める
 
 - 今回の major 指摘のうち 10 問（ext-011/017/056/090/198, cmd-035/049/065, ses-100, skill-065）が diagram の単語分断・文の途中切れ・options との不一致だった。checklist I / known-issues「flow.steps の機械的分断」既載パターンの継続 → `quiz:check-diagram-text` の quiz:check への統合（既知タスク）を優先する。修正時は「flow steps は1ステップ=完結した1文、sub は補足のみ」で書き直すのが最短
+
+## 検証エージェントの指摘は正典 quizzes.json で再照合してから適用（ses-030 で minor 棄却）
+
+- verify-session が ses-030 の referenceUrl を「settings ページ（記載なし）」と minor 指摘したが、正典 `src/data/quizzes.json` では既に `authentication` ページ（authentication.md L99 に `CLAUDE_CODE_USE_BEDROCK`/`CLAUDE_CODE_USE_VERTEX` 明記）で修正済みだった。known-issues「tmp/quizzes 分割キャッシュの鮮度検証」パターンの再発 → known-issues の既存記録で対応済み。リードの A-3 二重確認（正典再読）を維持。verify-targets 分割生成時に quizzes.json の mtime/hash を各分割 JSON に埋め込み、エージェント側で鮮度検証できるようにするのも一案
