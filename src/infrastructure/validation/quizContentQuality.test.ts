@@ -202,6 +202,8 @@ const VALID_DOC_PAGES = [
   'self-hosted-environments-testing',
   'claude-tag',
   'github-actions-cloud-providers',
+  // Newly discovered pages (2026-08-13)
+  'cross-session-messaging',
   // platform.claude.com pages
   'agent-sdk/overview',
   'agents-and-tools/agent-skills/best-practices',

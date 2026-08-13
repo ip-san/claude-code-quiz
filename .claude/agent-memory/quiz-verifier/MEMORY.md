@@ -523,3 +523,21 @@
 
 ### CLI --help による実在検証テクニック（新規パターン）
 - fetch-docsのJina Reader平坦化でコードブロックが失われフラグ名が文中に見えない場合、ローカルに`claude`CLIがインストールされていれば`claude <subcommand> --help`を直接実行してフラグの実在を一次情報で確認できる。docsのキャッシュ品質に依存しない検証手段として有効
+
+## memory カテゴリ 13問検証（2026-08-13, mem-092/093/094 新規追加）
+
+### mem-092（retention sweep一時停止条件）検証済み・OK
+- claude-directory.md 'Cleaned up automatically' 節: "if Claude Code can't safely determine the retention period, it pauses the retention cleanup sweep...When the cause is a settings file that can't be read or parsed, or settings errors with cleanupPeriodDays explicitly set, Claude Code also shows a warning in /status until you fix the settings errors. When managed settings provide cleanupPeriodDays, Claude Code runs the sweep at the managed value in either case." と correctIndex=3 が一字一句一致
+- `cleanupPeriodDays=0`はバリデーションエラーになる仕様（"setting 0 fails with a validation error"）も正確
+- referenceUrl `#cleaned-up-automatically` は実サイトで有効確認済み
+
+### mem-093（サーバー管理設定の承認記録方法）検証済み・OK
+- server-managed-settings.md 'Approval memory' 節: claude.aiログイン="one approval per organization, held by the account that approved most recently"、それ以外の資格情報="one approval for the delivered settings, kept with the cached copy...shows the dialog again when the settings...change, and after /logout"
+- 別アカウントで同一組織にサインインすると再表示される点も "shows the dialog again even when the settings are unchanged" と一致
+- referenceUrl `#security-approval-dialogs` は実サイトで有効確認済み
+
+### mem-094（paths のブレース展開予算超過時の挙動）検証済み・OK
+- memory.md 'Path-specific rules' 節: "a rule's whole paths list shares one budget of 1,000 expanded patterns and 4 MiB, and patterns without braces don't count against it. Claude Code uses any pattern that would exceed the budget unexpanded, and its literal braces match no files. Before v2.1.217, a paths value with many brace groups stalled or crashed the CLI at startup." と correctIndex=1・option[2]のv2.1.217前挙動まで完全一致
+
+### 既存10問（mem-012/030/036/037/060/061/070/087/088/089）は前回検証から内容変更なし
+- correctIndex・referenceUrl とも前回確認時と同一。再検証省略し前回結果（mem-070のみinfo、他はok）を再利用

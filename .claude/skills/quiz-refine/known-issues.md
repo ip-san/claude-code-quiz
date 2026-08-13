@@ -672,6 +672,7 @@ doc 全面更新（45ページ）で 810 問全件が target 化、pre-lint で 
 - **安全性クラシファイアフォールバック**: Fable 5 → biology は Opus 5 / cybersecurity は Opus 4.8。Opus 5 → cybersecurity は Opus 4.8、biology はフォールバックなしで拒否（v2.1.219 以降）
 - 今回修正 12 問: ses-103（critical・正解選択肢 Opus 4.8→Opus 5 + しきい値フォールバック記述の削除）/ bp-018 / ses-045 / key-016 / skill-061 / cmd-104 / ses-105 / ses-102 / cmd-065 / ses-199（列挙に Opus 5 追加）/ bp-101（advisor ペアリング規則更新）/ ses-117（fast mode デフォルト更新）
 - ses-103 の「Opus 使用量がしきい値超過で Sonnet に自動フォールバック」は現行 model-config.md に記載なし（stale）。default 節の再記述時は使用しないこと
+- 2026-08-13 再取得の hooks.md キャッシュは HTML→テキスト変換で見出しのマークダウン記号（##）がほぼ失われており（「Configuration」等が地の文になる）、quiz-lint の anchor 抽出（`^#{1,4} ` 正規表現）が実在アンカーを検出できず ext-004/085/087 の `hooks#configuration` を invalid-anchor と誤報告した。ライブページの On this page には Configuration セクションが存在し URL は正しい → known-issues.md に「hooks#configuration の invalid-anchor はキャッシュ形式変化による偽陽性。URL を変更しないこと。キャッシュの見出しが平文化されたページでは anchor lint の報告を鵜呑みにしない」を追記
 
 ## 新モデル登場の検出を verify:diff 段階で自動化
 
@@ -700,3 +701,11 @@ doc 全面更新（45ページ）で 810 問全件が target 化、pre-lint で 
 ## 検証エージェントの指摘は正典 quizzes.json で再照合してから適用（ses-030 で minor 棄却）
 
 - verify-session が ses-030 の referenceUrl を「settings ページ（記載なし）」と minor 指摘したが、正典 `src/data/quizzes.json` では既に `authentication` ページ（authentication.md L99 に `CLAUDE_CODE_USE_BEDROCK`/`CLAUDE_CODE_USE_VERTEX` 明記）で修正済みだった。known-issues「tmp/quizzes 分割キャッシュの鮮度検証」パターンの再発 → known-issues の既存記録で対応済み。リードの A-3 二重確認（正典再読）を維持。verify-targets 分割生成時に quizzes.json の mtime/hash を各分割 JSON に埋め込み、エージェント側で鮮度検証できるようにするのも一案
+
+## advisor Requirements に第3要件「Feature-flag fetching」追加
+
+- advisor.md の Requirements が「Anthropic API only」「Supported main model」の2要件から、「Feature-flag fetching」を加えた3要件（"requires all of the following"）に更新された（2026-08-07 キャッシュには存在せず、2026-08-13 再取得で確認）。`DISABLE_TELEMETRY` などフラグ取得を無効化する環境変数が設定されたセッションでは advisor は無効のまま。bp-102 の explanation / hierarchy ダイアグラムを3要件に更新した。合わせて advisor.md から「Fable 5 はまだ advisor として提供されていない（rollout 待ち）」の注記が全面削除され、Fable 5 が advisor としてフル提供されたことも確認 → known-issues.md に「advisor の利用要件は3つ（Anthropic API only / Supported main model / Feature-flag fetching）。`DISABLE_TELEMETRY` 等でフラグ取得を無効化すると advisor は無効。Fable 5 advisor はフル提供済み（rollout 注記は削除済み）」を追記
+
+## difficulty ヒューリスティックの構造的偽陽性（短文 advanced 問題）
+
+- quiz-lint の difficulty 判定は表層特徴（質問文長・「〜として正しいものはどれですか」等の言い回し）のみで採点するため、問い方が短くても前提知識が多層のエンタープライズ管理・課金/キャッシュ内部動作・サードパーティ統合トピックを advanced→beginner (score=-1) と誤判定する。判定層（Fable 5）レビューの結果、フラグされた11問（tool-081, ses-190, sdk-016, sdk-018, skill-076, bp-098, bp-102, bp-107, bp-108, tool-083, ses-199）のうち beginner 降格妥当は0問。9問は keep-advanced、2問（bp-107, tool-083）のみ intermediate へ降格 → known-issues.md に「difficulty-mismatch (advanced→beginner, score=-1) は表層ヒューリスティックの既知偽陽性パターン。エンタープライズ設定・課金/キャッシュ内部・サードパーティ統合・バージョン履歴系トピックは問い方が短くても advanced 維持が原則。機械適用せず判定層レビュー必須」を追記

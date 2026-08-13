@@ -64,6 +64,7 @@
 | 自己ホスト型環境のE2Eテスト | `self-hosted-environments-testing` | テストループ・CI認証 |
 | Claude Tag（Slack共有アイデンティティ） | `claude-tag` | Team/Enterprise限定、Claude Code in Slackとの違い |
 | GitHub Actionsのクラウドプロバイダー連携 | `github-actions-cloud-providers` | Bedrock/Vertex/Foundry × OIDC認証 |
+| クロスセッションメッセージング（`ListAgents`/`SendMessage`） | `cross-session-messaging` | セッション間の非同期メッセージ送受信・inbound controls |
 
 ### referenceUrl の危険パターン
 
@@ -88,6 +89,7 @@
   - Cloud & Gateway (2026-07-22 追加): desktop-ios-simulator
   - Cloud & Gateway (2026-08-03 追加): claude-security, glossary, cloud-environments, claude-apps-gateway-on-aws
   - Cloud & Gateway (2026-08-07 追加): self-hosted-environments, self-hosted-environments-quickstart, self-hosted-environments-configuration, self-hosted-environments-deploy, self-hosted-environments-identity, self-hosted-environments-reference, self-hosted-environments-testing, claude-tag, github-actions-cloud-providers
+  - Newly discovered pages (2026-08-13 追加): cross-session-messaging
 - `https://platform.claude.com/docs/en/agent-sdk/overview` — Agent SDK 関連
 
 ### ページリスト同期チェック（新規ドキュメントページ追加時）

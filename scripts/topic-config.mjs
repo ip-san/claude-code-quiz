@@ -194,6 +194,8 @@ export const DOC_PAGES = [
     url: 'https://code.claude.com/docs/en/self-hosted-environments-reference',
   },
   { name: 'self-hosted-environments-testing', url: 'https://code.claude.com/docs/en/self-hosted-environments-testing' },
+  // Auto-discovered from llms.txt (2026-08-13)
+  { name: 'cross-session-messaging', url: 'https://code.claude.com/docs/en/cross-session-messaging' },
   // Agent SDK (different domain)
   { name: 'agent-sdk-overview', url: 'https://platform.claude.com/docs/en/agent-sdk/overview' },
 ]
