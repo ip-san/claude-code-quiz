@@ -137,6 +137,7 @@ v4.43.0 以前の known-issues では「exit code 2 の一般ルールで UserPr
 - 原因: hooks **reference** ページの fetch では見出しが `##` markdown ではなくプレーンテキストに平坦化されるため、slugify ベースのアンカー抽出が拾えない。`hooks-guide` ページは正常に `##`/`###` を持つ
 - 対応: これら3問の `referenceUrl` は修正不要。URL Anchors lint は report-only なのでブロックしない
 - (1) hooks.md キャッシュがプレーンテキスト平坦化されており URL Anchors lint が `#configuration` を偽陽性報告 → `node scripts/fetch-docs.mjs --pages hooks --force` で再取得したら `##` 見出し10セクションが復元され lint が解消。(2) mcp.md キャッシュはコードブロック0個（コードフェンス脱落）のため `--env` フラグが factCheck:flags で偽陽性 → known-issues.md の「Hooks ページのアンカー」セクションに「`--force` 再取得でキャッシュ形式が復元され lint 解消する場合がある。invalid-anchor 報告時はまず該当ページを `--force` 再取得してから判定する」を追記。mcp.md のコードブロック脱落も同種の注意（コード例由来のフラグ・コマンド不在は偽陽性の可能性）として記録
+- Step 0a の「quiz:lint の URL/用語チェックが失敗した場合はまず問題を修正」という指示に従い、ext-004/ext-085/ext-087 の `hooks#configuration` invalid-anchor を即座に修正（アンカー除去）してしまったが、known-issues.md には「確認済み false-positive・URL 変更不要」と明記されており revert が必要になった（net 変更ゼロで復旧済み） → SKILL.md の「quiz:lint の結果処理」に「URL Anchors / Terminology の指摘を修正する前に、必ず known-issues.md の false-positive 記録（特に『Hooks ページのアンカー』セクション）と照合する。既知 false-positive は修正せずログのみ」と追記する
 
 ## SDK・ライブラリの改名履歴
 
@@ -363,6 +364,7 @@ v4.43.0 以前の known-issues では「exit code 2 の一般ルールで UserPr
 - `quiz:lint` が 55問で difficulty mismatch を検出。score=-1/-2（容易方向）が 54問、score=+2（難化方向）が 1問。全て Step 0a の lint 出力から機械的に抽出可能 → quiz-refine SKILL.md の Step 0a（lint 前処理）の直後に「difficulty auto-fix」ステップを追加。score<=-1 と score>=+2 を自動適用。ロジックを scripts/quiz-utils.mjs に統合し `npm run quiz:difficulty-fix` として expose
 - pre-lint で 88 件の distractor 警告（46 件 too-short、42 件 correct-too-long）が検出。これらは事実誤認ではないが LLM の判断が必要なバランス調整。今回も処理できず累積 → SKILL.md に「distractor lint warnings はファクトチェックの責務外。`/quality-loop --monthly` の Opus 1M context で横断的に再バランスする」を明記。pre-lint レポートで distractor のみ flag された問題を sonnetTargets から除外（または別 tier に分離）
 - `sdk-016`（プロンプトキャッシュ TTL の認証方式別デフォルト値+環境変数上書き）、`sdk-018`（Claude Platform on AWS の SigV4 vs API キー優先順位）は内容的に明確に advanced 相当（複数条件の相互作用の正確な記憶が必要）だが、lint の difficulty スコアラーは "advanced → beginner, score=-1" と判定した。おそらく文字数/構文の単純さのみで判定しており、知識の複雑さ（条件分岐の数）を考慮していない → difficulty ヒューリスティックのスコアリング要因に「条件分岐/相互作用の数」または「否定文脈の重なり」を加味するか、少なくとも score=-1（境界線）のケースは自動修正せず人間/LLM判断に委ねる運用を明記する。今回は全問 advanced 現状維持と判断（変更なし）
+- minor 96 件のうち約 90 件が「correct-too-long（正解が不正解平均の2倍超）/ distractor-too-short / format-giveaway」の純粋な長さ・書式バランスで、事実誤りは 0 件。正解テキストの一括圧縮は事実ドリフト混入リスクがあるため fix-loop 内では適用せず、known-issues 既載の「distractor 品質専用バッチパス」へ委譲した。対象例: ses-227/231（正解 175〜187 字 vs 不正解平均 40 字）、tool-093（8 倍乖離）、ext-199（208 字 vs 45 字）、bp-018/108、key-060、sdk-019/022、skill-064/093、mem-060/087〜094 → SKILL.md の「修正時の注意」に「純粋な長さバランス minor は fix-loop で個別適用せず、対象 ID を蓄積して distractor-balance 専用パス（別スキル or quality-loop ステップ）で一括処理する」を明記。各 verify_*.json の `correct` フィールドに書き直し案が保存済みのため、専用パスはこれを入力にできる。ただし判定層注記（2026-08-19）: バッチパス適用時は保存済み書き換え案を鵜呑みにせず、適用時点の正典 docs と再照合すること。また cmd-025 の referenceUrl 更新（common-workflows→headless のページ分割ドリフト、check C・リンク鮮度）も同バッチパスに相乗りさせる
 
 ## Automated pattern scanning efficiency
 
@@ -383,6 +385,7 @@ v4.43.0 以前の known-issues では「exit code 2 の一般ルールで UserPr
 
 - 全630問のreferenceUrlが`/docs/ja/`を使用していたが、quiz-lintは`/docs/en/`を期待していた。テストコード（quizContentQuality.test.ts）も`/docs/ja/`を期待していたため、lintとtestで不整合があった → quiz-lint.mjsとquizContentQuality.test.tsのURL prefix定義を統一するチェックをCIに追加。言語切替が発生した場合の一括変換スクリプトも検討
 - 実サイトは `CLAUDE.md` を含む見出しを `claude-md` 形式に slug 化するが、quiz-lint.mjs / fetch-docs.mjs の slugify はドットを除去して `claudemd` を生成していた。このため無効アンカーの quiz 7問（mem-004/012/035/045/048/054, ses-089）が lint を通過し続けていた（lint とデータが同じバグを共有する自己整合の罠）。両 slugify に `.replace(/\./g, '-')` を追加して修正、7問の referenceUrl も修正済み → known-issues.md「Memory ページのアンカー」を更新済み。lint の妥当性検証は定期的に実サイト（curl で id= 属性）とサンプル照合する
+- cmd-025 の referenceUrl が指す common-workflows「Pipe Claude into scripts」節が headless.md への 4 行ポインタに縮小され、検証対象の詳細（`--output-format stream-json` 等）は headless.md にのみ記載。cmd-096/097 の troubleshooting → troubleshoot-install と同種 → known-issues「ドキュメントページ分割の追跡」セクションに cmd-025 の事例を追記。次回スキャンで referenceUrl を headless へ更新検討
 
 ## CLAUDE.local.md ドキュメント復帰（確認済み）
 
@@ -397,6 +400,8 @@ v4.43.0 以前の known-issues では「exit code 2 の一般ルールで UserPr
 - key-016 の diagram.label が "Extended Thinking動作" のまま残存しており、quiz:edit コマンドでは diagram サブフィールドの編集ができない → quiz-utils.mjs の edit コマンドに `diagram.label`, `diagram.steps[N].text`, `diagram.steps[N].sub` 等の diagram サブフィールド編集サポートを追加する
 - Step 0a の `rm -f .claude/tmp/verify_*.json .claude/tmp/verify_*.md ...` は、zsh では `verify_*.md` がマッチしないと `no matches found` でコマンド全体が中断され、5月の stale な verify_*.json が残存した。今回、新旧レポートの混同リスクが実際に発生（手動削除で回避） → SKILL.md Step 0a の削除コマンドを glob 非依存の `find .claude/tmp -maxdepth 1 \( -name 'verify_*.json' -o -name 'verify_*.md' -o -name 'skill-proposals.md' \) -delete` に差し替える
 - Step 0a の `rm -f .claude/tmp/verify_*.json .claude/tmp/verify_*.md ...` が zsh の `no matches found: .claude/tmp/verify_*.md` で中断し、Aug 5 の stale な verify_extensions.json / verify_keyboard.json / verify_sdk.json が残存。今回は「全9ファイル存在」の監視が stale ファイルで偽陽性トリガーし、タイムスタンプ照合で回避した。known-issues L398 で既に find ベース削除への差し替えが提案済みだが SKILL.md 未反映のまま再発 → SKILL.md Step 0a の削除コマンドを `find .claude/tmp -maxdepth 1 \( -name 'verify_*.json' -o -name 'verify_*.md' -o -name 'skill-proposals.md' \) -delete` に差し替える（glob 非依存）。加えてレポート集約時は必ず mtime が当日以降であることを確認する
+- `rm -f .claude/tmp/verify_*.json .claude/tmp/verify_*.md ...` は zsh では glob が 1 つでも不一致だと「no matches found」でコマンド全体が失敗し、旧レポート（8/13 の stale verify_*.json 9 ファイル）が残存した。稼働中エージェントの成果物と混同するリスクがある → SKILL.md Step 0a のクリーンアップを glob 非依存の形に変更する: `find .claude/tmp -maxdepth 1 \( -name 'verify_*.json' -o -name 'verify_*.md' -o -name 'skill-proposals.md' \) -delete`
+- `rm -f .claude/tmp/verify_*.json .claude/tmp/verify_*.md ...` の実行時、`verify_*.md` が 0 件マッチだと zsh が「no matches found」でコマンド全体を中断し、旧 `verify_*.json`（2026-08-15 分）が削除されずに残存した。verify-skills も known-issues の同種記録（2026-07-19, 2026-08-13）を指摘。stale レポートを最新結果と誤認するリスクがある → SKILL.md Step 0a のクリーンアップを `find .claude/tmp -maxdepth 1 \( -name 'verify_*.json' -o -name 'verify_*.md' -o -name 'skill-proposals.md' \) -delete` に差し替える（glob 不一致でも中断しない）
 
 ## Stale targets files cleanup
 
@@ -650,6 +655,7 @@ doc 全面更新（45ページ）で 810 問全件が target 化、pre-lint で 
 ## hooks.md キャッシュ平坦化は --force 再取得でも復元されない場合がある
 
 - ext-004 / ext-085 / ext-087 の `#configuration` invalid-anchor（既知 false-positive）に対し、known-issues.md の指示どおり `node scripts/fetch-docs.mjs --pages hooks --force` を実行したが、今回は再取得後も 1 section のみ（見出し平坦化が継続）で lint は解消しなかった。Jina Reader の出力形式が安定しないため、--force 再取得は「解消する場合がある」対処であり確実ではない → known-issues.md「Hooks ページのアンカー」セクションに「--force 再取得でも復元されない場合がある（2026-07-19 確認）。復元されない場合も false-positive 判定は維持し、referenceUrl は修正しない」を追記
+- 2026-08-15 の `fetch-docs.mjs --pages hooks --force` 再取得でも見出しの Markdown 記号が復元されず（`##` 見出し 2 個のみ、Configuration は地の文）、invalid-anchor false-positive が継続。known-issues の既存記録（2026-07-19 / 2026-08-13）と同一事象 → quiz-lint.mjs の extractDocAnchors に「見出し検出数が閾値未満（例: `##` が 3 個未満）のページは anchor 検証をスキップし warning のみ出す」ガードを実装する（既存提案のスキップリスト方式より汎用的）
 
 ## 不正解選択肢の「架空コマンド」が実在化する二重正解パターン
 
@@ -685,6 +691,7 @@ doc 全面更新（45ページ）で 810 問全件が target 化、pre-lint で 
 ## fact-tier「存在しないフラグ」トリアージの機械化が有効
 
 - fact tier 67 問中、49 問は不正解選択肢内の意図的な架空フラグ/env（known-issues 既知パターン）で、token の出現位置（正解側/不正解側）の機械判定で一括棄却できた。要精査は 4 問に圧縮 → known-issues 既存提案（factCheck の不正解選択肢トークン除外）を pre-lint-quiz.mjs に実装する優先度を上げる
+- pre-lint の fact tier（factCheck:env/flags/slash, crossCheck:numeric-contradiction）63 問は全て「不正解選択肢内の意図的な架空フラグ/env を正しく否定」または既知 false-positive（hooks#configuration アンカー、difficulty 短文 advanced）で、真陽性 0 件だった → known-issues 既載「fact-tier トリアージの機械化」の継続。pre-lint-quiz.mjs の factCheck に「wrongFeedback が『存在しません/架空』と明示する選択肢はフラグ除外」の否定文脈検出を追加できれば、Sonnet 検証対象をさらに絞れる
 
 ## 正式フラグのリネーム（旧フラグの deprecated alias 化）で「正解が非推奨・不正解が正式」逆転が起きる
 
