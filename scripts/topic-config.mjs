@@ -196,6 +196,10 @@ export const DOC_PAGES = [
   { name: 'self-hosted-environments-testing', url: 'https://code.claude.com/docs/en/self-hosted-environments-testing' },
   // Auto-discovered from llms.txt (2026-08-13)
   { name: 'cross-session-messaging', url: 'https://code.claude.com/docs/en/cross-session-messaging' },
+  // Auto-discovered from llms.txt (2026-09-10)
+  { name: 'managed-settings', url: 'https://code.claude.com/docs/en/managed-settings' },
+  { name: 'settings-reference', url: 'https://code.claude.com/docs/en/settings-reference' },
+  { name: 'settings-example', url: 'https://code.claude.com/docs/en/settings-example' },
   // Agent SDK (different domain)
   { name: 'agent-sdk-overview', url: 'https://platform.claude.com/docs/en/agent-sdk/overview' },
 ]

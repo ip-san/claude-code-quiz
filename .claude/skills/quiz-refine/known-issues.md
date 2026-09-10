@@ -225,7 +225,7 @@ v4.43.0 以前の known-issues では「exit code 2 の一般ルールで UserPr
 
 ## チェックポイント復元オプション
 
-- チェックポイント復元時は5つの選択肢がある: restore code+conv, conv only, code only, summarize, never mind
+- チェックポイント復元時は **6 つ**の選択肢がある: restore code+conv, conv only, code only, summarize from here, **summarize up to here**（2026-09-10 追加確認）, never mind
 - 「2つ」「3つ」等の不正確な数値を記述しないこと
 
 ## Tool Search のモデル要件
@@ -251,11 +251,78 @@ v4.43.0 以前の known-issues では「exit code 2 の一般ルールで UserPr
 
 ## Hook イベント総数
 
-- Hook event types は全 30 種（2026-06-01 hooks.md lifecycle table で再確認）。26→29 で `Setup`・`UserPromptExpansion`・`PostToolBatch`、**29→30 で `MessageDisplay`**（matcher なし・非ブロッキング、"While assistant message text is displayed"）が追加された
+- **最新（2026-09-10 hooks.md lifecycle table で再確認）: 全 33 種**。30→33 で `DirectoryAdded`（`/add-dir` や SDK `register_repo_root` での作業ディレクトリ追加時、ブロック不可）、`PreModelSwitch`（モデル切替直前、**ブロック可**）、`PostModelSwitch`（モデル切替後、ブロック不可）が追加された（ext-085 / ext-029 を 2026-09-10 修正）
+- **`PermissionRequest` は現行 docs で "Can block? = No"**（"Exit code 2 isn't honored for this event"。拒否は JSON `decision` オブジェクトで行う）。ブロッキング可能イベントは引き続き **15 種**だが構成が変わり **PermissionRequest が抜けて PreModelSwitch が入った**: PreToolUse, UserPromptSubmit, UserPromptExpansion, Stop, SubagentStop, TeammateIdle, TaskCreated, TaskCompleted, ConfigChange, PostToolBatch, PreCompact, PreModelSwitch, Elicitation, ElicitationResult, WorktreeCreate
+- （旧記録）Hook event types は全 30 種（2026-06-01 hooks.md lifecycle table で再確認）。26→29 で `Setup`・`UserPromptExpansion`・`PostToolBatch`、**29→30 で `MessageDisplay`**（matcher なし・非ブロッキング、"While assistant message text is displayed"）が追加された
 - 全30種: `SessionStart`, `Setup`, `UserPromptSubmit`, `UserPromptExpansion`, `PreToolUse`, `PermissionRequest`, `PermissionDenied`, `PostToolUse`, `PostToolUseFailure`, `PostToolBatch`, `Notification`, `MessageDisplay`, `SubagentStart`, `SubagentStop`, `TaskCreated`, `TaskCompleted`, `Stop`, `StopFailure`, `TeammateIdle`, `InstructionsLoaded`, `ConfigChange`, `CwdChanged`, `FileChanged`, `WorktreeCreate`, `WorktreeRemove`, `PreCompact`, `PostCompact`, `Elicitation`, `ElicitationResult`, `SessionEnd`
 - 追加3種の意味: `Setup`（`--init-only`/`--init`/`--maintenance` 時の一回限り準備）、`UserPromptExpansion`（コマンド展開がプロンプト化される前。展開をブロック可）、`PostToolBatch`（並列ツール呼び出しのバッチ解決後・次のモデル呼び出し前。エージェントループを停止可）
 - ブロッキング可能: 15 イベント（2026-06-02 hooks.md "Can block? = Yes" 実カウントで再確認）: PreToolUse, PermissionRequest, UserPromptSubmit, UserPromptExpansion, Stop, SubagentStop, TeammateIdle, TaskCreated, TaskCompleted, ConfigChange, PostToolBatch, PreCompact, Elicitation, ElicitationResult, WorktreeCreate（旧記録の12には UserPromptExpansion / PostToolBatch / PreCompact が欠落していた）
 - `PermissionDenied`: auto mode classifier がツール呼び出しを拒否した時。ブロッキング不可だが `{retry: true}` を返すとモデルにリトライを許可できる
+
+## 2026-09-10 --full スキャンで確定した doc ドリフト（全 61 ページが 2026-08-19 以降更新）
+
+- **Output styles は 5 種**: Default / Proactive / **Concise**（v2.1.237+、結果先出し・前置き省略）/ Explanatory / Learning（output-styles.md「four additional built-in output styles」）。旧「4種」は stale（key-032 修正）
+- **Fable 5.1 追加**: model-config.md の effort 表は「Fable 5.1 and Fable 5」。エフォート対応・xhigh/max・1M context・常時アダプティブ推論のモデル列挙には Fable 5.1 を含める（`fable` エイリアスは v2.1.257+ で Fable 5.1 に解決。Claude apps gateway では Fable 5）。default effort hold は Fable 5 / Opus 4.8 / 4.7 のみで Opus 5 / Fable 5.1 には無い
+- **effort の設定方法は 7 通り**: /effort, /model スライダー, --effort, `CLAUDE_CODE_EFFORT_LEVEL`, settings（`modelSettings`/`effortLevel`）, Remote Control 接続デバイス, skill/subagent frontmatter `effort`
+- **認証優先順位は 7 段階**: 6 番目に「Anthropic profile and federation credentials（`ant` CLI / Workload Identity Federation）」が追加（authentication.md「Authentication precedence」）
+- **Anthropic Console の認証は「API key or a Console sign-in without one」**（キーなし Console サインイン = プロファイル方式が追加。third-party-integrations.md 比較表）
+- **advisor 非対応プロバイダは 4 つ**: Amazon Bedrock / **Claude Platform on AWS** / Google Cloud's Agent Platform / Microsoft Foundry（advisor.md Requirements）
+- **feature-availability の CI 行**: GitHub Actions は Claude Platform on AWS で ✗（Foundry ✓）、GitLab CI/CD は Microsoft Foundry で ✗（Claude Platform on AWS ✓）
+- **artifact CSP は許可リスト方式**: 外部スクリプトは cdnjs / Tailwind CDN / jQuery CDN / jsDelivr の一部パスの 4 CDN、外部フォントは Google Fonts のみ許可。外部画像は全面禁止、fetch/XHR/WebSocket は自オリジンと Google Fonts ホストのみ（artifacts.md Page constraints）。旧「外部リクエスト全面禁止」は stale（bp-107 修正）
+- **artifact 無効化の現行キーは `enableArtifact: false`**（`/config` の Artifacts トグルが書き込む）。`disableArtifact: true` は deprecated だが動作する。`CLAUDE_CODE_DISABLE_ARTIFACT=1` / `permissions.deny` の `Artifact` も有効
+- **別セッションからの artifact 更新**: URL を渡す **または `/artifacts` で一覧から選んで添付**（artifacts.md「Update an artifact」）
+- **Desktop WSL セッション**: 管理設定が存在するデバイスでは**既定で無効**、Anthropic アカウントチームへの有効化依頼が必要。有効化後に `wslInheritsWindowsSettings: true` を HKLM / `C:\Program Files\ClaudeCode` 経由で配布（admin-setup.md）
+- **Linux Desktop `.deb` インストールは apt リポジトリを自動登録**（`/etc/apt/sources.list.d/claude-desktop.list`）。旧「直接インストールでは更新を受け取らない／コメントアウト済みエントリ」は現行 docs に存在しない（ses-233 修正）
+- **Task ツールの可用性（tools-reference.md「Task tool availability」）**: v2.1.233+ で Opus 4.8 / Sonnet 5 / Fable 5 / Mythos 5 系列では `TodoWrite` と `TaskCreate/TaskGet/TaskList/TaskUpdate` が**既定で提供されない**。`CLAUDE_CODE_ENABLE_TODO_TOOLS=1` / `--allowedTools` / `--tools` でオプトイン。`CLAUDE_CODE_ENABLE_TASKS` は「提供される場合にどちらを出すか」の選択（tool-074 修正）
+- **JetBrains インストールは 2 ステップ**: Step 1 = Claude Code CLI（プラグインは同梱しない、無いと "Cannot launch Claude Code"）→ Step 2 = Marketplace プラグイン。キャッシュでは `<Steps>` タイトルが空白化されるため「最初のステップ」を問う設問に注意（tool-059 修正）
+- **サーバー管理設定の承認記録は 3 方式**: claude.ai ログイン（組織ごと1件）/ **Claude apps gateway（ゲートウェイごと1件、同一 gateway 再サインインでは再表示なし）** / その他資格情報（キャッシュと共に保存、`/logout` で削除）。gateway を「その他」に含めない（mem-093 修正）
+- **in-process チームメイトのサブエージェント**: 定義の `background: true` は常にエラー。`run_in_background: true` は fork mode オフ＋background tasks 有効の構成ではエラー、それ以外は**静かにフォアグラウンド実行**（sub-agents.md L398 / agent-teams.md L299）。一律「エラー」と断定しない
+- **keybindings.json のホットリロード**は docs に記載なし（「再起動不要で自動反映」は根拠なし断定 → 削除。key-034）
+- **Explore サブエージェントのモデル**: v2.1.198 以降は**メイン会話のモデルを継承**（Claude API では Opus 上限、他プロバイダは直接継承）。「常に Haiku」は stale。Haiku 固定は `Explore` 名のユーザー/プロジェクト定義で `model: haiku` を指定した場合のみ（sub-agents.md L29-33、ext-058 / skill-022 修正）
+- **サブエージェントのネスト**: 既定で**メイン会話の下 3 階層まで**ネスト可能（`CLAUDE_CODE_MAX_SUBAGENT_SPAWN_DEPTH`、上限で `Agent` ツールが取り上げられる）。「ネスト不可」は stale（skill-024 修正）
+- **チームメイトのモデル**: 「Default teammate model」設定は `/config` から削除済み。優先順位は スポーン指名 → サブエージェント定義の `model` → `CLAUDE_CODE_SUBAGENT_MODEL` → **リードの現在のモデル**（agent-teams.md「Specify teammates and models」、skill-082 修正）
+- **チームメイトの計画承認**: 承認リクエストは**リードのセッションが到着と同時に自動承認**し、リードはレビューしない（agent-teams.md L96 / Permissions「designed exception」、skill-083 修正）。「リードが承認/却下して再提出」は stale
+- **Notification マッチャーは 12 種**: permission_prompt / idle_prompt / auth_success / elicitation_dialog / elicitation_url_dialog / elicitation_complete / elicitation_response / agent_needs_input / agent_completed / quota_auto_resume_fired / _stale / _disabled（hooks.md L137）
+- **Hook 共通入力フィールドは 8 つ**: `prompt_id`（v2.1.196+）と `scratchpad_dir`（v2.1.257+）が追加（hooks.md Common input fields）。`SessionStart.source` は `fork` を含む 5 値
+- **プラグインソースは 7 種**: 相対パス / github / url / git-subdir / npm / **archive**（v2.1.224+）/ **command**（v2.1.229+）。旧「5種」は stale（plugin-marketplaces.md Plugin sources、ext-130 修正）
+- **plugin.json のカスタムパス**: `commands` / `agents` / `workflows` / `outputStyles` / `experimental.themes` / `experimental.monitors` は**デフォルトディレクトリを置き換え**（走査されない）。`skills` は追加。旧「補完して両方読む」は stale（plugins-reference.md Path behavior rules、ext-152 修正）
+- **プラグイン提出フォームは community マーケットプレイス用**（`claude-community`）。公式 `claude-plugins-official` は Anthropic がキュレーションし申請プロセスなし（plugins.md L158-166、ext-140 修正）
+- **`@claude review` は単発レビュー**（2026年7月更新以降、`@claude review once` と同じ）。プッシュ連動は `@claude review always`（code-review.md L72-76、ext-158 修正）
+- **Chrome 連携の対応ブラウザ**: Chrome / Edge に加え Brave・Arc・Vivaldi・Opera などの Chromium 系でも拡張を検出・接続（chrome.md L25、ext-146 / ext-171 修正）
+- **auto mode 非対話（`-p`、`--permission-prompt-tool` なし）でのブロック**: しきい値到達時も**そのアクションだけ実行されず Claude は作業継続、ランは停止しない**（permission-modes.md L305 / errors.md「the run continues」。bp-073 / bp-120 修正）。旧「中止する」は stale
+- **`curl`/`wget` は「デフォルトで自動承認されない」**（Manual モードではプロンプト、`Bash(curl *)` の allow/deny で制御）であり「デフォルトブロック」ではない（security.md L39、bp-064 修正）
+- **artifact は閲覧時に MCP コネクタ呼び出しが可能**（外部データへ届く唯一の経路）。「閲覧時の API 呼び出し不可」の言い切りは stale（artifacts.md L20、bp-104）
+- **`/memory` vs `/context`**: CLAUDE.md の読み込み確認は **`/context` の Memory files 一覧**（memory.md L211 Troubleshoot）。`/memory` は存在しないファイルのエントリも一覧表示するため確認用途ではなく編集用。旧「まず `/memory` で確認」は stale（mem-058 / mem-063 / mem-075 修正、2026-04-05 の逆判定を上書き）
+- **`policyHelper` vs サーバー管理設定**: サーバー管理設定がポリシーキーを配信している間は `policyHelper` は参照されない。ヘルパー出力が唯一の管理設定になるのは MDM/ファイルの管理ソースが選択された場合のみ（server-managed-settings.md L68、mem-086 修正）
+- **サーバー管理設定の承認カテゴリは 5 つ**: シェルコマンド設定 / サンドボックスバイナリ設定 / サンドボックスのネットワーク・分離設定 / カスタム環境変数 / フック定義（L129-135、mem-041 修正）。Requirements にバージョン番号の記載なし（mem-040）
+- **`settings.local.json` はプロジェクトの `.gitignore` ではなくグローバル git excludes に自動追加**（settings.md L46、mem-005 修正）
+- **CLAUDE.md の上方向探索は「ファイルシステムのルートまで」**（memory.md L89、mem-027 / mem-036 修正）。「ルートの手前まで」「git ルートまで」は誤り
+- **`/hooks` メニューは読み取り専用ブラウザ**（hooks.md L299「read-only browser」）。追加・削除は settings JSON 編集、一時無効化は `disableAllHooks: true`。「対話的に追加・削除」「JSON 編集はスナップショットで反映されずレビュー必要」は現行 docs に存在しない（cmd-026 修正）
+- **Remote Control のネットワーク障害**: サーバーモード（`claude remote-control`）は約10分でプロセス終了、**インタラクティブセッションは障害が続く限り再試行し自動再接続**（remote-control.md L217-219、cmd-088 修正）。ハートビート失敗は約30分で切断
+- **routine のプッシュ先**: `claude/` プレフィックスは常に許可、他ブランチは保護 / 他者の PR / 他者のコミットのいずれかで拒否（web-scheduled-tasks.md L147-151、cmd-109 修正）
+- **npm 更新は `npm install -g @anthropic-ai/claude-code@latest`**。`npm update -g` は docs で「Avoid」（setup.md L193、cmd-061 修正）
+- **`/usage` は API キーでも実行可**（`/cost`・`/stats` エイリアス）。API キーで使えないのは `/usage-credits`（commands.md L107-108、cmd-038 修正）
+- **Rewind メニューは 6 アクション**: Restore code and conversation / Restore conversation / Restore code / Summarize from here / **Summarize up to here** / Never mind（checkpointing.md L32、key-002 修正）。旧「5つ」は stale — 上記「チェックポイント復元オプション」セクションの 5 も更新対象
+- **パーミッションモード名は「Manual」**（config 値 `default`、v2.1.200+ で CLI/VS Code/JetBrains/Desktop 共通）。Pro/Max/Team の組み込み開始モードは **auto mode**。「Normal」「Auto Mode（研究プレビュー）」は stale（permission-modes.md L3/L18、key-008 修正）
+- **`Ctrl+D` は 800ms 以内の 2 回押しで終了**（入力中はカーソル直後 1 文字削除）。**`Ctrl+C` は待機中 1 回目で入力クリア・2 回目で終了**（interactive-mode.md L9-11、key-017 / key-021 修正）
+- **Prompt Suggestions は `Tab` または `→` で入力欄に反映してから `Enter`**。`Enter` 単独で「受け入れ＋送信」の記載なし（interactive-mode.md L312、key-025 修正）
+- **PR バッジの更新はイベント駆動**（`git push` / `gh pr` 成功時）。「60秒ごと」は docs に存在しない（interactive-mode.md L525、key-026 / key-049 修正）
+- **`/terminal-setup` は VS Code・Cursor・Devin Desktop で `terminal.integrated.gpuAcceleration=off` と `mouseWheelScrollSensitivity` も設定**（terminal-config.md L18、key-033）
+- **statusline のキャッシュファイル名は `session_id` ベース**（セッション内で安定・セッション間で一意）。固定名は並行セッションで衝突、PID は毎回変わる（statusline.md L228、key-041 修正）
+- **フルスクリーンの URL クリックは `Cmd`/`Ctrl`+クリック**。プレーンクリックは開かない（例外: Ghostty / macOS Warp）（fullscreen.md L71-73、key-055 修正）
+- **MacBook に既定の最下部ジャンプキーなし**（`Ctrl+Fn+→` は macOS で届かない）。ジャンプボタン / ホイール / `scroll:bottom` 再バインド（fullscreen.md L97、key-056 修正）
+- **タスクリスト（`Ctrl+T`）は Opus 4.8 / Sonnet 5 / Fable 5 / Mythos 5 系で既定空**（interactive-mode.md L464、key-010 / key-012 注記）
+- **Read ツールは固定 2000 行ではなくトークン上限でページング**（`PARTIAL view`、tools-reference.md L310、tool-007）。**WebSearch はタイトルと URL を返す**（要約ではない、L343、tool-009）
+- **Bash の cwd 引き継ぎはプロジェクト／追加ディレクトリ内に限る**。外へ `cd` すると自動リセット + `Shell cwd was reset to <dir>`（L108-110）。`cd /tmp` を「引き継がれる例」にしない（tool-036 / tool-067 / tool-071 修正）
+- **JetBrains の診断共有は `getDiagnostics` 呼び出し時のみ**（編集後の自動送信なし、jetbrains.md L26）。セキュリティ注意は `acceptEdits`（および auto）モード（L140-142、tool-062 / tool-064 修正）
+- **Ultraplan は削除済み**（ultraplan.md「Ultraplan is no longer available」: `/ultraplan`・キーワード・承認ダイアログのオプション全廃止。代替は plan mode / Claude Code on the web）。ses-183 / ses-184 を廃止告知の問題に書き換え済み
+- **Desktop のモデルはセッション中に変更可**（desktop.md L25「You can change this during the session」、ses-137 修正）。環境の選択肢は **Local / Cloud / SSH connection / (Windows) WSL**。「Remote（リモートセッション）」表記は「Cloud（クラウドセッション）」に統一（ses-110 / 113 / 115 / bp-054 / bp-089）
+- **Bedrock のリージョン解決（v2.1.172+）**: `AWS_REGION` → `AWS_DEFAULT_REGION` → AWS プロファイルの `region` → `us-east-1`。「`.aws` を読まない」は stale（amazon-bedrock.md L82-86、ses-151 修正）
+- **`/bg` は進行中の作業を引き継ぐ**（バックグラウンドコマンド・subagent・動的ワークフロー・`/loop`・artifact 自動返信。monitor は停止。`CLAUDE_DISABLE_ADOPT=1` で引き継がない）（agent-view.md L220-224、ses-193 修正）
+- **`alwaysThinkingEnabled`**: thinking は既定 ON なので `true` は無効果、`false` で全セッション OFF（Fable では無効）。旧「true でアダプティブ推論をプロジェクト横断で有効化」は stale（settings-reference.md L306-316、ses-044 修正）
+- **その他の列挙更新**: `DISABLE_PROMPT_CACHING_FABLE` 追加（5 変数）/ `teammateMode` は `iterm2` 含む 4 値（既定 `in-process`）/ OTel カーディナリティ制御は 5 変数（`ENTRYPOINT`・`RESOURCE_ATTRIBUTES` 追加）/ Foundry 認証は 3 方式（Bearer `ANTHROPIC_FOUNDRY_AUTH_TOKEN` 追加）/ コンテキストウィンドウ構成要素に auto memory / パーミッションの `/path` は「設定ソースからの相対」（プロジェクト設定ならプロジェクトルート）
+- **未検証で棄却した指摘**: ext-164「分類器は既定で Sonnet 5」（cache の permission-modes.md に記述なし、エージェントの live fetch 由来）。key-033「Apple Terminal で Option as Meta も設定」（cache で確認できず）。errors#automatic-retries の invalid-anchor は hooks#configuration と同じキャッシュ平坦化 false-positive（TOC に "Automatic retries" 実在、bp-122 は修正不要）
+- **skills.md / settings.md の見出し改編**: `#where-skills-live` → `#choose-where-skills-load`、`#skills-in-cowork-and-cloud-sessions` → `#use-skills-in-cowork-and-cloud-sessions`、`settings#settings-files` → `#settings-files-and-who-they-affect`（referenceUrl 6 問修正）。hooks `#configuration` は `--force` 再取得後に lint 解消（false-positive 継続）
 
 ## 環境変数（追加）
 
@@ -365,6 +432,7 @@ v4.43.0 以前の known-issues では「exit code 2 の一般ルールで UserPr
 - pre-lint で 88 件の distractor 警告（46 件 too-short、42 件 correct-too-long）が検出。これらは事実誤認ではないが LLM の判断が必要なバランス調整。今回も処理できず累積 → SKILL.md に「distractor lint warnings はファクトチェックの責務外。`/quality-loop --monthly` の Opus 1M context で横断的に再バランスする」を明記。pre-lint レポートで distractor のみ flag された問題を sonnetTargets から除外（または別 tier に分離）
 - `sdk-016`（プロンプトキャッシュ TTL の認証方式別デフォルト値+環境変数上書き）、`sdk-018`（Claude Platform on AWS の SigV4 vs API キー優先順位）は内容的に明確に advanced 相当（複数条件の相互作用の正確な記憶が必要）だが、lint の difficulty スコアラーは "advanced → beginner, score=-1" と判定した。おそらく文字数/構文の単純さのみで判定しており、知識の複雑さ（条件分岐の数）を考慮していない → difficulty ヒューリスティックのスコアリング要因に「条件分岐/相互作用の数」または「否定文脈の重なり」を加味するか、少なくとも score=-1（境界線）のケースは自動修正せず人間/LLM判断に委ねる運用を明記する。今回は全問 advanced 現状維持と判断（変更なし）
 - minor 96 件のうち約 90 件が「correct-too-long（正解が不正解平均の2倍超）/ distractor-too-short / format-giveaway」の純粋な長さ・書式バランスで、事実誤りは 0 件。正解テキストの一括圧縮は事実ドリフト混入リスクがあるため fix-loop 内では適用せず、known-issues 既載の「distractor 品質専用バッチパス」へ委譲した。対象例: ses-227/231（正解 175〜187 字 vs 不正解平均 40 字）、tool-093（8 倍乖離）、ext-199（208 字 vs 45 字）、bp-018/108、key-060、sdk-019/022、skill-064/093、mem-060/087〜094 → SKILL.md の「修正時の注意」に「純粋な長さバランス minor は fix-loop で個別適用せず、対象 ID を蓄積して distractor-balance 専用パス（別スキル or quality-loop ステップ）で一括処理する」を明記。各 verify_*.json の `correct` フィールドに書き直し案が保存済みのため、専用パスはこれを入力にできる。ただし判定層注記（2026-08-19）: バッチパス適用時は保存済み書き換え案を鵜呑みにせず、適用時点の正典 docs と再照合すること。また cmd-025 の referenceUrl 更新（common-workflows→headless のページ分割ドリフト、check C・リンク鮮度）も同バッチパスに相乗りさせる
+- 正解の書き換え後に correct-too-long が 145 → 181 件に増加。正解に条件・例外を詰め込むほど distractor との長さ差が「答えのヒント」になる。今回は 18 問を手動で再調整した → SKILL.md の「修正時の注意」に「正解を書き換えたら distractor も同程度の長さ・具体性に書き換える（詳細は explanation へ移す）。書き換え後に `quiz:lint distractor` で当該 ID を確認」を追記
 
 ## Automated pattern scanning efficiency
 
@@ -716,3 +784,19 @@ doc 全面更新（45ページ）で 810 問全件が target 化、pre-lint で 
 ## difficulty ヒューリスティックの構造的偽陽性（短文 advanced 問題）
 
 - quiz-lint の difficulty 判定は表層特徴（質問文長・「〜として正しいものはどれですか」等の言い回し）のみで採点するため、問い方が短くても前提知識が多層のエンタープライズ管理・課金/キャッシュ内部動作・サードパーティ統合トピックを advanced→beginner (score=-1) と誤判定する。判定層（Fable 5）レビューの結果、フラグされた11問（tool-081, ses-190, sdk-016, sdk-018, skill-076, bp-098, bp-102, bp-107, bp-108, tool-083, ses-199）のうち beginner 降格妥当は0問。9問は keep-advanced、2問（bp-107, tool-083）のみ intermediate へ降格 → known-issues.md に「difficulty-mismatch (advanced→beginner, score=-1) は表層ヒューリスティックの既知偽陽性パターン。エンタープライズ設定・課金/キャッシュ内部・サードパーティ統合・バージョン履歴系トピックは問い方が短くても advanced 維持が原則。機械適用せず判定層レビュー必須」を追記
+
+## `--full` スキャンでも pre-lint「matched」を素通りさせない（doc ドリフト検出の穴）
+
+- 前回検証（2026-08-19）以降に全 61 ドキュメントページが更新されていたにもかかわらず、Step 1 の「pre-verify の sonnetTargets のみ検証」ルールにより 802 問（81%）が LLM 検証をスキップされる設計になっていた。今回追加で「正解妥当性監査」を全 802 問に走らせた結果、critical 26 問（ses-233, ext-058, skill-024, skill-082, skill-083, skill-022, mem-058, mem-063, mem-075, mem-086, cmd-088, cmd-026, bp-073, bp-120, bp-107, key-025, key-041, key-055, key-056, ext-140, ext-146, ext-152, ext-158, ses-137, ses-151, ses-183/184 など）を検出。lint 通過は「distractor 形式が健全」を意味するだけで事実の鮮度を保証しない → SKILL.md Step 1 に「`verify-state.json` の docHashes と現在の docs を比較し、**変更ページ数が閾値（例: 全体の 30%）を超える場合は pre-lint の matched もスキップせず、正解妥当性監査モード（A-1 のみ・10 並列）を自動で追加実行する**」を追記。`verify:diff` の出力（Changed docs: N）を判定に使う
+
+## 検証エージェントの「live fetch」由来の指摘は cache 再照合で棄却できるようにする
+
+- ext-164（分類器は Sonnet 5 既定）や key-033（Apple Terminal の Option as Meta）など、エージェントが `.claude/tmp/docs` ではなくライブ取得した内容を根拠に報告したケースがあり、リード側の cache に記述が無く検証不能だった。一方 tool-059 のように cache が `<Steps>` タイトルを落として平坦化しており、ライブ取得でしか分からない事実も存在した → quiz-verifier プロンプトに「docSource には必ず cache ファイル名と行番号を書き、live fetch を使った場合は `(live)` と明記する」を追加。リードは `(live)` 指摘を採用する前に `fetch-docs.mjs --pages X --force` で cache を更新して再照合する。known-issues に「hooks / errors / jetbrains の cache は見出し・Steps が平坦化されることがある」を記録済み
+
+## モデル名リスト・件数を持つ問題の「リスト drift」を決定論的に検出する
+
+- Fable 5.1 追加（7 問）、Hook イベント 30→33、Notification マッチャー 6→12、プラグインソース 5→7、Hook 共通フィールド 6→8、承認カテゴリ 3→5、認証優先順位 6→7、OTel 変数 3→5、Rewind 6 アクション、effort 設定 7 通り、Output style 5 種など「docs の表・箇条書きの要素数」に依存する問題が 20 問以上まとめて stale になっていた → `scripts/pre-lint-quiz.mjs` に factCheck:count チェックを追加: 問題文/explanation 中の「N 種/N つ/N イベント/N 段階」と、referenceUrl ページの対応する表・箇条書きの要素数を突き合わせ、不一致を `fact` tier に昇格させる。対応表は `topic-config.mjs` に `COUNT_ANCHORS: {hooks: {"イベント": "Hook lifecycle table"}}` の形で持つ
+
+## 機能廃止（Ultraplan）に対する問題の扱い
+
+- ultraplan.md がページ全体で廃止告知になっており、ses-183 / ses-184 の前提機能が消滅。削除ではなく「廃止の事実と代替」を問う問題に書き換えた → known-issues に「機能廃止ページに当たった場合は問題を削除せず『廃止の事実 + 代替手段』を問う形に書き換える（ID と統計を維持）」を方針として記録（本回で記録済み）

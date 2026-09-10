@@ -3,6 +3,9 @@
 - [SDK category patterns](sdk_patterns.md) — sdk カテゴリの検証パターン・偽陽性記録
 - [Keyboard category patterns](keyboard_patterns.md) — keyboard カテゴリのパターン（Option+T設定要件, keybindings.jsonフォーマット, wrongFeedback短文）
 - [Session category patterns](session_patterns.md) — session カテゴリのパターン（モデルラインナップ更新drift: Sonnet 5登場・Fast Mode縮小・default変更）
+- [Bestpractices category patterns (2026-09)](bestpractices_patterns_2026-09.md) — advisor非対応プロバイダ4種化, artifacts CSP CDN許可リスト, /config artifacts無効化, Desktop WSL既定無効, effort level 7手段
+- [Memory category patterns](memory_patterns.md) — memory カテゴリのパターン（server-managed-settings承認記録の3category分類drift、CLAUDE.mdロード範囲=filesystem root）
+- [Extensions category patterns (2026-09)](extensions_patterns_2026-09.md) — plugins提出先(公式/コミュニティ分離), Chrome対応ブラウザ拡大, カスタムパス置換/補完ルール, @claude review単発化, ローカルdocキャッシュ切り詰め問題
 
 ## extensions カテゴリ検証パターン（2026-05-23）
 
@@ -555,3 +558,128 @@
 ### mem-093のformat-giveaway（バッククォート非対称）とE節の衝突
 - 正解のみ`/logout`をバッククォート表記し不正解はプレーンテキストというformat-giveawayをlintが検出するケースがあるが、`/logout`はスラッシュコマンドでありchecklist.md E節（スラッシュコマンドはバッククォート必須）に従えばバッククォート自体は正しい書式
 - この場合、giveaway解消のためにバッククォートを除去するのはE節違反になるため非推奨。代わりに他の不正解選択肢に(存在するなら)技術用語を追加してバランスを取る方向を推奨する
+
+## commands カテゴリ 26問検証（2026-09-10, cmd-002/004/025/035/041/049/051/065/066/069/072/073/078/094/096/097/103/111/121/124-127/129/130/133）
+
+### 25/26問が偽陽性、1問のみminor
+- fact-tier（factCheck:flags/slash/crossCheck）は全問実doc一致を確認。--review/--input/--readonly/--no-write/--plan/--skip-permissions/--name-only/--gui/--focus/--schema/--structured-output/--realtime/--stream/--context-file/--session/--list-remote/--status/--low-memory/--max-old-space-size/--non-interactive/--list-commands/--switch-model/--restart/--clean/--flush/--summarize は全てcli-reference.md/commands.mdに存在しない不正解として正確
+- quality-tier（distractor長さ不均衡: cmd-124〜127/129/130/133）は全て事実誤認なし。正解が長い＝説明が正確で具体的なだけ（info相当）
+
+### 新規ページ（worktrees/deep-links/goal/github-enterprise-server/troubleshoot-install）の確認済みfacts
+- EnterWorktree: `.claude/worktrees/`外への移動は常にユーザー承認必須。許可ルール/「don't ask again」では抑制不可、`bypassPermissions`のみ抑制可（v2.1.206より前は無承認移動可）（worktrees.md）
+- worktree.baseRef: `"fresh"`(デフォルト)=リポジトリのデフォルトブランチ(origin/HEAD)からクリーン分岐、`"head"`=ローカルHEADから分岐し未pushコミット引継ぎ。ブランチ名の直接指定は不可（worktrees.md L67-72）
+- deep-links repo パラメータ: owner/nameスラッグ→過去にclaude実行した最も最近使用のローカルクローンパスに解決。`cwd`と併用時は`cwd`優先（`repo`は無視、cwdパス不存在でも）。一致なしならホームディレクトリ（deep-links.md L36-50）
+- GitHub Markdown（README/Issue/PR/Wiki）はhttp/https以外のURLスキームを除去し、`claude-cli://`リンクはラベルのみ残る。回避策はコードブロックにURL記載（deep-links.md L113）
+- /goal: セッションにつき1つのみアクティブ（新規設定で置換）。評価モデルはツール呼び出し不可、会話に表面化した内容のみで判定。各ターン終了後に小型高速モデル（Claude APIデフォルトHaiku、`ANTHROPIC_DEFAULT_HAIKU_MODEL`で変更可）がyes/no+理由を返す。セッションスコープのprompt-based `Stop` hookのラッパー。`/loop`は時間間隔、`/goal`はターン終了ベースで明確に区別される（goal.md）
+- GHES: GitHub MCPサーバーは非対応（唯一の主要な機能差）。代替として`gh auth login --hostname <GHESホスト>`でgh CLI認証（github-enterprise-server.md L18,114）
+- npmネイティブバイナリ: `@anthropic-ai/claude-code-<platform>`としてoptional dependency配布。`--omit=optional`(npm)/`--no-optional`(pnpm)/`--ignore-optional`(yarn)/`.npmrc`の`optional=false`はパッケージ自体のダウンロードをスキップするためJSフォールバックなし、`install.cjs`再実行では解決不可（troubleshoot-install.md L336-344）
+
+### effort level対応モデル一覧（model-config.md、2026-09-10確認）
+- Fable 5.1・Fable 5: low/medium/high/xhigh/max
+- Opus 5・Sonnet 5・Opus 4.8・Opus 4.7: low/medium/high/xhigh/max
+- Opus 4.6・Sonnet 4.6: low/medium/high/max（xhighなし）
+- cmd-065のexplanationが「Fable 5/Opus 5/Sonnet 5/Opus 4.8/Opus 4.7/Opus 4.6/Sonnet 4.6」を effort対応モデルとして列挙（Fable 5.1が抜けている）。ただし「xhigh対応」等の断定はしておらず、正誤判定に影響しないため info程度。将来 Fable 5.1 明示チェックの際は注意
+
+### --dangerously-skip-permissions と root/sudo の関係（新規確認事項）
+- Linux/macOSでroot/sudo実行時はこのフラグ自体が拒否される（sandboxing.md L341, permission-modes.md L301）。「管理者権限だけでは不十分」という表現は嘘ではないが、実際には「root権限があるとフラグ自体使えない」という逆方向の制約がある点に注意。今後このフラグに関する問題を検証する際は、単なる「不十分」ではなく「root/sudoでは拒否される」という正確な記述を推奨
+
+## skills カテゴリ追加検証パターン（2026-09-10, skill-061/064/065/076/078/079/080/088/089/093）
+
+### skill-088 run_in_background の断定表現（Major, needsOpusReview）
+- sub-agents.md「Run subagents in foreground or background」: サブエージェント定義の `background: true` は無条件でエラー。一方 `run_in_background: true` は「fork modeがオフでバックグラウンドタスクを無効化していない」場合のみエラーになる条件付き
+- agent-teams.md L299: 「A teammate's run_in_background: true request also fails, either with an error or by running silently in the foreground」と明記。エラーと静かなフォアグラウンド実行の2パターンがある
+- skill-088 の正解/explanationは両方とも一律「エラーになる」と断定 → 結論（フォアグラウンド限定）自体は正しいが run_in_background の条件分岐が抜けている
+
+### skill-080 の /doctor バージョン主張は深掘りで正しいと確認（誤検出回避の実例）
+- 一見 changelog.md だけを見ると「disableBundledSkills 導入は v2.1.169」「/doctor が "full setup checkup" になったのは v2.1.205」で、quizの「v2.1.205以降が唯一の例外」という記述と矛盾するように見えた
+- しかし env-vars.md の `DISABLE_DOCTOR_COMMAND` 項目に「Before v2.1.205, this variable hid the /doctor diagnostics screen command」と明記されており、v2.1.205 以前は `/doctor` が「診断コマンド」（組み込みコマンド）で、v2.1.205 で「setup checkup skill」に変わったことが裏付けられる → quiz は正確。**disableBundledSkills や /doctor 関連の版数主張は skills.md/changelog.md だけでなく env-vars.md の DISABLE_DOCTOR_COMMAND 項目も必ず確認すること**
+
+### skill-061/064/076/078/079/089/093 は全て事実確認済み（正解・explanation ともドキュメント一致）
+- skill-061: effort `xhigh` は Fable 5.1/5・Opus 5・Sonnet 5・Opus 4.8・Opus 4.7 のみ対応（Opus 4.6/Sonnet 4.6 は `max` まで）。model-config.md L313-315 の表と完全一致
+- skill-064/089: スキル説明のコンテキスト予算はモデルの1%、各エントリ上限1,536文字（description+when_to_use合計）、`skillListingBudgetFraction`（例:0.02=2%）、`SLASH_COMMAND_TOOL_CHAR_BUDGET`、`skillOverrides`の`"name-only"` は skills.md L433 に完全一致
+- skill-065: `/simplify` は変更されたコードに対し4つの並列レビューエージェント（reuse/simplification/efficiency/abstraction）、v2.1.154以降はバグ検出なし・`/code-review`使用は commands.md L85 に一致。crossCheck numeric-contradiction フラグは false-positive の可能性
+- skill-076: teammateMode のデフォルトは v2.1.179以降 `"in-process"`（それ以前 `"auto"`）、`"tmux"` で強制、iTerm2 は `it2` CLI + Python API 必須、v2.1.186 で `"iterm2"` 追加、は agent-teams.md L61-70 に一致
+- skill-078: skillsディレクトリのファイル変更は再起動不要、新規トップレベルskillsディレクトリ作成のみ再起動必要（skills.md L124 に一致）
+- skill-079: 同名ネストskillは両方生存、修飾なし`/deploy`はルート実行+ディレクトリ修飾バリアント一覧を追記（skills.md L60-63 に一致）
+- skill-093: routine/cloudセッションは毎回新規リモートセッションで`~/.claude/skills/`を読まない。claude.aiアカウントで有効化 or リポジトリ`.claude/skills/`にコミット or `.claude/settings.json`宣言プラグイン、が対処法（skills.md L80-85 に一致）
+
+## tools カテゴリ 17問検証（2026-09-10, tool-026/027/031/039/044/053/059/061/074/081/083/084/086/092/093/094/098）
+
+### tool-059: JetBrains インストール手順は実は2ステップ、正解は Step 2（major, needsOpusReview）
+- ローカルキャッシュ `.claude/tmp/docs/jetbrains.md` と `sections/jetbrains/installation.md` は `<Steps>` の各タイトルが空白（"1"/"2"のみ）に平坦化されている。hooksページの見出し平坦化と同種のレンダリング欠落
+- ライブ取得 `curl https://code.claude.com/docs/en/jetbrains.md` で確認: Step 1 = "Install the Claude Code CLI"（quickstartに従う）、Step 2 = "Install the JetBrains plugin"（Marketplaceからインストール+再起動）
+- tool-059 の問題文は「最初のステップ」を問うが、正解選択肢（correctIndex=3）はStep 2の内容。真のStep 1（CLIインストール）はどの選択肢にも存在しない。他3択は明確に誤りなので critical ではなく major 判定とした
+- 次回このページを検証する際は、キャッシュの空白ステップだけで判断せず `jetbrains.md` のライブ `.md` 版を確認すること。vs-code.md にも同様の `<Steps>` インストール手順がある可能性があり、横断確認が有効
+
+### tool-074: Task tool availability に v2.1.233 のモデル別例外あり（major, needsOpusReview, 新規drift）
+- tools-reference.md の新セクション「## Task tool availability」（v2.1.233以降）: Opus 4.8 / Sonnet 5 / Fable 5 / Mythos 5（またはそれ以降の同ファミリー）では `TodoWrite` と `TaskCreate`/`TaskGet`/`TaskList`/`TaskUpdate` の**両方**がデフォルトで提供されない（opt-inが必要: `CLAUDE_CODE_ENABLE_TODO_TOOLS=1` / `--allowedTools` / `--tools`）
+- 「Opus 4.7 など上記以外のモデル」でのみ、従来通り Task ツールがデフォルト + `CLAUDE_CODE_ENABLE_TASKS=0` で `TodoWrite` に戻せる、という2026-05-30時点の記述が成立する
+- known-issues.md L154 の「Pro/Team Standard/Enterprise サブスクリプション席 = Sonnet 5」と合わせると、現在の大多数のデフォルトユーザーはこの例外対象モデルに該当するため、tool-074 の「全モードでデフォルト」という説明は最新docsに対して不完全
+- 2026-05-30時点の MEMORY 記録（L244-251, TodoWriteの仕様変更）はその時点では正しかったが、v2.1.233 でさらに上書きされた。**「一度確認済み」の記録でも、バージョン番号付きの仕様は次回スキャン時に再確認が必要**（特にTask/TodoWrite・effort level・モデルデフォルトなど頻繁に変わる領域）
+
+### 確認済み facts（2026-09-10, 高信頼）
+- Grep: ripgrep/Rust regex構文、`--regex`フラグ不要（tools-reference.md L199-207）
+- Bash出力: デフォルト30,000字超でセッションディレクトリのファイルに保存、パス+先頭プレビューのみ渡す。`BASH_MAX_OUTPUT_LENGTH`で最大150,000字（tools-reference.md L126-133, env-vars.md L52）
+- `sandbox.autoAllowBashIfSandboxed`: デフォルトtrue（sandboxing.md L124）
+- mTLS: `CLAUDE_CODE_CLIENT_CERT`/`CLAUDE_CODE_CLIENT_KEY`/`CLAUDE_CODE_CLIENT_KEY_PASSPHRASE`（env-vars.md L82-84）
+- `WebFetch(domain:example.com)`構文が正しい。`url:`ではなく`domain:`（permissions.md L206-212）
+- `CLAUDE_AUTO_APPROVE`は存在しない環境変数（env-vars.md grep該当なし）
+- `--jetbrains`/`--import-session`フラグは存在しない（false-positive確認済みパターンを再確認）
+- VS Code vs JetBrains の `mcp__ide__executeCode`: VS Codeのみ公開（要Quick Pick確認）、JetBrainsは公開しない（jetbrains.md L156「does not expose a code-execution tool to the model」、vs-code.md L324-331）
+- `cleanupPeriodDays`: デフォルト30日・最小1日、`0`はバリデーションエラー（claude-directory.md L123）
+- 設定リロード: `permissions`/`hooks`/`apiKeyHelper`は即時リロード+`ConfigChange`フック発火。`model`/`effortLevel`/`modelSettings`は読み込み一度きり（`/model`/`/effort`で切替）。`outputStyle`はプロンプトキャッシュの都合で`/clear`か再起動まで反映されない（settings.md L102-107, prompt-caching.md L91）
+- `footerLinksRegexes`: メインスレッドでターン完了ごとにマッチング、ネスト量指定子`(a+)+$`はReDoSでセッションフリーズの危険。バッジ最大5個、URL長2048字上限、スキームは`https`/`http`+エディタdeep-link（`vscode`/`jetbrains`等含む）、オリジンはテンプレートと一致必須（settings-reference.md「footerLinksRegexes」節、2026-09-10 curl確認）
+- サンドボックスランタイム（`@anthropic-ai/sandbox-runtime`）: Docker不要でSeatbelt/bubblewrapによりプロセス全体（ファイルツール・MCP・フック含む）を隔離。Dev container/Custom containerは両方Docker必須（sandbox-environments.md 比較表 L12-14）
+- `--dangerously-skip-permissions`: 確認ダイアログが一切働かないため分離境界が唯一の保護。Auto modeのクラシファイアは per-action 制御で分離境界の代替にならないが、Auto modeでは分離は「必須ではなく多層防御」という位置づけの違いがある（sandbox-environments.md L37）
+- サンドボックスの保護パス（`.claude/settings.json`等）: `allowWrite`/`Edit`許可ルール/`denyWrite`からの除外のいずれでも解除不可。唯一の解除法は`filesystem.disabled`（sandboxing.md L216-225）
+
+## skills カテゴリ検証パターン（2026-09-10、正解妥当性監査）
+
+### サブエージェントのネスト制限が撤廃された（Critical, skill-024）
+- 旧仕様「サブエージェントは他のサブエージェントを起動できない」は stale。現行 sub-agents.md「Let subagents spawn their own subagents」: デフォルトでメイン会話の下に最大3階層までネスト可能（`CLAUDE_CODE_MAX_SUBAGENT_SPAWN_DEPTH` で変更可）。深さ上限で `Agent` ツールが取り上げられる（フォーク除く）
+- 「サブエージェントの重要な制限」を問う問題で「ネスト不可」を正解にしている場合は要修正
+
+### Explore の既定モデルが Haiku 固定ではなくなった（Critical, skill-022）
+- v2.1.198 以降、Explore はメイン会話のモデルを継承する（Claude API 上は Opus を上限にキャップ）。常時 Haiku で動く旧仕様は stale
+- Haiku 固定で動かすには `Explore` という名前のユーザー/プロジェクトサブエージェントを自作し `model: haiku` を明示する必要がある
+- 「Explore は Haiku モデルで高速動作する」という一般化した記述は現行 docs と矛盾する
+
+### エージェントチームの Plan approval は自動承認・レビューなし（Critical, skill-083）
+- agent-teams.md「Have teammates plan before implementing」: チームメイトの計画承認リクエストは**リードのレビューなしで自動承認**される。ユーザーへの個別プロンプトも出ない設計上の例外
+- 「実装前に必ず計画をレビューさせたい」というユースケースに対する解決策として Plan approval を正解にする問題は前提が誤り。現行仕様では人間/リードによる能動的レビュー・却下は行われない
+
+### 「Default teammate model」設定は /config から削除済み（Critical, skill-082）
+- changelog.md: 'Removed the "Default teammate model" setting from /config; agent-team teammates now use the leader's model unless the spawn names one'
+- 現行のモデル決定優先順位（agent-teams.md「Specify teammates and models」）: 1) spawnプロンプトの指名 → 2) サブエージェント定義の `model`（`inherit`=リードのモデル）→ 3) `CLAUDE_CODE_SUBAGENT_MODEL` → 4) **リードの現在のモデル**（フォールバック既定）
+- 「チームメイトにリードと同じモデルを使わせるには `/config` で明示的に設定が必要」という問題は誤り。現在は**何もしなくても既定でリードのモデルを継承する**
+
+### 確認済み正確（false-positiveではない、doc一致）
+- Skill(name)/Skill(name *) パーミッション構文（完全一致/プレフィックスマッチ）、skillOverrides 4状態（on/name-only/user-invocable-only/off）とメニュー表示可否、Enterprise > Personal > Project のスキル優先順位、metadata（自由形式YAMLマップ）vs compatibility（500文字文字列、Agent Skills仕様）の違い、disableSkillShellExecution の対象範囲（バンドル/管理スキル対象外）、shell: powershell + CLAUDE_CODE_USE_POWERSHELL_TOOL、CLAUDE_EFFORT/CLAUDE_SESSION_ID/CLAUDE_SKILL_DIR の各文字列置換変数、コンパクション後のスキル再アタッチ（各5,000トークン、合計25,000トークン予算）、エージェントチームのメールボックス検証（不正エントリのみ除去、v2.1.207前は既知バグ）、SendMessage/タスク管理ツールはチームメイトの tools 制限を受けない、CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS=1 での有効化
+
+## extensions カテゴリ追加検証（2026-09-10, extensions1グループ 79問中2件検出）
+
+### ext-058: Explore サブエージェントのモデル仕様が v2.1.198 で変更（Critical）
+- sub-agents.md: "As of v2.1.198, Explore inherits the main conversation's model instead of always running on Haiku. On the Claude API, the inherited model is capped at Opus"
+- 旧仕様「Exploreは常にHaikuモデル」はstale。現行は「メイン会話のモデルを継承（Claude API上はOpus上限）」
+- Bedrock/Vertex/Foundry/Claude Platform on AWS等サードパーティでは上限なしでそのままメイン会話のモデルを継承
+- ユーザー/プロジェクトレベルで`Explore`という名前のカスタムサブエージェントを`model: haiku`定義すればHaiku固定にできるが、それはビルトインの上書きであり既定動作ではない
+- 「ビルトインExploreはHaiku専用」という記述を見たら要修正フラグ（doc drift）
+
+### ext-041: Notification イベントの matcher 値（notification type）が6→12種に増加
+- hooks.md L137: `permission_prompt`, `idle_prompt`, `auth_success`, `elicitation_dialog`, `elicitation_url_dialog`, `elicitation_complete`, `elicitation_response`, `agent_needs_input`, `agent_completed`, `quota_auto_resume_fired`, `quota_auto_resume_stale`, `quota_auto_resume_disabled` の12種が現行
+- 旧記録（6種: permission_prompt/idle_prompt/auth_success/elicitation_dialog/elicitation_complete/elicitation_response）はv2.1.198以前の相当古い記述。elicitation_url_dialog, agent_needs_input, agent_completed（v2.1.198+）, quota_auto_resume_*（v2.1.234+、3種）が追加された
+- 列挙が古くても列挙内の値自体はまだ有効なため correctIndex は変わらない（major、not critical）
+
+### extensions1 その他確認済み facts（2026-09-10、全て一致・修正不要）
+- Hook event total = 33種（26→29→30→33、DirectoryAdded/PreModelSwitch/PostModelSwitch追加）、exit-2でブロッキング可能 = 15種（hooks.md L386-421の表で再確認、ext-029は既に正確）
+- Hook 5 handler types (command/http/mcp_tool/prompt/agent) は正確。async:trueはcommandタイプ限定（hooks.md L1709）
+- MCP Tool Search対応モデル = Sonnet 4.5/Haiku 4.5/Opus 4.5以降（tool_reference対応、mcp.md「Configure tool search」で再確認、2026-08-03のMEMORY記録と一致）
+- MCPリソース@メンション構文 `@server:protocol://resource/path`（curl でReactソース確認、mcp.mdの平文キャッシュでは例示コードが欠落するため注意）
+- Code Intelligence対応言語 = 11言語（C/C++, C#, Go, Java, Kotlin, Lua, PHP, Python, Rust, Swift, TypeScript）。Rubyは非対応（discover-plugins.md L28-40テーブルで確認）
+- プラグイン外部連携 = GitHub/GitLab(Source control), Atlassian/Asana/Linear/Notion(Project management), Figma(Design), Vercel/Firebase/Supabase(Infrastructure), Slack(Communication), Sentry(Monitoring)。AWS CodePipelineは含まれない
+- settings優先順位5段階（Managed > Command line > Local project > Shared project > User）はsettings.md L122-133と完全一致
+- managed-mcp.json は排他的制御（ユーザーはサーバー追加不可）、allowedMcpServers/deniedMcpServersはポリシーベース制御（allowManagedMcpServersOnly未設定ならユーザーが拡張可能）
+- サブエージェントmemoryスコープパス: user=~/.claude/agent-memory/<name>/、project=.claude/agent-memory/<name>/、local=.claude/agent-memory-local/<name>/（sub-agents.md L288-290）
+- Agent(agent_type)許可リスト構文は`claude --agent`のメインスレッドでのみ有効（sub-agents.md L225-229で確認、ext-063は正確）
+- availableModels単体設定ではDefaultオプションは制約を受けない。enforceAvailableModels併用時のみDefaultも制約対象（model-config.md L177で確認、ext-098は正確）
+- MAX_MCP_OUTPUT_TOKENS デフォルト25,000、警告10,000トークン（env-vars.md L289で再確認）

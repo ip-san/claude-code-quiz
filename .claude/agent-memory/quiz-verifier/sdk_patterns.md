@@ -91,3 +91,42 @@ sdk-018（difficulty: advanced）の正解内容はドキュメントと完全�
 
 2026-05-31 検証: sdk-009, sdk-010, sdk-016, sdk-018 の4問すべて false-positive
 sdk カテゴリの distractor/difficulty フラグは過去3回の検証（2026-05-08, 05-16, 05-31）を通じて 100% false-positive
+
+## agent-sdk/overview ページの大幅縮小・スタブ化（2026-09-10確認）
+
+- agent-sdk-overview.md は約82行のみで、ビルトインツール一覧・`query`の`resume`/`session_id`詳細・Hooksの`PostToolUse`設定例・SDK固有の認証詳細などの具体的内容がすべて削除され、比較表＋各サブページへのリンク集（agent-sdk/agent-loop, subagents, mcp, permissions, sessions, skills, hooks, plugins等）に置き換わっている。
+- 該当コンテンツの移動先: ビルトインツール一覧 → `tools-reference.md`（Agent SDK/CLI共通）。認証環境変数 → `authentication.md`（"apply to the CLI and the surfaces that wrap it, including... the Agent SDK" と明記）。
+- **影響**: sdk-009〜sdk-015（referenceUrl が `agent-sdk/overview` を指す問題群）は、URLの参照先ページに具体的な裏付け記述がもう存在しない状態になっている（check C相当の課題）。ただし内容自体はtools-reference.md/authentication.md等で個別に事実確認でき、sdk-009/010/011は2026-09-10時点でも内容は正確（false-positive維持）。
+- **申し送り**: 次回 full スキャン時は sdk-012〜sdk-015 の referenceUrl 更新（`tools-reference`, `agent-sdk/sessions` 等への差し替え）を検討候補としてリード側に提起する。
+
+## sdk-019 Anthropic Console認証のdocドリフト（2026-09-10発見・major）
+
+- third-party-integrations.md比較表のAuthentication行が "API key or a **Console sign-in without one**" に更新されている（authentication.md L60 の profile ベースのキーなしサインインに対応）。
+- sdk-019 の options[0].wrongFeedback（Anthropic Console選択肢）が「APIキーによる従量課金の認証方式」とだけ記述しており、キーなしサインインの追加に追従できていない。diagramのcomparison列も同様に更新要。
+- correctIndex（Claude for Teams/Enterprise）自体には影響なし。次回スキャンで修正候補。
+
+## sdk-019 SSO表記はTeams/Enterprise両方でOK（false-positive注意）
+
+- third-party-integrations.md L13-22 の比較表は「Claude for Teams/Enterprise」を1列に統合し、Authentication="Claude.ai SSO or email"としている。本文では「Claude for Enterprise adds SSO and domain capture」ともあるが、これはEnterprise専用の“ドメインキャプチャ付きSSO”を指す注記であり、表レベルでのSSO対応自体はTeams/Enterprise両方に及ぶ。sdk-019正解「Claude for TeamsまたはClaude for Enterprise」がSSOを含めて記述している点はfalse-positiveとして扱ってよい（criticalにしない）。
+
+## sdk-001 拡張の段階論とfeatures-overview.mdの再編（2026-09-10発見・major）
+
+- features-overview.md（旧overview.mdの拡張ガイド相当）が大幅改訂され、「Build your setup over time」トリガー表の順序は CLAUDE.md→Skill(x2)→MCP→Code intelligence→Subagent→Hook→Plugin。MCPがSubagentより先。
+- Agent SDKはこの拡張機能一覧（CLAUDE.md/Skills/Code intelligence/MCP/Subagents/Dynamic workflows/Cross-session messaging/Hooks/Plugins）に含まれない。agent-sdk-overview.mdでは「Claude Code拡張の最終段階」ではなく、CLI/Client SDK/Managed Agentsと並ぶ別製品として比較されている。
+- sdk-001の「Skills→Sub-agents→MCP→Agent SDK」4段階論は現行docsの構成と食い違う（correctIndex自体は4択中で妥当だが前提のnarrativeがstale）→ major + needsOpusReview:true で報告。
+
+## sdk-003 認証プロバイダの列挙drift（2026-09-10発見・major）
+
+- third-party-integrations.md 比較表が6列に拡張: Claude for Teams/Enterprise, Anthropic Console, Amazon Bedrock, **Claude Platform on AWS**（新規独立列）, Google Cloud's Agent Platform(旧Vertex AI), Microsoft Foundry。
+- sdk-003の「認証方法は5つです」（サブスク/Console/Bedrock/Vertex/Foundry）はClaude Platform on AWSが欠落。correctIndex（GitHub非対応）自体は影響なし→ major。
+- 同様の「N個」列挙をするsdk/authカテゴリの他問題も次回スキャンでClaude Platform on AWS欠落を確認すること。
+
+## agent-sdk-overview.md 完全スタブ化の再確認（2026-09-10、前回記録の追認）
+
+- agent-sdk-overview.mdは「Compare the Agent SDK to other Claude tools」表（Agent SDK/CLI/Client SDK/Managed Agentsの4製品比較）のみで、ビルトインツール一覧・session/hooks詳細は他ページに分散済み（前回記録と一致、変化なし）。
+- sdk-004/005/007/008/012/013/014/015/017 は個別に照合し全てfalse-positive（事実は正確）。sdk-013/015の「CLIは対話的開発、SDKはCI/CD・本番自動化」という二項対立は、新表に'Managed Agents'という第3の選択肢（長時間/非同期エージェントをインフラ管理なしで）が加わっているが、quizの4択にManaged Agentsが登場しないため現時点では問題化しない。次回Managed Agents関連の設問が追加された場合はこの新製品を踏まえて検証すること。
+
+## sdk-017/014 は完全一致確認（2026-09-10）
+
+- sdk-017: claude-platform-on-aws.md と完全一致（CLAUDE_CODE_USE_ANTHROPIC_AWS=1, ANTHROPIC_AWS_WORKSPACE_ID必須, base URL=https://aws-external-anthropic.{region}.api.aws, Bedrock/Foundry優先のため解除要）。
+- sdk-014: hooks.mdの matcher表で「PreToolUse, PostToolUse, PostToolUseFailure, PermissionRequest, PermissionDenied | tool name | Bash, Edit|Write, mcp__.*」と完全一致。

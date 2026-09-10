@@ -176,3 +176,32 @@ keyboard カテゴリで factCheck:env や factCheck:flags が lint-flagged さ�
 - critical: key-010（5件→10件の誤り）、key-031（画面下部→ウィンドウタイトルの誤り）、key-044（4種→7種）
 - major: key-020（4種記述）、key-049（紫=マージ済み含む）、key-026（explanation のみ紫記述）
 - minor: key-037（wrongFeedback の3スタイル記述）
+
+## 2026-09-10 正解妥当性監査（54問、全ドキュメント更新後）
+
+### 新たに確認したcritical/major doc drift
+
+- **key-055 (critical)**: fullscreen.mdのURLクリック挙動が逆転した。現行は「`Cmd`/`Ctrl`を押しながらクリックが必要」が一般則で、プレーンクリックで開くのはGhostty・macOS版Warpの例外のみ。旧仕様（プレーンクリックが一般則、マウスキャプチャが修飾クリックを横取り）は完全に反転している。
+- **key-056 (critical)**: fullscreen.mdが「`Ctrl+Fn+→`はmacOSでClaude Codeに届かず、MacBookキーボードにはデフォルトで機能する最下部ジャンプの組み合わせが存在しない」と2箇所（本文+Auto-followセクション）で明記。旧仕様（Ctrl+Fn+→が有効）は誤り。
+- **key-041 (critical)**: statusline.mdの推奨キャッシュ方式が「単一の固定ファイル名」から「`session_id`ベースの一意なファイル名」に変更（並行セッション間の衝突回避のため）。固定ファイル名を正解とする問題は要修正。
+- **key-025 (critical)**: interactive-mode.mdのPrompt suggestionsが「Tab/Right arrowで候補を入力欄に配置→Enterで送信」の2段階操作のみを記載。「Enter単独で受け入れ+即送信」という独立手段は現行docsに存在しない。
+- **key-002 (major)**: checkpointing.mdのrewindメニューが5アクション→6アクションに増加（"Summarize up to here"が新規追加）。
+- **key-008 (major)**: permission-modes.mdで全操作確認モードの正式名称が「Normal」→「Manual」に変更（v2.1.200以降、config値はdefaultのまま）。さらにPro/Max/Teamプランでは組み込みデフォルト開始モードがAuto modeに変更されており、「Normal/Manualがデフォルト」は不正確。Auto Modeの「研究プレビュー」表記も現行docsから消えている（本格機能に昇格）。
+- **key-010/key-012 (major)**: interactive-mode.md "Task list"セクションが重要な仕様変更を明記。Opus 4.8/Sonnet 5/Fable 5/Mythos 5では書き出し式タスクリストを使わず、Claude Codeがこのリストを埋めるツールを提供しないためCtrl+Tのタスクリストは常に空。`CLAUDE_CODE_ENABLE_TODO_TOOLS=1`等のオプトインが必要。Ctrl+T関連の全問題でこの前提を確認すること。
+- **key-017 (major)**: Ctrl+Dが単純な単発EOF送信ではなく「1回目で確認ヒント表示、800ms以内の2回目で終了」の2段階方式に変更。また何も実行中でない時のCtrl+Cは「1回目で入力クリア、2回目でセッション終了」となるため「Ctrl+Cはセッションを終了しない」という一般化は不正確（アクティブな応答中断の文脈でのみ正しい）。
+- **key-021 (major)**: 入力欄にテキストがある場合のCtrl+Dは「カーソル直後の1文字を前方削除」する動作に変更（従来「テキスト削除には使えない」という説明は古い）。
+- **key-026/key-049 (major)**: PRレビューステータスの更新は「60秒ごとの定期ポーリング」ではなく「git push または gh prコマンド成功時のイベント駆動」。「60秒ごとに自動更新」という記述は現行docsに根拠なし（複数の問題で繰り返し使われている表現なので横断チェック推奨）。
+- **key-033 (major)**: `/terminal-setup`はShift+Enterバインディングだけでなく、VS Code/Cursor/Devin DesktopではGPUアクセラレーション・マウスホイール感度も変更し、Apple Terminalでは（初回起動プロンプト経由で）Option as Meta・ベル設定も変更する。「Shift+Enterのみ」「Emacs風キーバインドとは無関係」という断定は不完全。
+- **key-037 (major)**: 組み込み出力スタイルがDefault+3種（Explanatory/Learning + 旧2種想定）→Default+4種（Proactive/Concise/Explanatory/Learning）の計5種に増加。Conciseはv2.1.237以降の新スタイル。「組み込みスタイルは3つ」という記述は要更新。
+
+### 今回OKだったポイント（正確性維持を確認）
+- key-010の「最大5件」修正は現行docsでも確認済み（"up to five tasks at a time"）
+- key-026/key-049の4色PRステータス（緑/黄/赤/グレー、紫なし）は正確
+- key-044の7ターミナルネイティブ対応（iTerm2/WezTerm/Ghostty/Kitty/Warp/Apple Terminal/Windows Terminal）は正確
+- key-064のカスタムテーマJSON3フィールド（name/base/overrides）とホットリロード仕様は正確
+- key-048のCtrl+Rリバースサーチ（Tab/Esc=受け入れ編集続行、Enter=受け入れ即実行）は正確
+- key-053の`Ctrl+o`トグル2状態＋`/focus`分離は正確
+
+### 手法メモ
+- assembled/結合ドキュメントを使わず`.claude/tmp/docs/<page>.md`の個別ファイルを毎回正典として参照した。今回は個別docsのキャッシュ自体が2026-09-10取得の最新版で、複数ページ（interactive-mode/keybindings/statusline/terminal-config/output-styles/accessibility/fullscreen/platforms/checkpointing/permission-modes/fast-mode）を横断確認した。
+- 「Ctrl+T」「PR色/60秒」「/terminal-setup」のように**同じ事実が複数問題で繰り返し引用される場合**、1問で発見したdriftは他の問題も横断grepで確認するとよい（今回はkey-010/012、key-026/049で実際に重複発見）。
