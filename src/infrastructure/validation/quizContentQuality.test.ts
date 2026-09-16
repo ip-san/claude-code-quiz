@@ -204,6 +204,11 @@ const VALID_DOC_PAGES = [
   'github-actions-cloud-providers',
   // Newly discovered pages (2026-08-13)
   'cross-session-messaging',
+  // Newly discovered pages (2026-09-16)
+  'managed-settings',
+  'settings-reference',
+  'settings-example',
+  'plugin-evals',
   // platform.claude.com pages
   'agent-sdk/overview',
   'agents-and-tools/agent-skills/best-practices',

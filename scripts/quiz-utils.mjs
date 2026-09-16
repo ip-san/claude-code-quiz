@@ -148,7 +148,10 @@ async function coverage() {
   // Count questions per doc page from referenceUrl
   // URL 由来スラッグと DOC_PAGES の name が異なるページは alias で同一視する
   // （例: platform.claude.com の agent-sdk/overview ↔ DOC_PAGES の agent-sdk-overview）
-  const PAGE_ALIASES = { 'agent-sdk/overview': 'agent-sdk-overview' }
+  const PAGE_ALIASES = {
+    'agent-sdk/overview': 'agent-sdk-overview',
+    'agents-and-tools/agent-skills/best-practices': 'agent-skills-best-practices',
+  }
   const pages = {}
   quizzes.forEach((q) => {
     if (q.referenceUrl) {

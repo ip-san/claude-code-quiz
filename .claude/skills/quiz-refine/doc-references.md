@@ -65,6 +65,10 @@
 | Claude Tag（Slack共有アイデンティティ） | `claude-tag` | Team/Enterprise限定、Claude Code in Slackとの違い |
 | GitHub Actionsのクラウドプロバイダー連携 | `github-actions-cloud-providers` | Bedrock/Vertex/Foundry × OIDC認証 |
 | クロスセッションメッセージング（`ListAgents`/`SendMessage`） | `cross-session-messaging` | セッション間の非同期メッセージ送受信・inbound controls |
+| 管理者向け managed settings の配布・合成 | `managed-settings` | `managed-settings.json` / MDM / 4 配布機構・複数ソースの合成・ヘルパープログラム |
+| 全 settings キーのリファレンス | `settings-reference` | 各キーの Scope / Type / Default・`~/.claude.json` 側のキー |
+| settings.json の実例 3 種 | `settings-example` | 開発者 / チーム / 組織の例ファイル |
+| プラグイン評価（`claude plugin eval`） | `plugin-evals` | eval suite・grader・no-plugin baseline・CI 実行 |
 
 ### referenceUrl の危険パターン
 
@@ -90,6 +94,7 @@
   - Cloud & Gateway (2026-08-03 追加): claude-security, glossary, cloud-environments, claude-apps-gateway-on-aws
   - Cloud & Gateway (2026-08-07 追加): self-hosted-environments, self-hosted-environments-quickstart, self-hosted-environments-configuration, self-hosted-environments-deploy, self-hosted-environments-identity, self-hosted-environments-reference, self-hosted-environments-testing, claude-tag, github-actions-cloud-providers
   - Newly discovered pages (2026-08-13 追加): cross-session-messaging
+  - Newly discovered pages (2026-09-16 追加): managed-settings, settings-reference, settings-example, plugin-evals
 - `https://platform.claude.com/docs/en/agent-sdk/overview` — Agent SDK 関連
 
 ### ページリスト同期チェック（新規ドキュメントページ追加時）

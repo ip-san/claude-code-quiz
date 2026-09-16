@@ -275,3 +275,36 @@
 - **/terminal-setup 対象**: VS Code / Cursor / **Devin Desktop** / Alacritty / Zed（旧 Windsurf は Devin Desktop に置換）
 - **agent-sdk-overview はページ簡略化**: ビルトインツールの個別列挙が消失（「Read, write, edit files, run commands, and search the web」概要のみ）。「10種」断定は不可 → sdk-009 diagram をヘッジ表現に修正
 - **xhigh 帰属**: Opus 4.6 / Sonnet 4.6 は low/medium/high/max のみ（xhigh 非対応、high フォールバック）。アダプティブ推論の対象列挙は Fable 5 / Opus 5 / Sonnet 5 / Opus 4.8 / 4.7 / 4.6 / Sonnet 4.6 → key-016 修正
+
+## 2026-09-16 quiz-refine --full（13 並列 Sonnet A-1 監査 + 判定層 Fable 5.1、64 問修正）
+
+- **Hook ブロッキング可能イベントは 16**（exit-code-2 表 "Can block? = Yes" 再カウント。`WorktreeRemove` は Yes: 非ゼロ終了コードで削除失敗、JSON 出力は無視。PermissionRequest は No）
+- **エージェントチームは CLI 対話セッション専用**: `-p` 非対話モード（Agent SDK セッション含む）ではチームメイトを起動しない（agent-teams.md）。Desktop も不可
+- **`/agents` は v2.1.198 以降ウィザードを開かない**。サブエージェント作成は Claude に依頼 or ファイルを書く（sub-agents.md）
+- **prompt-caching「Denying an entire tool」**: Tool Search 有効（対応モデル既定）ならツール定義不変でキャッシュ維持、無効時のみ定義除去でキャッシュ無効化
+- **ワークフローのサブエージェント**: セッションのパーミッションルールを使い、モードは sub-agents.md の規則（bypassPermissions/acceptEdits/auto は継承・指定無視、default/dontAsk/plan はスクリプト指定）。「常に acceptEdits」は docs に無い。ランの自動停止はパーミッションプロンプト + 使用量上限待ちの 2 つ
+- **`allowManagedHooksOnly`**: Managed / SDK / 管理設定 `enabledPlugins` で強制有効化したプラグインのフックが実行、それ以外はブロック
+- **組み込みヘルパーサブエージェント 3 つ**: `claude`（キャッチオール、バックグラウンドセッション既定）/ `statusline-setup` / `claude-code-guide`
+- **quickstart ログインアカウント 4 種**: サブスク / Console / クラウドプロバイダー / セルフホスト Claude apps gateway
+- **`/branch`** = コピーして新ブランチに切り替え（元は `/resume`）、**`/fork`** = バックグラウンド別セッションで並行、**`/subtask`** = 結果を持ち帰るサブエージェント
+- **VS Code クラウドセッション再開**: Session history → Web タブ（Claude.ai サブスク必須）
+- **`outputStyle` 編集は v2.1.251+ で次メッセージから反映**。`model` のみ `/model` 必須
+- **Desktop ローカルスケジュール**: Code タブ → Routines → New routine → Local。Web は `claude.ai/code/routines`
+- **ultrareview 無料ラン**: Pro/Max 3 回、1 回限り・補充なし（期限なし）
+- **`CLAUDE_CODE_MAX_OUTPUT_TOKENS`**: モデル依存。未知モデル ID は 32000、上限超過は切り下げ。固定「64,000」は無い
+- **best-practices 強調語の例示は「IMPORTANT」のみ**（"YOU MUST" は現行 docs に 0 件）
+- **サーバー管理設定の承認対象**: シェルコマンド設定 / サンドボックス系 / 許可外 env / Hook。`claudeMd` は v2.1.260+ で承認不要
+- **Desktop WSL セッション有効化**: HKLM `SOFTWARE\Policies\Claude` の `disableWslSessions=false`（Desktop v1.19367.0+、HKCU 不可）。Anthropic への依頼は不要
+- **skills `shell: powershell`**: Windows は多くの場合既定有効、Bedrock/Agent Platform/Foundry と macOS/Linux/WSL は `CLAUDE_CODE_USE_POWERSHELL_TOOL=1`
+- **サブエージェント permissionMode**: 6 値 + `manual`（`default` のエイリアス、v2.1.200+）
+- **security.md 作業ディレクトリ境界は Manual モードの記述**（読み取りも境界外は確認）。quickstart: Pro/Max/Team は auto モードが既定開始モード
+- **`--dangerously-skip-permissions`（bypassPermissions）は「隔離されたコンテナ・VM のみ」**
+- **Shift+Enter 4 分類**: ネイティブ 7 種 / kitty protocol（foot、Alacritty 0.16+、v2.1.269+）/ `/terminal-setup`（VS Code, Cursor, Devin Desktop, Alacritty <0.16, Zed）/ 不可（gnome-terminal, JetBrains）
+- **スクリーンリーダー**: モード自体は v2.1.181+、ネストテーブルの「Header: value」化は changelog v2.1.200
+- **Fast mode**: Opus 5 / Opus 4.8 のみ、$10/$50 per MTok、1M 全体フラット
+- **Cowork VM**: オンデバイス（自分の PC）/ リモート（Anthropic 管理）の 2 形態
+- **OTel カーディナリティ制御変数 6 つ**（`OTEL_METRICS_INCLUDE_REPOSITORY` 追加、v2.1.269+）
+- **Bedrock リージョン解決順**（AWS_REGION → AWS_DEFAULT_REGION → プロファイル region → us-east-1）に版数条件の記載なし
+- **devcontainer 参照実装 3 ファイル**: devcontainer.json / Dockerfile / init-firewall.sh
+- **`/clear` は新セッション開始**（元の会話は `/resume` で再開可）
+- **WebDAV 警告（security.md）は現存**（cache は `<Warning>` callout を落とす → live で確認）

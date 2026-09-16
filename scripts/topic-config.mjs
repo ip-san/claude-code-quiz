@@ -200,8 +200,14 @@ export const DOC_PAGES = [
   { name: 'managed-settings', url: 'https://code.claude.com/docs/en/managed-settings' },
   { name: 'settings-reference', url: 'https://code.claude.com/docs/en/settings-reference' },
   { name: 'settings-example', url: 'https://code.claude.com/docs/en/settings-example' },
+  // Auto-discovered from llms.txt (2026-09-16)
+  { name: 'plugin-evals', url: 'https://code.claude.com/docs/en/plugin-evals' },
   // Agent SDK (different domain)
   { name: 'agent-sdk-overview', url: 'https://platform.claude.com/docs/en/agent-sdk/overview' },
+  {
+    name: 'agent-skills-best-practices',
+    url: 'https://platform.claude.com/docs/en/agents-and-tools/agent-skills/best-practices',
+  },
 ]
 
 // ============================================================
@@ -210,8 +216,8 @@ export const DOC_PAGES = [
 
 /** Category to doc page mapping (used by verify-state.mjs and fetch-docs.mjs). */
 export const CATEGORY_DOC_MAP = {
-  memory: ['memory', 'best-practices', 'settings', 'server-managed-settings'],
-  skills: ['skills', 'sub-agents', 'best-practices', 'agent-teams'],
+  memory: ['memory', 'best-practices', 'settings', 'server-managed-settings', 'managed-settings', 'settings-example'],
+  skills: ['skills', 'sub-agents', 'best-practices', 'agent-teams', 'agent-skills-best-practices'],
   tools: ['how-claude-code-works', 'interactive-mode', 'sub-agents', 'vs-code', 'jetbrains'],
   commands: [
     'interactive-mode',
@@ -235,12 +241,14 @@ export const CATEGORY_DOC_MAP = {
     'chrome',
     'slack',
     'plugin-relevance',
+    'plugin-evals',
   ],
   session: [
     'how-claude-code-works',
     'common-workflows',
     'checkpointing',
     'settings',
+    'settings-reference',
     'model-config',
     'sandboxing',
     'fast-mode',

@@ -91,7 +91,7 @@ node scripts/fetch-docs.mjs --assemble --pages settings,checkpointing,overview,q
   ],
   "correctIndex": 1,
   "explanation": "概念の説明。\n{{diagram:0}}\n詳細や補足。",
-  "referenceUrl": "https://code.claude.com/docs/en/...",
+  "referenceUrl": "https://code.claude.com/docs/ja/...",
   "diagrams": [{ ... }]
 }
 ```
@@ -179,7 +179,7 @@ node scripts/fetch-docs.mjs --assemble --pages settings,checkpointing,overview,q
 2. **実践性:** 実際の開発シーンで役立つ実践的な問題
 3. **wrongFeedback:** 正解選択肢にはwrongFeedbackを付けない。不正解選択肢には必ず「なぜ誤りなのか」の説明を含める
 4. **referenceUrl:** 各問題に正しいドメインで始まるURLを必ず含める
-   - `https://code.claude.com/docs/en/{page}` — 43ページ（doc-references.md 参照）
+   - `https://code.claude.com/docs/ja/{page}` — 既存問題はすべて `/docs/ja/`（`docs:validate` が `/docs/en/` を検出して FAIL する）。ページ一覧は doc-references.md 参照
    - `https://platform.claude.com/docs/en/agent-sdk/overview` — Agent SDK関連
    - **referenceUrl は問題内容に最も直接的なページを選ぶ:** `quickstart` や `overview` は概要ページであり、機能の詳細を問う問題には機能専用ページ（`memory`・`best-practices`・`discover-plugins`・`hooks` 等）を参照すること（例: CLAUDE.md 肥大化対処法の問題 → `memory` ページ。ベストプラクティスの問題 → `best-practices` ページ）
    - **`overview` / `quickstart` は使わないことを原則とする:** これらは機能の全体概要・導入手順ページであり、特定機能（セッション管理・フック・スキル・CI/CD統合・テレポート等）を問う問題には適さない。セッション再開なら `interactive-mode`、CI/CD統合なら `common-workflows`、CLAUDE.md なら `memory` のように機能専用ページを選ぶこと

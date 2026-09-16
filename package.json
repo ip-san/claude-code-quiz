@@ -24,7 +24,7 @@
     "type-coverage": "type-coverage --strict --at-least 99 --ignore-files '**/*.test.*'",
     "check:typecheck": "tsc --noEmit",
     "check:lint": "biome check src/ mcp/ scripts/",
-    "check:parallel": "bun run check:typecheck & bun run check:lint & vitest run & wait",
+    "check:parallel": "bun run check:typecheck & p1=$!; bun run check:lint & p2=$!; vitest run & p3=$!; wait $p1; s1=$?; wait $p2; s2=$?; wait $p3; s3=$?; exit $((s1 | s2 | s3))",
     "check": "bun run check:parallel && type-coverage --strict --at-least 99 --ignore-files '**/*.test.*' && node scripts/quiz-utils.mjs check",
     "check:all": "bun run check:parallel && type-coverage --strict --at-least 99 --ignore-files '**/*.test.*' && node scripts/quiz-utils.mjs check && node scripts/validate-docs.mjs && node scripts/validate-docs-links.mjs && bun run cpd",
     "docs:links": "node scripts/validate-docs-links.mjs",

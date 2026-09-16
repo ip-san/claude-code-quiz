@@ -388,6 +388,26 @@ function isCacheValid(filePath) {
 /**
  * Fetch a single page via Jina Reader with retry
  */
+/**
+ * 公式 Markdown 直接配信（https://code.claude.com/docs/en/{page}.md）を取得する。
+ * 先頭の "> ## Documentation Index" 引用ブロックを除去して返す。失敗時は null。
+ */
+async function fetchDirectMarkdown(url) {
+  try {
+    const res = await fetch(`${url}.md`, {
+      headers: { Accept: 'text/markdown, text/plain' },
+      signal: AbortSignal.timeout(60000),
+    })
+    if (!res.ok) return null
+    const text = await res.text()
+    const body = text.replace(/^(>.*\n)+\n?/, '')
+    // 短いページは h1 しか持たないことがある（例: 廃止告知ページ）。h1/h2 いずれかがあれば本文とみなす
+    return /^#{1,2} /m.test(body) ? body : null
+  } catch {
+    return null
+  }
+}
+
 async function fetchPage(page, force = false) {
   const outPath = resolve(DOCS_DIR, `${page.name}.md`)
 
@@ -412,7 +432,14 @@ async function fetchPage(page, force = false) {
       }
 
       const raw = await res.text()
-      const markdown = cleanMarkdown(raw)
+      let markdown = cleanMarkdown(raw)
+
+      // Jina が巨大ページで本文を落としナビだけ返すことがある（見出し 0 件）。
+      // その場合は公式の Markdown 直接配信（{url}.md）にフォールバックする
+      if (!/^## /m.test(markdown) || /Skip to main content/.test(markdown.slice(0, 3000))) {
+        const direct = await fetchDirectMarkdown(page.url)
+        if (direct) markdown = direct
+      }
 
       if (markdown.length < 100) {
         throw new Error(`Content too small (${markdown.length} chars) - likely failed to render`)
