@@ -105,8 +105,8 @@ npm run quiz:search -- "キーワード"  # 特定トピックの既存問題を
 
 **重要な確定値（2026-04-04 docs 再確認済み）:**
 
-- **プラグインのソースタイプは5種類**: relative path, `github`, `url`, `git-subdir`, `npm`。`pip` は存在しない
-- **`CLAUDE.md` のスコープは4段階**: Managed > Project > User > Local。`settings.json` の5段階（Managed > CLI > Local > Project > User）と混同しないこと
+- **プラグインのソースタイプは7種類**: relative path, `github`, `url`, `git-subdir`, `npm`, `archive`（v2.1.224+）, `command`（v2.1.229+）。`pip` は存在しない（plugins/marketplace-reference、2026-09-30）
+- **`CLAUDE.md` のスコープは4つで、優先順位ではなく読み込み順**: Managed → User → Project → Local（全ファイルが連結され、互いに上書きしない。2026-09-30 memory.md で再確認）。`settings.json` の5段階の**優先順位**（Managed > CLI > Local > Project > User）と混同しないこと
 - **Hook イベントは26種類**: `PermissionDenied` を含む全26種
 - **`defaultMode` の有効値は6つ**: `default`, `acceptEdits`, `plan`, `auto`, `dontAsk`, `bypassPermissions`
 

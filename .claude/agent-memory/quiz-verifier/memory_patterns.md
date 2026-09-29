@@ -64,3 +64,12 @@
 ## settings.local.json の gitignore 表現の許容度（2026-09-10, 偽陽性注意）
 - settings.md L46は「adds it to your global git excludes file」（プロジェクトの.gitignoreではない）と厳密に記述する一方、claude-directory.md L105は同じ挙動を「gitignored when Claude Code saves a setting to it」と口語的に表現している。
 - quizが「自動的にgitignoreに追加する」と書いていても、ドキュメント自身がこの緩い言い回しを使うため、機械的に誤りと断定しない。より確実な論点は「自動的に」が無条件ではなく「Claude Codeが最初に書き込む時」に限られる点（手動作成済みファイルは対象外）。
+
+## 2026-09-29 全問監査で判明した doc drift
+- `.claude/rules/`: user-level と project ルールは「上書き関係なし」（user が先、project が後に読まれるだけ、競合時はどちらに従うか不定）。「project が常に優先」は誤り（mem-013 critical）。CLAUDE.md スコープも priority でなく load order（Managed→User→Project→Local）。mem-025/045 は priority 表現が残存。
+- AGENTS.md: v2.1.277+ で CLAUDE.md/CLAUDE.local.md が無ければ AGENTS.md を既定で直接読む。`@AGENTS.md` import が必要なのは CLAUDE.md 併存 / `claude-md` 設定 / 非対応セッション。/init が AGENTS.md を取り込むのは `CLAUDE_CODE_NEW_INIT=1` 時のみ（mem-077 critical）。
+- サーバー管理設定: サインイン起動では最大5秒フェッチを待ち、間に合えば初画面から適用（mem-042/038 の「初回は非同期」は要修正）。
+- 共有ルールを承認なしでロードする文書化された方法は `~/.claude/rules/`（mem-026 の distractor が有効になり得る）。symlink のターゲットが作業ディレクトリ外だと外部 import 承認が必要。
+- `claude project purge` の確認省略は `--yes`（`-y` は docs に無い）。`--dry-run` は実在。
+- ローカルキャッシュ（.claude/tmp/docs）は code fence が脱落する。コマンド/フラグ/`/init` 文言は live `https://code.claude.com/docs/en/<page>.md` を curl して確認する。
+- mem-039 系の「first-wins で他ソース完全無視」は例外キー（enableArtifact 等）を無視した言い過ぎ。

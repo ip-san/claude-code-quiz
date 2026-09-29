@@ -156,7 +156,7 @@ async function coverage() {
   quizzes.forEach((q) => {
     if (q.referenceUrl) {
       const slug = q.referenceUrl.replace(/.*docs\/(?:en|ja)\//, '').replace(/#.*/, '')
-      const page = PAGE_ALIASES[slug] ?? slug
+      const page = PAGE_ALIASES[slug] ?? slug.replaceAll('/', '-')
       pages[page] = (pages[page] || 0) + 1
     }
   })

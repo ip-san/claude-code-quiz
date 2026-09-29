@@ -342,7 +342,7 @@ v4.43.0 以前の known-issues では「exit code 2 の一般ルールで UserPr
 
 ## Plugin source types
 
-- Plugin の source は5種類: relative path（）, github, url, git-subdir, npm（pip はドキュメントに存在しない。2026-04-04 再確認）
+- ~~Plugin の source は5種類~~ → **7種類**（archive / command 追加。2026-09-30 再確認）
 -  はモノレポ向けスパースクローン（sparse-checkout）
 - plugin-marketplaces ページで確認: relative path, github, url, git-subdir, npm の5種のみ
 
@@ -459,7 +459,7 @@ v4.43.0 以前の known-issues では「exit code 2 の一般ルールで UserPr
 ## CLAUDE.local.md ドキュメント復帰（確認済み）
 
 -  は現在のドキュメント（memory.md）に**掲載されている**（2026-04-04 再確認）。Local scope はテーブルに記載されており「削除」は誤り
-- CLAUDE.md のスコープは4段階: **Managed > Project > User > Local**（MEMORY.md・quiz データ・docs テーブル順で確認済み。旧記録「Managed > Project > Local > User」は誤順）
+- ~~CLAUDE.md のスコープは4段階: Managed > Project > User > Local~~ → 2026-09-30: docs は**読み込み順 Managed → User → Project → Local**（連結・非上書き）であり優先順位ではない（mem-013/025/045 修正）
 - settings.json スコープは5段階: Managed > CLI > Local > Project > User（異なる）
 - 以前の「CLAUDE.local.md removal」という記録は古い情報。quiz で「3スコープ」「Local scope が存在しない」と記述しないこと
 
@@ -606,7 +606,7 @@ v4.43.0 以前の known-issues では「exit code 2 の一般ルールで UserPr
 
 - **/loop（無インターバル）**: 固定間隔ではなく Claude が動的に1分〜1時間で選ぶ（scheduled-tasks.md L53）。「デフォルト10分」は誤り
 - **繰り返しスケジュールタスク**: 作成から **7日**で期限切れ（seven-day expiry）。1セッション最大50タスク。単位 s/m/h/d
-- **PowerShell ツール**: Linux/macOS/WSL は opt-in（CLAUDE_CODE_USE_POWERSHELL_TOOL=1 + PowerShell 7+）。Windows は Git Bash なしで自動有効・ありで段階的ロールアウト（tools-reference.md L181-195）。「Windows 専用」「Auto モード不可」は誤り
+- **PowerShell ツール**: Linux/macOS/WSL は opt-in（CLAUDE_CODE_USE_POWERSHELL_TOOL=1 + PowerShell 7+）。Windows は Git Bash なしで自動有効・ありなら claude.ai/Console アカウントで既定有効、Bedrock/Agent Platform/Foundry は env=1（2026-09-30 更新。旧「段階的ロールアウト」は消滅）。「Windows 専用」「Auto モード不可」は誤り
 - **複数行入力ネイティブ対応ターミナル = 7種**: iTerm2/WezTerm/Ghostty/Kitty/**Warp/Apple Terminal/Windows Terminal**。/terminal-setup が必要 = VS Code/Cursor/**Devin Desktop**/Alacritty/Zed（terminal-config.md L15、2026-08-03 確認。旧記録の Windsurf は Devin Desktop に置換済み）。Warp を要設定側に入れるのは誤り（key-033/044/020 で頻出）
 - **Windows 前提条件**: ネイティブ Windows は必須前提なし。Git for Windows は**任意**（推奨。なければ PowerShell がシェルツール）（setup.md L87）
 - **autoMemoryDirectory**: policy/user 設定 + --settings フラグからのみ。**project/local 設定からは不可**（memory.md L286）。「ローカルから可」は誤り
@@ -718,7 +718,7 @@ doc 全面更新（45ページ）で 810 問全件が target 化、pre-lint で 
 
 ## /output-style は現行コマンドとして存在しない（MEMORY 同期 2026-07-22）
 
-- `/output-style` はドキュメントからコマンド定義が削除済み（v2.1.73 付近で廃止）。出力スタイル変更は `/config` → Output style または `settings.json` の `outputStyle` 編集が正式手段（commands.md L18 / output-styles.md）
+- ~~`/output-style` は廃止~~ → 2026-09-30: **`/output-style <style>` は v2.1.269+ で現存**（コマンド・`/config`・settings の3手段が並列、推奨順位なし）。旧記述:出力スタイル変更は `/config` → Output style または `settings.json` の `outputStyle` 編集が正式手段（commands.md L18 / output-styles.md）
 - **循環検証トラップ注意**: assembled per-category JSON はクイズ本文（wrongFeedback 等）を含むため、それを「ドキュメント」として事実根拠にしない。事実照合は必ず `docs/<page>.md` 生ファイルを正典とする（key-032 で 2026-06-23 発生）
 
 ## hooks.md キャッシュ平坦化は --force 再取得でも復元されない場合がある
@@ -833,7 +833,7 @@ doc 全面更新（45ページ）で 810 問全件が target 化、pre-lint で 
 - **Shift+Enter 対応は 4 分類**（terminal-config.md）: ネイティブ 7 種 / kitty keyboard protocol 対応（foot、Alacritty 0.16+、v2.1.269+）/ `/terminal-setup` 必要（VS Code, Cursor, Devin Desktop, **Alacritty 0.16 未満**, Zed）/ 利用不可（gnome-terminal, JetBrains IDE）（key-020 / key-033）
 - **keybindings.json の自動反映は docs に無い**（key-034 に続き key-029 の EXPL 削除、key-036 は `/keybindings` でファイル作成・オープンを問う設問に差し替え）
 - **スクリーンリーダーのネストテーブル「Header: value」化は changelog v2.1.200**（v2.1.198 ではない。key-065）。確認行フォーマットの v2.1.206 は根拠なし（key-057）
-- **Fast mode は Opus 5 / Opus 4.8 のみ、$10/$50 per MTok、1M 全体でフラット**（ses-116 の「$30/$150・200K 未満」は架空、key-051）
+- **Fast mode は Opus 5.5 / Opus 5 / Opus 4.8**（2026-09-30 更新: Opus 5.5 が v2.1.280+ の既定、5.5 は $8/$40、5/4.8 は $10/$50、1M 全体でフラット）（ses-116 の「$30/$150・200K 未満」は架空、key-051）
 - **Cowork VM はオンデバイス（自分の PC）とリモート（Anthropic 管理）の 2 形態**（desktop-quickstart.md。ses-136）
 - **OTel メトリクスのカーディナリティ制御変数は 6 つ**: `OTEL_METRICS_INCLUDE_REPOSITORY`（`vcs.*`、既定 false、v2.1.269+）追加（ses-159）
 - **Bedrock リージョン解決順に版数条件なし**（amazon-bedrock.md に v2.1.172 の記載なし。ses-151 の版数削除。2026-09-10 記録の「v2.1.172+」は changelog 由来で docs 本文には無い）
@@ -858,3 +858,14 @@ doc 全面更新（45ページ）で 810 問全件が target 化、pre-lint で 
 ## 修正適用は JSON パッチ一括適用ツールが安全
 
 - 64 問・220 フィールドの修正を `quiz-utils edit` の個別シェル呼び出しではなく、from→to 完全一致置換（ミス時は abort）と diagram 部分置換をもつパッチ適用スクリプトで実施し、正解に wrongFeedback が付く等のサニティも自動検査できた → scratchpad の apply.mjs 相当（`replace`/`opt`/`set`/`diagSet`/`diagReplace`）を `scripts/quiz-utils.mjs apply-patch <file.json>` として取り込み、SKILL.md の修正コマンドに追記
+
+## 2026-09-30 quality-loop 第16回（Opus 5.5 / Sonnet 5.5 リリース追従・プラグイン docs 再編）
+
+- **横断ドリフト**: Opus 5.5 / Sonnet 5.5 のリリースで「default モデル」「effort 対応モデル・既定値」「Fast mode 対応モデル」「常時思考モデル」「1M 対応モデル」の列挙が一斉に stale 化（ses-103 critical ほか約20問）。モデル列挙を含む問題はリリースのたびに要監査。**モデル一覧は選択肢に埋め込まず explanation に置く**と drift 耐性が上がる（cmd-006 で実施）
+- **確定事実の詳細は `docs/verified-facts.md` 末尾「2026-09-30」**を参照（CLAUDE.md 読み込み順、`/memory` と `/context`、AGENTS.md 直接読込、Glob/Grep 既定外、`bashOutputMaxChars`、`/reload-skills`、hooks マージ、Code Intelligence 13 言語、ディレクトリ提出ポータル 等）
+- **偽陽性（lint）**: `quiz-lint url` の invalid-anchor のうち、skills `#skills-in-cowork-and-cloud-sessions` / `#live-change-detection` は **ja ページの明示 id として live に実在**（キャッシュが `<hN id="...">` を落とすため lint が誤検出）。修正不要
+- **検証者の誤指摘（棄却）**: cmd-119（GHES は Team/Enterprise で利用可と docs 明記）、ext-147（予約名の列挙は現行どおり）、skill-088（fork mode オフ＋background 有効時のエラー条件は正確）、tool-057 の「VS Code は全コマンド利用可」（vs-code.md 表は CLI=All / 拡張=Subset の読み違い）
+- **プラグイン docs 再編**: 旧 7 ページ → `/plugins/*` 20 ページ。referenceUrl は `/docs/ja/plugins/<page>` を使う。`docs:discover` はネストパスを検出するよう修正済み（`whats-new/*`・`agent-sdk/*` は除外）
+- **quiz-verifier の maxTurns 30 では大カテゴリ（100問超）が完走しない**（10体中7体が上限停止→再開で完走）。次回は 60〜70 問単位に分割するか maxTurns を引き上げる
+- 未判定で残した minor: ses-113/018/042/071/078/109/162/140/200/227/236/142、key-040/044/034、tool-001/048/054（Glob/Grep 既定外の注記）、mem-007/051/041/021/061/066/010/033/039/059/037、bp-057。mem-078 と mem-083 は設問がほぼ重複（要統合検討）
+

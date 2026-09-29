@@ -536,12 +536,21 @@ async function discoverNewPages({ silent = false } = {}) {
     return []
   }
 
-  const livePages = [...text.matchAll(/https:\/\/code\.claude\.com\/docs\/en\/([a-z0-9-]+)\.md/g)]
+  // ネストしたパス（例: plugins/install）も対象にする。週次リリースノート（whats-new/*）と
+  // Agent SDK（agent-sdk/*、platform.claude.com の overview で代表させる方針）は除外。
+  // キャッシュ名は "/" を "-" に置換したもの（plugins/install → plugins-install）
+  const livePaths = [...text.matchAll(/https:\/\/code\.claude\.com\/docs\/en\/([a-z0-9-]+(?:\/[a-z0-9-]+)*)\.md/g)]
     .map((m) => m[1])
     .filter((v, i, a) => a.indexOf(v) === i)
+    .filter((path) => !path.startsWith('whats-new/') && !path.startsWith('agent-sdk/'))
+  const livePages = livePaths.map((path) => path.replaceAll('/', '-'))
+  const pathByName = Object.fromEntries(livePaths.map((path) => [path.replaceAll('/', '-'), path]))
 
   const knownNames = new Set(DOC_PAGES.map((p) => p.name))
-  const newPages = livePages.filter((name) => !knownNames.has(name))
+  const knownUrls = new Set(DOC_PAGES.map((p) => p.url))
+  const newPages = livePages.filter(
+    (name) => !knownNames.has(name) && !knownUrls.has(`https://code.claude.com/docs/en/${pathByName[name]}`)
+  )
 
   if (newPages.length === 0) {
     if (!silent) console.log(`All ${livePages.length} pages are already tracked. No new pages found.`)
@@ -551,7 +560,7 @@ async function discoverNewPages({ silent = false } = {}) {
   if (!silent) {
     console.log(`Found ${newPages.length} new page(s) not in DOC_PAGES:\n`)
     for (const name of newPages) {
-      console.log(`  + ${name}  (https://code.claude.com/docs/en/${name})`)
+      console.log(`  + ${name}  (https://code.claude.com/docs/en/${pathByName[name]})`)
     }
   }
 
@@ -565,7 +574,7 @@ async function discoverNewPages({ silent = false } = {}) {
   }
 
   const newEntries = newPages
-    .map((name) => `  { name: '${name}', url: 'https://code.claude.com/docs/en/${name}' },`)
+    .map((name) => `  { name: '${name}', url: 'https://code.claude.com/docs/en/${pathByName[name]}' },`)
     .join('\n')
 
   config = config.replace(
@@ -578,7 +587,7 @@ async function discoverNewPages({ silent = false } = {}) {
     console.log(`\nAdded ${newPages.length} page(s) to scripts/topic-config.mjs`)
   }
 
-  return newPages.map((name) => ({ name, url: `https://code.claude.com/docs/en/${name}` }))
+  return newPages.map((name) => ({ name, url: `https://code.claude.com/docs/en/${pathByName[name]}` }))
 }
 
 async function checkUpdates() {

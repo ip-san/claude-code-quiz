@@ -7,7 +7,7 @@
 - `/quality-loop --monthly` が drift を検出したら両方を更新
 - 問題追加・修正時はこのファイルを参照（一次ソースは公式ドキュメント）
 
-**最終更新:** 2026-06-06（10エージェント正解妥当性監査、正解の doc ドリフト/事実誤り 12問を修正。下記「2026-06-06 正解妥当性監査」参照）
+**最終更新:** 2026-09-30（第16回: Opus 5.5 / Sonnet 5.5 リリース追従・プラグイン docs 再編、末尾参照）／ 2026-06-06（10エージェント正解妥当性監査、正解の doc ドリフト/事実誤り 12問を修正。下記「2026-06-06 正解妥当性監査」参照）
 
 ---
 
@@ -301,10 +301,65 @@
 - **`--dangerously-skip-permissions`（bypassPermissions）は「隔離されたコンテナ・VM のみ」**
 - **Shift+Enter 4 分類**: ネイティブ 7 種 / kitty protocol（foot、Alacritty 0.16+、v2.1.269+）/ `/terminal-setup`（VS Code, Cursor, Devin Desktop, Alacritty <0.16, Zed）/ 不可（gnome-terminal, JetBrains）
 - **スクリーンリーダー**: モード自体は v2.1.181+、ネストテーブルの「Header: value」化は changelog v2.1.200
-- **Fast mode**: Opus 5 / Opus 4.8 のみ、$10/$50 per MTok、1M 全体フラット
+- ~~**Fast mode**: Opus 5 / Opus 4.8 のみ、$10/$50 per MTok、1M 全体フラット~~ → 2026-09-30 更新（Opus 5.5 追加・既定化、末尾の第16回参照）
 - **Cowork VM**: オンデバイス（自分の PC）/ リモート（Anthropic 管理）の 2 形態
 - **OTel カーディナリティ制御変数 6 つ**（`OTEL_METRICS_INCLUDE_REPOSITORY` 追加、v2.1.269+）
 - **Bedrock リージョン解決順**（AWS_REGION → AWS_DEFAULT_REGION → プロファイル region → us-east-1）に版数条件の記載なし
 - **devcontainer 参照実装 3 ファイル**: devcontainer.json / Dockerfile / init-firewall.sh
 - **`/clear` は新セッション開始**（元の会話は `/resume` で再開可）
 - **WebDAV 警告（security.md）は現存**（cache は `<Warning>` callout を落とす → live で確認）
+
+## 2026-09-30 quality-loop 第16回（全1025問監査 10並列 Sonnet + 判定層 Fable 5 ×3、103問修正）
+
+- CLAUDE.md は優先順位ではなく **読み込み順 Managed → User → Project → Local**。全ファイルは連結され上書きしない、CLAUDE.local.md は CLAUDE.md の後に追加 — memory "lists them in load order, from broadest scope to most specific" / "concatenated into context rather than overriding each other"（quality-rules.md の「Managed > Project > User > Local」は stale）
+- user rules と project rules は "Neither set overrides the other"（競合時はどちらに従うか不定）— memory「User-level rules」
+- v2.1.277+ は CLAUDE.md / .claude/CLAUDE.md / CLAUDE.local.md が作業ディレクトリ以上に無ければ AGENTS.md を直接読む。`/init` が AGENTS.md を取り込むのは `CLAUDE_CODE_NEW_INIT=1` のみ — memory「AGENTS.md」
+- managed CLAUDE.md は claudeMdExcludes で除外不可、user/project より先に読み込み、"context, not enforced configuration" — memory
+- `/memory` は未作成エントリを含むメモリファイルの場所一覧。読み込み確認は `/context` — memory「View and edit with /memory」
+- 作業ディレクトリ外への symlink ルールは external import 扱い（承認まで非読込、`paths` 付きは承認後も非読込）— memory
+- server-managed settings: サインイン直後の起動は最大5秒フェッチを待つ、それ以外は短い未適用期間 — server-managed-settings「Fetch and caching behavior」
+- `/reload-skills` で新規トップレベル skills ディレクトリを取り込む（以降の変更ごとに再実行）— skills
+- `skillOverrides` は `/skills` で Space→Esc 保存、plugin skills は対象外 — skills / settings-reference
+- クラウドセッションではリポジトリ `.claude/settings.json` で宣言したプラグインは読み込まれない — skills「Use skills in Cowork and cloud sessions」
+- description 省略時は "first non-empty line"、allowed-tools はスキルを呼び出したターンのみ有効 — skills
+- advisor の対応メインモデル: Fable, Opus 4.6+, Sonnet 4.6+, Haiku 4.5。Opus 5.5/5 メインでは Opus 4.7/4.8 advisor は API 拒否 — advisor
+- artifacts のスクリプトは five public CDN hosts（cdnjs, unpkg, Tailwind, jQuery, jsDelivr 一部）— artifacts
+- ZDR: 違反フラグのセッションは最大2年保持 — zero-data-retention
+- agent-teams: SendMessage/Task ツールの追加と本文の追加指示付加は in-process teammate のみ。split-pane は本文が既定システムプロンプトを置換 — agent-teams
+- `claude project purge` の確認省略は `--yes`（`-y` ではない）— claude-directory
+- Shift+Tab: auto 開始時は最初の押下で default、以降 default→acceptEdits→plan — permission-modes
+1. `default` は v2.1.280+ で Pro/Max/Team/Enterprise/API/AWS/Bedrock/Agent Platform すべて Opus 5.5、Foundry のみ Sonnet 4.5。v2.1.280 前は Pro/Team Standard=Sonnet 5、他=Opus 5（v2.1.219+） — model-config "Pro, Max, Team, Enterprise, and Anthropic API: defaults to Opus 5.5 ... Microsoft Foundry: defaults to Sonnet 4.5"
+2. Opus 5.5 は v2.1.280+、Sonnet 5.5 は v2.1.284+ 必須 — model-config
+3. Fable 5.1/5 はどのプラン・プロバイダーでもアカウントタイプの default にならない — model-config
+4. effort 表: Fable 5.1/5、Opus 5.5/Sonnet 5.5/Opus 5/Sonnet 5/Opus 4.8/4.7 = low〜max（xhigh 含む）、Opus 4.6/Sonnet 4.6 = max まで（xhigh は high にフォールバック） — model-config
+5. 既定 effort: high、ただし Opus 5.5/Sonnet 5.5 は medium、Opus 4.7 は xhigh — model-config "high on every model that supports effort, except that Opus 5.5 and Sonnet 5.5 default to medium, Opus 4.7 defaults to xhigh"
+6. `CLAUDE_CODE_EFFORT_LEVEL` = low/medium/high/xhigh/max/auto（最優先）— env-vars。settings `effortLevel` は low/medium/high/xhigh（max 不可）— model-config
+7. Fast mode は Opus 5.5/Opus 5/Opus 4.8、既定 v2.1.280+ Opus 5.5（v2.1.219-279 は Opus 5）、Opus 4.7 は 2026-07-24 削除、価格 5.5=$8/$40・5/4.8=$10/$50、VS Code 拡張に Toggle fast mode、Bedrock/Agent Platform/Foundry/Claude Platform on AWS 不可、サブスクは usage credits 必須 — fast-mode
+8. 途中で Fast を初めて有効化すると会話全体に未キャッシュ入力価格（会話ごと1回） — fast-mode
+9. 常時思考モデル = Opus 5.5 / Sonnet 5.5 / Fable（トグル・`alwaysThinkingEnabled`・`MAX_THINKING_TOKENS=0` 無効） — model-config, settings-reference
+10. 常時アダプティブ推論 = Fable / Sonnet 5 以降 / Opus 4.7 以降 — model-config
+11. 1M: Fable 5.1/5、Sonnet 5 以降、Opus 4.6 以降、Sonnet 4.6 — model-config
+12. hooks は設定レベル間でマージ（置換しない）— hooks "Hook entries merge across settings levels rather than replacing each other"。settings.json 編集は再起動不要 — debug-your-config
+13. Esc=応答中断/ダイアログを閉じる、Esc+Esc=入力あり→下書き消去/空→rewind、Ctrl+C=中断・アイドル時1回目クリア2回目終了 — interactive-mode（keybindings `chat:cancel` の文言差あり）
+14. Tab=オートコンプリート候補確定（@、シェルモードのパス v2.1.193+）— interactive-mode
+15. `/output-style <style>` は v2.1.269+ で現存、3手段並列で推奨順位なし — output-styles
+16. `CLAUDE_AUTOCOMPACT_PCT_OVERRIDE` は既定より下げる方向のみ、1M 窓の既定は約 967K — env-vars, model-config
+17. MCP 接続/切断によるキャッシュ無効化はツール検索が遅延ロードしていない構成のみ — prompt-caching
+18. タスク追跡ツールの既定提供は Claude 3.x / Opus 4〜4.7 / Sonnet 4〜4.6 / Haiku 4.5 のみ（他はオプトイン）— tools-reference
+- Glob/Grep は macOS/Linux/WSL の既定ツールセット外。Claude は Bash 経由の `find`/`grep`（組み込み bfs/ugrep）で検索する。Windows のみ既定で Glob が使える — tools-reference「Glob tool behavior」
+- Bash 出力: 正常終了は約30,000字までインライン、超過はファイル保存＋先頭2,000字プレビュー。失敗時は約10,000字の head/tail 抜粋。`BASH_MAX_OUTPUT_LENGTH` は読み戻し幅のみ、インライン上限は `bashOutputMaxChars`（≤128,000、v2.1.261+）— tools-reference「Output limits」（2026-06-06 の Bash 出力行を更新）
+- Bash 状態: export した環境変数は非永続、シェル起動ファイルのエイリアス・関数は全コマンドで利用可 — tools-reference「What persists between commands」
+- PowerShell ツール: Git Bash ありの Windows では claude.ai/Console アカウントで既定有効、Bedrock/Agent Platform/Foundry は `CLAUDE_CODE_USE_POWERSHELL_TOOL=1`（「段階的ロールアウト」は消滅）— tools-reference
+- スケジュールタスク: 新しい会話でクリア、`--resume`/`--continue` で CronCreate タスクを復元（例外あり）— scheduled-tasks
+- `-p` モードでも `/skill-name` をプロンプトに含めればスキル展開される。不可なのは `/login` などターミナル UI 専用コマンド — headless
+- バックグラウンドサブエージェントの権限プロンプトはメインセッションに表示（承認 / Esc で1回拒否）。AskUserQuestion は全サブエージェントから除去 — sub-agents
+- Code Intelligence 公式プラグインは13言語（Ruby は `ruby-lsp` で対応）— plugins/code-intelligence
+- プラグイン source は7種（relative, github, url, git-subdir, npm, archive v2.1.224+, command v2.1.229+）— plugins/marketplace-reference
+- 公式マーケットプレイスのカタログは docs に掲載されない（Discover タブで確認）— plugins/anthropic-marketplaces
+- ディレクトリ提出は開発者ポータル `claude.ai/directory/manage`（有料プラン、Team/Enterprise は Owner）— plugins/publish
+- Auto モード分類器は既定で Sonnet 5（`/model` と独立）。Sonnet 4.6 セッション等ではセッションのモデルにフォールバック — permission-modes
+- Chrome 連携の前提: 拡張 1.0.36+、直接プラン、`/login` 必須（Claude Code のバージョン要件記載なし）— chrome
+- GitLab `@claude`: Comments の webhook → イベントリスナー → `AI_FLOW_*` 付きトリガー API（任意構成）— gitlab-ci-cd
+- `/fork` = 会話をコピーしてバックグラウンドで並行実行、`/branch` = 分岐して切替 — commands
+- **ドキュメント構成変更**: プラグイン系7ページ（discover-plugins / plugins / plugins-reference / plugin-marketplaces / plugin-dependencies / plugin-hints / plugin-relevance）は `/plugins/*` の20ページに再編（旧 URL はリダイレクト）。`web-scheduled-tasks` は routines に統合（ja 版は 404）
+- **キャッシュの制約**: fetch-docs のキャッシュは明示 `<hN id>` やコードフェンスを落とすことがある（skills `#skills-in-cowork-and-cloud-sessions` / `#live-change-detection`、plugin-evals のアンカーは live では有効）→ 判定は live の `{url}.md` / HTML で行う

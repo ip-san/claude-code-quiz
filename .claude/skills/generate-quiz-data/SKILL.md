@@ -53,7 +53,7 @@ npm run docs:status         # キャッシュ状態を確認
 **カテゴリごとのドキュメント取得:**
 ```bash
 node scripts/fetch-docs.mjs --assemble --pages memory
-node scripts/fetch-docs.mjs --assemble --pages mcp,hooks,discover-plugins,sub-agents
+node scripts/fetch-docs.mjs --assemble --pages mcp,hooks,plugins-install,sub-agents
 node scripts/fetch-docs.mjs --assemble --pages settings,checkpointing,overview,quickstart
 ```
 
@@ -67,8 +67,8 @@ node scripts/fetch-docs.mjs --assemble --pages settings,checkpointing,overview,q
 | skills | 15% | `skills,how-claude-code-works,agent-teams` |
 | tools | 15% | `how-claude-code-works,settings,vs-code,jetbrains` |
 | commands | 15% | `interactive-mode,quickstart,overview,cli-reference,headless,github-actions,gitlab-ci-cd,scheduled-tasks` |
-| extensions | 15% | `mcp,hooks,hooks-guide,discover-plugins,plugins,plugins-reference,plugin-marketplaces,sub-agents,chrome,slack` |
-| session | 10% | `settings,checkpointing,overview,quickstart,model-config,sandboxing,fast-mode,remote-control,desktop,devcontainer,gateways,llm-gateway-connect,llm-gateway-protocol,llm-gateway-rollout,desktop-linux,desktop-wsl,feature-availability,claude-apps-gateway,corporate-launcher,mobile,claude-apps-gateway-config,claude-apps-gateway-spend-limits,desktop-ios-simulator` |
+| extensions | 15% | `mcp,hooks,hooks-guide,plugins-overview,plugins-install,plugins-create,plugins-components,plugins-manifest-reference,plugins-create-marketplace,plugins-marketplace-reference,plugins-code-intelligence,sub-agents,chrome,slack`（プラグイン系の referenceUrl は `/docs/ja/plugins/<page>`） |
+| session | 10% | `settings,checkpointing,overview,quickstart,model-config,sandboxing,fast-mode,remote-control,desktop,devcontainer,gateways,llm-gateway-connect,llm-gateway-protocol,llm-gateway-rollout,desktop-linux,desktop-wsl,feature-availability,claude-apps-gateway,corporate-launcher,mobile,claude-apps-gateway-config,claude-apps-gateway-spend-limits,desktop-ios-simulator,claude-projects` |
 | keyboard | 10% | `interactive-mode,keybindings,statusline,terminal-config,output-styles,accessibility` |
 | bestpractices | 10% | `best-practices,common-workflows,quickstart` |
 | sdk | 5% | `agent-sdk-overview,authentication,third-party-integrations` |
@@ -181,7 +181,7 @@ node scripts/fetch-docs.mjs --assemble --pages settings,checkpointing,overview,q
 4. **referenceUrl:** 各問題に正しいドメインで始まるURLを必ず含める
    - `https://code.claude.com/docs/ja/{page}` — 既存問題はすべて `/docs/ja/`（`docs:validate` が `/docs/en/` を検出して FAIL する）。ページ一覧は doc-references.md 参照
    - `https://platform.claude.com/docs/en/agent-sdk/overview` — Agent SDK関連
-   - **referenceUrl は問題内容に最も直接的なページを選ぶ:** `quickstart` や `overview` は概要ページであり、機能の詳細を問う問題には機能専用ページ（`memory`・`best-practices`・`discover-plugins`・`hooks` 等）を参照すること（例: CLAUDE.md 肥大化対処法の問題 → `memory` ページ。ベストプラクティスの問題 → `best-practices` ページ）
+   - **referenceUrl は問題内容に最も直接的なページを選ぶ:** `quickstart` や `overview` は概要ページであり、機能の詳細を問う問題には機能専用ページ（`memory`・`best-practices`・`plugins/install`・`hooks` 等）を参照すること（例: CLAUDE.md 肥大化対処法の問題 → `memory` ページ。ベストプラクティスの問題 → `best-practices` ページ）
    - **`overview` / `quickstart` は使わないことを原則とする:** これらは機能の全体概要・導入手順ページであり、特定機能（セッション管理・フック・スキル・CI/CD統合・テレポート等）を問う問題には適さない。セッション再開なら `interactive-mode`、CI/CD統合なら `common-workflows`、CLAUDE.md なら `memory` のように機能専用ページを選ぶこと
    - **機能別 referenceUrl の推奨マッピング:** `.claude/skills/quiz-refine/doc-references.md` を参照
 5. **日本語:** 問題文・選択肢・解説・wrongFeedbackはすべて日本語

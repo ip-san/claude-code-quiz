@@ -327,7 +327,8 @@ function lintUrls(quizzes) {
       continue
     }
 
-    const page = urlMatch[1]
+    // ネストしたパス（plugins/install）はキャッシュ名（plugins-install）に正規化する
+    const page = urlMatch[1].replaceAll('/', '-')
     const anchor = urlMatch[2]
 
     // Check if page exists in our cache

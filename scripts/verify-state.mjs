@@ -304,8 +304,9 @@ function cmdDiff(args) {
   const referencedPages = new Set()
   for (const t of result.targets) {
     if (t.referenceUrl) {
-      const match = t.referenceUrl.match(/\/docs\/en\/([^#?/]+)/)
-      if (match) referencedPages.add(match[1])
+      // ネストしたパス（plugins/install）はキャッシュ名（plugins-install）に正規化する
+      const match = t.referenceUrl.match(/\/docs\/(?:en|ja)\/([^#?]+)/)
+      if (match) referencedPages.add(match[1].replaceAll('/', '-'))
     }
   }
 

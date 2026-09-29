@@ -20,9 +20,13 @@
 | 画像添付・クリップボード操作（ドラッグ＆ドロップ、`Ctrl+V`） | `interactive-mode` | `how-claude-code-works` ではない |
 | プラン/プラットフォーム限定コマンド（`/teleport` 等） | `interactive-mode` | |
 | Hook ワークフロー・ユースケース | `hooks-guide` | `hooks`（リファレンス）と使い分け |
-| プラグイン作成 | `plugins` | `discover-plugins`（利用側）とは別 |
-| プラグインAPI・設定キー | `plugins-reference` | プラグインの詳細仕様 |
-| プラグインマーケットプレイス | `plugin-marketplaces` | マーケットプレイス構築 |
+| プラグインのインストール・管理（利用側） | `plugins/install` | 旧 `discover-plugins`。2026-09 に `/plugins/*` へ再編 |
+| プラグイン概要 | `plugins/overview` | 旧 `plugins` |
+| プラグイン作成・構成要素 | `plugins/create` / `plugins/components` | スキル・エージェント・フック・MCP・LSP 等の同梱 |
+| プラグイン manifest（`plugin.json`） | `plugins/manifest-reference` | 旧 `plugins-reference` |
+| マーケットプレイス構築・スキーマ | `plugins/create-marketplace` / `plugins/marketplace-reference` | 旧 `plugin-marketplaces`。ソース種別 7 種 |
+| Code Intelligence（LSP プラグイン） | `plugins/code-intelligence` | 旧 `discover-plugins#code-intelligence` |
+| プラグイン依存・CLI ヒント・組織向け推奨 | `plugins/dependencies` / `plugins/cli-hints` / `plugins/relevance` | 旧 `plugin-dependencies` / `plugin-hints` / `plugin-relevance` |
 | エージェントチーム・オーケストレーション | `agent-teams` | `sub-agents`（個別エージェント）とは別 |
 | ヘッドレス/プログラマティック実行 | `headless` | SDK/CI での非対話利用 |
 | キーバインドカスタマイズ | `keybindings` | `interactive-mode`（デフォルトキー）とは別 |
@@ -69,6 +73,7 @@
 | 全 settings キーのリファレンス | `settings-reference` | 各キーの Scope / Type / Default・`~/.claude.json` 側のキー |
 | settings.json の実例 3 種 | `settings-example` | 開発者 / チーム / 組織の例ファイル |
 | プラグイン評価（`claude plugin eval`） | `plugin-evals` | eval suite・grader・no-plugin baseline・CI 実行 |
+| Projects（長期ゴールを thread 群で進めるクラウド作業単位） | `claude-projects` | thread / batch・Overview・project instructions・environment・使用量 |
 
 ### referenceUrl の危険パターン
 
@@ -80,7 +85,7 @@
 - `https://code.claude.com/docs/en/{page}` — 43ページ:
   - Core: overview, quickstart, settings, memory
   - Interactive: interactive-mode, how-claude-code-works
-  - Extensions: mcp, hooks, hooks-guide, discover-plugins, plugins, plugins-reference, plugin-marketplaces, sub-agents, agent-teams, skills
+  - Extensions: mcp, hooks, hooks-guide, plugins/*（overview, install, create, components, manifest-reference, create-marketplace, marketplace-reference, code-intelligence, relevance, dependencies, cli-hints ほか計20ページ）, sub-agents, agent-teams, skills
   - Advanced: common-workflows, checkpointing, best-practices, model-config, sandboxing, headless
   - Customization: keybindings, output-styles, statusline, terminal-config, fast-mode
   - Platforms: vs-code, jetbrains, desktop, chrome, slack
@@ -95,6 +100,7 @@
   - Cloud & Gateway (2026-08-07 追加): self-hosted-environments, self-hosted-environments-quickstart, self-hosted-environments-configuration, self-hosted-environments-deploy, self-hosted-environments-identity, self-hosted-environments-reference, self-hosted-environments-testing, claude-tag, github-actions-cloud-providers
   - Newly discovered pages (2026-08-13 追加): cross-session-messaging
   - Newly discovered pages (2026-09-16 追加): managed-settings, settings-reference, settings-example, plugin-evals
+  - Newly discovered pages (2026-09-29 追加): claude-projects
 - `https://platform.claude.com/docs/en/agent-sdk/overview` — Agent SDK 関連
 
 ### ページリスト同期チェック（新規ドキュメントページ追加時）

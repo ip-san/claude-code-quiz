@@ -25,10 +25,6 @@ export const DOC_PAGES = [
   { name: 'mcp', url: 'https://code.claude.com/docs/en/mcp' },
   { name: 'hooks', url: 'https://code.claude.com/docs/en/hooks' },
   { name: 'hooks-guide', url: 'https://code.claude.com/docs/en/hooks-guide' },
-  { name: 'discover-plugins', url: 'https://code.claude.com/docs/en/discover-plugins' },
-  { name: 'plugins', url: 'https://code.claude.com/docs/en/plugins' },
-  { name: 'plugins-reference', url: 'https://code.claude.com/docs/en/plugins-reference' },
-  { name: 'plugin-marketplaces', url: 'https://code.claude.com/docs/en/plugin-marketplaces' },
   { name: 'sub-agents', url: 'https://code.claude.com/docs/en/sub-agents' },
   { name: 'agent-teams', url: 'https://code.claude.com/docs/en/agent-teams' },
   { name: 'skills', url: 'https://code.claude.com/docs/en/skills' },
@@ -99,7 +95,6 @@ export const DOC_PAGES = [
   { name: 'platforms', url: 'https://code.claude.com/docs/en/platforms' },
   { name: 'tools-reference', url: 'https://code.claude.com/docs/en/tools-reference' },
   { name: 'voice-dictation', url: 'https://code.claude.com/docs/en/voice-dictation' },
-  { name: 'web-scheduled-tasks', url: 'https://code.claude.com/docs/en/web-scheduled-tasks' },
   { name: 'zero-data-retention', url: 'https://code.claude.com/docs/en/zero-data-retention' },
   // Auto-discovered from llms.txt (2026-04-04)
   { name: 'desktop-scheduled-tasks', url: 'https://code.claude.com/docs/en/desktop-scheduled-tasks' },
@@ -110,7 +105,6 @@ export const DOC_PAGES = [
   { name: 'routines', url: 'https://code.claude.com/docs/en/routines' },
   // Auto-discovered from llms.txt (2026-04-17)
   { name: 'errors', url: 'https://code.claude.com/docs/en/errors' },
-  { name: 'plugin-dependencies', url: 'https://code.claude.com/docs/en/plugin-dependencies' },
   { name: 'ultrareview', url: 'https://code.claude.com/docs/en/ultrareview' },
   // Auto-discovered from llms.txt (2026-04-25)
   { name: 'admin-setup', url: 'https://code.claude.com/docs/en/admin-setup' },
@@ -133,7 +127,6 @@ export const DOC_PAGES = [
   { name: 'desktop-changelog', url: 'https://code.claude.com/docs/en/desktop-changelog' },
   // Auto-discovered from llms.txt (2026-05-22)
   { name: 'managed-mcp', url: 'https://code.claude.com/docs/en/managed-mcp' },
-  { name: 'plugin-hints', url: 'https://code.claude.com/docs/en/plugin-hints' },
   { name: 'prompt-caching', url: 'https://code.claude.com/docs/en/prompt-caching' },
   { name: 'prompt-library', url: 'https://code.claude.com/docs/en/prompt-library' },
   { name: 'sandbox-environments', url: 'https://code.claude.com/docs/en/sandbox-environments' },
@@ -147,7 +140,6 @@ export const DOC_PAGES = [
   // Auto-discovered from llms.txt (2026-06-23)
   { name: 'advisor', url: 'https://code.claude.com/docs/en/advisor' },
   { name: 'artifacts', url: 'https://code.claude.com/docs/en/artifacts' },
-  { name: 'plugin-relevance', url: 'https://code.claude.com/docs/en/plugin-relevance' },
   // Auto-discovered from llms.txt (2026-07-15)
   { name: 'accessibility', url: 'https://code.claude.com/docs/en/accessibility' },
   { name: 'claude-apps-gateway', url: 'https://code.claude.com/docs/en/claude-apps-gateway' },
@@ -202,6 +194,32 @@ export const DOC_PAGES = [
   { name: 'settings-example', url: 'https://code.claude.com/docs/en/settings-example' },
   // Auto-discovered from llms.txt (2026-09-16)
   { name: 'plugin-evals', url: 'https://code.claude.com/docs/en/plugin-evals' },
+  // Auto-discovered from llms.txt (2026-09-29)
+  // プラグイン系 7 ページ（discover-plugins / plugins / plugins-reference / plugin-marketplaces /
+  // plugin-dependencies / plugin-hints / plugin-relevance）は /plugins/* に再編されたため旧エントリを削除。
+  // web-scheduled-tasks は routines に統合（ja 版は 404）
+  { name: 'claude-projects', url: 'https://code.claude.com/docs/en/claude-projects' },
+  // Auto-discovered from llms.txt (2026-09-29)
+  { name: 'plugins-overview', url: 'https://code.claude.com/docs/en/plugins/overview' },
+  { name: 'plugins-install', url: 'https://code.claude.com/docs/en/plugins/install' },
+  { name: 'plugins-anthropic-marketplaces', url: 'https://code.claude.com/docs/en/plugins/anthropic-marketplaces' },
+  { name: 'plugins-code-intelligence', url: 'https://code.claude.com/docs/en/plugins/code-intelligence' },
+  { name: 'plugins-security', url: 'https://code.claude.com/docs/en/plugins/security' },
+  { name: 'plugins-create', url: 'https://code.claude.com/docs/en/plugins/create' },
+  { name: 'plugins-components', url: 'https://code.claude.com/docs/en/plugins/components' },
+  { name: 'plugins-dependencies', url: 'https://code.claude.com/docs/en/plugins/dependencies' },
+  { name: 'plugins-publish', url: 'https://code.claude.com/docs/en/plugins/publish' },
+  { name: 'plugins-measure', url: 'https://code.claude.com/docs/en/plugins/measure' },
+  { name: 'plugins-cli-hints', url: 'https://code.claude.com/docs/en/plugins/cli-hints' },
+  { name: 'plugins-create-marketplace', url: 'https://code.claude.com/docs/en/plugins/create-marketplace' },
+  { name: 'plugins-host-marketplace', url: 'https://code.claude.com/docs/en/plugins/host-marketplace' },
+  { name: 'plugins-relevance', url: 'https://code.claude.com/docs/en/plugins/relevance' },
+  { name: 'plugins-org', url: 'https://code.claude.com/docs/en/plugins/org' },
+  { name: 'plugins-troubleshooting', url: 'https://code.claude.com/docs/en/plugins/troubleshooting' },
+  { name: 'plugins-loading', url: 'https://code.claude.com/docs/en/plugins/loading' },
+  { name: 'plugins-manifest-reference', url: 'https://code.claude.com/docs/en/plugins/manifest-reference' },
+  { name: 'plugins-marketplace-reference', url: 'https://code.claude.com/docs/en/plugins/marketplace-reference' },
+  { name: 'plugins-cli-reference', url: 'https://code.claude.com/docs/en/plugins/cli-reference' },
   // Agent SDK (different domain)
   { name: 'agent-sdk-overview', url: 'https://platform.claude.com/docs/en/agent-sdk/overview' },
   {
@@ -233,14 +251,20 @@ export const CATEGORY_DOC_MAP = {
     'mcp',
     'hooks',
     'hooks-guide',
-    'discover-plugins',
-    'plugins',
-    'plugins-reference',
-    'plugin-marketplaces',
+    'plugins-overview',
+    'plugins-install',
+    'plugins-create',
+    'plugins-components',
+    'plugins-manifest-reference',
+    'plugins-create-marketplace',
+    'plugins-marketplace-reference',
+    'plugins-code-intelligence',
     'settings',
     'chrome',
     'slack',
-    'plugin-relevance',
+    'plugins-relevance',
+    'plugins-dependencies',
+    'plugins-cli-hints',
     'plugin-evals',
   ],
   session: [
@@ -270,6 +294,7 @@ export const CATEGORY_DOC_MAP = {
     'claude-apps-gateway-config',
     'claude-apps-gateway-spend-limits',
     'desktop-ios-simulator',
+    'claude-projects',
   ],
   keyboard: [
     'interactive-mode',
@@ -280,7 +305,15 @@ export const CATEGORY_DOC_MAP = {
     'output-styles',
     'accessibility',
   ],
-  bestpractices: ['best-practices', 'model-config', 'common-workflows', 'sandboxing', 'advisor', 'artifacts'],
+  bestpractices: [
+    'best-practices',
+    'model-config',
+    'common-workflows',
+    'sandboxing',
+    'advisor',
+    'artifacts',
+    'claude-projects',
+  ],
   sdk: [
     'agent-sdk-overview',
     'authentication',
