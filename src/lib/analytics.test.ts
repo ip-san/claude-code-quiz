@@ -178,7 +178,8 @@ describe('setUserProperties', () => {
     // GTM タグはトップレベルの dataLayer 変数 platform を参照するため、
     // user_properties 内だけでは初回訪問時にイベントパラメータが空になる
     expect(pushed?.platform).toMatch(/^(pwa|electron)$/)
-    expect((pushed?.user_properties as Record<string, unknown>).platform).toBe(pushed?.platform)
-    expect((pushed?.user_properties as Record<string, unknown>).mastery_level).toBe('bronze')
+    const userProperties = pushed?.user_properties as Record<string, unknown> | undefined
+    expect(userProperties?.platform).toBe(pushed?.platform)
+    expect(userProperties?.mastery_level).toBe('bronze')
   })
 })
