@@ -869,3 +869,12 @@ doc 全面更新（45ページ）で 810 問全件が target 化、pre-lint で 
 - **quiz-verifier の maxTurns 30 では大カテゴリ（100問超）が完走しない**（10体中7体が上限停止→再開で完走）。次回は 60〜70 問単位に分割するか maxTurns を引き上げる
 - 未判定で残した minor: ses-113/018/042/071/078/109/162/140/200/227/236/142、key-040/044/034、tool-001/048/054（Glob/Grep 既定外の注記）、mem-007/051/041/021/061/066/010/033/039/059/037、bp-057。mem-078 と mem-083 は設問がほぼ重複（要統合検討）
 
+## 2026-09-30 quality-loop 第17回（第16回の積み残し検証）
+
+- 第16回で「浅い確認のみ」だった問題と未判定 minor の計134問を判定層で深掘り → 57問修正（critical 相当: tool-020 ツール結果はファイル保存、ext-098 マネージド `availableModels` は上書き、cmd-107 MCP プロンプトの表示形式が選択肢に無かった）。詳細は `docs/verified-facts.md` 末尾
+- **diagram-only 修正が多数**: 文断片を並べただけの terminal 図・単語途中で割れた flow 図（ext-014「cw」+「d」等）が残っていた。`quiz:check-diagram-text` で拾えない「terminal 図に文断片」パターンは要チェック追加検討
+- **referenceUrl のページ誤り**: settings ページに記述の無い事項（mTLS→network-config、sandbox→settings-reference、`com.anthropic.claudecode`→managed-settings、`CLAUDE_CODE_PROXY_RESOLVES_HOSTS`→env-vars）。settings は大半のキーが settings-reference に移っている
+- lint 偽陽性（アンカー）追加: memory `#share-rules-across-projects-with-symlinks`（live に実在）
+- 判定見送り（nuance のみ）: mem-037, mem-041, key-034, key-050, sdk-007, sdk-015, mem-010, mem-051
+- Google Cloud's Agent Platform（旧 Vertex AI）表記: 旧名称のままの問題が約20問残存（known-issues 既知、段階的に更新）
+

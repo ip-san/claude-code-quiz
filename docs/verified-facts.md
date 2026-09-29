@@ -309,7 +309,7 @@
 - **`/clear` は新セッション開始**（元の会話は `/resume` で再開可）
 - **WebDAV 警告（security.md）は現存**（cache は `<Warning>` callout を落とす → live で確認）
 
-## 2026-09-30 quality-loop 第16回（全1025問監査 10並列 Sonnet + 判定層 Fable 5 ×3、103問修正）
+## 2026-09-30 quality-loop 第16回（既存1005＋新規20の全件監査、10並列 Sonnet + 判定層 Fable 5 ×3、103問修正）
 
 - CLAUDE.md は優先順位ではなく **読み込み順 Managed → User → Project → Local**。全ファイルは連結され上書きしない、CLAUDE.local.md は CLAUDE.md の後に追加 — memory "lists them in load order, from broadest scope to most specific" / "concatenated into context rather than overriding each other"（quality-rules.md の「Managed > Project > User > Local」は stale）
 - user rules と project rules は "Neither set overrides the other"（競合時はどちらに従うか不定）— memory「User-level rules」
@@ -363,3 +363,26 @@
 - `/fork` = 会話をコピーしてバックグラウンドで並行実行、`/branch` = 分岐して切替 — commands
 - **ドキュメント構成変更**: プラグイン系7ページ（discover-plugins / plugins / plugins-reference / plugin-marketplaces / plugin-dependencies / plugin-hints / plugin-relevance）は `/plugins/*` の20ページに再編（旧 URL はリダイレクト）。`web-scheduled-tasks` は routines に統合（ja 版は 404）
 - **キャッシュの制約**: fetch-docs のキャッシュは明示 `<hN id>` やコードフェンスを落とすことがある（skills `#skills-in-cowork-and-cloud-sessions` / `#live-change-detection`、plugin-evals のアンカーは live では有効）→ 判定は live の `{url}.md` / HTML で行う
+
+
+## 2026-09-30 quality-loop 第17回（第16回の積み残し134問を判定層 Fable 5 ×3 で深掘り検証、57問修正 + plugins/* 新規12問）
+
+- auto mode は v2.1.283 以降、対話ターミナル・VS Code セッションで**全プラン・全プロバイダ**の組み込み開始モード（それ以前は Pro/Max/Team のみ）— permission-modes / best-practices
+- 管理ティアは no-merge が既定（ポリシーキーを配信した最初のソースを採用）。例外はロックキー・`env` の変数ごとマージ（v2.1.223+）・ゲートウェイサインイン系キー — server-managed-settings
+- `/compact` 後に再注入されるのはプロジェクトルートの CLAUDE.md のみ。ネスト CLAUDE.md / `paths:` ルールは該当ファイル読込時に再ロード。4 MiB 超の CLAUDE.md はスキップ — memory
+- PR バッジは4色、GitHub トークン（`GH_TOKEN`/`GITHUB_TOKEN`/`gh auth login`）で取得、`git push`/`gh pr` 成功時に更新 — interactive-mode
+- `Ctrl+X` はコード前置キー、`Ctrl+L` は入力・履歴を保持した再描画 — keybindings / interactive-mode
+- statusline の更新契機は8種、300ms デバウンス — statusline
+- Shift+Enter: kitty keyboard protocol 対応端末（foot、Alacritty 0.16+）は v2.1.269 以降設定不要 — terminal-config
+- Agent SDK docs は `code.claude.com/docs/*/agent-sdk/*` に移設（`platform.claude.com/docs/ja/agent-sdk/overview` は en に 307 リダイレクト → 10問の referenceUrl を `code.claude.com/docs/ja/agent-sdk/overview` に移行）。旧称は「Claude Code SDK」 — agent-sdk/overview
+- ツール結果（画像なし）が上限超過するとファイル保存＋パス参照（切り捨てではない）— tools-reference（tool-020）
+- マネージド設定の `availableModels` は v2.1.175 以降、ユーザー設定のリストを上書き（下位スコープで拡張不可）— model-config（ext-098）
+- MCP プロンプトは `/servername:promptname (MCP)` と表示され、`/mcp__server__prompt` の形式で入力して実行 — mcp（cmd-107）
+- MCP OAuth は `/mcp` または `claude mcp login <name>` で開始（`-p` では不可）— mcp（ext-035）
+- MCP トランスポートは4種（stdio / HTTP / SSE（非推奨）/ WebSocket）— mcp（ext-009, ext-046）
+- 公式 apt/dnf/apk リポジトリが提供されている — setup（cmd-100）
+- Claude Code on the web: PR は完了通知の「Create PR」で作成（自動作成ではない）— claude-code-on-the-web（ext-125）
+- CLI から見たテレポートは一方向、Desktop は Continue in でローカル→クラウド可 — ses-165
+- `CLOUD_ML_REGION` 未設定時は `us-east5` にフォールバック — google-vertex-ai（ses-162）
+- クラウド環境のセットアップは Owner ロールのみ（admin 記載なし）— ses-236
+- **lint の偽陽性（アンカー）**: memory `#share-rules-across-projects-with-symlinks` も ja ページの実 id として live に存在（キャッシュ欠落）
