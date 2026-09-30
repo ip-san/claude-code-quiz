@@ -878,3 +878,11 @@ doc 全面更新（45ページ）で 810 問全件が target 化、pre-lint で 
 - 判定見送り（nuance のみ）: mem-037, mem-041, key-034, key-050, sdk-007, sdk-015, mem-010, mem-051
 - Google Cloud's Agent Platform（旧 Vertex AI）表記: 旧名称のままの問題が約20問残存（known-issues 既知、段階的に更新）
 
+## 2026-09-30 quality-loop 第18回（仕組み: 内容差分ベースの追従）
+
+- **`verify:diff` はハッシュ比較のため、日次の docs 再取得で大半のページが「変更」扱いになる**（今回 36 ページ・432 問）。実際の内容差分は 1 ページ 2〜30 行程度だった
+- 対策: `verify:save` が `.claude/tmp/docs-baseline/` に検証時点のキャッシュを保存し、`bun run docs:changes`（`--hunks` で差分本文）で内容差分と参照問題数を出す。次回以降は「docs:changes → 差分を判定層1体に渡す」で影響問題だけを直す
+- 今回は 13 ページ（前日の live 保存分）だけ内容差分を取れた。残り 23 ページ（desktop, mcp, permissions, vs-code, settings-reference, plugin-evals ほか）は比較元が無く未検証 → 今日の版をベースラインとして保存済み。次回の `docs:changes` で拾う
+- 根本対策の候補（未着手）: fetch-docs が Jina より公式 `{url}.md` を優先すれば、ハッシュのノイズ・コードフェンス欠落・明示 `<hN id>` 欠落によるアンカー偽陽性がまとめて解消する
+- key-029 は「矛盾」ではなく「出典消失」型（docs の例が Ctrl+U→Ctrl+S に変わった）。例を docs に合わせて差し替え
+

@@ -386,3 +386,14 @@
 - `CLOUD_ML_REGION` 未設定時は `us-east5` にフォールバック — google-vertex-ai（ses-162）
 - クラウド環境のセットアップは Owner ロールのみ（admin 記載なし）— ses-236
 - **lint の偽陽性（アンカー）**: memory `#share-rules-across-projects-with-symlinks` も ja ページの実 id として live に存在（キャッシュ欠落）
+
+## 2026-09-30 quality-loop 第18回（同日午後の docs 更新への追従: 13ページの内容差分から5問修正＋新規2問）
+
+- hooks「What a blocked prompt leaves behind」: `UserPromptSubmit` のブロックは**消去ではない**。プロンプトは Claude に届かないが、既定でブロックメッセージ末尾に `Original prompt:` と本文が付き、トランスクリプトにも書かれる。`suppressOriginalPrompt` はブロックメッセージから除くだけ（機密をディスクに残さない手段ではない）— ext-007
+- prompt-caching: `DISABLE_PROMPT_CACHING_SONNET` / `_OPUS` は `sonnet` / `opus` エイリアスが解決する**既定モデルだけ**が対象（別 ID をメインにするとキャッシュは維持 → 全体を止めるなら `DISABLE_PROMPT_CACHING`）。settings ページからは該当行が消え、prompt-caching ページが正典 — ses-070, ses-104
+- model-config: 思考をオフにできないモデル（Opus 5.5 / Sonnet 5.5 / Fable）ではトグルと `/config` に `Thinking can't be turned off` を表示。`ANTHROPIC_DEFAULT_*_MODEL` 設定時は picker に1行、1M は `/model opus[1m]`
+- keybindings: unbind の例は `Chat` の `"ctrl+s": null`（`chat:stash`）。検証警告はデバッグログにのみ出力 — key-029
+- third-party-integrations: Teams の「$150/seat」表記は削除（価格ページ参照）— ses-160
+- memory: スペースを含む import パスは各スペースの前にバックスラッシュ（`@Design\ Docs/api-conventions.md`）。引用符で囲むと読み込まれない — mem-104（新規）
+- skills: `/claude-api` のサブコマンド（migrate / upgrade v2.1.236+ / managed-agents-onboard / prompt-audit v2.1.221+ / cost-optimize v2.1.247+ / build-eval・hillclimb v2.1.259+ / preserved-thinking-migration）。現時点で en のみ — skill-094（新規）
+- Claude Tag セッションは server-managed settings を受け取らない（self-hosted 環境では管理設定ファイルを読む）— managed-settings / model-config

@@ -21,7 +21,7 @@
  */
 
 import { createHash } from 'crypto'
-import { existsSync, mkdirSync, readFileSync, statSync, writeFileSync } from 'fs'
+import { copyFileSync, existsSync, mkdirSync, readdirSync, readFileSync, statSync, writeFileSync } from 'fs'
 import { dirname, resolve } from 'path'
 import { fileURLToPath } from 'url'
 import { CATEGORY_DOC_MAP, SUPPLEMENTARY_DOCS } from './quiz-constants.mjs'
@@ -30,6 +30,7 @@ const __dirname = dirname(fileURLToPath(import.meta.url))
 const ROOT = resolve(__dirname, '..')
 const QUIZ_PATH = resolve(ROOT, 'src/data/quizzes.json')
 const DOCS_DIR = resolve(ROOT, '.claude/tmp/docs')
+const BASELINE_DIR = resolve(ROOT, '.claude/tmp/docs-baseline')
 const STATE_PATH = resolve(ROOT, '.claude/tmp/verify-state.json')
 const TARGETS_PATH = resolve(ROOT, '.claude/tmp/verify-targets.json')
 const QUIZ_SPLIT_DIR = resolve(ROOT, '.claude/tmp/quizzes')
@@ -486,14 +487,33 @@ function cmdSave() {
 
   state.lastVerified = now
   saveState(state)
+  const baselineCount = snapshotDocsBaseline()
 
   console.log(`Verification state saved.`)
+  console.log(
+    `  Doc baseline snapshot: ${baselineCount} pages → .claude/tmp/docs-baseline/ (bun run docs:changes で差分確認)`
+  )
   console.log(`  Quizzes tracked: ${Object.keys(state.quizHashes).length}`)
   console.log(`  Doc pages tracked: ${Object.keys(state.docHashes).length}`)
   console.log(
     `  Verify results: ${Object.keys(state.verifyResults).length} (${okCount} ok, ${fixedCount} fixed this round)`
   )
   console.log(`  Timestamp: ${state.lastVerified}`)
+}
+
+/**
+ * 検証済み時点のドキュメントキャッシュを丸ごと保存する。
+ * ハッシュだけでは「どこが変わったか」が分からず、日次の再取得で全ページが変更扱いになるため、
+ * 次回は docs:changes で内容差分を見て影響する問題だけを検証できるようにする。
+ */
+function snapshotDocsBaseline() {
+  if (!existsSync(DOCS_DIR)) return 0
+  mkdirSync(BASELINE_DIR, { recursive: true })
+  const pages = readdirSync(DOCS_DIR).filter((f) => f.endsWith('.md'))
+  for (const file of pages) {
+    copyFileSync(resolve(DOCS_DIR, file), resolve(BASELINE_DIR, file))
+  }
+  return pages.length
 }
 
 function cmdStatus() {

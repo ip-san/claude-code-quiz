@@ -170,6 +170,7 @@ facts-checker が drift を検出したら、MEMORY.md と `docs/verified-facts.
 
 1. `bun run docs:discover` で新規ドキュメントページを検出し、`topic-config.mjs` に追加
 2. `bun run docs:fetch` で期限切れキャッシュをリフレッシュ（rate limit 時はスキップ）
+   - **`bun run docs:changes`** で前回 `verify:save` 時点からの内容差分（ページ別の変更行数・参照問題数）を確認する。`verify:diff` はハッシュ比較のため日次再取得で全ページが変更扱いになりやすい。差分が小さい場合は `docs:changes --hunks` を判定層エージェント1体に渡し、影響問題だけを修正するのが効率的
 3. `/quiz-refine --full` スキルを実行する（フルスキャンモード）
 4. ステップ2で追加した問題も含めて全問スキャンされる
 
