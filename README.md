@@ -2,7 +2,7 @@
 
 <img src="build/icon.svg" alt="Claude Code Quiz" width="64" height="64">
 
-Claude Code の機能と使い方を **1039問のクイズ** で学ぶアプリ。スマホでもPCでも。
+Claude Code の機能と使い方を **1038問のクイズ** で学ぶアプリ。スマホでもPCでも。
 
 **今すぐ試す（ブラウザ版）:** https://ip-san.github.io/claude-code-quiz/
 
@@ -94,11 +94,11 @@ Claude Code を導入しても、チームが使いこなせなければ投資�
 | 読んでから解く | 解説を先に読んでからクイズに挑戦（初心者向け） |
 | 実践シナリオ | 実務シナリオに沿ってClaude Codeを学ぶ |
 
-### 9つのカテゴリ（1039問）
+### 9つのカテゴリ（1038問）
 
 | カテゴリ | 問題数 | 内容 |
 |---------|--------|------|
-| Memory | 97問 | CLAUDE.md、@import、メモリシステム |
+| Memory | 96問 | CLAUDE.md、@import、メモリシステム |
 | Skills | 89問 | カスタムスキル、スラッシュコマンド |
 | Tools | 89問 | Read, Edit, Bash, Glob, Grep |
 | Commands | 122問 | CLI コマンド、フラグ |

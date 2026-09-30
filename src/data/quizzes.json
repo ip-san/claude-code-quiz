@@ -697,15 +697,15 @@
           "text": "定期的に内容を見直し、不要な記述を削除する。ドメイン知識やワークフローはSkillsに移動する"
         },
         {
-          "text": "長さに関係なく、すべての情報を`CLAUDE.md`に集約すべき",
+          "text": "長さに関係なく、すべての情報を1つの`CLAUDE.md`に集約しておくべき",
           "wrongFeedback": "`CLAUDE.md`が長すぎるとClaudeが重要な指示を見落とす可能性があります。簡潔に保つことが推奨されています。"
         },
         {
-          "text": "500行を超えたら別ファイルに分割し、`@path/to/file`構文で読み込む",
+          "text": "500行を超えたら別ファイルに分割し、`@path/to/file`構文で読み込むようにするとよい",
           "wrongFeedback": "インポートは有効な手法ですが、「500行」という閾値はドキュメントに記載されていません。公式ドキュメントは1ファイルあたり200行未満を目標とすることを推奨しています。また、分割（`@path`インポートや`.claude/rules/`への移動）と定期的な見直しはどちらも同等に推奨されており、どちらかが「主要」という扱いではありません。"
         },
         {
-          "text": "自動的にトリミングされるので気にしなくてよい",
+          "text": "自動的にトリミングされるので、長さについては特に気にしなくてよい",
           "wrongFeedback": "`CLAUDE.md`は全文がセッション開始時に読み込まれます。冗長な内容はClaudeのパフォーマンスを低下させます。"
         }
       ],
@@ -1071,7 +1071,7 @@
           "wrongFeedback": "`allowed-tools`はSkill実行時に使えるツールを制限しますが、Claudeがそのスキルを自動的に呼び出すこと自体は防げません。呼び出し制御とツール制限は別の関心事です。"
         },
         {
-          "text": "`permissions`のdenyルールにSkill(deploy)を追加して、Claudeからのアクセスをブロックして保護する",
+          "text": "`permissions`のdenyルールにSkill(deploy)を追加して、Claudeからのアクセスをブロックし副作用のある操作から確実に保護する",
           "wrongFeedback": "`permissions.deny`でSkillをブロックすると、Claudeだけでなくユーザーの/コマンド呼び出しも含めて完全にブロックされます。ユーザー手動実行だけ許可したい場合はdisable-model-invocationが適切です。"
         },
         {
@@ -1455,7 +1455,7 @@
       "explanation": "Skillの配置場所がスコープを決定します。\n\n{{diagram:0}}\n\n`.claude/skills/`はプロジェクトスコープでバージョン管理にコミットすればチーム共有が可能です。`~/.claude/skills/`はユーザースコープで全プロジェクトで利用でき、他のメンバーには影響しません。\n{{diagram:1}}",
       "category": "skills",
       "difficulty": "beginner",
-      "referenceUrl": "https://code.claude.com/docs/ja/skills#choose-where-skills-load",
+      "referenceUrl": "https://code.claude.com/docs/ja/skills#where-skills-live",
       "diagrams": [
         {
           "type": "comparison",
@@ -1592,7 +1592,7 @@
       "question": "Skillのdescriptionフィールドに「Deploy the application to production」と書いた場合と、descriptionを省略した場合で、Claudeの挙動はどう変わりますか？",
       "options": [
         {
-          "text": "descriptionがある場合はユーザーの/メニューに説明が表示され、省略時は名前のみ表示されるという表示上の違いだけがある",
+          "text": "descriptionがある場合はユーザーの/メニューに説明が表示され、省略時は名前のみ表示されるという、メニュー上の表示の違いだけで、それ以外の動作の違いはない",
           "wrongFeedback": "メニュー表示への影響はありますが、descriptionの主な目的はClaudeがどのタスクにどのスキルを適用すべきか判断する基準を提供することです。省略時はマークダウン本文の最初の空でない行がdescriptionとして使われます。"
         },
         {
@@ -1603,7 +1603,7 @@
           "wrongFeedback": "descriptionはClaudeのコンテキストに読み込まれ、どのタスクにどのスキルが適切かをClaudeが判断する際の主要な基準になります。ログ記録用ではありません。"
         },
         {
-          "text": "descriptionがある場合のみSkillが有効になり、省略するとSkillは読み込まれず/メニューにも表示されない",
+          "text": "descriptionがある場合のみSkillが有効になり、省略するとSkillは読み込まれず、/メニューにも一覧表示されない",
           "wrongFeedback": "descriptionはrecommended（推奨）フィールドですがrequired（必須）ではありません。省略してもSkillは正常に読み込まれ、マークダウン本文の最初の空でない行が説明として使用されます。"
         }
       ],
@@ -1664,11 +1664,11 @@
           "text": "スキル内容の末尾に\"ARGUMENTS: <value>\"として追加される"
         },
         {
-          "text": "引数の形式が不正としてエラーが発生し、実行が中断される",
+          "text": "引数の形式が不正なものとして扱われ、エラーが発生してスキルの実行が中断される",
           "wrongFeedback": "`$ARGUMENTS`がなくても引数は正常に処理されます。スキル内容の末尾に自動追加され、Claudeがその引数を認識できます。"
         },
         {
-          "text": "シェルの環境変数として設定され、スキル内のコマンドから参照できる",
+          "text": "シェルの環境変数として設定され、スキル内のシェルコマンドから変数として参照できる",
           "wrongFeedback": "環境変数としてではなく、スキル内容の末尾にテキストとして追加されます。シェル環境変数とは異なる仕組みです。"
         },
         {
@@ -1747,7 +1747,7 @@
       ],
       "correctIndex": 2,
       "explanation": "プロジェクトSkillは`.claude/skills/<skill-name>/SKILL.md`に配置し、そのプロジェクトでのみ使用できます。\n{{diagram:0}}\n{{diagram:1}}",
-      "referenceUrl": "https://code.claude.com/docs/ja/skills#choose-where-skills-load",
+      "referenceUrl": "https://code.claude.com/docs/ja/skills#where-skills-live",
       "diagrams": [
         {
           "type": "hierarchy",
@@ -1868,7 +1868,7 @@
       "question": "`context: fork`でSkillを実行する際、agentフィールドで指定できる組み込みエージェントタイプはどれですか？",
       "options": [
         {
-          "text": "`Research`、`Code`、`Test`（用途別の汎用エージェント）",
+          "text": "`Research`、`Code`、`Test`（調査・実装・テストの用途別に用意された汎用エージェント）",
           "wrongFeedback": "これらは組み込みタイプではありません。正しくは`Explore`、`Plan`、`general-purpose`の3つです。"
         },
         {
@@ -1879,7 +1879,7 @@
           "wrongFeedback": "これらは組み込みタイプではありません。正しくは`Explore`、`Plan`、`general-purpose`の3つです。"
         },
         {
-          "text": "`Read`、`Write`、`Execute`（ツール権限ごとに分離されたエージェント）",
+          "text": "`Read`、`Write`、`Execute`（ツール権限ごとに分離された読み取り・書き込み・実行用のエージェント）",
           "wrongFeedback": "これらはツール名であり、エージェントタイプではありません。組み込みタイプは`Explore`、`Plan`、`general-purpose`の3つです。"
         }
       ],
@@ -2083,11 +2083,11 @@
       "question": "プロジェクト全体から特定の関数呼び出しパターンを探す必要があります。`Grep`ツールと`Glob`ツールの使い分けとして正しいのはどれですか？",
       "options": [
         {
-          "text": "どちらも内部的に`ripgrep`エンジンを使用しており、機能的には同等",
+          "text": "どちらも内部的に`ripgrep`エンジンを使用しており、機能的には同等でどちらを使っても同じ結果になる",
           "wrongFeedback": "`Grep`は`ripgrep`ベースですが`Glob`は異なるエンジンを使用しています。`Grep`はファイル内容検索、`Glob`はファイルパス検索と用途が明確に異なります。"
         },
         {
-          "text": "`Grep`も`Glob`もファイル内容を検索できるが、`Grep`の方が高速なので常に`Grep`を使うべき",
+          "text": "`Grep`も`Glob`もファイル内容を検索できるが、`Grep`の方が高速なので、どのような検索でも常に`Grep`を使うべき",
           "wrongFeedback": "`Glob`はファイル名のパターンマッチングのみで、ファイル内容は検索しません。ファイル名で探すなら`Glob`、中身で探すなら`Grep`という明確な使い分けがあります。"
         },
         {
@@ -2231,7 +2231,7 @@
       "question": "500行ある設定ファイルの特定の1行だけを変更したい場合、`Edit`ツールと`Write`ツールの選択について正しいのはどれですか？",
       "options": [
         {
-          "text": "`Write`で変更後の全500行を書き込む方が確実。`Edit`は一致文字列が複数あるとエラーになるので信頼性が低い",
+          "text": "`Write`で変更後の全500行を書き込む方が確実。`Edit`は一致文字列が複数あるとエラーになるので信頼性が低く、設定ファイルの更新は常に`Write`で行うべき",
           "wrongFeedback": "`Edit`の一意性チェックはむしろ安全機能です。`old_string`により多くのコンテキスト（周辺行）を含めれば一意にできます。500行を`Write`で全体上書きする方が意図しない変更のリスクが高いです。"
         },
         {
@@ -2373,7 +2373,7 @@
       "question": "Claude Codeで大規模なリファクタリングを依頼したところ、Claudeが複数のファイルを読み、編集し、テストを実行して検証しました。このように異なる種類の操作を組み合わせて実行できるのはなぜですか？",
       "options": [
         {
-          "text": "`Bash`ツールだけですべての操作を実行しており、実際にはファイル操作や検索の専用ツールは存在しない",
+          "text": "`Bash`ツールだけで、cat・grep・sed といったシェルコマンドを使いすべての操作を実行しており、実際にはファイル操作や検索の専用ツールは存在しない",
           "wrongFeedback": "`Bash`ツールは実行カテゴリの一つですが、ファイル操作には`Read`/`Edit`/`Write`、検索には`Glob`/`Grep`など専用ツールが別途存在します。専用ツールの方が安全で効率的です。"
         },
         {
@@ -2381,7 +2381,7 @@
           "wrongFeedback": "Claude Codeはエージェントループで自律的にツールを選択します。ユーザーがツール順序を定義する必要はなく、タスクの内容に応じてClaude自身が判断します。"
         },
         {
-          "text": "MCPサーバーを設定して外部ツール連携を有効化しているからで、デフォルトでは単一ツールしか使えない",
+          "text": "MCPサーバーを設定して外部ツール連携を有効化しているからで、デフォルトでは単一のツールしか使えない設計になっている",
           "wrongFeedback": "ファイル操作・検索・実行・Web・コードインテリジェンスの5カテゴリは組み込みツールとしてデフォルトで利用可能です。MCPは外部サービス連携の拡張機能であり、基本的なツール使用には不要です。"
         },
         {
@@ -2804,11 +2804,11 @@
           "text": "`Ctrl+B`を押す、またはClaudeに対してバックグラウンドで実行するよう依頼する"
         },
         {
-          "text": "Unix標準の`bg`コマンドを使用してプロセスをバックグラウンドに移動する",
+          "text": "Unix標準の`bg`コマンドを入力して、実行中のプロセスをバックグラウンドに移動させる",
           "wrongFeedback": "シェルの`bg`コマンドはClaude Codeのバックグラウンドタスクシステムとは異なります。Claude Codeでは`Ctrl+B`キーでコマンドをバックグラウンドに移動するか、Claudeに対してバックグラウンドで実行するよう依頼します。"
         },
         {
-          "text": "コマンドの末尾に `&` を付けてシェルのバックグラウンド実行を利用する",
+          "text": "コマンドの末尾に `&` を付けて、シェル標準のバックグラウンド実行機能をそのまま利用する",
           "wrongFeedback": "シェルの`&`サフィックスは通常のバックグラウンド実行方法ですが、Claude Codeでは`Ctrl+B`キーでバックグラウンドに移動するか、Claudeに対してバックグラウンドで実行するよう依頼します。"
         },
         {
@@ -3706,11 +3706,11 @@
       "question": "Claude Codeの会話内容をチームメンバーに共有したい場合、`/export`コマンドの機能として正しいのはどれですか？",
       "options": [
         {
-          "text": "会話をPDF形式でのみ出力でき、テキスト形式やMarkdown形式のエクスポートはできない",
+          "text": "会話をPDF形式のファイルでのみ出力でき、テキスト形式やMarkdown形式のエクスポートには対応していない",
           "wrongFeedback": "`/export`はテキスト形式でファイルに保存できます。PDF専用ではありません。"
         },
         {
-          "text": "直近の1ターンのみエクスポート可能で、会話全体のエクスポートには`/copy`を使用する",
+          "text": "直近の1ターンのみエクスポートでき、会話全体をエクスポートしたい場合は別途`/copy`を使用する",
           "wrongFeedback": "`/export`は会話全体をエクスポートするコマンドです。`/copy`は直近のClaude応答をクリップボードにコピーする別のコマンドです。"
         },
         {
@@ -4423,7 +4423,7 @@
           "wrongFeedback": "`/mcp`コマンドはサーバーの状態確認や認証に使いますが、ツール一覧の更新は`list_changed`通知で自動的に行われます。"
         },
         {
-          "text": "Claude Codeを再起動しないと新しいツール一覧が反映されない",
+          "text": "Claude Codeを再起動しないと新しいツール一覧が反映されず、サーバー側の変更は次回起動まで見えない",
           "wrongFeedback": "Claude CodeはMCPの`list_changed`通知をサポートしており、再起動なしで動的にツール一覧を更新できます。"
         },
         {
@@ -5253,14 +5253,14 @@
         },
         {
           "text": "`/clear`は直前の1つのメッセージだけを消去し、`/exit`は会話の全履歴をすべてまとめて消去する",
-          "wrongFeedback": "`/clear`は直前の1つではなく、会話履歴全体を完全に消去します。直前の操作の取り消しには`/rewind`を使います"
+          "wrongFeedback": "`/clear`は直前の1つではなく会話全体を対象にし、空のコンテキストで新しい会話を始めます（元の会話は`/resume`で再開可能）。直前の操作の取り消しには`/rewind`を使います"
         },
         {
           "text": "`/clear`は会話を消去して新しい会話を始める（元の会話は`/resume`で再開可）が、`/exit`はClaude Codeを終了する"
         },
         {
-          "text": "`/clear`は会話履歴に加えてファイルの変更も元に戻すが、`/exit`はファイルの変更を保持したまま安全に終了する",
-          "wrongFeedback": "`/clear`が消去するのは会話履歴のみで、ファイルへの変更は元に戻しません。ファイルの復元には`/rewind`を使います"
+          "text": "`/clear`は会話履歴に加えてファイルの変更も元に戻すが、`/exit`はファイルの変更を保持したまま終了し、その会話は`/resume`で再開できなくなる",
+          "wrongFeedback": "`/clear`が消去するのは会話履歴のみで、ファイルへの変更は元に戻しません。ファイルの復元には`/rewind`を使います。また`/exit`で終了した会話も保存されており、`claude --resume`や`/resume`で再開できます"
         }
       ],
       "correctIndex": 2,
@@ -5318,7 +5318,7 @@
       "question": "Skillの`context: fork`設定とサブエージェントのskillsフィールドは、どちらもSkillとサブエージェントを連携させますが、両者の主な違いは何ですか？",
       "options": [
         {
-          "text": "`context: fork`はプロジェクトスコープでのみ動作し、skillsフィールドはユーザースコープでのみ動作する",
+          "text": "`context: fork`はプロジェクトスコープでのみ動作し、skillsフィールドはユーザースコープでのみ動作するという配置場所の制限がある",
           "wrongFeedback": "両方の機能ともスコープの制限はありません。`context: fork`はSkillの実行方法を制御する設定で、skillsフィールドはサブエージェントにドメイン知識を事前注入する設定です。配置場所によるスコープの違いとは無関係です。"
         },
         {
@@ -5607,7 +5607,7 @@
       "question": "チームで複数の機能を並行開発しており、過去のセッションを名前で管理したい。セッション名を付けて後から名前で再開するワークフローとして正しいのはどれですか？",
       "options": [
         {
-          "text": "セッションピッカーでPキーを押して名前を入力し、`claude --from-pr` で再開する",
+          "text": "セッションピッカーでPキーを押してセッション名を入力し、その後にその名前を指定して `claude --from-pr` で再開する",
           "wrongFeedback": "`--from-pr`はPR関連セッションの再開専用フラグです。任意のセッションを名前で再開するには`--resume <name>`を使います。また、セッション名の変更は`/rename`コマンドで行います。"
         },
         {
@@ -7068,14 +7068,14 @@
       "question": "Auto Memoryの`MEMORY.md`ファイルが非常に長くなった場合、どのような問題が起こりますか？",
       "options": [
         {
-          "text": "エラーが発生して `Claude Code` が起動できなくなる（MEMORY.md は読み込み失敗で起動ブロック）",
+          "text": "エラーが発生して `Claude Code` が起動できなくなる（MEMORY.md の読み込み失敗が起動ブロックとして扱われる）",
           "wrongFeedback": "起動はできますが、先頭200行または25KB以降の内容が読み込まれません。"
         },
         {
           "text": "先頭200行または25KBの先に到達した方までが、セッション開始時に読み込まれる。Claudeは詳細をトピック別ファイルに整理する"
         },
         {
-          "text": "ファイルサイズが大きいと読み込みが遅くなるだけで、内容は全て `MEMORY.md` に保持され続ける",
+          "text": "ファイルサイズが大きいと読み込みが遅くなるだけで、内容は全て読み込まれ、`MEMORY.md` にも保持され続ける",
           "wrongFeedback": "先頭200行または25KB（先に到達した方）を超えた部分は自動ロードされません（ファイル自体は削除されません）。トピック別ファイルへの分割が推奨されます。"
         },
         {
@@ -7136,18 +7136,18 @@
       "question": "Auto Memoryがユーザーのホームディレクトリ配下（`~/.claude/`）に保存される設計上の理由として正しいのはどれですか？",
       "options": [
         {
-          "text": "セッション終了時に自動削除される一時データとして扱われる",
+          "text": "セッション終了時に自動削除される一時データとして扱われ、次回のセッションでは読み込まれない",
           "wrongFeedback": "Auto Memoryはセッションをまたいで永続化されます。`~/.claude/projects/<project>/memory/`に保存され、次回セッションでも読み込まれます。"
         },
         {
           "text": "プロジェクトリポジトリに含まれず個人の学習データとして管理され、プロジェクトごとに独立して保存される"
         },
         {
-          "text": "プロジェクトの`CLAUDE.md`と同じディレクトリに保存され、gitで共有される",
+          "text": "プロジェクトの`CLAUDE.md`と同じディレクトリに保存され、チームメンバーとgitで共有される",
           "wrongFeedback": "Auto Memoryは`CLAUDE.md`とは異なり、`~/.claude/projects/<project>/memory/`に個人データとして保存されます。gitリポジトリには含まれません。"
         },
         {
-          "text": "グローバル設定として全プロジェクトで同じメモリが共有される",
+          "text": "グローバル設定として保存され、全プロジェクトで同じメモリが共有・参照される",
           "wrongFeedback": "Auto Memoryはプロジェクトごとに独立しています。`~/.claude/projects/<project>/memory/`にプロジェクト別で保存されます。"
         }
       ],
@@ -7210,18 +7210,18 @@
       "question": "セキュリティ上の理由でAuto Memoryを無効にしたい場合、最も適切な方法はどれですか？",
       "options": [
         {
-          "text": "`settings.json`で`autoMemory: false`を設定する",
+          "text": "`settings.json`で`autoMemory: false`を設定して無効にする",
           "wrongFeedback": "キー名が誤りです。正しくは`autoMemoryEnabled: false`です。ただし、機密プロジェクトなど確実に無効化するには環境変数`CLAUDE_CODE_DISABLE_AUTO_MEMORY=1`が推奨されます。"
         },
         {
           "text": "環境変数 `CLAUDE_CODE_DISABLE_AUTO_MEMORY=1` を設定する"
         },
         {
-          "text": "`~/.claude/projects/` ディレクトリを削除する",
+          "text": "`~/.claude/projects/` ディレクトリを削除して保存済みの記憶を消す",
           "wrongFeedback": "ディレクトリを削除しても次回セッションで再作成されます。環境変数での無効化が適切です。"
         },
         {
-          "text": "`CLAUDE.md`に「Auto Memoryを使わないでください」と記述する",
+          "text": "`CLAUDE.md`に「Auto Memoryを使わないでください」と記述して、Claudeに指示する",
           "wrongFeedback": "`CLAUDE.md`への記述はガイダンスであり、技術的にAuto Memoryを無効化することはできません。"
         }
       ],
@@ -7439,7 +7439,7 @@
           "wrongFeedback": "`--add-dir` はディレクトリへのアクセスを許可しますが、デフォルトではそのディレクトリの`CLAUDE.md`ファイルは読み込まれません"
         },
         {
-          "text": "共有ライブラリの`CLAUDE.md`をホームディレクトリ（`~/.claude/CLAUDE.md`）にシンボリックリンクする",
+          "text": "共有ライブラリの`CLAUDE.md`をホームディレクトリ（`~/.claude/CLAUDE.md`）にシンボリックリンクして、全プロジェクトから読み込まれるようにする",
           "wrongFeedback": "ホームディレクトリの`CLAUDE.md`は全プロジェクトに適用される個人設定向けであり、プロジェクト固有の共有ライブラリ設定には適していません"
         },
         {
@@ -7505,11 +7505,11 @@
           "text": "永続的な指示を`CLAUDE.md`に書き、「Compact Instructions」で圧縮時の保持内容を制御する"
         },
         {
-          "text": "`/compact`コマンドを定期的に手動実行して、コンテキストの空き容量を確保し続けるようにする",
+          "text": "`/compact`コマンドを定期的に手動実行して、コンテキストの空き容量を確保し続け、重要な指示の消失を防ぐようにする",
           "wrongFeedback": "`/compact`は一時的な対処にはなりますが、`CLAUDE.md`の内容は圧縮後も保持されますが、会話中に口頭で伝えた指示は圧縮で失われる可能性があります。`CLAUDE.md`に指示を記載し、Compact Instructionsで保持内容を指定するのが根本的な解決策です。"
         },
         {
-          "text": "サブエージェントにデバッグ作業を委任して、メインセッション側のコンテキストをできるだけ節約する",
+          "text": "サブエージェントにデバッグ作業を委任して、メインセッション側のコンテキストの消費をできるだけ節約する",
           "wrongFeedback": "サブエージェント活用はコンテキスト管理の有効な手段ですが、永続的な指示の保持には対応しません。`CLAUDE.md`に指示を記載してCompact Instructionsで制御するのが、指示の永続化としては正しい方法です。"
         },
         {
@@ -7724,7 +7724,7 @@
           "text": "一時的なGit Worktreeが作成されリポジトリの独立コピーで作業が行われ、変更がなければ自動的にクリーンアップされる"
         },
         {
-          "text": "メイン会話のコンテキストウィンドウとは別に新しいコンテキストが割り当てられるが、ファイルシステムは共有される",
+          "text": "メイン会話のコンテキストウィンドウとは別に新しいコンテキストが割り当てられるが、ファイルシステムはメイン会話と共有されたままになる",
           "wrongFeedback": "コンテキストの分離はサブエージェントの基本動作です。`isolation: worktree`は追加でファイルシステムレベルの分離を提供し、独立したGit Worktreeでリポジトリのコピーを作成します。"
         },
         {
@@ -7954,14 +7954,14 @@
       "question": "コードレビュー用サブエージェントが過去のレビューで見つけたパターンやアンチパターンを蓄積し、次回以降のレビューに活かせるようにするには、どの設定が適切ですか？",
       "options": [
         {
-          "text": "サブエージェントのシステムプロンプトに過去のレビューの知見をすべて記述し、毎回手動で更新する",
+          "text": "サブエージェントのシステムプロンプトに過去のレビューの知見をすべて記述し、レビューのたびに手動で更新して最新に保つ",
           "wrongFeedback": "システムプロンプトへの手動記述は初期知識の提供には使えますが、サブエージェントが実行中に学んだ知見を自動的に蓄積・更新する仕組みではありません。memoryフィールドなら自動的にファイルベースで知識を永続化できます。"
         },
         {
           "text": "`memory: user`を設定し、`~/.claude/agent-memory/<name>/`に知識を蓄積させる"
         },
         {
-          "text": "skillsフィールドでレビュー規約のSkillをサブエージェント起動時にプリロードし、毎回参照させる",
+          "text": "skillsフィールドでレビュー規約のSkillをサブエージェント起動時にプリロードし、レビューのたびに毎回参照させるようにする",
           "wrongFeedback": "skillsフィールドは既存のSkillコンテンツをサブエージェントに注入する機能ですが、サブエージェントが実行中に発見したパターンを蓄積・更新する仕組みではありません。動的な知識蓄積にはmemoryフィールドが必要です。"
         },
         {
@@ -8462,11 +8462,11 @@
       "question": "CIパイプラインでClaude Codeを使ってリントエラーを自動修正したい場合、最も適切なアプローチはどれですか？",
       "options": [
         {
-          "text": "`claude` コマンドで対話モードを起動してから、プロンプトを入力して修正を依頼する",
+          "text": "`claude` コマンドで対話モードを起動し、表示された入力欄にプロンプトを入力して修正を依頼する",
           "wrongFeedback": "対話モードはユーザーの入力を待つため、CI/CDパイプラインのような自動化環境では使用できません"
         },
         {
-          "text": "`claude --continue` で前回のセッションを再開し、リント修正を依頼する",
+          "text": "`claude --continue` で前回のセッションを再開し、その続きとしてリントエラーの修正を依頼する",
           "wrongFeedback": "`--continue`は前回の対話セッションを再開するフラグであり、CI環境での非対話的な自動実行には適していません"
         },
         {
@@ -8957,7 +8957,7 @@
           "wrongFeedback": "`--review`フラグや`--format`フラグは存在しません。CI/CDでの非対話実行は-pフラグ、出力形式は`--output-format`で指定します"
         },
         {
-          "text": "`claude -p` 'review this diff' `--input` diff.txt `--output-format json` で入力ファイルを指定し、完了後にJSON配列として結果を受け取る",
+          "text": "`claude -p` 'review this diff' `--input` diff.txt `--output-format json` で入力ファイルを指定し、完了後にJSON配列として結果を受け取り、CIのジョブ結果にそのまま反映して処理を続ける",
           "wrongFeedback": "`--input`フラグは存在しません。パイプ（cat file | `claude -p`）で入力を渡します。また`--output-format json`は全完了後のJSON配列出力で、リアルタイム処理にはstream-jsonが適しています"
         }
       ],
@@ -9375,7 +9375,7 @@
           "text": "commandはシェル実行、httpはHTTP POST、mcp_toolはMCPツール呼び出し、promptはLLMの単発判定、agentは複数ターンの検証"
         },
         {
-          "text": "promptタイプはユーザーに対話的な確認を表示し、agentタイプは外部APIを呼び出す専用のタイプである",
+          "text": "promptタイプはユーザーに対話的な確認を表示して承認を求め、agentタイプは外部APIを呼び出す専用のタイプである",
           "wrongFeedback": "promptタイプはLLMモデルにJSON判定（ok: true/false）を依頼するもので、ユーザーへの対話確認ではありません。agentタイプは`Read`/`Grep`/`Glob`などのツールが使えるサブエージェントです。"
         },
         {
@@ -9383,7 +9383,7 @@
           "wrongFeedback": "`async: true`で非同期実行できるのはcommandタイプのみです。promptとagentタイプはasyncオプションをサポートしていません。"
         },
         {
-          "text": "commandとpromptはすべてのイベントで使えるが、agentは`Stop`/`SubagentStop`イベントでのみ使用可能",
+          "text": "commandとpromptはすべてのイベントで使えるが、agentは`Stop`/`SubagentStop`イベントでのみ使用可能で、それ以外では使えない",
           "wrongFeedback": "agentタイプは`Stop`/`SubagentStop`以外にも`PreToolUse`、`PostToolUse`、`UserPromptSubmit`など多くのイベントで使用可能です。一方、`SessionStart`や`Notification`などcommandのみのイベントもあります。"
         }
       ],
@@ -9776,7 +9776,7 @@
           "wrongFeedback": "asyncオプションはcommandタイプのフックでのみサポートされています。promptタイプやagentタイプでは`async: true`は使用できません。"
         },
         {
-          "text": "`PreToolUse`イベントで`async: true`を設定し、テスト失敗時に`permissionDecision`: denyでブロックする",
+          "text": "`PreToolUse`イベントで`async: true`を設定し、テストが失敗した場合に`permissionDecision`: denyでツール実行自体をブロックする",
           "wrongFeedback": "非同期フックではdecisionや`permissionDecision`などのブロッキング制御は効果がありません。アクションは即座に進行するため、結果が返ってきても制御に使えません。"
         }
       ],
@@ -10060,7 +10060,7 @@
           "wrongFeedback": "Claude Codeにはクライアントモードという設定はありません。`claude mcp serve`コマンドでClaude Code自体をMCPサーバーとして公開できます。"
         },
         {
-          "text": "Claude DesktopとClaude Codeを同じアカウントでログインすれば、追加設定なしで自動的にツールが共有される",
+          "text": "Claude DesktopとClaude Codeを同じアカウントでログインして、Claude Desktop側で連携を許可すれば、追加設定なしで自動的にツールが共有される",
           "wrongFeedback": "ツールの自動共有機能はありません。Claude Codeのツールを他のクライアントに公開するには、`claude mcp serve`でMCPサーバーとして明示的に起動する必要があります。"
         },
         {
@@ -10570,8 +10570,8 @@
       "question": "チェックポイントの「要約」と「復元」の違いとして正しいのはどれですか？",
       "options": [
         {
-          "text": "要約の方が復元よりも多くの情報を失い、詳細が省略される",
-          "wrongFeedback": "要約は元のメッセージをトランスクリプトに保存します。"
+          "text": "要約は復元と違って元のメッセージを完全に破棄するため、多くの情報が失われ詳細が省略される",
+          "wrongFeedback": "要約は元のメッセージを削除せずトランスクリプトに保存するため、情報が失われるわけではありません。"
         },
         {
           "text": "どちらもファイルを元の状態に戻し、コード変更を巻き戻す",
@@ -10844,11 +10844,11 @@
           "text": "会話履歴、ファイル内容、コマンド出力、`CLAUDE.md`、auto memory、スキル、システム指示"
         },
         {
-          "text": "プロジェクトの全ソースコードが `session` 開始時に自動で事前にすべて読み込まれている",
+          "text": "プロジェクトの全ソースコードが `session` 開始時に自動で事前にすべて読み込まれており、Claudeが常に参照できる",
           "wrongFeedback": "プロジェクトの全ソースコードが自動的に含まれるわけではありません。コンテキストウィンドウにはClaudeがツールで読み込んだファイルのみが含まれます。ファイルは明示的に参照（`@`指定）するか、Claudeがタスク遂行中に読み込んだ時に初めてコンテキストに追加されます。"
         },
         {
-          "text": "直前の `1メッセージ` のみが保持され、それ以前は破棄される",
+          "text": "直前の `1メッセージ` のみが保持され、それ以前の内容は破棄される",
           "wrongFeedback": "過去の会話履歴も含まれます。コンテキストウィンドウには会話履歴、ファイル内容、コマンド出力、`CLAUDE.md`、auto memory、スキル、システム指示が含まれます。"
         },
         {
@@ -11975,7 +11975,7 @@
           "wrongFeedback": "`/config` は一般設定用のコマンドです。ターミナルのキーバインド設定は `/terminal-setup` コマンドで行います。`/config` に「改行キーバインド」設定は存在しません。"
         },
         {
-          "text": "`Shift+Enter` は全てのターミナルエミュレーターで標準的にサポートされているため、動作しない場合は Claude Code 側の設定が壊れているとみなすべき",
+          "text": "`Shift+Enter` は全てのターミナルエミュレーターで標準的にサポートされているため、動作しない場合は Claude Code 側の設定が壊れているとみなして、設定をリセットするか再インストールすべき",
           "wrongFeedback": "`Shift+Enter` のサポートはターミナル依存です。VS Code / Cursor / Devin Desktop / Alacritty 0.16 未満 / Zed では `/terminal-setup` が必要で、gnome-terminal や JetBrains IDE では利用できません（`Ctrl+J` か `\\`+Enter を使います）。"
         }
       ],
@@ -12338,11 +12338,11 @@
           "text": "`/sandbox` はOSレベルの境界内で自律動作させる方法で、`--dangerously-skip-permissions` は隔離されたコンテナやVM内での完全無人実行に限って使う"
         },
         {
-          "text": "`--dangerously-skip-permissions` は読み取り専用操作に使用し、`/sandbox` はファイル書き込みが必要な場合に使用する",
+          "text": "`--dangerously-skip-permissions` は読み取り専用操作に使用し、`/sandbox` はファイル書き込みやコマンド実行が必要になった場合にだけ限定して使用する",
           "wrongFeedback": "操作の種類による使い分けではありません。`--dangerously-skip-permissions` は全操作のチェックをスキップし、`/sandbox` は環境レベルの隔離を提供します"
         },
         {
-          "text": "`--dangerously-skip-permissions` は信頼できるプロジェクトで常時使用し、`/sandbox` は外部コードのレビュー時のみ使用する",
+          "text": "`--dangerously-skip-permissions` は信頼できるプロジェクトでは常時使用して問題なく、`/sandbox` は外部コードのレビュー時のみ使用する",
           "wrongFeedback": "`--dangerously-skip-permissions` は全パーミッションチェックをバイパスするため、プロンプトインジェクション攻撃によるデータ漏洩リスクがあり、常時使用は危険です"
         },
         {
@@ -12630,7 +12630,7 @@
       "question": "Claude Codeで軌道修正する方法として正しい順序はどれですか（軽い修正→重い修正）？",
       "options": [
         {
-          "text": "`/clear`でコンテキスト消去 → `/rewind`で巻き戻し → テキストで指示",
+          "text": "`/clear`でコンテキスト消去 → `/rewind`で巻き戻し → テキストで指示 → `Esc`で中断",
           "wrongFeedback": "順序が逆です。軽い修正（`Esc`で中断→テキスト指示）から始めて、必要に応じて重い手段（`/rewind`→`/clear`）に進むのが正しいアプローチです。"
         },
         {
@@ -12699,7 +12699,7 @@
           "text": "`--help`オプションを使うよう指示すれば、ツールの使い方を学習できる"
         },
         {
-          "text": "サポートされている `CLI` ツールのリストが決まっている",
+          "text": "サポートされている `CLI` ツールのリストがあらかじめ決まっており、それ以外は使えない",
           "wrongFeedback": "任意のCLIを使えます。gh、aws、gcloud、sentry-cli等、`Bash`ツール経由でどのCLIでも利用可能です。"
         },
         {
@@ -12771,11 +12771,11 @@
           "text": "effort level（low/medium/high/xhigh/max/auto）で調整する。アダプティブ推論では設定に応じて動的にトークンが割り当てられる（`xhigh` は Opus 4.6 / Sonnet 4.6 非対応）"
         },
         {
-          "text": "`/config` で Thinking モードのトグルを切り替えることで有効・無効の 2 段階制御が行われ、有効時は常に最深レベルの推論を実行する（モデルやセッションをまたいで設定が固定される）",
+          "text": "`/config` で Thinking モードのトグルを切り替えることで有効・無効の 2 段階制御が行われ、有効時は常に最深レベルの推論を実行する。この設定はモデルやセッションをまたいで固定され、effort level の調整は不要になる",
           "wrongFeedback": "`/config` でのトグルは Thinking の有効・無効の切り替えのみです。推論の深さの調整には effort level（`low` / `medium` / `high` / `xhigh` / `max`。`xhigh` は Fable 5.1 / Fable 5 / Opus 5.5 / Sonnet 5.5 / Opus 5 / Sonnet 5 / Opus 4.8 / Opus 4.7 のみ）を `/effort` コマンドや `/model` のスライダーで設定します。"
         },
         {
-          "text": "`MAX_THINKING_TOKENS` 環境変数でトークン数を直接指定すると、アダプティブ推論が有効なモデルでもその上限まで Thinking トークンを使い切り、推論の深さを固定値で常に最大化できる",
+          "text": "`MAX_THINKING_TOKENS` 環境変数でトークン数を直接指定すると、アダプティブ推論が有効なモデルでもその上限まで Thinking トークンを使い切り、推論の深さを固定値で常に最大化できるため、effort level の設定は不要になる",
           "wrongFeedback": "`MAX_THINKING_TOKENS`はOpus 4.6とSonnet 4.6ではアダプティブ推論が制御するため無視されます。アダプティブ推論を無効化するには`CLAUDE_CODE_DISABLE_ADAPTIVE_THINKING=1`を設定し、その後`MAX_THINKING_TOKENS`でトークン数を制御できます。"
         },
         {
@@ -12860,7 +12860,7 @@
           "text": "簡潔な概要を伝え、`AskUserQuestion`でインタビューさせ、完了後に`SPEC.md`を生成させる"
         },
         {
-          "text": "`CLAUDE.md`に機能要件を詳しく記述してから、新しいセッションを開始して実装を依頼する",
+          "text": "`CLAUDE.md`に機能要件を詳しく記述してから、Claudeの質問を挟まず新しいセッションを開始して実装を依頼する",
           "wrongFeedback": "`CLAUDE.md`はプロジェクト全体の規約向けであり、個別の機能仕様を記述する場所としては適切ではありません"
         },
         {
@@ -13006,15 +13006,15 @@
           "text": "Rust言語で書かれた高速なテキスト検索ツール（`Grep`ツールの内部実装）"
         },
         {
-          "text": "ファイルの暗号化・復号化を行うセキュリティツール",
+          "text": "ファイルの暗号化・復号化を行い、内容を保護するためのセキュリティツール",
           "wrongFeedback": "`ripgrep`は暗号化ツールではなく、Rust言語で書かれた高速テキスト検索ツールです。従来のgrepと比較して大幅に高速で、Claude Codeの`Grep`ツールの内部実装に使われています。"
         },
         {
-          "text": "GitやSVNなどのバージョン管理ツール（VCS）",
+          "text": "GitやSVNのように、ファイルの変更履歴を管理するバージョン管理ツール（VCS）",
           "wrongFeedback": "`ripgrep`はバージョン管理ツール（gitなど）とは異なり、ファイル内容を高速に正規表現検索するコマンドラインツールです。Claude Codeの`Grep`ツールは内部で`ripgrep`を使用しています。"
         },
         {
-          "text": "`Claude Code`が独自に実装した正規表現対応の検索エンジン",
+          "text": "`Claude Code`が独自に実装した、正規表現に対応する専用の検索エンジン",
           "wrongFeedback": "Claude Code独自ではなく、既存のオープンソースツールです。"
         }
       ],
@@ -13079,7 +13079,7 @@
           "text": "`ripgrep`準拠の正規表現が使え、`pattern`パラメータに指定する"
         },
         {
-          "text": "JavaScript準拠の正規表現構文のみ対応している",
+          "text": "JavaScript準拠の正規表現構文のみに対応していて、それ以外の構文は使えない",
           "wrongFeedback": "`Grep`ツールの内部実装は`ripgrep`であり、Rust regex構文を使用します。JavaScript固有の構文（後方参照など）は一部サポートされません。"
         }
       ],
@@ -13142,7 +13142,7 @@
       "question": "スキルの`.md`ファイルの先頭にYAMLフロントマター（`---`で囲まれたブロック）を配置する目的は何ですか？",
       "options": [
         {
-          "text": "スキル実行時のログ出力フォーマットを指定する",
+          "text": "スキル実行時のログの出力フォーマットや出力先、ログレベルなどを指定する",
           "wrongFeedback": "ログ出力フォーマットの指定ではありません。YAMLフロントマターでは`description`や`allowed-tools`などスキルのメタデータを定義します。"
         },
         {
@@ -13242,7 +13242,7 @@
           "wrongFeedback": "WebSocketは使用しません。`stdio`トランスポートはサブプロセスのstdin/stdoutで通信します。リアルタイム性は`SSE`またはStreamable HTTPトランスポートで実現します。"
         },
         {
-          "text": "`Unix Domain Socket` で OS のソケットファイル経由で通信する",
+          "text": "`Unix Domain Socket` で OS のソケットファイル経由で `JSON-RPC` メッセージをやり取りして通信する",
           "wrongFeedback": "Unix Domain Socketは使用しません。`stdio`トランスポートはサブプロセスの標準入出力（stdin/stdout）経由で`JSON-RPC`メッセージを交換します。"
         }
       ],
@@ -13306,7 +13306,7 @@
       "question": "MCPプロトコルが通信に使用する`JSON-RPC`について、Claude Code上でのMCPツール実行において正しいのはどれですか？",
       "options": [
         {
-          "text": "`JSON-RPC`はHTTPトランスポートでのみ使用され、`stdio`では別のプロトコルが使われる",
+          "text": "`JSON-RPC`はHTTPトランスポートでのみ使用され、`stdio`トランスポートでは別の独自のプロトコルが使われる",
           "wrongFeedback": "`JSON-RPC`は`stdio`トランスポートでも使用されます。stdin/stdoutを通じて`JSON-RPC`メッセージが交換されます。"
         },
         {
@@ -14040,7 +14040,7 @@
           "wrongFeedback": "`permissions`設定はツール実行の許可・拒否を制御するもので、TLS証明書の設定とは無関係です。`mTLS`設定は専用の環境変数で行います。"
         },
         {
-          "text": "`.claude/settings.local.json`にclientCertとclientKeyフィールドを追加する",
+          "text": "`.claude/settings.local.json`にclientCertとclientKeyフィールドを追加してクライアント証明書を設定する",
           "wrongFeedback": "`settings.local.json`はClaude Code固有の設定キー（`permissions`、model等）を扱うファイルで、`mTLS`設定は`settings.json`のキーではなく環境変数で行います。"
         },
         {
@@ -14111,11 +14111,11 @@
           "text": "シンボリックリンク（symlink）で共有ルールファイルを各プロジェクトの `.claude/rules/` から参照し、変更を一元管理する"
         },
         {
-          "text": "環境変数でルールファイルのパスを指定し、プロジェクトごとに読み込む共有ルールを切り替える",
+          "text": "環境変数でルールファイルのパスを指定し、プロジェクトごとに読み込む共有ルールを切り替えて一元管理する",
           "wrongFeedback": "ルールファイルのパスを環境変数で指定する仕組みはありません。`CLAUDE_CODE_ADDITIONAL_DIRECTORIES_CLAUDE_MD` は `--add-dir` で追加したディレクトリの `CLAUDE.md` や `.claude/rules/` を読み込むための変数で、共有ルールの切り替え用ではありません。"
         },
         {
-          "text": "グローバルな `~/.claude/rules/` に全ルールを集約し、必要なプロジェクトだけに適用されるよう設定する",
+          "text": "グローバルな `~/.claude/rules/` に全ルールを集約し、必要なプロジェクトだけに適用されるよう個別に設定して一元的に管理する",
           "wrongFeedback": "`~/.claude/rules/` のルールはマシン上のすべてのプロジェクトに適用され、特定のプロジェクトだけに限定することはできません。全プロジェクト共通の個人ルールなら承認なしで読み込める有効な置き場所ですが、対象を絞る用途には向きません。"
         }
       ],
@@ -14969,11 +14969,11 @@
           "text": "/mcp__<server>__<prompt> の形式でコマンドとして実行できる"
         },
         {
-          "text": "MCPサーバーの設定ファイルに手動でプロンプトを追加する必要がある",
+          "text": "MCPサーバーの設定ファイルに手動でプロンプトを追加しないと、Claude Codeからは使えない",
           "wrongFeedback": "手動追加は不要です。MCP サーバーが公開するプロンプトは自動的にスラッシュコマンドとして登録され、`/` メニューから選択できます"
         },
         {
-          "text": "サーバー起動時に`CLAUDE.md`にプロンプト一覧が自動追加される",
+          "text": "サーバー起動時に`CLAUDE.md`へプロンプト一覧が自動追加され、Claudeが参照する形で利用できる",
           "wrongFeedback": "`CLAUDE.md`への追加ではなく、`/mcp__<server>__<prompt>`形式のスラッシュコマンドとして自動公開されます。"
         },
         {
@@ -15041,7 +15041,7 @@
           "wrongFeedback": "ローカルコピーを手動管理すると更新の追従が困難になります。GitのURL指定なら自動更新も利用できます。"
         },
         {
-          "text": "`/plugin` marketplace add でowner/repoの短縮形式を使用する",
+          "text": "`/plugin` marketplace add でowner/repoの短縮形式を使用してGitLabのプロジェクトを指定する",
           "wrongFeedback": "owner/repo形式はGitHub専用のショートカットです。GitLabや他のGitホストではフルURLを指定する必要があります。"
         }
       ],
@@ -15171,11 +15171,11 @@
       "question": "Anthropic 公式マーケットプレイス（`claude-plugins-official`）にどんなプラグインがあるかを確認したい場合、ドキュメントの説明として正しいものはどれですか？",
       "options": [
         {
-          "text": "公式マーケットプレイスには Anthropic 製プラグインだけが載り、パートナー製は `claude-community` に振り分けられる",
+          "text": "公式マーケットプレイスには Anthropic 製プラグインだけが載り、パートナー製のものは別の `claude-community` マーケットプレイスに振り分けられる",
           "wrongFeedback": "逆です。公式マーケットプレイスの多くはツールベンダーなどパートナーや他の作者のプラグインで、Anthropic 自身がメンテナンスするのは `commit-commands`、`code-review`、`feature-dev`、言語サーバープラグインなど少数です。`claude-community` は作者が Anthropic に提出したサードパーティ製プラグインの場所です。"
         },
         {
-          "text": "Plugins ページに GitHub / Jira / Slack など連携先サービスの完全な一覧が掲載されているので、そこで確認する",
+          "text": "Plugins ページに GitHub / Jira / Slack など連携先サービスの完全な一覧が掲載されているので、そこで最新の対応状況を確認する",
           "wrongFeedback": "現在のドキュメントは「カタログは頻繁に変わるため、このページには載せない」と明記しており、連携先の一覧は掲載されていません。`/plugin` の Discover タブや Web の Claude Marketplace（claude.com/marketplace/plugins）で検索します。"
         },
         {
@@ -15553,7 +15553,7 @@
           "text": "`permissions.deny`に`Agent(subagent-name)`を追加"
         },
         {
-          "text": "`permissions.disable`に`Agent(name)`を追加",
+          "text": "`permissions.disable`リストに`Agent(subagent-name)`を追加して無効化する",
           "wrongFeedback": "キーが誤りです。`disable`ではなく`permissions.deny`リストに追加する形式です。"
         },
         {
@@ -15640,7 +15640,7 @@
       "question": "CI/CDパイプラインでClaude Codeを使ってコードレビューコメントを生成したい場合、初期プロンプト付き対話モード（claude <プロンプト>）と非対話モード（claude -p <クエリ>）のどちらが適切ですか？",
       "options": [
         {
-          "text": "どちらもCI/CDでは使えず、`--dangerously-skip-permissions`フラグが必須",
+          "text": "どちらもCI/CDでは使えず、常に`--dangerously-skip-permissions`フラグを付けた特別な環境が必要",
           "wrongFeedback": "`--dangerously-skip-permissions`はパーミッションプロンプトの省略に必要ですが、claude -pによるクエリ実行自体は可能です。フラグとコマンド形式は別の問題です。"
         },
         {
@@ -16339,7 +16339,7 @@
           "wrongFeedback": "kill ringはセッション内でのみ有効です。セッション終了で削除されます。"
         },
         {
-          "text": "`Ctrl+C`で削除したテキストがシステムクリップボードに保存される",
+          "text": "`Ctrl+C`で削除したテキストがシステムクリップボードにも自動的に保存される",
           "wrongFeedback": "`Ctrl+C`は割り込みシグナルであり、kill ringには保存されません。`Ctrl+K`や`Ctrl+U`で削除したテキストがkill ringに保存されます。"
         }
       ],
@@ -17267,14 +17267,14 @@
           "wrongFeedback": "ワーキングディレクトリはコマンド間で保持されます。リセットされるのは `export` した環境変数などのシェル状態です。"
         },
         {
-          "text": "シェルの種類はシステムデフォルトで固定され、`CLAUDE_CODE_SHELL` などの環境変数による変更はできない",
+          "text": "シェルの種類はシステムデフォルトで固定され、`CLAUDE_CODE_SHELL` などの環境変数による変更はできず、常にデフォルトシェルで実行される",
           "wrongFeedback": "`CLAUDE_CODE_SHELL`環境変数でシェルの種類をカスタマイズできます。"
         },
         {
           "text": "`CLAUDE_CODE_SHELL` でシェルを変更でき、ワーキングディレクトリは保持されるが `export` した環境変数はリセットされる"
         },
         {
-          "text": "`export` した環境変数やエイリアスなどのシェル状態は、セッションが終了するまで全てのコマンド間でそのまま保持され続ける",
+          "text": "`export` した環境変数やエイリアスなどのシェル状態は、セッションが終了するまで全てのコマンド間でそのまま保持され続け、毎回再設定する必要がない",
           "wrongFeedback": "ワーキングディレクトリは保持されますが、`export` した環境変数はコマンド間でリセットされます（シェル起動ファイルで定義したエイリアス・関数はセッション開始時に取り込まれ利用できます）。"
         }
       ],
@@ -17617,7 +17617,7 @@
       "question": "Hookイベント「`TaskCompleted`」はいつ発火しますか？",
       "options": [
         {
-          "text": "ファイル編集完了時（`PostToolUse` イベントが発火するタイミング）",
+          "text": "ファイル編集完了時（`PostToolUse` イベントが発火するタイミングと同じ時点）",
           "wrongFeedback": "ファイル編集完了時に発火するのは`PostToolUse`イベントです。`TaskCompleted`はタスク管理ツールでタスクが完了マークされた時に発火する別のイベントです。"
         },
         {
@@ -17628,7 +17628,7 @@
           "text": "`TaskUpdate`でタスクが完了マークされた時、またはチームメンバーのターン終了時"
         },
         {
-          "text": "バックグラウンドタスクの完了時（バックグラウンドで実行した処理の終了時）",
+          "text": "バックグラウンドタスクの完了時（バックグラウンドで実行した処理が終了したタイミング）",
           "wrongFeedback": "バックグラウンドタスクの完了イベントではありません。`TaskCompleted`はタスクが完了としてマークされた時（`TaskUpdate`ツールによるタスク完了時）に発火するイベントです。"
         }
       ],
@@ -17893,15 +17893,15 @@
       "question": "日本語チームのプロジェクトでClaude Codeの出力言語を日本語に統一したい場合、チームメンバー全員に適用するにはどのレベルの設定ファイルが最適ですか？",
       "options": [
         {
-          "text": "各メンバーの`~/.claude/settings.json`にlanguageキーを設定してもらう",
+          "text": "各メンバーの`~/.claude/settings.json`にlanguageキーを設定してもらい、個人設定として管理する",
           "wrongFeedback": "ユーザー設定は個人ごとに管理されるため、新しいメンバーが参加するたびに設定が必要です。プロジェクト設定にコミットすれば、リポジトリをクローンした全員に自動適用されます。"
         },
         {
-          "text": "環境変数で言語設定を各メンバーの環境に指定する",
+          "text": "環境変数で言語設定を各メンバーの環境ごとに個別に指定してもらう",
           "wrongFeedback": "Claude Codeの言語設定は環境変数ではなく、`settings.json`のlanguageキーで行います。プロジェクトの`.claude/settings.json`にコミットすれば、環境変数の個別設定なしに全メンバーに適用できます。"
         },
         {
-          "text": "managed_settingsでlanguageを\"japanese\"に設定して組織全体に強制する",
+          "text": "managed_settingsでlanguageを\"japanese\"に設定して組織全体に強制的に適用する",
           "wrongFeedback": "managed_settingsは組織全体に強制される最上位設定です。言語設定はプロジェクトによって異なる可能性があるため、プロジェクト単位で設定する方が柔軟です。"
         },
         {
@@ -18327,7 +18327,7 @@
           "wrongFeedback": "プラグイン専用ではありません。Claude Codeはモデルにツール・コンテキスト管理・実行環境を提供するエージェントハーネスです。"
         },
         {
-          "text": "Claude AIモデル自体のこと（LLMの推論エンジン本体）",
+          "text": "Claude AIモデル自体のことで、LLMの推論を行うエンジン本体そのものを指す",
           "wrongFeedback": "Claude Codeはモデル自体ではなく、モデルを動かすためのツール・コンテキスト管理・実行環境を備えたシステムです。"
         },
         {
@@ -19535,11 +19535,11 @@
           "text": "`CLAUDE_CONFIG_DIR`（`~/.claude/`の代わりの設定ディレクトリを指定する）"
         },
         {
-          "text": "一時ファイル（`/tmp`）の保存先を変更し、デフォルトの `/tmp` を上書きする",
+          "text": "実行中に生成される一時ファイルの保存先を変更し、デフォルトの `/tmp` を別のパスで上書きする",
           "wrongFeedback": "一時ファイルは`CLAUDE_CODE_TMPDIR`で制御します。"
         },
         {
-          "text": "プロジェクト設定ディレクトリ（`.claude/`）の場所を各インスタンスごとに変更する",
+          "text": "プロジェクト設定ディレクトリ（`.claude/`）の場所を各インスタンスごとに別の場所へ変更して干渉を避ける",
           "wrongFeedback": "変更対象はプロジェクトの`.claude/`ではなく、グローバル設定ディレクトリ（`~/.claude/`）です。"
         },
         {
@@ -19877,7 +19877,7 @@
           "text": "入力: `stdin`にJSON / 出力: `stdout`に改行区切りのパス（最大15件）"
         },
         {
-          "text": "入力: コマンドライン引数（`argv`） / 出力: `JSON` オブジェクト",
+          "text": "入力: コマンドライン引数（`argv`）でクエリ文字列 / 出力: `JSON` オブジェクト",
           "wrongFeedback": "入出力形式が異なります。正しくは入力が`stdin`にJSON、出力が`stdout`に改行区切りのファイルパス（最大15件）です。"
         }
       ],
@@ -20206,7 +20206,7 @@
           "text": "出力トークン上限に達したため。`CLAUDE_CODE_MAX_OUTPUT_TOKENS`で拡張可能"
         },
         {
-          "text": "コンテキストウィンドウが満杯になったことが原因。`/compact`で圧縮すれば解決する",
+          "text": "コンテキストウィンドウが満杯になったことが原因で、`/compact`で会話履歴を圧縮すれば必ず解決する",
           "wrongFeedback": "コンテキスト不足も原因になりますが、応答途中の打ち切りは出力トークン上限が主な原因です。`CLAUDE_CODE_MAX_OUTPUT_TOKENS`で調整できます。"
         }
       ],
@@ -20493,7 +20493,7 @@
           "text": "managed_settingsで`forceLoginMethod`を設定する。最上位の優先度を持ち、ユーザーが上書きできないため"
         },
         {
-          "text": "各ユーザーの`~/.claude/settings.json`に`forceLoginMethod`を配布する",
+          "text": "各ユーザーの`~/.claude/settings.json`に`forceLoginMethod`を配布し、各自の端末で反映させる",
           "wrongFeedback": "ユーザー設定ファイルは各個人が自由に編集できるため、ログイン方法の強制にはなりません。管理者が制御するmanaged_settingsが適切です。"
         },
         {
@@ -20705,7 +20705,7 @@
           "text": "Summarizeは同一セッション内で圧縮し、Forkは元を残して新セッションを作る"
         },
         {
-          "text": "Summarizeの方がコンテキストを多く保持し、より詳細な情報が残る",
+          "text": "Summarizeの方が圧縮後もコンテキストを多く保持し、元の会話の詳細な情報がより多く残る",
           "wrongFeedback": "保持量の問題ではありません。Summarizeは同じセッション内で要約圧縮し、Forkは`claude --continue --fork-session`で元のセッションを保持したまま新セッションを作成します。"
         },
         {
@@ -20769,7 +20769,7 @@
           "wrongFeedback": "チェックポイントのデータはGitリポジトリにはコミットされません。チェックポイントはClaude Code独自のローカルストレージに保存され、Gitの履歴とは完全に独立しています。"
         },
         {
-          "text": "チェックポイントが Git を完全に置き換え、`.git` ディレクトリも統合される",
+          "text": "チェックポイントが Git を完全に置き換え、`.git` ディレクトリも統合されコミット管理も不要になる",
           "wrongFeedback": "チェックポイントはGitの完全な代替にはなりません。チェックポイントはセッション内の素早い復元専用で、デフォルト30日後に削除されます。長期的な変更履歴の管理にはGitのコミットが必要です。"
         },
         {
@@ -21042,7 +21042,7 @@
           "text": "現在のディレクトリで直近の会話を継続する"
         },
         {
-          "text": "設定ファイルを指定して起動する",
+          "text": "指定した設定ファイルを読み込んで新しいセッションを起動する",
           "wrongFeedback": "`-c`は`--continue`の短縮形で、直近のセッションを再開するフラグです。設定ファイルの指定は別のオプションです。"
         }
       ],
@@ -21636,7 +21636,7 @@
           "text": "パーミッションプロンプトを自動拒否する（明示的に許可されたツールは動作する）"
         },
         {
-          "text": "すべての操作が自動承認される（パーミッション確認を完全にスキップ）",
+          "text": "すべての操作が自動承認される（パーミッション確認を完全にスキップして実行する）",
           "wrongFeedback": "`dontAsk` は自動承認ではなく、パーミッション要求を自動的に拒否するモードです。全操作を自動承認するのは `bypassPermissions` です。"
         }
       ],
@@ -22538,7 +22538,7 @@
           "wrongFeedback": "言語制限はありません。Claude Codeは多言語で自身の機能について質問に回答できます。"
         },
         {
-          "text": "いいえ、Claude Code自身の機能については外部ドキュメントを参照する必要がある",
+          "text": "いいえ、Claude Code自身の機能については回答できず、ユーザーが外部の公式ドキュメントを参照する必要がある",
           "wrongFeedback": "Claude Codeは自身のドキュメントにアクセスできます。"
         },
         {
@@ -22898,11 +22898,11 @@
           "wrongFeedback": "`MCP_TIMEOUT`はサーバー起動の時間的なタイムアウト（ミリ秒単位）です。出力量の制限には`MAX_MCP_OUTPUT_TOKENS`環境変数を使います。"
         },
         {
-          "text": "MCPサーバーの起動にはタイムアウト機能がなく、サーバーが応答するまで Claude Code は無制限に待機し続ける",
+          "text": "MCPサーバーの起動にはタイムアウト機能がなく、サーバーが応答するまで Claude Code は無制限に待機し続け、接続失敗にもならない",
           "wrongFeedback": "`MCP_TIMEOUT`環境変数でサーバー起動タイムアウトを設定できます（既定は30,000ミリ秒）。タイムアウトすると接続失敗として扱われます。"
         },
         {
-          "text": "タイムアウトは`.mcp.json`の設定ファイルでのみ変更可能で、`MCP_TIMEOUT`などの環境変数では設定できない",
+          "text": "タイムアウトは`.mcp.json`の設定ファイルでのみ変更可能で、`MCP_TIMEOUT`などの環境変数ではサーバー起動タイムアウトを設定できない",
           "wrongFeedback": "環境変数`MCP_TIMEOUT`でサーバー起動タイムアウトを設定できます（例: `MCP_TIMEOUT=10000 claude`で10秒）。`.mcp.json`の各サーバーに書ける`timeout`フィールドはツール実行のタイムアウトで、起動タイムアウトではありません。"
         }
       ],
@@ -22962,7 +22962,7 @@
       "question": "プロンプトキャッシュを無効化する `DISABLE_PROMPT_CACHING` 系環境変数の構成として正しいものはどれですか？",
       "options": [
         {
-          "text": "`_SONNET`/`_OPUS`はSonnet/Opusファミリーの全モデルIDに効くため、ピン留めした別バージョンのメインモデルにも適用される",
+          "text": "`_SONNET`/`_OPUS`はSonnet/Opusファミリーの全モデルIDに効くため、ピン留めした別バージョンのメインモデルのキャッシュにも同様に適用される",
           "wrongFeedback": "ファミリー全体ではありません。`_SONNET`/`_OPUS` は `sonnet`/`opus` エイリアスが解決する既定モデルにだけ効き、別の Sonnet/Opus モデル ID をメインに指定した場合はキャッシュが維持されます。その場合は `DISABLE_PROMPT_CACHING` を使います。"
         },
         {
@@ -23203,18 +23203,18 @@
       "question": "prefersReducedMotion設定は何を制御しますか？",
       "options": [
         {
-          "text": "ログに出力される情報量を減らして簡素化する",
+          "text": "ログに出力される情報量を減らして、出力を簡素化しファイルサイズを抑える",
           "wrongFeedback": "ログ出力量とは無関係です。`prefersReducedMotion`はスピナーや遷移アニメーションなどのUI上の動きを抑えるアクセシビリティ設定です。動きに敏感なユーザー向けです。"
         },
         {
-          "text": "ネットワーク通信量を減らして帯域を節約する",
+          "text": "ネットワーク通信量を減らして帯域を節約し、低速回線でも動作しやすくする",
           "wrongFeedback": "ネットワーク通信量とは無関係です。`prefersReducedMotion`はUIアニメーション（スピナー等の動き）を低減するアクセシビリティ設定です。"
         },
         {
-          "text": "UIアニメーションを減らす（アクセシビリティ対応）"
+          "text": "UIのアニメーションやスピナーの動きを減らす（アクセシビリティ対応）"
         },
         {
-          "text": "APIリクエストの頻度を下げて負荷を抑える",
+          "text": "APIリクエストの頻度を下げて、サーバー側の負荷を抑える設定",
           "wrongFeedback": "APIリクエスト頻度とは無関係です。`prefersReducedMotion`はUIアニメーション低減のための設定で、OSのアクセシビリティ設定（Reduce Motion）に対応するものです。"
         }
       ],
@@ -23697,7 +23697,7 @@
           "text": "`permissions.deny`に`Agent(Explore)`を追加するか、`--disallowedTools` \"`Agent(Explore)`\"を指定する"
         },
         {
-          "text": "環境変数`CLAUDE_CODE_DISABLE_BACKGROUND_TASKS`=1を設定して、すべてのバックグラウンドタスクを無効化する",
+          "text": "環境変数`CLAUDE_CODE_DISABLE_BACKGROUND_TASKS`=1を設定して、Exploreを含むバックグラウンドで動くタスクをすべてまとめて無効化する",
           "wrongFeedback": "`CLAUDE_CODE_DISABLE_BACKGROUND_TASKS`はバックグラウンドタスク機能全体を無効化する環境変数ですが、Exploreサブエージェントだけを対象にした無効化はできません。また、Exploreはフォアグラウンドでも使用されます。"
         },
         {
@@ -24412,18 +24412,18 @@
       "question": "Claude Codeのインタラクティブモードで使える基本スラッシュコマンドとして存在しないものはどれですか？",
       "options": [
         {
-          "text": "`/summarize`"
+          "text": "`/summarize`（会話全体の要約を生成して表示するコマンド）"
         },
         {
-          "text": "`/compact`",
+          "text": "`/compact`（会話履歴を要約してコンテキストを圧縮するコマンド）",
           "wrongFeedback": "`/compact` は実際に存在するコマンドで、コンテキストを圧縮します。"
         },
         {
-          "text": "`/help`",
+          "text": "`/help`（使い方とコマンドの一覧などのヘルプ情報を表示するコマンド）",
           "wrongFeedback": "`/help` は実際に存在するコマンドで、ヘルプ情報を表示します。"
         },
         {
-          "text": "`/clear`",
+          "text": "`/clear`（会話履歴をクリアして新しい会話を始めるコマンド）",
           "wrongFeedback": "`/clear` は実際に存在するコマンドで、会話履歴をクリアします。"
         }
       ],
@@ -24637,7 +24637,7 @@
           "text": "`.claude/rules/` の path-scoped rules に分割し、不要な内容は削る"
         },
         {
-          "text": "`@path/to/file`構文で別ファイルに分割すれば、コンテキスト消費を減らせる",
+          "text": "`@path/to/file`構文でCLAUDE.mdを別ファイルに分割してインポートすれば、コンテキスト消費を減らせる",
           "wrongFeedback": "`@path`インポートは整理には役立ちますが、インポートされたファイルは起動時にすべてロードされるためコンテキスト消費は減りません。ロード量を減らすには path-scoped rules か不要な内容の削減が必要です。"
         }
       ],
@@ -25828,7 +25828,7 @@
           "wrongFeedback": "使用回数の制限は生産性を大幅に低下させます。`/clear` や `/compact` でコンテキストを管理する方が、品質を保ったままトークン消費を抑えられます。"
         },
         {
-          "text": "全員が1つの `API` キーを共有して使い、使用量を集中管理する",
+          "text": "全員が1つの `API` キーを共有して使うことで、使用量を一箇所で集中管理する",
           "wrongFeedback": "APIキーの共有はセキュリティリスクがあり、個人の使用量を把握できません。"
         },
         {
@@ -26698,18 +26698,18 @@
       "question": "複数のチームメンバーが同じリポジトリでClaude Codeを並行して使用する場合、コンフリクトを最小限にするベストプラクティスはどれですか？",
       "options": [
         {
-          "text": "フィーチャーブランチやgitワークツリーで作業を分離する"
+          "text": "メンバーごとにフィーチャーブランチやgitワークツリーで作業を分離する"
         },
         {
-          "text": "全員が同じブランチで作業する",
+          "text": "全員が同じブランチで直接作業して、変更をそのままコミットしていく",
           "wrongFeedback": "同じブランチでの並行作業はコンフリクトの原因になります。フィーチャーブランチやgitワークツリーで作業を分離しましょう。"
         },
         {
-          "text": "リポジトリのロック機構を使用する",
+          "text": "リポジトリ全体にロック機構を導入し、同時に1人しか作業できないようにする",
           "wrongFeedback": "ロック機構はgitの分散ワークフローとは相性が悪いです。代わりにフィーチャーブランチやgitワークツリーを活用しましょう。"
         },
         {
-          "text": "Claude Codeの使用をシリアルに制限する",
+          "text": "Claude Codeの使用を1人ずつ順番に制限して、シリアルに実行する",
           "wrongFeedback": "並行利用を制限することは生産性を大幅に低下させます。Claude Codeはフィーチャーブランチやgitワークツリーで並行利用できるように設計されています。"
         }
       ],
@@ -27008,11 +27008,11 @@
       "question": "チームでClaude Codeのプラグイン機能を使いたいが、一部メンバーの環境で`/plugin`コマンドが認識されない場合、まず確認すべきことは何ですか？",
       "options": [
         {
-          "text": "`.claude/settings.json`でenablePlugins: trueを設定する",
+          "text": "`.claude/settings.json`にenablePlugins: trueを追加して、プラグイン機能を有効化する",
           "wrongFeedback": "enablePluginsという設定項目はありません。バージョンが古い可能性があるため、バージョン確認と更新が先決です。"
         },
         {
-          "text": "`CLAUDE.md`にプラグイン機能の有効化設定を追加する",
+          "text": "`CLAUDE.md`にプラグイン機能を有効化するための設定を追加して、各メンバーに共有する",
           "wrongFeedback": "`CLAUDE.md`はClaudeへの指示用ファイルであり、プラグイン機能の有効化には使用しません。バージョンが古い可能性を最初に確認すべきです。"
         },
         {
@@ -27107,7 +27107,7 @@
           "wrongFeedback": "`CLAUDE.md`はClaudeへの助言であり、プログラム的なファイルロック確認は実行できません。確実な制御にはHooksでシェルスクリプトを実行する必要があります。"
         },
         {
-          "text": "`settings.json`のvalidationセクションにファイルロックルールを記述する",
+          "text": "`settings.json`のvalidationセクションにファイルロックのチェックルールと対象ファイルのパターンを記述する",
           "wrongFeedback": "`settings.json`にvalidationセクションは存在しません。プログラム的なバリデーションにはHooksの`PreToolUse`イベントを使用します。"
         }
       ],
@@ -28222,7 +28222,7 @@
         3
       ],
       "explanation": "レガシーの`commands/`形式は`.claude/commands/`（プロジェクトレベル）と`~/.claude/commands/`（ユーザーレベル）に配置できます。\n{{diagram:0}}\n現在は`.claude/skills/<name>/SKILL.md`形式が推奨されており、同名の場合はskill形式が優先されます。`commands/`形式も引き続き有効です。\n{{diagram:1}}",
-      "referenceUrl": "https://code.claude.com/docs/ja/skills#choose-where-skills-load",
+      "referenceUrl": "https://code.claude.com/docs/ja/skills#where-skills-live",
       "diagrams": [
         {
           "type": "comparison",
@@ -28418,7 +28418,7 @@
       "question": "Claude Codeの「エージェント型」とは、従来のAIチャットツールとどう違いますか？",
       "options": [
         {
-          "text": "プログラミング言語を自動検出して最適な応答スタイルに切り替える",
+          "text": "プログラミング言語を自動検出して、言語ごとに最適な応答スタイルに切り替える",
           "wrongFeedback": "言語検出だけではありません。エージェント型の特徴は、コードベース全体を理解した上で、複数のファイルにまたがる変更やコマンド実行を自律的に行える点です。"
         },
         {
@@ -28720,7 +28720,7 @@
           "wrongFeedback": "設定ファイルの手動作成は不要です。プロジェクトディレクトリでclaudeを実行するだけで、ウェルカム画面が表示され使い始めることができます。"
         },
         {
-          "text": "`claude init --global` を実行する",
+          "text": "`claude init --global` を実行してグローバル設定を初期化する",
           "wrongFeedback": "そのようなコマンドはありません。`cd your-project && claude` を実行するだけで始められます。"
         },
         {
@@ -28867,7 +28867,7 @@
           "wrongFeedback": "Claude Codeにはパーミッションシステムがあり、ファイルの変更やコマンドの実行前にユーザーの承認を求めます。`Shift+Tab` で `acceptEdits` や `auto` モードに切り替えて確認頻度を減らすこともできます。"
         },
         {
-          "text": "一度許可すると、そのプロジェクトでは永久にすべて自動実行される",
+          "text": "一度許可すると、そのプロジェクトでは永久にすべての操作が自動実行される",
           "wrongFeedback": "承認は永久的ではありません。セッションごとに承認を求められ、個別の変更を承認するか、パーミッションモード（`acceptEdits`/`auto`）や許可ルールで自動承認の範囲を設定できます。"
         },
         {
@@ -29007,14 +29007,14 @@
       "question": "`CLAUDE.md`ファイルの役割として最も適切な説明はどれですか？",
       "options": [
         {
-          "text": "Claude が自動生成する作業ログファイルで、毎セッションの会話履歴を保存する",
+          "text": "Claude が自動生成する作業ログファイルで、毎セッションの会話履歴をすべてそのまま保存しておく",
           "wrongFeedback": "`CLAUDE.md`はログファイルではなく、ユーザーがプロジェクトの文脈や規約を記述するためのマークダウンファイルです。Claudeはセッション開始時にこのファイルを読み込みます。"
         },
         {
           "text": "コーディング規約や設計方針をClaudeに伝え、セッション開始時に自動で読み込まれるファイル"
         },
         {
-          "text": "Claude の認証設定ファイルで、API キーやモデル名・組織 ID を記載する",
+          "text": "Claude の認証設定を管理するファイルで、API キーやモデル名・組織 ID を記載する",
           "wrongFeedback": "`CLAUDE.md`はAPI設定ファイルではありません。プロジェクトのコーディング規約、アーキテクチャ決定、好みのライブラリ、レビューチェックリストなどをマークダウン形式で記述し、Claudeに文脈を伝えるためのファイルです。"
         },
         {
@@ -29154,7 +29154,7 @@
           "text": "Plan Mode に切り替えて（`Shift+Tab` で切替）、read-only で探索・設計案を作らせ、承認してから実装に移る"
         },
         {
-          "text": "`/compact` でコンテキストを空けてから、詳細な実装指示を一度に全部送り、確認なしにそのまま実装まで進めさせる",
+          "text": "`/compact` でコンテキストを空けてから、詳細な実装指示を一度に全部送り、計画の確認や承認を挟まずに、そのまま実装まで一気に進めさせる",
           "wrongFeedback": "`/compact`はコンテキスト管理用であり、計画の手法ではありません。Plan Modeはコードを変更せずに探索・設計ができるため、失敗コストが低く安全です。"
         },
         {
@@ -30037,7 +30037,7 @@
           "text": "Planモード中はOpusを使用し、実行モードではSonnetに自動切替する"
         },
         {
-          "text": "Opusモデルを使ってプランファイルを自動生成する専用モード",
+          "text": "Opusモデルを使ってプランファイルを自動生成し、ディスクに保存する専用モード",
           "wrongFeedback": "プランファイルの自動生成モードではありません。`opusplan` はPlanモードでOpusの推論能力を活かし、実行フェーズではSonnetの効率性を活かすハイブリッドアプローチです。"
         },
         {
@@ -30045,7 +30045,7 @@
           "wrongFeedback": "`opusplan` は並列実行ではありません。Planモード中はOpusを使い、実行フェーズではSonnetに自動的に切り替わるハイブリッドモードです。"
         },
         {
-          "text": "Opusの応答をSonnetが要約して返すチェーンモード",
+          "text": "Opusが出した応答を毎回Sonnetが要約して、ユーザーに返すチェーン型のモード",
           "wrongFeedback": "チェーン処理ではありません。`opusplan` はPlanモード中にOpusを使い、実行モードに移行するとSonnetに自動切替する仕組みです。"
         }
       ],
@@ -30586,7 +30586,7 @@
           "text": "1Mコンテキストは通常のモデル料金で使え、200K超えの追加料金はない"
         },
         {
-          "text": "サブスクリプションプランではロングコンテキスト料金は常に無料",
+          "text": "サブスクリプションプランなら、ロングコンテキスト料金はどのモデルでも常に無料になる",
           "wrongFeedback": "プランによって扱いが異なります。サブスクリプションに 1M が含まれる場合は追加料金なし、usage credits 経由で拡張コンテキストを使うプランでは usage credits に課金されます。"
         },
         {
@@ -31089,7 +31089,7 @@
           "wrongFeedback": "`NO_PROXY=*` はすべてのドメインでプロキシをバイパスする設定です。DNS 解決のプロキシ委任には `CLAUDE_CODE_PROXY_RESOLVES_HOSTS=1` を使います。"
         },
         {
-          "text": "`HTTPS_PROXY_RESOLVE=delegate`",
+          "text": "`HTTPS_PROXY_RESOLVE=delegate` を設定してホスト名解決をプロキシに委任する",
           "wrongFeedback": "この環境変数は存在しません。正しくは `CLAUDE_CODE_PROXY_RESOLVES_HOSTS=1` で、プロキシがホスト名解決を行う環境（社内プロキシなど）に対応します。"
         }
       ],
@@ -32109,15 +32109,15 @@
           "text": "現在のコンテキスト使用量をカラーグリッドとして可視化する"
         },
         {
-          "text": "コンテキストに読み込まれたファイルの一覧を表示する",
+          "text": "コンテキストに読み込まれたファイルの一覧をテキストで表示する",
           "wrongFeedback": "ファイル一覧の表示ではありません。`/context` はコンテキスト全体の使用状況をカラーグリッドとして可視化します。"
         },
         {
-          "text": "コンテキストウィンドウの残り容量を数値で表示する",
+          "text": "コンテキストウィンドウの残り容量だけを1行の数値で表示する",
           "wrongFeedback": "数値表示ではなく、カラーグリッドによる可視化です。`/context` はコンテキストの使用状況をビジュアルに表示し、何がスペースを消費しているかを把握するのに役立ちます。"
         },
         {
-          "text": "新しいコンテキスト（会話）を作成する",
+          "text": "新しいコンテキスト（会話）を作成して、これまでの履歴を消去する",
           "wrongFeedback": "新しいコンテキストの作成は `/clear` コマンドです。`/context` は現在のコンテキスト使用量をカラーグリッドとして可視化するコマンドです。"
         }
       ],
@@ -32432,7 +32432,7 @@
       "question": "Claude Codeで `CLAUDE_AUTOCOMPACT_PCT_OVERRIDE` 環境変数を `50` に設定した場合の効果はどれですか？",
       "options": [
         {
-          "text": "トークン使用量が50%増加した時点で警告を表示する",
+          "text": "トークン使用量が50%増加した時点で警告を画面に表示する",
           "wrongFeedback": "警告表示の設定ではありません。`CLAUDE_AUTOCOMPACT_PCT_OVERRIDE`はコンテキスト容量の何%で自動コンパクションを発動するかを設定します（1-100の値）。"
         },
         {
@@ -32567,14 +32567,14 @@
       "question": "Agent SDKをTypeScriptでインストールするための正しいコマンドはどれですか？",
       "options": [
         {
-          "text": "`npm install --save @anthropic-ai/sdk`",
+          "text": "`npm install --save @anthropic-ai/sdk`（`dependencies` に追加してインストール）",
           "wrongFeedback": "`@anthropic-ai/sdk` はAnthropic Client SDK（API直接呼び出し用）です。Agent SDKは `@anthropic-ai/claude-agent-sdk` です。"
         },
         {
           "text": "`npm install @anthropic-ai/claude-agent-sdk`"
         },
         {
-          "text": "`npm install anthropic-agent-sdk`",
+          "text": "`npm install anthropic-agent-sdk`（Agent SDK 用のパッケージ）",
           "wrongFeedback": "パッケージ名が異なります。正しくは `@anthropic-ai/claude-agent-sdk` です。"
         },
         {
@@ -32880,7 +32880,7 @@
           "text": "最初のクエリで取得した `session_id` を次の `query` の `resume` に渡す"
         },
         {
-          "text": "`query` の `sessionId` パラメータに前のセッションのIDを指定する",
+          "text": "`query` の `sessionId` パラメータに、前のセッションのIDを指定して同じ会話を再開する",
           "wrongFeedback": "パラメータ名が異なります。セッション再開には `resume` オプションに `session_id` を渡します。初回クエリのinitメッセージから `session_id` を取得できます。"
         },
         {
@@ -33017,18 +33017,18 @@
       "question": "Agent SDKのフック（Hooks）機能で、ファイル変更を監査ログに記録する場合に使用するフックイベントとマッチャーの組み合わせとして正しいものはどれですか？",
       "options": [
         {
-          "text": "`SessionEnd` イベントですべての変更をまとめて記録する",
+          "text": "`SessionEnd` イベントで、セッション終了時にすべての変更内容をまとめて一括記録する",
           "wrongFeedback": "`SessionEnd` ではリアルタイムの監査ができません。ファイル変更の都度記録するには `PostToolUse` イベントで `Edit|Write` マッチャーを使います。"
         },
         {
           "text": "`PostToolUse` イベントにマッチャー `Edit|Write` を設定する"
         },
         {
-          "text": "`FileChange` イベントを使用する",
+          "text": "`FileChange` というファイル変更専用のイベントを使用する",
           "wrongFeedback": "`FileChange` というフックイベントは存在しません（`FileChanged` というイベントはありますが用途が異なります）。ファイル変更の監査には `PostToolUse` イベントで `Edit|Write` マッチャーを使います。"
         },
         {
-          "text": "`PreToolUse` イベントにマッチャー `File` を設定する",
+          "text": "`PreToolUse` イベントにマッチャー `File` を設定してファイル操作を検出する",
           "wrongFeedback": "`File` というツール名は存在しません。ファイル変更の監査には `PostToolUse` イベントで `Edit|Write` マッチャーを使い、ツール実行後にログを記録します。"
         }
       ],
@@ -33118,7 +33118,7 @@
           "wrongFeedback": "`CLAUDE.md` への記述は Claude への指示であり、自動実行の保証がありません。Hooks を使えばツール実行後に確実にフォーマッターが自動的に走ります。"
         },
         {
-          "text": "`PreToolUse` イベントで `Edit|Write` にマッチさせ、編集前にフォーマッターを実行する",
+          "text": "`PreToolUse` イベントで `Edit|Write` にマッチさせ、ファイルを編集する前に必ずフォーマッターを実行する",
           "wrongFeedback": "`PreToolUse` は編集の前に発火するため、まだ変更されていないファイルに対してフォーマッターを実行しても意味がありません。フォーマットは編集後に行う必要があります。"
         },
         {
@@ -33992,7 +33992,7 @@
       "question": "ヘッドレスモードで Claude Code のストリーミング出力をリアルタイムで受け取り、テキストデルタのみを抽出したい場合、適切なコマンドの組み合わせはどれですか？",
       "options": [
         {
-          "text": "`--output-format json` と `--stream` フラグを組み合わせ、段階的に出力させて `jq` でテキストデルタを抽出する",
+          "text": "`--output-format json` と `--stream` フラグを組み合わせて、応答を段階的に出力させ、`jq` でテキストデルタのみを抽出する",
           "wrongFeedback": "`--stream` フラグは存在しません。ストリーミングには `--output-format stream-json` を `--verbose` と `--include-partial-messages` と組み合わせます。"
         },
         {
@@ -34003,7 +34003,7 @@
           "wrongFeedback": "`--realtime` フラグは存在しません。リアルタイムストリーミングには `--output-format stream-json` を使用します。"
         },
         {
-          "text": "`--output-format json` と `--verbose` のみで十分で、バッファ後の一括出力を `jq` でフィルタすれば代用できる",
+          "text": "`--output-format json` と `--verbose` のみで十分で、バッファ後の一括出力を `jq` でフィルタすればストリーミング出力の代用として十分に成り立つ",
           "wrongFeedback": "`--output-format json` はリクエスト完了後にまとめて JSON を返す形式です。リアルタイムストリーミングには `--output-format stream-json` が必要です。"
         }
       ],
@@ -34020,7 +34020,11 @@
             },
             {
               "type": "command",
-              "text": "  --verbose | jq 'select(.type==\"stream_event\")'"
+              "text": "  --verbose --include-partial-messages \\"
+            },
+            {
+              "type": "command",
+              "text": "  | jq 'select(.type==\"stream_event\")'"
             },
             {
               "type": "info",
@@ -34359,7 +34363,7 @@
         },
         {
           "text": "環境変数 `CLAUDE_SESSION_ID` に前回のセッション ID を設定して引き継ぐ",
-          "wrongFeedback": "`CLAUDE_SESSION_ID` という環境変数は存在しません。セッションの継続には `--continue` または `--resume` フラグを使用します。"
+          "wrongFeedback": "`CLAUDE_SESSION_ID` はスキル本文で現在のセッション ID に置換されるプレースホルダーであり、設定して会話を引き継ぐ環境変数ではありません。セッションの継続には `--continue` または `--resume` フラグを使用します。"
         },
         {
           "text": "`--context-file` で前回の出力を JSON ファイルとして渡す",
@@ -34383,7 +34387,7 @@
             },
             {
               "type": "info",
-              "text": "{\"session_id\": \"abc-123\", \"output\": \"first task done\"}"
+              "text": "{\"session_id\": \"abc-123\", \"result\": \"first task done\"}"
             },
             {
               "type": "command",
@@ -34405,7 +34409,7 @@
             },
             {
               "text": "環境変数 `CLAUDE_SESSION_ID` を設定する",
-              "sub": "`CLAUDE_SESSION_ID` という環境変数は存在しません。セッションの継続には `--continue` または `--resume` フラグを使用します。"
+              "sub": "`CLAUDE_SESSION_ID` はスキル本文で現在のセッション ID に置換されるプレースホルダーであり、設定して会話を引き継ぐ環境変数ではありません。セッションの継続には `--continue` または `--resume` フラグを使用します。"
             },
             {
               "text": "`--context-file` で前回の出力を JSON ファイルとして渡す",
@@ -34429,7 +34433,7 @@
           "wrongFeedback": "ヘッドレスモードでも `--allowedTools` は使用可能で、パーミッションプロンプトなしで特定のツールを許可するために使われます（例: `--allowedTools \"Bash(git diff *)\"`）。"
         },
         {
-          "text": "ユーザー起動のスキル（`/commit` 等）やカスタムコマンドは一切使用できず、タスクの内容を説明するプロンプトで代替する必要がある",
+          "text": "ユーザー起動のスキル（`/commit` 等）やカスタムコマンドは一切使用できず、タスクの内容を自分で詳しく具体的に説明するプロンプトを毎回書いて代替する必要がある",
           "wrongFeedback": "ユーザー起動のスキルやカスタムコマンドは `-p` でも動作します。プロンプト文字列に `/skill-name` を含めると実行前に展開されます。使えないのは `/login` のようにターミナル UI でしか動かないビルトインコマンドです。"
         },
         {
@@ -34843,14 +34847,14 @@
       "question": "VS Code の Claude Code 拡張機能で、claude.ai で開始したリモートセッションをローカルで再開する方法として正しいものはどれですか？",
       "options": [
         {
-          "text": "`claude --import-session` でセッション ID を指定してローカルに取り込む",
+          "text": "`claude --import-session <セッションID>` でセッション ID を指定してローカルに取り込む",
           "wrongFeedback": "`--import-session` フラグは存在しません。VS Code では上部の「Session history」ボタンから claude.ai のリモートセッションを再開します。"
         },
         {
           "text": "「Session history」ボタンの「Web」タブから claude.ai のリモートセッションを選んで再開する"
         },
         {
-          "text": "リモートセッションは VS Code からは再開できず、ターミナル CLI でのみ再開可能",
+          "text": "リモートセッションは VS Code からは再開できず、ターミナル CLI でのみ再開できる仕様になっている",
           "wrongFeedback": "VS Code 拡張機能からもリモートセッションを再開できます。上部の「Session history」ボタンから claude.ai のリモートセッションを選択できます。"
         },
         {
@@ -35721,7 +35725,7 @@
       "question": "Claude Code の出力スタイルを Concise に切り替えたいとき、現行ドキュメントの内容に合致する方法はどれですか？",
       "options": [
         {
-          "text": "`settings.json` の `outputStyle` フィールドに「結果を先に述べて前置きを省く」といった指示文を直接書く",
+          "text": "`settings.json` の `outputStyle` フィールドに「結果を先に述べて前置きを省く」といった指示文を直接書き込んで、スタイルを定義する",
           "wrongFeedback": "`outputStyle` フィールドに書くのはスタイル名（`Concise` など大文字小文字も一致させる）またはカスタムスタイルの名前です。独自の指示文は `.claude/output-styles/` にスタイルファイルとして作成します。"
         },
         {
@@ -35729,7 +35733,7 @@
           "wrongFeedback": "`CLAUDE_OUTPUT_STYLE` という環境変数は存在しません。出力スタイルは `/output-style <style>` コマンド、`/config` の Output style メニュー、または設定ファイルの `outputStyle` フィールドで切り替えます。"
         },
         {
-          "text": "`/style concise` コマンドで対話的に切り替える（出力スタイル専用の独立スラッシュコマンド方式）",
+          "text": "`/style concise` コマンドで対話的に切り替える（出力スタイル専用の独立したスラッシュコマンドを使う方式）",
           "wrongFeedback": "`/style` というコマンドは存在しません。コマンドで切り替える場合は `/output-style concise` を使います（v2.1.269 以降。引数なしで実行するとスタイル一覧と現在のスタイルが表示されます）。"
         },
         {
@@ -36043,7 +36047,7 @@
           "text": "`/keybindings` を実行して `~/.claude/keybindings.json` を作成・オープンする"
         },
         {
-          "text": "`~/.claude/settings.json` の `keybindings` キーに直接記述する",
+          "text": "`~/.claude/settings.json` の `keybindings` キーに、キーとコマンドの割り当てを直接記述して保存する",
           "wrongFeedback": "キーバインドは `settings.json` ではなく専用の `~/.claude/keybindings.json` に記述します。`/keybindings` でこのファイルを作成・オープンできます。"
         },
         {
@@ -36051,7 +36055,7 @@
           "wrongFeedback": "そのようなサブコマンドはありません。対話セッション内で `/keybindings` を実行してファイルを作成・オープンします。"
         },
         {
-          "text": "`/config` の Keybindings メニューから GUI で編集する",
+          "text": "`/config` の Keybindings メニューを開き、GUI 上でキーの割り当てを対話的に編集する",
           "wrongFeedback": "`/config` にキーバインドの編集メニューはありません。`/keybindings` を実行すると `~/.claude/keybindings.json` が作成・オープンされます。"
         }
       ],
@@ -36474,7 +36478,7 @@
       "question": "サーバー管理設定（Server-managed settings）とエンドポイント管理設定（Endpoint-managed settings）が両方存在する場合、既定ではどちらのポリシーが採用されますか？",
       "options": [
         {
-          "text": "エンドポイント管理設定が常に優先される（OS レベルで保護されており改ざんできないため）",
+          "text": "エンドポイント管理設定が常に優先される（OS レベルで保護されており、ユーザーが改ざんできないため）",
           "wrongFeedback": "サーバー管理設定がポリシーキーを配信している場合、エンドポイント管理設定よりサーバー管理設定が採用されます。エンドポイント管理設定はOS レベルの保護が可能ですが、既定の採用順はサーバー管理設定が先です。"
         },
         {
@@ -36679,7 +36683,7 @@
       "question": "大規模なリファクタリングを複数のサブタスクに分割して効率的に進めたい場合、デスクトップアプリで推奨されるワークフローはどれですか？",
       "options": [
         {
-          "text": "GitHub Actions のワークフローに変換し、CI/CD パイプラインとして自動実行する",
+          "text": "GitHub Actions のワークフローに変換し、CI/CD パイプラインとして自動実行して各サブタスクを処理させる",
           "wrongFeedback": "GitHub Actions は PR レビューや定型タスクの自動化に適していますが、計画と承認を挟みながら進めるリファクタリングには、デスクトップアプリで Plan モードから始めて複数セッションを並行実行する方法が合っています。"
         },
         {
@@ -36687,7 +36691,7 @@
           "wrongFeedback": "クラウドセッションは長時間タスク向けに公式ドキュメントでも案内されていますが、1つのセッションにまとめて任せる形は「サブタスクに分割して進める」ワークフローではありません。分割して進めるなら複数セッションを並行実行し、ワークツリーで分離します。"
         },
         {
-          "text": "1つのローカルセッションで全サブタスクを順番に処理し、最後にコミットをまとめる",
+          "text": "1つのローカルセッションで全サブタスクを順番に処理し、最後にすべての変更をコミットとしてまとめる",
           "wrongFeedback": "1つのセッションでの順次処理では並行化の利点が得られません。デスクトップアプリでは「+ New session」で複数セッションを並行実行し、worktree オプションで各セッションの変更を分離できます。"
         },
         {
@@ -36975,7 +36979,7 @@
           "text": "セッションの開始方法（`startup`、`resume`、`clear`、`compact`、`fork`）"
         },
         {
-          "text": "通知タイプ（`permission_prompt`、`idle_prompt` など）",
+          "text": "通知タイプ（`permission_prompt`、`idle_prompt` など）で、通知が発生したときにその種類で絞り込む",
           "wrongFeedback": "通知タイプで照合するのは `Notification` イベントです。`SessionStart` の matcher は `startup`、`resume`、`clear`、`compact`、`fork` といったセッションの開始方法をフィルタリングします。"
         },
         {
@@ -37199,11 +37203,11 @@
       "question": "Claude Code のプラグインを作成する際、ディレクトリ配置に関するよくある間違いとしてドキュメントで警告されているものはどれですか？",
       "options": [
         {
-          "text": "`SKILL.md` ファイルを `skills/` ではなく `commands/` に配置してしまう",
+          "text": "`SKILL.md` ファイルを `skills/` ではなく `commands/` ディレクトリに配置してしまい、スキルが読み込まれない",
           "wrongFeedback": "`commands/` と `skills/` はどちらもプラグインで有効なディレクトリです。`commands/` は Markdown ファイルによるスキル定義、`skills/` は `SKILL.md` ファイルを含むフォルダによるエージェントスキル定義に使います。"
         },
         {
-          "text": "プラグインの名前にハイフンを使ってしまう",
+          "text": "プラグインの名前にハイフンを使ってしまい、名前が不正としてエラーになる",
           "wrongFeedback": "プラグイン名にハイフンは使用可能です（例: `my-first-plugin`）。よくある間違いは、`skills/` や `agents/` を `.claude-plugin/` 内に入れてしまうことです。`.claude-plugin/` には `plugin.json` のみを配置します。"
         },
         {
@@ -37347,7 +37351,7 @@
           "wrongFeedback": "マーケットプレイスの検索は有効ですが、質問は個人的なカスタマイズの試行錯誤段階です。この段階ではスタンダロン構成（`.claude/` ディレクトリ）が推奨されます。スキル名も `/hello` のように短くでき、クイックイテレーションに向いています。"
         },
         {
-          "text": "プラグインを作成し、`--plugin-dir` で読み込んで試す",
+          "text": "プラグインを作成し、`--plugin-dir` で読み込んで試しながら修正を繰り返す",
           "wrongFeedback": "`--plugin-dir` は開発中のプラグインのテストに使いますが、個人的な実験段階ではスタンダロン構成の方がシンプルです。Plugins ページでは「Start with standalone configuration in `.claude/` for quick iteration, then convert to a plugin when you're ready to share」と推奨しています。"
         },
         {
@@ -37781,7 +37785,7 @@
       "question": "開発中のローカルウェブアプリのフォームバリデーションを Claude に検証させたい場合、Chrome 連携はどのように活用できますか？",
       "options": [
         {
-          "text": "Chrome 連携はリモートサーバーのみ対応しており、`localhost` は利用できない",
+          "text": "Chrome 連携はリモートサーバーのみ対応しており、`localhost` のアプリは検証対象にできない",
           "wrongFeedback": "Chrome 連携は `localhost` でも動作します。ライブデバッグ、デザイン検証、ウェブアプリテストなど、ローカル開発でのユースケースが特に推奨されています。"
         },
         {
@@ -37912,11 +37916,11 @@
       "question": "Claude Code の Chrome 連携がサポートしているブラウザの組み合わせとして正しいものはどれですか？",
       "options": [
         {
-          "text": "Chromium ベースかどうかに関係なく、Safari や Firefox を含むすべての主要ブラウザ",
+          "text": "Chromium ベースかどうかに関係なく、Safari や Firefox を含むすべての主要ブラウザで、拡張機能を通じて利用できる",
           "wrongFeedback": "Safari や Firefox は対象外です。対応するのは Google Chrome、Microsoft Edge、および Brave・Arc・Vivaldi・Opera などの Chromium ベースブラウザです。"
         },
         {
-          "text": "Google Chrome のみ",
+          "text": "Google Chrome のみで、それ以外のブラウザには対応していない",
           "wrongFeedback": "Google Chrome だけでなく、Microsoft Edge や Brave・Arc・Vivaldi・Opera などの Chromium ベースブラウザでも拡張機能を検出して接続します。"
         },
         {
@@ -38413,7 +38417,7 @@
       "question": "Claude Code の繰り返しスケジュールタスクに関する重要な制約として正しいものはどれですか？",
       "options": [
         {
-          "text": "最大実行回数が100回に制限されている",
+          "text": "最大実行回数が100回に制限されており、超えると自動的に停止する",
           "wrongFeedback": "回数制限ではなく、時間制限があります。繰り返しタスクは作成から7日後に自動的に期限切れとなり、最後に1回発火した後に削除されます。この制約は忘れられたループが無期限に実行されることを防ぐためです。"
         },
         {
@@ -38424,7 +38428,7 @@
           "wrongFeedback": "セッションあたり最大50個のスケジュールタスクを持てます。制約は、繰り返しタスクが作成から7日後に自動的に期限切れとなることです。"
         },
         {
-          "text": "24時間以上のインターバルは設定できない",
+          "text": "24時間以上のインターバルは設定できず、1日単位の間隔は指定できない",
           "wrongFeedback": "1日（`d` 単位）のインターバルも設定可能です。制約は、繰り返しタスクが作成から7日後に自動的に期限切れとなることです。長期間のタスクが必要な場合は期限前に再作成するか、Desktop のスケジュールタスクを使います。"
         }
       ],
@@ -38860,7 +38864,7 @@
         },
         {
           "text": "CI/CD パイプラインでのヘッドレス実行（`--headless` フラグ使用時は Fast モードが無効化される）",
-          "wrongFeedback": "ヘッドレス実行での Fast モードの制限は明記されていません。使用できないのはサードパーティクラウドプロバイダー経由のアクセスです。ただし、CI/CD パイプラインのようなコスト重視のワークロードではスタンダードモードが推奨されています。"
+          "wrongFeedback": "`--headless` というフラグは存在せず、ヘッドレス実行は `-p`（`--print`）で行います。ヘッドレス実行での Fast モードの制限は明記されていません。使用できないのはサードパーティクラウドプロバイダー経由のアクセスです。ただし、CI/CD パイプラインのようなコスト重視のワークロードではスタンダードモードが推奨されています。"
         },
         {
           "text": "Amazon Bedrock や Microsoft Foundry などのサードパーティクラウドプロバイダー経由の利用"
@@ -38932,7 +38936,7 @@
       "question": "Fast モードのレート制限に達した場合、Claude Code はどのように動作しますか？",
       "options": [
         {
-          "text": "エラーメッセージが表示され、手動で再起動するまでセッションが終了する",
+          "text": "エラーメッセージが表示され、手動で再起動するまでセッションが終了した状態になる",
           "wrongFeedback": "セッション終了は発生しません。Fast モードは自動的に標準速度のスタンダードモード（モデルは Opus のまま） にフォールバックし、標準の速度と価格で作業を継続します。クールダウンが終了すると自動的に Fast モードに復帰します。"
         },
         {
@@ -38943,7 +38947,7 @@
           "wrongFeedback": "セッションは一時停止しません。Fast モードは自動的に標準速度のスタンダードモード（モデルは Opus のまま） にフォールバックし、作業を継続します。`↯` アイコンがグレーに変わりクールダウン中であることを示します。"
         },
         {
-          "text": "Sonnet モデルに自動的に切り替わり、クールダウン終了後に Opus の Fast モードへ復帰する",
+          "text": "Sonnet モデルの標準速度に自動的に切り替わり、クールダウンが終了すると Opus の Fast モードへ自動で復帰する",
           "wrongFeedback": "Sonnet への切り替えではなく、標準速度のスタンダードモード（モデルは Opus のまま） へのフォールバックです。`↯` アイコンがグレーに変わってクールダウン中を示し、クールダウンが終了すると自動的に Fast モードに復帰します。"
         }
       ],
@@ -39143,14 +39147,14 @@
       "question": "デスクトップアプリで PR を作成した後に CI ステータスバーに表示される Auto-fix と Auto-merge の動作として正しいものはどれですか？",
       "options": [
         {
-          "text": "Auto-fix はコードスタイルの自動修正のみ行い、Auto-merge はリベースマージを行う",
-          "wrongFeedback": "Auto-fix はコードスタイルだけでなく、失敗した CI チェック全般の出力を読み取り、反復的に修正を試みます。Auto-merge のマージ方法は squash です。GitHub リポジトリの設定で auto-merge が有効になっている必要があります。"
+          "text": "Auto-fix はコードスタイルの自動修正のみを行い、Auto-merge はチェックの完了を待たずにリベースマージを行う",
+          "wrongFeedback": "Auto-fix はコードスタイルだけでなく、失敗した CI チェック全般の出力を読み取り、反復的に修正を試みます。Auto-merge はすべてのチェックが通過した後にマージし、マージ方法は squash です。GitHub リポジトリの設定で auto-merge が有効になっている必要があります。"
         },
         {
           "text": "Auto-fix は失敗した CI を修正し、Auto-merge はチェック通過後に squash マージする"
         },
         {
-          "text": "Auto-fix は GitHub Actions でのみ動作し、他の CI サービスには対応しない",
+          "text": "Auto-fix は GitHub Actions の失敗に対してのみ動作し、他の CI サービスの失敗には対応しない",
           "wrongFeedback": "Auto-fix は GitHub CLI (`gh`) を使って CI チェック結果を取得するため、GitHub のチェック機能と連携するすべての CI サービスに対応します。ただし `gh` のインストールと認証が必要です。"
         },
         {
@@ -39514,11 +39518,11 @@
           "wrongFeedback": "セキュリティリスクのある設定にはユーザーの承認が必要です。ユーザーが設定を拒否した場合、Claude Code は終了します。ただし、非対話モード（`-p` フラグ）ではセキュリティダイアログはスキップされ自動適用されます。"
         },
         {
-          "text": "パーミッションの deny リスト、モデル設定、MCP サーバー構成、許可リスト",
+          "text": "パーミッションの deny リスト、モデル設定、MCP サーバー構成、許可リストなどの設定カテゴリ",
           "wrongFeedback": "パーミッションの deny リストやモデル設定はセキュリティ承認ダイアログの対象ではありません。承認が必要なのは、シェルコマンド設定、サンドボックスのバイナリ設定、サンドボックスのネットワーク・分離設定、安全リストにないカスタム環境変数、フック定義の5カテゴリです。"
         },
         {
-          "text": "すべてのサーバー管理設定が、カテゴリを問わず例外なくユーザーの承認を必要とする",
+          "text": "すべてのサーバー管理設定が、カテゴリを問わず例外なく、ユーザーの承認を必要とする仕様である",
           "wrongFeedback": "すべてではありません。セキュリティリスクがある特定のカテゴリのみ承認が必要です。パーミッションルールなどは承認なしで適用されます。"
         },
         {
@@ -39816,7 +39820,7 @@
       "question": "プロジェクトの `.claude/settings.json` にパーミッションルール `Edit(/docs/**)` と記述した場合のパスの解釈として正しいものはどれですか？",
       "options": [
         {
-          "text": "カレントディレクトリの `docs/` 以下のファイルを対象とする",
+          "text": "カレントディレクトリからの相対パスとして、`docs/` 以下のファイルを対象とする",
           "wrongFeedback": "カレントディレクトリからの相対パスを指定するにはスラッシュなしで `docs/**` と書きます。`/` 始まりのパスはプロジェクトルートからの相対パスです。"
         },
         {
@@ -39827,7 +39831,7 @@
           "text": "プロジェクトルートの `docs/` ディレクトリ以下のファイルを対象とする"
         },
         {
-          "text": "ルートディレクトリの `/docs/` 以下のファイルを対象とする",
+          "text": "ファイルシステムのルートディレクトリの `/docs/` 以下のファイルを対象とする",
           "wrongFeedback": "先頭が `/` で始まるパスはプロジェクトルートからの相対パスとして解釈されます。絶対パスを指定するには `//docs/**` のようにスラッシュを二重にします。"
         }
       ],
@@ -40386,7 +40390,7 @@
       "question": "Hooks（フック）がコンテキストウィンドウに与える影響として正しいものはどれですか？",
       "options": [
         {
-          "text": "フックは実行のたびにコンテキストを消費し、頻繁な実行でコンテキストが圧迫される",
+          "text": "フックは実行のたびにコンテキストを消費し、頻繁に実行するとコンテキストが大きく圧迫される",
           "wrongFeedback": "フックはループ外で実行されるため、出力を返さない限りコンテキストを消費しません。"
         },
         {
@@ -40526,7 +40530,7 @@
       "question": "MCP サーバーと Skills を組み合わせて使う場合、それぞれの役割の違いとして最も適切なものはどれですか？",
       "options": [
         {
-          "text": "MCP サーバーはデータの読み取り専用で、Skills がデータの書き込みを担当する",
+          "text": "MCP サーバーは外部データの読み取り専用の接続を提供し、Skills がデータの書き込みや更新の処理を担当する役割分担になる",
           "wrongFeedback": "MCP サーバーは読み取り専用ではなく双方向通信が可能です。Skills はサービスの使い方やワークフローを Claude に教える役割です。"
         },
         {
@@ -40537,7 +40541,7 @@
           "text": "MCP サーバーは外部サービスへの接続を提供し、Skills はそれらのサービスの使い方を Claude に教える"
         },
         {
-          "text": "MCP サーバーはローカル環境のツールを提供し、Skills はクラウドサービスへのアクセスを提供する",
+          "text": "MCP サーバーはローカル環境のツールだけを提供し、Skills はクラウドサービスへのアクセス手段を提供する役割を持つ",
           "wrongFeedback": "MCP サーバーもクラウドサービスに接続できます。Skills はアクセス手段ではなく、使い方を教えるドキュメントやワークフロー定義です。"
         }
       ],
@@ -40743,7 +40747,7 @@
       "question": "Alpine Linux（musl ディストリビューション）で Claude Code を使用する場合に必要な追加設定として正しいものはどれですか？",
       "options": [
         {
-          "text": "`glibc` 互換レイヤーをインストールするだけで、追加の環境変数なしに他の Linux と同じ手順で動作する",
+          "text": "`glibc` 互換レイヤーをインストールするだけで、追加の環境変数やシステム `ripgrep` の設定なしに他の Linux と同じ手順で動作する",
           "wrongFeedback": "公式に推奨されているのは `libgcc`・`libstdc++` のインストールとシステム `ripgrep` の使用（`USE_BUILTIN_RIPGREP=0`）です。"
         },
         {
@@ -41371,7 +41375,7 @@
         },
         {
           "text": "環境変数 `CLAUDE_API_KEY` にのみ保存される",
-          "wrongFeedback": "環境変数は認証の一手段ですが、通常のログイン認証情報は macOS の暗号化された Keychain に安全に保存されます。"
+          "wrongFeedback": "`CLAUDE_API_KEY` という環境変数はなく、API キーで認証する場合の環境変数は `ANTHROPIC_API_KEY` です。環境変数は認証の一手段ですが、通常のログイン認証情報は macOS の暗号化された Keychain に安全に保存されます。"
         },
         {
           "text": "`~/.config/claude/auth` ディレクトリ",
@@ -41582,7 +41586,7 @@
       "question": "ステータスラインの JSON データで `context_window.used_percentage` の計算に含まれるトークンの種類として正しいものはどれですか？",
       "options": [
         {
-          "text": "`input_tokens` と `output_tokens` の単純合計であり、キャッシュトークンは除外される",
+          "text": "`input_tokens` と `output_tokens` の単純合計であり、`cache_creation_input_tokens` などのキャッシュトークンは除外される",
           "wrongFeedback": "`output_tokens` は含まれません。`used_percentage` は入力トークンのみで計算されます: `input_tokens` + `cache_creation_input_tokens` + `cache_read_input_tokens` です。"
         },
         {
@@ -43100,7 +43104,7 @@
       "options": [
         {
           "text": "`claude --headless`で実行する",
-          "wrongFeedback": "`--headless`（`-p`）はローカル環境でのヘッドレス実行用です。クラウド上でのWebセッション作成には`--cloud`フラグを使用します。"
+          "wrongFeedback": "`--headless`というフラグは存在しません。ローカルでのヘッドレス（非対話）実行は`-p`（`--print`）で行います。クラウド上でのWebセッション作成には`--cloud`フラグを使用します。"
         },
         {
           "text": "`claude --cloud`で実行する"
@@ -43153,7 +43157,7 @@
             },
             {
               "text": "`claude --headless`で実行する",
-              "sub": "`--headless`（`-p`）はローカル環境でのヘッドレス実行用です。クラウド上でのWebセッション作成には`--cloud`フラグを使用します。"
+              "sub": "`--headless`というフラグは存在しません。ローカルでのヘッドレス（非対話）実行は`-p`（`--print`）で行います。クラウド上でのWebセッション作成には`--cloud`フラグを使用します。"
             }
           ]
         }
@@ -45660,7 +45664,7 @@
       "question": "Claude CodeでLLMゲートウェイ経由のBedrock利用時に`CLAUDE_CODE_SKIP_BEDROCK_AUTH=1`を設定する場合の意味として正しいものはどれですか？",
       "options": [
         {
-          "text": "Bedrock APIの認証を完全にスキップしてテスト環境で使用する",
+          "text": "ゲートウェイ側を含めて AWS 認証を一切行わず、認証情報なしでテスト環境専用に使う設定である",
           "wrongFeedback": "認証自体をスキップするのではなく、ゲートウェイがAWS認証を代行するため、Claude Code側のAWS認証処理をスキップするという意味です。"
         },
         {
@@ -45726,14 +45730,14 @@
       "question": "Code Review機能を組織で利用開始するために必要な手順として正しいものはどれですか？",
       "options": [
         {
-          "text": "GitHubリポジトリに`.claude-review.yml`設定ファイルを追加する",
+          "text": "GitHubリポジトリのルートに`.claude-review.yml`設定ファイルを追加してコミットする",
           "wrongFeedback": "`.claude-review.yml`というファイルは使用されません。セットアップはclaude.aiのAdmin設定画面から行い、Claude GitHub Appをインストールしてリポジトリを選択します。レビューのカスタマイズには`REVIEW.md`を使用します。"
         },
         {
           "text": "管理者が Admin 設定からセットアップし、Claude GitHub App をインストールする"
         },
         {
-          "text": "各開発者がローカルでCode Reviewプラグインをインストールする",
+          "text": "各開発者がローカルでCode Reviewプラグインをインストールして、自分の環境で有効化する",
           "wrongFeedback": "Code Reviewは組織レベルの機能で、管理者がclaude.aiのAdmin設定からセットアップします。個々の開発者によるプラグインインストールは不要です。"
         },
         {
@@ -45788,7 +45792,7 @@
           "wrongFeedback": "Code Reviewは月額固定ではなく、トークン使用量に基づく従量課金です。PRのサイズと複雑さに応じてコストが変動し、平均$15-25程度です。"
         },
         {
-          "text": "Teams/Enterpriseプランの含有使用量に含まれる",
+          "text": "Teams/Enterpriseプランの含有使用量に含まれ、追加料金は発生しない",
           "wrongFeedback": "Code Reviewはプランの含有使用量にはカウントされません。Extra Usage（追加使用量）として別途請求されます。"
         },
         {
@@ -47284,7 +47288,7 @@
       "question": "スキルの命名規則として公式に推奨されている形式はどれですか？",
       "options": [
         {
-          "text": "キャメルケース（例：`processDocuments`）",
+          "text": "キャメルケース（例：`processDocuments`）で単語をつなげる",
           "wrongFeedback": "`name`フィールドは小文字、数字、ハイフンのみを使用する必要があります。キャメルケースは使用できません。"
         },
         {
@@ -47359,7 +47363,7 @@
           "wrongFeedback": "評価駆動開発では、まずスキルなしでClaudeを実行してギャップを特定し、評価を先に作成してから指示を書きます。先に指示を書くと、想像上の問題を解決してしまう可能性があります。"
         },
         {
-          "text": "Claude Aに指示を書かせる → 内容を確認せずそのまま使用する",
+          "text": "Claude Aに指示を書かせる → 内容を確認せずそのままリリースに使用する",
           "wrongFeedback": "Claude Aとの協力は推奨されていますが、必ずClaude B（別インスタンス）でテストし、観察に基づいて反復する必要があります。そのまま使用するのは不十分です。"
         },
         {
@@ -47641,7 +47645,7 @@
       "question": "`.claude/rules/`ディレクトリに配置するルールファイルの形式として正しいのはどれですか？",
       "options": [
         {
-          "text": "プレーンテキストファイル（`.txt`）で、1行1ルールで記述する",
+          "text": "プレーンテキストファイル（`.txt`）で、1行1ルールの形式で記述して配置する",
           "wrongFeedback": "プレーンテキスト形式ではありません。ルールファイルはMarkdown（.md）形式で記述します。YAMLフロントマターでpathsフィールドによる適用対象の指定も可能です。"
         },
         {
@@ -47649,7 +47653,7 @@
           "wrongFeedback": "YAML形式のファイルではありません。ルールファイル自体はMarkdown（`.md`）形式で、YAMLはフロントマター部分のみで使用されます。"
         },
         {
-          "text": "JSONファイル（`.json`）で、ルールをキーと値のペアで記述する",
+          "text": "JSONファイル（`.json`）で、ルールをキーと値のペアとして記述する形式",
           "wrongFeedback": "JSON形式ではありません。`.claude/rules/`のルールファイルはMarkdown（`.md`）形式で記述し、オプションでYAMLフロントマターを含められます。"
         },
         {
@@ -48429,14 +48433,14 @@
           "wrongFeedback": "`$ARGUMENTS`はスキル本文（マークダウンコンテンツ）内で使用します。例：「Fix GitHub issue $ARGUMENTS following our coding standards.」のように記述します。"
         },
         {
-          "text": "`$ARGUMENTS`を使うには、`argument-hint`フィールドの設定が必須である",
+          "text": "`$ARGUMENTS`を使うには、`argument-hint`フィールドの設定が必須で、未設定だと展開されない",
           "wrongFeedback": "`argument-hint`はオートコンプリート時にヒントを表示するオプション設定であり、`$ARGUMENTS`の使用に必須ではありません。両者は独立した機能です。"
         },
         {
           "text": "スキル内容に`$ARGUMENTS`が無ければ、引数は末尾に`ARGUMENTS: <値>`として自動追加される"
         },
         {
-          "text": "`$ARGUMENTS`は最初の引数のみを受け取り、複数の引数には対応していない",
+          "text": "`$ARGUMENTS`は最初の引数のみを受け取り、複数の引数を渡しても2番目以降は無視される",
           "wrongFeedback": "`$ARGUMENTS`は渡されたすべての引数を受け取ります。さらに`$ARGUMENTS[0]`、`$ARGUMENTS[1]`や短縮形の`$0`、`$1`で個別の引数にアクセスすることも可能です。"
         }
       ],
@@ -48530,7 +48534,7 @@
       ],
       "correctIndex": 3,
       "explanation": "同名のスキルが複数のスコープに存在する場合、Enterprise > Personal > Projectの順で高い優先度のスコープが勝ちます。\n{{diagram:0}}\nプラグインスキルは`plugin-name:skill-name`の名前空間を使用するため、他のレベルとは競合しません。また、`.claude/commands/`とスキルが同じ名前を共有する場合、スキルが優先されます。\n{{diagram:1}}",
-      "referenceUrl": "https://code.claude.com/docs/ja/skills#choose-where-skills-load",
+      "referenceUrl": "https://code.claude.com/docs/ja/skills#where-skills-live",
       "diagrams": [
         {
           "type": "layer",
@@ -48583,15 +48587,15 @@
       "question": "スキルとフックの違いについて正しい説明はどれですか？",
       "options": [
         {
-          "text": "スキルはシェルスクリプトで定義し、フックはマークダウンで定義する",
+          "text": "スキルはシェルスクリプトファイルで定義し、フックはマークダウンのファイルで定義する",
           "wrongFeedback": "逆です。スキルは`SKILL.md`（マークダウン）で定義し、Claudeが指示に従って動作します。フックは`settings.json`でシェルコマンドを設定し、特定のイベント時にClaudeを介さず直接実行されます。"
         },
         {
-          "text": "スキルはユーザーのみが呼び出せるが、フックはClaudeのみが呼び出せる",
+          "text": "スキルはユーザーのみが呼び出せるが、フックはClaudeのみが直接呼び出せる仕組みである",
           "wrongFeedback": "スキルはユーザー（`/skill-name`）とClaude（自動選択）の両方が呼び出せます。フックはイベントドリブンで自動実行され、ユーザーもClaudeも直接呼び出すものではありません。"
         },
         {
-          "text": "スキルとフックは同じ仕組みで、名前が異なるだけである",
+          "text": "スキルとフックは同じ仕組みで、名前が異なるだけで機能上の違いはない",
           "wrongFeedback": "まったく異なる仕組みです。スキルはプロンプトベースでClaudeがツールを使って作業を行います。フックはイベントトリガーでシェルコマンドを直接実行し、Claudeのコンテキストには入りません。"
         },
         {
@@ -49196,7 +49200,7 @@
       "question": "`/btw`コマンドの特徴として正しいのはどれですか？",
       "options": [
         {
-          "text": "現在のセッションをフォークして、別のトピックについて新しいセッションを開始する",
+          "text": "現在のセッションをフォークして、別のトピックについて話すための新しい独立したセッションを開始する",
           "wrongFeedback": "`/btw`はセッションのフォークではありません。却下可能なオーバーレイに回答を表示し、会話履歴に入らないサイド質問機能です。"
         },
         {
@@ -49270,7 +49274,7 @@
           "wrongFeedback": "`/compact`はパーセンテージ指定ではなく、自然言語の指示で何を保持すべきかを伝えます。"
         },
         {
-          "text": "`/compact --keep-files` でファイル内容のみ保持し、会話テキストを圧縮する",
+          "text": "`/compact --keep-files` のフラグでファイルの内容だけを保持し、それ以外の会話テキスト部分を圧縮する",
           "wrongFeedback": "`/compact`はフラグ形式ではなく、自然言語の指示を引数として渡します。例：`/compact Focus on the API changes`。"
         },
         {
@@ -49736,7 +49740,7 @@
       "question": "`CLAUDE.md`ファイルとAuto Memoryの違いとして正しいのはどれですか？",
       "options": [
         {
-          "text": "`CLAUDE.md`はClaudeが自動で書き、Auto Memoryはユーザーが書く",
+          "text": "`CLAUDE.md`はClaudeが自動で書き込む学習ノートで、Auto Memoryはユーザーが自分で書く指示である",
           "wrongFeedback": "逆です。`CLAUDE.md`はユーザーが書き、Auto MemoryはClaudeが自動で書きます。"
         },
         {
@@ -49957,7 +49961,7 @@
           "text": "Auto Memory のオン/オフ切替、メモリファイルの場所の一覧表示、Auto Memory フォルダを開く"
         },
         {
-          "text": "過去のセッション履歴を全文検索・フィルタリングして、該当する会話を再開する",
+          "text": "過去のセッション履歴を全文検索やフィルタで絞り込み、該当する過去の会話を一覧から選んで、そのまま再開できるピッカーを開く",
           "wrongFeedback": "セッション履歴の検索機能ではありません。`/memory` は `CLAUDE.md` などのメモリファイルの一覧表示・編集と Auto Memory の管理に使います。"
         },
         {
@@ -50044,14 +50048,14 @@
           "wrongFeedback": "Auto Memoryの有無は関係ありません。まず`/context`の Memory files 一覧で`CLAUDE.md`ファイルが読み込まれているか確認し、指示の具体性や矛盾をチェックします。"
         },
         {
-          "text": "`--append-system-prompt` フラグで指示をシステムプロンプトに追加する",
+          "text": "`--append-system-prompt` フラグを使って、同じ指示をシステムプロンプトにも追加して優先度を高める",
           "wrongFeedback": "これは有効な手段ですが、最初のステップではありません。まず`/context`の Memory files 一覧で読み込み状況を確認し、指示の具体性を見直すべきです。"
         },
         {
           "text": "`/context` の Memory files 一覧に `CLAUDE.md` が載っているか確認する"
         },
         {
-          "text": "`CLAUDE.md` を削除して最初から再作成する",
+          "text": "`CLAUDE.md` を削除して、内容を最初から書き直して再作成する",
           "wrongFeedback": "削除する前に、まずファイルが正しく読み込まれているか確認すべきです。"
         }
       ],
@@ -50840,7 +50844,7 @@
           "wrongFeedback": "ログのマスクではなく、子プロセスの環境から認証情報を除去します"
         },
         {
-          "text": "Claude Code 本体の `API` 認証情報が無効化され、`API` 呼び出しができなくなる",
+          "text": "Claude Code 本体の `API` 認証情報も含めて無効化され、モデルへの `API` 呼び出し自体ができなくなる",
           "wrongFeedback": "親プロセスの Claude Code は API 呼び出しのために認証情報を保持し続けます。除去されるのは子プロセスの環境からのみです"
         }
       ],
@@ -51377,18 +51381,18 @@
       "question": "`Bash` ツールの永続化の動作について正しい説明はどれですか？",
       "options": [
         {
-          "text": "作業ディレクトリも環境変数も永続化されない",
+          "text": "作業ディレクトリも環境変数も、コマンドをまたいでは永続化されない",
           "wrongFeedback": "作業ディレクトリはコマンド間で永続化されます"
         },
         {
-          "text": "環境変数は永続化されるが、作業ディレクトリは毎回リセットされる",
+          "text": "環境変数は永続化されるが、作業ディレクトリは毎回リセットされて元に戻る",
           "wrongFeedback": "逆です。作業ディレクトリは永続化されますが、環境変数は永続化されません"
         },
         {
           "text": "作業ディレクトリはコマンド間で永続化されるが、環境変数は永続化されない"
         },
         {
-          "text": "作業ディレクトリと環境変数の両方が永続化される",
+          "text": "作業ディレクトリと環境変数の両方がコマンドをまたいで永続化される",
           "wrongFeedback": "環境変数は永続化されません。作業ディレクトリのみが永続化されます"
         }
       ],
@@ -51517,7 +51521,7 @@
       "question": "PowerShell ツールの有効化条件・利用可能環境として正しいものはどれですか？",
       "options": [
         {
-          "text": "Git Bash が不要になり、Windows ネイティブコマンドのみで動作する。PowerShell ツールを有効にすると `Bash` ツールは自動的に無効化され、POSIX スクリプトは実行できなくなる",
+          "text": "Git Bash が不要になり、Windows ネイティブコマンドのみで動作する。PowerShell ツールを有効にすると `Bash` ツールは自動的に無効化され、Git Bash があっても POSIX スクリプトは一切実行できなくなる",
           "wrongFeedback": "PowerShell ツール有効時は PowerShell が主シェルになりますが、Git Bash があれば `Bash` ツールは POSIX スクリプト用に引き続き利用できます。"
         },
         {
@@ -51730,7 +51734,7 @@
           "text": "`/context` で Memory files 一覧に `CLAUDE.md` があるか確認する"
         },
         {
-          "text": "`/memory` を実行して、一覧に `CLAUDE.md` が表示されるか確認する",
+          "text": "`/memory` を実行して、Memory files の一覧に `CLAUDE.md` が表示されるか確認する",
           "wrongFeedback": "`/memory` は存在しないファイルのエントリも一覧表示するため、読み込み確認には向きません。公式ドキュメントは `/context` の Memory files 一覧で読み込みを確認し、`/memory` はファイルを開いて編集するために使うよう案内しています。"
         }
       ],
@@ -51865,14 +51869,14 @@
           "wrongFeedback": "バージョン情報も `tsconfig.json` や `package.json` から推論できます。`CLAUDE.md` にはコードから読み取れない情報のみ書くのがベストプラクティスです"
         },
         {
-          "text": "残すべき。言語情報は常に明記しておくと安全",
+          "text": "残すべき。言語情報は常に明記しておくと安全で、Claude Code が言語を誤認する事態を防げるため",
           "wrongFeedback": "Claude Code はコードを読めば使用言語を判断できます。コードから推論できる情報は `CLAUDE.md` に書く必要はありません"
         },
         {
           "text": "削除すべき。Claude Code はコードを読めば使用言語を推論できるため、冗長な記述になる"
         },
         {
-          "text": "残すべき。コンテキストウィンドウに余裕があるなら削除する理由はない",
+          "text": "残すべき。コンテキストウィンドウに余裕があるなら、記述を削除する理由はなく残しても害がない",
           "wrongFeedback": "`CLAUDE.md` の肥大化は指示の無視につながります。コードから推論できる冗長な情報は積極的に削除すべきです"
         }
       ],
@@ -51932,7 +51936,7 @@
           "wrongFeedback": "ファイルの内容は Claude Code がコードを読めば理解できます。公式が推奨するのは「Claude が推測できない」情報です"
         },
         {
-          "text": "使用しているライブラリの一覧と各バージョン（`package.json` 相当）",
+          "text": "使用しているライブラリの一覧と各ライブラリのバージョン番号（`package.json` 相当の情報）",
           "wrongFeedback": "ライブラリ情報は `package.json` 等から読み取れます。公式が推奨するのは、コードから読み取れない規約やコマンドです"
         },
         {
@@ -52723,7 +52727,7 @@
           "text": "既定では Claude Sonnet 5 で実行され、`/model` の選択とは独立している（例外的にセッション側のモデル等へフォールバックする）"
         },
         {
-          "text": "Claude Haiku が使用される（コスト効率のため軽量モデルが採用されており、メインセッションと同一インスタンスで動作する）",
+          "text": "Claude Haiku が使用される（コスト効率のため軽量モデルが採用されており、メインセッションと同一インスタンスで動作し、`/model` の選択に従う）",
           "wrongFeedback": "分類器は既定で Claude Sonnet 5 で動作し、Haiku ではありません。メインセッションと同一インスタンスでもなく、`/model` の選択とは独立して実行されます。"
         },
         {
@@ -53001,7 +53005,7 @@
           "text": "管理者が `channelsEnabled` を `true` に設定する必要がある"
         },
         {
-          "text": "管理者が各プラグインごとにライセンスキーを発行する必要がある",
+          "text": "管理者が各プラグインごとに専用のライセンスキーを発行して、ユーザーに配布する必要がある",
           "wrongFeedback": "ライセンスキーは不要です。`channelsEnabled` を `true` に設定します"
         },
         {
@@ -53009,7 +53013,7 @@
           "wrongFeedback": "マネージド設定で管理者が制御するもので、ユーザーがオーバーライドすることはできません"
         },
         {
-          "text": "特別な設定は不要で、`--channels` フラグを付けるだけでよい",
+          "text": "特別な設定は不要で、起動時に `--channels` フラグを付けるだけで誰でも利用できる",
           "wrongFeedback": "Team/Enterprise プランではデフォルトで無効です。管理者が設定する必要があります"
         }
       ],
@@ -53145,11 +53149,11 @@
       "question": "Claude Code を実行できるプラットフォームのうち、ローカルマシンが不要でタスクが継続するのはどれですか？",
       "options": [
         {
-          "text": "JetBrains（IDE が自動的にクラウドにフォールバックする）",
+          "text": "JetBrains（IDE が自動的にクラウドにフォールバックして実行が継続する）",
           "wrongFeedback": "JetBrains プラグインはローカルの CLI セッションを使用します"
         },
         {
-          "text": "CLI（ターミナルを閉じてもバックグラウンドで実行が継続する）",
+          "text": "CLI（ターミナルを閉じてもバックグラウンドでローカル実行が継続する）",
           "wrongFeedback": "CLI はローカルマシンで実行されるため、マシンがオフだとタスクは継続しません"
         },
         {
@@ -53662,7 +53666,7 @@
       "question": "Claude Code の Chrome 拡張機能（Claude in Chrome）でできることとして正しいのはどれですか？",
       "options": [
         {
-          "text": "Chrome の開発者ツールを Claude Code の UI に丸ごと置き換える",
+          "text": "Chrome の開発者ツールを Claude Code の UI に丸ごと置き換えて、そこから操作できる",
           "wrongFeedback": "開発者ツールの置き換えではなく、Claude Code からブラウザを操作して Web アプリのデバッグ・テストを行う連携機能です"
         },
         {
@@ -55938,14 +55942,14 @@
       "options": [
         {
           "text": "`CLAUDE_CODE_SCROLL_MULTIPLIER` に 1〜10 の値を設定する",
-          "wrongFeedback": "変数名は `CLAUDE_CODE_SCROLL_SPEED`、値域は 1〜20"
+          "wrongFeedback": "変数名は `CLAUDE_CODE_SCROLL_SPEED`、値は正の数で上限 20（0.25 のような 1 未満の小数も可）"
         },
         {
           "text": "`CLAUDE_CODE_SCROLL_SPEED` に正の値（上限 20）を設定する"
         },
         {
           "text": "`SCROLL_SPEED` に 1〜100 の値を設定する",
-          "wrongFeedback": "変数名は `CLAUDE_CODE_SCROLL_SPEED`、値域は 1〜20"
+          "wrongFeedback": "変数名は `CLAUDE_CODE_SCROLL_SPEED`、値は正の数で上限 20（0.25 のような 1 未満の小数も可）"
         },
         {
           "text": "`/config` の \"Scroll speed\" スライダーで調整する",
@@ -56426,7 +56430,7 @@
           "wrongFeedback": "使用量制限は `You've hit your session limit` というエラーで表示されます。`ECONNREFUSED` はネットワーク接続レベルの問題であり、使用量制限とは関係ありません。"
         },
         {
-          "text": "API キーが無効になっているか、`ANTHROPIC_API_KEY` 環境変数が設定されていないため認証段階で接続が拒否されている",
+          "text": "API キーが無効になっているか、`ANTHROPIC_API_KEY` 環境変数が設定されていないため、認証段階で API サーバーへの接続そのものが拒否されている",
           "wrongFeedback": "APIキーの問題は `Invalid API key` というエラーメッセージで表示されます。`ECONNREFUSED` は接続が拒否された場合のエラーで、APIキーの問題とは異なります。"
         },
         {
@@ -56876,7 +56880,7 @@
           "text": "開発者の `git remote` に登録されているGHESホスト名がClaudeの管理設定に登録されているホスト名と一致しているか、かつGitHub AppがそのリポジトリにインストールされているかをClaudeの管理設定画面で確認する"
         },
         {
-          "text": "`/install-github-app` コマンドを開発者に実行させて GitHub App のインストールを完了させる。このコマンドはGHES・github.comいずれでも利用できるため、管理者操作は不要",
+          "text": "`/install-github-app` コマンドを開発者に実行させて GitHub App のインストールを完了させる。このコマンドはGHES・github.comいずれでも利用できるため、管理者による接続設定の操作やGitHub Appの作成は不要",
           "wrongFeedback": "`/install-github-app` はgithub.com専用のコマンドです。GHESの場合はこのコマンドは機能しません。GHES向けには `claude.ai/admin-settings/claude-code` からガイド付きセットアップを実行してGitHub Appを作成する必要があります。"
         }
       ],
@@ -57139,7 +57143,7 @@
           "wrongFeedback": "公式 Anthropic マーケットプレイス（`claude-plugins-official`）のプラグインのみが対象です。他のマーケットプレイスを指す hint は黙って破棄されます。"
         },
         {
-          "text": "`CLAUDECODE=1` の環境下で `<claude-code-hint>` タグが検出されると、Claude Code がユーザー確認なしに該当プラグインを自動インストールし次のセッションから有効化し、以後は確認を求めない",
+          "text": "`CLAUDECODE=1` の環境下で `<claude-code-hint>` タグが検出されると、Claude Code がユーザー確認なしに該当プラグインを自動インストールし次のセッションから有効化し、以後は同じマーケットプレイスの他のプラグインでも確認を求めない",
           "wrongFeedback": "Claude Code がプラグインを自動インストールすることはありません。必ずユーザーがプロンプトで確認します（1 プラグインにつき 1 回、1 セッションにつき最大 1 回まで）。"
         }
       ],
@@ -57177,7 +57181,7 @@
       "question": "組み込みの「サンドボックス `Bash` ツール」と、プロセス全体を隔離する手法（sandbox runtime / コンテナ / VM）の違いとして正しいものはどれですか？",
       "options": [
         {
-          "text": "sandbox runtime を使うには Docker が必須で、`docker run` コマンドで Claude Code プロセスをコンテナ内に包んで起動する必要がある",
+          "text": "sandbox runtime を使うには Docker が必須で、`docker run` コマンドで Claude Code プロセスをコンテナ内に包んで起動しなければならず、Docker なしでは利用できない",
           "wrongFeedback": "sandbox runtime は Docker 不要で、組み込み `Bash` サンドボックスと同じ Seatbelt / bubblewrap を使います。Docker が必要なのは dev container やカスタムコンテナです。"
         },
         {
@@ -57185,7 +57189,7 @@
           "wrongFeedback": "`Read` や `WebFetch` は Claude Code プロセス内で動き、組み込み `Bash` サンドボックスの対象外です。これらは権限ルール（パス/ドメイン）でゲートされます。"
         },
         {
-          "text": "組み込み `Bash` サンドボックスは MCP サーバーとフックも同じ境界内に隔離するため、sandbox runtime やコンテナを追加しなくてもプロセス全体を保護できる",
+          "text": "組み込み `Bash` サンドボックスは MCP サーバーとフックも同じ境界内に隔離するため、sandbox runtime やコンテナを追加しなくても Claude Code プロセス全体を保護できる",
           "wrongFeedback": "組み込み `Bash` サンドボックスは `Bash` のみを制限します。MCP サーバーとフックは別プロセスとしてホスト上で無制約に動くため、これらも隔離するには sandbox runtime（プロセス全体をラップ）やコンテナを使います。"
         },
         {
@@ -57506,8 +57510,8 @@
           "wrongFeedback": "それは Amazon Bedrock 用です。Claude Platform on AWS は `CLAUDE_CODE_USE_ANTHROPIC_AWS=1`。Bedrock/Foundry が設定されているとそちらが優先されるため解除が必要です。"
         },
         {
-          "text": "AWS 認証情報が環境にあれば自動的に Claude Platform on AWS にルーティングされ、`CLAUDE_CODE_USE_ANTHROPIC_AWS=1` の設定や `ANTHROPIC_AWS_WORKSPACE_ID` の指定は省略できる",
-          "wrongFeedback": "opt-in です。AWS 認証情報があっても `CLAUDE_CODE_USE_ANTHROPIC_AWS=1` を明示しない限り使われません。"
+          "text": "AWS 認証情報が環境にあれば自動的に Claude Platform on AWS にルーティングされ、`CLAUDE_CODE_USE_ANTHROPIC_AWS=1` や `ANTHROPIC_AWS_WORKSPACE_ID` は省略でき、`CLAUDE_CODE_USE_BEDROCK` が同時に設定されていてもこちらが優先される",
+          "wrongFeedback": "オプトインです。AWS 認証情報があっても `CLAUDE_CODE_USE_ANTHROPIC_AWS=1` を明示しない限り使われません。また `CLAUDE_CODE_USE_BEDROCK` や `CLAUDE_CODE_USE_FOUNDRY` が設定されているとそちらが優先されるため、解除が必要です。"
         },
         {
           "text": "環境変数 `CLAUDE_CODE_USE_ANTHROPIC_AWS=1` と `ANTHROPIC_AWS_WORKSPACE_ID`（必須・毎リクエストに `anthropic-workspace-id` ヘッダーとして送信）を設定する。base URL は `AWS_REGION` から算出される"
@@ -57549,7 +57553,7 @@
           "text": "AWS 認証情報による SigV4 署名、またはワークスペース API キー（`ANTHROPIC_AWS_API_KEY`、`x-api-key` で送信され SigV4 より優先）の2方式。API キー設定時は環境の AWS 認証情報は無視される"
         },
         {
-          "text": "Claude Console の別組織で発行した既存の API キーをそのまま環境変数 `ANTHROPIC_API_KEY` に設定すれば、Claude Platform on AWS のワークスペースへアクセスできる",
+          "text": "Claude Console の別組織で発行した既存の API キーをそのまま環境変数 `ANTHROPIC_API_KEY` に設定すれば、Claude Platform on AWS のワークスペースへもアクセスでき、追加の発行や設定変更は不要である",
           "wrongFeedback": "別の Claude Console 組織の API キーは使えません。AWS コンソールの「Claude Platform on AWS → API keys」で発行したワークスペース API キーが必要です。"
         },
         {
@@ -57649,7 +57653,7 @@
           "text": "完了条件を設定すると、各ターン後に小型モデルが達成を判定し、未達なら次のターンを自動開始する"
         },
         {
-          "text": "1つのセッションで複数の goal を同時にアクティブにして並行して追跡できる",
+          "text": "1つのセッションで複数の goal を同時にアクティブにして、それぞれ独立して並行して追跡できる",
           "wrongFeedback": "1セッションにつきアクティブな goal は1つです。新しく設定すると既存のものを置き換えます。"
         },
         {
@@ -58245,7 +58249,7 @@
           "wrongFeedback": "v2.1.179 以降のデフォルトは `\"in-process\"` です（それ以前は `\"auto\"`）。スプリットペインを使うには `\"tmux\"` か `\"auto\"`（tmux セッション内または iTerm2 + `it2` CLI で有効）を明示的に設定する必要があります。"
         },
         {
-          "text": "`CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS=1` を設定するだけでスプリットペインが自動的に有効になり、追加の設定は不要",
+          "text": "`CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS=1` を設定するだけでスプリットペインが自動的に有効になり、tmux や iTerm2 などの追加の設定や準備は不要",
           "wrongFeedback": "`CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS=1` はエージェントチーム機能自体を有効化するだけです。スプリットペインモードには別途 tmux または iTerm2 が必要です。"
         },
         {
@@ -58333,18 +58337,18 @@
       "question": "大規模モノレポで Claude を `packages/api/` サブディレクトリから起動した場合、プロジェクト設定ファイル `.claude/settings.json` はどのように読み込まれますか？",
       "options": [
         {
-          "text": "ユーザー設定 `~/.claude/settings.json` とプロジェクト設定が自動マージされる",
+          "text": "ユーザー設定 `~/.claude/settings.json` とプロジェクト設定が自動的にマージされて適用される",
           "wrongFeedback": "ユーザー設定のマージはスコープ優先順位のルールに従いますが、プロジェクト `.claude/settings.json` 自体はリポジトリルートではなく起動ディレクトリからのみ読み込まれます。"
         },
         {
-          "text": "起動ディレクトリから上位ディレクトリまで順に全設定が継承されてマージされる",
+          "text": "起動ディレクトリから上位ディレクトリまで順にたどり、見つかった全設定が継承されてマージされる",
           "wrongFeedback": "`.claude/settings.json` は `CLAUDE.md` のような階層マージをしません。起動ディレクトリ固有のファイルのみが適用されます。"
         },
         {
           "text": "起動ディレクトリの `.claude/settings.json` のみが読み込まれ、親ディレクトリの設定は継承されない"
         },
         {
-          "text": "リポジトリルートの `.claude/settings.json` のみが読み込まれる",
+          "text": "リポジトリルートの `.claude/settings.json` のみが読み込まれ、起動ディレクトリの設定は使われない",
           "wrongFeedback": "`.claude/settings.json` は `CLAUDE.md` とは異なり、親ディレクトリから継承されません。起動ディレクトリの `.claude/settings.json` のみが読み込まれます。"
         }
       ],
@@ -58528,7 +58532,7 @@
           "wrongFeedback": "スキルの数が多いとき、説明文は短縮されることがあります。長い説明は選択に使われるキーワードが削除されるリスクがあるため逆効果です。"
         },
         {
-          "text": "すべてのスキルをリポジトリルートの `.claude/skills/` に集約して、サブディレクトリへの分散を避ける",
+          "text": "すべてのスキルをリポジトリルートの `.claude/skills/` に集約して、サブディレクトリへの分散を避けて一元的に管理する",
           "wrongFeedback": "すべてのスキルをルートに集約するとセッション中に数百のスキルが発見されることがあり、管理が難しくなります。サブディレクトリへの分散はオンデマンド読み込みのために推奨される方法です。"
         },
         {
@@ -58674,7 +58678,7 @@
           "wrongFeedback": "サブエージェントはセッションのパーミッションルール（許可・拒否リスト）をそのまま使います。スクリプトで指定できるのは `permissionMode` だけで、しかもセッションが `default`/`dontAsk`/`plan` のときに限って有効です。"
         },
         {
-          "text": "セッションのモードに関わらず、ワークフロー内では常に `bypassPermissions` モードで動作して、確認なしにすべての操作を自動的に実行する",
+          "text": "セッションのモードに関わらず、ワークフロー内では常に `bypassPermissions` モードで動作して、権限の確認なしにすべてのツール操作を自動的かつ無条件に実行し続ける",
           "wrongFeedback": "`bypassPermissions` は危険なモードであり、ワークフローのサブエージェントが常にこのモードで動くわけではありません。セッション自体が `bypassPermissions` のときに限り、そのモードが継承されます。"
         },
         {
@@ -58771,7 +58775,7 @@
       "question": "`security-guidance` プラグインがコードレビューを行う3つのタイミングのうち、モデルへのAPI呼び出しを一切行わず追加コストがかからないのはどれですか？",
       "options": [
         {
-          "text": "セッション開始時の設定確認",
+          "text": "セッション開始時にセキュリティ設定を確認するレビュー",
           "wrongFeedback": "セッション開始時は Python 環境のブートストラップを行う `SessionStart` フックが登録されていますが、これは正式なレビュー層ではありません。"
         },
         {
@@ -58835,11 +58839,11 @@
           "text": "モデルバックドレビューへの指示は `.claude/claude-security-guidance.md`、パターンマッチは `.claude/security-patterns.yaml`"
         },
         {
-          "text": "モデルバックドレビューへの指示はプロジェクトの `CLAUDE.md`、パターンマッチルールは `.claude/security-patterns.yaml` に記述する",
+          "text": "モデルバックドレビューへの指示はプロジェクトルートの `CLAUDE.md` に、パターンマッチルールは `.claude/security-patterns.yaml` にそれぞれ記述する",
           "wrongFeedback": "`CLAUDE.md` は通常の Claude への指示ファイルですが、`security-guidance` プラグインの拡張には使いません。プラグイン専用の `.claude/claude-security-guidance.md` を使います。"
         },
         {
-          "text": "モデルバックドレビューへの指示もパターンマッチルールも、`.claude/settings.json` の `securityRules` キーに記述する",
+          "text": "モデルバックドレビューへの指示もパターンマッチルールも、`.claude/settings.json` の `securityRules` キーにまとめて記述し、プラグインの再読み込みで反映する",
           "wrongFeedback": "`.claude/settings.json` に `securityRules` キーは存在しません。拡張には専用の Markdown ファイルと YAML/JSON ファイルを使います。"
         },
         {
@@ -59282,7 +59286,7 @@
           "wrongFeedback": "GitHub issue の作成は first-party 送信時のオプションであり、自動ではありません。サードパーティ利用時はローカル書き出しになります。"
         },
         {
-          "text": "first-party と同様に、会話履歴のコピーが TLS で暗号化されて Anthropic へそのまま送信される",
+          "text": "first-party と同様に、会話履歴のコピーが TLS で暗号化されたうえで Anthropic のサーバーへそのまま全文送信される",
           "wrongFeedback": "サードパーティプロバイダ利用時はレポートがローカルアーカイブに書き出され、自分でサポートに送るまで何もマシンの外に出ません。"
         },
         {
@@ -60064,7 +60068,7 @@
       "question": "artifact のページ制約として正しいものはどれですか？",
       "options": [
         {
-          "text": "外部ホストからのスクリプト・フォント・画像は自由に読み込めるが、fetch / XHR / WebSocket だけは自オリジンと Google Fonts ホスト以外へ届かない",
+          "text": "外部ホストからのスクリプト・フォント・画像は自由に読み込めるので CDN の指定は不要だが、fetch / XHR / WebSocket だけは自オリジンと Google Fonts ホスト以外へ届かない",
           "wrongFeedback": "CSP は許可リスト方式です。外部スクリプトは 5 つの公開 CDN ホスト（cdnjs・unpkg・Tailwind CDN・jQuery CDN・jsDelivr の一部パス）、外部フォントは Google Fonts のみ許可され、外部画像はすべてブロックされます。fetch・XHR・WebSocket も自オリジンと Google Fonts ホスト以外には届きません。そのためライブラリは許可 CDN から読み込み、その他の CSS/JS はインライン化、画像は data URI で埋め込みます。"
         },
         {
@@ -60148,7 +60152,7 @@
           "wrongFeedback": "artifact は Pro・Max・Team・Enterprise プランで利用できます（無料プランは対象外）。Team/Enterprise ではデフォルト有効で、Owner が claude.ai 管理設定から組織全体をオフにできます。Pro/Max では管理機能はなく、共有するまで自分だけに見えます。"
         },
         {
-          "text": "`ANTHROPIC_API_KEY` やクラウドプロバイダーの認証情報でも、Anthropic API 経由であれば公開できる",
+          "text": "Anthropic API 経由のセッションであれば、`ANTHROPIC_API_KEY` やクラウドプロバイダーの認証情報でも claude.ai へのサインインなしに公開できる",
           "wrongFeedback": "API キー・ゲートウェイトークン・クラウドプロバイダー認証のセッションは公開できません。`/login` で claude.ai にサインインしている必要があります。"
         }
       ],
@@ -60276,53 +60280,6 @@
             {
               "text": "`/init` での取り込みが必要",
               "sub": "`/init` が `AGENTS.md` を取り込むのは `CLAUDE_CODE_NEW_INIT=1` のときだけです。"
-            }
-          ]
-        }
-      ]
-    },
-    {
-      "id": "mem-078",
-      "category": "memory",
-      "difficulty": "beginner",
-      "question": "`CLAUDE.md`にチームの人間向けメモを残したいが、Claudeのコンテキストトークンを消費させたくない場合、どうすればよいですか？",
-      "options": [
-        {
-          "text": "メモの前に「注意：」と書いて目立つようにする",
-          "wrongFeedback": "「注意：」と書いても通常のテキストと同様にコンテキストへ読み込まれ、トークンを消費します。コメントとして除外されるわけではありません。"
-        },
-        {
-          "text": "メモを個人用の`CLAUDE.local.md`に書く",
-          "wrongFeedback": "`CLAUDE.local.md`は個人用のメモリファイルであり、`CLAUDE.md`と同様に内容がそのままコンテキストへ読み込まれます。トークン消費を避ける方法にはなりません。"
-        },
-        {
-          "text": "ブロックレベルのHTMLコメント（`<!-- -->`）で囲む"
-        },
-        {
-          "text": "Markdownのコードブロック（```）でメモを囲んで書く",
-          "wrongFeedback": "コードブロック内のテキストはHTMLコメントとして扱われず、通常のコンテンツとしてそのままコンテキストに読み込まれます。"
-        }
-      ],
-      "correctIndex": 2,
-      "explanation": "`CLAUDE.md`内のブロックレベルHTMLコメント（`<!-- maintainer notes -->`）は、コンテキストへ注入される前に取り除かれます。人間の保守者向けのメモをコンテキストトークンを消費せずに残せます。ただし、コードブロック内にあるコメントは保持されます。また`Read`ツールで`CLAUDE.md`を直接開いた場合はコメントも通常どおり表示されます。",
-      "referenceUrl": "https://code.claude.com/docs/ja/memory",
-      "diagrams": [
-        {
-          "type": "comparison",
-          "label": "CLAUDE.md 内のコメントの扱い",
-          "columns": [
-            {
-              "heading": "通常のブロックコメント",
-              "items": [
-                "コンテキスト注入前に除去される",
-                "Read ツールで開くと表示される"
-              ]
-            },
-            {
-              "heading": "コードブロック内のコメント",
-              "items": [
-                "除去されずそのまま保持される"
-              ]
             }
           ]
         }
@@ -60533,11 +60490,11 @@
           "wrongFeedback": "Claude Code は `~/.claude/skills/` やプロジェクトの `.claude/skills/` 内のファイル変更を監視しており、追加・編集・削除は現在のセッション中に反映されます（bare モードを除く）。"
         },
         {
-          "text": "ファイルの編集は自動で反映されるが、新規作成したトップレベルの skills ディレクトリは Claude Code を再起動するまで取り込めない",
+          "text": "ファイルの編集は自動で反映されるが、セッション開始時に無かったトップレベルの skills ディレクトリは Claude Code を再起動するまで取り込めない",
           "wrongFeedback": "再起動は不要です。`/reload-skills` を実行すれば、新しく作成したディレクトリの Skill をセッション中に取り込めます。ただしそのディレクトリはまだ監視されていないため、以降の変更のたびに `/reload-skills` を再実行する必要があります。"
         },
         {
-          "text": "どちらの場合も Claude Code が自動で検知するため、再起動や `/reload-skills` などの追加操作なしで即座に反映される",
+          "text": "どちらの場合も Claude Code が自動で検知するため、再起動や `/reload-skills` などの追加操作をしなくても、新しい Skill が即座に反映される",
           "wrongFeedback": "既存の skills ディレクトリ配下のファイル変更は自動で検知されますが、セッション開始時に存在しなかったトップレベルの skills ディレクトリはまだ監視されていないため、`/reload-skills` を実行して取り込む必要があります。"
         }
       ],
@@ -60671,11 +60628,11 @@
       "question": "複数のサブエージェントに並行して調査させ、互いの発見を共有・議論させたいと考えています。この目的でエージェントチーム機能を使うには、まず何をする必要がありますか？",
       "options": [
         {
-          "text": "`.claude/agents/`ディレクトリにチーム定義ファイルを作成する",
+          "text": "`.claude/agents/`ディレクトリにチーム定義ファイルを作成し、メンバーとなるサブエージェントを列挙する",
           "wrongFeedback": "`.claude/agents/`はサブエージェント定義の配置場所ですが、エージェントチーム自体を有効化する設定ではありません。有効化には環境変数または設定が必要です。"
         },
         {
-          "text": "何も設定は不要で、複数のサブエージェントを依頼するだけでエージェントチームが自動的に起動する",
+          "text": "何も設定は不要で、複数のサブエージェントに作業を依頼するだけでエージェントチームとして自動的に起動する",
           "wrongFeedback": "エージェントチームはデフォルトで無効になっています。環境変数を設定するか`settings.json`で有効化しない限り、通常のサブエージェント呼び出しとして扱われます。"
         },
         {
@@ -60919,7 +60876,7 @@
       ],
       "correctIndex": 0,
       "explanation": "`cleanupPeriodDays`のデフォルト値は30日（最小値は1日）で、Claude Codeはこの期間より古いセッションファイルなどのアプリケーションデータを起動時に自動削除します。同じ経過日数の基準は、孤立した`worktree`の自動削除にも適用されます。トランスクリプトの書き込み自体を止めたい場合は`CLAUDE_CODE_SKIP_PROMPT_HISTORY`環境変数を使います。",
-      "referenceUrl": "https://code.claude.com/docs/ja/settings",
+      "referenceUrl": "https://code.claude.com/docs/ja/settings-reference#cleanupperioddays",
       "diagrams": [
         {
           "type": "comparison",
@@ -61006,7 +60963,7 @@
           "wrongFeedback": "`permissions`や`hooks`、`apiKeyHelper`などのキーはファイル変更を検知して実行中のセッションにも即座にリロードされます。全てのキーが再起動を必要とするわけではありません。"
         },
         {
-          "text": "`.claude/settings.json`はプロジェクトスコープのため即座に反映されるが、`~/.claude/settings.json`のようなユーザースコープの設定は再起動が必要",
+          "text": "`.claude/settings.json`はプロジェクトスコープのため即座に反映されるが、`~/.claude/settings.json`のようなユーザースコープの設定は再起動しない限り一切反映されない仕様になっている",
           "wrongFeedback": "リロードの即時性はスコープ（プロジェクト/ユーザー）ではなく設定キーの種類によって決まります。`model`はどのスコープに書いても実行中のセッションには反映されず、`/model`コマンドでの切り替えが必要です。"
         }
       ],
@@ -61093,19 +61050,19 @@
       "question": "WindowsのWSL2環境でプロジェクトフォルダを開き、Claude Code Desktopでセッションを開始しました。WSLセッションでまだ利用できない機能はどれですか？",
       "options": [
         {
-          "text": "ブランチやプルリクエストのステータス確認",
+          "text": "ブランチやプルリクエストの現在のステータスをセッション内で確認する機能",
           "wrongFeedback": "ブランチとプルリクエストのステータス確認はWSLセッションで動作します。利用できないのはセッションフォーク、統合ターミナル、コネクタ/プラグイン、ファイルブラウザペイン、`@`ファイル候補です。"
         },
         {
-          "text": "並列セッション（複数セッションの同時実行）",
+          "text": "並列セッション（複数のセッションを同時に実行して作業を進める機能）",
           "wrongFeedback": "並列セッション、サイドチャット、ビジュアルdiffレビュー、ブランチ/PRステータス確認、worktreeはいずれもWSLセッションで動作します。"
         },
         {
-          "text": "「エディタで開く」によるVS Code連携",
+          "text": "「エディタで開く」からVS CodeをRemote - WSL経由で接続する連携機能",
           "wrongFeedback": "「Open in editor」はRemote - WSL経由でVS Codeをディストリビューションに接続して開く機能であり、WSLセッションで動作します。"
         },
         {
-          "text": "セッションのフォーク（session fork）"
+          "text": "セッションのフォーク（session fork）による会話の分岐機能"
         }
       ],
       "correctIndex": 3,
@@ -61378,11 +61335,11 @@
       "question": "自組織でClaude apps gatewayをセルフホストしようとしています。要件として正しい組み合わせはどれですか？",
       "options": [
         {
-          "text": "Claude Code v2.1.150以降と、SQLiteによる認証状態の保存",
-          "wrongFeedback": "`claude gateway`サブコマンドとゲートウェイのサインインフローが搭載されたのはv2.1.195以降です。認証状態の保存にはPostgreSQL 14以降が必要で、SQLiteはサポートされません。"
+          "text": "Claude Code v2.1.150以降と、SQLiteによる認証状態の保存、およびプロトコルを問わない任意のIdP",
+          "wrongFeedback": "`claude gateway`サブコマンドとゲートウェイのサインインフローが搭載されたのはv2.1.195以降です。認証状態の保存にはPostgreSQL 14以降が必要で、SQLiteはサポートされません。IdPもOIDC準拠が必須で、SAMLやLDAPなど他のプロトコルは使えません。"
         },
         {
-          "text": "SAMLまたはLDAP対応のIdPと、MySQL 8以降",
+          "text": "SAMLまたはLDAP対応のIdPと、MySQL 8以降のデータベースによる認証状態の保存",
           "wrongFeedback": "Claude apps gatewayが対応する認証はOIDC（OpenID Connect）のみで、SAMLやLDAPはサポートされません。データベースもPostgreSQL 14以降が必要で、MySQLではありません。"
         },
         {
@@ -61431,7 +61388,7 @@
           "wrongFeedback": "ドキュメントは「引数を並び替えたり、吸収したり、先頭に追加したりしない」ことを明記しています。最初の引数がClaude Codeのバイナリで、それ以降はそのargvとして扱われる必要があります。"
         },
         {
-          "text": "継承した環境変数を許可リストで絞り込んでから`exec`する",
+          "text": "継承した環境変数を許可リストで絞り込んで、必要なものだけを残してから`exec`する",
           "wrongFeedback": "許可リストで環境変数を絞り込むと、セッション認証トークンやモデル・プロバイダ選択などが失われ、起動したセッションが壊れます。継承した環境変数はすべてそのまま`exec`に渡す必要があります。"
         },
         {
@@ -62171,7 +62128,7 @@
           "wrongFeedback": "モバイルアプリの `Code` タブからリポジトリとブランチを選び、タスクを説明して新規のクラウドセッションを開始できます。"
         },
         {
-          "text": "Remote Control でノートPC上のセッションに接続する",
+          "text": "Remote Control でノートPC上で動いているセッションに接続する",
           "wrongFeedback": "Remote Control はノートPC上で動作しているセッションを操作する方式のため、ノートPCの電源が入っている必要があります。電源を切る予定がある場合には不向きです。"
         },
         {
@@ -62550,7 +62507,7 @@
       "question": "エージェントチームのin-processモードで動いているチームメイトに、大きなテストスイートをバックグラウンドで実行するサブエージェントを起動するよう指示しました。この指示の結果として正しいのはどれですか？",
       "options": [
         {
-          "text": "`background: true` でバックグラウンドで正常に起動し、チームメイトが終了した後もタスクは継続する",
+          "text": "`background: true` を指定すればバックグラウンドで正常に起動し、チームメイトが終了した後もそのサブエージェントのタスクは継続して実行される",
           "wrongFeedback": "in-processのチームメイトが起動するサブエージェントは常にフォアグラウンド実行のみです。定義の `background: true` はエラーになり、`run_in_background: true` もエラーになるか静かにフォアグラウンドで実行されます。"
         },
         {
@@ -62596,14 +62553,14 @@
       "question": "プロジェクトに数十個のSkillを追加した結果、めったに使わない一部のSkillが自動的にトリガーされなくなりました。 `/doctor` で確認したところ、Skillリストのコンテキスト予算を超過していると分かりました。この問題への対処として適切な組み合わせはどれですか？",
       "options": [
         {
-          "text": "SKILL.mdのfrontmatterを削除し、本文だけにしてリストの文字数を減らす",
+          "text": "SKILL.mdのfrontmatterを削除して本文だけにし、リストに載る文字数を減らして予算内に収める",
           "wrongFeedback": "frontmatterを削除するとメタデータが空になり、 `description` によるマッチングができなくなるため、さらにトリガーされにくくなります。"
         },
         {
           "text": "`skillListingBudgetFraction` で予算を増やすか、低優先のSkillを `skillOverrides` で `\"name-only\"` にする"
         },
         {
-          "text": "全Skillのfrontmatterに `disable-model-invocation: true` を設定して、説明文の量そのものを減らす",
+          "text": "全Skillのfrontmatterに `disable-model-invocation: true` を設定して、Skillリストに載る説明文の量そのものを減らして予算内に収める",
           "wrongFeedback": "`disable-model-invocation: true` は手動起動専用にする設定であり、自動トリガー自体ができなくなるため、状況を悪化させます。"
         },
         {
@@ -63121,7 +63078,7 @@
           "wrongFeedback": "ブラウザ経由のOAuthサインインが必要なのはSentryやLinearのようなホスト型サービスの場合です。静的トークン認証のサーバーは `--header` でトークンを直接渡します。"
         },
         {
-          "text": "`claude mcp auth <token>` という専用コマンドを実行して、トークンを別途サーバーに登録する",
+          "text": "`claude mcp auth <token>` という専用コマンドを実行して、トークンを別途サーバーに登録し認証状態を保存する",
           "wrongFeedback": "そのようなコマンドはありません。トークンは `claude mcp add` の `--header` オプションで渡します。"
         },
         {
@@ -63508,7 +63465,7 @@
           "wrongFeedback": "両者は分岐元が異なります。`\"fresh\"` はデフォルトブランチから、`\"head\"` は現在の作業中のブランチから分岐します。"
         },
         {
-          "text": "`\"fresh\"` はローカルの `HEAD` から、`\"head\"` はリモートの `origin/HEAD` から分岐する",
+          "text": "`\"fresh\"` はローカルの `HEAD` から、`\"head\"` はリモートの `origin/HEAD` から分岐するという明確な違いがある",
           "wrongFeedback": "説明が逆です。`\"fresh\"` がリモートのデフォルトブランチ、`\"head\"` がローカルHEADから分岐します。"
         },
         {
@@ -63608,18 +63565,18 @@
       "question": "セッションを再開したときに自動的には復元されず、再度コマンドラインで指定し直す必要があるものはどれですか？",
       "options": [
         {
-          "text": "セッション終了時にまだアクティブだったgoal（ターン数やタイマーはリセットされつつも）",
+          "text": "セッション終了時にまだアクティブだったgoal（`/goal` で設定した目標そのもの）",
           "wrongFeedback": "アクティブなgoalは引き継がれます。ただし、そのターン数・タイマー・トークン消費のベースラインはリセットされます。"
         },
         {
-          "text": "会話履歴全体、ツール呼び出しとその結果",
+          "text": "会話履歴全体と、ツール呼び出しとその結果（ファイル内容やコマンド出力）",
           "wrongFeedback": "会話履歴やツール呼び出しの結果を含む完全な履歴は、再開時に自動的に復元されます。"
         },
         {
           "text": "`--mcp-config`、`--settings`、`--plugin-dir` などのフラグと、追加したディレクトリ"
         },
         {
-          "text": "セッションが使用していたモデル（廃止されておらず、`availableModels` で許可されている場合）",
+          "text": "セッションが使用していたモデル（廃止されておらず、`availableModels` で許可されていて、起動時にモデル指定もない場合）",
           "wrongFeedback": "モデルは通常そのまま復元されます。復元されないのは、モデルが廃止済み・許可外の場合や、起動時に `--model` やモデル系環境変数が指定されている場合などです。"
         }
       ],
@@ -63748,7 +63705,7 @@
           "wrongFeedback": "このエラーは使用量枠の枯渇とは別のエンタイトルメントチェックです。使用量に余裕があっても、選択したモデルのプランが1Mコンテキストを含んでいなければ発生します。"
         },
         {
-          "text": "常にプランのアップグレードが唯一の解決策で、`/model` の切り替えや `/usage-credits` の設定などの回避方法はない",
+          "text": "常にプランのアップグレードが唯一の解決策で、`/model` の切り替えや `/usage-credits` の設定などの回避方法は公式には一切用意されていない",
           "wrongFeedback": "`/model` で `[1m]` なしのモデルに切り替えるか、`/usage-credits` で従量課金を有効にすることでも解決できます。"
         },
         {
@@ -63790,7 +63747,7 @@
       "question": "`apiKeyHelper` スクリプトが失敗している状態で `/login` を実行しても解決しないのはなぜですか？",
       "options": [
         {
-          "text": "`/login` を実行した時点で、`apiKeyHelper` の設定がそのまま自動的に削除されてしまうため",
+          "text": "`/login` を実行した時点で、`apiKeyHelper` の設定がそのまま自動的に削除され、認証情報が空になってしまうため",
           "wrongFeedback": "`/login` は `apiKeyHelper` の設定を削除しません。設定が残っている限り優先され続けます。"
         },
         {
@@ -64247,7 +64204,7 @@
           "wrongFeedback": "クラウドセッションはリポジトリの新規クローンから始まり、ユーザーレベルの `~/.claude/skills/`、`~/.claude/agents/`、`~/.claude/commands/` は同期されません。使いたい場合はリポジトリの `.claude/` ディレクトリにコミットする必要があります。"
         },
         {
-          "text": "`claude mcp add` のデフォルトスコープと同様に、追加の設定なしでクラウドセッションにも自動的に読み込まれる",
+          "text": "`claude mcp add` のデフォルトスコープと同様に、追加の設定や `.mcp.json` への書き込みなしでクラウドセッションにも自動的に読み込まれて使える",
           "wrongFeedback": "むしろ逆で、`claude mcp add` のデフォルトのローカルスコープやユーザースコープで追加したMCPサーバーもクラウドセッションには含まれません。`~/.claude.json` に書き込まれるためで、`claude mcp add --scope project` を使いリポジトリの `.mcp.json` に書き込む必要があります。"
         },
         {
@@ -64359,7 +64316,7 @@
       "question": "ECS上でセルフホストした `claude-apps-gateway` から Amazon Bedrock へのすべてのリクエストが502エラーになり、ログに `Could not load credentials from any providers` と出力されています。原因として最も適切なものはどれですか？",
       "options": [
         {
-          "text": "アカウントがBedrockのワンタイムユースケースフォームを未提出のまま、モデルにアクセスしようとしているため",
+          "text": "アカウントがBedrockのワンタイムユースケースフォームを未提出のまま、Bedrock上のモデルにアクセスしようとしているため",
           "wrongFeedback": "この場合はBedrockから `403 AccessDeniedException` が返ります。今回のエラーメッセージ `Could not load credentials from any providers` はそもそも認証情報を取得できていない状態を示しており、フォーム未提出とは異なる症状です。"
         },
         {
@@ -64411,11 +64368,11 @@
           "wrongFeedback": "Postgresへの証明書検証エラーはgateway起動時のエラーとして現れ、ストリーミング応答の途中切断とは無関係です。今回の症状はALBのアイドルタイムアウトが原因です。"
         },
         {
-          "text": "ネットワークプロキシの `SSRF` ガードがゲートウェイ内部のループバック接続をブロックしているため",
+          "text": "ネットワークプロキシの `SSRF` ガードが、ゲートウェイ内部で使われるループバック宛ての接続を誤ってブロックしているため",
           "wrongFeedback": "SSRFガードによるループバックブロックは、テレメトリコレクターへの接続など別の場面で問題になるものです。今回のようなストリーミング応答の途中切断とは別の症状で、原因はALBのアイドルタイムアウトです。"
         },
         {
-          "text": "Bedrockのオンデマンドスループットが未対応のモデルを `model` に指定してリクエストしているため",
+          "text": "Bedrockのオンデマンドスループットが未対応のモデルを `model` に指定してリクエストしているため。対応するモデルへ切り替える必要がある",
           "wrongFeedback": "この場合はリクエスト時点で `ValidationException` が返り、ストリームが始まる前に失敗します。ストリーミング開始後に静かな期間があって切断される今回の症状とは異なります。"
         },
         {
@@ -64534,7 +64491,7 @@
           "wrongFeedback": "Dynamic workflowsはClaudeのターンごとの判断ではなく、あらかじめ用意された台本が計画を持つ仕組みです。共有タスクリストで互いに直接メッセージを送り合う機能はAgent teams固有のものです。"
         },
         {
-          "text": "サブエージェント。並列実行できるため、ワーカー間の通信も自動的に行われる",
+          "text": "サブエージェント。複数を並列実行できるため、ワーカー同士が共有タスクリストを使って互いに直接メッセージを送り合う通信も、設定なしで自動的かつ継続的に行われる",
           "wrongFeedback": "サブエージェントは委任した親の会話に結果を報告するだけで、サブエージェント同士が直接通信することはありません。ワーカー間の直接メッセージが必要な場合はAgent teamsを使います。"
         }
       ],
@@ -64585,7 +64542,7 @@
       "question": "現在のセッション内でバックグラウンド実行しているサブエージェントの進捗を確認したい場合、正しいコマンドはどれですか？",
       "options": [
         {
-          "text": "`/agents`。サブエージェントの進捗を一覧表示するパネルを開く",
+          "text": "`/agents`。バックグラウンドのサブエージェントの進捗を一覧表示するパネルを開く",
           "wrongFeedback": "`/agents` はv2.1.198以降パネルを開かなくなり、サブエージェント定義ファイルの場所を示す通知を表示するだけになりました。進捗確認には使えません。"
         },
         {
@@ -64596,7 +64553,7 @@
           "wrongFeedback": "`/workflows` はdynamic workflowsの実行状況（フェーズや完了エージェント数）を表示するもので、通常のサブエージェントの進捗確認には使いません。"
         },
         {
-          "text": "`claude agents`。現在のセッション内のサブエージェントの進捗を一覧表示する",
+          "text": "`claude agents`。現在のセッション内のバックグラウンドのサブエージェントの進捗を一覧表示する",
           "wrongFeedback": "`claude agents` はターミナルの外で実行しているバックグラウンドセッション全体を表示するagent viewを開くコマンドです。現在のセッション内のサブエージェントの進捗確認には使いません。"
         }
       ],
@@ -65657,7 +65614,7 @@
           "wrongFeedback": "`CLAUDECODE` は`Bash`/PowerShellツール実行時だけでなく、hookコマンドの実行時にも設定されます。"
         },
         {
-          "text": "`CLAUDE_CODE_CHILD_SESSION` の方が古いバージョンから使えるため、`CLAUDECODE` ではなく常にこちらを優先すべきである",
+          "text": "`CLAUDE_CODE_CHILD_SESSION` の方が古いバージョンから広く使えるため、`CLAUDECODE` ではなく常にこちらだけを優先して環境の判定に使うべきである",
           "wrongFeedback": "逆です。`CLAUDECODE` は全バージョンで設定されるのに対し、`CLAUDE_CODE_CHILD_SESSION` はv2.1.172以降が必要です。"
         },
         {
@@ -65894,7 +65851,7 @@
           "wrongFeedback": "`/terminal-setup` はホストターミナルの設定ファイルに書き込む必要があるため、tmuxやscreenの中ではなく、ホストターミナルで直接実行する必要があります。"
         },
         {
-          "text": "`preferredNotifChannel` を `\"terminal_bell\"` に設定すれば、通知と`Shift+Enter`の両方の問題が解決する",
+          "text": "`preferredNotifChannel` を `\"terminal_bell\"` に設定すれば、tmuxの設定を何も変えなくても通知と`Shift+Enter`の両方の問題が解決する",
           "wrongFeedback": "`preferredNotifChannel` は通知チャンネルの切り替えのみを扱い、`Shift+Enter`がtmux内で送信になってしまう問題は解決しません。tmux側の設定が別途必要です。"
         }
       ],
@@ -65989,7 +65946,7 @@
           "text": "そのプラグインが有効な間、ユーザーの `outputStyle` 設定を上書きして自動適用される。サブエージェントは影響を受けない（forkは例外）"
         },
         {
-          "text": "複数の有効なプラグインが `force-for-plugin` を設定している場合、最後にロードされたものが優先されて適用される",
+          "text": "複数の有効なプラグインが `force-for-plugin` を設定している場合、最後にロードされたものが優先されて適用され、先にロードされたものは無視される",
           "wrongFeedback": "逆です。複数のプラグインが設定している場合、最初にロードされたものが使われます。"
         },
         {
@@ -66180,7 +66137,7 @@
       "question": "自己ホスト型環境のラッパースクリプトで、Claudeの子プロセスを`&`でバックグラウンド起動し、`CLAUDE_RUNNER_CLAUDE_BIN`へのexecを行わなかった場合に発生する問題として正しいものはどれですか？",
       "options": [
         {
-          "text": "ファイルディスクリプタ3が自動的に閉じられ、Runnerがアイドル・起動タイムアウトを判定できなくなる。",
+          "text": "ファイルディスクリプタ3が自動的に閉じられ、Runnerがアイドルや起動のタイムアウトを判定できなくなるため、実行中のセッションが強制的に終了させられる。",
           "wrongFeedback": "誤りです。ファイルディスクリプタ3が閉じる問題は、`&`でのバックグラウンド化とは別の操作（fd3を明示的に閉じたり再利用したりすること）で起こります。`&`単体が壊すのはstdinです。"
         },
         {
@@ -66191,7 +66148,7 @@
           "wrongFeedback": "誤りです。`--exec-path`の設定自体は引き続き有効です。問題は`&`でバックグラウンド化することで子プロセスのstdinが切り離され、トークンローテーションを受け取れなくなることです。"
         },
         {
-          "text": "`CLAUDE_CODE_SESSION_ACCESS_TOKEN`が即座に無効化され、セッション開始直後にラッパースクリプトが失敗する。",
+          "text": "`CLAUDE_CODE_SESSION_ACCESS_TOKEN`が即座に無効化され、セッション開始直後にラッパースクリプトが失敗し、Claudeも起動できなくなる。",
           "wrongFeedback": "誤りです。セッション開始時点のトークンは有効です。問題が表面化するのは、stdin経由で届くはずのトークンローテーションを受け取れず、初回トークンの有効期限（約30分）が切れたタイミングです。"
         }
       ],
@@ -66382,7 +66339,7 @@
       "question": "エフェメラルなCIランナー上で、自己ホスト型環境向けのE2Eテストスクリプト（`claude -p ... --environment`）を認証させたい場合、正しいアプローチはどれですか？",
       "options": [
         {
-          "text": "そのEnvironmentの`environment secret`をCI環境に配置し、Runnerと同じ資格情報でセッションの作成と制御を認証する。",
+          "text": "そのEnvironmentの`environment secret`をエフェメラルなCIランナーの環境変数に配置し、Runnerを登録するときと同じ資格情報でセッションの作成と制御を認証する。",
           "wrongFeedback": "誤りです。`environment secret`はRunnerがEnvironmentに登録するための資格情報であり、セッションを作成する権限は与えません。"
         },
         {
@@ -67288,7 +67245,7 @@
           "wrongFeedback": "保持期間を安全に決定できない場合、Claude Codeはデフォルト値で強行するのではなく、掃除そのものを一時停止します。"
         },
         {
-          "text": "設定ファイルが読み込めない場合のみ一時停止され、`cleanupPeriodDays`が明示的に設定された状態での設定エラーは掃除を継続させる。",
+          "text": "設定ファイルが読み込めない場合のみ一時停止され、`cleanupPeriodDays`が明示的に設定された状態での設定エラーは掃除を継続させ、設定値どおりに古いファイルを削除する。",
           "wrongFeedback": "どちらのケースも一時停止の対象です。設定ファイルが読み込めない/パースできない場合と、`cleanupPeriodDays`が明示的に設定された状態で設定エラーがある場合の両方で、Claude Codeは掃除を一時停止します。"
         }
       ],
@@ -67326,7 +67283,7 @@
       "question": "サーバー管理設定にHookの追加などセキュリティ承認が必要な設定が含まれる場合、承認済みの記録の保存方法は認証方法によって異なります。claude.aiログイン（`/login`）を使うケースと、それ以外の資格情報（APIキーや`CLAUDE_CODE_OAUTH_TOKEN`など）を使うケースの違いとして正しいものはどれですか？",
       "options": [
         {
-          "text": "claude.aiログインの場合のみ、承認記録がローカルの設定ディレクトリ（`~/.claude`）ではなくクラウド側に保存され、それ以外の資格情報の場合はローカルにだけ保存される。",
+          "text": "claude.aiログインの場合のみ、承認記録がローカルの設定ディレクトリ（`~/.claude`）ではなくクラウド側に保存されて別端末でも共有され、それ以外の資格情報の場合はそのマシンのローカルにだけ保存される。",
           "wrongFeedback": "どちらの認証方法でも、承認はローカルの設定ディレクトリ（既定では`~/.claude`、`CLAUDE_CONFIG_DIR`で変更可能）に記録されます。クラウド側に保存されるわけではありません。"
         },
         {
@@ -67380,14 +67337,14 @@
           "wrongFeedback": "これはv2.1.217より前で発生していた既知の不具合です。現在は予算超過時にパターンを未展開のまま使う（マッチしなくなる）挙動に修正されており、起動が失敗することはありません。"
         },
         {
-          "text": "予算を超えた時点で、そのルールファイル全体が読み込まれなくなり、他の`paths`パターンも一切機能しなくなる。",
+          "text": "予算を超えた時点で、そのルールファイル全体が読み込まれなくなり、他の`paths`パターンも一切機能しなくなり、ルール全体が無効になる。",
           "wrongFeedback": "無効になるのは予算を超えた特定のパターンだけです。ブレースを含まない他のパターンや、予算内に収まる他のパターンは引き続き有効です。"
         },
         {
           "text": "展開後1,000パターン・4MiBという共有予算を超えたパターンは未展開のまま使われ、ブレースがリテラル扱いでマッチしなくなる。"
         },
         {
-          "text": "予算を超えたパターンは自動的に複数のルールファイルへ分割され、予算を超えても全パターンが正しく機能する。",
+          "text": "予算を超えたパターンは自動的に複数のルールファイルへ分割され、予算を超えても全パターンが正しく機能し続ける。",
           "wrongFeedback": "そのような自動分割の仕組みはありません。予算を超えたパターンは単に未展開のまま扱われ、リテラルなブレース文字が何にもマッチしなくなります。"
         }
       ],
@@ -67477,7 +67434,7 @@
           "wrongFeedback": "`model` の指定有無とツール制限は無関係です。`tools` 許可リストは `model` の指定にかかわらず適用され、追加されるのはチーム調整用の `SendMessage`（と Task ツールがあるセッションでの Task ツール）だけです。"
         },
         {
-          "text": "`Bash`。チームメイトはコマンド実行が必須のため、定義の `tools` が何を列挙していても常に制限対象から除外され利用可能なままになる",
+          "text": "`Bash`。チームメイトはコマンド実行が必須のため、定義の `tools` が何を列挙していても常に制限対象から除外され、コマンド実行のツールが利用可能なままになる",
           "wrongFeedback": "`Bash` は `tools` 許可リストの制限対象になり得ます。in-process チームメイトに追加されるのはチーム調整用の `SendMessage` と、Task ツールがあるセッションでの `TaskCreate` / `TaskGet` / `TaskList` / `TaskUpdate` です。"
         },
         {
@@ -68028,7 +67985,7 @@
       "question": "長時間のツール呼び出しを含むターンの途中で、Claudeがそのツール呼び出しを完了した直後（まだターン自体は終わっていない）にサーバーエラーが発生しました。この場合のClaude Codeの挙動として正しいものはどれですか？",
       "options": [
         {
-          "text": "429スロットルと同様に、指数バックオフの間隔を空けながら、成功するまで自動的に何度も再試行され続ける。",
+          "text": "429スロットルと同様に、指数バックオフの間隔を空けながら、ユーザーの操作なしに成功するまで自動的に何度も再試行され続ける。",
           "wrongFeedback": "指数バックオフでの再試行が適用されるのは、Claudeの応答がまだ何もストリーミングされていない段階での障害です。テキストブロックやツール呼び出しを完了した後の障害は再試行の対象外です。"
         },
         {
@@ -68338,7 +68295,7 @@
       "question": "プラグインが`tracker`という名前のMCPサーバー経由で`create_issue`ツールを呼ぶSkillを持っており、このサーバー用のモックファイルはまだ一つも作成していません。モックを使わず実際の`tracker`サーバーに対して評価を実行したい場合、最低限必要な指定はどれですか？",
       "options": [
         {
-          "text": "`prompt.md`の`allowed_tools`に`mcp__plugin_<plugin>_tracker__create_issue`を追加するだけでよく、実サーバーの起動も自動的に行われる。",
+          "text": "`prompt.md`の`allowed_tools`に`mcp__plugin_<plugin>_tracker__create_issue`を追加するだけでよく、実サーバーの起動も自動的に行われるため、追加のフラグは不要である。",
           "wrongFeedback": "誤りです。`allowed_tools`（frontmatter）で許可できるのは読み取り専用ツールの範囲で、MCPツールの許可はコマンドラインの`--allow-tools`で与えます。サーバー自体を起動する指定も別途必要です。"
         },
         {
@@ -68569,7 +68526,7 @@
       "question": "MDM を導入しておらず、開発者が各自ビルドする Linux イメージにポリシーを配布したい。ファイルを更新した際、再起動なしでできるだけ早く反映させたい場合、どの配布機構を選ぶべきか。",
       "options": [
         {
-          "text": "MDM/OSレベルのポリシーを使う。起動時に読み込み、その後30分ごとに変更を確認する",
+          "text": "MDM/OSレベルのポリシーを使う。起動時に読み込み、その後30分ごとに変更の有無を確認して設定を反映する",
           "wrongFeedback": "MDMを導入していないという前提と矛盾します。仮に導入していても変更確認は30分間隔であり、ファイルベースの即時反映には劣ります。"
         },
         {
@@ -68577,7 +68534,7 @@
           "wrongFeedback": "HKCUレジストリはWindows専用のユーザー書き込み可能なフォールバック経路で、Linuxホストには存在しません。"
         },
         {
-          "text": "サーバー管理設定を使う。起動時に取得し、その後1時間ごとのポーリングで反映される",
+          "text": "サーバー管理設定を使う。起動時に取得し、その後1時間ごとのポーリングで変更を確認して反映される",
           "wrongFeedback": "サーバー管理設定は起動時取得後1時間ごとのポーリングになるため、ファイル変更の即時反映には向きません。またMDM非導入のLinuxイメージという前提には合致しません。"
         },
         {
@@ -68948,7 +68905,7 @@
       "question": "チームの `.claude/settings.json` をリポジトリにコミットした。あるメンバーがこのリポジトリを clone した直後、まだこのフォルダを trust していない状態で、コミットされた設定はどう適用されるか。",
       "options": [
         {
-          "text": "リポジトリの上位にある親フォルダを既に trust していれば、このリポジトリ自体を個別に trust しなくても `allow` ルールは有効になる。",
+          "text": "リポジトリの上位にある親フォルダを既に trust していれば、このリポジトリ自体を個別に trust しなくても、コミットされた `allow` ルールは最初から問題なく有効になる。",
           "wrongFeedback": "`allow` ルールが有効になるのは、親フォルダではなくこのフォルダ自体を trust した場合のみ。親フォルダの trust だけでは有効にならない。"
         },
         {
@@ -69774,7 +69731,7 @@
           "text": "通常の thread は自動で再試行して続行する。止めるなら **Stop** か **Pause** を使う。routine が起動した thread だけは待たずに止まる"
         },
         {
-          "text": "usage credits を thread が自分で有効化して上限を超えて作業を続けるため、消費を止めるには usage credits をオフにする",
+          "text": "usage credits を thread が自分で有効化して上限を超えて作業を続けるため、次の使用ウィンドウを消費したくなければ usage credits をオフにする",
           "wrongFeedback": "usage credits はアカウントで有効にした場合にのみ上限を超えられます。thread が自分で有効にすることはできません。次の使用ウィンドウの消費を止めるには、thread の **Stop** か project の **Pause** を使います。"
         },
         {
@@ -70286,11 +70243,11 @@
           "text": "`PATH` でより前にあるディレクトリに `claude` という名前のスクリプトを置き、本物のバイナリをラウンチャー経由で起動させる"
         },
         {
-          "text": "管理された `claude` シンボリックリンクをラウンチャースクリプトで置き換える",
+          "text": "管理された `claude` シンボリックリンクをラウンチャースクリプトで直接置き換えて、起動経路を差し替える",
           "wrongFeedback": "管理されたシンボリックリンクは置き換えないよう明記されています。代わりに `PATH` 上でより前にあるディレクトリへ別のスクリプトを置きます。"
         },
         {
-          "text": "`CLAUDE_CODE_SHELL_PREFIX` に同じラウンチャーのパスを設定して、両方の変数で同じスクリプトを使う",
+          "text": "`CLAUDE_CODE_SHELL_PREFIX` に同じラウンチャーのパスを設定して、両方の変数で同じスクリプトを使い回すようにする",
           "wrongFeedback": "`CLAUDE_CODE_SHELL_PREFIX` は Bash ツール、フック、stdio MCP サーバーなど Claude が実行するシェルコマンドを包む変数で、コマンドを1つの引用済み文字列として渡します。Claude Code 自身のプロセス用ラウンチャーとは契約が異なり、流用はできません。"
         },
         {
@@ -70633,7 +70590,7 @@
       "question": "社内の非公開 GitHub リポジトリでマーケットプレイスを運営しています。SSH 鍵を持たない利用者から、HTTPS でのクローンに失敗して `/plugin marketplace add` が通らないと報告がありました。Claude Code の認証の仕組みを踏まえ、案内すべき対処はどれですか？",
       "options": [
         {
-          "text": "`CLAUDE_CODE_PLUGIN_PREFER_HTTPS=1` を設定してもらい、HTTPS に切り替えれば認証も通る",
+          "text": "`CLAUDE_CODE_PLUGIN_PREFER_HTTPS=1` を設定してもらい、HTTPS に切り替えれば資格情報がなくても認証まで通る",
           "wrongFeedback": "この環境変数は SSH の接続確認を省略して HTTPS で clone させるだけで、認証情報は与えません。HTTPS でも資格情報ヘルパーに保存済みの認証情報が必要です。"
         },
         {
@@ -70817,11 +70774,11 @@
       "question": "ターミナルで `/plugin install code-formatter@your-marketplace` と入力したところ、`zsh: no such file or directory: /plugin` と表示されました。原因と対処として正しいものはどれですか？",
       "options": [
         {
-          "text": "短縮形の `/install code-formatter@your-marketplace` に変えれば、シェルからでも実行できる",
+          "text": "短縮形の `/install code-formatter@your-marketplace` に変えれば、シェルからでもそのまま実行できるようになる",
           "wrongFeedback": "`/install` という形は存在せず、セッション内でも `Unknown command: /install` になります。セッション内では `/plugin install` を使います。"
         },
         {
-          "text": "zsh が `/` で始まる入力をパスと解釈したため。`\\/plugin` とエスケープすればシェルから実行できる",
+          "text": "zsh が `/` で始まる入力をファイルパスと解釈したため。`\\/plugin` のようにエスケープすれば、シェルからでも `/plugin` を実行できる",
           "wrongFeedback": "エスケープしても `/plugin` はシェルのコマンドにはなりません。これは Claude Code のセッション内で入力するコマンドです。"
         },
         {
@@ -71028,14 +70985,14 @@
           "wrongFeedback": "`claude plugin add` というサブコマンドはなく、`error: unknown command 'add'` になります。インストールは `claude plugin install <plugin>@<marketplace>` です。"
         },
         {
-          "text": "`/plugin install` の代わりに `claude -p \"/reload-plugins\"` を実行する",
+          "text": "`/plugin install` の代わりに `claude -p \"/reload-plugins\"` を実行して、プラグインを読み込ませる",
           "wrongFeedback": "`/reload-plugins` は、インストールや更新などの保留中の変更を実行中のセッションに反映するコマンドです。プラグインのインストールは行いません。"
         },
         {
           "text": "シェルで `claude plugin install formatter@my-marketplace --scope project` を実行する"
         },
         {
-          "text": "`-p` に `--dangerously-skip-permissions` を付け加えて、`/plugin` の実行を許可する",
+          "text": "`-p` に `--dangerously-skip-permissions` を付け加えて、`/plugin install` の実行を許可してからインストールする",
           "wrongFeedback": "`/plugin` が使えないのは権限の問題ではなく、パネルを表示する対話的な端末がないためです。権限を緩めても解決しません。"
         }
       ],
