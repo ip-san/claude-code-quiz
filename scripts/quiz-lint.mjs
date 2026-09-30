@@ -268,6 +268,8 @@ function extractDocAnchors() {
       const slug = slugify(heading)
       headingAnchors.add(slug)
     }
+    // 明示的なアンカー（<h3 id="..."> / <a id="..." />）。ja ページの独自 id もここに現れる
+    for (const m of content.matchAll(/\bid="([^"]+)"/g)) headingAnchors.add(m[1])
 
     anchors[page] = headingAnchors
   }

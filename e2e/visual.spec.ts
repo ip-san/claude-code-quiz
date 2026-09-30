@@ -26,6 +26,10 @@ test.describe('Visual Regression', () => {
     await page.evaluate(() => localStorage.clear())
     await page.reload()
     await page.waitForLoadState('networkidle')
+    // 並列実行の負荷下では Web フォントの読み込みが遅れ、代替フォントで撮影されて
+    // 画素の 7〜8% がずれる flaky があった。フォントと問題データの読み込み完了を待つ
+    await page.evaluate(() => document.fonts.ready)
+    await expect(page.getByText(/\d{3,}問/).first()).toBeVisible()
   })
 
   test('welcome screen — light mode', async ({ page }) => {

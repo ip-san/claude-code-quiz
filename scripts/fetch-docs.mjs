@@ -408,12 +408,31 @@ async function fetchDirectMarkdown(url) {
   }
 }
 
+function writePage(page, outPath, markdown) {
+  const header = [`<!-- Cached: ${new Date().toISOString()} -->`, `<!-- Source: ${page.url} -->`, ''].join('\n')
+  writeFileSync(outPath, header + markdown + '\n')
+
+  // セクション分割
+  const sectionsDir = resolve(DOCS_DIR, 'sections', page.name)
+  const sectionIndex = splitDocIntoSections(page.name, markdown, sectionsDir)
+
+  return { name: page.name, status: 'fetched', path: outPath, size: markdown.length, sections: sectionIndex.length }
+}
+
 async function fetchPage(page, force = false) {
   const outPath = resolve(DOCS_DIR, `${page.name}.md`)
 
   if (!force && isCacheValid(outPath)) {
     const size = statSync(outPath).size
     return { name: page.name, status: 'cached', path: outPath, size }
+  }
+
+  // 公式の Markdown 直接配信（{url}.md）を優先する。Jina 経由はコードフェンス・明示的な
+  // <hN id> ・callout を落とすことがあり、日次でハッシュが揺れてアンカー判定も誤検出するため。
+  // 直接取得できないページ（platform.claude.com 等）だけ Jina にフォールバックする
+  if (page.url.startsWith('https://code.claude.com/')) {
+    const direct = await fetchDirectMarkdown(page.url)
+    if (direct && direct.length >= 100) return writePage(page, outPath, direct)
   }
 
   const jinaUrl = `${JINA_READER_BASE}${page.url}`
@@ -445,16 +464,7 @@ async function fetchPage(page, force = false) {
         throw new Error(`Content too small (${markdown.length} chars) - likely failed to render`)
       }
 
-      // Add metadata header
-      const header = [`<!-- Cached: ${new Date().toISOString()} -->`, `<!-- Source: ${page.url} -->`, ''].join('\n')
-
-      writeFileSync(outPath, header + markdown + '\n')
-
-      // セクション分割
-      const sectionsDir = resolve(DOCS_DIR, 'sections', page.name)
-      const sectionIndex = splitDocIntoSections(page.name, markdown, sectionsDir)
-
-      return { name: page.name, status: 'fetched', path: outPath, size: markdown.length, sections: sectionIndex.length }
+      return writePage(page, outPath, markdown)
     } catch (err) {
       if (attempt === 3) {
         return { name: page.name, status: 'error', error: err.message }

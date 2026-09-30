@@ -65,11 +65,30 @@ if (lintResults) {
   }
 }
 
+// 不正解選択肢に「架空のもの」として置いた語（例: `--readonly`）は docs に無くて当然。
+// その語が不正解選択肢の本文にだけ現れ、その選択肢の wrongFeedback が否定している場合は誤検出として除外する
+// （2026-09-30 の判定層レビューで fact tier 67 件中 39 件がこのパターンの誤検出だった）
+const NEGATION = /存在しません|存在しない|ありません|実在しません|実在しない|架空|ではありません|使えません|できません/
+const quizById = new Map(
+  JSON.parse(readFileSync(resolve(ROOT, 'src/data/quizzes.json'), 'utf8')).quizzes.map((q) => [q.id, q])
+)
+function isNegatedDistractorTerm(id, term) {
+  const q = quizById.get(id)
+  if (!q) return false
+  const correct = q.correctIndices ?? [q.correctIndex]
+  const inCorrectOrExplanation =
+    correct.some((i) => q.options[i]?.text.includes(term)) || (q.explanation ?? '').includes(term)
+  if (inCorrectOrExplanation) return false
+  const holders = q.options.filter((o, i) => !correct.includes(i) && o.text.includes(term))
+  return holders.length > 0 && holders.every((o) => NEGATION.test(o.wrongFeedback ?? ''))
+}
+
 // Fact-check results: each key is a term type, value is array of not-found terms
 if (factResults) {
   for (const [termType, issues] of Object.entries(factResults)) {
     for (const issue of issues) {
       for (const id of issue.quizIds || []) {
+        if (isNegatedDistractorTerm(id, issue.term)) continue
         addFlag(id, `factCheck:${termType}`, `${issue.term} not found in docs`)
       }
     }
