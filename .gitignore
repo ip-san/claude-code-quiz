@@ -50,3 +50,4 @@ playwright-report/
 .claire/
 build/icon.ico
 .lighthouseci/
+.vitest/
