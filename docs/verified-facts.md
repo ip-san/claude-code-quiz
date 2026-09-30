@@ -27,7 +27,7 @@
 | Remote Control 同時実行 | 通常は1セッションのみ。**サーバーモード（`claude remote-control`）は `--capacity` でデフォルト最大32** | remote-control.md L46,L137 | server mode 言及なし | cmd-089 |
 | Code Review 課金 | **usage credits** で別途請求（"Extra Usage" はリンクテキスト） | code-review.md | 「Extra Usage」表記 | ext-161, ses-117 |
 | `/simplify` | **4つ**の並列レビューエージェント（再利用・簡素化・効率性・適切な抽象度） | commands.md L76 | （assembled は古く「3つ」）正解は4で正しい | skill-065(ok) |
-| acceptEdits | mkdir/touch/mv/cp 等は自動承認、**`rm` 等の破壊的コマンドは引き続き確認** | permissions.md L32,L36 | （正しい。誤指摘を棄却）| ses-126(ok) |
+| acceptEdits | ~~mkdir/touch/mv/cp 等は自動承認、`rm` 等は引き続き確認~~ → **2026-09-30 更新: `mkdir`/`touch`/`rm`/`rmdir`/`mv`/`cp`/`sed` を作業ディレクトリ内で自動承認**（第18回追補参照） | permission-modes | — | ses-126 |
 | Shift+Enter ネイティブ対応 | **7種**（Ghostty/Kitty/iTerm2/WezTerm/Warp/Apple Terminal/Windows Terminal）。要 `/terminal-setup`: VS Code/Cursor/Devin Desktop/Alacritty/Zed | terminal-config.md L14-15 | （正しい。誤指摘を棄却）| key-044(ok) |
 
 **教訓（プロセス）:**
@@ -172,7 +172,7 @@
 
 ## MCP / Tools
 
-### MCP SSE Transport（2026-05-31 更新: **deprecated 撤回**）
+### MCP SSE Transport（2026-05-31 更新: deprecated 撤回 → **2026-09-30 再更新: 現行 docs は SSE を非推奨と明記**。以下の2行は古い記録）
 - `mcp.md` L56「Option 2: Add a remote SSE server」(`claude mcp add --transport sse`) — SSE は**有効な transport**。2026-05-31 facts-checker で "deprecated" 記述の消滅を確認（mcp.md 全体に "deprecat" 文字列ゼロ）
 - HTTP（Option 1）が推奨だが SSE は**非推奨ではない**。「SSE は deprecated」とするクイズ修正提案は誤り（known-issues.md と整合）
 
@@ -397,3 +397,25 @@
 - memory: スペースを含む import パスは各スペースの前にバックスラッシュ（`@Design\ Docs/api-conventions.md`）。引用符で囲むと読み込まれない — mem-104（新規）
 - skills: `/claude-api` のサブコマンド（migrate / upgrade v2.1.236+ / managed-agents-onboard / prompt-audit v2.1.221+ / cost-optimize v2.1.247+ / build-eval・hillclimb v2.1.259+ / preserved-thinking-migration）。現時点で en のみ — skill-094（新規）
 - Claude Tag セッションは server-managed settings を受け取らない（self-hosted 環境では管理設定ファイルを読む）— managed-settings / model-config
+
+## 2026-09-30 quality-loop 第18回 追補（前回比較できなかった23ページを参照する130問を今日の docs で直接検証、28問修正）
+
+- permission-modes: acceptEdits が自動承認する Bash は `mkdir` / `touch` / `rm` / `rmdir` / `mv` / `cp` / `sed`（作業ディレクトリと additionalDirectories 内のみ）。範囲外・保護パス・その他の Bash は確認 — ses-126（2026-06-06 記録の「`rm` 等は引き続き確認」は古い）
+- mcp: `.mcp.json` の各サーバーの `timeout`（ms）は、そのサーバーのツール実行について `MCP_TOOL_TIMEOUT` より優先。起動タイムアウトは `MCP_TIMEOUT`（既定 30,000ms）— tool-037
+- authentication: macOS で Keychain が書き込みを拒否した場合は `~/.claude/.credentials.json`（0600）にフォールバック — ses-141
+- managed MCP の設定内容は `managed-mcp` ページに移動（許可/拒否リストは管理設定側、`managed-mcp.json` は `mcpServers` 形式）— ext-028
+- mcp: リモートサーバーの url/headers では `ANTHROPIC_API_KEY` などの認証系変数は空として展開される
+- mcp: SSE トランスポートは非推奨（2026-05-31 の「SSE deprecated 撤回」は古い）
+- artifacts: Team/Enterprise とも既定オン・Owner がオフ可。サーフェスは CLI / Claude デスクトップ 1.13576.0+ / Claude Tag、Agent SDK・GitHub Action・MCP サーバー文脈では既定オフ。ポリシーは `api.anthropic.com` から取得 — artifacts「Availability」（bp-108）
+- plugins/marketplace-reference: `strict: false` のコンフリクトは**マーケットプレイスのエントリ側**がコンポーネント（commands/agents/skills/hooks 等）を宣言したときに発生。宣言なしなら plugin.json がマニフェスト — ext-148
+- plugins/marketplace-reference: 予約名が拡充（公式名・内部名・パッケージマネージャ名（v2.1.275+）・`claudeai-` 接頭辞）、`github.com/anthropics/` 配下は例外、非 ASCII・別綴り（v2.1.280+）は拒否 — ext-147
+- plugins/components: `.lsp.json` はサーバー名をキーにしたマップ（ラッパーなし）、`claude plugin validate` の対象外 — ext-139
+- github-actions: クイックセットアップは Claude API とサブスクリプションの両方に対応、保存するシークレットは `ANTHROPIC_API_KEY` または `CLAUDE_CODE_OAUTH_TOKEN`、github.com 限定・gh CLI 必須 — cmd-080
+- sandboxing: Linux/WSL2 は bubblewrap と socat が必要、WSL1・ネイティブ Windows は非対応 — tool-030
+- 記録の訂正: artifacts の CDN は 5 ホスト（unpkg を含む）。2026-09-10 の「4 CDN」は古い
+- desktop: SSH セッションは初回接続時に Desktop が Claude Code をリモートへ自動インストール（リモートは Linux/macOS）— ses-120（正解の記述誤りを修正）
+- desktop: ワークツリー分離はセッション開始時に worktree オプションを選ぶ opt-in（自動ではない）— ses-111
+- desktop: Browser ペインは外部サイトも開ける（分類器・許可リストで制御）。Linux ベータもライブプレビュー対応 — ext-172
+- desktop-ios-simulator: 自動停止の例外は「Claude Code Desktop の外で起動したデバイス」（Simulator アプリ / Device Hub）— ses-213
+- remote-control: Desktop の設定名は「Connect new sessions to Remote Control」、サーバーモードに `--chrome`/`--no-chrome`（v2.1.273+）
+- desktop: Desktop の `/resume` はローカルセッションのみ、SSO 必須化は Team / Enterprise
