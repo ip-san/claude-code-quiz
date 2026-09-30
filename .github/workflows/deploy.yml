@@ -38,7 +38,7 @@ jobs:
         run: bun run test
       - name: validate
         if: matrix.task == 'validate'
-        run: node scripts/quiz-utils.mjs check && node scripts/validate-docs.mjs && node scripts/validate-docs-links.mjs
+        run: node scripts/quiz-utils.mjs check && node scripts/quiz-utils.mjs check-ellipsis && node scripts/quiz-utils.mjs check-diagram-text && node scripts/validate-docs.mjs && node scripts/validate-docs-links.mjs
 
   build:
     needs: check

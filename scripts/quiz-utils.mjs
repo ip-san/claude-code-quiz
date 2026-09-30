@@ -997,16 +997,25 @@ const SENTENCE_ENDERS = new Set(['。', '、', '！', '？', '.', '!', '?', ')',
 const CONTINUATION_CHAR = /[ぁ-んァ-ヴa-zA-Z0-9々ー一-龯]/
 const MID_WORD_LATIN = /[A-Za-z]$/
 const HIERARCHY_TEXT_MAX = 40
+const FLOW_SUB_MAX = 15
+// 前の text の続きとして始まる sub（助詞・読点・空白始まり）は文の途中で割った跡
+const SUB_CONTINUATION_START = /^[\s　、でをはがのにとへもや]/
 
 function isMidSentenceSplit(text, sub) {
   if (!text || !sub) return false
   const lastChar = text.slice(-1)
   const subFirst = sub.charAt(0)
+  // 形の規則（sub は ≤15字の短い補足、括弧は閉じる、続き始まりにしない）は text の末尾に関係なく違反
+  if (sub.length > FLOW_SUB_MAX) return true
+  if (SUB_CONTINUATION_START.test(sub)) return true
+  if ((sub.match(/[（(]/g) || []).length > (sub.match(/[）)]/g) || []).length) return true
   if (SENTENCE_ENDERS.has(lastChar)) return false
   if (!CONTINUATION_CHAR.test(subFirst)) return false
   // strict: long text (>15) ending in kana/kanji and sub starting in kana/kanji = sentence cut
   // strict: text ending in latin char and sub starting in latin = word cut (e.g. "permissionMod"+"e")
   if (MID_WORD_LATIN.test(lastChar) && /^[A-Za-z]/.test(subFirst)) return true
+  // カタカナ語の途中（"インポー"+"ト元"）は text が短くても単語分断
+  if (/[ァ-ヴー]$/.test(text) && /^[ァ-ヴー]/.test(sub)) return true
   if (text.length > 15 && /[ぁ-んァ-ヴ一-龯]/.test(lastChar) && /[ぁ-んァ-ヴ一-龯]/.test(subFirst)) return true
   return false
 }
