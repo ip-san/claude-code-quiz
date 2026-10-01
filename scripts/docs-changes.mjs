@@ -47,7 +47,8 @@ for (const file of current) {
     noBaseline.push(page)
     continue
   }
-  const res = spawnSync('diff', [base, resolve(DOCS_DIR, file)], { encoding: 'utf8' })
+  // 先頭の `<!-- Cached: 取得時刻 -->` は取得のたびに変わるので比較から除く
+  const res = spawnSync('diff', ['-I', '^<!-- Cached: ', base, resolve(DOCS_DIR, file)], { encoding: 'utf8' })
   if (res.status === 0) continue
   const changedLines = res.stdout.split('\n').filter((l) => l.startsWith('<') || l.startsWith('>')).length
   changes.push({ page, changedLines, quizIds: idsByPage[page] ?? [], hunks: res.stdout })

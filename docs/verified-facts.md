@@ -419,3 +419,19 @@
 - desktop-ios-simulator: 自動停止の例外は「Claude Code Desktop の外で起動したデバイス」（Simulator アプリ / Device Hub）— ses-213
 - remote-control: Desktop の設定名は「Connect new sessions to Remote Control」、サーバーモードに `--chrome`/`--no-chrome`（v2.1.273+）
 - desktop: Desktop の `/resume` はローカルセッションのみ、SSO 必須化は Team / Enterprise
+
+## 2026-10-01 quality-loop 第19回（前日夜のベースラインからの docs 内容差分 44 ページを判定層 Fable 5 ×2 で追従、5問修正）
+
+- server-managed-settings: 管理ティアの no-merge の例外は4種（ロックキー / `env` の変数ごとマージ / `allowedProviders`（v2.1.285+）/ ゲートウェイサインイン系キー）— mem-039（第17回の「例外3種」を更新）
+- settings-reference: `allowedProviders`（Managed、v2.1.285+）。マシン側とサーバー側の両方にリストがある場合は共通部分のみ許可（サーバー側は狭めるだけで広げられない）。空リストや全エントリ不明なら全プロバイダ拒否で起動しない
+- tools-reference: バックグラウンドの Bash / PowerShell コマンドに時間制限（既定30分、`timeout` 指定で最大2時間、途中でバックグラウンドに移したものは移動時点から30分）。`BASH_DEFAULT_TIMEOUT_MS` / `BASH_MAX_TIMEOUT_MS` は引き上げのみ可（v2.1.285+）
+- cloud-environments: Anthropic ホスト環境ではセッション作成時と、VM がアイドルから復元・再構築されるたびに環境変数を読み直す。セットアップスクリプトはアイドルからの復元時には走らない。ネットワーク設定の変更は約1分で既存セッションに反映
+- sessions: 実行中のバックグラウンドセッションを `--resume` / `/resume` すると、そのセッションにアタッチする（v2.1.285 より前は拒否）
+- desktop: `claude --desktop`（v2.1.285+）で Desktop を直接開き、`--continue` / `--resume <session-id>` で CLI セッションを Desktop に移せる
+- managed-settings: 管理ソースを OS が読み取り拒否した場合はそのソースなしで起動、それ以外の読み取り失敗は全セッション終了
+- env-vars: `CLAUDE_CODE_DISABLE_MODEL_ACCESS_FALLBACK=1` / `CLAUDE_CODE_SKIP_MODEL_ACCESS_MEMORY=1`（v2.1.285+）
+- advisor: Sonnet 5 と Sonnet 5.5 メインで組み合わせられる advisor が異なる（同じ扱いではない）— bp-101
+- scheduled-tasks: 「新しい会話を開始するとすべてのタスクがクリアされる」という記述は削除された（第16回の記録を更新）— cmd-087
+- permission-modes: auto モード分類器の「一度確定したらセッション中は変わらない」という保証の記述は撤回された — ext-164
+- skills: スキルが発動しないときのトラブルシュート節が書き直された — skill-074
+
