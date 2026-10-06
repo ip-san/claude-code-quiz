@@ -234,6 +234,7 @@ const VALID_DOC_PAGES = [
   'settings-example',
   'plugin-evals',
   'claude-projects',
+  'hipaa-setup',
   // platform.claude.com pages
   'agent-sdk/overview',
   'agents-and-tools/agent-skills/best-practices',

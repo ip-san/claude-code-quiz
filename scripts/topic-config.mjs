@@ -231,6 +231,8 @@ export const DOC_PAGES = [
   { name: 'plugins-mods-test', url: 'https://code.claude.com/docs/en/plugins/mods/test' },
   { name: 'plugins-mods-troubleshoot', url: 'https://code.claude.com/docs/en/plugins/mods/troubleshoot' },
   { name: 'plugins-mods-admin', url: 'https://code.claude.com/docs/en/plugins/mods/admin' },
+  // Auto-discovered from llms.txt (2026-10-06)
+  { name: 'hipaa-setup', url: 'https://code.claude.com/docs/en/hipaa-setup' },
   // Agent SDK (different domain)
   { name: 'agent-sdk-overview', url: 'https://platform.claude.com/docs/en/agent-sdk/overview' },
   {
@@ -316,6 +318,7 @@ export const CATEGORY_DOC_MAP = {
     'claude-apps-gateway-spend-limits',
     'desktop-ios-simulator',
     'claude-projects',
+    'hipaa-setup',
   ],
   keyboard: [
     'interactive-mode',

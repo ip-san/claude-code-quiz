@@ -439,7 +439,7 @@
 
 - **新機能 Mods**（`/plugins/mods/*` 10ページ）: Claude Code の内部で動く JavaScript / TypeScript のイベントハンドラ型プラグイン。ペインやコマンドの追加、ツール呼び出しへの介入ができる。設定ファイルの hooks とは別物（docs 上は mod のハンドラも「hook」と呼ぶ）。`--safe-mode` で1セッションだけ全 mod を止め、`allowManagedModsOnly`（管理設定）でユーザーの mod だけを止める
 - **第19回の記録の訂正**: バックグラウンドの Bash / PowerShell の時間制限（既定30分・最大2時間）は**無人セッション（`-p`、Agent SDK、CI、クラウド）のみ**。ターミナル・Desktop・VS Code の通常セッションには時間制限なし（v2.1.288 より前は全セッションに適用）— tools-reference
-- debug-your-config: サブディレクトリの CLAUDE.md は Read / Write / Edit のいずれかでそのディレクトリのファイルを触ったときに読み込まれる（v2.1.288 より前は Read のみ）。memory ページは未更新で「読んだとき」のまま
+- debug-your-config: サブディレクトリの CLAUDE.md は Read / Write / Edit のいずれかでそのディレクトリのファイルを触ったときに読み込まれる（v2.1.288 より前は Read のみ）。memory ページも 2026-10-06 に同じ内容へ更新済み
 - debug-your-config: hooks の `matcher` を配列にすると、そのエントリが無効な設定として一覧表示される。`PreToolUse` / `PermissionRequest` 配下なら同じファイルの他のフックも読み込まれない — ses-187
 - hooks-guide: Stop フックは「Claude がツールを呼ばずに8回連続でブロックした」ときに上書きされる。`PermissionRequest` フックは `-p` でも `dontAsk` 以外では実行される
 - agent-teams: チームメイトを表示中に `/compact` `/clear` `/rewind` はリードの会話に作用するため確認が出る。`/model` `/fast` はその表示からは実行されず理由の通知が出る — skill-082
@@ -477,4 +477,16 @@
 - statusline: `spend_limit.used_usd` / `limit_usd` / `period`（v2.1.284+）
 - keybindings: `agents:find`（Ctrl+F）/ `agents:rename`（Ctrl+R）など agent view 用のアクション（v2.1.288+）
 - sandboxing: 許可していないホストへの接続はサンドボックス内に留まり、権限モードで扱いが決まる（`bypassPermissions` は確認なしで許可、Manual / `acceptEdits` はプロンプト、auto は分類器が承認した場合のみ、`dontAsk` は拒否）。`strictAllowlist` / `allowManagedDomainsOnly` ではどのモードでも拒否 — tool-043
+
+## 2026-10-06 quality-loop 第21回（docs 内容差分 73 ページを判定層 Fable 5 ×2 で追従、19問修正 + 新規ページ hipaa-setup で3問追加）
+
+- slack / platforms: 旧 Claude Code in Slack は Pro / Max アカウントかつ Claude Tag 未接続のワークスペースでのみ応答。旧 Claude in Slack ボットは 2026-10-05 に終了 — ext-202
+- github-enterprise-server: GHES の接続は Organization settings > Git providers（`claude.ai/admin-settings/source-control`）で行う。`admin-settings/claude-code` は Code Review などの有効化画面 — cmd-119
+- memory: `/context` の Memory files に出るのは起動時に読み込まれるファイルだけ。サブディレクトリの CLAUDE.md はオンデマンドで読み込まれ一覧に出ない（読み込まれると `Loaded` 行が出る）— mem-049 / mem-057 / mem-058 / mem-063 / mem-075 / mem-059
+- memory / large-codebases / context-window: サブディレクトリの CLAUDE.md は、そのディレクトリのファイルに Read / Write / Edit を使ったときに読み込まれる — bp-091 / ses-174
+- fullscreen: Cmd / Ctrl クリックしたファイルパスは、ファイルマネージャでそのファイルを選択した状態で開く（Linux / WSL は対応するファイルマネージャが必要）— key-055
+- desktop: コミット前のレビューはプロンプトに `/code-review`（diff ビューの「Review code」ボタンは廃止）。Browser ペインは Dev servers メニューと ⋮ メニュー（Keep cookies / Auto-verify changes など）、Browser 全体のオフは Settings > Claude Code の Browser tools。CI の自動修正・自動マージはステータスバーの CI から。SSH 接続は SSH key を任意で指定 — bp-053 / ext-172 / ses-112 / ses-119 / ses-120 / ses-121
+- permission-modes: `.claude` ディレクトリ保護の例外は5系統（worktrees、現在のセッションの plan ファイル、ジョブの tmp、auto memory の md、サブエージェントの memory の md）— ext-203
+- agent-view: `✻` / `✽` は「実行中または入力待ち」、`∙` は終了済み、`✢` は /loop の待機 — ses-191
+- hipaa-setup（新規ページ）: HIPAA 構成の組織では Claude Code v2.1.285+ / Claude Desktop v2.19675.0+ が必要。クラウドセッション・`/web-setup`・Remote Control などは利用不可、Desktop と Claude in Chrome は既定オフ — ses-263〜265
 
