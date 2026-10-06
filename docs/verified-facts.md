@@ -424,7 +424,7 @@
 
 - server-managed-settings: 管理ティアの no-merge の例外は4種（ロックキー / `env` の変数ごとマージ / `allowedProviders`（v2.1.285+）/ ゲートウェイサインイン系キー）— mem-039（第17回の「例外3種」を更新）
 - settings-reference: `allowedProviders`（Managed、v2.1.285+）。マシン側とサーバー側の両方にリストがある場合は共通部分のみ許可（サーバー側は狭めるだけで広げられない）。空リストや全エントリ不明なら全プロバイダ拒否で起動しない
-- tools-reference: バックグラウンドの Bash / PowerShell コマンドに時間制限（既定30分、`timeout` 指定で最大2時間、途中でバックグラウンドに移したものは移動時点から30分）。`BASH_DEFAULT_TIMEOUT_MS` / `BASH_MAX_TIMEOUT_MS` は引き上げのみ可（v2.1.285+）
+- ~~tools-reference: バックグラウンドの Bash / PowerShell コマンドに時間制限（既定30分、最大2時間）~~ → 2026-10-05 訂正: 時間制限は無人セッション（`-p`、Agent SDK、CI、クラウド）のみ（第20回参照）
 - cloud-environments: Anthropic ホスト環境ではセッション作成時と、VM がアイドルから復元・再構築されるたびに環境変数を読み直す。セットアップスクリプトはアイドルからの復元時には走らない。ネットワーク設定の変更は約1分で既存セッションに反映
 - sessions: 実行中のバックグラウンドセッションを `--resume` / `/resume` すると、そのセッションにアタッチする（v2.1.285 より前は拒否）
 - desktop: `claude --desktop`（v2.1.285+）で Desktop を直接開き、`--continue` / `--resume <session-id>` で CLI セッションを Desktop に移せる
@@ -434,4 +434,47 @@
 - scheduled-tasks: 「新しい会話を開始するとすべてのタスクがクリアされる」という記述は削除された（第16回の記録を更新）— cmd-087
 - permission-modes: auto モード分類器の「一度確定したらセッション中は変わらない」という保証の記述は撤回された — ext-164
 - skills: スキルが発動しないときのトラブルシュート節が書き直された — skill-074
+
+## 2026-10-05 quality-loop 第20回（4日分の docs 内容差分 113 ページを判定層 Fable 5 ×6 で追従、25問修正 + 新機能 Mods の16問追加）
+
+- **新機能 Mods**（`/plugins/mods/*` 10ページ）: Claude Code の内部で動く JavaScript / TypeScript のイベントハンドラ型プラグイン。ペインやコマンドの追加、ツール呼び出しへの介入ができる。設定ファイルの hooks とは別物（docs 上は mod のハンドラも「hook」と呼ぶ）。`--safe-mode` で1セッションだけ全 mod を止め、`allowManagedModsOnly`（管理設定）でユーザーの mod だけを止める
+- **第19回の記録の訂正**: バックグラウンドの Bash / PowerShell の時間制限（既定30分・最大2時間）は**無人セッション（`-p`、Agent SDK、CI、クラウド）のみ**。ターミナル・Desktop・VS Code の通常セッションには時間制限なし（v2.1.288 より前は全セッションに適用）— tools-reference
+- debug-your-config: サブディレクトリの CLAUDE.md は Read / Write / Edit のいずれかでそのディレクトリのファイルを触ったときに読み込まれる（v2.1.288 より前は Read のみ）。memory ページは未更新で「読んだとき」のまま
+- debug-your-config: hooks の `matcher` を配列にすると、そのエントリが無効な設定として一覧表示される。`PreToolUse` / `PermissionRequest` 配下なら同じファイルの他のフックも読み込まれない — ses-187
+- hooks-guide: Stop フックは「Claude がツールを呼ばずに8回連続でブロックした」ときに上書きされる。`PermissionRequest` フックは `-p` でも `dontAsk` 以外では実行される
+- agent-teams: チームメイトを表示中に `/compact` `/clear` `/rewind` はリードの会話に作用するため確認が出る。`/model` `/fast` はその表示からは実行されず理由の通知が出る — skill-082
+- headless: bare モードではバックグラウンドタスクは実行されない（v2.1.286+）
+- hooks: `/hooks` メニューは各フックに出所（ユーザー設定・プロジェクト設定・ローカル設定・プラグイン・現在のセッション）を表示し、選ぶと実行内容と定義場所が出る。末尾の「All events」で全イベント表示 — cmd-026
+- hooks: `UserPromptSubmit` は入力したプロンプト以外（スケジュールタスクの発火、バックグラウンドサブエージェントの報告、他セッションからのメッセージ）でも発火する
+- claude-code-on-the-web / desktop: Desktop の Code タブからクラウドへ送る導線は「Open in」→ Cloud（会話は要約で引き継ぎ、SSH / WSL のセッションは不可）。旧「Continue in」— ses-165
+- claude-code-on-the-web: ネイティブ Windows では追跡ファイルの未コミット変更はファイル名に関係なくそのまま送られる（機密ファイルの除外は macOS / Linux / WSL のみ）
+- accessibility: コマンド（`/plan` など）で行った権限モードの変更はアナウンスされない — key-067
+- model-config: Anthropic API 以外では、Auto モード分類器の Opus フォールバックは `ANTHROPIC_DEFAULT_OPUS_MODEL`、未設定なら Opus 5。ゲートウェイ経由では Fable・Sonnet 5 以降・Opus 4.7 以降は `[1m]` を選ばずに 1M
+- skills: `verify` / `simplify` という名前のスキルがあると、コミット直前に実行するよう指示される（v2.1.286+）。同名のスキルは組み込みコマンドを置き換える（エイリアスは除く）
+- plugin-evals: `llm` / `baseline` グレーダーの既定の判定モデルは、バックグラウンドタスク用のモデル
+- claude-directory / cli-reference: `claude project purge` は `claude purge` に改名（v2.1.288+）— mem-089 / mem-090（第16回の `--yes` 記録はコマンド名のみ更新）
+- cli-reference: `--system-prompt` と `--system-prompt-file` は組み合わせ可。v2.1.283+ はフラグとそのファイル版（`--append-system-prompt` と `--append-system-prompt-file`）も併用可（ファイルの内容が先）
+- cloud-environments / security: GitHub プロキシの制限は「ブランチ削除とタグなどブランチ以外の push を拒否」。どのブランチに push できるかは制限しない（旧「現在の作業ブランチのみ」は誤り）— bp-063
+- desktop-scheduled-tasks / desktop: 「Keep computer awake」や Computer use の設定は Settings > This computer > System — ext-177
+- sandboxing（大規模改訂）: 未許可ホストへ接続するコマンドはサンドボックス内に留まり、権限モードごとに扱いが決まる（dontAsk は拒否）。管理設定でサンドボックスを必須にした場合（v2.1.285+）はリポジトリ側の `excludedCommands` / `allowedDomains` 等を無視。ローカルアドレスに解決されるホスト名はプロキシが拒否（v2.1.284+）
+- sub-agents: `/agents` は v2.1.198 以降、Claude に頼むか `.claude/agents/` を直接編集するよう促すリマインダーを表示するだけ（v2.1.197 以前はウィザード）— ext-060（正解が選択肢に存在しない状態だった）
+- ultrareview: 料金表から Team / Enterprise の行が削除。Pro / Max は無料ラン3回、以後は1回 $5〜25 の usage credits — cmd-118
+- self-hosted-environments: Runner の設定で推論を Bedrock / Agent Platform に送れる（旧「他へルーティング不可」は削除）。server-managed settings はこれらのセッションに届かない。auto memory は既定オフ
+- env-vars: on/off 型の変数は `yes`/`on`・`no`/`off` も受け付ける。`MAX_MCP_OUTPUT_TOKENS` に関係なく 50,000 字を超えるテキストはファイル保存
+- routines: Claude は既定で `claude/` 接頭辞のブランチに push する。どのブランチに push できるかは GitHub のブランチ保護ルール / ルールセットで制御（アクセス権でバイパスできるルールは止めない）。旧「`claude/` は常に受け入れ、他は事前チェックで拒否」は削除 — cmd-109（正解が選択肢に存在しない状態だった）
+- security: 作業ディレクトリの境界は「許可プロンプト」であり、承認した Bash はユーザー権限で書ける場所ならどこにでも書ける（OS レベルの制限はサンドボックス）— bp-060
+- security / tools-reference: WebFetch はページに対して別のモデル呼び出しを行い、Claude は生ページではなくその結果を受け取る（lossy by design）— bp-061
+- advisor: 対応関係は能力順位（Haiku 4.5 → Sonnet 4.6 → Opus 4.6 → Sonnet 5 → Opus 4.7/4.8 → Sonnet 5.5 → Opus 5/5.5 → Fable 5 → Fable 5.1）で決まる。Opus 4.7/4.8 メインに Sonnet 5.5 advisor は v2.1.287+ — bp-101
+- chrome: VS Code でも `/chrome` で「Enabled by default」を切り替えられ、CLI と設定を共有。v2.1.287+ はセッション開始時に接続 — ext-124
+- permission-modes: Shift+Tab は default → acceptEdits → plan、追加のモードは plan の後に入る
+- settings-reference: `allowedDomains` 未設定時は、新しいホストへの扱いを権限モードが決める
+- memory: auto memory はローカルセッションで既定オン、自己ホスト環境では既定オフ
+- errors: 思考が終わった後、テキストやツール呼び出しを始める前に届いたサーバーエラー / 過負荷は最大2回再試行（v2.1.284+、以前はターン終了）。テキストやツール呼び出しを始めた後は再試行しない — bp-122
+- best-practices: `--allowedTools` は「必要なツールを事前承認する」もの（旧「制限する」）。`--permission-mode dontAsk` と組み合わせると、それ以外の承認が必要な操作は拒否される — bp-081 / cmd-034
+- best-practices / errors: パイプ入力の例は `cat error.log | claude -p "..."`。Windows では `-p` なしのパイプ起動は v2.1.287+ でエラー — bp-013
+- server-managed-settings / costs / errors: claude.ai の管理画面のラベルは「Admin settings」から「Organization settings」に変更 — mem-040
+- agent-view: `←` や `/background` で手元のセッションをバックグラウンドに移した場合は worktree を作らず、元の場所で編集を続ける — ses-195
+- statusline: `spend_limit.used_usd` / `limit_usd` / `period`（v2.1.284+）
+- keybindings: `agents:find`（Ctrl+F）/ `agents:rename`（Ctrl+R）など agent view 用のアクション（v2.1.288+）
+- sandboxing: 許可していないホストへの接続はサンドボックス内に留まり、権限モードで扱いが決まる（`bypassPermissions` は確認なしで許可、Manual / `acceptEdits` はプロンプト、auto は分類器が承認した場合のみ、`dontAsk` は拒否）。`strictAllowlist` / `allowManagedDomainsOnly` ではどのモードでも拒否 — tool-043
 

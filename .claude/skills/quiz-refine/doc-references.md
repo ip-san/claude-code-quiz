@@ -27,6 +27,7 @@
 | マーケットプレイス構築・スキーマ | `plugins/create-marketplace` / `plugins/marketplace-reference` | 旧 `plugin-marketplaces`。ソース種別 7 種 |
 | Code Intelligence（LSP プラグイン） | `plugins/code-intelligence` | 旧 `discover-plugins#code-intelligence` |
 | プラグイン依存・CLI ヒント・組織向け推奨 | `plugins/dependencies` / `plugins/cli-hints` / `plugins/relevance` | 旧 `plugin-dependencies` / `plugin-hints` / `plugin-relevance` |
+| Mods（Claude Code 内で動く JS/TS のイベントハンドラ型プラグイン） | `plugins/mods/overview` ほか `create` / `reference` / `interface` / `gallery` / `events` / `api` / `test` / `troubleshoot` / `admin` | 2026-10-05 追加。設定フック（hooks）とは別物 |
 | エージェントチーム・オーケストレーション | `agent-teams` | `sub-agents`（個別エージェント）とは別 |
 | ヘッドレス/プログラマティック実行 | `headless` | SDK/CI での非対話利用 |
 | キーバインドカスタマイズ | `keybindings` | `interactive-mode`（デフォルトキー）とは別 |
