@@ -176,7 +176,7 @@ Haiku ができること（既に `promptClassifications` に含まれる）:
 
 ### Step 6: 出力（2ファイル）
 
-**YOU MUST** 以下の2つのスクリプトを**両方とも必ず**実行すること。
+IMPORTANT: 次の2つのスクリプトを両方実行する（片方だけだとアプリ側のレコメンド表示が欠ける）。
 
 **Step 6a:** メタデータを `latest-recommend.json` に保存:
 
@@ -204,7 +204,7 @@ console.log('✓ ' + data.questionCount + '問のメタデータ保存');
 
 **Step 6b:** AI 選定理由を `reasons.json` に保存（**これが正のデータ**）:
 
-**IMPORTANT:** `reasons.json` が Electron に読み込まれ、UIに表示される。全15問分の理由を1つずつ書くこと。理由にはユーザーのプロンプトを「」で引用し、なぜこの問題が選ばれたかを1行で具体的に書く。
+`reasons.json` は Electron に読み込まれ UI に表示されるので、全15問分の理由を1つずつ書く。理由にはユーザーのプロンプトを「」で引用し、なぜこの問題が選ばれたかを1行で具体的に書く。
 
 ```bash
 node -e "
@@ -249,7 +249,7 @@ console.log('✓ reasons.json saved (' + Object.keys(reasons).length + ' entries
 
 ### 選定した問題（15問）
 
-**YOU MUST** 以下の形式で全15問を出力すること。`**ID** [difficulty]:` の形式は後処理で解析される。
+次の形式で全15問を出力する。`**ID** [difficulty]:` の形式は後処理で解析される。
 
 **苦戦への対処（N問）**
 - **bp-036** [intermediate]: 「○○」で繰り返し質問 → この知識で解決できる

@@ -141,7 +141,7 @@ node scripts/fetch-docs.mjs --assemble --pages settings,checkpointing,overview,q
 
 **ダイアグラム作成ルール（途中切れ禁止）:**
 
-- **YOU MUST** ダイアグラム本文に `…`（日本語三点リーダー）や文中の `...` を**入れない**。`bun run quiz:check-ellipsis` が CI で fail する。
+- ダイアグラム本文に `…`（日本語三点リーダー）や文中の `...` を**入れない**。`bun run quiz:check-ellipsis` が CI で fail する。
 - terminal/config の末尾 `Loading...` `処理中…` のような進捗表示の `...`/`…` のみ許容。
 - placeholder は具体値で書く: `{ ... }` `sk-...` `https://example.com/...` `{"key": ...}` などは NG。実際のサンプル値を入れる（`https://gitlab.com/group/project.git`、`{"session_id": "abc-123", "output": "done"}` など）。
 - `comparison.columns[].items[]` は **完全文**で 80 文字以内に収める。長くなる説明文を載せたい場合は `comparison` ではなく `hierarchy`（`items: [{text, sub}]`）を使う。`sub` は長さ無制限。
@@ -149,7 +149,7 @@ node scripts/fetch-docs.mjs --assemble --pages settings,checkpointing,overview,q
 
 **ダイアグラム作成ルール（text/sub の意味論）:**
 
-- **YOU MUST** `flow.steps[].text` と `sub` を**1つの文を 2 分割するために使わない**。
+- `flow.steps[].text` と `sub` を**1つの文を 2 分割するために使わない**。
   - ❌ NG: `text: "サブエージェントのpermissionMod"` + `sub: "eはdefault、acceptEdits、a"`（単語 `permissionMode` を分断）
   - ❌ NG: `text: ".claude/agents/はプロジェクト"` + `sub: "スコープでバージョン管理にコミット..."`（一文を途中で分断）
   - ✅ OK: `text: "サブエージェントの permissionMode は5種類"` + `sub: "default / acceptEdits / auto / dontAsk / plan"`（text=完全な文、sub=技術名の列挙）
@@ -159,7 +159,7 @@ node scripts/fetch-docs.mjs --assemble --pages settings,checkpointing,overview,q
 
 **ダイアグラム作成ルール（hierarchy.items の長文禁止）:**
 
-- **YOU MUST** `hierarchy.items[].text` は **40 字以内の短いラベル**。option 全文や wrongFeedback 全文を text に詰めない。
+- `hierarchy.items[].text` は **40 字以内の短いラベル**。option 全文や wrongFeedback 全文を text に詰めない。
   - ❌ NG: `text: "frontmatterで\`memory: user\`を設定し、\`~/.claude/agent-memory/<name>/\`にクロスプロジェクトの知識を蓄積させる（正解）"`（86字、ピラミッド型レイアウトからはみ出す）
   - ✅ OK: `text: "memory: user で永続知識を蓄積（正解）"` + `sub: "~/.claude/agent-memory/<name>/ に保存..."`
 - 長い説明を載せたい場合: `text` をキーフレーズに圧縮し、詳細は `sub` に置く（sub は長さ制限なし）。

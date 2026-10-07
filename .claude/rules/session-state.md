@@ -8,7 +8,7 @@ paths:
 
 # セッション永続化の注意点
 
-IMPORTANT: `QuizSessionState` に新フィールドを追加したら以下の3箇所を必ず同時更新すること。
+`QuizSessionState` に新フィールドを追加したら、次の3か所を同時に更新する（漏れると中断・再開でフィールドが消える）。
 
 1. `src/infrastructure/persistence/SessionRepository.ts` — `SavedSessionData` に保存フィールド追加
 2. `src/stores/utils.ts` — `saveSessionSnapshot()` でシリアライズ

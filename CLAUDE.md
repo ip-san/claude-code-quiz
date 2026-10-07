@@ -43,17 +43,10 @@ bun run skills:check   # スキル・エージェントのベストプラクテ�
 bun run lighthouse     # Lighthouse CI
 ```
 
-## 学習改善機能（v4.51+）
+## 仕様の参照先
 
-- **XP システム:** 回答ごとに XP 付与（難易度連動: 正解 beginner8/intermediate10/advanced14、不正解 advanced3/他2、SRS復習+5、シナリオ完走+50）。マスタリーレベルに統合表示
-- **アダプティブ難易度:** `AdaptiveDifficultyService` がカテゴリ別正答率に応じて出題順を調整
-- **記憶定着度バー:** `MemoryRetentionBar` で SRS ストリークの定着度を可視化
-- **成長コーチング:** Sonnet がコーチングメッセージを生成（`coachingMessage`）。`GrowthTrackingService` はパターン diff 計算のみ
-- **レコメンドパイプライン:** `scripts/session-analysis.mjs`（決定論的苦戦シグナル: repeatedPrompts, consecutiveErrors, frustrationHits, resetSignals）→ `scripts/classify-prompts.mjs`（Haiku分類+苦戦ヒント注入+aiStyle+developerRole+suggestedScenarios）→ `scripts/aggregate-classifications.mjs`（集計+Opus分析統合、入力15KB圧縮）→ `/recommend` スキル（Sonnet判断+コーチング）→ `reasons.json`（AI選定理由、正のデータ）→ `mergeReasons`（Zod検証+メタデータ統合）→ `latest-recommend.json` → レコメンドセッション完了時に `recordRecommendFeedback`（GA4 `recommend_feedback`+localStorage、直近30件）
-- **レコメンド堅牢化:** 事前チェック（CLI/認証/モデル）→ reasons.json 分離出力 → stale検出 → stdout フォールバック → 軽量リトライ（Haiku、1時間Rate Limit）→ SessionEnd上書き保護 → キャッシュ復元（allQuestions読込待ち）→ GrowthInsight永続化（再起動後も改善レポート維持）→ DMG/exe PATH補完（パッケージ版CLI検出）。レコメンド専用テスト187件（Menu + infrastructure/recommend）
-- **テスタビリティ:** `scripts/session-analysis.mjs`（セッション分析純粋関数6本）、`electron/recommend-handlers.ts`（IPC ハンドラ DI パターン）に抽出。`scripts/__tests__/` でスクリプトもテスト対象化
-- **Opus トリガー（5種）:** initial（初回プロファイリング）/ stagnation（停滞介入）/ breakthrough（急成長分析）/ mastery（カテゴリ制覇）/ monthly（月次レビュー）。Opus 利用不可時は Sonnet で自動代替
-- **クイズ検証フィルタ:** `scripts/pre-lint-quiz.mjs`（決定論的lint）→ `quiz-verifier` エージェント（Sonnet精査）→ 判定層（critical 最終確認・偽陽性フィルタ: **Fable 5** → Opus → Sonnet 自動フォールバック。`scripts/resolve-model.mjs` で可用性解決、`scripts/audit-critical-quiz.mjs` はチェーン内蔵）
+- 学習改善機能（XP、アダプティブ難易度、レコメンド、Opus トリガー、クイズ検証の判定層）の仕様: [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md#学習改善機能v451)
+- 判定層のモデルは `node scripts/resolve-model.mjs fable opus sonnet` で解決する（Fable 5 → Opus → Sonnet）
 
 ## 詳細ルール（path-scoped）
 
@@ -65,13 +58,13 @@ bun run lighthouse     # Lighthouse CI
 
 ## Compact Instructions
 
-IMPORTANT: コンテキスト圧縮後も以下のルールを必ず守ること。
+コンテキスト圧縮後も次のルールを守る。多くはテストや CI で検出される。
 
-- **YOU MUST** 未正解判定には `UserProgress.isCorrectlyAnswered()` を使う。`!p || p.attempts === 0 || !p.lastCorrect` のインライン記述禁止
-- **YOU MUST** スコアしきい値は `ScoreThresholds.ts` の `PASSING_SCORE`, `CERTIFICATE_THRESHOLDS`, `SCORE_COLORS` を参照する。`>= 70` や `>= 80` のハードコード禁止
-- **YOU MUST** コンポーネント内の日本語文字列は `src/config/locales/ja.ts` に定義し `locale.*` 経由で参照する
-- **YOU MUST** `QuizSessionState` にフィールド追加時は `SessionRepository` + `resumeSlice` + `saveSessionSnapshot` の3点を同時更新する
-- **YOU MUST** UI に表示する問題数 = `startSession` に渡す `questionCount`。不一致は `SpecConsistency.test.ts` で検出される
-- **YOU MUST** 全体像モードのチャプター状態は `OverviewChapterState`（ドメイン層）で管理する。QuizCard の `useState` での管理禁止
-- **YOU MUST** ダイアグラム本文に `…` や文中の `...` を入れない。`comparison.items` は完全文 80 字以内、長い説明は `hierarchy.items[].sub` を使う。flow は `text` を完結した句にし `sub` は 15 字以内の補足（文の途中で割らない）、`hierarchy.items[].text` は 40 字以内。`quiz:check-ellipsis` と `quiz:check-diagram-text` が `check` / `check:all` / CI で fail する
+- 未正解判定には `UserProgress.isCorrectlyAnswered()` を使う（`!p || p.attempts === 0 || !p.lastCorrect` をインラインで書かない）
+- スコアしきい値は `ScoreThresholds.ts` の `PASSING_SCORE` / `CERTIFICATE_THRESHOLDS` / `SCORE_COLORS` を参照する（`>= 70` などをハードコードしない）
+- コンポーネント内の日本語文字列は `src/config/locales/ja.ts` に定義し、`locale.*` 経由で参照する
+- `QuizSessionState` にフィールドを追加したら、`SessionRepository` / `resumeSlice` / `saveSessionSnapshot` の3か所を同時に更新する
+- UI に表示する問題数は `startSession` に渡す `questionCount` と一致させる（`SpecConsistency.test.ts` が検出）
+- 全体像モードのチャプター状態は `OverviewChapterState`（ドメイン層）で管理し、QuizCard の `useState` で持たない
+- ダイアグラムは `…` や文中の `...` を使わず、途中で切れた文を作らない（詳細ルールは [.claude/rules/quiz-data.md](.claude/rules/quiz-data.md)、`quiz:check` / CI が検出）
 - 仕様バグ防止の詳細: [docs/bug-prevention.md](docs/bug-prevention.md)

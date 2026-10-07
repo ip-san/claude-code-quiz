@@ -141,12 +141,12 @@ Phase 1, 3, 5 では Agent ツールを使って複数エージェントを **�
 Agent(
   subagent_type: "facts-checker",
   model: "fable",         // Fable 5 不可時は "opus" → "sonnet"（resolve-model.mjs で事前解決）
-  prompt: "--cross-quiz モードで起動。MEMORY.md Verified Facts の鮮度と、drift した事実に依存するクイズを 1M context で一括判定してください。"
+  prompt: "--cross-quiz モードで起動。Verified Facts（docs/verified-facts.md）の鮮度と、drift した事実に依存するクイズを 1M context で一括判定してください。"
 )
 ```
 
 **処理内容:**
-- MEMORY.md の Verified Facts を docs と照合（通常の facts-check）
+- docs/verified-facts.md の確定事実を公式 docs と照合（通常の facts-check）
 - drift が見つかった fact について、per-category クイズ JSON を Opus の 1M context に一括ロードし、影響を受ける可能性のあるクイズを特定
 - 出力: high/medium/low impact のクイズ ID リスト + 推奨 `/quiz-refine` コマンド
 
@@ -154,13 +154,13 @@ Agent(
 
 **drift 検出後の同期手順（重要）:**
 
-facts-checker が drift を検出したら、MEMORY.md と `docs/verified-facts.md` の**両方**を同時に更新する:
+drift を検出したら、`docs/verified-facts.md` と個人メモリの早見表の**両方**を同時に更新する:
 
-1. **MEMORY.md**（`~/.claude/projects/.../memory/MEMORY.md`、個人ローカル）: Claude が次セッションで正しい事実を参照できるよう更新。日付と再確認ソース（例: "2026-04-17 re-confirmed via facts-checker"）をコメントで添える
+1. **個人メモリ**（auto memory の `verified_facts_quick.md`。`MEMORY.md` は索引なので事実を直接書き足さない）: Claude が次セッションで正しい事実を参照できるよう更新。日付と再確認ソース（例: "2026-04-17 re-confirmed via facts-checker"）をコメントで添える
 2. **`docs/verified-facts.md`**（git 管理、チーム共有）: 同じ fact を同じ表現で更新。可能ならドキュメントの行番号（`desktop.md L508` 等）を引用として残す
 3. どちらか片方だけ更新すると、個人ローカルとチーム共有の間で drift が発生し、次回の cross-quiz で誤検出が増える
 
-**アンチパターン:** MEMORY.md だけ更新して `docs/verified-facts.md` を放置、またはその逆。
+**アンチパターン:** 個人メモリだけ更新して `docs/verified-facts.md` を放置、またはその逆。
 
 ## Phase 3 / ステップ3: クイズ検証・修正
 

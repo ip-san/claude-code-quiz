@@ -28,12 +28,16 @@ paths:
 }
 ```
 
-**IMPORTANT:**
+必須ルール（`quiz:check` / テストが検出）:
 - 正解選択肢に `wrongFeedback` を付けない
 - 不正解選択肢には必ず `wrongFeedback` を付ける
 - correctIndex は追加後に `bun run quiz:randomize` でランダム化する
 - `diagrams` は配列（最大3つ）。`explanation` 中の `{{diagram:N}}` で挿入位置を指定
 - `diagram`（単数）も後方互換で対応するが、新規追加は `diagrams` を使用
+- 正解選択肢の文字数は不正解の最大文字数以下にする（長さで正解が分からないように。詳細は known-issues の「選択肢の長さバランス」）
+- ダイアグラム本文に `…` や文中の `...` を入れない（`quiz:check-ellipsis`）
+- `comparison.columns[].items[]` は完全文 80 字以内。長い説明は `hierarchy.items[].sub` に置く
+- `flow.steps[].text` は完結した句にし、`sub` は 15 字以内の補足にする（助詞・読点で始めない、文の途中で割らない）。`hierarchy.items[].text` は 40 字以内（`quiz:check-diagram-text`）
 
 ## タグシステム
 
@@ -44,7 +48,7 @@ paths:
 - `overview-NNN`: 出題順序（010, 020, ... グローバルユニーク）
 - `practical`: 実務即戦力（明日から使える機能・操作・設定）。`practical` モードの対象
 - `trivia`: 上級トリビア（細かい仕様・内部挙動・滅多に使わない機能）。`trivia` モードの対象
-  - **YOU MUST**: 1問に `practical` と `trivia` を同時付与しない（`quizContentQuality.test.ts` で検出）
+  - 1問に `practical` と `trivia` を同時付与しない（`quizContentQuality.test.ts` で検出）
   - 付与は `scripts/classify-quiz-practicality.mjs`（Haiku 分類）→ `scripts/apply-practicality-tags.mjs` で行う。手動編集より分類パイプラインを優先
   - どちらでもない問題は無タグ（neutral 扱い）。迷ったら付けない（過剰分類より中立）
 
@@ -77,7 +81,7 @@ paths:
 difficulty（価値とは別軸）を報酬係数に流用する箇所:
 - `XpService.calculateAnswerXp`（difficulty 連動XP）
 
-**YOU MUST**: `weight` はカテゴリの粗い価値プロキシ（5=ニッチ / 10=標準 / 15=高頻度・高インパクト）。変更する場合は PR に**根拠**を記載する。
+`weight` はカテゴリの粗い価値プロキシ（5=ニッチ / 10=標準 / 15=高頻度・高インパクト）。変更する場合は PR に**根拠**を記載する。
 **注意（実態）**: 現状 weight=15 が9カテゴリ中6つに集中し、カテゴリ間の価値差は粗い。**問題単位の細かい価値差は主に `tags`（practical/trivia）が担う**。カテゴリ価値を細かく効かせたい場合は weight の再分割を検討するが、tag 補正との二重調整に注意する。
 
 ## ID命名規則
