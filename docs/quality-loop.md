@@ -77,9 +77,6 @@ flowchart TD
 | エージェント | 役割 | モデル | フォールバック | 使用フェーズ |
 |-------------|------|--------|-------------|------------|
 | `quiz-verifier` | カテゴリ別クイズ検証 | sonnet | — | Phase 3（最大8並列） |
-| `quality-gate` | テスト・サイズ品質ゲート | sonnet | — | Phase 5 |
-| `doc-watcher` | ドキュメント変更検出 | sonnet | — | Phase 1 |
-| `quiz-pipeline` | 生成→検証パイプライン | opus | sonnet | 単独実行 |
 | `facts-checker` | Verified Facts 鮮度チェック | opus | sonnet | 月次 |
 | `difficulty-calibrator` | GA4 難易度キャリブレーション | opus | sonnet | 月次 |
 

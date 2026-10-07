@@ -375,8 +375,7 @@ components/      ← ui-developer（worktree 隔離）
 開発チームの成果物は品質チームのパイプラインに自動で流れる:
 
 ```
-開発チーム → コミット → quality-gate（check:all + size + E2E）
-                      → quiz-pipeline（問題追加時のみ）
+開発チーム → コミット → /quality-loop（check:all + size + E2E、問題追加時はクイズ生成・検証）
                       → facts-checker（月次）
 ```
 

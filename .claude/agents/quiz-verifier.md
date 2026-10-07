@@ -127,6 +127,6 @@ severity の判定基準:
 
 **運用ルール:**
 - 検証開始前に MEMORY.md を読み、該当カテゴリの過去パターンを参照する
-- critical 判定する前に「過去同じ表現で偽陽性を出したことはないか」を MEMORY.md で確認
+- critical 判定する前に「過去同じ表現で偽陽性を出したことはないか」を MEMORY.md の索引から該当カテゴリのファイルで確認
 - セッション終了時に新しい発見があれば追記
-- MEMORY.md が 200 行/25KB を超えたら topic 別ファイル（例: `category-memory.md`, `false-positives.md`）に分割する
+- 発見は `<category>_patterns.md`（カテゴリ横断は `cross_category_patterns.md`）に追記し、MEMORY.md は索引だけに保つ（自動で読み込まれるのは先頭 200 行/25KB まで）

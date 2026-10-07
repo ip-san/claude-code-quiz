@@ -1,6 +1,6 @@
 ---
 name: spec-audit
-description: CLAUDE.md の仕様記述と実装の意味的な整合性を監査する。仕様バグ検出、spec audit、仕様チェック、ドキュメント整合性
+description: CLAUDE.md・README・docs・rules の仕様記述と実装の意味的な整合性を監査する。仕様バグ検出、spec audit、仕様チェック、ドキュメント整合性
 disable-model-invocation: true
 allowed-tools: Read, Grep, Glob, Bash(npm run docs:validate*), Bash(npx vitest*), Bash(npx playwright*), Bash(node scripts/*), Bash(ls *), Bash(find *), Bash(wc *)
 argument-hint: "[section]"
@@ -8,7 +8,7 @@ argument-hint: "[section]"
 
 # Spec Audit Skill
 
-CLAUDE.md と README.md の仕様記述が実装と一致しているかを監査する。
+CLAUDE.md・README.md・`docs/ARCHITECTURE.md`・`.claude/rules/quiz-data.md` の仕様記述が実装と一致しているかを監査する（各セクションの照合先は下記）。
 
 ## 役割の分担
 
@@ -25,9 +25,6 @@ CLAUDE.md と README.md の仕様記述が実装と一致しているかを監�
 有効なセクション名:
 - `structure` — ディレクトリ構造
 - `modes` — クイズモード設定
-- `navigation` — ナビゲーション動作
-- `ui` — UI/UX 機能の存在確認
-- `persistence` — セッション永続化
 - `tags` — タグシステム
 - `categories` — カテゴリ定義
 - `commands` — 開発コマンドの存在確認
@@ -44,7 +41,7 @@ npm run docs:validate
 
 ### structure — ディレクトリ構造
 
-CLAUDE.md のディレクトリツリー記述と実際のディレクトリを比較する。
+`docs/ARCHITECTURE.md` の「レイヤー構成」「ファイル構成」にあるディレクトリツリーと実際のディレクトリを比較する。
 
 **検証項目:**
 - 記載されたディレクトリが実在するか（`ls` で確認）
@@ -63,54 +60,23 @@ README.md の「クイズモード」テーブルと `src/domain/valueObjects/Qu
 - deferFeedback の設定が正しいか（実力テストのみ true）
 - 全体像モードのチャプター数（6）が実装と一致するか
 
-### navigation — ナビゲーション動作
-
-CLAUDE.md のナビゲーション仕様と `src/stores/quizStore.ts` を比較する。
-
-**検証項目:**
-- 「回答前でもスキップ可能」→ `goToNextQuestion`/`goToPreviousQuestion` に回答チェックがないか
-- 「選択状態を復元」→ 前の問題に戻った時に選択状態が復元されるか
-- 「スコアは差分計算」→ `submitAnswer` で二重カウント防止ロジックがあるか
-- 「ブラウザ戻るボタンでメニューに直帰」→ history API 操作があるか
-- 実力テストの「タイマーは回答済み問題の閲覧中は停止」→ Timer コンポーネントにその制御があるか
-
-### ui — UI/UX 機能の存在確認
-
-CLAUDE.md に記載された UI 機能が実際にコンポーネントとして存在するか。
-
-**検証項目:**
-- ゲーミフィケーション機能（StreakBanner, DailySnapshot, StreakToast, EncouragementToast 等）のコンポーネントが存在するか
-- 学習支援機能（QuizSearch, LearningRecommendation, WeakPointInsight, CertificateGenerator 等）が存在するか
-- アニメーション（CorrectOverlay, ConfettiEffect, ScoreRing 等）が存在するか
-- 記載されたコンポーネント名と実際のファイル名が一致するか
-
-### persistence — セッション永続化
-
-CLAUDE.md のセッション永続化仕様と実装を比較する。
-
-**検証項目:**
-- `answerRecords` キーで localStorage に保存しているか
-- セッション復帰ロジックが存在するか
-- `retryQuestion` が UI リセットと差分スコア計算を行うか
-- `finishTest` が answerHistory からスコアを再計算するか
-
 ### tags — タグシステム
 
-CLAUDE.md のタグ仕様とクイズデータを比較する。
+`.claude/rules/quiz-data.md` の「タグシステム」とクイズデータを比較する。
 
 **検証項目:**
-- `overview` タグ付き問題が CLAUDE.md 記載の数と一致するか（数値は docs:validate で検証済み）
+- `overview` タグ付き問題が quiz-data.md 記載の数と一致するか（数値は docs:validate で検証済み）
 - `overview-ch-N` のチャプター番号が 1〜6 の範囲か
 - `overview-NNN` の出題順序がユニークか
 - 全体像モード問題が全チャプターに適切に分散しているか
 
 ### categories — カテゴリ定義
 
-CLAUDE.md のカテゴリテーブルと `src/domain/valueObjects/Category.ts` を比較する。
+`README.md` のカテゴリ表・`.claude/rules/quiz-data.md` の ID 命名規則と、`src/domain/valueObjects/Category.ts` / `src/config/theme.ts` を比較する。
 
 **検証項目:**
 - 全カテゴリ ID が Category.ts に定義されているか
-- Weight（重み）が一致するか
+- `theme.ts` の `weight` と `generate-quiz-data/SKILL.md` のカテゴリ配分表が一致するか
 - ID 命名規則テーブルの Prefix が実際のクイズ ID と一致するか
 
 ### commands — 開発コマンドの存在確認
@@ -130,24 +96,23 @@ CLAUDE.md の開発コマンドセクションに記載されたコマンドが 
 
 ### Issues Found
 
-| # | Section | Severity | CLAUDE.md の記述 | 実装の状態 | 修正案 |
+| # | Section | Severity | 仕様文書の記述 | 実装の状態 | 修正案 |
 |---|---------|----------|-----------------|-----------|--------|
-| 1 | modes   | major    | 20問をランダム出題 | QuizMode: questionCount=25 | CLAUDE.md を 25 に修正 or 実装を 20 に修正 |
+| 1 | modes   | major    | README: 20問をランダム出題 | QuizMode: questionCount=25 | README を 25 に修正 or 実装を 20 に修正 |
 
 ### Auto-fixed (docs:validate --fix)
 - ダイアグラム数: 247 → 250
 
 ### Verified OK
 - [x] structure
-- [x] navigation
-- [x] ui
-- [x] persistence
+- [x] tags
+- [x] categories
 ```
 
 ### 不一致がない場合
 
 ```
-✅ Spec Audit Complete — CLAUDE.md と実装は全セクションで一致しています。
+✅ Spec Audit Complete — 仕様文書と実装は全セクションで一致しています。
 ```
 
 ## Step 3: Web 品質監査（オプション）
@@ -164,6 +129,6 @@ CLAUDE.md の開発コマンドセクションに記載されたコマンドが 
 
 ## 修正方針
 
-- **CLAUDE.md が古い場合**: CLAUDE.md を実装に合わせて修正する
-- **実装が仕様と異なる場合**: ユーザーに報告し、CLAUDE.md と実装のどちらを正とするか確認する
+- **仕様文書が古い場合**: その文書を実装に合わせて修正する
+- **実装が仕様と異なる場合**: ユーザーに報告し、文書と実装のどちらを正とするか確認する
 - **判断できない場合**: 両方の状態を報告し、ユーザーに判断を委ねる

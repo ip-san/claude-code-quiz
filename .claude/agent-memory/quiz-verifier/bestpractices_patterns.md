@@ -1,4 +1,6 @@
-# bestpractices カテゴリ検証パターン（2026-09-10, bp-004/018/037/066/084/095/098-100/102/105-109/112/115/116/122）
+# Bestpractices カテゴリ検証パターン
+
+## bestpractices カテゴリ検証パターン（2026-09-10, bp-004/018/037/066/084/095/098-100/102/105-109/112/115/116/122）
 
 ## advisor.md の非対応プロバイダが3→4に増加
 - advisor.md Requirements: 'not available on Amazon Bedrock, Claude Platform on AWS, Google Cloud's Agent Platform, or Microsoft Foundry'
@@ -84,3 +86,35 @@
 - bp-121 large-codebases.md claudeMdExcludes: 静的リストでタスクスイッチ用途ではない、管理ポリシー由来CLAUDE.mdは除外不可: 一致
 - bp-087/110 errors.md ECONNREFUSED(Docker/VPN stale utun/resolv.conf)・apiKeyHelper優先順位: 一致
 - bp-074 interactive-mode.md /btw: ツール利用不可・会話履歴に入らない・Claude作業中でも利用可: 一致
+
+## bestpractices カテゴリ検証パターン（2026-05-29, bp-091〜098）
+
+### large-codebases.md の確認済み事実
+- settings.json は起動ディレクトリのみ適用。親ディレクトリ継承なし（L62 確認）
+- worktree.sparsePaths と symlinkDirectories は両方 settings.json の worktree キー下に記述（L191-218）
+- additionalDirectories: ファイルアクセスのみ。CLAUDE.md/rules/skills ロードなし（L247-260 の表）
+- --add-dir: スキルをロード。CLAUDE.md/rules は CLAUDE_CODE_ADDITIONAL_DIRECTORIES_CLAUDE_MD=1 が必要
+- OTEL_LOG_TOOL_DETAILS=1 と skill_activated イベント: large-codebases.md L313 に明記
+- /deep-research は唯一のビルトインワークフロー。WebSearch 必須。（workflows.md L47-54）
+
+### workflows.md の確認済み事実
+- `workflow` キーワードでワークフロー生成トリガー。`alt+w` でキャンセル（L89-95）
+- サブエージェントは常に acceptEdits モードで動作、ツール許可リストを継承（L124）
+- disableWorkflows: true でビルトインコマンド無効、workflow キーワード無効、ultracode 非表示（L173）
+
+## security-guidance.md の確認済み事実（2026-05-29）
+
+### セキュリティプラグインの動作
+- 3層: ファイル編集時（パターンマッチ・モデル呼び出しなし）、ターン終了時（バックグラウンド・最大30ファイル・3回連続）、コミット時（エージェント型・最大20回/時間）
+- ファイルパス: `.claude/claude-security-guidance.md`（モデル指示）、`.claude/security-patterns.yaml`（パターン）
+- `.claude/claude-security-guidance.local.md` もサポート（personal overrides）
+- デフォルトモデル: Claude Opus 4.7（SECURITY_REVIEW_MODEL=エンドターン用、SG_AGENTIC_MODEL=コミット用）
+- `ENABLE_CODE_SECURITY_REVIEW=0`: モデルバックドレビュー全無効
+- コミットレビューは Claude の Bash ツール経由の git commit/push のみ。ユーザーの直接 commit は対象外
+
+## bp-018 の xhigh 表現誤り（2026-05-30 確認）
+- bp-018 の correctIndex=1 option text、explanation、option[2] wrongFeedback、diagram[0] に「`xhigh` は Opus 4.7 専用」と記述
+- model-config.md L146: `xhigh` は「Opus 4.8 and Opus 4.7」でサポート → 「Opus 4.7 専用」は major issue
+- 正確には「`xhigh` は Opus 4.7 / Opus 4.8 でサポート（Opus 4.7 のデフォルト、Opus 4.8 のデフォルトは `high`）」
+- 質問文自体が「Opus 4.7/Opus 4.6/Sonnet 4.6」スコープなので Opus 4.8 省略は質問本体としては意図的
+- しかし「Opus 4.7 専用」という表現が事実として誤り。正しくは「Opus 4.7/4.8 でサポート」

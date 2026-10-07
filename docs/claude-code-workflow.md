@@ -70,16 +70,13 @@ Claude Code の公式ドキュメントは頻繁に更新されるため、ク�
 
 `--team` フラグで独立したステップを並列実行する。`.claude/agents/` に 12 体のエージェントを定義。
 
-### 品質チーム（6体）
+### 品質チーム（3体）
 
 品質チェック・検証・分析を並列化する。
 
 | エージェント | 役割 | 使用場面 |
 |-------------|------|---------|
 | `quiz-verifier` | カテゴリ別クイズ検証 | `/quiz-refine --team` で最大8並列 |
-| `quality-gate` | テスト・サイズ品質ゲート | `/quality-loop --team` Phase 5 |
-| `doc-watcher` | ドキュメント変更検出 | Phase 1 |
-| `quiz-pipeline` | 生成→検証パイプライン | 問題追加時のフルオーケストレーション |
 | `facts-checker` | Verified Facts 鮮度チェック | 月次 |
 | `difficulty-calibrator` | GA4 難易度キャリブレーション | 月次 |
 

@@ -80,16 +80,13 @@ Critical は自動修正、High は修正案提示、Suggestion は報告のみ�
 
 ## エージェントチーム（`.claude/agents/`）
 
-`--team` フラグやオーケストレーターを通じて並列実行される専門エージェント。12体。
+`--team` フラグやオーケストレーターを通じて並列実行される専門エージェント。11体。
 
 ### 品質チーム
 
 | エージェント | モデル | 役割 |
 |-------------|--------|------|
 | `quiz-verifier` | sonnet | カテゴリ別クイズ検証（最大8並列） |
-| `quality-gate` | sonnet | テスト・サイズ品質ゲート |
-| `doc-watcher` | sonnet | ドキュメント変更検出・影響分析 |
-| `quiz-pipeline` | sonnet | 生成→検証パイプラインオーケストレーション |
 | `facts-checker` | **opus** | Verified Facts 鮮度チェック + `--cross-quiz` で 1M context 横断判定 |
 | `difficulty-calibrator` | **opus** | GA4 正答率と difficulty ラベルの乖離検出（統計解釈+教育判断） |
 
@@ -119,9 +116,9 @@ flowchart TD
     S4["/spec-audit"]
   end
 
-  subgraph agents["エージェントチーム（12体）"]
+  subgraph agents["エージェントチーム（11体）"]
     direction LR
-    A1["品質チーム\nquiz-verifier ×8並列\nquality-gate / doc-watcher\nfacts-checker / calibrator"]
+    A1["品質チーム\nquiz-verifier ×9並列\nfacts-checker / calibrator"]
     A2["開発チーム\ndomain → store → UI+test\ndev-orchestrator が調整\nworktree 隔離"]
   end
 
