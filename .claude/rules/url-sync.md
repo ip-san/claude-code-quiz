@@ -2,7 +2,8 @@
 paths:
   - "src/lib/urlSync.ts"
   - "src/lib/urlSync.test.ts"
-  - "src/stores/slices/initSlice.ts"
+  - "src/App.tsx"
+  - "src/stores/quizStore.ts"
 ---
 
 # URL シェア（PWA）

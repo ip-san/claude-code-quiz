@@ -18,8 +18,8 @@ color: cyan
 
 対象: domain/, infrastructure/
 ```bash
-bun test src/domain/
-bun test src/infrastructure/
+bun run test src/domain/
+bun run test src/infrastructure/
 ```
 
 ```typescript

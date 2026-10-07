@@ -10,9 +10,7 @@
 ## extensions カテゴリ検証パターン（2026-05-23）
 
 ### Hook イベント総数の更新
-- hooks.md の直接カウントで29種（Setup、UserPromptExpansion、PostToolBatch を含む）
-- **更新（2026-06-02）: 29→30**。`MessageDisplay`（matcher なし・非ブロッキング、"While assistant message text is displayed"）が追加され現在は全30種。ブロッキング可能は15種（verified-facts.md / known-issues.md L250 と一致）
-- known-issues.md の「全26種（2026-04-04確認）」は古い記録 → 30種に更新済み（known-issues.md L247）
+- 総数・ブロッキング可能数は docs 更新のたびに変わるため、ここには固定値を書かない。現行値は `known-issues.md` の「Hook イベント総数」節と `docs/verified-facts.md` を参照し、hooks.md の表を実カウントして確認する（2026-09 時点: 総数33・ブロッキング可能16。PermissionRequest は No、WorktreeRemove は Yes）
 - 3種の追加: Setup、UserPromptExpansion、PostToolBatch
 - ブロッキング可能な更新確認も必要（PostToolBatch は "Stops the agentic loop" → ブロッキング可）
 
@@ -57,7 +55,7 @@
 - WebFetch(domain:xxx): domain: specifier が正しい（permissions.md, tools-reference.md）
 - Grep: ripgrep 準拠、Rust regex 構文、--regex フラグ不要（tools-reference.md L135）
 - Read PDF: 10ページ超は pages 必須、最大20ページ/リクエスト（tools-reference.md L217）
-- TodoWrite: -p フラグと Agent SDK でデフォルト、インタラクティブは Task ツール（tools-reference.md L48）
+- TodoWrite / Task tools: 既定は Task tools（TaskCreate/TaskGet/TaskList/TaskUpdate）で、`CLAUDE_CODE_ENABLE_TASKS=0` で TodoWrite に戻る。どのモデルで使えるかは tools-reference.md の task-tool-availability 節で毎回確認する（対象モデルは更新で変わる）
 - Tool Search: デフォルト有効、Haiku 非対応、ENABLE_TOOL_SEARCH=auto で閾値ベース（mcp.md）
 - /teleport: スラッシュコマンドとして存在（commands.md L80）
 - claude --teleport: CLI フラグとして存在（cli-reference.md L109）
@@ -67,13 +65,11 @@
 
 ### Fast Mode フォールバック先の表現
 - fast-mode.md: "falls back to standard speed on the same Opus version"（同じ Opus バージョン）
-- 問題 ses-118 が「スタンダード Opus 4.6」と固定表現 → major issue
-- デフォルト Fast Mode は Opus 4.6 なので通常文脈では正確だが、Opus 4.7 Fast Mode 使用時に誤解を招く
-- session カテゴリの Fast Mode 問題では Opus バージョンを固定しない表現を確認すること
+- Fast Mode の対応モデルはモデル追加のたびに入れ替わる（現行値は `docs/verified-facts.md` の Fast mode 節）。Fast Mode 問題では Opus バージョンを固定しない表現になっているか確認する
 
 ### Fast Mode の利用条件
 - fast-mode.md: "Not available on third-party cloud providers: Bedrock, Vertex AI, or Microsoft Azure Foundry"
-- 「Microsoft Azure Foundry」が正式表記（not「Microsoft Foundry」や「Azure Foundry」）→ docs では "Microsoft Azure Foundry" と "Microsoft Foundry" が混在する
+- docs には "Microsoft Azure Foundry" と "Microsoft Foundry" が混在するが、プロジェクトの正式表記は「Microsoft Foundry」（`topic-config.mjs` の TERMINOLOGY_DICT）。docs の冗長形に合わせる提案は false-positive
 
 ### PreCompact trigger フィールド
 - hooks.md L154/L2039-2040: trigger は "manual"（/compact 実行）と "auto"（コンテキストウィンドウ満杯時）の 2 種類
@@ -87,11 +83,8 @@
 - settings.md L179: 'effortLevel' accepts "low", "medium", "high", "xhigh"（max は受け付けない）
 - model-config.md L171: 'max is session-only and is not accepted here'
 
-### Opus 4.6 での xhigh サポート（2026-05-29 更新）
-- model-config.md L146-147: Opus 4.6 は `low`, `medium`, `high`, `max` のみ。`xhigh` は Opus 4.7/4.8 のみ
-- ただし環境変数 CLAUDE_CODE_EFFORT_LEVEL=xhigh を設定しても動作はする（high にフォールバック）
-- ses-102 explanation が「Opus 4.6 のコンテキストで CLAUDE_CODE_EFFORT_LEVEL=low|medium|high|xhigh|max|auto」と記述 → minor inaccuracy（実際には xhigh は Opus 4.6 専用の有効値ではない）
-- wrongFeedback では「xhigh は Opus 4.7 専用」と正しく記述されているので問題の正解への影響なし
+### xhigh 対応モデル
+- Opus 4.6 / Sonnet 4.6 は xhigh 非対応（指定すると high にフォールバック）。対応モデルは新モデル追加のたびに変わるため、`docs/verified-facts.md` の effort 節と model-config.md の表で毎回確認する（「Opus 4.7/4.8 のみ」「Opus 4.7 専用」は stale）
 
 ### distractor tier の全問は偽陽性（17問中17問）
 - session カテゴリの quality:distractor フラグ問題は全て事実誤認なし

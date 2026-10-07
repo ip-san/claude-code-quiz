@@ -75,8 +75,7 @@ distractor の lint フラグ有無に関わらず、**correctIndex が指す正
 - **comparison vs hierarchy**: `comparison.columns[].items[]` は完全文で 80 文字以内。長い説明を載せたい場合は `hierarchy`（`items: [{text, sub}]`）を使う（`sub` は長さ無制限）。
 - **flow.text/sub の文分断禁止**: `flow.steps[].text` と `sub` を 1 つの文の前半／後半に割らない。`text` 末尾が文末記号（`。、！？.!?）」』`）でなく、`sub` 先頭がカナ/漢字/英数で始まる場合は要疑（特に英単語が両者で連続する場合は確実に NG: `permissionMod`+`e`）。`sub` は 15 字以内のテクニカルな補足（型名・条件・短い例）に留める。一文を載せたい場合は `text` を完全な文にして `sub` を省く。
 - **hierarchy.text の長文禁止**: `hierarchy.items[].text` は **40 字以内**の短いラベル。option 全文や wrongFeedback 全文を text に詰めない。長い説明はキーフレーズに圧縮し、詳細は `sub` に置く（`sub` は長さ制限なし）。
-- **検出**: `bun run quiz:check-diagram-text` で flow split + hierarchy 長文の両方を一括検出可能（既存違反 866 件のため `quiz:check` 本体には未統合。修正したカテゴリから段階的にクリアし、最終的に `quiz:check` への統合を目指す）。
-- **過去事例**: 1c3f9d4 で comparison→hierarchy 移行時に option 全文を text に詰めて 133 items でセルから文字はみ出し（2026-04-25）。同コミット周辺で flow text/sub の機械的分割により 521 件の中途分割が残存（`permissionMod`+`e` のような単語分断含む）。
+- **検出**: `bun run quiz:check-diagram-text` で flow split + hierarchy 長文の両方を一括検出する。`quiz:check` / `check` / CI に組み込まれており、違反があると fail する。
 - **severity:** major=ドキュメント不一致/マーカー範囲外/ID参照不一致/途中切れ/flow文分断/hierarchy長文, info=改善提案
 
 ## J. ダイアグラム追加の検討（diagrams なしの問題）

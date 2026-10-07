@@ -23,7 +23,7 @@ context: fork
 ```
 /self-review
 ├── Step 0: /code-review を実行（汎用: コード品質, React/TS, a11y, perf）
-└── Step 1: プロジェクト固有チェック（13項目を順次実行）
+└── Step 1: プロジェクト固有チェック（下記の全項目を順次実行）
 ```
 
 ### チームモード（`--team`）
@@ -139,14 +139,14 @@ grep -rn 'npm \|ESLint\|Prettier' docs/ --include='*.md' | grep -v '不使用\|�
 - バンドルサイズへの影響（新しい import が chunk を肥大化させないか）
 - Service Worker キャッシュへの影響
 - 不要な re-render（Zustand store の肥大化に注意）
-- `content-visibility` や仮想スクロールの適用余地（668問リスト表示時）
+- `content-visibility` や仮想スクロールの適用余地（全問リスト表示時）
 
 ### 10. State Management（プロジェクト固有）
 
 このプロジェクトは Zustand を使用:
 - サーバーデータをローカル state にコピーしていないか
 - Zustand store の肥大化（1 store に機能詰め込みすぎ）
-- slice パターン（viewSlice, sessionSlice, progressSlice 等）の整合性
+- slice パターン（viewSlice, sessionLifecycleSlice, progressSlice 等）の整合性
 
 ### 11. hooks/設定ファイル内の旧ツール参照
 

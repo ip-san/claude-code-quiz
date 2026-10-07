@@ -2,7 +2,7 @@
 name: quality-loop
 description: GA4分析 + コードレビュー + クイズ追加判定 + クイズ検証 + 統計同期 + 最終検証を一括実行。品質ループ、定期チェック、quality loop
 allowed-tools: Read, Write, Edit, Bash, Grep, Glob, Agent, Skill
-argument-hint: "[--skip-analytics] [--skip-review] [--skip-generate] [--skip-refine] [--skip-gate] [--dry-run] [--team] [--playtest]"
+argument-hint: "[--skip-analytics] [--skip-review] [--skip-generate] [--skip-refine] [--skip-gate] [--dry-run] [--team] [--monthly] [--playtest]"
 ---
 
 # Quality Loop Skill
@@ -21,7 +21,7 @@ GA4分析・コード品質・クイズ品質を一括でチェックし、最�
 - `--skip-gate`: ステップ4・5（統計同期・最終検証ゲート）をスキップ
 - `--dry-run`: ステップ2で追加推奨の分析のみ行い、実際の生成はしない
 - `--team`: エージェントチームモード（独立ステップを並列実行）
-- `--monthly`: 月次モード。ステップ3の前に `facts-checker --cross-quiz`（Opus 1M context）を実行し、Verified Facts の drift と影響クイズを先に特定する。コスト ~$7.5/回なので通常のループには含めない
+- `--monthly`: 月次モード。ステップ3の前に `facts-checker --cross-quiz`（判定層モデル・1M context）を実行し、Verified Facts の drift と影響クイズを先に特定する。コスト ~$7.5/回なので通常のループには含めない
 - `--playtest`: ステップ3.5として `/playtest` スキルを実行（模擬ユーザーが実 PWA をプレイ→専門家チームが分かりにくさ・学び改善を検証適用）。ブラウザ自動化と複数エージェントでコスト高のため既定では実行しない。UX/UI 課題はステップ1（code-review）へ、内容修正はステップ4（統計同期）前に合流させる
 
 フラグなしの場合は全ステップを逐次実行する（`--monthly` / `--playtest` なし）。
@@ -82,7 +82,7 @@ Phase 1, 3, 5 では Agent ツールを使って複数エージェントを **�
 
 **スキップ条件:** `--skip-review` フラグ、または `git diff --name-only` が空（未コミットの変更なし）
 
-1. `/self-review --fix` を実行する（内部で `/code-review` 汎用レビュー + プロジェクト固有チェック7項目を統合実行）
+1. `/self-review --fix` を実行する（内部で `/code-review` 汎用レビュー + プロジェクト固有チェックを統合実行）
 2. 修正後に `npx tsc --noEmit` で型チェックを確認する
 
 ### チームモードでの Phase 1 並列化
@@ -140,14 +140,14 @@ Phase 1, 3, 5 では Agent ツールを使って複数エージェントを **�
 ```
 Agent(
   subagent_type: "facts-checker",
-  model: "fable",         // Fable 5 不可時は "opus" → "sonnet"（resolve-model.mjs で事前解決）
+  model: "fable",         // Fable 不可時は "opus" → "sonnet"（resolve-model.mjs で事前解決）
   prompt: "--cross-quiz モードで起動。Verified Facts（docs/verified-facts.md）の鮮度と、drift した事実に依存するクイズを 1M context で一括判定してください。"
 )
 ```
 
 **処理内容:**
 - docs/verified-facts.md の確定事実を公式 docs と照合（通常の facts-check）
-- drift が見つかった fact について、per-category クイズ JSON を Opus の 1M context に一括ロードし、影響を受ける可能性のあるクイズを特定
+- drift が見つかった fact について、per-category クイズ JSON を判定層モデルの 1M context に一括ロードし、影響を受ける可能性のあるクイズを特定
 - 出力: high/medium/low impact のクイズ ID リスト + 推奨 `/quiz-refine` コマンド
 
 **成果物:** `.claude/tmp/facts-cross-quiz-report.md`。Phase 3（`/quiz-refine`）は high impact のカテゴリを優先対象にする。
@@ -334,15 +334,15 @@ bun run skills:check   # フロントマター + トークン数 + 行数
 | 機械的なデータ収集・集計 | Script（モデル不要） | — | セッション収集、分類集計、統計取得 |
 | 単純な分類・パターン認識 | Haiku | Script（正規表現） | プロンプト意図分類、事実一致判定、問題ランキング |
 | 複数プロンプトの文脈理解 | Sonnet | — | レコメンド15問選定、クイズ検証、コードレビュー |
-| 微妙なニュアンス・深い推論（判定層） | **Fable 5** | Opus → Sonnet | Verified Facts 鮮度チェック、難易度キャリブレーション、停滞介入、critical 偽陽性フィルタ |
+| 微妙なニュアンス・深い推論（判定層） | **Fable** | Opus → Sonnet | Verified Facts 鮮度チェック、難易度キャリブレーション、停滞介入、critical 偽陽性フィルタ |
 
-### 判定層フォールバック（Fable 5 → Opus → Sonnet）
+### 判定層フォールバック（Fable → Opus → Sonnet）
 
 判定層タスクは最上位モデルを第一候補とし、利用不可なら段階的に縮退する:
 
 1. **事前解決（推奨）:** `node scripts/resolve-model.mjs fable opus sonnet` を実行し、stdout のモデル名を以後の判定層 `Agent()` 呼び出しの `model` に使う（結果は 24h キャッシュ、`--status` で確認可）
 2. **起動時フォールバック:** `Agent(model: "fable")` の起動が model 起因で失敗したら、チェーンの残りのモデルを順に試す（fable 失敗 → opus、それも失敗 → sonnet）
-3. **frontmatter は据え置き:** `facts-checker` / `difficulty-calibrator` の frontmatter `model: opus` は静的フォールバックとして維持し、Fable 5 は呼び出し時の `model` パラメータで上書きする（Fable 5 廃止・名称変更時にも spawn が壊れない）
+3. **frontmatter は据え置き:** `facts-checker` / `difficulty-calibrator` の frontmatter `model: opus` は静的フォールバックとして維持し、Fable は呼び出し時の `model` パラメータで上書きする（Fable の廃止・名称変更時にも spawn が壊れない）
 
 ```
 Agent(subagent_type: "facts-checker", model: "fable")   // 不可時: "opus" → "sonnet"
@@ -352,4 +352,4 @@ Agent(subagent_type: "facts-checker", model: "fable")   // 不可時: "opus" →
 
 quiz-verifier（Sonnet）が `needsOpusReview: true` を報告した場合:
 1. まず判定層モデルで確認を試みる（Agent model: resolve-model.mjs の解決結果。通常 "fable"）
-2. Fable 5 不可なら Opus、それも不可なら Sonnet で再確認（追加のドキュメント箇所を含めて再検証）
+2. Fable 不可なら Opus、それも不可なら Sonnet で再確認（追加のドキュメント箇所を含めて再検証）

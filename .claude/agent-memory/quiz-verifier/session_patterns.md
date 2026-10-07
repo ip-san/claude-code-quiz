@@ -2,6 +2,8 @@
 
 ## 2026-07-16: モデルラインナップ更新による doc ドリフト（Sonnet 5 登場・Fast Mode縮小・default変更）
 
+> この節の値は 2026-07-16 時点のもの。Fast mode 対応モデルなどその後の変更は `docs/verified-facts.md` を正とする。
+
 fetch-docs.mjs で 2026-07-15 キャッシュを取得したところ、model-config.md / fast-mode.md に以下の変更が確認された。既存の quiz（ses-045, ses-102, ses-103, ses-108）は旧モデルラインナップのまま更新されておらず、explanation/wrongFeedback/diagram に古い記述が残っている。**correctIndex 自体は全て妥当**なので critical ではないが、major として要修正。
 
 ### 事実確認済み（model-config.md, 2026-07-15キャッシュ）

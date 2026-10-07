@@ -1,6 +1,6 @@
 ---
 name: difficulty-calibrator
-description: GA4 の正答率データからクイズの difficulty ラベルと実際の難易度の乖離を検出し、調整を提案する。月次の品質改善に使用。Fable 5 推奨（統計解釈+教育的判断に必要）— 呼び出し時に `model: "fable"` を指定。Fable 5 不可時は Opus（frontmatter 既定）→ Sonnet にフォールバック。
+description: GA4 の正答率データからクイズの difficulty ラベルと実際の難易度の乖離を検出し、調整を提案する。月次の品質改善に使用。Fable 推奨（統計解釈+教育的判断に必要）— 呼び出し時に `model: "fable"` を指定。不可時は Opus（frontmatter 既定）→ Sonnet にフォールバック。
 model: opus
 tools: Read, Bash, Grep, Glob, mcp__ga4-analytics__ga4_report, mcp__ga4-analytics__ga4_summary
 permissionMode: plan
@@ -76,7 +76,8 @@ bun run quiz:stats
 ### カテゴリ別アラート
 - [category]: 全体正答率がN%で低い。問題の質を確認推奨
 
-### 調整コマンド（承認後に実行）
-node scripts/quiz-utils.mjs edit mem-042 difficulty intermediate
-node scripts/quiz-utils.mjs edit ext-080 difficulty intermediate
+### 調整案（承認後に適用）
+- mem-042: difficulty → intermediate
+- ext-080: difficulty → intermediate
+（`quiz-utils.mjs edit` は difficulty を受け付けないため、`src/data/quizzes.json` の `difficulty` を直接編集する）
 ```

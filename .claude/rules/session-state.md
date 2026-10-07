@@ -3,7 +3,8 @@ paths:
   - "src/infrastructure/persistence/SessionRepository.ts"
   - "src/stores/utils.ts"
   - "src/stores/slices/resumeSlice.ts"
-  - "src/stores/slices/sessionSlice.ts"
+  - "src/stores/slices/sessionLifecycleSlice.ts"
+  - "src/stores/slices/sessionAnswerSlice.ts"
 ---
 
 # セッション永続化の注意点

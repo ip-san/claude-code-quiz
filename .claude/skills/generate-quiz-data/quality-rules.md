@@ -107,7 +107,7 @@ npm run quiz:search -- "キーワード"  # 特定トピックの既存問題を
 
 - **プラグインのソースタイプは7種類**: relative path, `github`, `url`, `git-subdir`, `npm`, `archive`（v2.1.224+）, `command`（v2.1.229+）。`pip` は存在しない（plugins/marketplace-reference、2026-09-30）
 - **`CLAUDE.md` のスコープは4つで、優先順位ではなく読み込み順**: Managed → User → Project → Local（全ファイルが連結され、互いに上書きしない。2026-09-30 memory.md で再確認）。`settings.json` の5段階の**優先順位**（Managed > CLI > Local > Project > User）と混同しないこと
-- **Hook イベントは26種類**: `PermissionDenied` を含む全26種
+- **Hook イベント数は docs 更新のたびに増える**: 件数を書く場合は `quiz-refine/known-issues.md`「Hook イベント総数」の最新行と hooks.md の lifecycle table を実カウントして確認する
 - **`defaultMode` の有効値は6つ**: `default`, `acceptEdits`, `plan`, `auto`, `dontAsk`, `bypassPermissions`
 
 ## 内部一貫性チェック（生成直後に必ず確認）
@@ -134,11 +134,11 @@ npm run quiz:search -- "キーワード"  # 特定トピックの既存問題を
 
 referenceUrlにアンカー（`#fragment`）を付ける場合、実際のページ見出しと一致させること。アンカーはドキュメント更新で変わりうるため、WebFetchで再確認すること。
 
-**memoryページの既知のアンカー（2026-03-01 確認済み）:**
+**memoryページの既知のアンカー（slug は `CLAUDE.md` → `claude-md`）:**
 - `#import-additional-files`（`@`インポート関連）
-- `#choose-where-to-put-claudemd-files`（メモリ階層・スコープ関連）
+- `#choose-where-to-put-claude-md-files`（メモリ階層・スコープ関連）
 - `#view-and-edit-with-memory`（`/memory`コマンド関連）
-- `#how-claudemd-files-load`（サブディレクトリ検索・ロード順関連）
+- `#how-claude-md-files-load`（サブディレクトリ検索・ロード順関連）
 - `#user-level-rules`（ユーザールール関連）
 - `#path-specific-rules`
 

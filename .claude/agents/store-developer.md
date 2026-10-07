@@ -25,7 +25,8 @@ color: green
 src/stores/
   quizStore.ts              → ルートストア（全スライスを合成）
   slices/
-    sessionSlice.ts         → セッション管理
+    sessionLifecycleSlice.ts → セッション開始・終了・タイマー
+    sessionAnswerSlice.ts   → 回答・ナビゲーション
     progressSlice.ts        → 進捗管理
     resumeSlice.ts          → セッション再開
     bookmarkSlice.ts        → ブックマーク
@@ -62,7 +63,7 @@ export const createNewFeatureSlice: StateCreator<
 ## 完了条件
 
 1. `npx tsc --noEmit` がエラーなし
-2. `bun test src/stores/` が全通過
+2. `bun run test src/stores/` が全通過
 3. quizStore.ts でスライスが正しく合成されている
 4. セレクタが定義されている
 

@@ -8,7 +8,7 @@ argument-hint: "[section]"
 
 # Spec Audit Skill
 
-CLAUDE.md の仕様記述が実装と一致しているかを監査する。
+CLAUDE.md と README.md の仕様記述が実装と一致しているかを監査する。
 
 ## 役割の分担
 
@@ -54,7 +54,7 @@ CLAUDE.md のディレクトリツリー記述と実際のディレクトリを�
 
 ### modes — クイズモード設定
 
-CLAUDE.md のクイズモードテーブルと `src/domain/valueObjects/QuizMode.ts` を比較する。
+README.md の「クイズモード」テーブルと `src/domain/valueObjects/QuizMode.ts` を比較する。
 
 **検証項目:**
 - 全モードが QuizMode に定義されているか

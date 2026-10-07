@@ -50,7 +50,7 @@ describe('NewFeatureService', () => {
 ## 完了条件
 
 1. `npx tsc --noEmit` がエラーなし
-2. `bun test src/domain/` が全通過
+2. `bun run test src/domain/` が全通過
 3. 型カバレッジ 99% 以上維持
 4. `bun run circular` で循環依存ゼロ
 

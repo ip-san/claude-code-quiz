@@ -37,7 +37,7 @@ argument-hint: "[--persona ...] [--count N] [--report-only] [--no-build] [--prog
 7. preview 停止。`auto/playtest-cov-<日時>` ブランチにコミット（coverage 更新 + 改善）。**push/PR はしない**
 8. 報告: 今回のカバレッジ進捗（例 beginner 15/254）、採用/却下、UX課題、残数
 
-**1周完了**（全830問 covered）したら維持モード（新規/変更問題のみ）に移行する。
+**1周完了**（`playtest-coverage.mjs status` で全問 covered）したら維持モード（新規/変更問題のみ）に移行する。
 
 ## 前提チェック（最初に実行）
 

@@ -17,7 +17,7 @@ memory: project
 ## 入力
 
 リードエージェントから以下の情報を受け取ります:
-- `category`: 検証対象カテゴリ（memory, skills, tools, commands, extensions, session, keyboard, bestpractices のいずれか）
+- `category`: 検証対象カテゴリ（`scripts/topic-config.mjs` の `CATEGORY_DOC_MAP` のキー: memory, skills, tools, commands, extensions, session, keyboard, bestpractices, sdk）
 - `targets`: 検証対象の問題IDリスト（verify-targets.json から抽出済み）
 
 ## 手順
@@ -111,15 +111,9 @@ severity の判定基準:
 
 ## Critical 判定の二重確認
 
-severity が `critical` の issue を検出した場合、偽陽性（正しい問題を誤りと判定）を防ぐために以下の手順で二重確認する:
+`critical` は偽陽性のコストが高い（正しい問題を壊す）。根拠となる docs の記述を確かめ、"非推奨" と "推奨ではない" のようなニュアンス差も区別して判定する。確信が持てない場合は severity を `major` に下げ、`needsOpusReview: true` を付ける。
 
-1. ドキュメントの該当箇所を再度読み直す
-2. 問題文・選択肢・解説を注意深く再評価する
-3. 「この問題は本当に事実と異なるか？」を自問する
-4. ニュアンスの違い（例: "非推奨" vs "推奨ではない"）を見分ける
-5. 確信が持てない場合は severity を `major` に下げ、`needsOpusReview: true` フラグを追加する
-
-リードエージェントは `needsOpusReview: true` の issue を判定層モデル（Fable 5、不可時 Opus → Sonnet。`node scripts/resolve-model.mjs fable opus sonnet` で解決）で最終確認する。
+リードエージェントは `needsOpusReview: true` の issue を判定層モデル（Fable、不可時 Opus → Sonnet。`node scripts/resolve-model.mjs fable opus sonnet` で解決）で最終確認する。
 
 ## メモリ運用
 

@@ -94,7 +94,7 @@ function buildPrompt(batch) {
 
 - trivia: 細かい仕様・内部挙動・滅多に使わない機能。深く知っていればドヤれるが、知らなくても日常作業に支障がない類。例:
   - 環境変数の正確なデフォルト値（MAX_MCP_OUTPUT_TOKENS=25,000 など）
-  - Hook イベント 26 種の総数や正確な列挙
+  - Hook イベントの総数や正確な列挙
   - レアな CLI フラグ（--teleport など）
   - SDK の内部 API の引数名
   - Managed CLAUDE.md の OS 別パス

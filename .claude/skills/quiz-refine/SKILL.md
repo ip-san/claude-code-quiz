@@ -35,7 +35,7 @@ argument-hint: "[iterations] [categories...] [--dry-run] [--full] [--force] [--t
    - "--team" なら → TEAM = true
    - 数値（1-10）なら → ITERATIONS = その値
    - 有効カテゴリ名なら → CATEGORIES に追加
-4. CATEGORIES が空なら → 全8カテゴリ
+4. CATEGORIES が空なら → 下記の有効カテゴリすべて
 ```
 
 **例:**
@@ -55,10 +55,10 @@ argument-hint: "[iterations] [categories...] [--dry-run] [--full] [--force] [--t
 - `full`: verified-ok で変更なしの問題はスキップ、それ以外を全件
 - `force`: verifyResults を完全無視、全問を対象にする
 
-有効カテゴリ: memory, skills, tools, commands, extensions, session, keyboard, bestpractices
+有効カテゴリ: memory, skills, tools, commands, extensions, session, keyboard, bestpractices, sdk
 引数が不正な場合はエラーメッセージを返して終了。
 
-## モデル選択ポリシー（Fable 5 第一候補）
+## モデル選択ポリシー（Fable 第一候補）
 
 | 層 | 担当タスク | モデルチェーン |
 |----|----------|--------------|
@@ -95,7 +95,7 @@ Parsed: iterations=N, scan=MODE, dry_run=BOOL, categories=[...]
 **以下を1つの Bash 呼び出しにまとめて実行する（許可プロンプト削減）:**
 
 ```bash
-npm run quiz:lint && npm run quiz:check && rm -f .claude/tmp/verify_*.json .claude/tmp/verify_*.md .claude/tmp/skill-proposals.md 2>/dev/null; VERIFY_CMD="verify:diff"; if [ "$SCAN_MODE" = "full" ]; then VERIFY_CMD="verify:diff:full"; elif [ "$SCAN_MODE" = "force" ]; then VERIFY_CMD="verify:diff:force"; fi; npm run $VERIFY_CMD
+npm run quiz:lint && npm run quiz:check && find .claude/tmp -maxdepth 1 \( -name 'verify_*.json' -o -name 'verify_*.md' -o -name 'skill-proposals.md' \) -delete; VERIFY_CMD="verify:diff"; if [ "$SCAN_MODE" = "full" ]; then VERIFY_CMD="verify:diff:full"; elif [ "$SCAN_MODE" = "force" ]; then VERIFY_CMD="verify:diff:force"; fi; npm run $VERIFY_CMD
 ```
 
 **重要: SCAN_MODE は上記パースアルゴリズムの結果を使う。実際のコマンドは以下から選択:**
@@ -118,9 +118,9 @@ npm run verify:diff -- memory tools
 
 **注意: 複数選択問題（`type: "multi"`）は `correctIndex` の代わりに `correctIndices`（整数配列）を使用する。** このフォーマットは正規の仕様であり、構造バグではない。
 
-### Step 0b: MEMORY→known-issues 同期チェック
+### Step 0b: verified-facts→known-issues 同期チェック
 
-MEMORY.md の「Verified Facts」セクションと `known-issues.md` を比較し、MEMORY に記載されているがknown-issues に未反映の事実があれば known-issues.md に追記する。これにより検証エージェントが最新の確認済み事実を参照できる。
+`docs/verified-facts.md`（確定事実の正本）と `known-issues.md` を比較し、verified-facts にあって known-issues に未反映の事実があれば known-issues.md に追記する。これにより検証エージェントが最新の確認済み事実を参照できる。
 
 ## Step 0c: 決定論的 lint 前処理（推奨）
 
@@ -139,10 +139,6 @@ node scripts/pre-lint-quiz.mjs
 
 **対象が10問未満の場合**: skip して全問 Sonnet 検証（少量なら直接の方が速い）。
 
-## Step 0d: 判定層バッチ監査（オプション）
-
-`scripts/audit-critical-quiz.mjs` が存在する場合、Haiku/Sonnet の判定を判定層モデル（`fable` → `opus` → `sonnet` 自動フォールバック内蔵）が独立監査する運用（現在は未使用）。将来的な再有効化に備えた予約ステップ。
-
 ## Step 1: 早期終了チェック
 
 `.claude/tmp/verify-targets.json` を Read で読み込む。
@@ -154,9 +150,8 @@ node scripts/pre-lint-quiz.mjs
 **targets が 0 件の場合**: 差分なし。「検証対象なし」と報告して**即座に終了**。
 
 `.claude/tmp/pre-verify-results.json` が存在する場合:
-- `sonnetTargets` のIDのみを検証対象とする（Haiku確認済み + Opus監査済みの問題はスキップ）
-- Opus 監査でデモートされた問題は自動的に `sonnetTargets` に含まれる
-- 「Pre-verify: N問スキップ（Haiku確認済み + Opus監査済み）」とログ出力
+- `sonnetTargets`（flagged）は A-H 全検証、`matched` は A-B-D-G に絞って検証する（Step 0c 参照。lint 通過は事実の鮮度を保証しない）
+- 「Pre-lint: flagged N問 / matched M問」とログ出力
 
 targets > 0 の場合、対象カテゴリのドキュメントをキャッシュ:
 ```bash
@@ -190,10 +185,10 @@ End for
 
 **フォールバック運用:** スキルが forked 実行中で Agent ツールが実質利用できない場合（forked コンテキストでは Task/Agent 呼び出しが失敗する環境がある）、以下の順で段階的にフォールバックする:
 
-1. **決定論的修正のみ適用** — `quiz-lint.mjs backtick` / difficulty 再分類 / URL アンカー / distractor autofix。LLM 不要。今回のフルスキャンで difficulty 55件を自動修正したパターン
+1. **決定論的修正のみ適用** — `quiz-lint.mjs backtick` / difficulty 再分類 / URL アンカー / distractor autofix。LLM 不要
 2. **ヘッドレス verifier（`scripts/verify-category-headless.mjs`）** — Agent ツール不可時の推奨代替。`claude -p` を subprocess として呼び出すため forked context 制約を受けない:
    ```bash
-   for cat in memory skills tools commands extensions session keyboard bestpractices; do
+   for cat in memory skills tools commands extensions session keyboard bestpractices sdk; do
      node scripts/verify-category-headless.mjs "$cat" --model=sonnet &
    done
    wait
@@ -201,7 +196,7 @@ End for
    `--model=fable,opus,sonnet` のカンマ区切りチェーン指定で、実行失敗時もパース不能な出力時も次のモデルへ自動リトライする。使用モデルは結果 JSON の `_meta.model` に記録される
    各カテゴリが独立プロセスなので真に並列実行可能。結果は `.claude/tmp/verify_{category}.json` に保存され、メインエージェントが集約して修正を適用する
 3. **fact-tier のスポットチェック** — pre-lint の fact tier のうち、`factCheck:slash` / `factCheck:flags` / `factCheck:env` のような具体性の高いものから 10〜20 問を Read で直接検証（ドキュメントキャッシュから該当 page を grep）
-4. **大規模 LLM 検証は `/quality-loop --monthly` に委譲** — 月次の判定層モデル（Fable 5、不可時 Opus）の 1M context で全問横断判定。forked 内で無理に並列化しない
+4. **大規模 LLM 検証は `/quality-loop --monthly` に委譲** — 月次の判定層モデル（Fable、不可時 Opus）の 1M context で全問横断判定。forked 内で無理に並列化しない
 
 この分離により、`--team --full` が forked 環境で失敗しても決定論的価値を提供でき、LLM コストは月次に集約される。
 
@@ -215,14 +210,14 @@ Agent(
 )
 ```
 
-この方式は 2026-04-20 の distractor rebalance で 15 問を Sonnet に処理させた実績あり（commit `f8145ce`）。forked skill 経由より確実。
+forked skill 経由より確実。
 
 ```
 For iteration = 1..N:
   Phase A: 全カテゴリの quiz-verifier エージェントを同時起動（run_in_background: true）
     各エージェントへのプロンプト:
     - カテゴリ「{category}」の問題を検証してください
-    - .claude/tmp/pre-verify-results.json があれば参照し、matched はチェック A-B スキップ
+    - .claude/tmp/pre-verify-results.json があれば参照し、matched は C/E/F/H をスキップ（A-B-D-G のみ）、flagged は A-H 全検証
     - .claude/tmp/quizzes/{category}.json を Read
     - node scripts/fetch-docs.mjs --assemble {category} でドキュメント取得
     - .claude/skills/quiz-refine/known-issues.md を Read
@@ -242,7 +237,6 @@ For iteration = 1..N:
 End for
 ```
 
-**チームモードの利点:** 8カテゴリ逐次で約10分 → 並列で約2分（実測77%短縮）。
 **注意:** 検証エージェントは報告のみ。修正はメインエージェントが集約後に実行（競合防止）。
 
 ### カテゴリ処理の詳細

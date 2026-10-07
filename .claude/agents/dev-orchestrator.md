@@ -49,7 +49,7 @@ Agent(domain-developer, isolation: worktree):
   「{feature_name} のドメインサービスを実装してください。
    - {具体的なビジネスロジック}
    - ユニットテスト必須
-   - 完了条件: tsc + bun test src/domain/ 通過」
+   - 完了条件: tsc + bun run test src/domain/ 通過」
 ```
 
 **Phase B: ストア層 + レビュー（並列）**

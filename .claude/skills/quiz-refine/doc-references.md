@@ -9,7 +9,7 @@
 
 | 機能カテゴリ | 推奨ページ | 備考 |
 |-------------|-----------|------|
-| 環境変数（`BASH_DEFAULT_TIMEOUT_MS`, `CLAUDE_CODE_SHELL_PREFIX` 等） | `settings` | `how-claude-code-works` ではない |
+| 環境変数（`BASH_DEFAULT_TIMEOUT_MS`, `CLAUDE_CODE_SHELL_PREFIX` 等） | `env-vars` | `settings` / `how-claude-code-works` ではない |
 | CLIワークフロー（パイプ `\|`, CI/CD, Gitコミット, fork-session） | `common-workflows` | |
 | 組み込みスラッシュコマンド（`/login`, `/compact`, `/model` 等） | `interactive-mode` | |
 | Claude Codeのコア動作（ツールカテゴリ・Compact Instructions・セッション管理・アジェンティックループ） | `how-claude-code-works` | 非常に包括的なページ。安易に「不足」とflagしないこと |
@@ -83,39 +83,20 @@
 
 ## 有効なドメインとパス
 
-- `https://code.claude.com/docs/en/{page}` — 43ページ:
-  - Core: overview, quickstart, settings, memory
-  - Interactive: interactive-mode, how-claude-code-works
-  - Extensions: mcp, hooks, hooks-guide, plugins/*（overview, install, create, components, manifest-reference, create-marketplace, marketplace-reference, code-intelligence, relevance, dependencies, cli-hints ほか計20ページ）, sub-agents, agent-teams, skills
-  - Advanced: common-workflows, checkpointing, best-practices, model-config, sandboxing, headless
-  - Customization: keybindings, output-styles, statusline, terminal-config, fast-mode
-  - Platforms: vs-code, jetbrains, desktop, chrome, slack
-  - CI/CD: github-actions, gitlab-ci-cd, scheduled-tasks, remote-control
-  - Enterprise: server-managed-settings, devcontainer
-  - Supplementary: permissions, cli-reference, setup, features-overview, desktop-quickstart, authentication
-  - Cloud & Gateway (2026-07-16 追加): gateways, llm-gateway-connect, desktop-linux, desktop-wsl, feature-availability
-  - Cloud & Gateway (2026-07-17 追加): llm-gateway-protocol, llm-gateway-rollout, claude-apps-gateway, corporate-launcher, accessibility
-  - Cloud & Gateway (2026-07-18 追加): mobile, claude-apps-gateway-config, claude-apps-gateway-spend-limits
-  - Cloud & Gateway (2026-07-22 追加): desktop-ios-simulator
-  - Cloud & Gateway (2026-08-03 追加): claude-security, glossary, cloud-environments, claude-apps-gateway-on-aws
-  - Cloud & Gateway (2026-08-07 追加): self-hosted-environments, self-hosted-environments-quickstart, self-hosted-environments-configuration, self-hosted-environments-deploy, self-hosted-environments-identity, self-hosted-environments-reference, self-hosted-environments-testing, claude-tag, github-actions-cloud-providers
-  - Newly discovered pages (2026-08-13 追加): cross-session-messaging
-  - Newly discovered pages (2026-09-16 追加): managed-settings, settings-reference, settings-example, plugin-evals
-  - Newly discovered pages (2026-09-29 追加): claude-projects
+- `https://code.claude.com/docs/ja/{page}` — referenceUrl は `/docs/ja/` を使う（`docs:validate` が `/docs/en/` を FAIL にする）。有効なページ名の正本は `scripts/topic-config.mjs` の `DOC_PAGES`
 - `https://platform.claude.com/docs/en/agent-sdk/overview` — Agent SDK 関連
 
 ### ページリスト同期チェック（新規ドキュメントページ追加時）
 
-ドキュメントページを追加・削除した場合、以下の4箇所を同期更新すること:
+ドキュメントページを追加・削除した場合、以下を同期更新すること:
 
-1. **このファイル** (`doc-references.md`): 上記の43ページリスト
-2. **`generate-quiz-data/SKILL.md`**: ページ数とカテゴリ→ドキュメントマッピング表
-3. **`scripts/quiz-constants.mjs`**: `CATEGORY_DOC_MAP` と `SUPPLEMENTARY_DOCS`
-4. **`src/infrastructure/validation/quizContentQuality.test.ts`**: `VALID_DOC_PAGES` 配列
+1. **`scripts/topic-config.mjs`**: `DOC_PAGES` / `CATEGORY_DOC_MAP` / `SUPPLEMENTARY_DOCS`（`quiz-constants.mjs` はここから re-export）
+2. **`generate-quiz-data/SKILL.md`**: カテゴリ→ドキュメントマッピング表
+3. **`src/infrastructure/validation/quizContentQuality.test.ts`**: `VALID_DOC_PAGES` 配列
 
 いずれか1つだけ更新すると、検証カバレッジに漏れが生じる。
 
-### 補足参照ページ（referenceUrl には使用不可だがファクトチェックに有用）
+### 補足参照ページ（ファクトチェックに特に有用。referenceUrl にも使えるが、機能専用ページがあればそちらを優先）
 
 - `https://code.claude.com/docs/en/permissions` — パーミッション設定の完全リファレンス。`defaultMode` 有効値の完全リスト、パーミッションルール構文、managed-only設定の詳細
 - `https://code.claude.com/docs/en/setup` — インストール・アップデート詳細
@@ -127,12 +108,12 @@
 
 > ドキュメント更新で変わりうるため、検証時に WebFetch で再確認すること。
 
-### memory ページ（2026-03-01 確認済み、ページ大幅再構成後）
+### memory ページ（slug は `CLAUDE.md` → `claude-md`）
 
 - `#import-additional-files`（`@` インポート関連）
-- `#choose-where-to-put-claudemd-files`（メモリ階層・スコープ関連）
+- `#choose-where-to-put-claude-md-files`（メモリ階層・スコープ関連）
 - `#view-and-edit-with-memory`（`/memory` コマンド関連）
-- `#how-claudemd-files-load`（サブディレクトリ検索・ロード順関連）
+- `#how-claude-md-files-load`（サブディレクトリ検索・ロード順関連）
 - `#user-level-rules`（ユーザールール関連）
 - `#path-specific-rules`
 
@@ -148,7 +129,7 @@
 以下のカテゴリに属する用語は、question・options・explanation・wrongFeedback 内でバッククォートで囲む。
 
 ### ツール名
-`Bash`, `Read`, `Edit`, `Write`, `Grep`, `Glob`, `WebFetch`, `WebSearch`, `NotebookEdit`, `AskUserQuestion`, `Task`, `TodoWrite`
+`Bash`, `Read`, `Edit`, `Write`, `Grep`, `Glob`, `WebFetch`, `WebSearch`, `NotebookEdit`, `AskUserQuestion`, `Agent`, `TodoWrite`
 
 ### Hook イベント名
 `PreToolUse`, `PostToolUse`, `PostToolUseFailure`, `UserPromptSubmit`, `SessionStart`, `SessionEnd`, `Stop` 等

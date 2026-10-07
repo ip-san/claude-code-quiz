@@ -27,7 +27,7 @@ bun run build:web     # Web版プロダクションビルド
 # 品質チェック
 bun run check         # 型チェック + lint + 1100テスト + 1057問チェック（一括）
 bun run check:all     # check + docs:validate + cpd（CI用フルチェック）
-bun test              # ユニット + Store テスト（1100テスト、Vitest）
+bun run test          # ユニット + Store テスト（1100テスト、Vitest）
 bun run test:e2e      # E2E + Visual Regression テスト（120テスト、Playwright）
 bun run cpd           # コードクローン検出（jscpd、2%以下）
 
@@ -46,13 +46,13 @@ bun run lighthouse     # Lighthouse CI
 ## 仕様の参照先
 
 - 学習改善機能（XP、アダプティブ難易度、レコメンド、Opus トリガー、クイズ検証の判定層）の仕様: [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md#学習改善機能v451)
-- 判定層のモデルは `node scripts/resolve-model.mjs fable opus sonnet` で解決する（Fable 5 → Opus → Sonnet）
+- 判定層のモデルは `node scripts/resolve-model.mjs fable opus sonnet` で解決する（Fable → Opus → Sonnet）
 
 ## 詳細ルール（path-scoped）
 
 特定ファイル編集時のみロードされる詳細ルール:
 - [.claude/rules/quiz-data.md](.claude/rules/quiz-data.md) — `src/data/quizzes.json` / クイズスクリプト編集時
-- [.claude/rules/session-state.md](.claude/rules/session-state.md) — `SessionRepository` / `resumeSlice` / `sessionSlice` 編集時
+- [.claude/rules/session-state.md](.claude/rules/session-state.md) — `SessionRepository` / `resumeSlice` / `sessionLifecycleSlice` / `sessionAnswerSlice` 編集時
 - [.claude/rules/url-sync.md](.claude/rules/url-sync.md) — `src/lib/urlSync*.ts` 編集時
 - [.claude/rules/skill-scoping.md](.claude/rules/skill-scoping.md) — `.claude/{skills,agents,commands}/` 編集時
 

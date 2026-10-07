@@ -435,7 +435,7 @@ CLAUDE.md から移設（2026-10-07）。毎セッション読み込む必要の
 - **レコメンド堅牢化:** 事前チェック（CLI/認証/モデル）→ reasons.json 分離出力 → stale検出 → stdout フォールバック → 軽量リトライ（Haiku、1時間Rate Limit）→ SessionEnd上書き保護 → キャッシュ復元（allQuestions読込待ち）→ GrowthInsight永続化（再起動後も改善レポート維持）→ DMG/exe PATH補完（パッケージ版CLI検出）。レコメンド専用テスト187件（Menu + infrastructure/recommend）
 - **テスタビリティ:** `scripts/session-analysis.mjs`（セッション分析純粋関数6本）、`electron/recommend-handlers.ts`（IPC ハンドラ DI パターン）に抽出。`scripts/__tests__/` でスクリプトもテスト対象化
 - **Opus トリガー（5種）:** initial（初回プロファイリング）/ stagnation（停滞介入）/ breakthrough（急成長分析）/ mastery（カテゴリ制覇）/ monthly（月次レビュー）。Opus 利用不可時は Sonnet で自動代替
-- **クイズ検証フィルタ:** `scripts/pre-lint-quiz.mjs`（決定論的lint）→ `quiz-verifier` エージェント（Sonnet精査）→ 判定層（critical 最終確認・偽陽性フィルタ: **Fable 5** → Opus → Sonnet 自動フォールバック。`scripts/resolve-model.mjs` で可用性解決、`scripts/audit-critical-quiz.mjs` はチェーン内蔵）
+- **クイズ検証フィルタ:** `scripts/pre-lint-quiz.mjs`（決定論的lint）→ `quiz-verifier` エージェント（Sonnet精査）→ 判定層（critical 最終確認・偽陽性フィルタ: **Fable** → Opus → Sonnet 自動フォールバック。`scripts/resolve-model.mjs` で可用性解決、`scripts/audit-critical-quiz.mjs` はチェーン内蔵）
 
 ## 技術スタック
 

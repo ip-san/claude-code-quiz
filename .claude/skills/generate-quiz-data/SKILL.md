@@ -70,7 +70,7 @@ node scripts/fetch-docs.mjs --assemble --pages settings,checkpointing,overview,q
 | extensions | 15% | `mcp,hooks,hooks-guide,plugins-overview,plugins-install,plugins-create,plugins-components,plugins-manifest-reference,plugins-create-marketplace,plugins-marketplace-reference,plugins-code-intelligence,sub-agents,chrome,slack`（プラグイン系の referenceUrl は `/docs/ja/plugins/<page>`） |
 | session | 10% | `settings,checkpointing,overview,quickstart,model-config,sandboxing,fast-mode,remote-control,desktop,devcontainer,gateways,llm-gateway-connect,llm-gateway-protocol,llm-gateway-rollout,desktop-linux,desktop-wsl,feature-availability,claude-apps-gateway,corporate-launcher,mobile,claude-apps-gateway-config,claude-apps-gateway-spend-limits,desktop-ios-simulator,claude-projects` |
 | keyboard | 10% | `interactive-mode,keybindings,statusline,terminal-config,output-styles,accessibility` |
-| bestpractices | 10% | `best-practices,common-workflows,quickstart` |
+| bestpractices | 15% | `best-practices,common-workflows,quickstart` |
 | sdk | 5% | `agent-sdk-overview,authentication,third-party-integrations` |
 
 ## Output Format
@@ -145,7 +145,6 @@ node scripts/fetch-docs.mjs --assemble --pages settings,checkpointing,overview,q
 - terminal/config の末尾 `Loading...` `処理中…` のような進捗表示の `...`/`…` のみ許容。
 - placeholder は具体値で書く: `{ ... }` `sk-...` `https://example.com/...` `{"key": ...}` などは NG。実際のサンプル値を入れる（`https://gitlab.com/group/project.git`、`{"session_id": "abc-123", "output": "done"}` など）。
 - `comparison.columns[].items[]` は **完全文**で 80 文字以内に収める。長くなる説明文を載せたい場合は `comparison` ではなく `hierarchy`（`items: [{text, sub}]`）を使う。`sub` は長さ無制限。
-- 過去事例: 「`comparison.items` を AI 生成時に文字数で切り詰めて `…` を残した」せいで 423 ダイアグラム × 1520 行を再生成する作業が発生（2026-04-25）。再発防止のため新規生成時もこのルールを守ること。
 
 **ダイアグラム作成ルール（text/sub の意味論）:**
 
@@ -163,7 +162,6 @@ node scripts/fetch-docs.mjs --assemble --pages settings,checkpointing,overview,q
   - ❌ NG: `text: "frontmatterで\`memory: user\`を設定し、\`~/.claude/agent-memory/<name>/\`にクロスプロジェクトの知識を蓄積させる（正解）"`（86字、ピラミッド型レイアウトからはみ出す）
   - ✅ OK: `text: "memory: user で永続知識を蓄積（正解）"` + `sub: "~/.claude/agent-memory/<name>/ に保存..."`
 - 長い説明を載せたい場合: `text` をキーフレーズに圧縮し、詳細は `sub` に置く（sub は長さ制限なし）。
-- 過去事例: 1c3f9d4 で comparison→hierarchy 移行時に option 全文を `text` に詰めた結果、133 items でセルから文字がはみ出した（2026-04-25）。再発防止のため新規生成時も text ≤40 字を守ること。
 - 検出: `bun run quiz:check-diagram-text` で flow split + hierarchy 長文の両方を一括チェック可能。
 
 ## ID Conventions
@@ -189,7 +187,7 @@ node scripts/fetch-docs.mjs --assemble --pages settings,checkpointing,overview,q
 7. **バッククォート書式:** コード用語・パス・コマンド・環境変数・設定キーは全フィールドでバッククォート。URL途中への挿入禁止。同一問題内で不整合禁止。対象リスト: `.claude/skills/quiz-refine/doc-references.md`
 
 
-> **詳細ルール（暗記禁止・問題指針・シナリオ選定・wrongFeedback 品質・重複防止・事実正確性チェック・内部一貫性・アンカー指定）は `quality-rules.md` を Read して参照。** 確定値（プラグイン 5 種・CLAUDE.md 4 段階・Hook 26 種・defaultMode 6 値）・既知のアンカー（memory/skills ページ）も同ファイルに収録。
+> **詳細ルール（暗記禁止・問題指針・シナリオ選定・wrongFeedback 品質・重複防止・事実正確性チェック・内部一貫性・アンカー指定）は `quality-rules.md` を Read して参照。** 確定値（プラグインのソース種別・CLAUDE.md のスコープ・Hook イベント・defaultMode）・既知のアンカー（memory/skills ページ）も同ファイルに収録。
 ## Post-Generation Steps（重要）
 
 問題追加後、以下を必ず実行してください：
@@ -218,6 +216,6 @@ node scripts/fetch-docs.mjs --assemble --pages settings,checkpointing,overview,q
 ## Arguments
 
 - `$ARGUMENTS` に数値が指定された場合、その問題数だけ生成（例: `/generate-quiz-data 20` で20問生成）
-- 引数なしの場合は、各カテゴリから均等に計16問（各カテゴリ2問）のサンプルを生成
+- 引数なしの場合は、全カテゴリから2問ずつのサンプルを生成
 - 生成数に応じてカテゴリ比率を維持すること
 - カバレッジの低いドキュメントページを優先的にカバーすること

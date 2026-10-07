@@ -20,7 +20,7 @@ Main Process (`main.ts`) ↔ Preload (`preload.ts`) ↔ Renderer (React)
 例: `electron/recommend-handlers.ts` → `src/infrastructure/recommend/recommendHandlers.ts`
 
 理由:
-- electron ランタイムなしで Vitest からテスト可能になる（`scripts/__tests__/` 参照）
+- electron ランタイムなしで Vitest からテスト可能になる（例: `src/infrastructure/recommend/recommendHandlers.test.ts`）
 - main プロセスがクラッシュしてもロジック自体は再利用できる
 
 ## ハードウェアアクセラレーション

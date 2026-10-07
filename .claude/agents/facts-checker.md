@@ -1,6 +1,6 @@
 ---
 name: facts-checker
-description: Verified Facts（`docs/verified-facts.md`）を公式ドキュメントと照合し、古くなった事実や変更された事実を検出する。`--cross-quiz` 指定時は drift した事実が依存する問題も特定する。定期的な鮮度チェックに使用。Fable 5 推奨（微妙なニュアンスの差異検出 + 1M context での全問横断分析）— 呼び出し時に `model: "fable"` を指定。Fable 5 不可時は Opus（frontmatter 既定）→ Sonnet にフォールバック。
+description: Verified Facts（`docs/verified-facts.md`）を公式ドキュメントと照合し、古くなった事実や変更された事実を検出する。`--cross-quiz` 指定時は drift した事実が依存する問題も特定する。定期的な鮮度チェックに使用。Fable 推奨（微妙なニュアンスの差異検出 + 1M context での全問横断分析）— 呼び出し時に `model: "fable"` を指定。不可時は Opus（frontmatter 既定）→ Sonnet にフォールバック。
 model: opus
 tools: Read, Bash, Grep, Glob
 permissionMode: auto
@@ -96,7 +96,7 @@ ls .claude/tmp/quizzes/ || node scripts/verify-state.mjs diff
 
 **c. 1M context を活かした一括判定**
 
-**必須**: 候補 ID が1つでもヒットしたカテゴリは、そのカテゴリの per-category JSON 全体を Read で context に載せる（部分 Read は禁止、全体像が見えないとクロス判定できない）。複数カテゴリが該当する場合は最低 4 カテゴリ、最大 8 カテゴリ全てをロードする。Opus 4.7 の 1M context なら 8 カテゴリ全問（~500K tokens）+ 主要 docs（~200K tokens）を同時保持可能。
+候補 ID がヒットしたカテゴリは per-category JSON 全体を Read で context に載せる。キーワード grep の周辺だけでは、同じ fact を別の言い方で書いている問題（無言ドリフト・問題間の矛盾）を見落とすため。1M context なら全カテゴリと主要 docs を同時に保持できる。
 
 **判定ステップ**（コンテキストロード後に一度にやる）:
 
@@ -105,7 +105,7 @@ ls .claude/tmp/quizzes/ || node scripts/verify-state.mjs diff
 3. **クロス検証（1M context の主目的）**: 同一 fact について異なる記述をしている問題ペアを洗い出す。例: Q1 が「Opus 4.6 は `max` 専用」、Q2 が「`max` は 4.7/4.6 両方」→ ペアで報告
 4. **無言ドリフト検出**: 候補に入らなかった問題でも、ロード済みコンテキストで引っかかる記述があれば追加報告
 
-**アンチパターン**: カテゴリ JSON を1問ずつ Read する、キーワード grep の結果だけで判定する、候補 ID の周辺だけを確認する。これらは 1M context を活かせていない。
+grep のヒットは候補の洗い出しに使い、判定はロード済みの全文に対して行う。
 
 ### 6. クロスクイズ報告
 
@@ -137,4 +137,4 @@ ls .claude/tmp/quizzes/ || node scripts/verify-state.mjs diff
 `/quiz-refine --force {category1} {category2}` で該当カテゴリを重点検証
 ```
 
-**コスト注意:** Opus 4.7 + 1M context の入力が ~500K tokens に達する場合、1回 ~$7.5。月1回の定期チェックを想定。
+**コスト注意:** クロスクイズモードは入力が数十万トークン規模になるため、月1回の定期チェックを想定する。

@@ -37,7 +37,7 @@
 ## モデル固有機能のスコープ
 
 - エフォートレベル調整（`CLAUDE_CODE_EFFORT_LEVEL`: low/medium/high）は Opus 4.6 **と Sonnet 4.6** の両方でサポート。「Opus 4.6専用」は誤り
-- **エフォートレベルのデフォルトはプラン依存**: Pro/Max=`medium`、その他(API key/Team/Enterprise/Bedrock/Vertex AI/Foundry)=`high`。model-config ページに "Pro and Max subscribers default to medium effort. All other users default to high effort: API key, Team, Enterprise, and third-party provider" と明記。**Team は `high` であり `medium` ではない**
+- （旧記録・L243 と effort 対応全モデルの 2026-07-30 記録で更新済み）**エフォートレベルのデフォルトはプラン依存**: Pro/Max=`medium`、その他(API key/Team/Enterprise/Bedrock/Vertex AI/Foundry)=`high`。model-config ページに "Pro and Max subscribers default to medium effort. All other users default to high effort: API key, Team, Enterprise, and third-party provider" と明記。**Team は `high` であり `medium` ではない**
 - `MAX_THINKING_TOKENS`（非ゼロ値）は Opus 4.8/4.7/4.6・Sonnet 4.6 ではアダプティブ推論中は無視される。**Opus 4.7 / 4.8 は常にアダプティブ推論で動作し `CLAUDE_CODE_DISABLE_ADAPTIVE_THINKING` も適用されない**（model-config.md「Adaptive reasoning and fixed thinking budgets」、2026-05-31 再確認）。Opus 4.6 / Sonnet 4.6 のみ `CLAUDE_CODE_DISABLE_ADAPTIVE_THINKING=1` で固定予算（`MAX_THINKING_TOKENS`）に戻せる
 - **`MAX_THINKING_TOKENS=0` の完全無効化例外は Fable 5 には適用されない**（2026-06-10 確認: 「全モデルで無効化」は stale）。Opus 4.8/4.7/4.6・Sonnet 4.6 では thinking を完全無効化できる
 - **Opus 4.6 の推論機能の正式用語は「adaptive reasoning」** — model-config ページは "Extended Thinking" を使わず "effort levels control Opus 4.6's adaptive reasoning" と表現する。quiz の question/explanation で "Extended Thinking" と書くのは用語の不一致（v4.41.0 bp-018 で修正）
@@ -170,7 +170,7 @@ v4.43.0 以前の known-issues では「exit code 2 の一般ルールで UserPr
 ## 対象の不完全列挙（具体例）
 
 - `Ctrl+B`: "Backgrounds bash commands **and agents**" — 「bash commands」のみの記述は不完全
-- ext-029: Hook のブロッキング対応イベント（Can block = Yes）は11: `PreToolUse`, `UserPromptSubmit`, `PermissionRequest`, `Stop`, `SubagentStop`, `TeammateIdle`, `TaskCompleted`, `ConfigChange`, `WorktreeCreate`, `Elicitation`, `ElicitationResult`。**`PostToolUse` は Can block = No**（ツール実行済みのため exit 2 でも stderr を Claude に表示するだけ）
+- （旧記録・最新は「Hook イベント総数」節の 16 種）ext-029: Hook のブロッキング対応イベント（Can block = Yes）は11: `PreToolUse`, `UserPromptSubmit`, `PermissionRequest`, `Stop`, `SubagentStop`, `TeammateIdle`, `TaskCompleted`, `ConfigChange`, `WorktreeCreate`, `Elicitation`, `ElicitationResult`。**`PostToolUse` は Can block = No**（ツール実行済みのため exit 2 でも stderr を Claude に表示するだけ）
 
 ## multi-select 問題の完全性検証
 
@@ -185,7 +185,7 @@ v4.43.0 以前の known-issues では「exit code 2 の一般ルールで UserPr
 
 ## ドキュメントの例示を完全リストと誤認
 
-- best-practices ページの強調キーワード: ドキュメントは "adding emphasis (e.g., **'IMPORTANT'** or **'YOU MUST'**)" と2例を挙げるだけ。explanation/wrongFeedback に `ALWAYS` `NEVER` を追加してドキュメント推奨と記述するのは拡大解釈
+- best-practices ページの強調キーワード例は「IMPORTANT」のみ（現行 docs に「YOU MUST」は無い。2026-09-16 節参照）。explanation/wrongFeedback に `ALWAYS` `NEVER` `YOU MUST` を足してドキュメント推奨と記述するのは拡大解釈
 - 「e.g.」「for example」「such as」で列挙されているものは例示であり、完全なリストではない。quiz で「ドキュメントが推奨する」と書く場合は実際に記載されている語のみに限定すること
 
 ## スコープ名とパスの混同
@@ -236,7 +236,7 @@ v4.43.0 以前の known-issues では「exit code 2 の一般ルールで UserPr
 
 ## effort level default value
 
-- ses-045とses-102の両方がeffort levelのデフォルト値を"high"と記述していたが、ドキュメント(model-config)では Pro/Max=medium、その他(API key/Team/Enterprise/Bedrock/Vertex AI/Foundry)=high と明記。**Team は medium ではなく high**
+- （旧記録・L243 と effort 対応全モデルの 2026-07-30 記録で更新済み）ses-045とses-102の両方がeffort levelのデフォルト値を"high"と記述していたが、ドキュメント(model-config)では Pro/Max=medium、その他(API key/Team/Enterprise/Bedrock/Vertex AI/Foundry)=high と明記。**Team は medium ではなく high**
 - ses-045 と ses-102 がエフォートレベルを「3段階」(low/medium/high) と記述していたが、docs (model-config page) では第4レベル `max` (Opus 4.6専用、セッション単位、永続化されない) と `/effort auto` (デフォルトリセット) が追加されている。また ses-102 の explanation が設定方法を「3つ」と記述していたが、`/effort` コマンドと `--effort` CLI フラグの追加で4つになっている → generate-quiz-data SKILL.md にエフォートレベルの4段階 + auto、および設定方法4種を明記する
 - key-016, ses-045 のエフォートレベル値が low/medium/high の3つのみで、max と auto が欠落していた → generate-quiz-data SKILL.md にエフォートレベルの5値 (low/medium/high/max/auto) と、設定方法5種（/effort, --effort, env var, settings, /model slider）を明記
 - ses-045 の explanation/wrongFeedback と diagram が「max=Opus 4.6専用」「4段階」と記述していたが、ドキュメント (model-config) では Opus 4.7 にも `max` がサポートされ、さらに `xhigh` (Opus 4.7のみ) が追加されている。Opus 4.7 のデフォルトは `xhigh`。 → known-issues.md の「effort level default value」「モデル固有機能のスコープ」セクションを Opus 4.7 を含む3モデル対応に更新。`max` は3モデルサポート、`xhigh` は Opus 4.7専用、Opus 4.7 のデフォルトは `xhigh`、Opus 4.6/Sonnet 4.6 はプラン依存（Pro/Max=medium、その他=high）
@@ -257,7 +257,7 @@ v4.43.0 以前の known-issues では「exit code 2 の一般ルールで UserPr
 - （旧記録）Hook event types は全 30 種（2026-06-01 hooks.md lifecycle table で再確認）。26→29 で `Setup`・`UserPromptExpansion`・`PostToolBatch`、**29→30 で `MessageDisplay`**（matcher なし・非ブロッキング、"While assistant message text is displayed"）が追加された
 - 全30種: `SessionStart`, `Setup`, `UserPromptSubmit`, `UserPromptExpansion`, `PreToolUse`, `PermissionRequest`, `PermissionDenied`, `PostToolUse`, `PostToolUseFailure`, `PostToolBatch`, `Notification`, `MessageDisplay`, `SubagentStart`, `SubagentStop`, `TaskCreated`, `TaskCompleted`, `Stop`, `StopFailure`, `TeammateIdle`, `InstructionsLoaded`, `ConfigChange`, `CwdChanged`, `FileChanged`, `WorktreeCreate`, `WorktreeRemove`, `PreCompact`, `PostCompact`, `Elicitation`, `ElicitationResult`, `SessionEnd`
 - 追加3種の意味: `Setup`（`--init-only`/`--init`/`--maintenance` 時の一回限り準備）、`UserPromptExpansion`（コマンド展開がプロンプト化される前。展開をブロック可）、`PostToolBatch`（並列ツール呼び出しのバッチ解決後・次のモデル呼び出し前。エージェントループを停止可）
-- ブロッキング可能: 15 イベント（2026-06-02 hooks.md "Can block? = Yes" 実カウントで再確認）: PreToolUse, PermissionRequest, UserPromptSubmit, UserPromptExpansion, Stop, SubagentStop, TeammateIdle, TaskCreated, TaskCompleted, ConfigChange, PostToolBatch, PreCompact, Elicitation, ElicitationResult, WorktreeCreate（旧記録の12には UserPromptExpansion / PostToolBatch / PreCompact が欠落していた）
+- （旧記録・最新は L256 の 16 種）ブロッキング可能: 15 イベント（2026-06-02 hooks.md "Can block? = Yes" 実カウントで再確認）: PreToolUse, PermissionRequest, UserPromptSubmit, UserPromptExpansion, Stop, SubagentStop, TeammateIdle, TaskCreated, TaskCompleted, ConfigChange, PostToolBatch, PreCompact, Elicitation, ElicitationResult, WorktreeCreate（旧記録の12には UserPromptExpansion / PostToolBatch / PreCompact が欠落していた）
 - `PermissionDenied`: auto mode classifier がツール呼び出しを拒否した時。ブロッキング不可だが `{retry: true}` を返すとモデルにリトライを許可できる
 
 ## 2026-09-10 --full スキャンで確定した doc ドリフト（全 61 ページが 2026-08-19 以降更新）
@@ -381,11 +381,7 @@ v4.43.0 以前の known-issues では「exit code 2 の一般ルールで UserPr
 
 ## Lint auto-fix for proper nouns (Git Bash)
 
-- quiz:lint のバッククォート自動修正が "Git Bash" を "Git `Bash`" に変換した。"Git Bash" はプロダクト名であり、ツール名 `Bash` とは異なる → quiz:lint のバッククォート自動修正に "Git Bash" などの固有名詞の例外パターンを追加検討
-- ses-133 で quiz:lint のバッククォート自動修正が "Git Bash" を "Git `Bash`" に変換した。"Git Bash" は Git for Windows に含まれるプロダクト名であり、Claude Code のツール名 `Bash` とは異なる → quiz-lint.mjs のバッククォート自動修正に "Git Bash" などの固有名詞の例外パターンを追加する
-- ses-133 で quiz:lint が "Git Bash" を "Git `Bash`" に変換。"Git Bash" は Git for Windows のプロダクト名でありツール名 `Bash` とは異なる → quiz-lint.mjs のバッククォート自動修正に "Git Bash" の例外パターンを追加
-- ses-133 で quiz:lint のバッククォート自動修正が "Git Bash" を "Git `Bash`" に繰り返し変換している。"Git Bash" は Git for Windows のプロダクト名であり、Claude Code のツール名 `Bash` とは異なる → quiz-lint.mjs のバッククォート自動修正に "Git Bash" の例外パターンを追加する
-- quiz:lint のバッククォート自動修正が "Git Bash" を "Git `Bash`" に変換し続ける。ses-133 で毎回修正が必要。 → quiz-lint.mjs のバッククォート自動修正に "Git Bash" を例外パターンとして追加する
+- "Git Bash" は Git for Windows のプロダクト名でツール名 `Bash` ではない。quiz-lint.mjs のバッククォート自動修正はツール名を含むプロダクト名をスキップする（実装済み）。"Git `Bash`" と書かれていたら誤りとして戻す
 - quiz:lint reported 206 distractor issues (correct-too-long, format-giveaway, distractor-too-short) → Consider a dedicated pass to balance option lengths and add backticks to wrong options
 - quiz:lint reported distractor issues (correct-too-long, format-giveaway, distractor-too-short) → Consider a dedicated pass to balance option lengths and add backticks to wrong options
 - quiz:lint のバッククォート自動修正が毎回 bp-059, bp-061, bp-064 で修正を行う（7 fixes in 3 questions）。これらは `WebFetch` や `Bash` のようなツール名が自由テキスト内で使われるケース → quiz:lint のバッククォート自動修正ルールをより精密にするか、修正済みの結果が保存されるようワークフローを調整
@@ -716,7 +712,7 @@ doc 全面更新（45ページ）で 810 問全件が target 化、pre-lint で 
 - `CLAUDE_CODE_ENABLE_TASKS=0` で TodoWrite を復活可能
 - 旧仕様「TodoWrite は -p フラグと Agent SDK でデフォルト」を正解として扱うのは doc drift（tool-074 で 2026-05-30 検出済み）
 
-## /output-style は現行コマンドとして存在しない（MEMORY 同期 2026-07-22）
+## /output-style コマンドの現状（v2.1.269+ で現存、2026-09-30 訂正）
 
 - ~~`/output-style` は廃止~~ → 2026-09-30: **`/output-style <style>` は v2.1.269+ で現存**（コマンド・`/config`・settings の3手段が並列、推奨順位なし）。旧記述:出力スタイル変更は `/config` → Output style または `settings.json` の `outputStyle` 編集が正式手段（commands.md L18 / output-styles.md）
 - **循環検証トラップ注意**: assembled per-category JSON はクイズ本文（wrongFeedback 等）を含むため、それを「ドキュメント」として事実根拠にしない。事実照合は必ず `docs/<page>.md` 生ファイルを正典とする（key-032 で 2026-06-23 発生）
