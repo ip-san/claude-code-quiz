@@ -490,3 +490,11 @@
 - agent-view: `✻` / `✽` は「実行中または入力待ち」、`∙` は終了済み、`✢` は /loop の待機 — ses-191
 - hipaa-setup（新規ページ）: HIPAA 構成の組織では Claude Code v2.1.285+ / Claude Desktop v2.19675.0+ が必要。クラウドセッション・`/web-setup`・Remote Control などは利用不可、Desktop と Claude in Chrome は既定オフ — ses-263〜265
 
+
+## 2026-10-07 quality-loop 第23回（約10時間分の docs 内容差分 27 ページを判定層 Fable 5 ×1 で追従、1問修正）
+
+- claude-apps-gateway: PostgreSQL は 11 以降（11〜13 はゲートウェイ側の Claude Code v2.1.290+ が必要、保守終了版なので新しい版を推奨）。`store.postgres_url` はホスト1つ、分散 SQL は非対応 — ses-204
+- sessions: 再開時の権限モードは基本的に復元しないが、plan モードで終わったセッションは plan モードで再開する（`--permission-mode` / `--dangerously-skip-permissions` / `--fork-session` 指定時を除く）
+- sub-agents: frontmatter の `effort` はセッションの effort を上書きするが、`CLAUDE_CODE_EFFORT_LEVEL` 環境変数は上書きしない
+- plugins-mods-reference: 新イベント `prompt.mention`（v2.1.290+）。描画の上限は1ツリーあたり先頭100,000文字
+- permission-modes: HIPAA 構成の組織では既定の開始モードが Manual（`default`）

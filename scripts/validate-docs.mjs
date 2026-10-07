@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-import { execSync } from 'child_process'
+import { execFileSync, execSync } from 'child_process'
 /**
  * CLAUDE.md の統計値が実装と一致しているか自動検証
  * npm run docs:validate で実行
@@ -12,8 +12,9 @@ import { execSync } from 'child_process'
  * - referenceUrl の言語チェック
  * - クイズモード数
  */
-import { readdirSync, readFileSync, statSync } from 'fs'
-import { join } from 'path'
+import { readdirSync, readFileSync, rmSync, statSync } from 'fs'
+import { tmpdir } from 'os'
+import { join, resolve } from 'path'
 
 const claudeMd = readFileSync('CLAUDE.md', 'utf8')
 const quizData = JSON.parse(readFileSync('src/data/quizzes.json', 'utf8'))
@@ -85,15 +86,28 @@ const readmeMd = readFileSync('README.md', 'utf8')
 // Skip vitest in pre-commit hooks (SKIP_VITEST=1) for faster commits
 let vitestResult = null
 if (!process.env.SKIP_VITEST) {
+  // vitest 5 の JSON レポーターは結果を stdout ではなくファイルに書く（stdout はその旨の1行のみ）。
+  // stdout を JSON として読んでいたため、vitest 5 移行後はテスト数チェックが黙ってスキップされていた
+  const reportPath = resolve(tmpdir(), `validate-docs-vitest-${process.pid}.json`)
   try {
-    const testOutput = execSync('npx vitest run --reporter=json 2>/dev/null || true', { encoding: 'utf8' })
-    vitestResult = JSON.parse(testOutput)
+    // テスト失敗時も非ゼロ終了するので、終了コードは無視してレポートだけ読む
+    try {
+      execFileSync('npx', ['vitest', 'run', '--reporter=json', `--outputFile=${reportPath}`], { stdio: 'ignore' })
+    } catch {
+      // 非ゼロ終了（テスト失敗）でもレポートは書かれる
+    }
+    vitestResult = JSON.parse(readFileSync(reportPath, 'utf8'))
   } catch {
-    // JSON parse failed
+    // レポートが書かれなかった / JSON parse failed
+  } finally {
+    rmSync(reportPath, { force: true })
+  }
+  if (!vitestResult) {
+    errors.push('Vitest test count: could not read the vitest JSON report')
   }
 }
 try {
-  const testCount = vitestResult?.numPassedTests
+  const testCount = vitestResult?.numTotalTests
   if (testCount) {
     checkCount('Vitest test count', testCount, /Vitest（(\d+)テスト）/)
     // Check all inline "Nテスト" in CLAUDE.md AND README.md
