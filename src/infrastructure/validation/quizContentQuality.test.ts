@@ -235,6 +235,8 @@ const VALID_DOC_PAGES = [
   'plugin-evals',
   'claude-projects',
   'hipaa-setup',
+  // Newly discovered pages (2026-10-11)
+  'auto-mode-classifier-billing',
   // platform.claude.com pages
   'agent-sdk/overview',
   'agents-and-tools/agent-skills/best-practices',

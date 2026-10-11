@@ -233,6 +233,8 @@ export const DOC_PAGES = [
   { name: 'plugins-mods-admin', url: 'https://code.claude.com/docs/en/plugins/mods/admin' },
   // Auto-discovered from llms.txt (2026-10-06)
   { name: 'hipaa-setup', url: 'https://code.claude.com/docs/en/hipaa-setup' },
+  // Auto-discovered from llms.txt (2026-10-11)
+  { name: 'auto-mode-classifier-billing', url: 'https://code.claude.com/docs/en/auto-mode-classifier-billing' },
   // Agent SDK (different domain)
   { name: 'agent-sdk-overview', url: 'https://platform.claude.com/docs/en/agent-sdk/overview' },
   {
@@ -319,6 +321,7 @@ export const CATEGORY_DOC_MAP = {
     'desktop-ios-simulator',
     'claude-projects',
     'hipaa-setup',
+    'auto-mode-classifier-billing',
   ],
   keyboard: [
     'interactive-mode',

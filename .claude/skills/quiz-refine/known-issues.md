@@ -933,3 +933,12 @@ doc 全面更新（45ページ）で 810 問全件が target 化、pre-lint で 
 - 約10時間分の差分（27ページ）は判定層1体で足りた（1問修正: ses-204 の PostgreSQL 要件 14 → 11）
 - **退行を発見**: vitest 5 の JSON レポーターは結果をファイル（`.vitest/json/output.json`）に書き、stdout にはその旨の1行しか出さない。`validate-docs.mjs` が stdout を JSON として読んでいたため、**9/30 の vitest 5 移行以降、テスト数チェックが黙ってスキップされていた** → `--outputFile` で一時ファイルに出して読むよう修正し、読めない場合はエラーにした。判定もテストの成否に左右されないよう `numTotalTests` に変更
 - 高負荷時（ロードアベレージ 30〜40）は `useSwipe` のテストが 5 秒タイムアウトで落ちることがある（負荷由来の一時的な失敗）
+
+
+## 2026-10-11 quality-loop 第24回
+
+- 4 日分の差分は 124 ページ・868 問が影響範囲。ページ別ハンクをカテゴリ（大カテゴリは 2 分割）で 11 体の quiz-verifier（Sonnet）に配り、判定層（Fable 5.1）が docs を再照合して適用する分担で、critical 1 件（ses-222）+ major 16 件を約 15 分で処理できた
+- **モデル追加（Haiku 5.5）は列挙を持つ問題を横断的に古くする**: effort 対応・既定 effort・thinking オフ不可・1M 既定・advisor 順位・auto mode 対応の 6 系統の列挙に同じモデルが抜け、10 問が同時に major になった。モデル追加の changelog を見たら `quiz:search "Opus 5.5 / Sonnet 5.5"` のように**列挙の並びで grep** して一括で追従する
+- **ハンク外の doc ドリフト**: ses-222（routines の上限単位）は今回のハンクに含まれないページ内容で、エージェントが周辺を読んで見つけた。ハンク照合だけでは「変更されていない古い記述」は拾えないので、正解妥当性監査（月次）を省略しない
+- `.claude/tmp/verify_*.json` は前回ループの残骸が混ざると集計を汚す（stale 13 ファイルが混入）。集約前に `verify-targets.json` より古いものを削除する
+- lint の terminology 指摘 `ext-210 allowed_tools → allowed-tools` は不正解選択肢の意図的な誤記（skipWrongOptions 対象）で偽陽性

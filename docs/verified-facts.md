@@ -498,3 +498,22 @@
 - sub-agents: frontmatter の `effort` はセッションの effort を上書きするが、`CLAUDE_CODE_EFFORT_LEVEL` 環境変数は上書きしない
 - plugins-mods-reference: 新イベント `prompt.mention`（v2.1.290+）。描画の上限は1ツリーあたり先頭100,000文字
 - permission-modes: HIPAA 構成の組織では既定の開始モードが Manual（`default`）
+
+
+## 2026-10-11 quality-loop 第24回（docs 内容差分 124 ページ・868 問を quiz-verifier Sonnet ×11 で分担、判定層 Fable 5.1 が再照合して 22 問修正 + 新規ページ auto-mode-classifier-billing で3問・plugins/mods で4問追加）
+
+- model-config: Haiku 5.5（`claude-haiku-5-5`、`haiku` は v2.1.293+ で Haiku 5.5 に解決）は effort `low`〜`max` に対応し既定は `medium`（Opus 5.5 / Sonnet 5.5 と同じ）。常にアダプティブ推論で、`MAX_THINKING_TOKENS=0` / `alwaysThinkingEnabled: false` でも thinking をオフにできない。1M は全プラン既定だが、100K トークン超のプロンプトは単価が上がる（200K 超プレミアムなしの唯一の例外）— ses-045 / ses-102 / ses-044 / ses-105 / bp-018 / key-016 / cmd-104 / cmd-006 / cmd-059 / cmd-065
+- advisor: Haiku 5.5 はメインにも advisor にもなれる（v2.1.293+）。順位は Sonnet 5 と同列。Haiku 4.5 は advisor を呼べるが advisor 役にはなれない — bp-101 / bp-102
+- feature-availability / permission-modes: サードパーティプロバイダの auto mode 対応モデルは Sonnet 5 以降・Opus 4.7 以降・Haiku 5.5（v2.1.293+）・Fable — ses-199
+- routines: 上限は「1日あたり」ではなく「1時間あたり」（スケジュール実行・ワンオフ実行をまとめてアカウント単位で 100 回/時、Run now と API はそれぞれ別枠で 100 回/時）。ワンオフ実行も上限に数える — ses-222（正解が選択肢に存在しない状態だった）
+- mobile: Remote Control セッションの権限モードは Manual / Accept edits / Plan / Auto の4つ（Auto が追加）。Bypass permissions はクラウドセッション・Remote Control のどちらでも選べない — ses-207
+- feature-availability: Web 検索が使えないのは Amazon Bedrock のみ。Claude Platform on AWS と Microsoft Foundry は ✓、Google Cloud's Agent Platform は Claude 4 以降 — ses-230
+- github-enterprise-server: 貢献メトリクスは GHES 非対応（github.com のリポジトリが前提）。接続後に `admin-settings/claude-code` で有効化するのは Code Review のみ — cmd-119
+- hooks: exit code 2 でもスキーマ検証を通った JSON の出力フィールドは読まれるが、ブロックを上書きできない（`permissionDecision: "allow"` でも通らない）— ext-018
+- hooks: `CLAUDE_ENV_FILE` は SessionStart・Setup・CwdChanged・FileChanged の各フックで利用可（PowerShell で実行するフックは不可）— ext-022
+- model-config: サードパーティでピン留めした ID が 1M ネイティブのモデル（Opus 4.8 / Sonnet 5 など）に一致すれば `[1m]` なしで 1M。`[1m]` が必要なのは Opus 4.6 / Sonnet 4.6 のように `[1m]` バリアント経由で 1M になるモデル。一致しない ID は 200K — ext-097
+- best-practices: 中断を減らす手段の構造は「組み込み開始モードの auto mode」+「Manual モードの中断を減らし auto mode でも併用できる2つのツール（許可リスト・サンドボックス）」。「3つの方法」とは数えていない — bp-080
+- self-hosted-environments-quickstart: バージョン確認は `claude self-hosted-runner --help`。v2.1.224 より古いと汎用の `claude --help` が出る — ses-236
+- auto-mode-classifier-billing（新規ページ）: サーバー側の分類器チェックが届かないセッションでは通知が出て最初のチェック対象アクションを保留。Enter で続行（自前の分類器リクエスト・トークン課金、そのセッションでは再表示なし。ゲートウェイ名が出た場合はそのマシンで 24h 抑止）、Esc / Ctrl+C で取り消し（何も記憶しない）。`-p` では stderr、`stream-json` では `system` の warning。恒久対応はゲートウェイに `safeguards` / `safeguard_results` を素通しさせること。`CLAUDE_CODE_AUTO_MODE_SERVER=0` は回避策で一時的な設定 — ses-266 / ses-267 / cmd-136
+- plugins/mods/api: `$.model.complete` は自分の prompt だけ・指定モデル・CLAUDE.md なし、`$.model.fork` は会話 + CLAUDE.md を含みセッションのモデル・ツール定義は含むがモデルは呼べない。登録ツールの完全名は `mcp__<plugin>__<name>` で `tool.call` で処理。`$.process.run` は引数リスト・シェルなし・非ゼロ終了でも解決・起動不可とタイムアウト（既定 30 秒、最長 10 分）で reject — ext-235 / ext-236 / ext-237
+- plugins/mods/reference: `SendMessage` によるサブエージェント再開では `agent.spawn` は再発火しない。止めるには `tool.call` で `SendMessage` を一致させる — ext-238
