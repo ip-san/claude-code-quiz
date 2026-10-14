@@ -942,3 +942,29 @@ doc 全面更新（45ページ）で 810 問全件が target 化、pre-lint で 
 - **ハンク外の doc ドリフト**: ses-222（routines の上限単位）は今回のハンクに含まれないページ内容で、エージェントが周辺を読んで見つけた。ハンク照合だけでは「変更されていない古い記述」は拾えないので、正解妥当性監査（月次）を省略しない
 - `.claude/tmp/verify_*.json` は前回ループの残骸が混ざると集計を汚す（stale 13 ファイルが混入）。集約前に `verify-targets.json` より古いものを削除する
 - lint の terminology 指摘 `ext-210 allowed_tools → allowed-tools` は不正解選択肢の意図的な誤記（skipWrongOptions 対象）で偽陽性
+
+
+## 2026-10-13 quality-loop 第25回
+
+- 2 日分の差分（25 ページ・約 310 行・参照 239 問）は判定層 1 体がハンクを直接読んで照合できる規模だった（約 46KB）。エージェントを起動せず、キーワード一致（`CLAUDE_CONFIG_DIR` / auto-allow / ジッター / `WorktreeCreate` / Task ツール等）で影響候補を絞ってから文脈を確認する手順で、矛盾なし・文言追従 3 問（key-010 / key-012 / ses-230）
+- docs は「Claude 3.x、Opus 4〜4.7、Sonnet 4〜4.6、Haiku 4.5」「Claude 4 以降」のような世代表現を、「Opus 4.7 / Sonnet 4.6 / Haiku 4.5 とそれ以前」「Opus 4 / Sonnet 4 / Haiku 4.5 以降」のように**具体的なモデル名の列挙**へ書き換える傾向にある。意味は同じなので事実誤りではないが、問題文は docs の表現に揃えておくと次回の照合が楽になる
+- scheduled-tasks のジッター規則が変わった（`*/5 * * * *` は遅延なしで 15 秒早く発火、不均等間隔は毎回ばらつく、上限 30 分）。この規則を問う問題はまだ無いので影響なし。作るなら「規則を暗記させる」より「なぜ `/loop 5m` が 4 分 45 秒後に動くのか（プロンプトキャッシュ 5 分 TTL）」を問う
+- sandboxing の auto-allow に例外が明文化された（`FOO=bar npm test` / `make CC=clang` / `eval "ls"` は通常の権限フローへ。allow ルールは完全一致で書く）。tool-030 / 032 / 043 / 095 / 098 に「常に無確認」という断定はなく影響なし
+
+
+## 2026-10-14 quality-loop 第26回
+
+- **docs:fetch の TTL（24h）に注意**: 前回ループから 16 時間後に実行したら 168/169 ページがキャッシュ扱いで `docs:changes` が 0 件になった。`node scripts/fetch-docs.mjs --force` で再取得すると 45 ページの差分があった。日次ループでは `--force` を既定にする（または TTL を 12h に下げる）
+- 1 日分でも 45 ページ・132KB のハンクになることがある。判定層 1 体で 3 分割読みで照合できた（約 50k トークン）。先に「数値・モデル名・所要時間・対応 OS・削除された段落」を抽出してから `quiz:search` 相当のキーワード一致で候補を絞ると、417 問中 5 問に収束した
+- **バージョン履歴の削除パターン**: docs は「Before v2.1.2xx ...」の履歴文を大量に削除している（今回 25 箇所以上）。履歴に依存した問題（ses-199 の `CLAUDE_CODE_ENABLE_AUTO_MODE`）は正解自体が docs で裏取りできなくなるので、現行仕様だけで成立する構成に組み替える。新規作成時は「v2.1.2xx 以降は不要になった」型の問いを避ける
+- **所要時間・上限値は変わりやすい**: ultrareview 5〜10 分 → 15〜25 分、MCP 説明上限 2,048 → 4,096/16,384。数値を正解にする問題は定期的に揺れるので、距離のある distractor（例: 「数秒」vs「15〜25 分」）にしておくと小さな改定で壊れない
+- self-review スキルのコマンドが 2 箇所失敗する（チェック 4 の `grep -v '^\+\+\+'` は `ugrep` エイリアスで、チェック 18 の `\u` エスケープは ugrep でも BSD grep（`command grep -P` は非対応）でも）。実際に通った代替: チェック 4 → `command grep -Fv -- '+++'`、チェック 18 → `rg -n "'[^']*[\p{Hiragana}\p{Katakana}\p{Han}][^']*'" src/components/ -g '*.tsx' -g '!*.test.*'`。SKILL.md の移植性改善は別タスク
+
+
+## 2026-10-14 quality-loop 第27回
+
+- 同日 2 回目のループ。第26回の `verify:save`（12:31）から 40 分後でも `--force` 再取得で 8 ページ・104 行の差分（interactive-mode の You should know 新節 54 行が大半）があった。docs は日内でも更新されるので `--force` を既定にする判断は正しい
+- 8 ページ・11KB のハンクは判定層 1 体がキーワード一致（you-should-know / suspect capture / unprocessable / Auto-edited / DISABLE_FILE_MENTIONS / exit 0）→ 候補 13 問の全文確認で 10 分以内に照合できた。矛盾 0。既存問題が無い新概念は「追従」ではなく「追加」（ステップ2）として扱う
+- `docs:status` の `[EMPTY] ultraplan (0.9KB, too small)` は偽陽性。ページは「Ultraplan is no longer available」の短い案内で正常。ses-183 / ses-184 は削除済みであることを問う構成で整合。fetch スクリプトの最小サイズ判定を下げるか除外リストに入れるのは別タスク
+- 新規作成時の選択肢長: 正解を「コマンド + 条件」の 2 文にすると 120 字前後になり、不正解側を同等以上に伸ばす必要が出る。先に不正解を書いてから正解を削る方が速い（今回 3 問で TOO LONG → 修正）
+- `quiz:post-add` は `check-diagram-text` を含まないため、flow の `text`+`sub` 分割違反（15 字超の text がかな・漢字で終わり sub がかな・漢字で始まる）は `check:all` まで検出されない。新規 flow は `sub` を使わず `text` に括弧で畳む（第26回 ses-120 と同じ形）か、追加直後に `node scripts/quiz-utils.mjs check-diagram-text` を単独で回す

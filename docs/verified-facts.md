@@ -517,3 +517,46 @@
 - auto-mode-classifier-billing（新規ページ）: サーバー側の分類器チェックが届かないセッションでは通知が出て最初のチェック対象アクションを保留。Enter で続行（自前の分類器リクエスト・トークン課金、そのセッションでは再表示なし。ゲートウェイ名が出た場合はそのマシンで 24h 抑止）、Esc / Ctrl+C で取り消し（何も記憶しない）。`-p` では stderr、`stream-json` では `system` の warning。恒久対応はゲートウェイに `safeguards` / `safeguard_results` を素通しさせること。`CLAUDE_CODE_AUTO_MODE_SERVER=0` は回避策で一時的な設定 — ses-266 / ses-267 / cmd-136
 - plugins/mods/api: `$.model.complete` は自分の prompt だけ・指定モデル・CLAUDE.md なし、`$.model.fork` は会話 + CLAUDE.md を含みセッションのモデル・ツール定義は含むがモデルは呼べない。登録ツールの完全名は `mcp__<plugin>__<name>` で `tool.call` で処理。`$.process.run` は引数リスト・シェルなし・非ゼロ終了でも解決・起動不可とタイムアウト（既定 30 秒、最長 10 分）で reject — ext-235 / ext-236 / ext-237
 - plugins/mods/reference: `SendMessage` によるサブエージェント再開では `agent.spawn` は再発火しない。止めるには `tool.call` で `SendMessage` を一致させる — ext-238
+
+
+## 2026-10-13 quality-loop 第25回（docs 内容差分 25 ページを判定層 Fable 5.1 ×1 で追従、3問の文言追従）
+
+- tools-reference / interactive-mode: タスク追跡ツールが既定で提供されるのは「Opus 4.7、Sonnet 4.6、Haiku 4.5 とそれ以前のモデル」（旧表現「Claude 3.x、Opus 4〜4.7、Sonnet 4〜4.6、Haiku 4.5」と同義）— key-010 / key-012
+- feature-availability / tools-reference: Google Cloud's Agent Platform の Web 検索は「Opus 4、Sonnet 4、Haiku 4.5 以降」（旧「Claude 4 以降」）— ses-230
+- scheduled-tasks: 繰り返しタスクは次の実行までの間隔の半分・最大 30 分の範囲で遅れて実行。例外は `*/5 * * * *`（`/loop 5m` が作る）で、遅延なしに前回の 4 分 45 秒後に発火（5 分のプロンプトキャッシュが切れる前に始めるため）。等間隔なら毎回同じ分数、不均等なら毎回ばらつく
+- sandboxing: auto-allow モードでも `FOO=bar npm test`・`make CC=clang`・`eval "ls"` のような、先頭の変数代入や引数でプログラムが変わり得るコマンドは通常の権限フローに回る。止めるには `Bash(FOO=bar npm *)` のように代入を含めた allow ルール、`eval` はワイルドカードではなく完全一致。allow ルールは unsandboxed retry も承認する
+- debug-your-config: クリーン構成での再現手順は `CLAUDE_CONFIG_DIR=~/claude-clean/config claude --setting-sources user`（`--setting-sources user` でプロジェクト設定を切る。旧 `cd /tmp && CLAUDE_CONFIG_DIR=/tmp/claude-clean claude` は削除）
+- desktop: `disableDesktopLocalSessions`（Desktop v1.37937.0+）+ `sshConfigs` + `sshHostAllowlist` を同じ managed source に置くとローカルセッションを止めて SSH 先を限定できる。CLI・Cowork・クラウドセッションには影響しない。`sshHost` に `user@` を省くと `~/.ssh/config` の `User` か自分のユーザー名で接続
+- hooks: WorktreeCreate は `claude --worktree` / `EnterWorktree` ツール / `isolation: "worktree"` のサブエージェント / workflow のエージェント / バックグラウンドセッション / `claude remote-control` の `worktree` モードで発火。Claude が Bash で `git worktree add` を打った場合は発火しない（`PreToolUse` の `Bash` matcher で捕まえる）。サブエージェント・workflow エージェントの worktree は WorktreeRemove を走らせず残す
+- remote-control: `--spawn worktree` は git リポジトリまたは `WorktreeCreate` フックが必要（旧「git リポジトリが必要」のみ）
+- errors: Anthropic credential profile の期限切れメッセージは `user_oauth` で発見されたプロファイルなら `Login expired · Run /login to sign in again, or re-authenticate your Anthropic profile`（v2.1.277+）、`ANTHROPIC_PROFILE` で選んだ場合は `Anthropic profile login expired` で始まる
+- plugins-marketplace-reference / errors: 偽装名で拒否されたマーケットプレイスの削除はプラグインの data・options・secrets も消す。`"source": "settings"` でインライン宣言したものは先に `extraKnownMarketplaces` のキーと `source.name` を改名してから旧名を削除（v2.1.292+ はメッセージに手順が出る）
+- plugins-mods-reference: 新イベント `prompt.autocomplete`（`e.token` に対して `{ suggestions }` を返す。Claude Code 自身の候補行の下に表示）
+- llm-gateway: アダプティブ推論（`thinking: {"type": "adaptive"}`）を送るのは Opus 4.6・Sonnet 4.6・Haiku 5.5・Fable 5 以降
+
+
+## 2026-10-14 quality-loop 第26回（docs 内容差分 45 ページ・417 問を判定層 Fable 5.1 ×1 で追従、5問修正）
+
+- ultrareview: 所要時間は「15〜25分」（旧 5〜10分）。ローカルの `/review` は数秒〜数分 — cmd-118
+- desktop: SSH セッションのリモートマシンは Linux・macOS に加えて Windows（Claude Desktop v2.31226.0+、Microsoft の OpenSSH Server。ターミナル・サンドボックス・プラグイン・worktree 配置などに制限）。macOS / Linux の Desktop は OpenSSH クライアント経由で `~/.ssh/config`（`ProxyJump` 等）を使う（v1.37937.0+）。SSH セッションのタスクは Desktop 切断中も継続するが、Claude アカウントではサインイン期限切れで止まり得る（v2.31226.0+） — ses-120
+- mcp: ツール検索は Opus 4 / Sonnet 4 / Haiku 4.5 以降で使われる（Google Cloud's Agent Platform では Opus 4.5 / Sonnet 4.5 / Haiku 4.5 以降）。旧「`tool_reference` 対応モデル（Sonnet 4.5 / Haiku 4.5 / Opus 4.5 以降）」は削除。古いモデルでは `ENABLE_TOOL_SEARCH=true` でも全ツール事前ロード — ext-024 / tool-038
+- mcp / env-vars: ツール説明・サーバー指示の既定上限は 4,096 文字（事前ロードするツール・サーバー指示）と 16,384 文字（ツール検索で読み込むツールの説明）。`CLAUDE_CODE_MAX_MCP_DESCRIPTION_LENGTH` は両方の上限を置き換える。v2.1.296 より前は 2,048 文字
+- mcp: 完全名 `mcp__<server>__<tool>` が 128 文字を超えるツールは Claude に送られない（v2.1.292+。以前は API が 400 で全リクエストを拒否）。stdio サーバー停止は macOS/Linux で SIGINT → 100ms 後 SIGTERM → さらに 400ms 後 SIGKILL。`-p` / SDK では HTTP/SSE の再接続 5 回失敗後も約 30 分バックグラウンドで再試行
+- permission-modes / feature-availability: `CLAUDE_CODE_ENABLE_AUTO_MODE`（v2.1.158〜v2.1.206 の要件）の履歴記述はこの 2 ページから削除。現行は「対応モデル以外は Manual で開始」のみ。env-vars には「古いリリースとの互換性のため受理されるが効果なし（Auto Mode は全プロバイダで既定利用可）」として残っている — ses-199（環境変数の履歴に依存しない構成に変更。「効果なし」は env-vars で裏取り）
+- settings-reference / env-vars: `idleCompaction`（既定 true、v2.1.290+）— 1 時間 TTL の会話をアイドル約 54 分でキャッシュ失効前に圧縮。しきい値は `CLAUDE_CODE_IDLE_COMPACT_MIN_TOKENS`（既定 200,000、下限 100,000）。`DISABLE_AUTO_COMPACT=1` / `autoCompactEnabled: false` で一緒にオフ。`PreCompact` の `trigger` は `auto`
+- errors / env-vars: `CLAUDE_CODE_OVERLOADED_RETRY_MAX_DELAY_MS`（529 のバックオフ上限、既定 32000、32000〜64000、v2.1.296+）。`Failed to fetch session from Sessions API`（teleport の履歴取得失敗、v2.1.296+ は再試行）。クラウドセッションのポリシー失敗は `Cloud sessions aren't available:` で原因を明示、API キー使用時は `Cloud sessions use your claude.ai login`
+- routines: API トリガーのトークンは **Delete token**（アクセス停止）/ **Regenerate**（ローテーション）。スケジュール / Run now の実行は新規アーティファクトを確認なしで公開できる（ランタイム capability を宣言する場合は確認）。API / GitHub トリガーの実行は常に確認
+- sandboxing / permissions: `Read(path)` の deny ルールは貼り付けた画像パスと @ メンションしたディレクトリ一覧にも適用（v2.1.290+）
+- sub-agents / skills: Explore / Plan と `omitClaudeMd` のサブエージェントでも、作業中のサブディレクトリの CLAUDE.md とパス指定ルールは読み込まれる。サブエージェントの自動圧縮は自分のコンテキストウィンドウが埋まるときに発動
+- tools-reference: `TaskOutput` は v2.1.277 で削除（出力ファイルを `Read` で読む）
+- plugins-dependencies: claude.ai から読み込んだ `<name>@synced` プラグインは、同名の claude.ai プラグインでも marketplace 依存を満たせる（依存元も claude.ai 読み込みの場合のみ）
+
+
+## 2026-10-14 quality-loop 第27回（docs 内容差分 8 ページ・139 問を判定層 Fable 5.1 ×1 で追従、矛盾なし・新概念 5 問追加）
+
+- interactive-mode / plugins-mods-overview: 「You should know」は既定オフの組み込み mod（v2.1.287+）。`/plugin enable cc-plugin-you-should-know@builtin` で有効化。サイドエージェントは同じモデルへの別リクエストでツールなし（ファイルを読めず Claude の動作も変えない）。claude.ai アカウント / Console API キーの直接接続でのみ `/plugin` に表示され、LLM ゲートウェイ / Claude apps gateway / `apiKeyHelper` 経由、feature flag を取得しないセッション（`DISABLE_TELEMETRY` 等）、インストール・アップグレード直後の初回セッションでは表示されない。チェックは利用上限 / API 料金に計上。会話部分はプロンプトキャッシュから、mod の指示（数千トークン）とサイドエージェントの返答は毎回全額課金。メモの選択肢は Learn more（→ Understood / Chat in main session / Dismiss）/ Knew this already / Dismiss。メインエージェントは Chat in main session で送らない限りメモを見ない。メモと既知トピックは `~/.claude/plugins/store/` 配下の `cc-plugin-you-should-know` で始まるファイルに保存（`cleanupPeriodDays` で削除）。`CLAUDE_CODE_YOU_SHOULD_KNOW_DEBUG=1` で直近 3 回のチェックを表示 — cmd-137 / ext-239
+- hooks: コマンドフックがバックグラウンドプロセスを起動する場合の例外。非同期でないフックはフック自身のプロセス終了直後に読み取り終了するため、バックグラウンド側が後から出す deny はブロックしない。allow を出した後に stdout/stderr をリダイレクトせずにバックグラウンドプロセスを起動すると `refusing to honor the suspect capture` でツール呼び出しがブロックされる（終了コード 0 で続行の例外）。正しい形は `policy-check.sh || exit $?` → `upload-metrics.sh >/dev/null 2>&1 &` — ext-240
+- errors: `API Error: 400 Request rejected as unprocessable by the model (too many or oversized images, or unsupported parameters)`。Claude Code は最も古い画像・文書を取り除いて再送できる（v2.1.290 より前は取り除かず毎ターン失敗し得た）。続くなら Esc 2 回で画像を追加したターンより前へ戻るか `/clear` — bp-131
+- env-vars / settings-reference: `CLAUDE_CODE_DISABLE_FILE_MENTIONS=1`（v2.1.299+）で `@` メンションの展開を止め、Claude にはパスと「ファイルツールで読むように」のメモだけが渡る。プロジェクト / ローカル設定の `env` では無視される — tool-099
+- plugins-mods-overview: mod のフックは Amazon Bedrock / Google Cloud's Agent Platform / Microsoft Foundry どのプロバイダ経由でも、プラグインを読み込むあらゆるセッションで動く（描画はターミナルと Desktop のみ）
+- artifacts: コメントスレッドへの自動対応は「Claude が読んで返信する」のみに縮小（`Auto-replied to comment thread on Artifact: <name>`）。「コメントの依頼に応じてアーティファクトを編集する / `Auto-edited Artifact:`」の記述は削除。ses-193 の「artifact コメントへの自動返信」は agent-view ページの記述で影響なし
