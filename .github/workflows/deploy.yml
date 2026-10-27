@@ -40,8 +40,34 @@ jobs:
         if: matrix.task == 'validate'
         run: node scripts/quiz-utils.mjs check && node scripts/quiz-utils.mjs check-ellipsis && node scripts/quiz-utils.mjs check-diagram-text && node scripts/validate-docs.mjs && node scripts/validate-docs-links.mjs
 
-  build:
+  # E2E against a fresh build of this commit. Visual Regression snapshots are
+  # macOS-only (*-darwin.png), so CI runs the functional and a11y projects and
+  # visual stays in the local `bun run test:e2e`.
+  e2e:
     needs: check
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+      - uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: latest
+      - run: bun install --frozen-lockfile
+      - run: bunx playwright install --with-deps chromium
+      # No VITE_GTM_ID: E2E must never send events to production GA4
+      - run: bun run build:web
+      - run: bunx playwright test --project=chromium --project=a11y
+      - name: Upload Playwright report
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: playwright-report
+          path: |
+            playwright-report
+            test-results
+          retention-days: 7
+
+  build:
+    needs: [check, e2e]
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v6
@@ -58,7 +84,7 @@ jobs:
       # On failure, annotate the commit so it's visible in GitHub UI
       - name: Annotate failure
         if: failure()
-        run: echo "::error::check:all or build:web failed. Check logs above."
+        run: echo "::error::build:web failed. Check logs above."
 
   deploy:
     needs: build
