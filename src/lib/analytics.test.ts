@@ -158,6 +158,38 @@ describe('reportError', () => {
   })
 })
 
+describe('automated browser guard', () => {
+  afterEach(() => {
+    vi.unstubAllEnvs()
+    vi.unstubAllGlobals()
+    vi.resetModules()
+    delete window.dataLayer
+    document.head.querySelectorAll('script[src*="googletagmanager"]').forEach((s) => s.remove())
+  })
+
+  it('disables analytics when navigator.webdriver is true (E2E must not reach production GA4)', async () => {
+    vi.stubEnv('VITE_GTM_ID', 'GTM-TEST')
+    vi.stubGlobal('navigator', { ...navigator, webdriver: true })
+    vi.resetModules()
+    const { initGTM, isAnalyticsEnabled, setUserProperties } = await import('./analytics')
+
+    expect(isAnalyticsEnabled).toBe(false)
+    initGTM()
+    setUserProperties({ mastery_level: 'bronze' })
+    expect(window.dataLayer).toBeUndefined()
+    expect(document.head.querySelector('script[src*="googletagmanager"]')).toBeNull()
+  })
+
+  it('keeps analytics enabled in a regular browser', async () => {
+    vi.stubEnv('VITE_GTM_ID', 'GTM-TEST')
+    vi.stubGlobal('navigator', { ...navigator, webdriver: false })
+    vi.resetModules()
+    const { isAnalyticsEnabled } = await import('./analytics')
+
+    expect(isAnalyticsEnabled).toBe(true)
+  })
+})
+
 describe('setUserProperties', () => {
   afterEach(() => {
     vi.unstubAllEnvs()

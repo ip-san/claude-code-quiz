@@ -117,10 +117,11 @@ try {
       .map((f) => [join('docs', f), readFileSync(join('docs', f), 'utf8')])
     for (const [file, content] of [['CLAUDE.md', claudeMd], ['README.md', readmeMd], ...docsEntries]) {
       // Per-match context check so "Playwright E2E（120テスト）" isn't mistaken for a stale Vitest count
-      for (const match of content.matchAll(/(\d+)テスト/g)) {
+      const scanned = stripIgnoredLines(content)
+      for (const match of scanned.matchAll(/(\d+)テスト/g)) {
         const n = parseInt(match[1])
         const idx = match.index ?? 0
-        const before = content.slice(Math.max(0, idx - 30), idx)
+        const before = scanned.slice(Math.max(0, idx - 30), idx)
         const isE2EContext = /(E2E|Playwright|Visual Regression)/.test(before)
         if (isE2EContext) continue
         if (n > 100 && Math.abs(n - testCount) > 1) {
@@ -322,9 +323,7 @@ const _knownCounts = {
  * A line containing "validate-docs:ignore-next-line" is dropped together with
  * the line that follows it. Use for historical records whose numbers are
  * intentionally frozen (they would otherwise be auto-rewritten every time the
- * quiz count changes). Note: exemption only prevents flagging; if the same
- * stale number also appears in non-exempt text, the replaceAll auto-fix still
- * rewrites all occurrences in the file.
+ * quiz count changes). The --fix pass skips the same lines (replaceOutsideIgnored).
  */
 function stripIgnoredLines(content) {
   const lines = content.split('\n')
@@ -342,6 +341,25 @@ function stripIgnoredLines(content) {
     kept.push(line)
   }
   return kept.join('\n')
+}
+
+/** replaceAll that leaves lines exempted by "validate-docs:ignore-next-line" untouched */
+function replaceOutsideIgnored(content, from, to) {
+  let skipNext = false
+  return content
+    .split('\n')
+    .map((line) => {
+      if (skipNext) {
+        skipNext = false
+        return line
+      }
+      if (line.includes('validate-docs:ignore-next-line')) {
+        skipNext = true
+        return line
+      }
+      return line.replaceAll(from, to)
+    })
+    .join('\n')
 }
 
 /**
@@ -433,7 +451,7 @@ if (process.argv.includes('--fix') && autoFixes.length > 0) {
       if (fix._replaceAll) {
         // Simple global string replacement (e.g. "378テスト" → "389テスト", "638問" → "658問")
         const suffix = fix._suffix || 'テスト'
-        content = content.replaceAll(`${fix.old}${suffix}`, `${fix.new}${suffix}`)
+        content = replaceOutsideIgnored(content, `${fix.old}${suffix}`, `${fix.new}${suffix}`)
       } else {
         const regex = new RegExp(fix.pattern.source.replace('(\\d+)', String(fix.old)))
         const replacement = fix.pattern.source

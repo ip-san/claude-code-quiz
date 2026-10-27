@@ -12,8 +12,15 @@ import { isElectron } from './platformAPI'
 // Vite の環境変数から GTM ID を取得
 const GTM_ID = import.meta.env.VITE_GTM_ID as string | undefined
 
+/**
+ * 自動化されたブラウザ（Playwright の E2E / Visual Regression、Lighthouse CI など）かどうか。
+ * ローカルの .env に本番 GTM ID があるとプレビュー上の E2E が本番 GA4 に送信され、
+ * 端末エミュレーションのアクセスが実ユーザーとして集計されてしまう
+ */
+const isAutomatedBrowser = typeof navigator !== 'undefined' && navigator.webdriver === true
+
 /** アナリティクスが有効かどうか */
-export const isAnalyticsEnabled = !!GTM_ID
+export const isAnalyticsEnabled = !!GTM_ID && !isAutomatedBrowser
 
 /** プラットフォーム識別子（全イベントに自動付与） */
 const PLATFORM = isElectron ? 'electron' : 'pwa'
