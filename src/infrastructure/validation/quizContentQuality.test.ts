@@ -130,6 +130,12 @@ const VALID_DOC_PAGES = [
   'security',
   // Features (new)
   'code-review',
+  'code-review-local',
+  'code-review-setup',
+  'code-review-customize',
+  'code-review-pull-requests',
+  'code-review-costs',
+  'code-review-troubleshooting',
   'troubleshooting',
   'troubleshoot-install',
   // Supplementary

@@ -235,6 +235,13 @@ export const DOC_PAGES = [
   { name: 'hipaa-setup', url: 'https://code.claude.com/docs/en/hipaa-setup' },
   // Auto-discovered from llms.txt (2026-10-11)
   { name: 'auto-mode-classifier-billing', url: 'https://code.claude.com/docs/en/auto-mode-classifier-billing' },
+  // Auto-discovered from llms.txt (2026-10-17)
+  { name: 'code-review-local', url: 'https://code.claude.com/docs/en/code-review-local' },
+  { name: 'code-review-setup', url: 'https://code.claude.com/docs/en/code-review-setup' },
+  { name: 'code-review-customize', url: 'https://code.claude.com/docs/en/code-review-customize' },
+  { name: 'code-review-pull-requests', url: 'https://code.claude.com/docs/en/code-review-pull-requests' },
+  { name: 'code-review-costs', url: 'https://code.claude.com/docs/en/code-review-costs' },
+  { name: 'code-review-troubleshooting', url: 'https://code.claude.com/docs/en/code-review-troubleshooting' },
   // Agent SDK (different domain)
   { name: 'agent-sdk-overview', url: 'https://platform.claude.com/docs/en/agent-sdk/overview' },
   {

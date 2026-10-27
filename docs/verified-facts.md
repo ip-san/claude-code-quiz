@@ -560,3 +560,39 @@
 - env-vars / settings-reference: `CLAUDE_CODE_DISABLE_FILE_MENTIONS=1`（v2.1.299+）で `@` メンションの展開を止め、Claude にはパスと「ファイルツールで読むように」のメモだけが渡る。プロジェクト / ローカル設定の `env` では無視される — tool-099
 - plugins-mods-overview: mod のフックは Amazon Bedrock / Google Cloud's Agent Platform / Microsoft Foundry どのプロバイダ経由でも、プラグインを読み込むあらゆるセッションで動く（描画はターミナルと Desktop のみ）
 - artifacts: コメントスレッドへの自動対応は「Claude が読んで返信する」のみに縮小（`Auto-replied to comment thread on Artifact: <name>`）。「コメントの依頼に応じてアーティファクトを編集する / `Auto-edited Artifact:`」の記述は削除。ses-193 の「artifact コメントへの自動返信」は agent-view ページの記述で影響なし
+
+
+## 2026-10-17 quality-loop 第28回（docs 内容差分 73 ページ・634 問を quiz-verifier ×7 + 判定層で追従、critical 1 / major 3 / minor 9 修正、code-review 新 6 ページで 8 問追加）
+
+- code-review はページ分割された: 本体（How reviews work / Review levels / What a review can access / Compare ways / Availability / Who controls a review）+ code-review-local / -setup / -customize / -pull-requests / -costs / -troubleshooting。既存 ext-155〜162 / cmd-118 / cmd-128 の referenceUrl を新ページのアンカーへ移動
+- code-review-customize: `REVIEW.md` はルートに加えてサブディレクトリにも置ける（そのパス配下の変更向けチェックを追加）。読み込み元は PR のベースブランチかデフォルトブランチで、PR 自身の変更からは決して読まない。内容は既定のレビュー指針に加えて渡され、パス・問題クラスの除外や重大度引き下げは可能。ローカルの `/code-review` は CLAUDE.md を読み REVIEW.md は読まない — ext-157（旧不正解「サブディレクトリごとに配置できる」が事実化したため選択肢を差し替え）
+- code-review-costs: レビューごとの固定価格はない（旧「平均 $15-25」は削除）。コストはレビューレベル・変更サイズ・周辺コードの複雑さ・検証候補数で変動。usage credits（旧 Extra Usage）で組織に請求（PR 作成者ではない）。Average cost 列（Admin settings > Claude Code > Code review > Repositories）× 月間 PR 数（After every push ならプッシュ数も）で見積もる。月次上限は claude.ai/admin-settings/usage。Code Review 上限・組織上限・credits 残高のどれかが尽きるか残りが 1 回分の想定コスト未満でスキップ。ダッシュボード（claude.ai/analytics/code-review）は定価推計で請求額と異なり得る — ext-161 / bp-132
+- code-review-pull-requests: 重大度は Important / Nit の 2 段階。推論が記録された指摘には折りたたみ「Why this was flagged」（旧 Extended Reasoning）。check run は neutral か skipped で終わり failure にならない。Details 末尾の `bughunter-severity: {...}` を `gh api` + jq で読み `normal`（Important 件数）> 0 で CI を落とす。行が無ければ判定なし。コメントコマンド（`@claude review` / `always` / `once`）は新規トップレベルコメントの先頭・write 以上の権限・PR open・bot 不可。👀 は起動保証にならず check run「Code review queued...」で確認。同一コミットで実行中なら二重起動しない。ドラフトはコメントで要求可だがプッシュは `always` 後も対象外（ready で購読有効）。フォークは自動レビューされず `always` も購読にならず Re-run も効かない（write 権限はベースリポジトリ）。GitHub Action と併用時は `trigger_phrase` を変える — ext-162 / ext-242 / ext-243 / ext-245
+- code-review-setup: Owner が Admin settings > Claude Code で Allow code review → GitHub 接続 → GitHub App（権限セットはレビューの用途より広く他機能と共有）→ リポジトリ選択。新規リポジトリの Review runs 初期値は After every push。レベルは Quick / Standard（既定）/ Deep を組織で 1 つ選びリポジトリごとに上書き — ext-160 / ext-241
+- code-review-local: レベル未指定時は以前（別セッションでも）入力した `low`〜`max` を再利用（`Reusing high effort, the level you typed last time`）。`-p` で渡したレベルは記憶を更新せず、`ultra` は記憶を使わず更新もしない。未入力ならセッションの effort（v2.1.223 より前は常にセッションの effort）。`--max-findings n|all|default`（v2.1.288+、findings ツール経由は上限 32、`-p` の値は記憶されない）。GitLab MR への `--comment` は `glab` CLI 経由（v2.1.257+、無ければターミナル表示）。裸の番号・ブランチ名を MR とみなすのは origin が gitlab.com のときだけで、セルフマネージドは URL か `!123` — cmd-138 / cmd-139
+- code-review-troubleshooting: 予算メッセージ「⚠️ Code review skipped」3 種（monthly code review spending cap / no extra usage available / too low to start another review）。回復後は `@claude review` で再要求。中断セッションは 1 回自動再試行、failed / timed out は `@claude review` か Checks タブの Re-run（フォーク不可） — ext-244
+- vs-code: 比較表で MCP サーバー設定は CLI・拡張機能とも Yes（チャットパネルの `/mcp` で管理。旧「部分対応」）。`!` Bash ショートカットと Tab 補完は CLI 限定のまま。チャットパネル（v2.1.285+）の診断ツールは `mcp__claude-vscode__getDiagnostics` として hooks / 権限ルールに見える — tool-089 / tool-083
+- ultrareview: `/review` は `/code-review` の別名、`/ultrareview` は `/code-review ultra` の別名。ローカルレビューはバックグラウンドのサブエージェント（v2.1.218+） — cmd-118
+- hooks / hooks-guide: 非ゼロ終了コード（2 以外）は「既定では」非ブロッキング。`onFailure: "block"` のフックと Git Bash の無い Windows は例外 — ext-037 / ext-131
+- errors: ECONNREFUSED のメッセージは v2.1.227+ で `Connection refused - a firewall or proxy may be blocking it (ConnectionRefused)`（旧 `Unable to connect to API (ECONNREFUSED)` は未知コードのみ）。停止したローカルプロキシを指す `ANTHROPIC_BASE_URL` の残りも原因になる — bp-087
+- desktop: 複数リポジトリの追加は「選択中のリポジトリの横の + ボタン」（旧「リポジトリピル」の語は docs に無い） — ses-115
+- sessions / costs / prompt-caching: Pro / Max の「Resume from a summary」ダイアログ（1 時間超・100k トークン超のセッション再開時に /compact を提案）の記述は削除。依存する問題は無し
+- network-config: バイトレベル watchdog は直接 API で 180 秒、Claude Platform on AWS・Bedrock・Claude apps gateway・カスタム `ANTHROPIC_BASE_URL` では 300 秒（旧: feature flag 取得の有無で 180/300）。body idle timeout はヘッダ待ちも数える。`API_TIMEOUT_MS` はヘッダ待ちの上限 — 依存問題なし
+- permissions: MCP ルールのサーバー名は `.` やスペースが `_` になる（`my.server` → `mcp__my_server__*`）。プラグイン提供は `mcp__plugin_<plugin>_<server>__*`。`__` を含む・`_` で終わるサーバー名はワイルドカード形で書く。plan mode では `PreToolUse` の `allow` も `tool.check` の mod も読み取り専用でない呼び出しを承認できない（ExitPlanMode を除く。`updatedInput` は適用される） — 依存問題なし（新規候補）
+- mcp: `/mcp` の接続状態は `connected` / `failed` の文字ではなくチェックマーク / ✘ で表示。Anthropic ホストの一部 MCP サーバーの説明は全文が Claude に届く — 依存問題なし
+- artifacts: Manual / acceptEdits で承認が要る artifact ファイルへの小さな変更は公開前に確認（Artifact の allow ルールがあっても）。`Also makes 1 edit to that file on disk.` の文は公開と編集を一度に行う印。`CLAUDE_CODE_ARTIFACT_PUBLISH_EDITS=0`（v2.1.300+）で分離。feature-flag 取得オフ時の「初回公開前に確認」行は削除 — 依存問題なし
+- cloud / routines: ネットワークシークレットは「Anthropic ホスト環境」で利用可（旧「Pro と Max のみ、Team / Enterprise は未対応」は削除）。CMEK 組織はクラウドセッション・Code Review・ultrareview を使えない。ダイアログ名は「Edit cloud environment」 — 依存問題なし
+- checkpointing / skills: 他のサブエージェント（バックグラウンドのフォークスキル、バックグラウンドの `/code-review --fix`）の編集は、会話内で Claude が既に編集していたファイルだけ `/rewind` で戻り、それ以外は git で戻す（旧「一切戻らない」） — 依存問題なし
+- sub-agents / agent-teams / model-config: サブエージェント frontmatter に `autoCompactWindow`（100,000〜1,000,000、v2.1.296+。`CLAUDE_CODE_AUTO_COMPACT_WINDOW` が優先、`--agent` では無効、split-pane のチームメイトは無視）。未知のモデル ID は起動時警告 + 200K 想定 — 依存問題なし
+- scheduled-tasks: `CronList` と `CronCreate` の行に `next run 10:21 AM` のような次回実行時刻（v2.1.299+）。`/loop` の待機は一発タスクとして一覧され、:00 / :30 は少し早く動き得る — 依存問題なし
+- interactive-mode: vim の `%` 括弧ジャンプと `d%` / `c%` / `y%`（v2.1.301+） — 依存問題なし（新規候補）
+- remote-control: `--sandbox` / `--no-sandbox` は v2.1.300 で削除（渡すとエラー終了）。env-vars: `CLAUDE_CODE_DISABLE_FILE_MENTIONS` の記述が common-workflows にも追加 — 依存問題なし
+
+
+## 2026-10-17 quality-loop 第29回（docs 内容差分 0 件。第28回で未カバーと判明した新概念 5 問を追加）
+
+- hooks: `onFailure`（`"continue"` 既定 / `"block"`、`command` と `http` フック、v2.1.295+）。ほとんどのイベントでフックの失敗・タイムアウトはアクションを止めないので、パス誤りのポリシーフックは素通りになる。Git Bash の無い Windows ではシェル形式の `PreToolUse` / `PermissionRequest` が未設定でもブロックし得る — ext-246
+- permissions: plan mode では `ExitPlanMode` 以外の読み取り専用でない呼び出しにフックの `"allow"` が効かない（`updatedInput` は適用）。`tool.check` mod も承認不可・ブロックは可。プラン承認か別モードで解除 — ses-268
+- sub-agents: `autoCompactWindow` は 100000〜1000000 の整数。frontmatter の `200k` は 200 と読まれ範囲外で無視（`claude --debug` の `invalid autoCompactWindow`）。継承ウィンドウ以上の値・`--agent` 実行・`CLAUDE_CODE_AUTO_COMPACT_WINDOW` 設定時は効かない — skill-095
+- permissions: MCP ルールの `<server>` はツール名に現れる形（`my.server` → `mcp__my_server__*`、プラグインは `mcp__plugin_<plugin>_<server>__*`、`__` を含む名前はワイルドカード形）— ses-269
+- skills: 複数スキルの連ね書きはターミナルのプロンプトのみ（最初＋最大 5）。Agent SDK / `claude -p` は最初のスキルだけ読み込み残りは引数 — skill-096

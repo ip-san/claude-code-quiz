@@ -91,7 +91,7 @@ npx biome check src/ mcp/ scripts/ 2>&1
 新規・変更された正規表現に対して、意図したパターンがマッチするか手動確認。
 
 ```bash
-git diff HEAD~1 | grep '^+.*match\|^+.*RegExp\|^+.*\/.*\/' | grep -v '^\+\+\+'
+git diff HEAD~1 | command grep -E '^\+.*(match|RegExp|/.*/)' | command grep -Fv -- '+++'
 ```
 
 **過去の事例:** `.env` パーサーの `[A-Z_]+` が `GA4_PROPERTY_ID` の数字 `4` にマッチしなかった。
@@ -271,7 +271,7 @@ grep -c "フォールバック\|fallback\|利用不可\|利用できない" docs
 コンポーネント内に直書きされた日本語文字列を検出。`src/config/locales/ja.ts` の locale 定義を使用すべき。
 
 ```bash
-grep -rn "'[^']*[\u3040-\u9FFF][^']*'" src/components/ --include='*.tsx' | grep -v 'locale\.' | grep -v '\.test\.' | grep -v '// ' | grep -v 'className'
+command grep -rn "'[^']*[ぁ-んァ-ヶ一-龯][^']*'" src/components/ --include='*.tsx' | command grep -v 'locale\.' | command grep -v '\.test\.' | command grep -v '// ' | command grep -v 'className'
 ```
 
 **判定:** `locale.*` を経由せず直書きされた日本語がコンポーネントの JSX やプロパティにあれば NG。テーマ固有文字列（`theme.*`）経由は OK。

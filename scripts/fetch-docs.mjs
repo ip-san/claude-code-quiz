@@ -33,6 +33,8 @@ const DOCS_DIR = resolve(ROOT, '.claude/tmp/docs')
 
 // Cache validity: 24 hours
 const CACHE_TTL_MS = 24 * 60 * 60 * 1000
+// 取得時の最小本文長と --status の [EMPTY] 判定を同じ閾値にそろえる（ultraplan のような短い案内ページは正常）
+const MIN_CONTENT_CHARS = 256
 
 /**
  * Clean up Jina Reader markdown output.
@@ -366,7 +368,7 @@ function assembleDocContent(category, pageNames) {
   }
 
   if (parts.length === 0) {
-    console.error('No content found. Check that docs are cached (npm run docs:fetch).')
+    console.error('No content found. Check that docs are cached (bun run docs:fetch).')
     process.exit(1)
   }
 
@@ -460,7 +462,7 @@ async function fetchPage(page, force = false) {
         if (direct) markdown = direct
       }
 
-      if (markdown.length < 100) {
+      if (markdown.length < MIN_CONTENT_CHARS) {
         throw new Error(`Content too small (${markdown.length} chars) - likely failed to render`)
       }
 
@@ -484,7 +486,7 @@ function showStatus() {
   console.log(`TTL: ${CACHE_TTL_MS / 1000 / 60 / 60}h\n`)
 
   if (!existsSync(DOCS_DIR)) {
-    console.log('Cache directory does not exist. Run `npm run docs:fetch` first.')
+    console.log('Cache directory does not exist. Run `bun run docs:fetch` first.')
     return
   }
 
@@ -503,7 +505,7 @@ function showStatus() {
       const ageMs = now - stat.mtimeMs
       const ageH = (ageMs / 1000 / 60 / 60).toFixed(1)
       const sizeKB = (stat.size / 1024).toFixed(1)
-      if (stat.size < 1024) {
+      if (stat.size < MIN_CONTENT_CHARS) {
         console.log(`  [EMPTY]   ${page.name} -- ${sizeKB}KB (too small, refetch needed)`)
         missing++
       } else if (ageMs < CACHE_TTL_MS) {

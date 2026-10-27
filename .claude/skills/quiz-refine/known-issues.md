@@ -965,6 +965,41 @@ doc 全面更新（45ページ）で 810 問全件が target 化、pre-lint で 
 
 - 同日 2 回目のループ。第26回の `verify:save`（12:31）から 40 分後でも `--force` 再取得で 8 ページ・104 行の差分（interactive-mode の You should know 新節 54 行が大半）があった。docs は日内でも更新されるので `--force` を既定にする判断は正しい
 - 8 ページ・11KB のハンクは判定層 1 体がキーワード一致（you-should-know / suspect capture / unprocessable / Auto-edited / DISABLE_FILE_MENTIONS / exit 0）→ 候補 13 問の全文確認で 10 分以内に照合できた。矛盾 0。既存問題が無い新概念は「追従」ではなく「追加」（ステップ2）として扱う
-- `docs:status` の `[EMPTY] ultraplan (0.9KB, too small)` は偽陽性。ページは「Ultraplan is no longer available」の短い案内で正常。ses-183 / ses-184 は削除済みであることを問う構成で整合。fetch スクリプトの最小サイズ判定を下げるか除外リストに入れるのは別タスク
+- `docs:status` の `[EMPTY] ultraplan (0.9KB, too small)` は偽陽性だった。ページは「Ultraplan is no longer available」の短い案内で正常。ses-183 / ses-184 は削除済みであることを問う構成で整合。同日に `fetch-docs.mjs` の取得時最小長と `--status` の判定を `MIN_CONTENT_CHARS = 256` に統一して解消
 - 新規作成時の選択肢長: 正解を「コマンド + 条件」の 2 文にすると 120 字前後になり、不正解側を同等以上に伸ばす必要が出る。先に不正解を書いてから正解を削る方が速い（今回 3 問で TOO LONG → 修正）
-- `quiz:post-add` は `check-diagram-text` を含まないため、flow の `text`+`sub` 分割違反（15 字超の text がかな・漢字で終わり sub がかな・漢字で始まる）は `check:all` まで検出されない。新規 flow は `sub` を使わず `text` に括弧で畳む（第26回 ses-120 と同じ形）か、追加直後に `node scripts/quiz-utils.mjs check-diagram-text` を単独で回す
+- `quiz:post-add` が `check-diagram-text` を含まず、flow の `text`+`sub` 分割違反（15 字超の text がかな・漢字で終わり sub がかな・漢字で始まる）が `check:all` まで検出されなかった。同日に post-add へ `check-diagram-text` を追加して解消。新規 flow は `sub` を使わず `text` に括弧で畳む（第26回 ses-120 と同じ形）のが安全
+- self-review SKILL.md のチェック 4・18 を同日に修正（チェック 4 は `command grep -E` + `-Fv -- '+++'`、チェック 18 は `\u` エスケープをリテラル文字クラス `[ぁ-んァ-ヶ一-龯]` に置換。BSD grep / ugrep の両方で動作確認済み）。quality-loop SKILL.md のステップ 3 も `fetch-docs.mjs --force` を既定に変更
+- 第24回・第27回で追加した 12 問に practical / trivia タグが未付与だった（分類パイプラインが追加後に回っていない）。Haiku 分類 → `apply-practicality-tags.mjs` で 8 問にタグ付与（trivia 7 / practical 1、neutral 4 は無タグ）。問題追加後は `classify-quiz-practicality.mjs --ids <新規ID>` → apply を post-add の後に回す
+
+
+## 2026-10-17 quality-loop 第28回
+
+- 3 日ぶりの `--force` 再取得で 73 ページ・325KB・参照 634 問の差分。大きいページ 27 件（code-review / vs-code / desktop / errors / hooks / plugins-mods-* / sub-agents / skills 等）は quiz-verifier（Sonnet）7 体に分割し、ハンクを `.claude/tmp/hunks/<page>.md`、ページ→問題 ID 対応を `.claude/tmp/hunks/_pages.json` に置いて渡した。残り 43 ページ（62KB・403 問）は判定層がキーワード一致で照合（矛盾 0）。合計 約 10 分
+- **エージェントの最終報告は 16,000 字で切れる。** 7 体中 4 体が全文欠落した。JSON を `.claude/tmp/verify_<group>.json` に書き出させて集約するのが確実（最初からプロンプトに書く）。ListAgents で idle 表示でも完了通知が届かないことがあるので、通知待ちではなくファイルの存在をポーリングする
+- **ページ分割の検出**: 1 ページが 400 行減り同日に同名プレフィックスの新ページが 6 件増えたら分割。該当問題は referenceUrl を新ページのアンカーへ移す。アンカーは英語見出しのスラッグ（小文字・非英数を `-`）で、`REVIEW\.md` のエスケープは除いてから変換。アポストロフィを含む見出し（`didn't`）はスラッグが不安定なのでアンカーなしで参照
+- **不正解が事実化するパターン（critical）**: ext-157 の「REVIEW.md はサブディレクトリごとに配置できる」は作成時は偽だったが docs 改訂で真になった。「現時点で未対応」を不正解の根拠にした選択肢は改訂で正解化しやすいので、作成時は「仕組み上あり得ない」種類の誤り（例: PR 自身の変更から読む）を選ぶ
+- **数値目安の消滅（major）**: ext-161 の「平均 $15-25/レビュー」は docs から消え「固定価格なし」に。第26回の教訓（数値を正解にしない）の再確認。UI 名称の変更（Extended Reasoning → Why this was flagged、Extra Usage → usage credits）は問題文・選択肢・wrongFeedback・ダイアグラム・hierarchy.sub の全箇所に波及するので deepReplace で置換し、旧名が 0 件になることをアサートする
+- 新規ページを referenceUrl に使うと `quizContentQuality.test.ts` の `VALID_DOC_PAGES` に追加が必要（`docs:discover` は topic-config.mjs だけ更新する）。post-add の vitest で `unknown page` として検出される
+- ダイアグラムの flow / hierarchy に UI 文字列を入れるとき、docs の `queued...` のような末尾 `...` をそのまま写すと `check-ellipsis` に引っかかる。「queued」のように省略記号を落として書く
+- 既存問題の選択肢長違反（ext-158: 正解 40 > 不正解最大 38）は `quiz:check` では検出されない。修正スクリプトで触れた問題は同時に長さも揃える
+
+
+## 2026-10-17 quality-loop 第29回
+
+- 第28回から 3.5 時間後で docs 差分 0。差分ゼロのループは pre-lint + quiz:check の決定論的チェックに留め、前回の検証エージェントが `coverageGaps` に挙げた新概念を問題追加の入力にした（5 問）。検証エージェントのプロンプトに「新事実を扱う既存問題が無ければ coverageGaps に列挙」を入れておくと、次ループのステップ2がそのまま使える
+- **解説で条件を逆に書いた（major、検証で検出）**: skill-095 で docs の「The value isn't below the window」を「継承ウィンドウより小さいか確認」と書いてしまった。否定形の docs 文（isn't below / doesn't match）を日本語にするときは、ダイアグラムと解説で同じ向きになっているかを書いた直後に照合する。自作問題でも第三者検証は省かない
+- アンカー検証は見出しスラッグだけでなく `<a id="...">` も対象にする（sub-agents の `#subagent-auto-compact-window` は h5 見出しの前に置かれた id）
+
+
+## 2026-10-27 quality-loop 第30回
+
+- **取得形式の変化で全ページが差分扱いになった**: 10 日ぶりの `--force` 再取得で `docs:changes` が 174/175 ページ・参照 1062 問を報告。原因の大半は docs 側の Markdown 出力の変化（リンクが `https://code.claude.com/docs/en/<page>.md` の絶対 URL、`<Note>` が `> [!NOTE]`、Mintlify のインタラクティブ部品 `export const X = () => {...}` が本文から消えた）。リンク URL・callout 記法・HTML タグ・JSX ブロックを除いて正規化してから diff すると 163 ページ・8,767 行に縮み、実質差分だけが残った。ベースラインは新形式で保存し直したので次回からは素の `docs:changes` で足りるが、形式が再び変わったら同じ正規化を先にかける（スクリプトは scratchpad で作った使い捨て。常用するなら `docs-changes.mjs` に取り込む）
+- **部品にしか無い事実は「削除」と判定しない**: context-window / prompt-library / claude-directory は部品の `desc` 文字列に事実が入っていた。キャッシュから消えても docs から消えたとは限らない
+- **横断変更は検証前にリードが特定して全エージェントに配る**: 今回は routine → 「スケジュールタスク（旧称ルーティン）」改称、`default` → Manual 表記、v2.1.283 以降の auto mode 既定開始、best-practices 全面改稿の 4 つ。日本語 docs の訳語（`curl -sL https://code.claude.com/docs/ja/<page>.md`）を先に確認して表記を決めると、修正がグループ間で揃う。「ルーティング」は「ルーティン」を含むので残存チェックの正規表現は `ルーティン(?!グ)` にする
+- **critical 3 件はすべて「仕様が条件付きになった」型**: tool-049（Claude が編集済みのファイルなら後続の Bash 変更も /rewind で戻る）、ses-253（project のクラウド thread はリポジトリの `.claude/skills/` を読まない）、mem-019（IMPORTANT / 全大文字は「やめてよいこと」）。「X は追跡されない」「X は読み込まれる」のような断定を正解にした問題は、改訂で条件が付くと正解が逆転する
+- **quiz-verifier の 30 ターン上限**: 9 体中 7 体が上限で停止した。プロンプトに「途中結果を先に `partial: true` で書き出し、Bash 1 回で複数 ID をまとめて読む」と最初から書いておく。上限で止まったら SendMessage で再開すれば続きから完走する
+- **修正は判定層にパッチ仕様（JSON）だけ書かせ、適用はリードが 1 回で行う**: 3 体並列でも quizzes.json の競合が起きない。適用スクリプトで wrongFeedback の有無・`{{diagram:N}}` の数・旧名称の残存をアサートしてから書き込む
+- **エージェントの自己チェックは本体のチェッカーの代わりにならない**: session 群の修正担当と新規問題担当はどちらも「diagram-text 確認済み」と報告したが、適用後の `check-diagram-text` で flow の text/sub 分割違反が 11 件出た（15 字超の text がかな・漢字で終わり、sub がかな・漢字で始まる）。sub を括弧で text に畳んで解消。パッチ適用後は必ず `quiz:post-add` を回す
+- **GA4 が 10/18 以降 0 件（ボット含む）**: デプロイ済みバンドルに GTM ID はあり、同じビルドで 10/14〜17 は計測できていたので、アプリ側の退行ではない。GTM コンテナ／GA4 ストリーム側の確認が必要
+- **minor / info も同じパッチ方式で処理できる**: 42 問を判定層 2 体に渡し、33 問修正・9 問変更なし。「正解は変えない。変えるべきなら escalate」と縛っておくと minor パスで正解が動かない。bp-114 は checkpointing 改訂の影響を minor 側で拾えた（前提を「Claude が編集していないファイル」に絞った）
+- **選択肢長ルールは quiz:check の対象外のまま**: 「正解 > 不正解の最大」は HEAD で 247 問、第30回後で 224 問（差の中央値 3 字、1.3 倍以上は 0）。pre-lint の「平均の 2 倍」基準には掛からない。一括で直すなら別タスクとして quiz:check に検査を足してから段階的に

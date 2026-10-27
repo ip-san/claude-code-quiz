@@ -29,7 +29,7 @@
     "check:all": "bun run check:parallel && type-coverage --strict --at-least 99 --ignore-files '**/*.test.*' && node scripts/quiz-utils.mjs check && node scripts/quiz-utils.mjs check-ellipsis && node scripts/quiz-utils.mjs check-diagram-text && node scripts/validate-docs.mjs && node scripts/validate-docs-links.mjs && bun run cpd",
     "docs:links": "node scripts/validate-docs-links.mjs",
     "docs:validate": "node scripts/validate-docs.mjs",
-    "quiz:post-add": "node scripts/quiz-utils.mjs randomize && node scripts/quiz-utils.mjs check && node scripts/quiz-utils.mjs check-ellipsis && vitest run && node scripts/quiz-utils.mjs stats",
+    "quiz:post-add": "node scripts/quiz-utils.mjs randomize && node scripts/quiz-utils.mjs check && node scripts/quiz-utils.mjs check-ellipsis && node scripts/quiz-utils.mjs check-diagram-text && vitest run && node scripts/quiz-utils.mjs stats",
     "recommend": "node scripts/recommend.mjs",
     "setup:hooks": "node scripts/setup-hooks.mjs",
     "test": "vitest run",

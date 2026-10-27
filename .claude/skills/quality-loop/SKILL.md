@@ -169,7 +169,7 @@ drift を検出したら、`docs/verified-facts.md` と個人メモリの早見�
 ### 逐次モード
 
 1. `bun run docs:discover` で新規ドキュメントページを検出し、`topic-config.mjs` に追加
-2. `bun run docs:fetch` で期限切れキャッシュをリフレッシュ（rate limit 時はスキップ）
+2. `node scripts/fetch-docs.mjs --force` で全ページを再取得（rate limit 時はスキップ）。docs は日内でも更新されるため TTL 24h の `docs:fetch` では差分を取りこぼす
    - **`bun run docs:changes`** で前回 `verify:save` 時点からの内容差分（ページ別の変更行数・参照問題数）を確認する。`verify:diff` はハッシュ比較のため日次再取得で全ページが変更扱いになりやすい。差分が小さい場合は `docs:changes --hunks` を判定層エージェント1体に渡し、影響問題だけを修正するのが効率的
 3. `/quiz-refine --full` スキルを実行する（フルスキャンモード）
 4. ステップ2で追加した問題も含めて全問スキャンされる
@@ -179,7 +179,7 @@ drift を検出したら、`docs/verified-facts.md` と個人メモリの早見�
 `--team` 指定時、カテゴリ別に検証エージェントを並列起動する:
 
 **前処理（逐次）:**
-1. `bun run docs:discover && bun run docs:fetch` を実行
+1. `bun run docs:discover && node scripts/fetch-docs.mjs --force` を実行
 2. `bun run verify:diff` で検証対象を抽出
 3. **決定論的 lint 前処理** を実行:
    ```bash
