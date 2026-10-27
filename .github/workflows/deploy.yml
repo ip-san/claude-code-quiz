@@ -43,16 +43,21 @@ jobs:
   # E2E against a fresh build of this commit. Visual Regression snapshots are
   # macOS-only (*-darwin.png), so CI runs the functional and a11y projects and
   # visual stays in the local `bun run test:e2e`.
+  # The Playwright image ships the OS deps and browsers, so no apt step: on the
+  # bare runner `playwright install --with-deps` once took 7 min on a slow mirror.
+  # Keep the tag equal to @playwright/test in bun.lock.
   e2e:
     needs: check
     runs-on: ubuntu-latest
+    container:
+      image: mcr.microsoft.com/playwright:v1.63.0-noble
     steps:
       - uses: actions/checkout@v6
-      - uses: oven-sh/setup-bun@v2
-        with:
-          bun-version: latest
+      # setup-bun needs unzip, which the image may lack; npm is bundled
+      - run: npm install -g bun
       - run: bun install --frozen-lockfile
-      - run: bunx playwright install --with-deps chromium
+      # No-op while the image tag matches; downloads only the browser if they drift
+      - run: bunx playwright install chromium
       # No VITE_GTM_ID: E2E must never send events to production GA4
       - run: bun run build:web
       - run: bunx playwright test --project=chromium --project=a11y
