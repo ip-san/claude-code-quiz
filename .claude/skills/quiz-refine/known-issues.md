@@ -1011,3 +1011,33 @@ doc 全面更新（45ページ）で 810 問全件が target 化、pre-lint で 
 - **GA4 の数字の多くは自分たちの E2E だった**: `initGTM()` に自動化ブラウザの除外が無く、ローカル `.env` の本番 GTM ID でビルドしたプレビューに対する Playwright（iPhone / iPad などの端末エミュレーション）が本番 GA4 に送信していた。リアルタイムが浦添市の mobile / tablet だけだったことと、ループの E2E 時刻（10/14・10/17）に日次データが集中していたことで判明。`navigator.webdriver === true` で `isAnalyticsEnabled` を false にして解消（修正前の本番に同じプローブを当てると GA 通信 4 件、修正後 0 件）。過去の GA4 分析（ボット 99% 等）はこの汚染を含む前提で読む
 - **E2E は古いビルドを検証していた**: `test:e2e` はビルドせず `dist-web/` を配信するため、手元の古いビルドに対して通っていた（6/24 に撮り直した iPhone SE のウェルカム画面スナップショットにも「668問」「はじめる」の旧 UI が写っていた）。`test:e2e` を `build:web && playwright test` に変更し、iPhone SE の welcome 2 枚を現行 UI で撮り直した。CI は E2E を実行していない
 - **validate-docs の除外指定が効いていなかった**: テスト数スキャンが `stripIgnoredLines` を通しておらず、`--fix` の `replaceAll` も除外行を書き換えていた（verified-facts の凍結記録「1099テスト」が 1102 に置換された）。スキャンと `--fix` の両方で除外行を飛ばすよう修正
+
+
+## 2026-10-28 quality-loop 第32回
+
+- docs 差分は 54 ページ・約 600 行。判定層（Fable）2 体に `docs:changes --hunks` を渡し、修正担当（パッチ仕様 fix32_A.json）と新規問題担当（new32.json）に分けると 1 回で完走する。修正担当が見つけた未出題の概念を SendMessage で新規問題担当に渡すと、両者の判断がそろう
+- **「Before vX.Y.Z」の履歴削除は直さない**: worktrees / permissions / hooks / skills / sub-agents など約 20 ページで版履歴の文が消えたが、現行の事実は変わらず changelog にも残るので keep にする
+- **UI パスの改名は選択肢・wrongFeedback・解説・図の `filepath` / `sub` の全部に波及する**: Desktop の設定は「**Settings > Code** または **Settings > Claude Code**」、Keep computer awake は「Settings > Desktop app または Settings > This computer > System」。ja docs も英語ラベルのまま書くので、その形にそろえる（ses-111 / ses-112 / ses-119 / bp-053 / ext-177）
+- **「どのモードでも自動承認されない」が条件付きになった**: 重要パスの `rm` は v2.1.311 以降、起動環境の `CLAUDE_CODE_EVEN_MORE_DANGEROUSLY_SKIP_PERMISSIONS=1` で `bypassPermissions` に限りプロンプトを外せる（設定ファイルの `env` では無効）。第30回と同じ「断定が条件付きになる」型。cmd-041 は正解を変えずに解説へ追記した
+- **changelog にだけ載った変更は出題・修正しない**: subagent の `autoCompactWindow` が `CLAUDE_CODE_AUTO_COMPACT_WINDOW` を下げられるようになった件（changelog 2.1.312）は sub-agents.md L1191 と矛盾する。機能ページが更新されたら skill-095 の解説最終文と図を見直す。hook の並列上限（24/12）、「5-hour limit」の表記（bp-087）も同様の監視項目
+- **randomize は全問の選択肢を並べ替える**: 6 問追加でも quizzes.json の差分は約 12,000 行になり、既存 827 問の correctIndex が動く。毎回の挙動なので異常ではない
+
+
+## 2026-10-31 quality-loop 第33回
+
+- docs 差分 64 ページ・hunks 268KB。修正担当をページで 2 体（A/B）に分け、新規問題担当 1 体と並列にした。担当外のページの指摘はリード経由で持ち主に回すと重複しにくいが、それでも cmd-111 は A・B の両方がパッチを書いた（A は env-vars / errors の参照から `/restart` に気付いた）。**適用前に fix*_*.json 間の ID 重複を確認する**（適用スクリプトは後のグループで黙って上書きする）
+- **「存在しないコマンド」型の不正解が実在化した（第28回と同型）**: `/restart`（別名 `/update`、commands L131）が追加され、cmd-111 の wrongFeedback「`/restart` というコマンドは存在しません」が誤りになった。正解（`/clear`）は不変。不正解には「将来ありそうなコマンド名」より「仕組み上ありえない動作」を使う。`存在しません` を含む wrongFeedback は commands.md の表と機械的に突き合わせられる
+- **数値の変化は wrongFeedback と図の sub に潜む**: `/ultrareview` の所要時間 15〜25 分 → 5〜15 分（cmd-118）、project の 1 日の新規 thread 上限 200 → 500（ses-255）。正解選択肢だけでなく不正解の解説と図も数値で grep する
+- **`auto` が 2 つの意味を持つ**: `/effort auto` は保存済みのレベルを消す（model-config L689）、`CLAUDE_CODE_EFFORT_LEVEL=auto`（または `unset`）はレベルを送らず API の既定に任せる（L714-724）。ses-045 / ses-102 が「モデル既定にリセット」と混同していた。skill の `effort` は「現在のターンの残り」だけに効く（skills L405、skill-061）
+- **断定が条件付きになった（第30・32回と同型）**: Fast モードの Console でのアクセス提供は Opus 5 / Opus 4.8 だけに必要（ses-117）。web へのテレポートで compact 済みのメッセージはコピーされない（cmd-102）
+- skill-095（`autoCompactWindow`）は sub-agents.md L1191 が未更新のため今回も keep
+
+
+## 2026-11-04 quality-loop 第34回
+
+- **docs の .md でタブの書き方が変わった**: `**macOS/Linux**` の見出しが `> [tab] macOS/Linux` になり、タブの中身が引用（`> `）で囲まれた。`docs:changes` は 104 ページ・820KB の差分を出したが、引用の記号を外して `[tab] X` を `**X**` に読み替える正規化で 90 ページ・1,518 行に減った（scratchpad の `norm-diff34.mjs`）。第30回の書式変更と同型。差分が急に増えたら、まず書式の変化を疑う
+- **プラン改名が全体に波及した**: Max 20x → Ultra、Max 5x → Max（feature-availability L245-247）。「Pro と Max」の列挙は ja docs に合わせて「Pro、Max、Ultra」にする。24 問が該当した。第30回のルーティン改名と同じく、**全体に関わる改名はリードが 1 体の担当に一本化**し、適用スクリプトで旧名の残存をアサートする（`apply-fix34.mjs` の `planRe`。説明のための「旧称 Max 20x」は除外）。列挙に 1 語足すと、図の hierarchy の 40 字制限と「正解が最長にならない」に引っかかりやすい
+- **UI の改名は図の列にも残る**: Slack の **Retry as Code** / **Change Repo** ボタンが無くなり、完了通知はスレッドのメッセージ更新と DM になった（ext-125 / ext-141）。「存在しません」の否定形と同じく、もう無いボタン名を正解や図に書いた問題は改名で古くなる
+- **日付つきの廃止は先回りして消さない**: Opus 4.8 の fast モードは 2026-10-30 に廃止予告、2026-11-30 に削除。今の docs にはまだ載っているので、ses-108 / key-051 には移行の注記だけ足した。**11/30 以降に ses-108 / ses-116 / ses-117 / ses-118 / key-051 から Opus 4.8 を外す**
+- `*.md` は場所を問わずマッチし、`/*.md` はプロジェクトのルートだけ（memory L205-223）。以前の表では `*.md` がルートだけだった。mem-106 で出題
+- 図のラベルが `...` で終わる UI 名（**Switch to code repo...** など）は check-ellipsis に引っかかる。解説には正確な名前を書き、図の見出しでは点を落とす
