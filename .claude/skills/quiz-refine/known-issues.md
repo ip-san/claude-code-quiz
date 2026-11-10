@@ -1041,3 +1041,17 @@ doc 全面更新（45ページ）で 810 問全件が target 化、pre-lint で 
 - **日付つきの廃止は先回りして消さない**: Opus 4.8 の fast モードは 2026-10-30 に廃止予告、2026-11-30 に削除。今の docs にはまだ載っているので、ses-108 / key-051 には移行の注記だけ足した。**11/30 以降に ses-108 / ses-116 / ses-117 / ses-118 / key-051 から Opus 4.8 を外す**
 - `*.md` は場所を問わずマッチし、`/*.md` はプロジェクトのルートだけ（memory L205-223）。以前の表では `*.md` がルートだけだった。mem-106 で出題
 - 図のラベルが `...` で終わる UI 名（**Switch to code repo...** など）は check-ellipsis に引っかかる。解説には正確な名前を書き、図の見出しでは点を落とす
+
+
+## 2026-11-10 quality-loop 第35回
+
+- docs 差分 96 ページ・正規化後 2,110 行。第34回の正規化スクリプトは scratchpad と一緒に消えていたので `.claude/tmp/norm-diff.mjs` に置き直した。**回をまたいで使うスクリプトは scratchpad に置かない**
+- **新モデルの追加は列挙に波及する**: Fable 5.2（v2.1.321）で、Fable 列挙・既定 effort が `medium` のモデル・advisor の表・`best` エイリアス（`opus` と同じ解決先になった、bp-117）を持つ 15 問が古くなった。列挙は「Fable 5.2 / Fable 5.1 / Fable 5」に統一。横断的な列挙の更新は B の単独担当にし、A は fast-mode 系 5 問だけに限定した。それでも ext-041 / ext-151 は両方がパッチを書いたので、**担当の宣言を受けたらリードが相手に伝え、適用前に ID 重複を機械的に確認する**
+- **列挙に 1 つ足すと、もともと抜けていた項目が見つかる**: 検証で cmd-006 / skill-061 / bp-018 の effort・thinking 対応モデルの列挙から Haiku 5.5 が抜けていた（model-config L623、L773）。列挙を直すときは docs の表と全項目を突き合わせる。cmd-104 の誤答「Haiku を含む」は Haiku 5.5 が対応しているので「Haiku 4.5 を含む」にした
+- **「〜専用」の断定は対応モデルの追加で崩れる**: Fast モードは Fable 5.2 にも対応し（$16/$80）、ses-108 の正解「Opus 専用」が誤りになった。Fable 5.2 では Fable 5.2 上で `/fast` したときだけ有効で、`fastMode: true` だけでは効かない（ses-282 で出題）
+- **正解が逆転した**: mods の `agent.spawn` は v2.1.299 以降、再開でも `e.resume` 付きで走り `{ deny }` で拒否できる（plugins-mods-reference L161-169）。「再開では走らないので `tool.call` で止める」が正解だった ext-238 を全面的に書き換えた。「Before vX」の注記が新設されたときは、旧挙動を正解にした問題を探す
+- **docs の手順が全面改訂された問題は作り直す**: 上限到達時の挙動（ses-256）は **Service is busy** / **Stop** が消え、**Auto-continue when usage limits reset** が新設された
+- **誤答が条件つきで成り立つようになった**: Anthropic が組織の設定を必須にできるようになり、mem-042 の誤答「取得に失敗すると起動できない」が成り立つ場合ができた。問題文を既定の構成に限定した。key-048（`Ctrl+R`）もフルスクリーンではダイアログになるので、問題文にクラシックレンダリングと明記した
+- **日付つきの廃止（継続）**: fast-mode L17 はまだ「will be removed on November 30, 2026」。**11/30 以降に ses-108 / ses-116 / ses-117 / ses-118 / key-051 から Opus 4.8 を外す**。skill-095 は sub-agents L1197 が未更新で keep、bp-087 も差分なしで keep
+- mem-058 / mem-063 / mem-075 は正解が同じ「`/context all` の Memory files を確認」の言い換えになっている。次回、1 問を別の手順を問う形に差し替える候補
+- 次回の新規問題候補: v2.1.318 以降は統合ターミナルで起動しても IDE 拡張が入らない、`--bare` では `--settings` の hooks も走らない、`Bash` の deny / ask ルールと Monitor の WebSocket 監視、worktree のサブディレクトリでの `index.lock` エラー、エージェントチームのパーミッションモード、auto mode での `updatedInput` 拒否、Desktop のモード記憶と `defaultMode` の優先関係、MCP の allow ルールに specifier を付けると一致しない
