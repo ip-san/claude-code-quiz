@@ -34934,7 +34934,7 @@
       "options": [
         {
           "text": "より小さなモデル（Haiku 等）に自動的に切り替えて応答速度を上げ、その分トークン単価も下がる",
-          "wrongFeedback": "Fast モードは小さいモデルに切り替える機能ではありません。同じモデル（Fable 5.2 / Opus 5.5 / Opus 5 / Opus 4.8）を高速な API 構成で実行します（非対応モデルから有効化すると Opus に切り替わります）。"
+          "wrongFeedback": "Fast モードは小さいモデルに切り替える機能ではありません。同じモデル（Fable 5.2 / Opus 5.5 / Opus 5）を高速な API 構成で実行します（非対応モデルから有効化すると Opus に切り替わります）。"
         },
         {
           "text": "拡張思考（アダプティブ推論）を無効化して応答速度を上げる（エフォートレベルを low にするのと同等）",
@@ -34949,7 +34949,7 @@
         }
       ],
       "correctIndex": 3,
-      "explanation": "Fast モードは対応モデルを高速な API 構成で動かす機能で、モデルも品質も同じまま最大 2.5 倍高速に応答します（対応モデルは Fable 5.2 / Opus 5.5 / Opus 5 / Opus 4.8。Fable 5.2 での利用は Claude Code v2.1.321 以降）。Sonnet / Haiku など非対応モデルで有効化すると自動的に Opus に切り替わります（v2.1.280 以降の切替先の既定は Opus 5.5）。Fable 5.2 で使うには、Fable 5.2 を選んだ状態で `/fast` を実行します。別のモデルでオンにした Fast モードは、Fable 5.2 に切り替えるとオフになります。Opus 4.7 は非対応で、Opus 4.7 に切り替えると Fast モードはオフになります。なお Opus 4.8 の Fast モードは 2026年10月30日に非推奨となり、2026年11月30日に削除される予定です。その日以降も Opus 4.8 で Fast モードをオンにしたままだと API がリクエストを拒否するため、それまでに `/model` で Opus 5.5 に切り替える（Fast モードはオンのまま維持される）か、`/fast off` で Opus 4.8 を標準速度で使います。\n\n{{diagram:0}}\n\nCLI では `/fast` コマンド（または `Option+O` / `Alt+O`）でトグルでき、VS Code 拡張にも対応モデル選択時に「Toggle fast mode」コマンドがあります。トークン単価は標準速度より高く、Fable 5.2 で入力 $16 / 出力 $80 per MTok、Opus 5.5 で $8 / $40、Opus 5 / Opus 4.8 で $10 / $50 です。\n{{diagram:1}}",
+      "explanation": "Fast モードは対応モデルを高速な API 構成で動かす機能で、モデルも品質も同じまま最大 2.5 倍高速に応答します（対応モデルは Fable 5.2 / Opus 5.5 / Opus 5。Fable 5.2 での利用は Claude Code v2.1.321 以降）。Sonnet / Haiku など非対応モデルで有効化すると自動的に Opus に切り替わります（v2.1.280 以降の切替先の既定は Opus 5.5）。Fable 5.2 で使うには、Fable 5.2 を選んだ状態で `/fast` を実行します。別のモデルでオンにした Fast モードは、Fable 5.2 に切り替えるとオフになります。Opus 4.7 は非対応で、Opus 4.7 に切り替えると Fast モードはオフになります。なお Opus 4.8 の Fast モードは 2026年10月30日に非推奨となり、2026年11月30日で削除されます。削除後に Opus 4.8 で Fast モードをオンにしたままだと API がリクエストを拒否するため、`/model` で Opus 5.5 に切り替える（Fast モードはオンのまま維持される）か、`/fast off` で Opus 4.8 を標準速度で使います。\n\n{{diagram:0}}\n\nCLI では `/fast` コマンド（または `Option+O` / `Alt+O`）でトグルでき、VS Code 拡張にも対応モデル選択時に「Toggle fast mode」コマンドがあります。トークン単価は標準速度より高く、Fable 5.2 で入力 $16 / 出力 $80 per MTok、Opus 5.5 で $8 / $40、Opus 5 で $10 / $50 です。\n{{diagram:1}}",
       "referenceUrl": "https://code.claude.com/docs/ja/fast-mode",
       "diagrams": [
         {
@@ -34967,7 +34967,7 @@
               "heading": "Fast モード",
               "items": [
                 "最大 2.5 倍高速・品質は同等",
-                "Fable 5.2 / Opus 5.5 / Opus 5 / Opus 4.8 で利用可"
+                "Fable 5.2 / Opus 5.5 / Opus 5 で利用可"
               ]
             }
           ]
@@ -34977,7 +34977,7 @@
           "label": "Fast モードの注意点",
           "steps": [
             {
-              "text": "対応モデルの高速 API 構成（Fable 5.2 / Opus 5.5 / 5 / 4.8）"
+              "text": "対応モデルの高速 API 構成（Fable 5.2 / Opus 5.5 / Opus 5）"
             },
             {
               "text": "非対応モデルからは Opus に自動切替。",
@@ -38812,7 +38812,7 @@
         },
         {
           "text": "Fast モードはサブスクリプションに含まれており追加料金なしで利用できる",
-          "wrongFeedback": "Fast モード（Fable 5.2 / Opus 5.5 / Opus 5 / Opus 4.8 対応）は標準速度より高いトークン単価で、1M コンテキスト全体でフラットです（Fable 5.2: 入力 $16 / 出力 $80 per MTok、Opus 5.5: $8 / $40、Opus 5 / Opus 4.8: $10 / $50）。サブスクリプションプランでは含有使用量ではなく usage credits から課金されます。"
+          "wrongFeedback": "Fast モード（Fable 5.2 / Opus 5.5 / Opus 5 対応）は標準速度より高いトークン単価で、1M コンテキスト全体でフラットです（Fable 5.2: 入力 $16 / 出力 $80 per MTok、Opus 5.5: $8 / $40、Opus 5: $10 / $50）。サブスクリプションプランでは含有使用量ではなく usage credits から課金されます。"
         },
         {
           "text": "有効にした時点以降の入出力トークンのみに Fast モード料金が適用される（差分のみ）",
@@ -38890,7 +38890,7 @@
         },
         {
           "text": "Haiku モデルを使用している場合（Fast モードは上位モデルのみ対応）",
-          "wrongFeedback": "Fast モードは Fable 5.2 / Opus 5.5 / Opus 5 / Opus 4.8 でサポートされます。非対応モデルの使用中に有効化すると自動的に Opus に切り替わるため（v2.1.280 以降の既定は Opus 5.5）、Haiku 使用中でも有効化自体は可能です。使用できないのはサードパーティクラウドプロバイダー（Bedrock、Google Cloud's Agent Platform、Foundry）経由のアクセスです。"
+          "wrongFeedback": "Fast モードは Fable 5.2 / Opus 5.5 / Opus 5 でサポートされます。非対応モデルの使用中に有効化すると自動的に Opus に切り替わるため（v2.1.280 以降の既定は Opus 5.5）、Haiku 使用中でも有効化自体は可能です。使用できないのはサードパーティクラウドプロバイダー（Bedrock、Google Cloud's Agent Platform、Foundry）経由のアクセスです。"
         },
         {
           "text": "CI/CD パイプラインでのヘッドレス実行（`--headless` フラグ使用時は Fast モードが無効化される）",
@@ -38898,7 +38898,7 @@
         }
       ],
       "correctIndex": 1,
-      "explanation": "Fast モードは Amazon Bedrock、Google Cloud's Agent Platform、Microsoft Foundry、Claude Platform on AWS では利用できません。\n\n{{diagram:0}}\n\nAnthropic Console API か、Claude サブスクリプションプランで usage credits を有効にした場合にのみ利用でき、Team / Enterprise では Owner による有効化も必要です。Console 組織が Opus 5 / Opus 4.8（research preview）で使うには Fast モードのアクセス提供も必要ですが、正式提供の Fable 5.2 / Opus 5.5 では不要で、組織の usage tier に依存します。\n{{diagram:1}}",
+      "explanation": "Fast モードは Amazon Bedrock、Google Cloud's Agent Platform、Microsoft Foundry、Claude Platform on AWS では利用できません。\n\n{{diagram:0}}\n\nAnthropic Console API か、Claude サブスクリプションプランで usage credits を有効にした場合にのみ利用でき、Team / Enterprise では Owner による有効化も必要です。Console 組織が Opus 5（research preview）で使うには Fast モードのアクセス提供も必要ですが、正式提供の Fable 5.2 / Opus 5.5 では不要で、組織の usage tier に依存します。\n{{diagram:1}}",
       "referenceUrl": "https://code.claude.com/docs/ja/fast-mode",
       "diagrams": [
         {
@@ -54609,7 +54609,7 @@
         }
       ],
       "correctIndex": 0,
-      "explanation": "{{diagram:2}}\n\n`Option+O`（macOS）/ `Alt+O`（Windows/Linux）でファストモードを切り替えられます（`/fast` コマンドと同じ効果です）。\n\n{{diagram:0}}\n\nファストモードは Fable 5.2 / Opus 5.5 / Opus 5 / Opus 4.8 に対応した高速出力設定で（Sonnet・Haiku・Opus 4.7 は非対応）、非対応モデルの使用中に有効化すると自動的に Opus へ切り替わります（v2.1.280 以降の既定は Opus 5.5）。Fable 5.2 で使うには、Fable 5.2 を選んだ状態で `/fast` を実行します。品質は同じままより速い応答が得られますが、トークン単価は標準速度より高くなります。なお Opus 4.8 の Fast モードは 2026年10月30日に非推奨となり、2026年11月30日に削除される予定です。その日以降も Opus 4.8 で Fast モードをオンにしたままだと API がリクエストを拒否するため、それまでに `/model` で Opus 5.5 に切り替える（Fast モードはオンのまま維持される）か、`/fast off` で Opus 4.8 を標準速度で使います。\n{{diagram:1}}",
+      "explanation": "{{diagram:2}}\n\n`Option+O`（macOS）/ `Alt+O`（Windows/Linux）でファストモードを切り替えられます（`/fast` コマンドと同じ効果です）。\n\n{{diagram:0}}\n\nファストモードは Fable 5.2 / Opus 5.5 / Opus 5 に対応した高速出力設定で（Sonnet・Haiku・Opus 4.7 は非対応）、非対応モデルの使用中に有効化すると自動的に Opus へ切り替わります（v2.1.280 以降の既定は Opus 5.5）。Fable 5.2 で使うには、Fable 5.2 を選んだ状態で `/fast` を実行します。品質は同じままより速い応答が得られますが、トークン単価は標準速度より高くなります。なお Opus 4.8 の Fast モードは 2026年10月30日に非推奨となり、2026年11月30日で削除されます。削除後に Opus 4.8 で Fast モードをオンにしたままだと API がリクエストを拒否するため、`/model` で Opus 5.5 に切り替える（Fast モードはオンのまま維持される）か、`/fast off` で Opus 4.8 を標準速度で使います。\n{{diagram:1}}",
       "referenceUrl": "https://code.claude.com/docs/ja/interactive-mode",
       "diagrams": [
         {
