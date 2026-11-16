@@ -1083,3 +1083,12 @@ doc 全面更新（45ページ）で 810 問全件が target 化、pre-lint で 
 - **問題文に答えを漏らさない**: ses-290 の「以前は別のクラウドプロバイダーで」、ses-291 の警告全文（`context assumed to be 1m tokens`）が正解を指していたので削った
 - Opus 4.8 の Fast モードは引き続き列挙に戻していない
 - 次回の新規問題候補: `CLAUDE_CODE_DISABLE_FEATURE_FLAGS`、`--add-dir` 先の `enabledPlugins` と `--setting-sources`、bypass 確認の再表示、self-hosted の **Revoke token**、`CLAUDE_CODE_RETRY_WATCHDOG_MAX_USAGE_LIMIT_WAIT_MS`、`classifyAllShell` が plan モードにも効く、sensitive remote targets の `prod` は単語単位、VS Code の `Subprocess initialization did not complete within 60000ms`、`CLAUDE_CODE_OVERLOADED_RETRY_MAX_DELAY_MS` の上限、`/claude-api` の `latency-optimize`、Code Mode の対応モデルと非対応プロバイダー
+
+
+## 2026-11-16 quality-loop 第38回
+
+- docs 差分ゼロ（第37回の `verify:save` 直後）。修正はなく、持ち越し候補から 12 問を追加した（1169 → 1181 問）: ses-296〜299、ext-269、ext-270、bp-141、bp-142、tool-107〜110。`/claude-api` の `latency-optimize` は skill-094 と同じ「どのサブコマンドか」の形になるので見送った
+- **docs で否定できない誤答を作らない**: tool-109 の誤答「`/model` で切り替えればその場で有効」は、docs が「変更して新しいセッションを始める」としか書いておらず否定できなかった。「新しいセッションを始める必要はない」という、docs の文で直接否定できる形に変えた
+- **例外つきの挙動では、誤答が例外側で真にならないようにする**: bp-141 の誤答「設定値の時間だけ待つ」は、usage credits に余裕がある場合の挙動と重なった。「リセットまでの時間にかかわらず必ず」を付けて区別した
+- **docs 内の食い違い**: `autoMode.classifyAllShell` は auto-mode-config（plan モード中にも効く）と settings-reference（auto モードの外ではルールが適用される）で書き方が違う。tool-107 は問題文を auto モードの設定ページの説明に限定した。どちらかが直ったら見直す
+- 持ち越し候補はこれで消化した。次回は docs 差分から拾う
