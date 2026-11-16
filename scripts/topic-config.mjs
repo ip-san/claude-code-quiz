@@ -242,6 +242,12 @@ export const DOC_PAGES = [
   { name: 'code-review-pull-requests', url: 'https://code.claude.com/docs/en/code-review-pull-requests' },
   { name: 'code-review-costs', url: 'https://code.claude.com/docs/en/code-review-costs' },
   { name: 'code-review-troubleshooting', url: 'https://code.claude.com/docs/en/code-review-troubleshooting' },
+  // Auto-discovered from llms.txt (2026-11-16)
+  {
+    name: 'claude-models-on-google-cloud-anthropic-managed',
+    url: 'https://code.claude.com/docs/en/claude-models-on-google-cloud-anthropic-managed',
+  },
+  { name: 'code-mode', url: 'https://code.claude.com/docs/en/code-mode' },
   // Agent SDK (different domain)
   { name: 'agent-sdk-overview', url: 'https://platform.claude.com/docs/en/agent-sdk/overview' },
   {

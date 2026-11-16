@@ -136,6 +136,8 @@ const VALID_DOC_PAGES = [
   'code-review-pull-requests',
   'code-review-costs',
   'code-review-troubleshooting',
+  'claude-models-on-google-cloud-anthropic-managed',
+  'code-mode',
   'troubleshooting',
   'troubleshoot-install',
   // Supplementary

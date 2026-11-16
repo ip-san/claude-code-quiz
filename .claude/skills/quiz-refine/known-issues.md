@@ -1057,3 +1057,29 @@ doc 全面更新（45ページ）で 810 問全件が target 化、pre-lint で 
 - 次回の新規問題候補: v2.1.318 以降は統合ターミナルで起動しても IDE 拡張が入らない、`--bare` では `--settings` の hooks も走らない、`Bash` の deny / ask ルールと Monitor の WebSocket 監視、worktree のサブディレクトリでの `index.lock` エラー、エージェントチームのパーミッションモード、auto mode での `updatedInput` 拒否、Desktop のモード記憶と `defaultMode` の優先関係、MCP の allow ルールに specifier を付けると一致しない
 - **追加分（2026-11-11）**: 上の候補 8 件を出題した（tool-103、cmd-146、tool-104、ses-283、skill-100、ext-261、ses-284、ext-262）。mem-063 は `includeGitInstructions` で組み込みのコミット / PR 指示との競合を解く問題に作り直し、mem-058 / mem-075 との重複を解消した。検証の指摘は「docs に無い推論を wrongFeedback で断定しない」（ses-283、ext-262）と「docs より強い『だけ』を足さない」（ses-284）。`verify:save` の後は docs-baseline が現行 docs と同じになるので、追加分の新規性は保存前の hunks で確かめる
 - **Opus 4.8 の Fast モードを先に外した（2026-11-11、ユーザー判断）**: ses-108 / ses-116 / ses-117 / key-051 の対応モデル列挙と料金から Opus 4.8 を外し、ses-108 / key-051 の解説には「2026年10月30日に非推奨、2026年11月30日で削除」の注記だけを残した（ses-118 には言及なし）。fast-mode の docs は 11/30 まで Opus 4.8 を対応モデルに載せているので、**それまでの検証で「列挙から Opus 4.8 が抜けている」と指摘されても戻さない**。11/30 以降に docs から注記が消えたら、解説の注記も削る
+
+
+## 2026-11-11 quality-loop 第36回
+
+- docs 差分 65 ページ・正規化後 611 行。修正担当 1 体と新規問題担当 1 体で足りた。10 問修正、8 問追加（1141 → 1149 問）。`agent-sdk-overview` の 160KB は docs ナビの JSON 2 行、`quickstart` は `theme={null}` の重複ノイズだった
+- **「〜では利用できません」が条件つき対応に変わった（第30・32・33回と同型）**: Fast モードは Google Cloud's Agent Platform で使えるようになった（Fable 5.2 のみ、v2.1.322 以降、region が `global` / `us` / `eu`、`/fast` は既定として保存されず、設定の `fastMode: true` は効かない）。使えないのは Bedrock / Microsoft Foundry / Claude Platform on AWS。ses-117 の正解、ses-230 / ses-199 の解説と wrongFeedback が古くなった。advisor も Claude Platform on AWS で使える（v2.1.300 以降、bp-102）。プロバイダー別の可否を書いた問題は feature-availability の表と突き合わせる
+- **docs の記述が「Anthropic API では」に限定された**: 非対応モデルで `/fast` すると Opus に切り替わる、トグルが `fastMode` に保存される、は Anthropic API の話になった（ses-108、key-051）。プロバイダーが増えると、無条件だった記述に前提が付く
+- **UI の段階・タブの改名**: cloud environment のネットワークアクセスは None / Limited / Full（Trusted / Custom は廃止、ses-225）。project のヘッダーは **Threads** / **Library** のボタンと **⋯** メニュー（ses-249）
+- **図のラベルに選択肢の記号を書かない**: 8 問（ext-178、cmd-118、bp-088、ses-186、sdk-015、ext-179、cmd-119、ses-188）の図が「選択肢D（正解）」「選択肢A」と書いていて、randomize のたびに実際の並びとずれていた。「正解」「誤答 1〜3」に置き換えた。`選択肢[A-D]` は quiz:check で機械的に弾ける
+- **docs に無い断定を足さない（継続）**: ses-285 の「`fastMode` の設定にも書き込まれない」は docs の「既定として保存されない」「`fastMode: true` は効かない」からの推論だったので、docs の表現に寄せた。ses-117 の誤答「Haiku は上位モデルのみ対応」は docs の「Haiku は非対応」と部分的に重なるので、有効化が拒否されるという明確な誤りに変えた
+- Opus 4.8 の Fast モードは引き続き列挙に戻していない（fast-mode の docs はまだ載せている）
+- 次回の新規問題候補: `CLAUDE_CODE_DISABLE_FEATURE_FLAGS`（旧 `DISABLE_GROWTHBOOK`）、`--add-dir` 先の `enabledPlugins` と `--setting-sources`、`--setting-sources` に `user` が無いと bypass の確認が再表示される、self-hosted の **Revoke token** と `--trust-workspace false`、`CLAUDE_CODE_RETRY_WATCHDOG_MAX_USAGE_LIMIT_WAIT_MS`、project のファイル上限
+
+
+## 2026-11-16 quality-loop 第37回
+
+- docs 差分 103 ページ・正規化後 2,153 行（changelog を除くと約 1,680 行）＋新規 2 ページ（`code-mode`、`claude-models-on-google-cloud-anthropic-managed`）。題材のまとまり（プロバイダー系 / 拡張系 / 設定・エラー系 / セッション・UI 系）で 4 群に分け、判定層 4 体で 26 問修正、20 問追加（1149 → 1169 問）。新規問題は仮 ID（`NEW-<群>-n`）で書かせ、リードがカテゴリから採番した
+- **新規ページは差分に出ない**: 基準が無いので norm-diff の hunks に入らない。全文を新規問題担当に渡す。referenceUrl に使うには `quizContentQuality.test.ts` の `VALID_DOC_PAGES` への追加も要る（`docs:discover` は `topic-config.mjs` しか更新しない）
+- **プロバイダーが 1 つ増えると限定列挙が全部ずれる**: Claude Models on Google Cloud（Anthropic managed）は Google Cloud's Agent Platform とは別のプロバイダー。advisor（bp-102）と WebSearch（ses-230）は使える側、Fast モード（ses-117）は使えない側に入った。「4つのプロバイダー」「〜の6つです」のように数を書いた問題（ses-031、sdk-003）は数を外した。auto モードの追加は Anthropic API と同じ側なので ses-199 は変更なし
+- **既定値の反転**: `sandbox.autoAllowBashIfSandboxed` の既定が v2.1.324 で `true` → `false`（tool-031 は正解の位置ごと変更、bp-012）。Alpine の準備は `apk add bash curl` だけになり、`libgcc` / `libstdc++` / `ripgrep` / `USE_BUILTIN_RIPGREP=0` は消えた（ses-132、cmd-101）
+- **題材が非推奨になった問題は作り直す**: プラグインルートの `settings.json`（`agent` / `subagentStatusLine`）が docs から消えた。ext-137 は通常の設定の `agent` キーを問う形にした。リモート marketplace の mod も管理設定で組織の mod になる（v2.1.324 以降、ext-234 は全面書き換え）
+- **一覧から消えただけの項目には理由を足さない**: Shift+Enter が設定なしで動く端末から Apple Terminal が外れた（key-044、key-020）。docs は Apple Terminal でどうなるかを書いていないので、一覧から外すだけにした
+- **検証の誤検出**: 検証役が ext-263 を「docs に根拠なし」と major にしたが、referenceUrl のページ（model-config L162-164）にそのまま書かれていた。別ページ（errors）だけを読んで判定していた。major 以上の指摘は、リードが referenceUrl のページを自分で grep してから反映する
+- **問題文に答えを漏らさない**: ses-290 の「以前は別のクラウドプロバイダーで」、ses-291 の警告全文（`context assumed to be 1m tokens`）が正解を指していたので削った
+- Opus 4.8 の Fast モードは引き続き列挙に戻していない
+- 次回の新規問題候補: `CLAUDE_CODE_DISABLE_FEATURE_FLAGS`、`--add-dir` 先の `enabledPlugins` と `--setting-sources`、bypass 確認の再表示、self-hosted の **Revoke token**、`CLAUDE_CODE_RETRY_WATCHDOG_MAX_USAGE_LIMIT_WAIT_MS`、`classifyAllShell` が plan モードにも効く、sensitive remote targets の `prod` は単語単位、VS Code の `Subprocess initialization did not complete within 60000ms`、`CLAUDE_CODE_OVERLOADED_RETRY_MAX_DELAY_MS` の上限、`/claude-api` の `latency-optimize`、Code Mode の対応モデルと非対応プロバイダー
