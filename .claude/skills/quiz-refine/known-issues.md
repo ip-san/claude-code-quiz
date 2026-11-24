@@ -1092,3 +1092,31 @@ doc 全面更新（45ページ）で 810 問全件が target 化、pre-lint で 
 - **例外つきの挙動では、誤答が例外側で真にならないようにする**: bp-141 の誤答「設定値の時間だけ待つ」は、usage credits に余裕がある場合の挙動と重なった。「リセットまでの時間にかかわらず必ず」を付けて区別した
 - **docs 内の食い違い**: `autoMode.classifyAllShell` は auto-mode-config（plan モード中にも効く）と settings-reference（auto モードの外ではルールが適用される）で書き方が違う。tool-107 は問題文を auto モードの設定ページの説明に限定した。どちらかが直ったら見直す
 - 持ち越し候補はこれで消化した。次回は docs 差分から拾う
+
+
+## 2026-11-18 quality-loop 第40回
+
+- docs 差分 81 ページ・正規化後 1,386 行（changelog を除くと約 830 行）、新規ページなし。第37回と同じ 4 群に分けて判定層 4 体（Fable が使えず Opus）で確認し、16 問修正、18 問追加（1181 → 1199 問）: ses-300〜305、ext-271〜275、tool-111〜117
+- **正解ごと消えた手順**: エフェメラル CI ランナー向けの `CLAUDE_CODE_OAUTH_REFRESH_TOKEN` + `CLAUDE_CODE_OAUTH_SCOPES` が self-hosted-environments-testing から削除された。docs は「長期 CI トークンは現状ない、長期稼働する CI ホストから `claude -p`」と案内する（ses-241 は正解を差し替え）
+- **断定が弱まった記述に合わせる**: `"$defaults"` を省くと組み込みルールを「置き換える」が「置き換えることがある」になった（ses-186）。glossary の「配列はすべてマージ」も「ほとんどのリスト」に弱まった。docs が弱めた断定を問題に残さない
+- **バージョン条件が付いた**: 未認識モデル ID を 1M とみなすのは v2.1.323 以降（それ以前は 200K、ses-291）。Shift+Enter が設定なしで動くのは Windows Terminal 1.25 以降（key-044、key-020）。exit 2 と `continue: false` を同時に返すと Stop / SubagentStop では `continue: false` が勝つ（ext-018）
+- **UI の改名**: Desktop の「Walk through in diff」→「Walk through in Changes」（bp-053）、分析ダッシュボードの Adoption / Pull requests チャート → Users / Sessions と PRs with Claude Code（bp-058）、ループ停止は「空のプロンプトで Esc」（cmd-140）、Skill の管理場所は `claude.ai/customize/skills/yours`（skill-093）
+- **検証の誤検出（継続）**: 検証役が ses-201 の「`system` を 1 つの文字列に結合」の wrongFeedback を major にしたが、llm-gateway-protocol L187 に「文字列に変換すると strip が効かずブロックがモデルとキャッシュキーに届く」とそのまま書かれていた（L189 の「配列要素内での結合」と取り違え）。major はリードが該当ページを読んでから反映する
+- **問題文と設定例のずれ**: mem-088 は問題文のディレクトリが `archive/photos [2024/`、パターンが `photos [2024/**` で、`[` 以外にも不一致の原因があるように読めた。問題文をパターンに合わせた
+- **判定役が報告後にファイルを書き換える**: D 群が転送分を受けて new40_D.json を差し替えたが、リードはすでに適用済みだった。差し替え分は ses-305 として追加し、元の問題（ses-304）も残した。転送を出したら、適用前にその群の完了を待つ
+- `classifyAllShell` の docs 不一致（auto-mode-config vs settings-reference）は未解消。tool-107 は現状維持
+- 次回の新規問題候補: Setup フックは command だけに対応、`claude -p` では MCP リソースの @ メンションが文字列のまま、plugin uninstall で mcpb の展開ファイルも消える、artifacts の Docs / Sheets テンプレートには Claude Docs コネクターが必要
+
+
+## 2026-11-24 quality-loop 第41回
+
+- docs 差分 136 ページ・正規化後 3,173 行（changelog を除くと約 2,500 行）＋新規 16 ページ（Approvals 7、PR Steward 5、`claude-ship` / `ship-command` / `ship-command-troubleshooting`、`share-sessions`）。差分 6 群（大きい拡張系と UI 系を分割）＋新規ページ 2 群の判定層 8 体（Fable）で、53 問修正、20 問追加（1199 → 1219 問）。新規は 22 問届き、根拠が別ページと食い違いうる 1 問（`--bare` の権限ルール）と細かい数値の 1 問を落とした
+- **新規ページは VALID_DOC_PAGES に先に足しておく**: 16 ページを判定役の起動前に登録したので、post-add で `unknown page` が出なかった。プラグイン系の referenceUrl は `plugins/loading` の形（既存と同じ）
+- **節が新規ページへ丸ごと移る**: セッション共有が claude-code-on-the-web から `share-sessions` に移った（ses-148 は referenceUrl ごと付け替え）。Code Review の設定場所は **Organization settings > Claude Ship**（ext-160、ext-161、bp-132、ext-241）。新しい製品ページができると、既存ページの記述は 1 行のリンクに縮む
+- **正解の根拠が消えたら作り直す**: skill-078（新規 skills ディレクトリを監視しない、が消えた → `/reload-skills` を問う形）、cmd-097（Docker のハングの原因説明が消えた → 対処を問う形）、ses-253（Project settings > Plugins が消えた → `claude.ai/customize/plugins`）
+- **限定条件を問題文に足す**: key-033 は Apple Terminal（macOS 26 以前）だけ `/terminal-setup` が Option as Meta を有効にするので、問題文を VS Code の統合ターミナルに限定した。ses-148 はリポジトリアクセスが要るのはクラウドセッションだけなので、問題文に「クラウドセッション」を足した
+- **同じ問題に複数群がパッチを書く**: 転送した事実を受けた群と、もともと referenceUrl を持つ群が同じ ID を直した（skill-093、ses-296、ses-148）。適用前に ID の重複を機械的に洗い出し、内容が広いほうを 1 つだけ残した。判定役が報告後に自分のファイルを書き直して、リードが外したパッチが戻ることもある（第40回と同型）ので、適用直前にもう一度重複を確認する
+- **作業スクリプトの名前の衝突**: 判定役が同じ一時ディレクトリに同名の grep スクリプト（`g.mjs`）を置き、別の群の結果が混ざった時間帯があった。次回は共通指示に「スクリプト名に群の文字を付ける」と書く
+- **docs が弱めた断定（継続）**: クラウドセッションで VM 実行されるのは「既定ではシェルコマンドとファイル編集」（bp-063）。Managed 設定のテレメトリは「確実に収集される」とは言えず、開発者が信号を無効化できる（bp-065）。`defaultMode` には `manual`（`default` の別名）もある（ses-027）
+- `classifyAllShell` の docs 不一致は未解消。tool-107 は現状維持
+- 次回の新規問題候補: `plugin.json` の `network.hosts`（宣言だけ、v2.1.328）、`claude plugin restore-set-aside`、mod の新イベント `tool.judge` / `tool.run` / `session.stop`、`CLAUDE_CODE_SUBAGENT_EFFORT`、`loginExpiresAt`、Approvals / PR Steward / ship の残りの節（approvals-troubleshooting、pr-steward-setup、ship-command-troubleshooting）、ステータスラインの最大幅（`COLUMNS - 4`）

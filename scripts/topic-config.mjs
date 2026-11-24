@@ -248,6 +248,23 @@ export const DOC_PAGES = [
     url: 'https://code.claude.com/docs/en/claude-models-on-google-cloud-anthropic-managed',
   },
   { name: 'code-mode', url: 'https://code.claude.com/docs/en/code-mode' },
+  // Auto-discovered from llms.txt (2026-11-24)
+  { name: 'share-sessions', url: 'https://code.claude.com/docs/en/share-sessions' },
+  { name: 'claude-ship', url: 'https://code.claude.com/docs/en/claude-ship' },
+  { name: 'pr-steward', url: 'https://code.claude.com/docs/en/pr-steward' },
+  { name: 'pr-steward-setup', url: 'https://code.claude.com/docs/en/pr-steward-setup' },
+  { name: 'pr-steward-pull-requests', url: 'https://code.claude.com/docs/en/pr-steward-pull-requests' },
+  { name: 'pr-steward-security', url: 'https://code.claude.com/docs/en/pr-steward-security' },
+  { name: 'pr-steward-troubleshooting', url: 'https://code.claude.com/docs/en/pr-steward-troubleshooting' },
+  { name: 'approvals', url: 'https://code.claude.com/docs/en/approvals' },
+  { name: 'approvals-setup', url: 'https://code.claude.com/docs/en/approvals-setup' },
+  { name: 'approvals-pull-requests', url: 'https://code.claude.com/docs/en/approvals-pull-requests' },
+  { name: 'approvals-github-rules', url: 'https://code.claude.com/docs/en/approvals-github-rules' },
+  { name: 'approvals-policy', url: 'https://code.claude.com/docs/en/approvals-policy' },
+  { name: 'approvals-classifiers', url: 'https://code.claude.com/docs/en/approvals-classifiers' },
+  { name: 'approvals-troubleshooting', url: 'https://code.claude.com/docs/en/approvals-troubleshooting' },
+  { name: 'ship-command', url: 'https://code.claude.com/docs/en/ship-command' },
+  { name: 'ship-command-troubleshooting', url: 'https://code.claude.com/docs/en/ship-command-troubleshooting' },
   // Agent SDK (different domain)
   { name: 'agent-sdk-overview', url: 'https://platform.claude.com/docs/en/agent-sdk/overview' },
   {
