@@ -1120,3 +1120,11 @@ doc 全面更新（45ページ）で 810 問全件が target 化、pre-lint で 
 - **docs が弱めた断定（継続）**: クラウドセッションで VM 実行されるのは「既定ではシェルコマンドとファイル編集」（bp-063）。Managed 設定のテレメトリは「確実に収集される」とは言えず、開発者が信号を無効化できる（bp-065）。`defaultMode` には `manual`（`default` の別名）もある（ses-027）
 - `classifyAllShell` の docs 不一致は未解消。tool-107 は現状維持
 - 次回の新規問題候補: `plugin.json` の `network.hosts`（宣言だけ、v2.1.328）、`claude plugin restore-set-aside`、mod の新イベント `tool.judge` / `tool.run` / `session.stop`、`CLAUDE_CODE_SUBAGENT_EFFORT`、`loginExpiresAt`、Approvals / PR Steward / ship の残りの節（approvals-troubleshooting、pr-steward-setup、ship-command-troubleshooting）、ステータスラインの最大幅（`COLUMNS - 4`）
+
+
+## 2026-11-24 quality-loop 第42回
+
+- docs 差分は agent-sdk-overview のサイト設定 JSON 1 行だけ（本文の変更なし）。修正はなく、第40回・第41回の持ち越し候補から 10 問を追加した（1219 → 1229 問）: ext-286〜291、cmd-151、cmd-152、skill-102、bp-143
+- **根拠が 1 文だけの問題は、誤答をその 1 文の範囲で否定する**: ext-288（`claude -p` では MCP リソースのメンションがプレーンテキストのまま）は mcp.md の 1 文が根拠。「`--mcp-config` を使ったときだけ」という条件付きの誤答は docs が直接否定していないので、wrongFeedback を「docs は条件を付けずに説明しており、指定方法で変わるという記述はない」に寄せた
+- 見送った候補: mod の `tool.judge` / `tool.run` / `session.stop`（表に 1 行ずつしかなく暗記になる）、`loginExpiresAt`（行動を問うと ses-308 と重なる）、ステータスラインの最大幅（細かい数値）
+- 持ち越し候補はこれで消化した。次回は docs 差分から拾う
